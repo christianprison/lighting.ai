@@ -8,7 +8,6 @@ import sys
 from pathlib import Path
 
 from kivy.app import App
-from kivy.uix.screenmanager import ScreenManager
 from kivy.config import Config
 
 # Lokale Module
@@ -21,10 +20,7 @@ from beat_detection import BeatDetector
 from song_recognition import SongRecognizer
 
 # GUI-Module
-from gui.main_screen import MainScreen
-from gui.maintenance_screen import MaintenanceScreen
-from gui.probe_screen import ProbeScreen
-from gui.show_screen import ShowScreen
+from gui.main_view import MainView
 
 # Logging konfigurieren
 logging.basicConfig(
@@ -39,8 +35,8 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Kivy-Konfiguration
-Config.set('graphics', 'width', '1280')
-Config.set('graphics', 'height', '720')
+Config.set('graphics', 'width', '2560')  # Verdoppelt für bessere Lesbarkeit
+Config.set('graphics', 'height', '1440')  # Verdoppelt für bessere Lesbarkeit
 Config.set('graphics', 'resizable', '1')
 
 
@@ -63,28 +59,19 @@ class LightingApp(App):
         self.song_recognizer: SongRecognizer = None
         
         # GUI
-        self.screen_manager = None
+        self.main_view = None
     
     def build(self):
         """Erstellt die Hauptanwendung"""
         logger.info("Starte lighting.ai")
         
-        # Erstelle Screen Manager
-        self.screen_manager = ScreenManager()
-        
-        # Füge Screens hinzu
-        self.screen_manager.add_widget(MainScreen())
-        self.screen_manager.add_widget(MaintenanceScreen())
-        self.screen_manager.add_widget(ProbeScreen())
-        self.screen_manager.add_widget(ShowScreen())
-        
-        # Starte mit Hauptbildschirm
-        self.screen_manager.current = "main"
+        # Erstelle MainView (oben Input-Monitor, unten Tabs)
+        self.main_view = MainView(database=self.database)
         
         # Initialisiere Komponenten (noch nicht aktiv)
         self._initialize_components()
         
-        return self.screen_manager
+        return self.main_view
     
     def _initialize_components(self):
         """Initialisiert Hardware- und Analyse-Komponenten (lazy loading)"""
@@ -92,15 +79,18 @@ class LightingApp(App):
         logger.info("Komponenten initialisiert (bereit für Aktivierung)")
     
     def switch_to_mode_screen(self, mode: OperationMode):
-        """Wechselt zum Bildschirm für den ausgewählten Modus"""
+        """Wechselt zum Tab für den ausgewählten Modus"""
+        if not self.main_view or not hasattr(self.main_view, 'tabs'):
+            return
+        
         if mode == OperationMode.MAINTENANCE:
-            self.screen_manager.current = "maintenance"
+            self.main_view.tabs.switch_to(self.main_view.tabs.tab_list[0])
             self._start_maintenance_mode()
         elif mode == OperationMode.PROBE:
-            self.screen_manager.current = "probe"
+            self.main_view.tabs.switch_to(self.main_view.tabs.tab_list[1])
             self._start_probe_mode()
         elif mode == OperationMode.SHOW:
-            self.screen_manager.current = "show"
+            self.main_view.tabs.switch_to(self.main_view.tabs.tab_list[2])
             self._start_show_mode()
     
     def _start_maintenance_mode(self):
@@ -160,6 +150,10 @@ class LightingApp(App):
         # Update Song-Recognizer
         if self.song_recognizer:
             self.song_recognizer.update_meters(meter_values)
+        
+        # Update Input-Monitor (ist permanent sichtbar)
+        if self.main_view:
+            self.main_view.update_meters(meter_values)
     
     def _on_beat_detected(self, beat_time: float):
         """Callback für erkannte Beats"""

@@ -102,11 +102,85 @@ class Database:
             )
         """)
         
+        # Tabelle für Kanalzuordnungen (Instrument -> OSC-Kanal)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS channel_mapping (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                instrument_name TEXT NOT NULL UNIQUE,
+                channel_index INTEGER NOT NULL,  -- OSC-Kanal-Index (0-17 für XR18)
+                display_name TEXT NOT NULL,  -- Anzeigename
+                musician_name TEXT,  -- Musiker (Axel, Pete, Tim, Bibo)
+                position INTEGER,  -- Position von links (1-4)
+                icon_path TEXT,  -- Pfad zum Icon-Bild
+                color_r REAL DEFAULT 0.5,  -- Farbe RGB (0-1)
+                color_g REAL DEFAULT 0.5,
+                color_b REAL DEFAULT 0.5,
+                -- Position auf Hintergrundbild (relativ 0.0-1.0 oder absolut in Pixel)
+                bg_pos_x REAL,  -- X-Position auf Hintergrundbild (0.0-1.0 für Prozent, >1 für Pixel)
+                bg_pos_y REAL,  -- Y-Position auf Hintergrundbild (0.0-1.0 für Prozent, >1 für Pixel)
+                icon_width REAL,  -- Breite des Icons (relativ 0.0-1.0 oder absolut)
+                icon_height REAL,  -- Höhe des Icons (relativ 0.0-1.0 oder absolut)
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        
+        # Migration: Füge neue Spalten hinzu falls sie fehlen
+        try:
+            cursor.execute("ALTER TABLE channel_mapping ADD COLUMN musician_name TEXT")
+        except sqlite3.OperationalError:
+            pass  # Spalte existiert bereits
+        
+        try:
+            cursor.execute("ALTER TABLE channel_mapping ADD COLUMN position INTEGER")
+        except sqlite3.OperationalError:
+            pass  # Spalte existiert bereits
+        
+        try:
+            cursor.execute("ALTER TABLE channel_mapping ADD COLUMN icon_path TEXT")
+        except sqlite3.OperationalError:
+            pass  # Spalte existiert bereits
+        
+        try:
+            cursor.execute("ALTER TABLE channel_mapping ADD COLUMN bg_pos_x REAL")
+        except sqlite3.OperationalError:
+            pass  # Spalte existiert bereits
+        
+        try:
+            cursor.execute("ALTER TABLE channel_mapping ADD COLUMN bg_pos_y REAL")
+        except sqlite3.OperationalError:
+            pass  # Spalte existiert bereits
+        
+        try:
+            cursor.execute("ALTER TABLE channel_mapping ADD COLUMN icon_width REAL")
+        except sqlite3.OperationalError:
+            pass  # Spalte existiert bereits
+        
+        try:
+            cursor.execute("ALTER TABLE channel_mapping ADD COLUMN icon_height REAL")
+        except sqlite3.OperationalError:
+            pass  # Spalte existiert bereits
+        
         # Indizes für bessere Performance
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_song_ref_song_id ON song_reference_data(song_id)")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_song_ref_timestamp ON song_reference_data(timestamp)")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_song_parts_song_id ON song_parts(song_id)")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_light_programs_song_id ON light_programs(song_id)")
+        
+        # Initialisiere Standard-Kanalzuordnungen falls Tabelle leer ist
+        # ODER wenn alle Einträge keine musician_name haben (alte Datenbank)
+        cursor.execute("SELECT COUNT(*) as count FROM channel_mapping")
+        count = cursor.fetchone()['count']
+        
+        if count == 0:
+            self._initialize_default_channel_mappings(cursor)
+        else:
+            # Prüfe ob Migration nötig ist (alle musician_name sind NULL)
+            cursor.execute("SELECT COUNT(*) as count FROM channel_mapping WHERE musician_name IS NULL")
+            null_count = cursor.fetchone()['count']
+            if null_count == count:
+                # Alle Einträge haben keine musician_name - lösche und neu initialisieren
+                cursor.execute("DELETE FROM channel_mapping")
+                self._initialize_default_channel_mappings(cursor)
         
         self.conn.commit()
         logger.info(f"Datenbank initialisiert: {self.db_path}")
@@ -324,6 +398,124 @@ class Database:
             data['songs_order'] = json.loads(data['songs_order'])
             result.append(data)
         return result
+    
+    def _initialize_default_channel_mappings(self, cursor):
+        """Initialisiert Standard-Kanalzuordnungen nach Bandaufstellung"""
+        # v.l.n.r.: Axel (1), Pete (2), Tim (3), Bibo (4)
+        # Axel: Lead-Gitarre (8), Gesang Gitarrist (12)
+        # Pete: Lead-Gesang (10), Rhythmusgitarre (9)
+        # Tim: Drums (0-6)
+        # Bibo: Bass (7), Gesang Bassist (11), Synthesizer (13)
+        
+        default_mappings = [
+            # Tim (Position 3) - Drums
+            ("bassdrum", 0, "Bassdrum", "Tim", 3, None, 0.8, 0.2, 0.2),
+            ("snare", 1, "Snare Drum", "Tim", 3, None, 0.2, 0.8, 0.2),
+            ("tom1", 2, "Tom 1", "Tim", 3, None, 0.6, 0.6, 0.2),
+            ("tom2", 3, "Tom 2", "Tim", 3, None, 0.6, 0.4, 0.2),
+            ("tom3", 4, "Tom 3", "Tim", 3, None, 0.4, 0.6, 0.2),
+            ("overhead1", 5, "Becken Overhead 1", "Tim", 3, None, 0.4, 0.4, 0.8),
+            ("overhead2", 6, "Becken Overhead 2", "Tim", 3, None, 0.3, 0.3, 0.9),
+            # Bibo (Position 4) - Bass/Gesang/Synth
+            ("bass", 7, "Bassgitarre", "Bibo", 4, None, 0.2, 0.8, 0.8),
+            ("vocals_bassist", 11, "Gesang Bassist", "Bibo", 4, None, 0.8, 0.8, 0.5),
+            ("synthesizer", 13, "Synthesizer", "Bibo", 4, None, 0.6, 0.2, 0.9),
+            # Axel (Position 1) - Lead-Gitarre/Gesang
+            ("lead_guitar", 8, "Lead-Gitarre", "Axel", 1, None, 0.8, 0.4, 0.2),
+            ("vocals_guitarist", 12, "Gesang Gitarrist", "Axel", 1, None, 0.9, 0.7, 0.3),
+            # Pete (Position 2) - Lead-Gesang/Gitarre
+            ("vocals_frontman", 10, "Gesang Frontman", "Pete", 2, None, 0.9, 0.9, 0.3),
+            ("rhythm_guitar", 9, "Rhythmusgitarre", "Pete", 2, None, 0.8, 0.6, 0.2),
+        ]
+        
+        for inst_name, ch_idx, display_name, musician, position, icon_path, r, g, b in default_mappings:
+            cursor.execute("""
+                INSERT INTO channel_mapping 
+                (instrument_name, channel_index, display_name, musician_name, position, icon_path, color_r, color_g, color_b)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (inst_name, ch_idx, display_name, musician, position, icon_path, r, g, b))
+    
+    # Kanalzuordnungen
+    def get_channel_mapping(self, instrument_name: str) -> Optional[Dict]:
+        """Gibt die Kanalzuordnung für ein Instrument zurück"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT * FROM channel_mapping WHERE instrument_name = ?
+        """, (instrument_name,))
+        row = cursor.fetchone()
+        if row:
+            result = dict(row)
+            result['color'] = (result['color_r'], result['color_g'], result['color_b'])
+            return result
+        return None
+    
+    def get_all_channel_mappings(self) -> List[Dict]:
+        """Gibt alle Kanalzuordnungen zurück, sortiert nach Position und Musiker"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT * FROM channel_mapping 
+            ORDER BY position, musician_name, channel_index
+        """)
+        rows = cursor.fetchall()
+        result = []
+        for row in rows:
+            data = dict(row)
+            data['color'] = (data['color_r'], data['color_g'], data['color_b'])
+            result.append(data)
+        return result
+    
+    def update_channel_mapping(self, instrument_name: str, channel_index: int = None,
+                              display_name: str = None, color: tuple = None,
+                              icon_path: str = None, bg_pos_x: float = None,
+                              bg_pos_y: float = None, icon_width: float = None,
+                              icon_height: float = None):
+        """Aktualisiert eine Kanalzuordnung"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        updates = []
+        values = []
+        
+        if channel_index is not None:
+            updates.append("channel_index = ?")
+            values.append(channel_index)
+        if display_name is not None:
+            updates.append("display_name = ?")
+            values.append(display_name)
+        if color is not None:
+            updates.append("color_r = ?")
+            updates.append("color_g = ?")
+            updates.append("color_b = ?")
+            values.extend(color)
+        if icon_path is not None:
+            updates.append("icon_path = ?")
+            values.append(icon_path)
+        if bg_pos_x is not None:
+            updates.append("bg_pos_x = ?")
+            values.append(bg_pos_x)
+        if bg_pos_y is not None:
+            updates.append("bg_pos_y = ?")
+            values.append(bg_pos_y)
+        if icon_width is not None:
+            updates.append("icon_width = ?")
+            values.append(icon_width)
+        if icon_height is not None:
+            updates.append("icon_height = ?")
+            values.append(icon_height)
+        
+        if not updates:
+            return
+        
+        updates.append("updated_at = CURRENT_TIMESTAMP")
+        values.append(instrument_name)
+        
+        set_clause = ", ".join(updates)
+        cursor.execute(f"""
+            UPDATE channel_mapping SET {set_clause} WHERE instrument_name = ?
+        """, values)
+        conn.commit()
     
     def close(self):
         """Schließt die Datenbankverbindung"""

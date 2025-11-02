@@ -2,7 +2,7 @@
 Song-Erkennung basierend auf Meter-Values-Vergleich mit Referenzdaten
 """
 import logging
-from typing import List, Dict, Optional, Tuple
+from typing import List, Dict, Optional, Tuple, Callable
 from collections import deque
 import time
 import numpy as np

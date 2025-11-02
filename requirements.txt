@@ -1,0 +1,15 @@
+# Core Dependencies
+kivy>=2.2.0
+python-osc>=1.8.1
+pyartnet>=0.10.0
+
+# Audio Processing & Analysis
+numpy>=1.24.0
+scipy>=1.10.0
+
+# Database
+# SQLite is included in Python standard library
+
+# Utilities
+python-dateutil>=2.8.2
+

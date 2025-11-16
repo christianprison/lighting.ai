@@ -21,7 +21,6 @@ ARTNET_BROADCAST_IP = "255.255.255.255"  # Broadcast für alle Geräte
 ARTNET_PORT = 6454
 ARTNET_UNIVERSES = 20  # Anzahl der Universen
 
-# WLAN-Konfiguration
 REQUIRED_WLAN_SSID = "PACT"  # SSID die im Show-Modus erwartet wird
 
 # Beat Detection

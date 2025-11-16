@@ -6,6 +6,7 @@ pyartnet>=0.10.0
 # Audio Processing & Analysis
 numpy>=1.24.0
 scipy>=1.10.0
+pygame>=2.5.0  # Für Audio-Wiedergabe
 
 # Vector Similarity / Approximate Nearest Neighbors
 annoy>=1.17.3

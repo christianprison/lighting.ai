@@ -63,9 +63,31 @@ class Database:
                 part_name TEXT NOT NULL,  -- "verse", "chorus", "bridge", etc.
                 start_segment INTEGER NOT NULL,
                 end_segment INTEGER NOT NULL,
+                start_ms INTEGER,  -- Startzeit in Millisekunden
+                end_ms INTEGER,  -- Endzeit in Millisekunden
+                duration_ms INTEGER,  -- Dauer in Millisekunden
+                bars INTEGER,  -- Anzahl der Takte
                 FOREIGN KEY (song_id) REFERENCES songs(id) ON DELETE CASCADE
             )
         """)
+        
+        # Migration: Füge neue Spalten hinzu, falls sie nicht existieren
+        try:
+            cursor.execute("ALTER TABLE song_parts ADD COLUMN start_ms INTEGER")
+        except sqlite3.OperationalError:
+            pass  # Spalte existiert bereits
+        try:
+            cursor.execute("ALTER TABLE song_parts ADD COLUMN end_ms INTEGER")
+        except sqlite3.OperationalError:
+            pass
+        try:
+            cursor.execute("ALTER TABLE song_parts ADD COLUMN duration_ms INTEGER")
+        except sqlite3.OperationalError:
+            pass
+        try:
+            cursor.execute("ALTER TABLE song_parts ADD COLUMN bars INTEGER")
+        except sqlite3.OperationalError:
+            pass
         
         # Tabelle für Licht-Programme (DMX-Werte pro Segment)
         cursor.execute("""
@@ -135,6 +157,39 @@ class Database:
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
+
+        # Tabelle für Audiofiles (1:n zu Songs)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS audio_files (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                song_id INTEGER NOT NULL,
+                audio_data BLOB NOT NULL,     -- Audiodatei als BLOB gespeichert
+                file_name TEXT,               -- ursprünglicher Dateiname (nur für Referenz)
+                song_part TEXT,               -- optional: zugehöriger Songteil (Verse, Chorus, ...)
+                start_sec REAL,               -- optional: Startzeit im Audio (für Segment-Nutzung)
+                end_sec REAL,                 -- optional: Endzeit im Audio
+                recording_date TEXT,          -- ISO-Datum der Aufnahme
+                notes TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (song_id) REFERENCES songs(id) ON DELETE CASCADE
+            )
+        """)
+        
+        # Migration: Füge audio_data BLOB hinzu, falls nicht vorhanden
+        try:
+            cursor.execute("ALTER TABLE audio_files ADD COLUMN audio_data BLOB")
+        except sqlite3.OperationalError:
+            pass  # Spalte existiert bereits
+        
+        # Migration: Füge file_name hinzu, falls nicht vorhanden
+        try:
+            cursor.execute("ALTER TABLE audio_files ADD COLUMN file_name TEXT")
+        except sqlite3.OperationalError:
+            pass
+        
+        # Migration: Entferne NOT NULL Constraint von file_path, falls vorhanden
+        # (SQLite unterstützt kein ALTER COLUMN, daher müssen wir die Tabelle neu erstellen)
+        # Für bestehende Datenbanken: file_path wird optional, audio_data wird hinzugefügt
         
         # Migration: Füge neue Spalten hinzu falls sie fehlen
         try:
@@ -290,14 +345,15 @@ class Database:
     
     # Song-Teile
     def add_song_part(self, song_id: int, part_name: str, 
-                     start_segment: int, end_segment: int):
+                     start_segment: int, end_segment: int,
+                     start_ms: int = None, end_ms: int = None, duration_ms: int = None, bars: int = None):
         """Fügt einen Song-Teil hinzu"""
         conn = self.get_connection()
         cursor = conn.cursor()
         cursor.execute("""
-            INSERT INTO song_parts (song_id, part_name, start_segment, end_segment)
-            VALUES (?, ?, ?, ?)
-        """, (song_id, part_name, start_segment, end_segment))
+            INSERT INTO song_parts (song_id, part_name, start_segment, end_segment, start_ms, end_ms, duration_ms, bars)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """, (song_id, part_name, start_segment, end_segment, start_ms, end_ms, duration_ms, bars))
         conn.commit()
     
     def get_song_parts(self, song_id: int) -> List[Dict]:
@@ -310,6 +366,26 @@ class Database:
             ORDER BY start_segment
         """, (song_id,))
         return [dict(row) for row in cursor.fetchall()]
+    
+    def update_song_part(self, part_id: int, **kwargs):
+        """Aktualisiert einen Song-Teil (z.B. part_name, start_segment, end_segment, start_ms, end_ms, bars)."""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        allowed_fields = ["part_name", "start_segment", "end_segment", "start_ms", "end_ms", "duration_ms", "bars"]
+        updates = {k: v for k, v in kwargs.items() if k in allowed_fields}
+        if not updates:
+            return
+        
+        set_clause = ", ".join([f"{k} = ?" for k in updates.keys()])
+        values = list(updates.values()) + [part_id]
+        
+        cursor.execute(f"""
+            UPDATE song_parts
+            SET {set_clause}
+            WHERE id = ?
+        """, values)
+        conn.commit()
     
     # Licht-Programme
     def save_light_program(self, song_id: int, segment_index: int, 
@@ -557,7 +633,115 @@ class Database:
         """, (annoy_id,))
         row = cursor.fetchone()
         return dict(row) if row else None
+
+    # Audiofiles
+    def add_audio_file(
+        self,
+        song_id: int,
+        audio_data: bytes,
+        file_name: str = None,
+        song_part: str = None,
+        start_sec: float = None,
+        end_sec: float = None,
+        recording_date: str = None,
+        notes: str = None,
+    ) -> int:
+        """Fügt ein Audiofile zu einem Song hinzu.
+        
+        Args:
+            song_id: ID des Songs
+            audio_data: Audiodatei als Bytes (BLOB)
+            file_name: Optional: ursprünglicher Dateiname (z.B. "song.mp3")
+            song_part: Optional: zugehöriger Songteil
+            start_sec: Optional: Startzeit im Audio
+            end_sec: Optional: Endzeit im Audio
+            recording_date: Optional: Aufnahmedatum
+            notes: Optional: Notizen
+        """
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO audio_files
+            (song_id, audio_data, file_name, song_part, start_sec, end_sec, recording_date, notes)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """, (song_id, audio_data, file_name, song_part, start_sec, end_sec, recording_date, notes))
+        conn.commit()
+        return cursor.lastrowid
     
+    def add_audio_file_from_path(
+        self,
+        song_id: int,
+        file_path: str,
+        song_part: str = None,
+        start_sec: float = None,
+        end_sec: float = None,
+        recording_date: str = None,
+        notes: str = None,
+    ) -> int:
+        """Fügt ein Audiofile zu einem Song hinzu, indem es die Datei vom Dateisystem einliest.
+        
+        Args:
+            song_id: ID des Songs
+            file_path: Pfad zur Audiodatei
+            song_part: Optional: zugehöriger Songteil
+            start_sec: Optional: Startzeit im Audio
+            end_sec: Optional: Endzeit im Audio
+            recording_date: Optional: Aufnahmedatum
+            notes: Optional: Notizen
+        """
+        from pathlib import Path
+        path = Path(file_path)
+        if not path.exists():
+            raise FileNotFoundError(f"Audiodatei nicht gefunden: {file_path}")
+        
+        audio_data = path.read_bytes()
+        file_name = path.name
+        
+        return self.add_audio_file(
+            song_id=song_id,
+            audio_data=audio_data,
+            file_name=file_name,
+            song_part=song_part,
+            start_sec=start_sec,
+            end_sec=end_sec,
+            recording_date=recording_date,
+            notes=notes,
+        )
+
+    def get_audio_files_for_song(self, song_id: int) -> List[Dict]:
+        """Gibt alle Audiofiles zu einem Song zurück.
+        
+        Returns:
+            Liste von Dicts mit allen Feldern inkl. audio_data (BLOB als bytes)
+        """
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT * FROM audio_files
+            WHERE song_id = ?
+            ORDER BY recording_date, id
+        """, (song_id,))
+        return [dict(row) for row in cursor.fetchall()]
+    
+    def get_audio_file_data(self, audio_file_id: int) -> Optional[bytes]:
+        """Gibt die BLOB-Daten eines Audiofiles zurück.
+        
+        Args:
+            audio_file_id: ID des Audiofiles
+            
+        Returns:
+            Audio-Daten als bytes, oder None wenn nicht gefunden
+        """
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT audio_data FROM audio_files WHERE id = ?
+        """, (audio_file_id,))
+        row = cursor.fetchone()
+        if row:
+            return row['audio_data']
+        return None
+
     def close(self):
         """Schließt die Datenbankverbindung"""
         if self.conn:

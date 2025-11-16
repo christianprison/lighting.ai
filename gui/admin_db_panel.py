@@ -21,13 +21,23 @@ from kivy.uix.modalview import ModalView
 from kivy.clock import Clock
 
 from database import Database
+from gui.timeline_widget import TimelineWidget
 
 # Audio-Wiedergabe mit pygame
-try:
-    import pygame
-    PYGAME_AVAILABLE = True
-except ImportError:
-    PYGAME_AVAILABLE = False
+def _check_pygame_available():
+    """Prüft zur Laufzeit, ob pygame verfügbar ist."""
+    try:
+        import pygame
+        # Initialisiere nur, wenn noch nicht initialisiert
+        if not pygame.mixer.get_init():
+            pygame.mixer.init()
+        return True
+    except:
+        return False
+
+# Initiale Prüfung beim Import
+PYGAME_AVAILABLE = _check_pygame_available()
+if not PYGAME_AVAILABLE:
     print("Warnung: pygame nicht verfügbar, Audio-Wiedergabe nicht möglich")
 
 
@@ -146,11 +156,14 @@ class AdminDbPanel(BoxLayout):
         self.songs: List[Dict] = []
         self.current_song_id: Optional[int] = None
         self.song_items: Dict[int, SongListItem] = {}
+        self._part_labels: Dict[int, List[Label]] = {}  # Speichert Labels für Hervorhebung
         
         # Audio-Wiedergabe
         self.audio_playing = False
         self.audio_file_path: Optional[Path] = None
         self.temp_audio_file: Optional[Path] = None
+        self.audio_start_time: Optional[float] = None  # Startzeit der Wiedergabe
+        self.audio_paused_position_ms: int = 0  # Position beim Pausieren
 
         self._build_ui()
         self._load_songs()
@@ -210,6 +223,8 @@ class AdminDbPanel(BoxLayout):
         )
         
         # Play/Pause-Button (links)
+        # Prüfe pygame zur Laufzeit
+        pygame_available = _check_pygame_available()
         self.play_pause_button = Button(
             text="▶ Abspielen",
             font_size="24sp",
@@ -217,10 +232,10 @@ class AdminDbPanel(BoxLayout):
             width=200,
             size_hint_y=None,
             height=50,
-            background_color=(0.2, 0.8, 0.2, 1) if PYGAME_AVAILABLE else (0.5, 0.5, 0.5, 1)
+            background_color=(0.2, 0.8, 0.2, 1) if pygame_available else (0.5, 0.5, 0.5, 1)
         )
         self.play_pause_button.bind(on_press=self._toggle_audio_playback)
-        if not PYGAME_AVAILABLE:
+        if not pygame_available:
             self.play_pause_button.disabled = True
             self.play_pause_button.text = "Audio nicht verfügbar"
         timeline_header.add_widget(self.play_pause_button)
@@ -236,13 +251,8 @@ class AdminDbPanel(BoxLayout):
         
         timeline_container.add_widget(timeline_header)
         
-        # Platzhalter für den Zeitstrahl (später zu implementieren)
-        self.timeline_widget = Label(
-            text="Zeitstrahl wird hier angezeigt",
-            font_size="16sp",
-            halign='left',
-            valign='top'
-        )
+        # Timeline-Widget
+        self.timeline_widget = TimelineWidget()
         timeline_container.add_widget(self.timeline_widget)
         
         main_layout.add_widget(timeline_container)
@@ -417,6 +427,7 @@ class AdminDbPanel(BoxLayout):
 
         self.part_list_grid.clear_widgets()
         self._part_rows: List[Dict] = []
+        self._part_labels: Dict[int, List[Label]] = {}  # Speichert Labels für Hervorhebung
 
         # Header: Songteil | Startzeit | Dauer | Takte
         self.part_list_grid.add_widget(
@@ -483,60 +494,83 @@ class AdminDbPanel(BoxLayout):
             duration_str = format_ms_to_mmss(duration_ms)
             bars_str = str(bars) if bars is not None else "--"
 
-            # Songteil-Name als Label (nicht farblich hinterlegt)
-            self.part_list_grid.add_widget(
-                Label(
-                    text=part_name,
+            # Bestimme Text- und Hintergrundfarbe basierend auf Songteil-Typ
+            part_name_lower = part_name.lower()
+            if "refrain" in part_name_lower or "chorus" in part_name_lower:
+                # Weiß mit schwarzer Schrift
+                text_color = (0.0, 0.0, 0.0, 1.0)  # Schwarz
+                bg_color = (1.0, 1.0, 1.0, 1.0)  # Weiß
+            elif "strophe" in part_name_lower or "verse" in part_name_lower:
+                # Schwarz mit weißer Schrift
+                text_color = (1.0, 1.0, 1.0, 1.0)  # Weiß
+                bg_color = (0.0, 0.0, 0.0, 1.0)  # Schwarz
+            else:
+                # Standard: Weiß
+                text_color = (1.0, 1.0, 1.0, 1.0)  # Weiß
+                bg_color = (0.3, 0.3, 0.3, 1.0)  # Dunkelgrau
+
+            def create_label_with_bg(text, bg_color, text_color):
+                """Erstellt ein Label mit Hintergrundfarbe."""
+                from kivy.graphics import Color as GColor, Rectangle
+                label = Label(
+                    text=text,
                     font_size="20sp",
                     size_hint_y=None,
                     height=40,
                     halign='left',
                     text_size=(None, None),
+                    color=text_color,
                 )
-            )
+                # Füge Hintergrund hinzu
+                with label.canvas.before:
+                    GColor(*bg_color)
+                    bg_rect = Rectangle(pos=label.pos, size=label.size)
+                
+                # Aktualisiere Hintergrund bei Größenänderung
+                def update_bg(instance, value):
+                    if hasattr(instance, '_bg_rect'):
+                        instance._bg_rect.pos = instance.pos
+                        instance._bg_rect.size = instance.size
+                
+                label._bg_rect = bg_rect
+                label.bind(pos=update_bg, size=update_bg)
+                return label
+
+            # Songteil-Name als Label
+            part_name_label = create_label_with_bg(part_name, bg_color, text_color)
+            self.part_list_grid.add_widget(part_name_label)
 
             # Startzeit
-            self.part_list_grid.add_widget(
-                Label(
-                    text=start_time_str,
-                    font_size="20sp",
-                    size_hint_y=None,
-                    height=40,
-                    halign='left',
-                    text_size=(None, None),
-                )
-            )
+            start_time_label = create_label_with_bg(start_time_str, bg_color, text_color)
+            self.part_list_grid.add_widget(start_time_label)
 
             # Dauer
-            self.part_list_grid.add_widget(
-                Label(
-                    text=duration_str,
-                    font_size="20sp",
-                    size_hint_y=None,
-                    height=40,
-                    halign='left',
-                    text_size=(None, None),
-                )
-            )
+            duration_label = create_label_with_bg(duration_str, bg_color, text_color)
+            self.part_list_grid.add_widget(duration_label)
 
             # Takte
-            self.part_list_grid.add_widget(
-                Label(
-                    text=bars_str,
-                    font_size="20sp",
-                    size_hint_y=None,
-                    height=40,
-                    halign='left',
-                    text_size=(None, None),
-                )
-            )
+            bars_label = create_label_with_bg(bars_str, bg_color, text_color)
+            self.part_list_grid.add_widget(bars_label)
 
+            # Speichere Labels für Hervorhebung
+            part_labels = [
+                part_name_label,  # Songteil-Name
+                start_time_label,  # Startzeit
+                duration_label,  # Dauer
+                bars_label,  # Takte
+            ]
+            self._part_labels[part["id"]] = part_labels
+            
             self._part_rows.append(
                 {
                     "id": part["id"],
                     "part_name": part_name,
                 }
             )
+        
+        # Setze Songteile im Timeline-Widget
+        if self.timeline_widget:
+            self.timeline_widget.set_song_parts(parts)
     
     # ------------------------------------------------------------------ #
     # Audio-Wiedergabe
@@ -544,7 +578,7 @@ class AdminDbPanel(BoxLayout):
     
     def _toggle_audio_playback(self, instance):
         """Schaltet Audio-Wiedergabe ein/aus."""
-        if not PYGAME_AVAILABLE:
+        if not _check_pygame_available():
             return
         
         if not self.current_song_id:
@@ -557,8 +591,11 @@ class AdminDbPanel(BoxLayout):
     
     def _start_audio(self):
         """Startet die Audio-Wiedergabe für den aktuellen Song."""
-        if not PYGAME_AVAILABLE or not self.current_song_id:
+        if not _check_pygame_available() or not self.current_song_id:
             return
+        
+        # Import pygame hier, da es zur Laufzeit verfügbar sein könnte
+        import pygame
         
         # Hole Audiofiles für den Song
         audio_files = self.db.get_audio_files_for_song(self.current_song_id)
@@ -587,12 +624,18 @@ class AdminDbPanel(BoxLayout):
             pygame.mixer.music.load(str(self.temp_audio_file))
             pygame.mixer.music.play()
             
+            # Startzeit für Position-Tracking
+            import time
+            self.audio_start_time = time.time()
+            self.audio_paused_position_ms = 0
+            
             self.audio_playing = True
             self.play_pause_button.text = "⏸ Pausieren"
             self.play_pause_button.background_color = (0.8, 0.2, 0.2, 1)
             
-            # Überwache Wiedergabe-Ende
+            # Überwache Wiedergabe-Ende und Position
             Clock.schedule_interval(self._check_audio_status, 0.1)
+            Clock.schedule_interval(self._update_timeline_position, 0.05)  # 20 FPS für flüssige Animation
             
         except Exception as e:
             print(f"Fehler beim Abspielen: {e}")
@@ -600,10 +643,11 @@ class AdminDbPanel(BoxLayout):
     
     def _stop_audio(self):
         """Stoppt die Audio-Wiedergabe."""
-        if not PYGAME_AVAILABLE:
+        if not _check_pygame_available():
             return
         
         try:
+            import pygame
             if pygame.mixer.get_init():
                 pygame.mixer.music.stop()
                 pygame.mixer.quit()
@@ -615,6 +659,12 @@ class AdminDbPanel(BoxLayout):
         self.play_pause_button.background_color = (0.2, 0.8, 0.2, 1)
         
         Clock.unschedule(self._check_audio_status)
+        Clock.unschedule(self._update_timeline_position)
+        
+        # Setze Position zurück
+        if self.timeline_widget:
+            self.timeline_widget.set_position(0)
+        self._highlight_active_part(None)
         
         # Lösche temporäre Datei
         if self.temp_audio_file and self.temp_audio_file.exists():
@@ -626,10 +676,11 @@ class AdminDbPanel(BoxLayout):
     
     def _check_audio_status(self, dt):
         """Prüft ob Audio noch läuft."""
-        if not PYGAME_AVAILABLE:
+        if not _check_pygame_available():
             return False
         
         try:
+            import pygame
             if not pygame.mixer.music.get_busy():
                 # Wiedergabe beendet
                 self._stop_audio()
@@ -639,6 +690,101 @@ class AdminDbPanel(BoxLayout):
             return False
         
         return True
+    
+    def _update_timeline_position(self, dt):
+        """Aktualisiert die Position im Zeitstrahl basierend auf der Audio-Wiedergabe."""
+        if not self.audio_playing or not self.audio_start_time:
+            return
+        
+        try:
+            import time
+            import pygame
+            
+            # Berechne verstrichene Zeit seit Start
+            elapsed_seconds = time.time() - self.audio_start_time
+            current_position_ms = int((self.audio_paused_position_ms / 1000.0 + elapsed_seconds) * 1000)
+            
+            # Aktualisiere Timeline
+            if self.timeline_widget:
+                self.timeline_widget.set_position(current_position_ms)
+                
+                # Hervorhebe aktiven Songteil
+                active_part_id = self.timeline_widget.get_active_part_id()
+                self._highlight_active_part(active_part_id)
+        except Exception as e:
+            print(f"Fehler beim Aktualisieren der Timeline-Position: {e}")
+    
+    def _highlight_active_part(self, active_part_id: Optional[int]):
+        """Hervorhebt den aktiven Songteil in der Liste."""
+        if not hasattr(self, '_part_labels') or not self._part_labels:
+            return
+        
+        # Setze alle Labels zurück (stelle ursprüngliche Farben wieder her)
+        for part_id, labels in self._part_labels.items():
+            if not labels:
+                continue
+            part_name = labels[0].text if labels else ""
+            part_name_lower = part_name.lower()
+            
+            # Bestimme ursprüngliche Farben
+            if "refrain" in part_name_lower or "chorus" in part_name_lower:
+                text_color = (0.0, 0.0, 0.0, 1.0)  # Schwarz
+                bg_color = (1.0, 1.0, 1.0, 1.0)  # Weiß
+            elif "strophe" in part_name_lower or "verse" in part_name_lower:
+                text_color = (1.0, 1.0, 1.0, 1.0)  # Weiß
+                bg_color = (0.0, 0.0, 0.0, 1.0)  # Schwarz
+            else:
+                text_color = (1.0, 1.0, 1.0, 1.0)  # Weiß
+                bg_color = (0.3, 0.3, 0.3, 1.0)  # Dunkelgrau
+            
+            for label in labels:
+                # Stelle ursprünglichen Hintergrund wieder her
+                if hasattr(label, 'canvas') and hasattr(label.canvas, 'before'):
+                    label.canvas.before.clear()
+                    from kivy.graphics import Color as GColor, Rectangle
+                    with label.canvas.before:
+                        GColor(*bg_color)
+                        bg_rect = Rectangle(pos=label.pos, size=label.size)
+                    
+                    def update_bg(instance, value):
+                        if hasattr(instance, '_bg_rect'):
+                            instance._bg_rect.pos = instance.pos
+                            instance._bg_rect.size = instance.size
+                    
+                    label._bg_rect = bg_rect
+                    label.bind(pos=update_bg, size=update_bg)
+                label.color = text_color
+        
+        # Hervorhebe aktiven Teil mit hellblauem Hintergrund
+        if active_part_id and active_part_id in self._part_labels:
+            labels = self._part_labels[active_part_id]
+            # Bestimme Textfarbe basierend auf Songteil-Typ
+            part_name = labels[0].text if labels else ""
+            part_name_lower = part_name.lower()
+            if "refrain" in part_name_lower or "chorus" in part_name_lower:
+                text_color = (0.0, 0.0, 0.0, 1.0)  # Schwarz
+            elif "strophe" in part_name_lower or "verse" in part_name_lower:
+                text_color = (1.0, 1.0, 1.0, 1.0)  # Weiß
+            else:
+                text_color = (0, 0, 0, 1)  # Schwarz für besseren Kontrast auf hellblauem Hintergrund
+            
+            for label in labels:
+                # Überschreibe Hintergrund mit hellblau
+                if hasattr(label, 'canvas') and hasattr(label.canvas, 'before'):
+                    label.canvas.before.clear()
+                    from kivy.graphics import Color as GColor, Rectangle
+                    with label.canvas.before:
+                        GColor(0.2, 0.6, 0.9, 0.5)  # Hellblau
+                        bg_rect = Rectangle(pos=label.pos, size=label.size)
+                    
+                    def update_bg(instance, value):
+                        if hasattr(instance, '_bg_rect'):
+                            instance._bg_rect.pos = instance.pos
+                            instance._bg_rect.size = instance.size
+                    
+                    label._bg_rect = bg_rect
+                    label.bind(pos=update_bg, size=update_bg)
+                label.color = text_color
 
 
 

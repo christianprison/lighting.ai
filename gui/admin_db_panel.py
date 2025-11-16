@@ -22,6 +22,7 @@ from kivy.clock import Clock
 
 from database import Database
 from gui.timeline_widget import TimelineWidget
+from gui.beat_indicator import BeatIndicator
 
 
 class SongPartEditDialog(ModalView):
@@ -518,7 +519,7 @@ class AdminDbPanel(BoxLayout):
             spacing=15
         )
         
-        # Linke Seite: Play-Button und Offset
+        # Linke Seite: Play-Button, Beat-Indikator und Offset
         left_side = BoxLayout(
             orientation="vertical",
             size_hint_x=None,
@@ -541,6 +542,44 @@ class AdminDbPanel(BoxLayout):
             self.play_pause_button.disabled = True
             self.play_pause_button.text = "Audio nicht verfügbar"
         left_side.add_widget(self.play_pause_button)
+        
+        # Beat-Indikator mit Label
+        beat_container = BoxLayout(
+            orientation="vertical",
+            size_hint_y=None,
+            height=50,
+            spacing=2
+        )
+        
+        # Label "beat"
+        beat_label = Label(
+            text="beat",
+            font_size="14sp",
+            size_hint_y=None,
+            height=20,
+            halign='center'
+        )
+        beat_label.bind(texture_size=beat_label.setter('size'))
+        beat_container.add_widget(beat_label)
+        
+        # Beat-Indikator (blinkender Punkt)
+        beat_indicator_container = BoxLayout(
+            orientation="horizontal",
+            size_hint_y=None,
+            height=20
+        )
+        self.beat_indicator = BeatIndicator(
+            size_hint_x=None,
+            size_hint_y=None,
+            width=20,
+            height=20
+        )
+        beat_indicator_container.add_widget(Label(size_hint_x=1.0))  # Spacer links
+        beat_indicator_container.add_widget(self.beat_indicator)
+        beat_indicator_container.add_widget(Label(size_hint_x=1.0))  # Spacer rechts
+        beat_container.add_widget(beat_indicator_container)
+        
+        left_side.add_widget(beat_container)
         
         # Offset-Anzeige (editierbar)
         offset_layout = BoxLayout(
@@ -1498,6 +1537,14 @@ class AdminDbPanel(BoxLayout):
         self.quarter_notes = []
         self.current_quarter_index = 0
         
+        # Setze Beat-Indikator zurück
+        if hasattr(self, 'beat_indicator') and self.beat_indicator:
+            self.beat_indicator.beat_active = False
+            self.beat_indicator._update_canvas()
+            if hasattr(self.beat_indicator, 'blink_animation') and self.beat_indicator.blink_animation:
+                Clock.unschedule(self.beat_indicator.blink_animation)
+                self.beat_indicator.blink_animation = None
+        
         # Setze Position zurück
         if self.timeline_widget:
             self.timeline_widget.set_position(0)
@@ -1577,9 +1624,18 @@ class AdminDbPanel(BoxLayout):
             # Wenn Beat-Detection verfügbar ist, verwende erkannte Viertelnoten
             if self.quarter_notes:
                 # Finde die nächste Viertelnote basierend auf verstrichener Zeit
+                prev_index = self.current_quarter_index
+                new_beats_detected = False
+                
                 while (self.current_quarter_index < len(self.quarter_notes) and
                        self.quarter_notes[self.current_quarter_index] <= elapsed_seconds):
+                    # Beat erkannt
+                    new_beats_detected = True
                     self.current_quarter_index += 1
+                
+                # Trigger Beat-Indikator wenn neuer Beat erkannt wurde
+                if new_beats_detected and hasattr(self, 'beat_indicator') and self.beat_indicator:
+                    self.beat_indicator.trigger_beat()
                 
                 # Verwende die Position der aktuellen Viertelnote
                 if self.current_quarter_index > 0:

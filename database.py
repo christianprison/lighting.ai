@@ -123,6 +123,18 @@ class Database:
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
+
+        # Tabelle für Annoy-Vektor-Metadaten
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS annoy_vector_metadata (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                annoy_id INTEGER NOT NULL UNIQUE,
+                song_title TEXT NOT NULL,
+                song_part TEXT,
+                recording_date TEXT,  -- ISO-Format YYYY-MM-DD oder voller Timestamp
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
         
         # Migration: Füge neue Spalten hinzu falls sie fehlen
         try:
@@ -516,6 +528,35 @@ class Database:
             UPDATE channel_mapping SET {set_clause} WHERE instrument_name = ?
         """, values)
         conn.commit()
+
+    # Annoy-Vektor-Metadaten
+    def add_annoy_vector_metadata(
+        self,
+        annoy_id: int,
+        song_title: str,
+        song_part: str,
+        recording_date: Optional[str] = None,
+    ) -> int:
+        """Speichert Metadaten für einen Annoy-Vektor."""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT OR REPLACE INTO annoy_vector_metadata
+            (annoy_id, song_title, song_part, recording_date)
+            VALUES (?, ?, ?, ?)
+        """, (annoy_id, song_title, song_part, recording_date))
+        conn.commit()
+        return cursor.lastrowid
+
+    def get_annoy_vector_metadata(self, annoy_id: int) -> Optional[Dict]:
+        """Lädt Metadaten für einen Annoy-Vektor."""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT * FROM annoy_vector_metadata WHERE annoy_id = ?
+        """, (annoy_id,))
+        row = cursor.fetchone()
+        return dict(row) if row else None
     
     def close(self):
         """Schließt die Datenbankverbindung"""

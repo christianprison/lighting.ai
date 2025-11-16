@@ -7,8 +7,11 @@ pyartnet>=0.10.0
 numpy>=1.24.0
 scipy>=1.10.0
 
+# Vector Similarity / Approximate Nearest Neighbors
+annoy>=1.17.3
+
 # Database
-# SQLite is included in Python standard library
+# SQLite ist in der Python-Standardbibliothek enthalten (sqlite3)
 
 # Utilities
 python-dateutil>=2.8.2

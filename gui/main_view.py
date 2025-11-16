@@ -35,8 +35,8 @@ class MainView(BoxLayout):
         # Tab-Breite verdoppeln: Mindestbreite basierend auf Text * 2
         # Da tab_width=None automatisch ist, erhöhen wir die Tab-Höhe und nutzen padding
         self.tabs.tab_height = 60  # Höhere Tabs für 24pt Schrift
-        # Tab-Minimalbreite durch Padding erhöhen (visuell breiter)
-        self.tabs.tab_padding = [40, 10]  # Horizontal-Padding verdoppelt
+        # Tab-Minimalbreite durch Padding erhöhen (visuell breiter) - verdoppelt
+        self.tabs.tab_padding = [80, 10]  # Horizontal-Padding verdoppelt
         
         # Wartungs-Tab
         tab_maintenance = TabbedPanelItem(text='Wartung')
@@ -56,7 +56,7 @@ class MainView(BoxLayout):
         inner_tabs.font_size = '24sp'
         inner_tabs.tab_width = None  # Automatische Breite basierend auf Text
         inner_tabs.tab_height = 60  # Höhere Tabs für 24pt Schrift
-        inner_tabs.tab_padding = [40, 10]  # Horizontal-Padding verdoppelt
+        inner_tabs.tab_padding = [80, 10]  # Horizontal-Padding verdoppelt
 
         # Tab 1: Songs (Admin-UI)
         tab_songs_inner = TabbedPanelItem(text='Songs')

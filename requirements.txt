@@ -7,6 +7,7 @@ pyartnet>=0.10.0
 numpy>=1.24.0
 scipy>=1.10.0
 pygame>=2.5.0  # Für Audio-Wiedergabe
+librosa>=0.10.0  # Für Beat-Detection in Audio-Dateien
 
 # Vector Similarity / Approximate Nearest Neighbors
 annoy>=1.17.3

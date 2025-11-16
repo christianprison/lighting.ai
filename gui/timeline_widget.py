@@ -18,18 +18,21 @@ class TimelineWidget(Widget):
         self.current_position_ms: int = 0  # Aktuelle Position in Millisekunden
         self.total_duration_ms: int = 0  # Gesamtdauer des Songs
         self.active_part_id: Optional[int] = None
-        self.pixels_per_second = 10  # 10 Pixel pro Sekunde
+        self.pixels_per_second = 40  # 40 Pixel pro Sekunde (vierfache Breite)
+        self.bpm: Optional[int] = None  # BPM des Songs für Skala
         
         # Farben
         self.color_pointer = (1.0, 0.2, 0.2, 1.0)  # Rot für Zeiger
         self.color_border = (1.0, 1.0, 1.0, 1.0)  # Weiß für Rahmen
+        self.color_scale = (0.8, 0.8, 0.8, 1.0)  # Grau für Skala
         # Farben werden basierend auf Songteil-Typ bestimmt
         
         self.bind(size=self._update_canvas, pos=self._update_canvas)
     
-    def set_song_parts(self, parts: List[Dict]):
+    def set_song_parts(self, parts: List[Dict], bpm: Optional[int] = None):
         """Setzt die Songteile für die Anzeige."""
         self.song_parts = sorted(parts, key=lambda p: p.get("start_ms", 0) or 0)
+        self.bpm = bpm
         
         # Berechne Gesamtdauer
         if self.song_parts:
@@ -64,13 +67,60 @@ class TimelineWidget(Widget):
             return
         
         with self.canvas:
-            # Berechne Skalierung: 10 Pixel pro Sekunde
+            # Berechne Skalierung: 40 Pixel pro Sekunde (vierfache Breite)
             total_width_pixels = (self.total_duration_ms / 1000.0) * self.pixels_per_second
-            # Skaliere so, dass alles sichtbar ist, aber mindestens 10px/sec
+            # Skaliere so, dass alles sichtbar ist, aber mindestens 40px/sec
             if total_width_pixels > self.width:
                 scale = self.width / total_width_pixels
             else:
                 scale = 1.0
+            
+            # Zeichne Skala über den Balken (wenn BPM vorhanden)
+            # Skala wird oben im Widget gezeichnet, über den Balken
+            scale_y_top = self.y + self.height - 2  # Obere Kante (2px Abstand vom Rand)
+            scale_y_normal_bottom = scale_y_top - 6  # Normale Markierung: 6px hoch (verdoppelt)
+            scale_y_tall_bottom = scale_y_top - 12  # Hohe Markierung: 12px hoch (verdoppelt)
+            
+            if self.bpm and self.bpm > 0:
+                # Berechne Dauer einer Viertelnote in Millisekunden
+                quarter_note_ms = 60000.0 / self.bpm
+                
+                # Zeichne Skala für jeden Songteil
+                for part in self.song_parts:
+                    start_ms = part.get("start_ms", 0) or 0
+                    end_ms = part.get("end_ms", 0) or 0
+                    
+                    if end_ms <= start_ms:
+                        continue
+                    
+                    # Startposition des Songteils in Pixeln
+                    part_x_start = self.x + (start_ms / 1000.0) * self.pixels_per_second * scale
+                    part_x_end = self.x + (end_ms / 1000.0) * self.pixels_per_second * scale
+                    
+                    # Zeichne Viertelnoten-Markierungen für diesen Songteil
+                    current_ms = start_ms
+                    quarter_index = 0  # Index der Viertelnote innerhalb des Songteils
+                    
+                    while current_ms < end_ms:
+                        x_pos = self.x + (current_ms / 1000.0) * self.pixels_per_second * scale
+                        
+                        # Prüfe ob innerhalb des sichtbaren Bereichs
+                        if x_pos >= part_x_start and x_pos <= part_x_end:
+                            # Erste Viertelnote jedes Songteils und jede 4. Viertelnote (Takt) = hoch
+                            is_tall = (quarter_index == 0) or (quarter_index % 4 == 0)
+                            
+                            Color(*self.color_scale)
+                            if is_tall:
+                                # Hohe Markierung (12 Pixel hoch, 3 Pixel breit)
+                                # Zeichne als Rechteck für 3 Pixel Breite, zentriert um x_pos
+                                Rectangle(pos=(x_pos - 1, scale_y_tall_bottom), size=(3, 12))
+                            else:
+                                # Normale Markierung (6 Pixel hoch, 3 Pixel breit)
+                                # Zeichne als Rechteck für 3 Pixel Breite, zentriert um x_pos
+                                Rectangle(pos=(x_pos - 1, scale_y_normal_bottom), size=(3, 6))
+                        
+                        current_ms += quarter_note_ms
+                        quarter_index += 1
             
             # Zeichne Songteile als Balken
             y_start = self.y + self.height * 0.2

@@ -94,7 +94,11 @@ class InstrumentIcon(Widget):
             
             # Umriss (hell)
             Color(0.9, 0.9, 0.9, 1.0)
-            self._draw_outline()
+            # Zeichne Umriss direkt hier
+            w, h = self.width, self.height
+            if w > 0 and h > 0:
+                # Rechteckiger Umriss
+                Line(points=[2, 2, w-2, 2, w-2, h-2, 2, h-2, 2, 2], width=2)
     
     def _draw_instrument_shape(self):
         """Zeichnet die Form des Instruments"""
@@ -138,7 +142,17 @@ class InstrumentIcon(Widget):
     def _draw_outline(self):
         """Zeichnet den Umriss des Icons"""
         w, h = self.width, self.height
-        Line(rectangle=(2, 2, w - 4, h - 4), width=2, close=True)
+        if w > 0 and h > 0:
+            # Zeichne Rechteck als Umriss
+            Color(0.9, 0.9, 0.9, 1.0)
+            # Oben
+            Line(points=[2, h-2, w-2, h-2], width=2)
+            # Unten
+            Line(points=[2, 2, w-2, 2], width=2)
+            # Links
+            Line(points=[2, 2, 2, h-2], width=2)
+            # Rechts
+            Line(points=[w-2, 2, w-2, h-2], width=2)
     
     def update_level(self, level: float):
         """Aktualisiert den Meter-Level (0.0 bis 1.0)"""

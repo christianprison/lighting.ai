@@ -187,6 +187,12 @@ class Database:
         except sqlite3.OperationalError:
             pass
         
+        # Migration: Füge offset_sec hinzu, falls nicht vorhanden
+        try:
+            cursor.execute("ALTER TABLE audio_files ADD COLUMN offset_sec REAL DEFAULT 0.0")
+        except sqlite3.OperationalError:
+            pass
+        
         # Migration: Entferne NOT NULL Constraint von file_path, falls vorhanden
         # (SQLite unterstützt kein ALTER COLUMN, daher müssen wir die Tabelle neu erstellen)
         # Für bestehende Datenbanken: file_path wird optional, audio_data wird hinzugefügt
@@ -366,6 +372,13 @@ class Database:
             ORDER BY start_segment
         """, (song_id,))
         return [dict(row) for row in cursor.fetchall()]
+    
+    def delete_song_part(self, part_id: int):
+        """Löscht einen Song-Teil."""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM song_parts WHERE id = ?", (part_id,))
+        conn.commit()
     
     def update_song_part(self, part_id: int, **kwargs):
         """Aktualisiert einen Song-Teil (z.B. part_name, start_segment, end_segment, start_ms, end_ms, bars)."""
@@ -645,6 +658,7 @@ class Database:
         end_sec: float = None,
         recording_date: str = None,
         notes: str = None,
+        offset_sec: float = 0.0,
     ) -> int:
         """Fügt ein Audiofile zu einem Song hinzu.
         
@@ -657,14 +671,15 @@ class Database:
             end_sec: Optional: Endzeit im Audio
             recording_date: Optional: Aufnahmedatum
             notes: Optional: Notizen
+            offset_sec: Optional: Offset in Sekunden (Startzeit des Songs im Audio, Standard: 0.0)
         """
         conn = self.get_connection()
         cursor = conn.cursor()
         cursor.execute("""
             INSERT INTO audio_files
-            (song_id, audio_data, file_name, song_part, start_sec, end_sec, recording_date, notes)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        """, (song_id, audio_data, file_name, song_part, start_sec, end_sec, recording_date, notes))
+            (song_id, audio_data, file_name, song_part, start_sec, end_sec, recording_date, notes, offset_sec)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (song_id, audio_data, file_name, song_part, start_sec, end_sec, recording_date, notes, offset_sec))
         conn.commit()
         return cursor.lastrowid
     
@@ -677,6 +692,7 @@ class Database:
         end_sec: float = None,
         recording_date: str = None,
         notes: str = None,
+        offset_sec: float = 0.0,
     ) -> int:
         """Fügt ein Audiofile zu einem Song hinzu, indem es die Datei vom Dateisystem einliest.
         
@@ -688,6 +704,7 @@ class Database:
             end_sec: Optional: Endzeit im Audio
             recording_date: Optional: Aufnahmedatum
             notes: Optional: Notizen
+            offset_sec: Optional: Offset in Sekunden (Startzeit des Songs im Audio, Standard: 0.0)
         """
         from pathlib import Path
         path = Path(file_path)
@@ -706,6 +723,7 @@ class Database:
             end_sec=end_sec,
             recording_date=recording_date,
             notes=notes,
+            offset_sec=offset_sec,
         )
 
     def get_audio_files_for_song(self, song_id: int) -> List[Dict]:

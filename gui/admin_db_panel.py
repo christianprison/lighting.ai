@@ -646,7 +646,7 @@ class AdminDbPanel(BoxLayout):
         self.song_list_grid.clear_widgets()
         self.song_items.clear()
 
-        # Header (nur Titel und BPM, keine Songteile-Spalte)
+        # Header (Titel, BPM, Aktion)
         self.song_list_grid.add_widget(
             Label(
                 text="Titel",
@@ -661,6 +661,17 @@ class AdminDbPanel(BoxLayout):
         self.song_list_grid.add_widget(
             Label(
                 text="BPM",
+                font_size="24sp",
+                bold=True,
+                size_hint_y=None,
+                height=40,
+                halign='left',
+                text_size=(None, None),
+            )
+        )
+        self.song_list_grid.add_widget(
+            Label(
+                text="Aktion",
                 font_size="24sp",
                 bold=True,
                 size_hint_y=None,
@@ -745,6 +756,23 @@ class AdminDbPanel(BoxLayout):
             
             bpm_label.bind(on_touch_down=on_bpm_double_click)
             self.song_list_grid.add_widget(bpm_label)
+            
+            # Löschen-Button
+            from kivy.uix.button import Button
+            delete_button = Button(
+                text="🗑",
+                font_size="20sp",
+                size_hint_y=None,
+                height=40,
+                size_hint_x=None,
+                width=60,
+                background_color=(0.8, 0.2, 0.2, 1.0)
+            )
+            delete_button._song_id = song_id
+            delete_button._song_name = name
+            delete_button._admin_panel = self
+            delete_button.bind(on_press=self._on_delete_song_click)
+            self.song_list_grid.add_widget(delete_button)
 
         # Selektion optisch aktualisieren
         self._update_selection_highlight()
@@ -1372,6 +1400,65 @@ class AdminDbPanel(BoxLayout):
             # Lade Songteile neu
             if self.current_song_id:
                 self._load_song_parts(self.current_song_id)
+        btn_confirm.bind(on_press=on_confirm)
+        button_layout.add_widget(btn_confirm)
+        
+        btn_cancel = Button(
+            text="Abbrechen",
+            font_size="24sp",
+            background_color=(0.5, 0.5, 0.5, 1.0)
+        )
+        btn_cancel.bind(on_press=lambda btn: confirm_dialog.dismiss())
+        button_layout.add_widget(btn_cancel)
+        
+        layout.add_widget(button_layout)
+        confirm_dialog.add_widget(layout)
+        confirm_dialog.open()
+    
+    def _on_delete_song_click(self, instance):
+        """Wird aufgerufen, wenn der Löschen-Button für einen Song geklickt wird."""
+        song_id = instance._song_id
+        song_name = instance._song_name
+        
+        # Bestätigungsdialog
+        from kivy.uix.modalview import ModalView
+        from kivy.uix.boxlayout import BoxLayout
+        from kivy.uix.label import Label
+        from kivy.uix.button import Button
+        
+        confirm_dialog = ModalView(size_hint=(0.5, 0.3))
+        layout = BoxLayout(orientation='vertical', padding=20, spacing=15)
+        
+        label = Label(
+            text=f"Song '{song_name}' wirklich löschen?\n(Alle Songteile werden ebenfalls gelöscht)",
+            font_size="24sp",
+            text_size=(None, None),
+            halign='center'
+        )
+        label.bind(texture_size=label.setter('size'))
+        layout.add_widget(label)
+        
+        button_layout = BoxLayout(orientation='horizontal', spacing=10, size_hint_y=None, height=50)
+        
+        btn_confirm = Button(
+            text="Löschen",
+            font_size="24sp",
+            background_color=(0.8, 0.2, 0.2, 1.0)
+        )
+        def on_confirm(btn):
+            self.db.delete_song(song_id)
+            confirm_dialog.dismiss()
+            # Wenn der gelöschte Song gerade ausgewählt war, setze Auswahl zurück
+            if self.current_song_id == song_id:
+                self.current_song_id = None
+                # Leere Songteile-Liste
+                if self.part_list_grid:
+                    self.part_list_grid.clear_widgets()
+                # Leere Timeline
+                if self.timeline_widget:
+                    self.timeline_widget.set_song_parts([], bpm=None)
+            # Lade Songs neu
+            self._load_songs()
         btn_confirm.bind(on_press=on_confirm)
         button_layout.add_widget(btn_confirm)
         

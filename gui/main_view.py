@@ -32,11 +32,10 @@ class MainView(BoxLayout):
         self.tabs = TabbedPanel(do_default_tab=False)
         # Tab-Schriftgröße auf 24PT setzen, fett
         self.tabs.font_size = '24sp'
-        # Tab-Breite verdoppeln: Mindestbreite basierend auf Text * 2
-        # Da tab_width=None automatisch ist, erhöhen wir die Tab-Höhe und nutzen padding
+        # Tab-Breite: 1/5 der Bildschirmbreite (1920px / 5 = 384px)
+        self.tabs.tab_width = 384
         self.tabs.tab_height = 60  # Höhere Tabs für 24pt Schrift
-        # Tab-Minimalbreite durch Padding erhöhen (visuell breiter) - verdoppelt
-        self.tabs.tab_padding = [80, 10]  # Horizontal-Padding verdoppelt
+        self.tabs.tab_padding = [10, 10]  # Padding
         
         # Wartungs-Tab
         tab_maintenance = TabbedPanelItem(text='Wartung')

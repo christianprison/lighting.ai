@@ -35,10 +35,14 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Kivy-Konfiguration
-Config.set('graphics', 'width', '2560')  # Verdoppelt für bessere Lesbarkeit
-Config.set('graphics', 'height', '1440')  # Verdoppelt für bessere Lesbarkeit
+# Fenstergröße kann auch über Umgebungsvariablen KIVY_WINDOW_WIDTH und KIVY_WINDOW_HEIGHT gesetzt werden
+import os
+window_width = os.environ.get('KIVY_WINDOW_WIDTH', '1920')
+window_height = os.environ.get('KIVY_WINDOW_HEIGHT', '1080')
+Config.set('graphics', 'width', window_width)
+Config.set('graphics', 'height', window_height)
 Config.set('graphics', 'resizable', '1')
-Config.set('graphics', 'fullscreen', 'auto')  # Vollbildmodus
+Config.set('graphics', 'fullscreen', '0')  # Fenstermodus, da Vollbild nicht funktioniert
 
 
 class LightingApp(App):
@@ -46,6 +50,10 @@ class LightingApp(App):
     
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        # Stelle sicher, dass Fenstergröße gesetzt ist
+        from kivy.config import Config
+        Config.set('graphics', 'width', '1920')
+        Config.set('graphics', 'height', '1080')
         
         # Core-Komponenten
         self.database = Database()
@@ -64,6 +72,11 @@ class LightingApp(App):
     
     def build(self):
         """Erstellt die Hauptanwendung"""
+        # Stelle sicher, dass Fenstergröße gesetzt ist
+        from kivy.config import Config
+        Config.set('graphics', 'width', '1920')
+        Config.set('graphics', 'height', '1080')
+        
         logger.info("Starte lighting.ai")
         
         # Erstelle MainView (oben Input-Monitor, unten Tabs)
@@ -73,6 +86,13 @@ class LightingApp(App):
         self._initialize_components()
         
         return self.main_view
+    
+    def on_start(self):
+        """Wird aufgerufen nach dem Start der App - hier setzen wir die Fenstergröße"""
+        from kivy.core.window import Window
+        # Setze Fenstergröße direkt über Window-API
+        Window.size = (1920, 1080)
+        logger.info(f"Fenstergröße gesetzt auf: {Window.size}")
     
     def _initialize_components(self):
         """Initialisiert Hardware- und Analyse-Komponenten (lazy loading)"""

@@ -6,8 +6,10 @@ pyartnet>=0.10.0
 # Audio Processing & Analysis
 numpy>=1.24.0
 scipy>=1.10.0
+Cython>=0.25  # Wird für madmom benötigt
 pygame>=2.5.0  # Für Audio-Wiedergabe
-librosa>=0.10.0  # Für Beat-Detection in Audio-Dateien
+madmom>=0.16.0  # Für Beat-Detection in Audio-Dateien
+soundfile>=0.12.0  # Für Audio-Datei-Operationen (wird von madmom verwendet)
 
 # Vector Similarity / Approximate Nearest Neighbors
 annoy>=1.17.3

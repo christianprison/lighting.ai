@@ -4,6 +4,7 @@ Timeline-Widget zur Darstellung von Songteilen als Balken mit Zeiger.
 
 from kivy.uix.widget import Widget
 from kivy.graphics import Color, Rectangle, Line
+from kivy.graphics.texture import Texture
 from kivy.clock import Clock
 from typing import List, Dict, Optional
 import time
@@ -18,7 +19,7 @@ class TimelineWidget(Widget):
         self.current_position_ms: int = 0  # Aktuelle Position in Millisekunden
         self.total_duration_ms: int = 0  # Gesamtdauer des Songs
         self.active_part_id: Optional[int] = None
-        self.pixels_per_second = 40  # 40 Pixel pro Sekunde (vierfache Breite)
+        self.pixels_per_second = 20  # 20 Pixel pro Sekunde (halbiert)
         self.bpm: Optional[int] = None  # BPM des Songs für Skala
         
         # Farben
@@ -40,6 +41,43 @@ class TimelineWidget(Widget):
             self.total_duration_ms = last_part.get("end_ms", 0) or 0
         else:
             self.total_duration_ms = 0
+        
+        # Berechne Widget-Breite basierend auf Song-Länge für Scrollbarkeit
+        if self.bpm and self.bpm > 0 and self.song_parts:
+            ms_per_bar = 4 * (60000.0 / self.bpm)
+            total_bars = 0
+            for part in self.song_parts:
+                bars = part.get("bars")
+                if bars and bars > 0:
+                    total_bars += bars
+                else:
+                    start_ms = part.get("start_ms", 0) or 0
+                    end_ms = part.get("end_ms", 0) or 0
+                    if end_ms > start_ms:
+                        total_bars += int((end_ms - start_ms) / ms_per_bar)
+            
+            # Berechne benötigte Breite in Pixeln
+            total_width_pixels = (total_bars * ms_per_bar / 1000.0) * self.pixels_per_second
+            # Setze Widget-Breite (mindestens verfügbare Breite)
+            if hasattr(self, 'parent') and self.parent:
+                min_width = self.parent.width if hasattr(self.parent, 'width') else 800
+            else:
+                min_width = 800
+            
+            self.size_hint_x = None
+            self.width = max(min_width, total_width_pixels)
+        else:
+            # Fallback: Zeit-basiert
+            if self.total_duration_ms > 0:
+                total_width_pixels = (self.total_duration_ms / 1000.0) * self.pixels_per_second
+                if hasattr(self, 'parent') and self.parent:
+                    min_width = self.parent.width if hasattr(self.parent, 'width') else 800
+                else:
+                    min_width = 800
+                self.size_hint_x = None
+                self.width = max(min_width, total_width_pixels)
+            else:
+                self.size_hint_x = 1.0
         
         self._update_canvas()
     
@@ -67,8 +105,28 @@ class TimelineWidget(Widget):
             return
         
         with self.canvas:
-            # Berechne Skalierung: 40 Pixel pro Sekunde (vierfache Breite)
-            total_width_pixels = (self.total_duration_ms / 1000.0) * self.pixels_per_second
+            # Berechne Skalierung basierend auf Takten, wenn BPM vorhanden
+            if self.bpm and self.bpm > 0:
+                ms_per_bar = 4 * (60000.0 / self.bpm)
+                # Berechne Gesamtzahl der Takte
+                total_bars = 0
+                for part in self.song_parts:
+                    bars = part.get("bars")
+                    if bars and bars > 0:
+                        total_bars += bars
+                    else:
+                        # Fallback: Berechne aus Zeit
+                        start_ms = part.get("start_ms", 0) or 0
+                        end_ms = part.get("end_ms", 0) or 0
+                        if end_ms > start_ms:
+                            total_bars += int((end_ms - start_ms) / ms_per_bar)
+                
+                # Berechne Gesamtbreite basierend auf Takten
+                total_width_pixels = (total_bars * ms_per_bar / 1000.0) * self.pixels_per_second
+            else:
+                # Fallback: Zeit-basiert
+                total_width_pixels = (self.total_duration_ms / 1000.0) * self.pixels_per_second
+            
             # Skaliere so, dass alles sichtbar ist, aber mindestens 40px/sec
             if total_width_pixels > self.width:
                 scale = self.width / total_width_pixels
@@ -76,67 +134,104 @@ class TimelineWidget(Widget):
                 scale = 1.0
             
             # Zeichne Skala über den Balken (wenn BPM vorhanden)
-            # Skala wird oben im Widget gezeichnet, über den Balken
-            scale_y_top = self.y + self.height - 2  # Obere Kante (2px Abstand vom Rand)
-            scale_y_normal_bottom = scale_y_top - 6  # Normale Markierung: 6px hoch (verdoppelt)
-            scale_y_tall_bottom = scale_y_top - 12  # Hohe Markierung: 12px hoch (verdoppelt)
+            # Skala wird unten bündig gezeichnet, über den Balken
+            scale_y_bottom = self.y + self.height * 0.1 + self.height * 0.3 + 2  # Untere Kante der Skala (über den Balken)
+            scale_y_normal_top = scale_y_bottom + 6  # Normale Markierung: 6px hoch
+            scale_y_tall_top = scale_y_bottom + 12  # Hohe Markierung: 12px hoch
             
             if self.bpm and self.bpm > 0:
                 # Berechne Dauer einer Viertelnote in Millisekunden
                 quarter_note_ms = 60000.0 / self.bpm
+                ms_per_bar = 4 * quarter_note_ms  # Ein Takt = 4 Viertelnoten
+                
+                # Berechne kumulative Taktnummer über alle Songteile
+                cumulative_bar = 0
                 
                 # Zeichne Skala für jeden Songteil
                 for part in self.song_parts:
                     start_ms = part.get("start_ms", 0) or 0
                     end_ms = part.get("end_ms", 0) or 0
+                    bars = part.get("bars")
                     
                     if end_ms <= start_ms:
                         continue
                     
-                    # Startposition des Songteils in Pixeln
-                    part_x_start = self.x + (start_ms / 1000.0) * self.pixels_per_second * scale
-                    part_x_end = self.x + (end_ms / 1000.0) * self.pixels_per_second * scale
+                    # Startposition des Songteils in Pixeln (basierend auf kumulativer Taktposition)
+                    # Berechne Position basierend auf Takten statt Zeit
+                    part_x_start = self.x + (cumulative_bar * ms_per_bar / 1000.0) * self.pixels_per_second * scale
                     
                     # Zeichne Viertelnoten-Markierungen für diesen Songteil
-                    current_ms = start_ms
-                    quarter_index = 0  # Index der Viertelnote innerhalb des Songteils
+                    current_bar_in_part = 0
+                    bars_in_part = bars if bars and bars > 0 else int((end_ms - start_ms) / ms_per_bar)
                     
-                    while current_ms < end_ms:
-                        x_pos = self.x + (current_ms / 1000.0) * self.pixels_per_second * scale
+                    # Zeichne Taktnummer am Anfang jedes Songteils (nur beim ersten Takt)
+                    if bars_in_part > 0:
+                        first_bar_x_pos = self.x + (cumulative_bar * ms_per_bar / 1000.0) * self.pixels_per_second * scale
+                        # Zeichne Taktnummer (16pt Schriftgröße) über der Skala
+                        from kivy.core.text import Label as TextLabel
+                        text_label = TextLabel(
+                            text=str(cumulative_bar + 1),
+                            font_size=16,
+                            color=(0.8, 0.8, 0.8, 1.0)
+                        )
+                        text_label.refresh()
+                        text_texture = text_label.texture
+                        if text_texture:
+                            Color(0.8, 0.8, 0.8, 1.0)
+                            Rectangle(
+                                texture=text_texture,
+                                pos=(first_bar_x_pos - text_texture.width / 2, scale_y_tall_top + 2),
+                                size=(text_texture.width, text_texture.height)
+                            )
+                    
+                    for bar_in_part in range(bars_in_part):
+                        # Position basierend auf Taktnummer
+                        bar_x_pos = self.x + ((cumulative_bar + bar_in_part) * ms_per_bar / 1000.0) * self.pixels_per_second * scale
                         
-                        # Prüfe ob innerhalb des sichtbaren Bereichs
-                        if x_pos >= part_x_start and x_pos <= part_x_end:
-                            # Erste Viertelnote jedes Songteils und jede 4. Viertelnote (Takt) = hoch
-                            is_tall = (quarter_index == 0) or (quarter_index % 4 == 0)
-                            
-                            Color(*self.color_scale)
-                            if is_tall:
-                                # Hohe Markierung (12 Pixel hoch, 3 Pixel breit)
-                                # Zeichne als Rechteck für 3 Pixel Breite, zentriert um x_pos
-                                Rectangle(pos=(x_pos - 1, scale_y_tall_bottom), size=(3, 12))
-                            else:
-                                # Normale Markierung (6 Pixel hoch, 3 Pixel breit)
-                                # Zeichne als Rechteck für 3 Pixel Breite, zentriert um x_pos
-                                Rectangle(pos=(x_pos - 1, scale_y_normal_bottom), size=(3, 6))
+                        # Zeichne Taktmarkierung (hoch) - unten bündig
+                        Color(*self.color_scale)
+                        Rectangle(pos=(bar_x_pos - 1, scale_y_bottom), size=(3, 12))
                         
-                        current_ms += quarter_note_ms
-                        quarter_index += 1
+                        # Zeichne Viertelnoten-Markierungen innerhalb des Takts
+                        for quarter in range(4):
+                            if quarter > 0:  # Erste Viertelnote ist bereits durch Taktmarkierung abgedeckt
+                                quarter_x_pos = bar_x_pos + (quarter * quarter_note_ms / 1000.0) * self.pixels_per_second * scale
+                                Color(*self.color_scale)
+                                Rectangle(pos=(quarter_x_pos - 1, scale_y_bottom), size=(3, 6))
+                    
+                    # Aktualisiere kumulative Taktnummer
+                    cumulative_bar += bars_in_part
             
-            # Zeichne Songteile als Balken
-            y_start = self.y + self.height * 0.2
-            bar_height = self.height * 0.6
+            # Zeichne Songteile als Balken (Höhe halbiert)
+            # Skala ist oben, dann kommen die Balken darunter
+            scale_height = 20  # Platz für Skala oben
+            y_start = self.y + self.height * 0.1
+            bar_height = self.height * 0.3  # Halbiert von 0.6 auf 0.3
+            
+            # Berechne kumulative Taktnummer für Positionierung
+            cumulative_bar = 0
+            ms_per_bar = 4 * (60000.0 / self.bpm) if self.bpm and self.bpm > 0 else 1000.0
             
             for part in self.song_parts:
                 start_ms = part.get("start_ms", 0) or 0
                 end_ms = part.get("end_ms", 0) or 0
-                duration_ms = end_ms - start_ms
+                bars = part.get("bars")
                 
-                if duration_ms <= 0:
+                if end_ms <= start_ms:
                     continue
                 
-                # Position und Breite in Pixeln
-                x_pos = self.x + (start_ms / 1000.0) * self.pixels_per_second * scale
-                width = (duration_ms / 1000.0) * self.pixels_per_second * scale
+                # Berechne Breite basierend auf Taktzahl statt Zeit
+                if bars and bars > 0 and self.bpm and self.bpm > 0:
+                    # Breite basierend auf Taktzahl
+                    width = (bars * ms_per_bar / 1000.0) * self.pixels_per_second * scale
+                    # Position basierend auf kumulativer Taktnummer
+                    x_pos = self.x + (cumulative_bar * ms_per_bar / 1000.0) * self.pixels_per_second * scale
+                    cumulative_bar += bars
+                else:
+                    # Fallback: Zeit-basiert wenn keine Takte vorhanden
+                    duration_ms = end_ms - start_ms
+                    x_pos = self.x + (start_ms / 1000.0) * self.pixels_per_second * scale
+                    width = (duration_ms / 1000.0) * self.pixels_per_second * scale
                 
                 # Bestimme Farbe basierend auf Songteil-Typ
                 part_name = (part.get("part_name") or "").lower()
@@ -174,9 +269,40 @@ class TimelineWidget(Widget):
                 # Rechts
                 Line(points=[x_pos + width, y_start, x_pos + width, y_start + bar_height], width=1)
             
-            # Zeichne Zeiger
-            if self.current_position_ms > 0:
-                pointer_x = self.x + (self.current_position_ms / 1000.0) * self.pixels_per_second * scale
+            # Zeichne Zeiger (immer wenn Position gesetzt ist, auch bei 0)
+            if self.current_position_ms >= 0:
+                # Berechne Pointer-Position basierend auf Takten, wenn BPM vorhanden
+                if self.bpm and self.bpm > 0:
+                    ms_per_bar = 4 * (60000.0 / self.bpm)
+                    # Finde den Songteil, in dem sich die Position befindet
+                    cumulative_bar = 0
+                    pointer_bar = 0
+                    for part in self.song_parts:
+                        start_ms = part.get("start_ms", 0) or 0
+                        end_ms = part.get("end_ms", 0) or 0
+                        bars = part.get("bars")
+                        
+                        if start_ms <= self.current_position_ms <= end_ms:
+                            # Position ist in diesem Teil
+                            relative_ms = self.current_position_ms - start_ms
+                            bars_in_part = bars if bars and bars > 0 else int((end_ms - start_ms) / ms_per_bar)
+                            relative_bars = relative_ms / ms_per_bar
+                            pointer_bar = cumulative_bar + relative_bars
+                            break
+                        elif self.current_position_ms > end_ms:
+                            # Position ist nach diesem Teil
+                            bars_in_part = bars if bars and bars > 0 else int((end_ms - start_ms) / ms_per_bar)
+                            cumulative_bar += bars_in_part
+                        else:
+                            # Position ist vor diesem Teil
+                            break
+                    
+                    # Berechne X-Position basierend auf Taktnummer
+                    pointer_x = self.x + (pointer_bar * ms_per_bar / 1000.0) * self.pixels_per_second * scale
+                else:
+                    # Fallback: Zeit-basiert
+                    pointer_x = self.x + (self.current_position_ms / 1000.0) * self.pixels_per_second * scale
+                
                 Color(*self.color_pointer)
                 Line(points=[pointer_x, self.y, pointer_x, self.y + self.height], width=2)
     

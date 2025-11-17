@@ -38,6 +38,7 @@ logger = logging.getLogger(__name__)
 Config.set('graphics', 'width', '2560')  # Verdoppelt für bessere Lesbarkeit
 Config.set('graphics', 'height', '1440')  # Verdoppelt für bessere Lesbarkeit
 Config.set('graphics', 'resizable', '1')
+Config.set('graphics', 'fullscreen', 'auto')  # Vollbildmodus
 
 
 class LightingApp(App):

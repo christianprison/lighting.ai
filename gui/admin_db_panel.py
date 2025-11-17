@@ -478,7 +478,7 @@ class AdminDbPanel(BoxLayout):
         scroll = ScrollView()
         # Spalten: Titel | BPM (ohne Songteile-Spalte)
         self.song_list_grid = GridLayout(
-            cols=2, spacing=10, size_hint_y=None
+            cols=3, spacing=10, size_hint_y=None
         )
         self.song_list_grid.bind(
             minimum_height=self.song_list_grid.setter("height")
@@ -531,7 +531,7 @@ class AdminDbPanel(BoxLayout):
         # Prüfe pygame zur Laufzeit
         pygame_available = _check_pygame_available()
         self.play_pause_button = Button(
-            text="▶ Abspielen",
+            text="Abspielen",
             font_size="24sp",
             size_hint_y=None,
             height=40,
@@ -665,8 +665,10 @@ class AdminDbPanel(BoxLayout):
                 bold=True,
                 size_hint_y=None,
                 height=40,
+                size_hint_x=None,
+                width=100,
                 halign='left',
-                text_size=(None, None),
+                text_size=(100, None),
             )
         )
         self.song_list_grid.add_widget(
@@ -676,8 +678,10 @@ class AdminDbPanel(BoxLayout):
                 bold=True,
                 size_hint_y=None,
                 height=40,
+                size_hint_x=None,
+                width=100,
                 halign='left',
-                text_size=(None, None),
+                text_size=(100, None),
             )
         )
 
@@ -714,14 +718,16 @@ class AdminDbPanel(BoxLayout):
             self.song_list_grid.add_widget(item)
             self.song_items[song_id] = item
             
-            # BPM (editierbar per Doppelklick)
+            # BPM (editierbar per Doppelklick) - 100 Pixel breit
             bpm_label = Label(
                 text=bpm_text,
                 font_size="22sp",
                 size_hint_y=None,
                 height=40,
+                size_hint_x=None,
+                width=100,
                 halign='left',
-                text_size=(None, None),
+                text_size=(100, None),
             )
             bpm_label._song_id = song_id
             bpm_label._field_name = "bpm"
@@ -760,12 +766,12 @@ class AdminDbPanel(BoxLayout):
             # Löschen-Button
             from kivy.uix.button import Button
             delete_button = Button(
-                text="🗑",
-                font_size="20sp",
+                text="Löschen",
+                font_size="18sp",
                 size_hint_y=None,
                 height=40,
                 size_hint_x=None,
-                width=60,
+                width=100,
                 background_color=(0.8, 0.2, 0.2, 1.0)
             )
             delete_button._song_id = song_id
@@ -1056,12 +1062,12 @@ class AdminDbPanel(BoxLayout):
             # Löschen-Button
             from kivy.uix.button import Button
             delete_button = Button(
-                text="🗑",
-                font_size="20sp",
+                text="Löschen",
+                font_size="18sp",
                 size_hint_y=None,
                 height=40,
                 size_hint_x=None,
-                width=60,
+                width=100,
                 background_color=(0.8, 0.2, 0.2, 1.0)
             )
             delete_button._part_id = part["id"]
@@ -1589,7 +1595,7 @@ class AdminDbPanel(BoxLayout):
             Clock.schedule_once(lambda dt: self._analyze_audio_beats(audio_file, song), 0.1)
             
             self.audio_playing = True
-            self.play_pause_button.text = "⏸ Pausieren"
+            self.play_pause_button.text = "Pausieren"
             self.play_pause_button.background_color = (0.8, 0.2, 0.2, 1)
             
             # Überwache Wiedergabe-Ende und Position
@@ -1614,7 +1620,7 @@ class AdminDbPanel(BoxLayout):
             pass
         
         self.audio_playing = False
-        self.play_pause_button.text = "▶ Abspielen"
+        self.play_pause_button.text = "Abspielen"
         self.play_pause_button.background_color = (0.2, 0.8, 0.2, 1)
         
         Clock.unschedule(self._check_audio_status)

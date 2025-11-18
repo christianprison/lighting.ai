@@ -81,19 +81,28 @@ class TimelineWidget(Widget):
         
         self._update_canvas()
     
-    def set_position(self, position_ms: int):
-        """Setzt die aktuelle Position im Zeitstrahl."""
+    def set_position(self, position_ms: int, active_part_id: Optional[int] = None):
+        """Setzt die aktuelle Position im Zeitstrahl.
+        
+        Args:
+            position_ms: Position in Millisekunden
+            active_part_id: Optional: ID des aktiven Songteils (wird gesetzt, wenn nicht None)
+        """
         self.current_position_ms = position_ms
         
-        # Bestimme aktiven Songteil
-        self.active_part_id = None
-        for part in self.song_parts:
-            start_ms = part.get("start_ms", 0) or 0
-            end_ms = part.get("end_ms", 0) or 0
-            
-            if start_ms <= position_ms <= end_ms:
-                self.active_part_id = part.get("id")
-                break
+        # Wenn active_part_id explizit gesetzt wurde, verwende diesen
+        if active_part_id is not None:
+            self.active_part_id = active_part_id
+        else:
+            # Bestimme aktiven Songteil automatisch basierend auf Position
+            self.active_part_id = None
+            for part in self.song_parts:
+                start_ms = part.get("start_ms", 0) or 0
+                end_ms = part.get("end_ms", 0) or 0
+                
+                if start_ms <= position_ms <= end_ms:
+                    self.active_part_id = part.get("id")
+                    break
         
         self._update_canvas()
     
@@ -242,17 +251,17 @@ class TimelineWidget(Widget):
                     # Weiß mit schwarzer Schrift (für später)
                     bg_color = (1.0, 1.0, 1.0, 1.0)  # Weiß
                     if is_active:
-                        bg_color = (0.9, 0.9, 0.9, 1.0)  # Leicht grau wenn aktiv
+                        bg_color = (1.0, 0.0, 1.0, 1.0)  # Magenta wenn aktiv (einheitlich)
                 elif "strophe" in part_name or "verse" in part_name:
                     # Schwarz mit weißer Schrift
                     bg_color = (0.0, 0.0, 0.0, 1.0)  # Schwarz
                     if is_active:
-                        bg_color = (0.2, 0.2, 0.2, 1.0)  # Leicht grau wenn aktiv
+                        bg_color = (1.0, 0.0, 1.0, 1.0)  # Magenta wenn aktiv (einheitlich)
                 else:
                     # Standard: Grau
                     bg_color = (0.5, 0.5, 0.5, 0.7)  # Grau
                     if is_active:
-                        bg_color = (0.2, 0.6, 0.9, 0.7)  # Blau wenn aktiv
+                        bg_color = (1.0, 0.0, 1.0, 1.0)  # Magenta wenn aktiv (einheitlich)
                 
                 # Zeichne Balken
                 Color(*bg_color)
@@ -309,4 +318,63 @@ class TimelineWidget(Widget):
     def get_active_part_id(self) -> Optional[int]:
         """Gibt die ID des aktiven Songteils zurück."""
         return self.active_part_id
+    
+    def get_part_x_position(self, part_id: int) -> Optional[float]:
+        """Gibt die X-Position (linker Rand) eines Songteils zurück.
+        
+        Args:
+            part_id: ID des Songteils
+            
+        Returns:
+            X-Position in Pixeln relativ zum Widget, oder None wenn nicht gefunden
+        """
+        if not self.song_parts or self.width == 0:
+            return None
+        
+        # Berechne Skalierung (gleiche Logik wie in _update_canvas)
+        if self.bpm and self.bpm > 0:
+            ms_per_bar = 4 * (60000.0 / self.bpm)
+            total_bars = 0
+            for part in self.song_parts:
+                bars = part.get("bars")
+                if bars and bars > 0:
+                    total_bars += bars
+                else:
+                    start_ms = part.get("start_ms", 0) or 0
+                    end_ms = part.get("end_ms", 0) or 0
+                    if end_ms > start_ms:
+                        total_bars += int((end_ms - start_ms) / ms_per_bar)
+            
+            total_width_pixels = (total_bars * ms_per_bar / 1000.0) * self.pixels_per_second
+        else:
+            total_width_pixels = (self.total_duration_ms / 1000.0) * self.pixels_per_second
+        
+        if total_width_pixels > self.width:
+            scale = self.width / total_width_pixels
+        else:
+            scale = 1.0
+        
+        # Finde den Songteil und berechne seine Position
+        cumulative_bar = 0
+        ms_per_bar = 4 * (60000.0 / self.bpm) if self.bpm and self.bpm > 0 else 1000.0
+        
+        for part in self.song_parts:
+            if part.get("id") == part_id:
+                start_ms = part.get("start_ms", 0) or 0
+                bars = part.get("bars")
+                
+                if bars and bars > 0 and self.bpm and self.bpm > 0:
+                    # Position basierend auf kumulativer Taktnummer
+                    x_pos = self.x + (cumulative_bar * ms_per_bar / 1000.0) * self.pixels_per_second * scale
+                    return x_pos
+                else:
+                    # Fallback: Zeit-basiert
+                    x_pos = self.x + (start_ms / 1000.0) * self.pixels_per_second * scale
+                    return x_pos
+            
+            # Aktualisiere kumulative Taktnummer für nächsten Teil
+            if bars and bars > 0:
+                cumulative_bar += bars
+        
+        return None
 

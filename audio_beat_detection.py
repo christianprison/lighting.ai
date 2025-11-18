@@ -7,6 +7,15 @@ from pathlib import Path
 from typing import List, Optional, Tuple
 import logging
 
+# Workaround für NumPy 2.x Kompatibilität mit madmom
+# NumPy 2.x hat np.int entfernt, aber madmom verwendet es noch
+if not hasattr(np, 'int'):
+    np.int = int  # type: ignore
+if not hasattr(np, 'float'):
+    np.float = float  # type: ignore
+if not hasattr(np, 'complex'):
+    np.complex = complex  # type: ignore
+
 logger = logging.getLogger(__name__)
 # Stelle sicher, dass Logger auch in Datei schreibt
 from config import LOG_DIR
@@ -65,8 +74,12 @@ def detect_beats_from_audio(audio_file_path: Path,
         # Bestimme Audio-Dauer mit soundfile
         try:
             with sf.SoundFile(str(audio_file_path)) as f:
-                audio_duration = len(f) / f.samplerate
-                logger.info(f"Audio-Dauer bestimmt: {audio_duration:.2f}s, Sample-Rate={f.samplerate}Hz")
+                if f.samplerate is None or f.samplerate <= 0:
+                    logger.warning(f"Ungültige Sample-Rate: {f.samplerate}")
+                    audio_duration = None
+                else:
+                    audio_duration = len(f) / f.samplerate
+                    logger.info(f"Audio-Dauer bestimmt: {audio_duration:.2f}s, Sample-Rate={f.samplerate}Hz")
         except Exception as e:
             logger.warning(f"Konnte Audio-Dauer nicht bestimmen: {e}")
             audio_duration = None
@@ -78,7 +91,7 @@ def detect_beats_from_audio(audio_file_path: Path,
         # Bestimme BPM-Bereich für DBN-Processor
         min_bpm = 50.0
         max_bpm = 200.0
-        if bpm_hint and bpm_hint > 0:
+        if bpm_hint is not None and bpm_hint > 0:
             # Verwende BPM-Hint mit ±20% Toleranz
             min_bpm = max(50.0, bpm_hint * 0.8)
             max_bpm = min(200.0, bpm_hint * 1.2)
@@ -93,8 +106,18 @@ def detect_beats_from_audio(audio_file_path: Path,
             min_bpm = 50.0
             max_bpm = 200.0
         
-        dbn_processor = DBNBeatTrackingProcessor(min_bpm=float(min_bpm), max_bpm=float(max_bpm))
-        logger.info(f"DBN-Processor initialisiert: min_bpm={min_bpm:.1f}, max_bpm={max_bpm:.1f}")
+        # Stelle sicher, dass min_bpm und max_bpm Float-Werte sind
+        # RNNBeatProcessor verwendet standardmäßig fps=100, daher müssen wir das auch für DBNBeatTrackingProcessor setzen
+        try:
+            min_bpm_float = float(min_bpm)
+            max_bpm_float = float(max_bpm)
+            fps = 100.0  # Standard fps für RNNBeatProcessor
+            logger.info(f"Initialisiere DBN-Processor mit min_bpm={min_bpm_float:.1f}, max_bpm={max_bpm_float:.1f}, fps={fps:.1f}")
+            dbn_processor = DBNBeatTrackingProcessor(min_bpm=min_bpm_float, max_bpm=max_bpm_float, fps=fps)
+            logger.info(f"DBN-Processor erfolgreich initialisiert")
+        except Exception as e:
+            logger.error(f"Fehler bei DBN-Processor-Initialisierung: {e}", exc_info=True)
+            raise
         
         # Führe Beat-Detection durch
         logger.info("Starte madmom Beat-Detection (kann etwas dauern)...")
@@ -104,8 +127,32 @@ def detect_beats_from_audio(audio_file_path: Path,
         try:
             import time
             start_time = time.time()
-            logger.info(f"Rufe beat_processor auf mit: {str(audio_file_path)}")
-            beat_activations = beat_processor(str(audio_file_path))
+            
+            # Versuche zuerst, die Datei direkt mit RNNBeatProcessor zu laden
+            # Falls das fehlschlägt (z.B. wegen fehlendem ffmpeg), lade mit soundfile
+            try:
+                logger.info(f"Versuche Datei direkt zu laden: {str(audio_file_path)}")
+                beat_activations = beat_processor(str(audio_file_path))
+            except Exception as direct_load_error:
+                logger.warning(f"Direktes Laden fehlgeschlagen ({direct_load_error}), lade mit soundfile...")
+                # Lade Audio mit soundfile (funktioniert ohne ffmpeg)
+                with sf.SoundFile(str(audio_file_path)) as audio_file:
+                    # Lade gesamtes Audio in einen numpy-Array
+                    audio_data = audio_file.read(dtype='float32')
+                    sample_rate = audio_file.samplerate
+                    
+                    logger.info(f"Audio geladen: Shape={audio_data.shape}, Sample-Rate={sample_rate}Hz")
+                    
+                    # RNNBeatProcessor kann auch direkt Audio-Daten verarbeiten
+                    # Wenn es mehrkanalig ist, konvertiere zu Mono
+                    if len(audio_data.shape) > 1:
+                        audio_data = np.mean(audio_data, axis=1)
+                        logger.info(f"Konvertiert zu Mono: Shape={audio_data.shape}")
+                    
+                    # Verarbeite Audio mit RNNBeatProcessor
+                    logger.info("Verarbeite Audio-Daten mit RNNBeatProcessor...")
+                    beat_activations = beat_processor.process(audio_data, sample_rate=sample_rate)
+            
             elapsed = time.time() - start_time
             logger.info(f"RNNBeatProcessor abgeschlossen in {elapsed:.1f} Sekunden")
             
@@ -133,7 +180,6 @@ def detect_beats_from_audio(audio_file_path: Path,
                 return [], None, audio_duration
             
             # Prüfe ob beat_activations ein Array ist
-            import numpy as np
             if not isinstance(beat_activations, np.ndarray):
                 logger.error(f"beat_activations ist kein numpy-Array, sondern {type(beat_activations)}")
                 return [], None, audio_duration
@@ -192,8 +238,9 @@ def detect_beats_from_audio(audio_file_path: Path,
         return beat_times, detected_bpm, audio_duration
         
     except Exception as e:
-        logger.error(f"Fehler bei Beat-Detection: {e}")
+        logger.error(f"Fehler bei Beat-Detection: {e}", exc_info=True)
         import traceback
+        logger.error(f"Traceback: {traceback.format_exc()}")
         traceback.print_exc()
         return [], None, None
 

@@ -87,9 +87,9 @@ class SongPartEditDialog(ModalView):
         
         # Eingabefeld
         if self.field_name in ["start_ms", "duration_ms"]:
-            # Zeit-Eingabe (mm:ss)
+            # Zeit-Eingabe (mm:ss oder mm:ss.s für 100ms Präzision)
             input_label = Label(
-                text="Format: mm:ss",
+                text="Format: mm:ss oder mm:ss.s (z.B. 01:23.4 für 100ms Präzision)",
                 font_size="24sp",
                 size_hint_y=None,
                 height=35
@@ -486,6 +486,7 @@ class AdminDbPanel(BoxLayout):
         self.temp_audio_file: Optional[Path] = None
         self.audio_start_time: Optional[float] = None  # Startzeit der Wiedergabe
         self.audio_paused_position_ms: int = 0  # Position beim Pausieren
+        self.manual_active_part_id: Optional[int] = None  # Manuell gesetzter aktiver Songteil (z.B. durch "Ab hier")
         self.audio_offset_sec: float = 0.0  # Offset der aktuellen Audiodatei
 
         self._build_ui()
@@ -499,8 +500,8 @@ class AdminDbPanel(BoxLayout):
         # Hauptlayout: Oben Tabellen (4/5), unten Zeitstrahl/Steuerung (1/5)
         main_layout = BoxLayout(orientation="vertical", spacing=10)
         
-        # Obere Hälfte: Tabellen (4/5 der Höhe)
-        top_container = BoxLayout(orientation="horizontal", spacing=20, size_hint_y=0.8)
+        # Obere Hälfte: Tabellen (75% der Höhe)
+        top_container = BoxLayout(orientation="horizontal", spacing=20, size_hint_y=0.75)
         
         # Linke Seite oben: Songliste (25% Breite)
         list_container = BoxLayout(orientation="vertical", size_hint_x=0.25)
@@ -522,8 +523,13 @@ class AdminDbPanel(BoxLayout):
         part_container = BoxLayout(orientation="vertical", size_hint_x=0.75)
 
         part_scroll = ScrollView()
-        # Spalten: Songteil | Startzeit (mm:ss) | Dauer (mm:ss) | Takte | Aktion
-        self.part_list_grid = GridLayout(cols=5, spacing=10, size_hint_y=None)  # 5 statt 6 (ohne Löschbutton)
+        # Spalten: Songteil | Startzeit (mm:ss) | Dauer (mm:ss) | Takte | Abspielen
+        # VERWENDETE UI-ELEMENTE:
+        # - ScrollView (part_scroll) für vertikales Scrollen
+        # - GridLayout (self.part_list_grid) mit cols=5 für die Tabelle
+        # - Label-Widgets für Header und Datenzeilen
+        # - Button-Widgets für "Ab hier" Buttons
+        self.part_list_grid = GridLayout(cols=5, spacing=10, size_hint_y=None)  # 5 Spalten: Songteil, Startzeit, Dauer, Takte, Abspielen
         self.part_list_grid.bind(
             minimum_height=self.part_list_grid.setter("height")
         )
@@ -534,7 +540,7 @@ class AdminDbPanel(BoxLayout):
         main_layout.add_widget(top_container)
         
         # Unteres Fünftel: Steuerung links, Zeitstrahl rechts
-        bottom_container = BoxLayout(orientation="horizontal", spacing=20, size_hint_y=0.2)
+        bottom_container = BoxLayout(orientation="horizontal", spacing=20, size_hint_y=0.25)
         
         # Steuerungseinheit (links unten)
         controls_container = BoxLayout(
@@ -688,7 +694,7 @@ class AdminDbPanel(BoxLayout):
         self.song_list_grid.add_widget(
             Label(
                 text="Titel",
-                font_size="24sp",
+                font_size="14sp",
                 bold=True,
                 size_hint_y=None,
                 height=40,
@@ -699,7 +705,7 @@ class AdminDbPanel(BoxLayout):
         self.song_list_grid.add_widget(
             Label(
                 text="BPM",
-                font_size="24sp",
+                font_size="14sp",
                 bold=True,
                 size_hint_y=None,
                 height=40,
@@ -736,7 +742,7 @@ class AdminDbPanel(BoxLayout):
                 admin_panel=self,
                 song_id=song_id,
                 text=name,
-                font_size="22sp",
+                font_size="18sp",  # 4pt größer (14sp -> 18sp)
                 size_hint_y=None,
                 height=40,
                 size_hint_x=None,
@@ -752,7 +758,7 @@ class AdminDbPanel(BoxLayout):
             # BPM (editierbar per Doppelklick) - schmaler gemacht
             bpm_label = Label(
                 text=bpm_text,
-                font_size="22sp",
+                font_size="18sp",  # 4pt größer (14sp -> 18sp)
                 size_hint_y=None,
                 height=40,
                 size_hint_x=None,
@@ -905,31 +911,29 @@ class AdminDbPanel(BoxLayout):
         self._part_rows: List[Dict] = []
         self._part_labels: Dict[int, List[Label]] = {}  # Speichert Labels für Hervorhebung
 
-        # Header: Songteil | Startzeit | Dauer | Takte | Abspielen | Aktion
+        # Header: Songteil | Startzeit | Dauer | Takte | Abspielen
+        # Verwende proportionale Breiten (size_hint_x) statt fester Pixel-Breiten
+        # Verhältnis: 3:1:1:1:1 (Songteil bekommt 3/7, restliche je 1/7)
         songteil_header = Label(
             text="Songteil",
-            font_size="22sp",
+            font_size="14sp",
             bold=True,
             size_hint_y=None,
             height=40,
-            size_hint_x=None,
-            width=200,  # Feste Breite für Songteil
+            size_hint_x=0.4286,  # 3/7 ≈ 42.86%
             halign='left',
-            text_size=(200, None),
         )
         self.part_list_grid.add_widget(songteil_header)
         
         # Startzeit-Überschrift (klickbar)
         startzeit_header = Label(
             text="Startzeit",
-            font_size="22sp",
+            font_size="14sp",
             bold=True,
             size_hint_y=None,
             height=40,
-            size_hint_x=None,
-            width=80,  # Halbe Breite
+            size_hint_x=0.1429,  # 1/7 ≈ 14.29%
             halign='left',
-            text_size=(80, None),
         )
         startzeit_header._admin_panel = self
         startzeit_header._field_name = "start_ms"
@@ -939,14 +943,12 @@ class AdminDbPanel(BoxLayout):
         # Dauer-Überschrift (klickbar)
         dauer_header = Label(
             text="Dauer",
-            font_size="22sp",
+            font_size="14sp",
             bold=True,
             size_hint_y=None,
             height=40,
-            size_hint_x=None,
-            width=80,  # Halbe Breite
+            size_hint_x=0.1429,  # 1/7 ≈ 14.29%
             halign='left',
-            text_size=(80, None),
         )
         dauer_header._admin_panel = self
         dauer_header._field_name = "duration_ms"
@@ -956,14 +958,12 @@ class AdminDbPanel(BoxLayout):
         # Takte-Überschrift (klickbar)
         takte_header = Label(
             text="Takte",
-            font_size="22sp",
+            font_size="14sp",
             bold=True,
             size_hint_y=None,
             height=40,
-            size_hint_x=None,
-            width=80,  # Feste Breite
+            size_hint_x=0.1429,  # 1/7 ≈ 14.29%
             halign='left',
-            text_size=(80, None),
         )
         takte_header._admin_panel = self
         takte_header._field_name = "bars"
@@ -973,30 +973,14 @@ class AdminDbPanel(BoxLayout):
         # Abspielen-Überschrift
         abspielen_header = Label(
             text="Abspielen",
-            font_size="22sp",
+            font_size="14sp",
             bold=True,
             size_hint_y=None,
             height=40,
-            size_hint_x=None,
-            width=100,  # Feste Breite
+            size_hint_x=0.1429,  # 1/7 ≈ 14.29%
             halign='left',
-            text_size=(100, None),
         )
         self.part_list_grid.add_widget(abspielen_header)
-        
-        # Aktion-Überschrift
-        aktion_header = Label(
-            text="Aktion",
-            font_size="22sp",
-            bold=True,
-            size_hint_y=None,
-            height=40,
-            size_hint_x=None,
-            width=100,  # Feste Breite
-            halign='left',
-            text_size=(100, None),
-        )
-        self.part_list_grid.add_widget(aktion_header)
 
         for part in parts:
             part_name = part.get("part_name") or ""
@@ -1004,17 +988,19 @@ class AdminDbPanel(BoxLayout):
             duration_ms = part.get("duration_ms")
             bars = part.get("bars")
 
-            # Formatierung: mm:ss
-            def format_ms_to_mmss(ms):
+            # Formatierung: mm:ss.s (100ms Präzision - eine Stelle nach dem Komma)
+            def format_ms_to_mmss_s(ms):
                 if ms is None:
-                    return "--:--"
-                total_sec = ms // 1000
-                minutes = total_sec // 60
-                seconds = total_sec % 60
-                return f"{minutes:02d}:{seconds:02d}"
+                    return "--:--.-"
+                total_seconds = ms / 1000.0
+                minutes = int(total_seconds // 60)
+                seconds = int(total_seconds % 60)
+                # Runde auf 100ms (eine Stelle nach dem Komma)
+                tenths = int(round((total_seconds - int(total_seconds)) * 10))
+                return f"{minutes:02d}:{seconds:02d}.{tenths}"
 
-            start_time_str = format_ms_to_mmss(start_ms)
-            duration_str = format_ms_to_mmss(duration_ms)
+            start_time_str = format_ms_to_mmss_s(start_ms)
+            duration_str = format_ms_to_mmss_s(duration_ms)
             bars_str = str(bars) if bars is not None else "--"
 
             # Bestimme Text- und Hintergrundfarbe basierend auf Songteil-Typ
@@ -1037,7 +1023,7 @@ class AdminDbPanel(BoxLayout):
                 from kivy.graphics import Color as GColor, Rectangle
                 label = Label(
                     text=text,
-                    font_size="20sp",
+                    font_size="14sp",
                     size_hint_y=None,
                     height=40,
                     halign='left',
@@ -1068,11 +1054,17 @@ class AdminDbPanel(BoxLayout):
                 
                 return label
             
-            # Callback für Doppelklick
+            # Callback für Doppelklick und Einzelklick
             def on_label_double_click(label_instance, touch):
-                """Öffnet Edit-Dialog bei Doppelklick."""
+                """Öffnet Edit-Dialog bei Doppelklick oder setzt Startzeit bei Einzelklick (wenn abspielt)."""
                 if label_instance.collide_point(*touch.pos):
+                    # Nur Linksklick behandeln (nicht Rechtsklick)
+                    if touch.button != 'left':
+                        return False
+                    
                     current_time = touch.time_start
+                    is_double_click = False
+                    
                     # Prüfe ob Doppelklick (innerhalb von 300ms und ähnliche Position)
                     if (hasattr(label_instance, '_last_click_time') and
                         label_instance._last_click_time and 
@@ -1081,7 +1073,10 @@ class AdminDbPanel(BoxLayout):
                         label_instance._last_click_pos and
                         abs(touch.pos[0] - label_instance._last_click_pos[0]) < 10 and
                         abs(touch.pos[1] - label_instance._last_click_pos[1]) < 10):
-                        # Öffne Dialog
+                        is_double_click = True
+                    
+                    if is_double_click:
+                        # Öffne Dialog bei Doppelklick
                         dialog = SongPartEditDialog(
                             field_name=label_instance._field_name,
                             current_value=label_instance.text,
@@ -1091,59 +1086,106 @@ class AdminDbPanel(BoxLayout):
                         )
                         dialog.open()
                         return True
-                    label_instance._last_click_time = current_time
-                    label_instance._last_click_pos = touch.pos
+                    else:
+                        # Einzelklick: Wenn Audiodatei abspielt und es die Startzeit-Spalte ist, setze Startzeit
+                        if (label_instance._field_name == "start_ms" and 
+                            hasattr(label_instance, '_admin_panel') and
+                            label_instance._admin_panel.audio_playing and
+                            hasattr(label_instance, '_part_id')):
+                            
+                            admin_panel = label_instance._admin_panel
+                            part_id = label_instance._part_id
+                            
+                            # Hole aktuelle Pointer-Position (mit Offset)
+                            if admin_panel.timeline_widget:
+                                # Aktuelle Position aus Timeline
+                                current_position_ms = admin_panel.timeline_widget.current_position_ms
+                                
+                                # Offset hinzufügen (wenn gesetzt)
+                                if hasattr(admin_panel, 'audio_offset_sec') and admin_panel.audio_offset_sec:
+                                    # Offset wird bereits in der Position berücksichtigt, aber wir müssen sicherstellen
+                                    # dass wir die korrekte Position haben
+                                    pass
+                                
+                                # Setze Startzeit des Songteils auf aktuelle Pointer-Position
+                                # Hole aktuellen Songteil
+                                parts = admin_panel.db.get_song_parts(admin_panel.current_song_id)
+                                part = None
+                                for p in parts:
+                                    if p.get("id") == part_id:
+                                        part = p
+                                        break
+                                
+                                if part:
+                                    old_start_ms = part.get("start_ms") or 0
+                                    duration_ms = part.get("duration_ms") or 0
+                                    new_end_ms = current_position_ms + duration_ms
+                                    
+                                    # Aktualisiere Startzeit
+                                    admin_panel.db.update_song_part(part_id, start_ms=current_position_ms, end_ms=new_end_ms)
+                                    
+                                    # Berechne nachfolgende Songteile neu
+                                    admin_panel._recalculate_following_parts(part_id, new_end_ms)
+                                    
+                                    # Lade Songteile neu
+                                    admin_panel._load_song_parts(admin_panel.current_song_id)
+                                    
+                                    print(f"Startzeit von Songteil {part_id} auf {current_position_ms}ms gesetzt")
+                                    return True
+                        
+                        # Speichere Zeit und Position für nächsten möglichen Doppelklick
+                        label_instance._last_click_time = current_time
+                        label_instance._last_click_pos = touch.pos
+                        return False
                 return False
             
-            # Songteil-Name (feste Breite wie Header)
+            # Songteil-Name (proportionale Breite wie Header)
             part_name_label = create_label_with_bg(part_name, bg_color, text_color)
             part_name_label._field_name = "part_name"
-            part_name_label.size_hint_x = None
-            part_name_label.width = 200  # Gleiche Breite wie Header
-            part_name_label.text_size = (200, None)
+            part_name_label.size_hint_x = 0.4286  # 3/7 ≈ 42.86% (wie Header)
+            part_name_label._part_id = part["id"]
+            part_name_label._part_name = part_name
+            part_name_label._admin_panel = self
+            # Doppelklick für Bearbeitung
             part_name_label.bind(on_touch_down=on_label_double_click)
+            # Kontextmenü für rechten Mausklick auf Songteil-Namen
+            part_name_label.bind(on_touch_down=self._on_part_name_right_click)
             self.part_list_grid.add_widget(part_name_label)
 
-            # Startzeit (halbe Breite)
+            # Startzeit (proportionale Breite wie Header)
             start_time_label = create_label_with_bg(start_time_str, bg_color, text_color)
             start_time_label._field_name = "start_ms"
-            start_time_label.size_hint_x = None
-            start_time_label.width = 80  # Halbe Breite
-            start_time_label.text_size = (80, None)
+            start_time_label.size_hint_x = 0.125  # 1/8 = 12.5% (wie Header)
             start_time_label.bind(on_touch_down=on_label_double_click)
             self.part_list_grid.add_widget(start_time_label)
 
-            # Dauer (halbe Breite)
+            # Dauer (proportionale Breite wie Header)
             duration_label = create_label_with_bg(duration_str, bg_color, text_color)
             duration_label._field_name = "duration_ms"
-            duration_label.size_hint_x = None
-            duration_label.width = 80  # Halbe Breite
-            duration_label.text_size = (80, None)
+            duration_label.size_hint_x = 0.125  # 1/8 = 12.5% (wie Header)
             duration_label.bind(on_touch_down=on_label_double_click)
             self.part_list_grid.add_widget(duration_label)
 
-            # Takte (feste Breite wie Header)
+            # Takte (proportionale Breite wie Header)
             bars_label = create_label_with_bg(bars_str, bg_color, text_color)
             bars_label._field_name = "bars"
-            bars_label.size_hint_x = None
-            bars_label.width = 80  # Gleiche Breite wie Header
-            bars_label.text_size = (80, None)
+            bars_label.size_hint_x = 0.125  # 1/8 = 12.5% (wie Header)
             bars_label.bind(on_touch_down=on_label_double_click)
             self.part_list_grid.add_widget(bars_label)
 
-            # "Ab hier" Button (feste Breite wie Header)
+            # "Ab hier" Button (proportionale Breite wie Header)
             from kivy.uix.button import Button
             play_from_button = Button(
                 text="Ab hier",
                 font_size="18sp",
                 size_hint_y=None,
                 height=40,
-                size_hint_x=None,
-                width=100,  # Gleiche Breite wie "Abspielen" Header
+                size_hint_x=0.1429,  # 1/7 ≈ 14.29% (wie "Abspielen" Header)
                 background_color=(0.2, 0.6, 0.8, 1.0)
             )
             play_from_button._part_id = part["id"]
-            play_from_button._start_ms = start_ms
+            # Stelle sicher, dass start_ms immer einen Wert hat (auch wenn es 0 ist)
+            play_from_button._start_ms = start_ms if start_ms is not None else 0
             play_from_button._admin_panel = self
             play_from_button.bind(on_press=self._on_play_from_part_click)
             # Kontextmenü für rechten Mausklick hinzufügen
@@ -1289,13 +1331,24 @@ class AdminDbPanel(BoxLayout):
                 print(f"Songteil '{part_dict.get('part_name')}' umbenannt zu '{new_value}'")
             
             elif field_name == "start_ms":
-                # Konvertiere mm:ss zu Millisekunden
+                # Konvertiere mm:ss oder mm:ss.ms zu Millisekunden
                 try:
                     parts = new_value.split(":")
                     if len(parts) == 2:
                         minutes = int(parts[0])
-                        seconds = int(parts[1])
-                        start_ms = (minutes * 60 + seconds) * 1000
+                        seconds_part = parts[1]
+                        
+                        # Prüfe ob Zehntelsekunden vorhanden sind (Format: ss.s für 100ms Präzision)
+                        if "." in seconds_part:
+                            seconds_str, tenths_str = seconds_part.split(".")
+                            seconds = int(seconds_str)
+                            # Eine Stelle nach dem Komma = Zehntelsekunden (100ms Präzision)
+                            tenths = int(tenths_str[:1]) if tenths_str else 0
+                            milliseconds = tenths * 100  # Zehntelsekunden zu Millisekunden
+                            start_ms = (minutes * 60 + seconds) * 1000 + milliseconds
+                        else:
+                            seconds = int(seconds_part)
+                            start_ms = (minutes * 60 + seconds) * 1000
                         
                         # Berechne end_ms neu basierend auf duration_ms
                         duration_ms = part_dict.get("duration_ms") or 0
@@ -1307,20 +1360,31 @@ class AdminDbPanel(BoxLayout):
                         # Berechne alle nachfolgenden Songteile neu
                         self._recalculate_following_parts(part_id, end_ms)
                     else:
-                        print(f"Ungültiges Format für Startzeit: {new_value} (erwartet: mm:ss)")
+                        print(f"Ungültiges Format für Startzeit: {new_value} (erwartet: mm:ss oder mm:ss.s)")
                         return
                 except ValueError as e:
                     print(f"Fehler beim Parsen der Startzeit: {e}")
                     return
             
             elif field_name == "duration_ms":
-                # Konvertiere mm:ss zu Millisekunden
+                # Konvertiere mm:ss oder mm:ss.ms zu Millisekunden
                 try:
                     parts = new_value.split(":")
                     if len(parts) == 2:
                         minutes = int(parts[0])
-                        seconds = int(parts[1])
-                        duration_ms = (minutes * 60 + seconds) * 1000
+                        seconds_part = parts[1]
+                        
+                        # Prüfe ob Zehntelsekunden vorhanden sind (Format: ss.s für 100ms Präzision)
+                        if "." in seconds_part:
+                            seconds_str, tenths_str = seconds_part.split(".")
+                            seconds = int(seconds_str)
+                            # Eine Stelle nach dem Komma = Zehntelsekunden (100ms Präzision)
+                            tenths = int(tenths_str[:1]) if tenths_str else 0
+                            milliseconds = tenths * 100  # Zehntelsekunden zu Millisekunden
+                            duration_ms = (minutes * 60 + seconds) * 1000 + milliseconds
+                        else:
+                            seconds = int(seconds_part)
+                            duration_ms = (minutes * 60 + seconds) * 1000
                         
                         # Berechne end_ms neu basierend auf start_ms
                         start_ms = part_dict.get("start_ms") or 0
@@ -1340,7 +1404,7 @@ class AdminDbPanel(BoxLayout):
                         # Berechne alle nachfolgenden Songteile neu
                         self._recalculate_following_parts(part_id, end_ms)
                     else:
-                        print(f"Ungültiges Format für Dauer: {new_value} (erwartet: mm:ss)")
+                        print(f"Ungültiges Format für Dauer: {new_value} (erwartet: mm:ss oder mm:ss.s)")
                         return
                 except ValueError as e:
                     print(f"Fehler beim Parsen der Dauer: {e}")
@@ -1535,7 +1599,23 @@ class AdminDbPanel(BoxLayout):
     
     def _on_play_from_part_click(self, instance):
         """Wird aufgerufen, wenn der 'Ab hier' Button geklickt wird."""
-        start_ms = instance._start_ms or 0
+        # Hole part_id und start_ms aus dem Button
+        part_id = getattr(instance, '_part_id', None)
+        start_ms = getattr(instance, '_start_ms', None)
+        
+        # Wenn start_ms None ist, versuche es aus der Datenbank zu holen
+        if start_ms is None and part_id and self.current_song_id:
+            parts = self.db.get_song_parts(self.current_song_id)
+            for part in parts:
+                if part.get("id") == part_id:
+                    start_ms = part.get("start_ms") or 0
+                    break
+        
+        # Fallback auf 0 wenn immer noch None
+        if start_ms is None:
+            start_ms = 0
+        
+        print(f"Ab hier: part_id={part_id}, start_ms={start_ms}, offset={self.audio_offset_sec if hasattr(self, 'audio_offset_sec') else 0}")
         
         # Stoppe aktuelle Wiedergabe falls aktiv
         if self.audio_playing:
@@ -1545,15 +1625,93 @@ class AdminDbPanel(BoxLayout):
         if not self.current_song_id:
             return
         
-        # Setze Startposition (Startzeit des Songteils + Offset)
-        # Der Offset wird in _start_audio berücksichtigt
+        # Setze Startposition (Startzeit des Songteils, Offset wird in _start_audio hinzugefügt)
         self.audio_paused_position_ms = start_ms
+        
+        # Setze manuellen aktiven Songteil (wird von _update_timeline_position respektiert)
+        self.manual_active_part_id = part_id
+        
+        # Setze aktiven Songteil in der Timeline
+        if part_id and self.timeline_widget:
+            # Setze Scroll-Position basierend auf Startzeit relativ zur Gesamtdauer
+            if hasattr(self, 'timeline_scroll') and self.timeline_widget.total_duration_ms > 0:
+                # Berechne Prozentsatz: Startzeit des Songteils / Gesamtdauer
+                # Kivy scroll_x: 0.0 = ganz links (Anfang), 1.0 = ganz rechts (Ende)
+                # Wenn Songteil bei 30% startet, soll scroll_x = 0.3 sein
+                percentage = start_ms / self.timeline_widget.total_duration_ms
+                # Begrenze auf 0.0 bis 1.0
+                percentage = max(0.0, min(1.0, percentage))
+                # Direkt verwenden (nicht invertieren)
+                self.timeline_scroll.scroll_x = percentage
+            
+            # Setze Pointer auf die Startposition des Songteils und setze active_part_id
+            # WICHTIG: Setze die Position SOFORT, bevor _start_audio aufgerufen wird
+            self.timeline_widget.set_position(start_ms, active_part_id=part_id)
+        
+        # Hervorhebe aktiven Teil in der Tabelle
+        if part_id:
+            self._highlight_active_part(part_id)
         
         # Starte Wiedergabe
         self._start_audio()
     
+    def _on_part_name_right_click(self, widget, touch):
+        """Wird aufgerufen, wenn mit der rechten Maustaste auf einen Songteil-Namen geklickt wird."""
+        if touch.button == 'right' and widget.collide_point(*touch.pos):
+            part_id = widget._part_id if hasattr(widget, '_part_id') else None
+            part_name = widget._part_name if hasattr(widget, '_part_name') else "Unbekannt"
+            
+            if part_id:
+                # Kontextmenü anzeigen
+                from kivy.uix.popup import Popup
+                from kivy.uix.boxlayout import BoxLayout
+                from kivy.uix.button import Button
+                
+                content = BoxLayout(orientation='vertical', spacing=10, padding=10)
+                
+                btn_delete = Button(
+                    text="Löschen",
+                    font_size="20sp",
+                    size_hint_y=None,
+                    height=50,
+                    background_color=(0.8, 0.2, 0.2, 1.0)
+                )
+                
+                popup = Popup(
+                    title=f"Songteil: {part_name}",
+                    content=content,
+                    size_hint=(0.4, 0.3),
+                    auto_dismiss=True
+                )
+                
+                # Erstelle temporäres Widget-Objekt für _on_delete_part_click
+                class TempWidget:
+                    def __init__(self, pid, pname):
+                        self._part_id = pid
+                        self._part_name = pname
+                
+                # Schließe erst das Kontextmenü, dann öffne Bestätigungsdialog
+                def on_delete_click(btn):
+                    popup.dismiss()
+                    self._on_delete_part_click(TempWidget(part_id, part_name))
+                btn_delete.bind(on_press=on_delete_click)
+                
+                btn_cancel = Button(
+                    text="Abbrechen",
+                    font_size="20sp",
+                    size_hint_y=None,
+                    height=50
+                )
+                
+                btn_cancel.bind(on_press=lambda b: popup.dismiss())
+                content.add_widget(btn_delete)
+                content.add_widget(btn_cancel)
+                popup.open()
+                return True  # Event konsumieren, um Standard-Verhalten zu verhindern
+        return False
+    
     def _on_part_right_click(self, widget, touch):
-        """Wird aufgerufen, wenn mit der rechten Maustaste auf einen Songteil geklickt wird."""
+        """Wird aufgerufen, wenn mit der rechten Maustaste auf einen Songteil-Button geklickt wird."""
         if touch.button == 'right' and widget.collide_point(*touch.pos):
             part_id = widget._part_id
             part_name = widget._part_name
@@ -1572,7 +1730,11 @@ class AdminDbPanel(BoxLayout):
                 height=50,
                 background_color=(0.8, 0.2, 0.2, 1.0)
             )
-            btn_delete.bind(on_press=lambda b: self._on_delete_part_click(widget))
+            # Schließe erst das Kontextmenü, dann öffne Bestätigungsdialog
+            def on_delete_click(btn):
+                popup.dismiss()
+                self._on_delete_part_click(widget)
+            btn_delete.bind(on_press=on_delete_click)
             
             btn_cancel = Button(
                 text="Abbrechen",
@@ -1592,7 +1754,7 @@ class AdminDbPanel(BoxLayout):
             content.add_widget(btn_delete)
             content.add_widget(btn_cancel)
             popup.open()
-            return True
+            return True  # Event konsumieren, um Standard-Verhalten zu verhindern
         return False
     
     def _on_song_right_click(self, widget, touch):
@@ -1631,7 +1793,11 @@ class AdminDbPanel(BoxLayout):
                     def __init__(self, sid, sname):
                         self._song_id = sid
                         self._song_name = sname
-                btn_delete.bind(on_press=lambda b: self._on_delete_song_click(TempInstance(song_id, song_name)))
+                # Schließe erst das Kontextmenü, dann öffne Bestätigungsdialog
+                def on_delete_click(btn):
+                    popup.dismiss()
+                    self._on_delete_song_click(TempInstance(song_id, song_name))
+                btn_delete.bind(on_press=on_delete_click)
                 
                 btn_cancel = Button(
                     text="Abbrechen",
@@ -1651,7 +1817,7 @@ class AdminDbPanel(BoxLayout):
                 content.add_widget(btn_delete)
                 content.add_widget(btn_cancel)
                 popup.open()
-                return True
+                return True  # Event konsumieren, um Standard-Verhalten zu verhindern
         return False
     
     def _on_delete_part_click(self, instance):
@@ -1845,8 +2011,11 @@ class AdminDbPanel(BoxLayout):
         # Hole Song-Daten für Beat-Detection
         song = self.db.get_song(self.current_song_id)
         
-        # Hole Offset
-        self.audio_offset_sec = audio_file.get('offset_sec', 0.0) or 0.0
+        # Hole Offset (verwende aktuellen Wert, falls bereits gesetzt, sonst aus DB)
+        # Dies ermöglicht, dass geänderte Offsets sofort verwendet werden
+        if not hasattr(self, 'audio_offset_sec') or self.audio_offset_sec is None:
+            self.audio_offset_sec = audio_file.get('offset_sec', 0.0) or 0.0
+        # Sonst verwende den bereits gesetzten Wert (kann durch _on_offset_text_validate geändert worden sein)
         
         # Speichere BLOB in temporärer Datei
         audio_data = audio_file.get('audio_data')
@@ -1870,8 +2039,14 @@ class AdminDbPanel(BoxLayout):
             # Wenn "Ab hier" verwendet wurde: start_ms + offset
             # Sonst: nur offset
             import time
-            start_position_ms = self.audio_paused_position_ms if hasattr(self, 'audio_paused_position_ms') and self.audio_paused_position_ms > 0 else 0
+            # Verwende audio_paused_position_ms wenn gesetzt (auch wenn es 0 ist, da der erste Songteil bei 0 starten kann)
+            # Prüfe explizit auf None, nicht auf > 0, damit auch 0-Werte akzeptiert werden
+            if hasattr(self, 'audio_paused_position_ms') and self.audio_paused_position_ms is not None:
+                start_position_ms = self.audio_paused_position_ms
+            else:
+                start_position_ms = 0
             audio_start_position_sec = (start_position_ms / 1000.0) + self.audio_offset_sec
+            print(f"_start_audio: start_position_ms={start_position_ms}, offset={self.audio_offset_sec}, audio_start_position_sec={audio_start_position_sec}")
             
             # Setze Position auf Offset + Startposition (funktioniert nur mit OGG, bei MP3 wird es ignoriert)
             # Für MP3 müssen wir die Position manuell tracken
@@ -1885,10 +2060,12 @@ class AdminDbPanel(BoxLayout):
             # Startzeit für Position-Tracking
             # Wichtig: Pointer startet bei der Startposition des Songteils (start_position_ms)
             # Der Offset wird nur für die Audio-Wiedergabe verwendet, nicht für die Pointer-Position
-            # audio_start_time wird so gesetzt, dass elapsed_seconds bei start_position_ms beginnt
-            self.audio_start_time = time.time() - (start_position_ms / 1000.0)
+            # audio_start_time wird so gesetzt, dass elapsed_seconds bei 0 beginnt
+            # (start_position_ms wird dann in _update_timeline_position hinzugefügt)
+            self.audio_start_time = time.time()
             # Setze Position zurück wenn nicht von "Ab hier" gesetzt
-            if not hasattr(self, 'audio_paused_position_ms') or self.audio_paused_position_ms == 0:
+            # Prüfe auf None, nicht auf 0, damit 0-Werte (für ersten Songteil) akzeptiert werden
+            if not hasattr(self, 'audio_paused_position_ms') or self.audio_paused_position_ms is None:
                 self.audio_paused_position_ms = 0
             
             # Beat-Detection für Audio-Datei
@@ -1937,24 +2114,33 @@ class AdminDbPanel(BoxLayout):
             # Starte Beat-Detection im Hintergrund-Thread (verfeinert BPM und Beats)
             # Dies läuft parallel zur Wiedergabe und kann das BPM verfeinern
             import threading
+            beat_logger.info(f"Starte Beat-Detection Thread...")
             beat_thread = threading.Thread(
                 target=self._analyze_audio_beats_thread,
                 args=(audio_file, song),
                 daemon=True
             )
             beat_thread.start()
+            beat_logger.info(f"Beat-Detection Thread gestartet (Thread-ID: {beat_thread.ident})")
             
             self.audio_playing = True
             self.play_pause_button.text = "Pausieren"
             self.play_pause_button.background_color = (0.8, 0.2, 0.2, 1)
             
             # Setze Pointer auf Position 0 (ganz links, beim ersten Songteil)
-            if self.timeline_widget:
+            # Nur wenn nicht von "Ab hier" gesetzt (dann wurde die Position bereits gesetzt)
+            if self.timeline_widget and not (hasattr(self, 'manual_active_part_id') and self.manual_active_part_id is not None):
                 self.timeline_widget.set_position(0)
             
             # Überwache Wiedergabe-Ende und Position
             Clock.schedule_interval(self._check_audio_status, 0.1)
             Clock.schedule_interval(self._update_timeline_position, 0.05)  # 20 FPS für flüssige Animation
+            
+            # Debug: Prüfe ob quarter_notes gesetzt wurden
+            if hasattr(self, 'quarter_notes'):
+                beat_logger.info(f"Wiedergabe gestartet: quarter_notes vorhanden: {self.quarter_notes is not None}, Länge: {len(self.quarter_notes) if self.quarter_notes else 0}")
+            else:
+                beat_logger.warning("Wiedergabe gestartet: quarter_notes nicht vorhanden!")
             
         except Exception as e:
             print(f"Fehler beim Abspielen: {e}")
@@ -1997,6 +2183,8 @@ class AdminDbPanel(BoxLayout):
         if self.timeline_widget:
             self.timeline_widget.set_position(0)
         self._highlight_active_part(None)
+        # Setze manuellen aktiven Teil zurück
+        self.manual_active_part_id = None
         
         # Lösche temporäre Datei
         if self.temp_audio_file and self.temp_audio_file.exists():
@@ -2025,9 +2213,12 @@ class AdminDbPanel(BoxLayout):
     
     def _analyze_audio_beats_thread(self, audio_file: Dict, song: Dict):
         """Analysiert die Audio-Datei auf Beats/Viertelnoten in einem separaten Thread."""
-        beat_logger.debug("_analyze_audio_beats_thread aufgerufen")
-        beat_logger.debug(f"temp_audio_file: {self.temp_audio_file}")
-        beat_logger.debug(f"temp_audio_file exists: {self.temp_audio_file.exists() if self.temp_audio_file else False}")
+        beat_logger.info("=" * 80)
+        beat_logger.info("_analyze_audio_beats_thread aufgerufen")
+        beat_logger.info(f"temp_audio_file: {self.temp_audio_file}")
+        beat_logger.info(f"temp_audio_file exists: {self.temp_audio_file.exists() if self.temp_audio_file else False}")
+        beat_logger.info(f"audio_file: {audio_file}")
+        beat_logger.info(f"song: {song}")
         
         # UI-Updates müssen im Hauptthread passieren
         def update_status(text):
@@ -2035,7 +2226,12 @@ class AdminDbPanel(BoxLayout):
                 self.beat_status_label.text = text
         
         def update_result(quarter_notes_list, status_text):
+            beat_logger.info(f"update_result aufgerufen: {len(quarter_notes_list)} Viertelnoten, Status: {status_text}")
             self.quarter_notes = quarter_notes_list
+            # Update Status-Label
+            if hasattr(self, 'beat_status_label'):
+                self.beat_status_label.text = status_text
+                beat_logger.info(f"beat_status_label aktualisiert: {status_text}")
             # WICHTIG: Wenn die Wiedergabe bereits läuft, setze current_quarter_index auf die aktuelle Position
             # basierend auf der bereits verstrichenen Zeit, damit nicht alle vergangenen Beats auf einmal getriggert werden
             if self.audio_playing and hasattr(self, 'audio_start_time') and self.audio_start_time:
@@ -2087,10 +2283,10 @@ class AdminDbPanel(BoxLayout):
                 from madmom.features.beats import RNNBeatProcessor, DBNBeatTrackingProcessor
                 import soundfile as sf
                 madmom_available = True
-                beat_logger.info(f"madmom verfügbar")
+                beat_logger.info(f"madmom verfügbar - Import erfolgreich")
             except ImportError as ie:
                 error_msg = f"madmom nicht verfügbar: {ie}"
-                beat_logger.error(error_msg)
+                beat_logger.error(f"madmom Import-Fehler: {ie}", exc_info=True)
                 Clock.schedule_once(lambda dt: update_result([], f"Status: {error_msg}"), 0)
                 return
             
@@ -2101,19 +2297,31 @@ class AdminDbPanel(BoxLayout):
             
             beat_logger.info(f"BPM: {bpm}, Offset: {offset_sec}s")
             beat_logger.info("Starte Beat-Detection...")
+            beat_logger.info(f"Rufe detect_beats_from_audio auf mit: temp_audio_file={self.temp_audio_file}, bpm_hint={bpm}, offset_sec={offset_sec}")
             
             # Update Status während Analyse (im Hauptthread)
             Clock.schedule_once(lambda dt: update_status("Status: Initialisiere madmom..."), 0)
             Clock.schedule_once(lambda dt: update_status("Status: RNNBeatProcessor läuft (kann 30-60s dauern)..."), 1)
             
             # Erkenne Beats aus Audio-Datei (blockiert, daher im Thread)
-            beat_times, detected_bpm, audio_duration = detect_beats_from_audio(
-                self.temp_audio_file,
-                bpm_hint=bpm,
-                offset_sec=offset_sec
-            )
+            try:
+                beat_times, detected_bpm, audio_duration = detect_beats_from_audio(
+                    self.temp_audio_file,
+                    bpm_hint=bpm,
+                    offset_sec=offset_sec
+                )
+                beat_logger.info(f"detect_beats_from_audio zurückgekehrt: beat_times={len(beat_times) if beat_times else 0}, detected_bpm={detected_bpm}, audio_duration={audio_duration}")
+            except Exception as e:
+                beat_logger.error(f"Fehler beim Aufruf von detect_beats_from_audio: {e}", exc_info=True)
+                import traceback
+                traceback.print_exc()
+                Clock.schedule_once(lambda dt: update_result([], f"Status: Fehler bei Beat-Detection: {str(e)[:60]}"), 0)
+                return
             
-            beat_logger.info(f"Beat-Detection Ergebnis: {len(beat_times) if beat_times else 0} Beats, BPM: {detected_bpm}, Dauer: {audio_duration:.2f}s" if audio_duration else f"Beat-Detection Ergebnis: {len(beat_times) if beat_times else 0} Beats, BPM: {detected_bpm}")
+            if audio_duration:
+                beat_logger.info(f"Beat-Detection Ergebnis: {len(beat_times) if beat_times else 0} Beats, BPM: {detected_bpm}, Dauer: {audio_duration:.2f}s")
+            else:
+                beat_logger.info(f"Beat-Detection Ergebnis: {len(beat_times) if beat_times else 0} Beats, BPM: {detected_bpm}")
             
             if beat_times and len(beat_times) > 0:
                 # Konvertiere Beats zu gleichmäßigen Viertelnoten
@@ -2124,10 +2332,16 @@ class AdminDbPanel(BoxLayout):
                     final_bpm,
                     audio_duration=audio_duration
                 )
-                status_text = f"Status: {len(quarter_notes_list)} gleichmäßige Viertelnoten (BPM: {final_bpm:.1f})"
+                if final_bpm:
+                    status_text = f"Status: {len(quarter_notes_list)} gleichmäßige Viertelnoten (BPM: {final_bpm:.1f})"
+                else:
+                    status_text = f"Status: {len(quarter_notes_list)} Viertelnoten (BPM: unbekannt)"
                 beat_logger.info(f"Beat-Detection erfolgreich: {len(quarter_notes_list)} gleichmäßige Viertelnoten erkannt")
                 # Update Ergebnis im Hauptthread
-                Clock.schedule_once(lambda dt: update_result(quarter_notes_list, status_text), 0)
+                def update_with_notes(dt):
+                    update_result(quarter_notes_list, status_text)
+                    beat_logger.info(f"quarter_notes im Hauptthread gesetzt: {len(quarter_notes_list)} Viertelnoten, Status: {status_text}")
+                Clock.schedule_once(update_with_notes, 0)
             else:
                 error_msg = f"Keine Beats erkannt (detected_bpm: {detected_bpm})"
                 beat_logger.warning(error_msg)
@@ -2172,6 +2386,14 @@ class AdminDbPanel(BoxLayout):
                 elapsed_seconds = 0
             
             # Wenn Beat-Detection verfügbar ist, verwende erkannte Viertelnoten
+            # Debug: Prüfe quarter_notes
+            if not hasattr(self, 'quarter_notes') or not self.quarter_notes or len(self.quarter_notes) == 0:
+                if not hasattr(self, '_last_beat_warning_time'):
+                    self._last_beat_warning_time = 0
+                if current_time - self._last_beat_warning_time > 2.0:
+                    beat_logger.warning(f"_update_timeline_position: quarter_notes nicht verfügbar (hasattr: {hasattr(self, 'quarter_notes')}, value: {getattr(self, 'quarter_notes', None)}, len: {len(self.quarter_notes) if hasattr(self, 'quarter_notes') and self.quarter_notes else 0})")
+                    self._last_beat_warning_time = current_time
+            
             if self.quarter_notes and len(self.quarter_notes) > 0:
                 # Update Status
                 if hasattr(self, 'beat_status_label'):
@@ -2269,62 +2491,27 @@ class AdminDbPanel(BoxLayout):
                 current_position_ms = int((start_offset + elapsed_seconds) * 1000)
             
             # Aktualisiere Timeline (Songteile beginnen bei 0, Offset wird nicht berücksichtigt)
-            if self.timeline_widget and hasattr(self, 'timeline_scroll'):
-                # Berechne Pointer-X-Position relativ zum Timeline-Widget
-                pointer_x_relative = None
-                if self.timeline_widget.bpm and self.timeline_widget.bpm > 0:
-                    # Takt-basiert
-                    ms_per_bar = 4 * (60000.0 / self.timeline_widget.bpm)
-                    cumulative_bar = 0
-                    pointer_bar = 0
-                    for part in self.timeline_widget.song_parts:
-                        start_ms = part.get("start_ms", 0) or 0
-                        end_ms = part.get("end_ms", 0) or 0
-                        bars = part.get("bars")
-                        
-                        if start_ms <= current_position_ms <= end_ms:
-                            relative_ms = current_position_ms - start_ms
-                            bars_in_part = bars if bars and bars > 0 else int((end_ms - start_ms) / ms_per_bar)
-                            relative_bars = relative_ms / ms_per_bar
-                            pointer_bar = cumulative_bar + relative_bars
-                            break
-                        elif current_position_ms > end_ms:
-                            bars_in_part = bars if bars and bars > 0 else int((end_ms - start_ms) / ms_per_bar)
-                            cumulative_bar += bars_in_part
+            # Autoscroll entfernt - springt nicht mehr wild hin und her
+            if self.timeline_widget:
+                # Wenn ein manueller aktiver Teil gesetzt wurde (z.B. durch "Ab hier"), verwende diesen
+                # WICHTIG: Verwende die manuelle Position (start_ms), nicht current_position_ms
+                if hasattr(self, 'manual_active_part_id') and self.manual_active_part_id is not None:
+                    # Verwende die ursprünglich gesetzte Position (start_ms), nicht die aktuelle Wiedergabeposition
+                    manual_start_ms = self.audio_paused_position_ms if hasattr(self, 'audio_paused_position_ms') and self.audio_paused_position_ms is not None else 0
+                    # Berechne Position: manuelle Startposition + verstrichene Zeit seit Start
+                    # elapsed_seconds wurde bereits oben berechnet (beginnt bei 0)
+                    # Position = manuelle Startposition + verstrichene Zeit
+                    manual_position_ms = int(manual_start_ms + (elapsed_seconds * 1000))
                     
-                    pointer_x_relative = (pointer_bar * ms_per_bar / 1000.0) * self.timeline_widget.pixels_per_second
+                    self.timeline_widget.set_position(manual_position_ms, active_part_id=self.manual_active_part_id)
+                    # Hervorhebung immer setzen, auch wenn bereits gesetzt (für zuverlässige Anzeige)
+                    self._highlight_active_part(self.manual_active_part_id)
                 else:
-                    # Zeit-basiert
-                    pointer_x_relative = (current_position_ms / 1000.0) * self.timeline_widget.pixels_per_second
-                
-                # Prüfe ob Pointer die Mitte des sichtbaren Bereichs erreicht hat
-                if pointer_x_relative is not None:
-                    scroll_view_width = self.timeline_scroll.width
-                    if scroll_view_width > 0 and self.timeline_widget.width > scroll_view_width:
-                        scroll_view_x = self.timeline_scroll.scroll_x
-                        visible_left = scroll_view_x * (self.timeline_widget.width - scroll_view_width)
-                        visible_right = visible_left + scroll_view_width
-                        center_x = visible_left + (scroll_view_width / 2.0)
-                        
-                        # Wenn Pointer die Mitte erreicht hat und noch nicht ganz rechts gescrollt ist
-                        if pointer_x_relative >= center_x and scroll_view_x < 0.99:
-                            # Scrolle weiter nach rechts (5% pro Frame)
-                            max_scroll = max(0, 1.0 - (scroll_view_width / self.timeline_widget.width))
-                            new_scroll_x = min(max_scroll, scroll_view_x + 0.05)
-                            self.timeline_scroll.scroll_x = new_scroll_x
-                        elif pointer_x_relative < center_x and scroll_view_x > 0.01:
-                            # Pointer ist noch links von der Mitte, scrolle zurück
-                            optimal_scroll = (pointer_x_relative - scroll_view_width / 2.0) / (self.timeline_widget.width - scroll_view_width)
-                            optimal_scroll = max(0.0, min(1.0, optimal_scroll))
-                            self.timeline_scroll.scroll_x = optimal_scroll
-                
-                self.timeline_widget.set_position(current_position_ms)
-            elif self.timeline_widget:
-                self.timeline_widget.set_position(current_position_ms)
-                
-                # Hervorhebe aktiven Songteil
-                active_part_id = self.timeline_widget.get_active_part_id()
-                self._highlight_active_part(active_part_id)
+                    # Automatische Bestimmung basierend auf Position
+                    self.timeline_widget.set_position(current_position_ms)
+                    active_part_id = self.timeline_widget.get_active_part_id()
+                    # Hervorhebung immer setzen, auch wenn bereits gesetzt (für zuverlässige Anzeige)
+                    self._highlight_active_part(active_part_id)
         except Exception as e:
             print(f"Fehler beim Aktualisieren der Timeline-Position: {e}")
             import traceback

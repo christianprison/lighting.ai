@@ -8,6 +8,10 @@ from kivy.graphics.texture import Texture
 from kivy.clock import Clock
 from typing import List, Dict, Optional
 import time
+import logging
+
+# Logger für Debug-Ausgaben (verwendet denselben Logger wie admin_db_panel)
+timeline_logger = logging.getLogger('beat_detection')
 
 
 class TimelineWidget(Widget):
@@ -19,21 +23,40 @@ class TimelineWidget(Widget):
         self.current_position_ms: int = 0  # Aktuelle Position in Millisekunden
         self.total_duration_ms: int = 0  # Gesamtdauer des Songs
         self.active_part_id: Optional[int] = None
-        self.pixels_per_second = 20  # 20 Pixel pro Sekunde (halbiert)
+        self.pixels_per_second = 40  # 40 Pixel pro Sekunde (doppelt so groß)
         self.bpm: Optional[int] = None  # BPM des Songs für Skala
         
         # Farben
         self.color_pointer = (1.0, 0.2, 0.2, 1.0)  # Rot für Zeiger
         self.color_border = (1.0, 1.0, 1.0, 1.0)  # Weiß für Rahmen
         self.color_scale = (0.8, 0.8, 0.8, 1.0)  # Grau für Skala
+        self.color_detected_scale = (1.0, 1.0, 1.0, 1.0)  # Weiß für erkannte Beat-Skala
         # Farben werden basierend auf Songteil-Typ bestimmt
+        
+        # Erkannte Viertelnoten-Markierungen während der Wiedergabe
+        # Speichert die Positionen (in Millisekunden) wo Beats erkannt wurden
+        self.detected_beat_positions: List[int] = []  # Liste von Millisekunden
+        
+        # Taktzählung pro Songteil: speichert die Anzahl der Beats seit dem letzten Songteil-Start
+        # Key: active_part_id, Value: Anzahl der Beats seit Songteil-Start
+        self.beat_count_per_part: Dict[Optional[int], int] = {}
+        
+        # Offset-Zeit für den Songanfang
+        self.song_offset_ms: int = 0  # Offset in Millisekunden
         
         self.bind(size=self._update_canvas, pos=self._update_canvas)
     
-    def set_song_parts(self, parts: List[Dict], bpm: Optional[int] = None):
-        """Setzt die Songteile für die Anzeige."""
+    def set_song_parts(self, parts: List[Dict], bpm: Optional[int] = None, offset_sec: float = 0.0):
+        """Setzt die Songteile für die Anzeige.
+        
+        Args:
+            parts: Liste der Songteile
+            bpm: BPM des Songs
+            offset_sec: Offset in Sekunden für den Songanfang
+        """
         self.song_parts = sorted(parts, key=lambda p: p.get("start_ms", 0) or 0)
         self.bpm = bpm
+        self.song_offset_ms = int(offset_sec * 1000.0)
         
         # Berechne Gesamtdauer
         if self.song_parts:
@@ -79,6 +102,46 @@ class TimelineWidget(Widget):
             else:
                 self.size_hint_x = 1.0
         
+        self._update_canvas()
+    
+    def set_detected_beats(self, beat_times_sec: List[float]):
+        """Setzt alle erkannten Beats auf einmal.
+        Wird nach der Beat-Detection aufgerufen, wenn alle Beats bekannt sind.
+        
+        Args:
+            beat_times_sec: Liste von Beat-Zeiten in Sekunden
+        """
+        # Konvertiere alle Sekunden zu Millisekunden
+        self.detected_beat_positions = [int(beat_time_sec * 1000.0) for beat_time_sec in beat_times_sec]
+        # Sortiere für bessere Performance beim Zeichnen
+        self.detected_beat_positions.sort()
+        timeline_logger.debug(f"set_detected_beats aufgerufen: {len(self.detected_beat_positions)} Beats gesetzt")
+        if len(self.detected_beat_positions) > 0:
+            timeline_logger.debug(f"Erster Beat: {self.detected_beat_positions[0]}ms, Letzter Beat: {self.detected_beat_positions[-1]}ms")
+        self._update_canvas()
+    
+    def add_detected_beat_marker(self, beat_time_sec: Optional[float] = None, is_song_start: bool = False):
+        """Veraltete Methode - wird nicht mehr verwendet, da wir alle Beats auf einmal setzen.
+        Behalten für Rückwärtskompatibilität."""
+        pass
+    
+    def clear_detected_beat_markers(self):
+        """Löscht alle erkannten Beat-Markierungen."""
+        self.detected_beat_positions = []
+        self.beat_count_per_part = {}
+        self._update_canvas()
+    
+    def add_offset_marker(self, offset_ms: int):
+        """Fügt einen langen Markierungsstrich am Offset (Songanfang) hinzu.
+        
+        Args:
+            offset_ms: Offset-Position in Millisekunden
+        """
+        # Setze als besonderen Marker am Offset (wird als langer Strich gezeichnet)
+        self.detected_beat_positions.append(offset_ms)
+        # Markiere als Songanfang, damit die Zählung dort beginnt
+        if self.active_part_id is not None:
+            self.beat_count_per_part[self.active_part_id] = 0
         self._update_canvas()
     
     def set_position(self, position_ms: int, active_part_id: Optional[int] = None):
@@ -148,6 +211,10 @@ class TimelineWidget(Widget):
             scale_y_normal_top = scale_y_bottom + 6  # Normale Markierung: 6px hoch
             scale_y_tall_top = scale_y_bottom + 12  # Hohe Markierung: 12px hoch
             
+            # Position für erkannte Beat-Skala (weiß, über der grauen Skala) - Debug
+            detected_scale_y_bottom = scale_y_tall_top + 4  # Über der grauen Skala
+            detected_scale_y_top = detected_scale_y_bottom + 6  # 6px hoch
+            
             if self.bpm and self.bpm > 0:
                 # Berechne Dauer einer Viertelnote in Millisekunden
                 quarter_note_ms = 60000.0 / self.bpm
@@ -210,6 +277,76 @@ class TimelineWidget(Widget):
                     
                     # Aktualisiere kumulative Taktnummer
                     cumulative_bar += bars_in_part
+            
+            # Zeichne erkannte Beat-Markierungen in Weiß über der grauen Skala (Debug)
+            # Alle von der Beat-Detection erkannten Viertelnoten, mit 3px Breite
+            # Dadurch werden Abweichungen von der theoretischen Skala sichtbar
+            if self.detected_beat_positions and len(self.detected_beat_positions) > 0:
+                Color(*self.color_detected_scale)  # Weiß
+                
+                # Debug: Log erste paar Beats
+                if not hasattr(self, '_beat_drawing_debug_shown'):
+                    timeline_logger.debug(f"Zeichne {len(self.detected_beat_positions)} erkannte Beats")
+                    timeline_logger.debug(f"Widget Position: x={self.x}, y={self.y}, width={self.width}, height={self.height}")
+                    timeline_logger.debug(f"scale_y_bottom={scale_y_bottom}, detected_scale_y_bottom={detected_scale_y_bottom}")
+                    timeline_logger.debug(f"BPM={self.bpm}, song_parts={len(self.song_parts) if self.song_parts else 0}")
+                    timeline_logger.debug(f"pixels_per_second={self.pixels_per_second}, scale={scale}")
+                    if len(self.detected_beat_positions) > 0:
+                        timeline_logger.debug(f"Erster Beat: {self.detected_beat_positions[0]}ms, Letzter Beat: {self.detected_beat_positions[-1]}ms")
+                    self._beat_drawing_debug_shown = True
+                
+                drawn_count = 0
+                # Durchlaufe alle erkannten Beat-Positionen
+                for beat_ms in self.detected_beat_positions:
+                    # Berechne X-Position basierend auf Zeit (gleiche Logik wie normale Skala)
+                    beat_x_pos = None
+                    
+                    if self.bpm and self.bpm > 0:
+                        # Falls BPM vorhanden, berechne Position basierend auf Takten
+                        ms_per_bar = 4 * (60000.0 / self.bpm)
+                        cumulative_bar = 0
+                        
+                        # Finde den Songteil, in dem sich dieser Beat befindet
+                        for part in self.song_parts:
+                            part_start_ms = part.get("start_ms", 0) or 0
+                            part_end_ms = part.get("end_ms", 0) or 0
+                            part_bars = part.get("bars")
+                            
+                            if part_start_ms <= beat_ms <= part_end_ms:
+                                # Beat ist in diesem Songteil
+                                relative_ms = beat_ms - part_start_ms
+                                bars_in_part = part_bars if part_bars and part_bars > 0 else int((part_end_ms - part_start_ms) / ms_per_bar)
+                                relative_bars = relative_ms / ms_per_bar
+                                bar_position = cumulative_bar + relative_bars
+                                beat_x_pos = self.x + (bar_position * ms_per_bar / 1000.0) * self.pixels_per_second * scale
+                                break
+                            elif beat_ms > part_end_ms:
+                                # Beat ist nach diesem Songteil
+                                bars_in_part = part_bars if part_bars and part_bars > 0 else int((part_end_ms - part_start_ms) / ms_per_bar)
+                                cumulative_bar += bars_in_part
+                            # else: Beat ist vor diesem Songteil, nichts zu tun
+                        
+                        # Fallback: Wenn Position nicht gefunden wurde, verwende Zeit-basiert
+                        if beat_x_pos is None:
+                            beat_x_pos = self.x + (beat_ms / 1000.0) * self.pixels_per_second * scale
+                    else:
+                        # Zeit-basiert wenn kein BPM
+                        beat_x_pos = self.x + (beat_ms / 1000.0) * self.pixels_per_second * scale
+                    
+                    # Zeichne weißen Markierungsstrich über der grauen Skala (3px Breite, 6px hoch) - Debug
+                    # Zeichne ALLE Beats, nicht nur die im sichtbaren Bereich (für Debug)
+                    if beat_x_pos is not None:
+                        Rectangle(pos=(beat_x_pos - 1, detected_scale_y_bottom), size=(3, 6))
+                        drawn_count += 1
+                        
+                        # Debug: Zeige erste 5 Beats
+                        if drawn_count <= 5:
+                            timeline_logger.debug(f"Beat #{drawn_count}: beat_ms={beat_ms}ms, beat_x_pos={beat_x_pos:.1f}px, detected_scale_y_bottom={detected_scale_y_bottom:.1f}px")
+                
+                # Debug: Zeige wie viele Beats gezeichnet wurden
+                if not hasattr(self, '_beat_drawing_count_shown'):
+                    timeline_logger.debug(f"{drawn_count} von {len(self.detected_beat_positions)} Beats gezeichnet")
+                    self._beat_drawing_count_shown = True
             
             # Zeichne Songteile als Balken (Höhe halbiert)
             # Skala ist oben, dann kommen die Balken darunter

@@ -48,7 +48,7 @@ from kivy.clock import Clock
 
 from database import Database
 from gui.timeline_widget import TimelineWidget
-from gui.beat_indicator import BeatIndicator
+# BeatIndicator entfernt, da Beat-Detection nicht online (im Stream) geschieht
 
 
 class SongPartEditDialog(ModalView):
@@ -564,65 +564,7 @@ class AdminDbPanel(BoxLayout):
             self.play_pause_button.text = "Audio nicht verfügbar"
         controls_container.add_widget(self.play_pause_button)
         
-        beat_container = BoxLayout(
-            orientation="vertical",
-            size_hint_y=None,
-            height=100,
-            spacing=2
-        )
-        
-        beat_label = Label(
-            text="beat",
-            font_size="16sp",
-            size_hint_y=None,
-            height=20,
-            halign='center'
-        )
-        beat_label.bind(texture_size=beat_label.setter('size'))
-        beat_container.add_widget(beat_label)
-        
-        beat_indicator_container = BoxLayout(
-            orientation="horizontal",
-            size_hint_y=None,
-            height=20
-        )
-        self.beat_indicator = BeatIndicator(
-            size_hint_x=None,
-            size_hint_y=None,
-            width=20,
-            height=20
-        )
-        beat_indicator_container.add_widget(Label(size_hint_x=1.0))
-        beat_indicator_container.add_widget(self.beat_indicator)
-        beat_indicator_container.add_widget(Label(size_hint_x=1.0))
-        beat_container.add_widget(beat_indicator_container)
-        
-        self.beat_status_label = Label(
-            text="Status: Warte auf Audio",
-            font_size="12sp",
-            size_hint_y=None,
-            height=20,
-            halign='center'
-        )
-        beat_container.add_widget(self.beat_status_label)
-        
-        from kivy.uix.progressbar import ProgressBar
-        self.beat_confidence_gauge = ProgressBar(
-            max=100,
-            value=0,
-            size_hint_y=None,
-            height=15
-        )
-        self.beat_confidence_label = Label(
-            text="Präzision: 0%",
-            font_size="12sp",
-            size_hint_y=None,
-            height=15,
-            halign='center'
-        )
-        beat_container.add_widget(self.beat_confidence_gauge)
-        beat_container.add_widget(self.beat_confidence_label)
-        controls_container.add_widget(beat_container)
+        # Beat-Statusanzeige entfernt, da Beat-Detection nicht online (im Stream) geschieht
         
         offset_layout = BoxLayout(
             orientation="horizontal",
@@ -817,13 +759,7 @@ class AdminDbPanel(BoxLayout):
         # Stoppe laufende Wiedergabe wenn Song gewechselt wird
         self._stop_audio()
         
-        # Setze Beat-Indikator zurück wenn kein Song ausgewählt
-        if hasattr(self, 'beat_indicator') and self.beat_indicator:
-            self.beat_indicator.beat_active = False
-            self.beat_indicator._update_canvas()
-            if hasattr(self.beat_indicator, 'blink_animation') and self.beat_indicator.blink_animation:
-                Clock.unschedule(self.beat_indicator.blink_animation)
-                self.beat_indicator.blink_animation = None
+        # Beat-Indikator entfernt (Beat-Detection nicht online)
 
     def open_song_dialog(self, song_id: Optional[int]):
         """Wird bei Rechtsklick auf einen Songtitel aufgerufen."""
@@ -1228,18 +1164,14 @@ class AdminDbPanel(BoxLayout):
         if self.timeline_widget:
             song = self.db.get_song(self.current_song_id)
             bpm = song.get("bpm") if song else None
-            self.timeline_widget.set_song_parts(parts, bpm=bpm)
+            # Übergebe auch Offset für die Timeline
+            offset_sec = self.audio_offset_sec if hasattr(self, 'audio_offset_sec') else 0.0
+            self.timeline_widget.set_song_parts(parts, bpm=bpm, offset_sec=offset_sec)
         
         # Lade und zeige Offset der Audiodatei
         self._load_audio_offset()
         
-        # Setze Beat-Indikator zurück wenn keine Songteile vorhanden
-        if not parts and hasattr(self, 'beat_indicator') and self.beat_indicator:
-            self.beat_indicator.beat_active = False
-            self.beat_indicator._update_canvas()
-            if hasattr(self.beat_indicator, 'blink_animation') and self.beat_indicator.blink_animation:
-                Clock.unschedule(self.beat_indicator.blink_animation)
-                self.beat_indicator.blink_animation = None
+        # Beat-Indikator entfernt (Beat-Detection nicht online)
     
     def _on_header_click(self, instance, touch):
         """Wird aufgerufen, wenn auf eine Überschrift geklickt wird. Berechnet Werte aus BPM + anderen Spalten."""
@@ -2101,14 +2033,21 @@ class AdminDbPanel(BoxLayout):
                     current_time += quarter_note_interval
                 
                 self.quarter_notes = quarter_notes
+                # Separate Liste für erkannte Beats (von Beat-Detection) - initial leer
+                self.detected_quarter_notes = []
                 beat_logger.info(f"Sofortige Beat-Generierung: {len(quarter_notes)} gleichmäßige Viertelnoten (BPM: {bpm:.1f}, Interval: {quarter_note_interval:.3f}s, Dauer: {audio_duration:.2f}s)")
                 
-                # Update Status
-                if hasattr(self, 'beat_status_label'):
-                    self.beat_status_label.text = f"Status: {len(quarter_notes)} Viertelnoten (BPM: {bpm:.1f}, wird verfeinert...)"
+                # Beim Start: Zeichne die generierten Beats sofort (als Fallback bis Beat-Detection fertig ist)
+                if hasattr(self, 'timeline_widget') and self.timeline_widget:
+                    beat_logger.debug(f"Zeichne sofort {len(quarter_notes)} generierte Beats in Timeline")
+                    self.timeline_widget.set_detected_beats(quarter_notes)
+                    beat_logger.info(f"Sofortige Beat-Generierung: {len(quarter_notes)} Beats in Timeline gesetzt")
+                
+                # Statusanzeige entfernt (Beat-Detection nicht online)
             else:
                 # Kein BPM vorhanden, warte auf Beat-Detection
                 self.quarter_notes: List[float] = []
+                self.detected_quarter_notes = []
                 beat_logger.info(f"Kein BPM vorhanden, Beat-Detection wird gestartet")
             
             # Starte Beat-Detection im Hintergrund-Thread (verfeinert BPM und Beats)
@@ -2168,16 +2107,14 @@ class AdminDbPanel(BoxLayout):
         
         # Setze Beat-Detection-Variablen zurück
         self.quarter_notes = []
+        self.detected_quarter_notes = []
         self.current_quarter_index = 0
+        # Entferne erkannte Beat-Markierungen aus Timeline
+        if hasattr(self, 'timeline_widget') and self.timeline_widget:
+            self.timeline_widget.clear_detected_beat_markers()
         beat_logger.info(f"Wiedergabe gestoppt, current_quarter_index auf 0 zurückgesetzt")
         
-        # Setze Beat-Indikator zurück
-        if hasattr(self, 'beat_indicator') and self.beat_indicator:
-            self.beat_indicator.beat_active = False
-            self.beat_indicator._update_canvas()
-            if hasattr(self.beat_indicator, 'blink_animation') and self.beat_indicator.blink_animation:
-                Clock.unschedule(self.beat_indicator.blink_animation)
-                self.beat_indicator.blink_animation = None
+        # Beat-Indikator entfernt (Beat-Detection nicht online)
         
         # Setze Position zurück
         if self.timeline_widget:
@@ -2220,18 +2157,52 @@ class AdminDbPanel(BoxLayout):
         beat_logger.info(f"audio_file: {audio_file}")
         beat_logger.info(f"song: {song}")
         
-        # UI-Updates müssen im Hauptthread passieren
+        # UI-Updates müssen im Hauptthread passieren (Statusanzeige entfernt)
         def update_status(text):
-            if hasattr(self, 'beat_status_label'):
-                self.beat_status_label.text = text
+            pass  # Statusanzeige entfernt
         
         def update_result(quarter_notes_list, status_text):
             beat_logger.info(f"update_result aufgerufen: {len(quarter_notes_list)} Viertelnoten, Status: {status_text}")
-            self.quarter_notes = quarter_notes_list
-            # Update Status-Label
-            if hasattr(self, 'beat_status_label'):
-                self.beat_status_label.text = status_text
-                beat_logger.info(f"beat_status_label aktualisiert: {status_text}")
+            
+            # WICHTIG: Wenn die Wiedergabe bereits läuft und wir bereits quarter_notes haben,
+            # überschreibe sie nicht mit einer leeren Liste (es sei denn, es gibt neue, gültige Daten)
+            if (self.audio_playing and 
+                hasattr(self, 'quarter_notes') and 
+                self.quarter_notes and 
+                len(self.quarter_notes) > 0 and 
+                len(quarter_notes_list) == 0):
+                beat_logger.warning(f"Überschreibe quarter_notes nicht mit leerer Liste während der Wiedergabe (aktuell: {len(self.quarter_notes)} Viertelnoten)")
+                # Statusanzeige entfernt - behalte die bestehenden quarter_notes
+                return
+            
+            # Speichere erkannte Beats separat - diese werden als weiße Striche dargestellt
+            self.detected_quarter_notes = quarter_notes_list.copy() if quarter_notes_list else []
+            beat_logger.info(f"detected_quarter_notes gesetzt: {len(self.detected_quarter_notes)} erkannte Beats")
+            
+            # Zeichne alle erkannten Beats auf einmal in der Timeline
+            # Falls quarter_notes_list leer ist, verwende die bereits generierten quarter_notes als Fallback
+            if hasattr(self, 'timeline_widget') and self.timeline_widget:
+                beats_to_draw = quarter_notes_list if quarter_notes_list else (self.quarter_notes if hasattr(self, 'quarter_notes') and self.quarter_notes else [])
+                if beats_to_draw:
+                    beat_logger.info(f"Rufe timeline_widget.set_detected_beats() auf mit {len(beats_to_draw)} Beats")
+                    beat_logger.debug(f"setze {len(beats_to_draw)} Beats in Timeline")
+                    if len(beats_to_draw) > 0:
+                        beat_logger.debug(f"Erster Beat: {beats_to_draw[0]:.3f}s, Letzter Beat: {beats_to_draw[-1]:.3f}s")
+                    self.timeline_widget.set_detected_beats(beats_to_draw)
+                    beat_logger.info(f"Alle {len(beats_to_draw)} Beats in Timeline gesetzt")
+                else:
+                    beat_logger.warning(f"Keine Beats zum Zeichnen verfügbar")
+                    beat_logger.debug(f"Keine Beats zum Zeichnen verfügbar")
+            
+            # Wenn bereits quarter_notes existieren (von sofortiger Generierung), behalte diese für die Wiedergabe
+            # Sonst verwende die erkannten Beats
+            if not hasattr(self, 'quarter_notes') or not self.quarter_notes or len(self.quarter_notes) == 0:
+                self.quarter_notes = quarter_notes_list
+            
+            # Setze Warnungs-Flag zurück, damit neue Warnungen angezeigt werden
+            if hasattr(self, '_detected_notes_warning_shown'):
+                self._detected_notes_warning_shown = False
+            # Statusanzeige entfernt
             # WICHTIG: Wenn die Wiedergabe bereits läuft, setze current_quarter_index auf die aktuelle Position
             # basierend auf der bereits verstrichenen Zeit, damit nicht alle vergangenen Beats auf einmal getriggert werden
             if self.audio_playing and hasattr(self, 'audio_start_time') and self.audio_start_time:
@@ -2259,8 +2230,7 @@ class AdminDbPanel(BoxLayout):
             
             if len(quarter_notes_list) > 0:
                 beat_logger.info(f"Erste Viertelnote: {quarter_notes_list[0]:.3f}s, Letzte: {quarter_notes_list[-1]:.3f}s")
-            if hasattr(self, 'beat_status_label'):
-                self.beat_status_label.text = status_text
+            # Statusanzeige entfernt
         
         # Update Status im Hauptthread
         Clock.schedule_once(lambda dt: update_status("Status: Prüfe Audio-Datei..."), 0)
@@ -2395,9 +2365,7 @@ class AdminDbPanel(BoxLayout):
                     self._last_beat_warning_time = current_time
             
             if self.quarter_notes and len(self.quarter_notes) > 0:
-                # Update Status
-                if hasattr(self, 'beat_status_label'):
-                    self.beat_status_label.text = f"Status: Beat Detection aktiv ({len(self.quarter_notes)} Viertelnoten)"
+                # Statusanzeige entfernt
                 
                 # Finde die nächste Viertelnote basierend auf verstrichener Zeit
                 # Trigger Beat-Indikator bei jeder Viertelnote
@@ -2413,7 +2381,6 @@ class AdminDbPanel(BoxLayout):
                     beat_logger.debug(f"elapsed_seconds={elapsed_seconds:.3f}, current_quarter_index={self.current_quarter_index}, quarter_notes length={len(self.quarter_notes)}")
                     if self.current_quarter_index < len(self.quarter_notes):
                         beat_logger.debug(f"Nächste Viertelnote bei: {self.quarter_notes[self.current_quarter_index]:.3f}s")
-                    beat_logger.debug(f"beat_indicator vorhanden: {hasattr(self, 'beat_indicator')}, beat_indicator ist None: {not hasattr(self, 'beat_indicator') or self.beat_indicator is None}")
                     self._last_beat_debug_time = elapsed_seconds
                 
                 while (self.current_quarter_index < len(self.quarter_notes) and
@@ -2421,11 +2388,11 @@ class AdminDbPanel(BoxLayout):
                     # Beat erkannt - trigger bei jeder Viertelnote
                     beat_time = self.quarter_notes[self.current_quarter_index]
                     beat_logger.debug(f"Beat erkannt bei {beat_time:.3f}s (elapsed: {elapsed_seconds:.3f}s)")
-                    if hasattr(self, 'beat_indicator') and self.beat_indicator:
-                        beat_logger.debug(f"Rufe beat_indicator.trigger_beat() auf")
-                        self.beat_indicator.trigger_beat()
-                    else:
-                        beat_logger.warning(f"beat_indicator nicht verfügbar oder None!")
+                    # Beat-Indikator entfernt (Beat-Detection nicht online)
+                    
+                    # Die erkannten Beats werden bereits auf einmal gezeichnet, wenn detected_quarter_notes gesetzt wird
+                    # Daher ist hier keine sequenzielle Zeichnung mehr nötig
+                    
                     beats_detected_count += 1
                     self.current_quarter_index += 1
                 
@@ -2479,12 +2446,8 @@ class AdminDbPanel(BoxLayout):
                 
                 current_position_ms = int(position_sec * 1000)
             else:
-                # Keine Beat-Detection verfügbar
-                if hasattr(self, 'beat_status_label'):
-                    self.beat_status_label.text = "Status: Beat Detection nicht verfügbar"
-                if hasattr(self, 'beat_confidence_gauge') and hasattr(self, 'beat_confidence_label'):
-                    self.beat_confidence_gauge.value = 0
-                    self.beat_confidence_label.text = "Präzision: 0%"
+                # Keine Beat-Detection verfügbar (Statusanzeige entfernt)
+                pass
                 
                 # Fallback: Zeit-basierte Position
                 start_offset = self.audio_paused_position_ms / 1000.0 if hasattr(self, 'audio_paused_position_ms') and self.audio_paused_position_ms > 0 else 0.0

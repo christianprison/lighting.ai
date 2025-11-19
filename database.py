@@ -187,6 +187,272 @@ class Database:
         except sqlite3.OperationalError:
             pass
         
+        # Tabelle für Fixtures
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS fixtures (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                fixture_name TEXT NOT NULL UNIQUE,
+                manufacturer TEXT,
+                model TEXT,
+                mode TEXT,
+                num_universes INTEGER DEFAULT 0,  -- Automatisch berechnet: Anzahl unterschiedlicher Universen
+                num_dmx_channels INTEGER DEFAULT 0,  -- Automatisch berechnet: Gesamtanzahl DMX-Kanäle
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        
+        # Migration: Füge berechnete Spalten hinzu, falls sie nicht existieren
+        try:
+            cursor.execute("ALTER TABLE fixtures ADD COLUMN num_universes INTEGER DEFAULT 0")
+        except sqlite3.OperationalError:
+            pass  # Spalte existiert bereits
+        try:
+            cursor.execute("ALTER TABLE fixtures ADD COLUMN num_dmx_channels INTEGER DEFAULT 0")
+        except sqlite3.OperationalError:
+            pass  # Spalte existiert bereits
+        
+        # Tabelle für DMX-Kanäle (Universum + DMX-Kanal Kombinationen)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS dmx_channels (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                universe INTEGER NOT NULL,
+                dmx_channel INTEGER NOT NULL CHECK(dmx_channel >= 1 AND dmx_channel <= 512),
+                fixture_id INTEGER NOT NULL,
+                channel_name TEXT,  -- Name des Kanals in der Fixture (z.B. "Red", "Green", "Blue", "Pan", "Tilt")
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (fixture_id) REFERENCES fixtures(id) ON DELETE CASCADE,
+                UNIQUE(universe, dmx_channel)
+            )
+        """)
+        
+        # Trigger nach INSERT in dmx_channels
+        cursor.execute("""
+            CREATE TRIGGER IF NOT EXISTS dmx_channels_insert_update_stats
+            AFTER INSERT ON dmx_channels
+            FOR EACH ROW
+            BEGIN
+                UPDATE fixtures
+                SET 
+                    num_universes = (
+                        SELECT COUNT(DISTINCT universe)
+                        FROM dmx_channels
+                        WHERE fixture_id = NEW.fixture_id
+                    ),
+                    num_dmx_channels = (
+                        SELECT COUNT(*)
+                        FROM dmx_channels
+                        WHERE fixture_id = NEW.fixture_id
+                    )
+                WHERE id = NEW.fixture_id;
+            END
+        """)
+        
+        # Trigger nach UPDATE in dmx_channels (falls fixture_id geändert wird)
+        cursor.execute("""
+            CREATE TRIGGER IF NOT EXISTS dmx_channels_update_update_stats
+            AFTER UPDATE ON dmx_channels
+            FOR EACH ROW
+            WHEN OLD.fixture_id != NEW.fixture_id OR OLD.fixture_id = NEW.fixture_id
+            BEGIN
+                -- Aktualisiere altes Fixture (falls fixture_id geändert wurde)
+                UPDATE fixtures
+                SET 
+                    num_universes = (
+                        SELECT COUNT(DISTINCT universe)
+                        FROM dmx_channels
+                        WHERE fixture_id = OLD.fixture_id
+                    ),
+                    num_dmx_channels = (
+                        SELECT COUNT(*)
+                        FROM dmx_channels
+                        WHERE fixture_id = OLD.fixture_id
+                    )
+                WHERE id = OLD.fixture_id;
+                
+                -- Aktualisiere neues Fixture
+                UPDATE fixtures
+                SET 
+                    num_universes = (
+                        SELECT COUNT(DISTINCT universe)
+                        FROM dmx_channels
+                        WHERE fixture_id = NEW.fixture_id
+                    ),
+                    num_dmx_channels = (
+                        SELECT COUNT(*)
+                        FROM dmx_channels
+                        WHERE fixture_id = NEW.fixture_id
+                    )
+                WHERE id = NEW.fixture_id;
+            END
+        """)
+        
+        # Trigger nach DELETE in dmx_channels
+        cursor.execute("""
+            CREATE TRIGGER IF NOT EXISTS dmx_channels_delete_update_stats
+            AFTER DELETE ON dmx_channels
+            FOR EACH ROW
+            BEGIN
+                UPDATE fixtures
+                SET 
+                    num_universes = (
+                        SELECT COUNT(DISTINCT universe)
+                        FROM dmx_channels
+                        WHERE fixture_id = OLD.fixture_id
+                    ),
+                    num_dmx_channels = (
+                        SELECT COUNT(*)
+                        FROM dmx_channels
+                        WHERE fixture_id = OLD.fixture_id
+                    )
+                WHERE id = OLD.fixture_id;
+            END
+        """)
+        
+        # Initialisiere berechnete Werte für alle vorhandenen Fixtures
+        cursor.execute("""
+            UPDATE fixtures
+            SET 
+                num_universes = (
+                    SELECT COUNT(DISTINCT universe)
+                    FROM dmx_channels
+                    WHERE dmx_channels.fixture_id = fixtures.id
+                ),
+                num_dmx_channels = (
+                    SELECT COUNT(*)
+                    FROM dmx_channels
+                    WHERE dmx_channels.fixture_id = fixtures.id
+                )
+        """)
+        
+        # Tabelle für Cues (einzelne Lichtzustände/Snapshots)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS cues (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL UNIQUE,
+                description TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        
+        # Tabelle für Cue-Werte (DMX-Werte pro Fixture/Kanal für einen Cue)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS cue_values (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                cue_id INTEGER NOT NULL,
+                fixture_id INTEGER NOT NULL,
+                channel_name TEXT NOT NULL,  -- Name des Kanals in der Fixture (z.B. "Red", "Green", "Pan")
+                dmx_value INTEGER NOT NULL CHECK(dmx_value >= 0 AND dmx_value <= 255),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (cue_id) REFERENCES cues(id) ON DELETE CASCADE,
+                FOREIGN KEY (fixture_id) REFERENCES fixtures(id) ON DELETE CASCADE,
+                UNIQUE(cue_id, fixture_id, channel_name)
+            )
+        """)
+        
+        # Tabelle für Moods (Stimmungen/Gefühle)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS moods (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL UNIQUE,
+                description TEXT,
+                category TEXT,  -- Optional: Kategorie (z.B. "positive", "negative", "neutral")
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        
+        # Tabelle für Narratives (narrative Abfolgen von Cues mit Timing)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS narratives (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL UNIQUE,
+                description TEXT,
+                mood_id INTEGER,  -- Optional: Referenz zu moods Tabelle
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (mood_id) REFERENCES moods(id) ON DELETE SET NULL
+            )
+        """)
+        
+        # Migration: Ändere mood TEXT zu mood_id INTEGER in narratives, falls mood als TEXT existiert
+        try:
+            # Prüfe ob narratives Tabelle existiert und mood als TEXT hat
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='narratives'")
+            if cursor.fetchone():
+                cursor.execute("PRAGMA table_info(narratives)")
+                columns = cursor.fetchall()
+                has_mood_text = any(col[1] == 'mood' and 'TEXT' in str(col[2]).upper() for col in columns)
+                has_mood_id = any(col[1] == 'mood_id' for col in columns)
+                
+                if has_mood_text and not has_mood_id:
+                    # Erstelle temporäre Tabelle ohne mood TEXT, aber mit mood_id INTEGER
+                    cursor.execute("""
+                        CREATE TABLE narratives_new (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            name TEXT NOT NULL UNIQUE,
+                            description TEXT,
+                            mood_id INTEGER,
+                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                            FOREIGN KEY (mood_id) REFERENCES moods(id) ON DELETE SET NULL
+                        )
+                    """)
+                    # Kopiere Daten (ohne mood, da wir keine direkte Zuordnung haben)
+                    cursor.execute("""
+                        INSERT INTO narratives_new (id, name, description, created_at, updated_at)
+                        SELECT id, name, description, created_at, updated_at FROM narratives
+                    """)
+                    cursor.execute("DROP TABLE narratives")
+                    cursor.execute("ALTER TABLE narratives_new RENAME TO narratives")
+                    logger.info("Migriert narratives Tabelle: mood TEXT zu mood_id INTEGER")
+        except sqlite3.OperationalError as e:
+            # Tabelle existiert bereits oder Migration nicht nötig
+            logger.debug(f"Migration nicht nötig oder fehlgeschlagen: {e}")
+            pass
+        except Exception as e:
+            logger.warning(f"Unerwarteter Fehler bei narratives Migration: {e}")
+            pass
+        
+        # Tabelle für Narrative Steps (Cues in einer Narrative mit Timing)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS narrative_steps (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                narrative_id INTEGER NOT NULL,
+                cue_id INTEGER NOT NULL,
+                step_order INTEGER NOT NULL,  -- Reihenfolge in der Narrative (1, 2, 3, ...)
+                duration_ms INTEGER,  -- Dauer dieses Steps in Millisekunden (optional)
+                fade_in_ms INTEGER DEFAULT 0,  -- Fade-In Zeit in Millisekunden
+                fade_out_ms INTEGER DEFAULT 0,  -- Fade-Out Zeit in Millisekunden
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (narrative_id) REFERENCES narratives(id) ON DELETE CASCADE,
+                FOREIGN KEY (cue_id) REFERENCES cues(id) ON DELETE CASCADE,
+                UNIQUE(narrative_id, step_order)
+            )
+        """)
+        
+        # Tabelle für Light Program Templates (wiederverwendbare Container für Narratives oder einzelne Cues)
+        # Hinweis: light_programs existiert bereits für Song-bezogene Programme
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS light_program_templates (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL UNIQUE,
+                description TEXT,
+                program_type TEXT NOT NULL CHECK(program_type IN ('cue', 'narrative')),  -- 'cue' für einzelne Cue, 'narrative' für Narrative
+                cue_id INTEGER,  -- Wenn program_type = 'cue'
+                narrative_id INTEGER,  -- Wenn program_type = 'narrative'
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (cue_id) REFERENCES cues(id) ON DELETE SET NULL,
+                FOREIGN KEY (narrative_id) REFERENCES narratives(id) ON DELETE SET NULL,
+                CHECK(
+                    (program_type = 'cue' AND cue_id IS NOT NULL AND narrative_id IS NULL) OR
+                    (program_type = 'narrative' AND narrative_id IS NOT NULL AND cue_id IS NULL)
+                )
+            )
+        """)
+        
         # Migration: Füge offset_sec hinzu, falls nicht vorhanden
         try:
             cursor.execute("ALTER TABLE audio_files ADD COLUMN offset_sec REAL DEFAULT 0.0")
@@ -759,6 +1025,311 @@ class Database:
         if row:
             return row['audio_data']
         return None
+
+    # ------------------------------------------------------------------ #
+    # Fixtures und DMX-Kanäle
+    # ------------------------------------------------------------------ #
+    
+    def create_fixture(self, fixture_name: str, manufacturer: str = None, 
+                       model: str = None, mode: str = None) -> int:
+        """Erstellt ein neues Fixture"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO fixtures (fixture_name, manufacturer, model, mode)
+            VALUES (?, ?, ?, ?)
+        """, (fixture_name, manufacturer, model, mode))
+        conn.commit()
+        return cursor.lastrowid
+    
+    def get_fixture(self, fixture_id: int = None, fixture_name: str = None) -> Optional[Dict]:
+        """Lädt ein Fixture nach ID oder Name"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        if fixture_id:
+            cursor.execute("SELECT * FROM fixtures WHERE id = ?", (fixture_id,))
+        elif fixture_name:
+            cursor.execute("SELECT * FROM fixtures WHERE fixture_name = ?", (fixture_name,))
+        else:
+            return None
+        row = cursor.fetchone()
+        return dict(row) if row else None
+    
+    def get_all_fixtures(self) -> List[Dict]:
+        """Gibt alle Fixtures zurück"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM fixtures ORDER BY fixture_name")
+        return [dict(row) for row in cursor.fetchall()]
+    
+    def update_fixture(self, fixture_id: int, fixture_name: str = None,
+                      manufacturer: str = None, model: str = None, mode: str = None):
+        """Aktualisiert ein Fixture"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        updates = []
+        values = []
+        if fixture_name is not None:
+            updates.append("fixture_name = ?")
+            values.append(fixture_name)
+        if manufacturer is not None:
+            updates.append("manufacturer = ?")
+            values.append(manufacturer)
+        if model is not None:
+            updates.append("model = ?")
+            values.append(model)
+        if mode is not None:
+            updates.append("mode = ?")
+            values.append(mode)
+        if updates:
+            updates.append("updated_at = CURRENT_TIMESTAMP")
+            values.append(fixture_id)
+            cursor.execute(f"""
+                UPDATE fixtures SET {', '.join(updates)}
+                WHERE id = ?
+            """, values)
+            conn.commit()
+    
+    def delete_fixture(self, fixture_id: int):
+        """Löscht ein Fixture (kaskadiert auch alle zugehörigen DMX-Kanäle)"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM fixtures WHERE id = ?", (fixture_id,))
+        conn.commit()
+    
+    def create_dmx_channel(self, universe: int, dmx_channel: int, 
+                           fixture_id: int, channel_name: str = None) -> int:
+        """Erstellt einen neuen DMX-Kanal
+        
+        Args:
+            universe: Universum (0-19 oder mehr)
+            dmx_channel: DMX-Kanal (1-512)
+            fixture_id: ID des Fixtures, dem dieser Kanal zugeordnet ist
+            channel_name: Name des Kanals in der Fixture (z.B. "Red", "Green", "Pan")
+        
+        Returns:
+            ID des erstellten DMX-Kanals
+            
+        Raises:
+            sqlite3.IntegrityError: Wenn die Kombination universe/dmx_channel bereits existiert
+        """
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO dmx_channels (universe, dmx_channel, fixture_id, channel_name)
+            VALUES (?, ?, ?, ?)
+        """, (universe, dmx_channel, fixture_id, channel_name))
+        conn.commit()
+        return cursor.lastrowid
+    
+    def get_dmx_channel(self, universe: int, dmx_channel: int) -> Optional[Dict]:
+        """Lädt einen DMX-Kanal nach Universum und DMX-Kanal"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT dc.*, f.fixture_name, f.manufacturer, f.model, f.mode
+            FROM dmx_channels dc
+            JOIN fixtures f ON dc.fixture_id = f.id
+            WHERE dc.universe = ? AND dc.dmx_channel = ?
+        """, (universe, dmx_channel))
+        row = cursor.fetchone()
+        return dict(row) if row else None
+    
+    def get_dmx_channels_by_fixture(self, fixture_id: int) -> List[Dict]:
+        """Gibt alle DMX-Kanäle eines Fixtures zurück, sortiert nach Universum und DMX-Kanal"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT * FROM dmx_channels
+            WHERE fixture_id = ?
+            ORDER BY universe, dmx_channel
+        """, (fixture_id,))
+        return [dict(row) for row in cursor.fetchall()]
+    
+    def get_all_dmx_channels(self, universe: int = None) -> List[Dict]:
+        """Gibt alle DMX-Kanäle zurück, optional gefiltert nach Universum"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        if universe is not None:
+            cursor.execute("""
+                SELECT dc.*, f.fixture_name, f.manufacturer, f.model
+                FROM dmx_channels dc
+                JOIN fixtures f ON dc.fixture_id = f.id
+                WHERE dc.universe = ?
+                ORDER BY dc.universe, dc.dmx_channel
+            """, (universe,))
+        else:
+            cursor.execute("""
+                SELECT dc.*, f.fixture_name, f.manufacturer, f.model
+                FROM dmx_channels dc
+                JOIN fixtures f ON dc.fixture_id = f.id
+                ORDER BY dc.universe, dc.dmx_channel
+            """)
+        return [dict(row) for row in cursor.fetchall()]
+    
+    def update_dmx_channel(self, universe: int, dmx_channel: int, 
+                          fixture_id: int = None, channel_name: str = None):
+        """Aktualisiert einen DMX-Kanal"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        updates = []
+        values = []
+        if fixture_id is not None:
+            updates.append("fixture_id = ?")
+            values.append(fixture_id)
+        if channel_name is not None:
+            updates.append("channel_name = ?")
+            values.append(channel_name)
+        if updates:
+            values.extend([universe, dmx_channel])
+            cursor.execute(f"""
+                UPDATE dmx_channels SET {', '.join(updates)}
+                WHERE universe = ? AND dmx_channel = ?
+            """, values)
+            conn.commit()
+    
+    def delete_dmx_channel(self, universe: int, dmx_channel: int):
+        """Löscht einen DMX-Kanal"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            DELETE FROM dmx_channels WHERE universe = ? AND dmx_channel = ?
+        """, (universe, dmx_channel))
+        conn.commit()
+    
+    # ------------------------------------------------------------------ #
+    # Narratives
+    # ------------------------------------------------------------------ #
+    
+    def create_narrative(self, name: str, description: str = None, mood: str = None) -> int:
+        """Erstellt eine neue Narrative"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO narratives (name, description, mood)
+            VALUES (?, ?, ?)
+        """, (name, description, mood))
+        conn.commit()
+        return cursor.lastrowid
+    
+    def get_narrative(self, narrative_id: int = None, name: str = None) -> Optional[Dict]:
+        """Lädt eine Narrative nach ID oder Name"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        if narrative_id:
+            cursor.execute("SELECT * FROM narratives WHERE id = ?", (narrative_id,))
+        elif name:
+            cursor.execute("SELECT * FROM narratives WHERE name = ?", (name,))
+        else:
+            return None
+        row = cursor.fetchone()
+        return dict(row) if row else None
+    
+    def get_all_narratives(self) -> List[Dict]:
+        """Gibt alle Narratives zurück, alphabetisch sortiert"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM narratives ORDER BY name")
+        return [dict(row) for row in cursor.fetchall()]
+    
+    def update_narrative(self, narrative_id: int, name: str = None,
+                        description: str = None, mood_id: int = None):
+        """Aktualisiert eine Narrative"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        updates = []
+        values = []
+        if name is not None:
+            updates.append("name = ?")
+            values.append(name)
+        if description is not None:
+            updates.append("description = ?")
+            values.append(description)
+        if mood_id is not None:
+            updates.append("mood_id = ?")
+            values.append(mood_id)
+        if updates:
+            updates.append("updated_at = CURRENT_TIMESTAMP")
+            values.append(narrative_id)
+            cursor.execute(f"""
+                UPDATE narratives SET {', '.join(updates)}
+                WHERE id = ?
+            """, values)
+            conn.commit()
+    
+    def delete_narrative(self, narrative_id: int):
+        """Löscht eine Narrative (kaskadiert auch alle zugehörigen Steps)"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM narratives WHERE id = ?", (narrative_id,))
+        conn.commit()
+    
+    # ------------------------------------------------------------------ #
+    # Moods
+    # ------------------------------------------------------------------ #
+    
+    def create_mood(self, name: str, description: str = None, category: str = None) -> int:
+        """Erstellt einen neuen Mood"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO moods (name, description, category)
+            VALUES (?, ?, ?)
+        """, (name, description, category))
+        conn.commit()
+        return cursor.lastrowid
+    
+    def get_mood(self, mood_id: int = None, name: str = None) -> Optional[Dict]:
+        """Lädt einen Mood nach ID oder Name"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        if mood_id:
+            cursor.execute("SELECT * FROM moods WHERE id = ?", (mood_id,))
+        elif name:
+            cursor.execute("SELECT * FROM moods WHERE name = ?", (name,))
+        else:
+            return None
+        row = cursor.fetchone()
+        return dict(row) if row else None
+    
+    def get_all_moods(self) -> List[Dict]:
+        """Gibt alle Moods zurück, alphabetisch sortiert"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM moods ORDER BY name")
+        return [dict(row) for row in cursor.fetchall()]
+    
+    def update_mood(self, mood_id: int, name: str = None,
+                    description: str = None, category: str = None):
+        """Aktualisiert einen Mood"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        updates = []
+        values = []
+        if name is not None:
+            updates.append("name = ?")
+            values.append(name)
+        if description is not None:
+            updates.append("description = ?")
+            values.append(description)
+        if category is not None:
+            updates.append("category = ?")
+            values.append(category)
+        if updates:
+            updates.append("updated_at = CURRENT_TIMESTAMP")
+            values.append(mood_id)
+            cursor.execute(f"""
+                UPDATE moods SET {', '.join(updates)}
+                WHERE id = ?
+            """, values)
+            conn.commit()
+    
+    def delete_mood(self, mood_id: int):
+        """Löscht einen Mood"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM moods WHERE id = ?", (mood_id,))
+        conn.commit()
 
     def close(self):
         """Schließt die Datenbankverbindung"""

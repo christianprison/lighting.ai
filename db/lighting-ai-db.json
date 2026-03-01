@@ -428,8 +428,8 @@
       "year": "1998",
       "pick": "🔻",
       "gema_nr": "1022042-001",
-      "duration": "3:19",
-      "duration_sec": 199,
+      "duration": "2:40",
+      "duration_sec": 160,
       "notes": "Intro; Verse 1; Bridge 1 (Mary); Bridge 2; Chorus (lunch); Interlude; Verse 2; Bridge 1; Bridge 2; Chorus; Interlude; Verse 3; Bridge 1; Bridge 2; Chorus; Chorus Variation 1; Chorus Variation 2; Chorus Variation 3; End e a capella (punch); ;",
       "parts": {
         "tdyEcs_P001": {
@@ -446,38 +446,16 @@
         "tdyEcs_P002": {
           "pos": 2,
           "name": "Verse 1",
-          "bars": 9,
-          "duration_sec": 14,
+          "bars": 8,
+          "duration_sec": 12,
           "light_template": "verse_driving",
           "qlc_scene": "05 left'n'right ↔",
           "qlc_scene_id": 76,
           "timestamp": "",
           "notes": ""
         },
-        "tdyEcs_P003": {
-          "pos": 3,
-          "name": "\"Mary Mary\"",
-          "bars": 1,
-          "duration_sec": 2,
-          "light_template": "generic_bpm",
-          "qlc_scene": "blind",
-          "qlc_scene_id": 212,
-          "timestamp": "",
-          "notes": ""
-        },
-        "tdyEcs_P004": {
-          "pos": 4,
-          "name": "\"Mary Mary\"",
-          "bars": 1,
-          "duration_sec": 2,
-          "light_template": "generic_bpm",
-          "qlc_scene": "blind",
-          "qlc_scene_id": 212,
-          "timestamp": "",
-          "notes": ""
-        },
         "tdyEcs_P005": {
-          "pos": 5,
+          "pos": 3,
           "name": "Bridge 1",
           "bars": 2,
           "duration_sec": 3,
@@ -488,7 +466,7 @@
           "notes": ""
         },
         "tdyEcs_P006": {
-          "pos": 6,
+          "pos": 4,
           "name": "Part 6",
           "bars": 2,
           "duration_sec": 3,
@@ -499,7 +477,7 @@
           "notes": ""
         },
         "tdyEcs_P007": {
-          "pos": 7,
+          "pos": 5,
           "name": "Part 7",
           "bars": 2,
           "duration_sec": 3,
@@ -510,7 +488,7 @@
           "notes": ""
         },
         "tdyEcs_P008": {
-          "pos": 8,
+          "pos": 6,
           "name": "Part 8",
           "bars": 2,
           "duration_sec": 3,
@@ -521,7 +499,7 @@
           "notes": ""
         },
         "tdyEcs_P009": {
-          "pos": 9,
+          "pos": 7,
           "name": "Chorus 1",
           "bars": 3,
           "duration_sec": 5,
@@ -532,7 +510,7 @@
           "notes": ""
         },
         "tdyEcs_P010": {
-          "pos": 10,
+          "pos": 8,
           "name": "Punch",
           "bars": 1,
           "duration_sec": 2,
@@ -543,7 +521,7 @@
           "notes": ""
         },
         "tdyEcs_P011": {
-          "pos": 11,
+          "pos": 9,
           "name": "Theme 2",
           "bars": 8,
           "duration_sec": 12,
@@ -554,7 +532,7 @@
           "notes": ""
         },
         "tdyEcs_P012": {
-          "pos": 12,
+          "pos": 10,
           "name": "Verse 2",
           "bars": 9,
           "duration_sec": 14,
@@ -565,7 +543,7 @@
           "notes": ""
         },
         "tdyEcs_P013": {
-          "pos": 13,
+          "pos": 11,
           "name": "\"Mary Mary\"",
           "bars": 1,
           "duration_sec": 2,
@@ -576,7 +554,7 @@
           "notes": ""
         },
         "tdyEcs_P014": {
-          "pos": 14,
+          "pos": 12,
           "name": "\"Mary Mary\"",
           "bars": 1,
           "duration_sec": 2,
@@ -587,7 +565,7 @@
           "notes": ""
         },
         "tdyEcs_P015": {
-          "pos": 15,
+          "pos": 13,
           "name": "Bridge 2",
           "bars": 2,
           "duration_sec": 3,
@@ -598,7 +576,7 @@
           "notes": ""
         },
         "tdyEcs_P016": {
-          "pos": 16,
+          "pos": 14,
           "name": "Part 16",
           "bars": 2,
           "duration_sec": 3,
@@ -609,7 +587,7 @@
           "notes": ""
         },
         "tdyEcs_P017": {
-          "pos": 17,
+          "pos": 15,
           "name": "Part 17",
           "bars": 2,
           "duration_sec": 3,
@@ -620,7 +598,7 @@
           "notes": ""
         },
         "tdyEcs_P018": {
-          "pos": 18,
+          "pos": 16,
           "name": "Part 18",
           "bars": 2,
           "duration_sec": 3,
@@ -631,7 +609,7 @@
           "notes": ""
         },
         "tdyEcs_P019": {
-          "pos": 19,
+          "pos": 17,
           "name": "Chorus 2",
           "bars": 2,
           "duration_sec": 3,
@@ -642,7 +620,7 @@
           "notes": ""
         },
         "tdyEcs_P020": {
-          "pos": 20,
+          "pos": 18,
           "name": "Punch",
           "bars": 1,
           "duration_sec": 2,
@@ -653,7 +631,7 @@
           "notes": ""
         },
         "tdyEcs_P021": {
-          "pos": 21,
+          "pos": 19,
           "name": "Theme 2",
           "bars": 8,
           "duration_sec": 12,
@@ -664,7 +642,7 @@
           "notes": ""
         },
         "tdyEcs_P022": {
-          "pos": 22,
+          "pos": 20,
           "name": "Verse 3",
           "bars": 9,
           "duration_sec": 14,
@@ -675,7 +653,7 @@
           "notes": ""
         },
         "tdyEcs_P023": {
-          "pos": 23,
+          "pos": 21,
           "name": "\"Mary Mary\"",
           "bars": 1,
           "duration_sec": 2,
@@ -686,7 +664,7 @@
           "notes": ""
         },
         "tdyEcs_P024": {
-          "pos": 24,
+          "pos": 22,
           "name": "\"Mary Mary\"",
           "bars": 1,
           "duration_sec": 2,
@@ -697,7 +675,7 @@
           "notes": ""
         },
         "tdyEcs_P025": {
-          "pos": 25,
+          "pos": 23,
           "name": "Bridge 3",
           "bars": 2,
           "duration_sec": 3,
@@ -708,7 +686,7 @@
           "notes": ""
         },
         "tdyEcs_P026": {
-          "pos": 26,
+          "pos": 24,
           "name": "Part 26",
           "bars": 2,
           "duration_sec": 3,
@@ -719,7 +697,7 @@
           "notes": ""
         },
         "tdyEcs_P027": {
-          "pos": 27,
+          "pos": 25,
           "name": "Part 27",
           "bars": 2,
           "duration_sec": 3,
@@ -730,7 +708,7 @@
           "notes": ""
         },
         "tdyEcs_P028": {
-          "pos": 28,
+          "pos": 26,
           "name": "Part 28",
           "bars": 2,
           "duration_sec": 3,
@@ -741,7 +719,7 @@
           "notes": ""
         },
         "tdyEcs_P029": {
-          "pos": 29,
+          "pos": 27,
           "name": "Chorus 3",
           "bars": 2,
           "duration_sec": 3,
@@ -752,7 +730,7 @@
           "notes": ""
         },
         "tdyEcs_P030": {
-          "pos": 30,
+          "pos": 28,
           "name": "Punch",
           "bars": 1,
           "duration_sec": 2,
@@ -763,7 +741,7 @@
           "notes": ""
         },
         "tdyEcs_P031": {
-          "pos": 31,
+          "pos": 29,
           "name": "Theme 1",
           "bars": 8,
           "duration_sec": 12,
@@ -774,7 +752,7 @@
           "notes": ""
         },
         "tdyEcs_P032": {
-          "pos": 32,
+          "pos": 30,
           "name": "Chorus 4",
           "bars": 2,
           "duration_sec": 3,
@@ -785,7 +763,7 @@
           "notes": ""
         },
         "tdyEcs_P033": {
-          "pos": 33,
+          "pos": 31,
           "name": "Chorus 5",
           "bars": 2,
           "duration_sec": 3,
@@ -796,7 +774,7 @@
           "notes": ""
         },
         "tdyEcs_P034": {
-          "pos": 34,
+          "pos": 32,
           "name": "Chorus 6",
           "bars": 2,
           "duration_sec": 3,
@@ -807,7 +785,7 @@
           "notes": ""
         },
         "tdyEcs_P035": {
-          "pos": 35,
+          "pos": 33,
           "name": "\"Punch\"",
           "bars": 1,
           "duration_sec": 2,

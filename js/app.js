@@ -30,6 +30,7 @@ let animFrameId = null;        // requestAnimationFrame for playhead
 let exportInProgress = false;
 let playbackSpeed = 1.0;       // current playback speed multiplier
 let waveformZoom = 1.0;        // waveform zoom level (linked to speed)
+let _playingPartId = null;     // part ID currently being played in DB Editor
 
 const SETTINGS_KEY = 'lightingai_settings';
 
@@ -334,6 +335,18 @@ function renderSongFields() {
 
 /* ── Parts Table ───────────────────────────────────── */
 
+/**
+ * Check if a part has audio bars stored in the DB.
+ * Returns the sorted bar entries that have an audio path.
+ */
+function getAudioBarsForPart(partId) {
+  ensureCollections();
+  return Object.entries(db.bars)
+    .filter(([, b]) => b.part_id === partId && b.audio)
+    .map(([id, b]) => ({ id, ...b }))
+    .sort((a, b) => a.bar_num - b.bar_num);
+}
+
 function renderPartsTable() {
   const song = db.songs[selectedSongId];
   const parts = getSortedParts(selectedSongId);
@@ -357,6 +370,7 @@ function renderPartsTable() {
       <thead>
         <tr>
           <th class="pt-pos">#</th>
+          <th class="pt-play"></th>
           <th class="pt-name">Name</th>
           <th class="pt-bars">Bars</th>
           <th class="pt-dur">Dauer</th>
@@ -365,9 +379,14 @@ function renderPartsTable() {
         </tr>
       </thead>
       <tbody>
-        ${parts.map(p => `
+        ${parts.map(p => {
+          const audioBars = getAudioBarsForPart(p.id);
+          const hasAudio = audioBars.length > 0;
+          const isPlaying = _partPlayActive && _playingPartId === p.id;
+          return `
           <tr class="part-row${p.id === selectedPartId ? ' active' : ''}" data-part-id="${p.id}">
             <td class="pt-pos mono text-t3">${p.pos}</td>
+            <td class="pt-play">${hasAudio ? `<button class="btn-part-play${isPlaying ? ' playing' : ''}" data-action="play-part" data-part-id="${p.id}" title="${isPlaying ? 'Stop' : 'Part abspielen'}">${isPlaying ? '&#9632;' : '&#9654;'}</button>` : ''}</td>
             <td class="pt-name"><input type="text" value="${esc(p.name)}" data-part-field="name" class="part-input"></td>
             <td class="pt-bars"><input type="number" value="${p.bars || 0}" data-part-field="bars" class="part-input-num mono" min="0" step="1"></td>
             <td class="pt-dur mono text-t3 part-duration">${fmtDur(calcPartDuration(p.bars, song.bpm))}</td>
@@ -378,8 +397,8 @@ function renderPartsTable() {
               </select>
             </td>
             <td class="pt-grip text-t4">\u2807</td>
-          </tr>
-        `).join('')}
+          </tr>`;
+        }).join('')}
       </tbody>
     </table>`;
 }
@@ -579,6 +598,13 @@ function handleEditorChange(e) {
 function handleEditorClick(e) {
   const el = e.target;
 
+  /* ── Play part button ── */
+  const playBtn = el.closest('[data-action="play-part"]');
+  if (playBtn) {
+    handlePartPlay(playBtn.dataset.partId);
+    return;
+  }
+
   /* ── Part toolbar actions ── */
   const actionBtn = el.closest('[data-action]');
   if (actionBtn && !actionBtn.disabled) {
@@ -730,6 +756,90 @@ function handlePartAction(action) {
       break;
     }
   }
+}
+
+/* ── Part Audio Playback (DB Editor) ───────────────── */
+
+/** AudioContext for part playback (separate from audio-engine to avoid conflicts) */
+let _partPlayCtx = null;
+let _partPlaySources = [];
+let _partPlayIndex = 0;
+let _partPlayBuffers = [];
+let _partPlayActive = false;
+
+async function handlePartPlay(partId) {
+  // If already playing this part → stop
+  if (_playingPartId === partId && _partPlayActive) {
+    stopPartPlay();
+    return;
+  }
+
+  // Stop any current playback
+  stopPartPlay();
+
+  const audioBars = getAudioBarsForPart(partId);
+  if (audioBars.length === 0) return;
+
+  _playingPartId = partId;
+  _partPlayActive = true;
+  renderPartsTable();
+
+  try {
+    if (!_partPlayCtx) {
+      _partPlayCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (_partPlayCtx.state === 'suspended') await _partPlayCtx.resume();
+
+    // Fetch and decode all bar audio files
+    _partPlayBuffers = [];
+    for (const bar of audioBars) {
+      const url = bar.audio;
+      const resp = await fetch(url);
+      if (!resp.ok) throw new Error(`Fetch ${url}: ${resp.status}`);
+      const arrBuf = await resp.arrayBuffer();
+      const decoded = await _partPlayCtx.decodeAudioData(arrBuf);
+      _partPlayBuffers.push(decoded);
+    }
+
+    // Schedule all buffers back-to-back for gapless playback
+    let schedTime = _partPlayCtx.currentTime;
+    _partPlaySources = [];
+    for (let i = 0; i < _partPlayBuffers.length; i++) {
+      const src = _partPlayCtx.createBufferSource();
+      src.buffer = _partPlayBuffers[i];
+      src.connect(_partPlayCtx.destination);
+      src.start(schedTime);
+      schedTime += _partPlayBuffers[i].duration;
+      _partPlaySources.push(src);
+    }
+
+    // When last source ends, reset state
+    const lastSrc = _partPlaySources[_partPlaySources.length - 1];
+    lastSrc.onended = () => {
+      if (_playingPartId === partId) {
+        _playingPartId = null;
+        _partPlayActive = false;
+        renderPartsTable();
+      }
+    };
+  } catch (err) {
+    console.error('Part playback error:', err);
+    toast(`Wiedergabe-Fehler: ${err.message}`, 'error');
+    stopPartPlay();
+  }
+}
+
+function stopPartPlay() {
+  for (const src of _partPlaySources) {
+    try { src.onended = null; src.stop(); } catch { /* ok */ }
+    try { src.disconnect(); } catch { /* ok */ }
+  }
+  _partPlaySources = [];
+  _partPlayBuffers = [];
+  _partPlayActive = false;
+  const wasPlaying = _playingPartId;
+  _playingPartId = null;
+  if (wasPlaying) renderPartsTable();
 }
 
 function handleAccentToggle(pos16) {
@@ -959,7 +1069,7 @@ function buildExportSection(parts) {
         <button class="btn btn-primary" id="btn-export">EXPORT</button>
       </div>
       <div style="font-size:0.8rem;color:var(--t3)">
-        ${parts.length} Parts als WAV-Segmente nach <span class="mono">audio/${selectedSongId}/</span> hochladen.
+        ${barMarkers.length} Bars als MP3-Segmente nach <span class="mono">audio/${selectedSongId}/</span> hochladen.
       </div>
     </div>`;
 }
@@ -1476,6 +1586,15 @@ function handleBpmUpdate() {
 
 /* ── Audio Export to GitHub ─────────────────────────── */
 
+/**
+ * Get sorted bar markers for a given partIndex.
+ */
+function getBarMarkersForPart(partIndex) {
+  return barMarkers
+    .filter(m => m.partIndex === partIndex)
+    .sort((a, b) => a.time - b.time);
+}
+
 async function handleAudioExport() {
   if (!selectedSongId || !audioMeta || exportInProgress) return;
   const s = getSettings();
@@ -1492,31 +1611,55 @@ async function handleAudioExport() {
 
   const fillEl = () => document.getElementById('export-fill');
   const textEl = () => document.getElementById('export-text');
-  const totalSegments = parts.length;
+
+  // Count total bars across all parts
+  const totalBars = barMarkers.length;
   let done = 0;
 
+  ensureCollections();
+
   try {
+    const songName = db.songs[selectedSongId].name;
+
     for (let i = 0; i < parts.length; i++) {
       const part = parts[i];
-      const startTime = getPartStartTime(i);
-      const endTime = getPartEndTime(i);
+      const partEnd = getPartEndTime(i);
+      const bars = getBarMarkersForPart(i);
 
-      if (startTime === null || endTime === null) continue;
+      if (bars.length === 0 || partEnd === null) continue;
 
-      if (textEl()) textEl().textContent = `Exportiere ${part.name}... (${done + 1}/${totalSegments})`;
+      for (let b = 0; b < bars.length; b++) {
+        const barStart = bars[b].time;
+        const barEnd = (b + 1 < bars.length) ? bars[b + 1].time : partEnd;
+        const barNum = b + 1;
+        const barNumStr = String(barNum).padStart(3, '0');
 
-      const base64wav = await audio.exportSegmentWav(startTime, endTime);
-      const path = `audio/${selectedSongId}/${part.id}/full.wav`;
+        if (textEl()) textEl().textContent = `Exportiere ${part.name} Bar ${barNum}... (${done + 1}/${totalBars})`;
 
-      await uploadFile(s.repo, path, s.token, base64wav, `Audio: ${part.name} (${db.songs[selectedSongId].name})`);
+        const base64mp3 = await audio.exportSegmentMp3(barStart, barEnd);
+        const path = `audio/${selectedSongId}/${part.id}/bar_${barNumStr}.mp3`;
 
-      done++;
-      const pct = (done / totalSegments * 100).toFixed(0);
-      if (fillEl()) fillEl().style.width = pct + '%';
-      if (textEl()) textEl().textContent = `${done}/${totalSegments} hochgeladen`;
+        await uploadFile(s.repo, path, s.token, base64mp3, `Audio: ${part.name} Bar ${barNum} (${songName})`);
+
+        // Update bar record in DB
+        const [barId, barData] = getOrCreateBar(part.id, barNum);
+        barData.audio = path;
+
+        done++;
+        const pct = (done / totalBars * 100).toFixed(0);
+        if (fillEl()) fillEl().style.width = pct + '%';
+        if (textEl()) textEl().textContent = `${done}/${totalBars} hochgeladen`;
+      }
+
+      // Update bars count in part
+      part.bars = bars.length;
+      if (db.songs[selectedSongId].parts[part.id]) {
+        db.songs[selectedSongId].parts[part.id].bars = bars.length;
+      }
     }
 
-    toast(`${done} Audio-Segmente exportiert`, 'success');
+    markDirty();
+    toast(`${done} Bar-Segmente exportiert`, 'success');
   } catch (err) {
     toast(`Export-Fehler: ${err.message}`, 'error', 5000);
   } finally {

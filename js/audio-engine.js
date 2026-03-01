@@ -173,14 +173,16 @@ export function getPeaks(buckets) {
 }
 
 /**
- * Export a segment of the audio buffer as WAV (Base64 string).
- * Uses OfflineAudioContext for precision.
+ * Export a segment of the audio buffer as MP3 (Base64 string).
+ * Uses lamejs for client-side MP3 encoding.
  * @param {number} startTime - start in seconds
  * @param {number} endTime - end in seconds
- * @returns {Promise<string>} base64-encoded WAV
+ * @param {number} [kbps=128] - MP3 bitrate
+ * @returns {Promise<string>} base64-encoded MP3
  */
-export async function exportSegmentWav(startTime, endTime) {
+export async function exportSegmentMp3(startTime, endTime, kbps = 128) {
   if (!audioBuffer) throw new Error('No audio loaded');
+  if (typeof lamejs === 'undefined') throw new Error('lamejs not loaded');
 
   const sr = audioBuffer.sampleRate;
   const channels = audioBuffer.numberOfChannels;
@@ -190,79 +192,122 @@ export async function exportSegmentWav(startTime, endTime) {
 
   if (length <= 0) throw new Error('Invalid segment range');
 
-  // Extract samples
-  const channelData = [];
-  for (let ch = 0; ch < channels; ch++) {
-    const full = audioBuffer.getChannelData(ch);
-    channelData.push(full.slice(startSample, endSample));
+  // Convert Float32 → Int16
+  function floatTo16(float32) {
+    const int16 = new Int16Array(float32.length);
+    for (let i = 0; i < float32.length; i++) {
+      const s = Math.max(-1, Math.min(1, float32[i]));
+      int16[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+    }
+    return int16;
   }
 
-  // Encode as WAV
-  const wavBuffer = encodeWav(channelData, sr, channels);
+  const left = floatTo16(audioBuffer.getChannelData(0).slice(startSample, endSample));
+  const right = channels > 1
+    ? floatTo16(audioBuffer.getChannelData(1).slice(startSample, endSample))
+    : left;
+
+  const mp3enc = new lamejs.Mp3Encoder(channels > 1 ? 2 : 1, sr, kbps);
+  const mp3Chunks = [];
+  const blockSize = 1152;
+
+  for (let i = 0; i < length; i += blockSize) {
+    const leftChunk = left.subarray(i, i + blockSize);
+    const rightChunk = channels > 1 ? right.subarray(i, i + blockSize) : leftChunk;
+    const mp3buf = channels > 1
+      ? mp3enc.encodeBuffer(leftChunk, rightChunk)
+      : mp3enc.encodeBuffer(leftChunk);
+    if (mp3buf.length > 0) mp3Chunks.push(mp3buf);
+  }
+  const tail = mp3enc.flush();
+  if (tail.length > 0) mp3Chunks.push(tail);
+
+  // Merge chunks into single Uint8Array
+  const totalLen = mp3Chunks.reduce((s, c) => s + c.length, 0);
+  const mp3Data = new Uint8Array(totalLen);
+  let offset = 0;
+  for (const chunk of mp3Chunks) {
+    mp3Data.set(chunk, offset);
+    offset += chunk.length;
+  }
 
   // Convert to base64
-  const bytes = new Uint8Array(wavBuffer);
   let binary = '';
-  for (let i = 0; i < bytes.length; i++) {
-    binary += String.fromCharCode(bytes[i]);
+  for (let i = 0; i < mp3Data.length; i++) {
+    binary += String.fromCharCode(mp3Data[i]);
   }
   return btoa(binary);
 }
 
+/* ── Segment Playback (for playing bars of a part) ── */
+
+let segmentSource = null;
+let segmentQueue = [];
+let segmentIndex = 0;
+let segmentPlaying = false;
+let onSegmentDone = null;
+
 /**
- * Encode raw PCM channel data as a WAV ArrayBuffer.
- * @param {Float32Array[]} channelData
- * @param {number} sampleRate
- * @param {number} numChannels
- * @returns {ArrayBuffer}
+ * Play a list of audio segments sequentially without gaps.
+ * Each segment is {startTime, endTime} in seconds referring to the loaded AudioBuffer.
+ * @param {{startTime: number, endTime: number}[]} segments
+ * @param {Function} [onDone] - called when all segments finished
  */
-function encodeWav(channelData, sampleRate, numChannels) {
-  const length = channelData[0].length;
-  const bitsPerSample = 16;
-  const bytesPerSample = bitsPerSample / 8;
-  const blockAlign = numChannels * bytesPerSample;
-  const dataSize = length * blockAlign;
-  const bufferSize = 44 + dataSize;
-  const buffer = new ArrayBuffer(bufferSize);
-  const view = new DataView(buffer);
+export function playSegments(segments, onDone) {
+  stopSegments();
+  if (!audioBuffer || segments.length === 0) return;
 
-  // RIFF header
-  writeString(view, 0, 'RIFF');
-  view.setUint32(4, bufferSize - 8, true);
-  writeString(view, 8, 'WAVE');
-
-  // fmt chunk
-  writeString(view, 12, 'fmt ');
-  view.setUint32(16, 16, true); // chunk size
-  view.setUint16(20, 1, true);  // PCM format
-  view.setUint16(22, numChannels, true);
-  view.setUint32(24, sampleRate, true);
-  view.setUint32(28, sampleRate * blockAlign, true);
-  view.setUint16(32, blockAlign, true);
-  view.setUint16(34, bitsPerSample, true);
-
-  // data chunk
-  writeString(view, 36, 'data');
-  view.setUint32(40, dataSize, true);
-
-  // Interleave and write samples
-  let offset = 44;
-  for (let i = 0; i < length; i++) {
-    for (let ch = 0; ch < numChannels; ch++) {
-      const sample = Math.max(-1, Math.min(1, channelData[ch][i]));
-      const val = sample < 0 ? sample * 0x8000 : sample * 0x7FFF;
-      view.setInt16(offset, val, true);
-      offset += 2;
-    }
-  }
-
-  return buffer;
+  segmentQueue = segments;
+  segmentIndex = 0;
+  segmentPlaying = true;
+  onSegmentDone = onDone || null;
+  _playNextSegment();
 }
 
-function writeString(view, offset, str) {
-  for (let i = 0; i < str.length; i++) {
-    view.setUint8(offset + i, str.charCodeAt(i));
+function _playNextSegment() {
+  if (segmentIndex >= segmentQueue.length) {
+    segmentPlaying = false;
+    if (onSegmentDone) onSegmentDone();
+    return;
   }
+
+  const ac = getContext();
+  if (ac.state === 'suspended') ac.resume();
+
+  const seg = segmentQueue[segmentIndex];
+  const duration = seg.endTime - seg.startTime;
+  if (duration <= 0) { segmentIndex++; _playNextSegment(); return; }
+
+  segmentSource = ac.createBufferSource();
+  segmentSource.buffer = audioBuffer;
+  segmentSource.connect(ac.destination);
+  segmentSource.onended = () => {
+    segmentIndex++;
+    _playNextSegment();
+  };
+  segmentSource.start(0, seg.startTime, duration);
+}
+
+/**
+ * Stop segment playback.
+ */
+export function stopSegments() {
+  segmentPlaying = false;
+  segmentQueue = [];
+  segmentIndex = 0;
+  if (segmentSource) {
+    try { segmentSource.onended = null; segmentSource.stop(); } catch { /* ok */ }
+    segmentSource.disconnect();
+    segmentSource = null;
+  }
+}
+
+/**
+ * Is segment playback in progress?
+ * @returns {boolean}
+ */
+export function isSegmentPlaying() {
+  return segmentPlaying;
 }
 
 /**

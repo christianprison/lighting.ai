@@ -620,11 +620,41 @@ label {
 }
 
 .parts-table .pt-pos { width: 36px; text-align: center; font-size: 0.8rem; }
+.parts-table .pt-play { width: 36px; text-align: center; padding: 0; }
 .parts-table .pt-name { min-width: 120px; }
 .parts-table .pt-bars { width: 72px; }
 .parts-table .pt-dur  { width: 64px; font-size: 0.8rem; text-align: center; }
 .parts-table .pt-tmpl { min-width: 160px; }
 .parts-table .pt-grip { width: 28px; text-align: center; font-size: 1.1rem; cursor: grab; }
+
+/* Play button in parts table */
+.btn-part-play {
+  background: none;
+  border: 1px solid var(--border2);
+  color: var(--green);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 0.7rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, border-color 0.15s;
+  padding: 0;
+  line-height: 1;
+}
+.btn-part-play:hover {
+  background: var(--bg4);
+  border-color: var(--green);
+}
+.btn-part-play.playing {
+  color: var(--red);
+  border-color: var(--red);
+}
+.btn-part-play.playing:hover {
+  background: rgba(255, 59, 92, 0.1);
+}
 
 /* Parts table inline inputs */
 .part-input {

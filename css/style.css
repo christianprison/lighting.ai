@@ -1061,16 +1061,21 @@ label {
   position: relative;
   margin-bottom: 16px;
   border-radius: var(--radius);
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
   background: var(--bg2);
   border: 1px solid var(--border);
   cursor: crosshair;
   height: 120px;
 }
 
+.waveform-scroll {
+  min-width: 100%;
+  height: 100%;
+}
+
 .waveform-wrap canvas {
   display: block;
-  width: 100%;
   height: 100%;
 }
 
@@ -1138,6 +1143,46 @@ label {
   border-radius: 3px;
   width: 0%;
   transition: width 0.05s linear;
+}
+
+/* ── Speed / Zoom Controls ──────────────────────── */
+.t-speed, .t-zoom {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2px 4px;
+}
+
+.t-speed-btn, .t-zoom-btn {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--t2);
+  cursor: pointer;
+  font-size: 0.9rem;
+  border-radius: 4px;
+  transition: all 0.15s;
+}
+
+.t-speed-btn:hover, .t-zoom-btn:hover {
+  background: var(--bg4);
+  color: var(--t1);
+}
+
+.t-speed-label, .t-zoom-label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--t2);
+  min-width: 36px;
+  text-align: center;
+  user-select: none;
 }
 
 /* ── Tap Buttons ─────────────────────────────────── */
@@ -1260,9 +1305,33 @@ label {
 .split-table .st-start { width: 80px; text-align: center; }
 .split-table .st-dur { width: 80px; text-align: center; }
 .split-table .st-check { width: 36px; text-align: center; }
+.split-table .st-actions { width: 32px; text-align: center; }
+
+.marker-delete {
+  width: 22px;
+  height: 22px;
+  border: none;
+  background: rgba(255, 59, 92, 0.1);
+  color: var(--red);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.7rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.marker-delete:hover {
+  background: rgba(255, 59, 92, 0.3);
+}
 
 .split-table tbody tr {
   transition: background 0.1s;
+}
+
+.split-table tbody tr.done:hover {
+  background: rgba(0, 220, 130, 0.05);
 }
 
 .split-table tbody tr.current {

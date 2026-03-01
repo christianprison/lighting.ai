@@ -20,6 +20,7 @@ let startedAt = 0;   // context.currentTime when playback last started
 let pausedAt = 0;     // offset in seconds where we paused
 let playing = false;
 let onEndCallback = null;
+let _playbackRate = 1.0;
 
 /* ── Public API ────────────────────────────────────── */
 
@@ -62,6 +63,7 @@ export function play(onEnd) {
 
   sourceNode = ac.createBufferSource();
   sourceNode.buffer = audioBuffer;
+  sourceNode.playbackRate.value = _playbackRate;
   sourceNode.connect(ac.destination);
   sourceNode.onended = () => {
     if (playing) {
@@ -74,7 +76,7 @@ export function play(onEnd) {
 
   const offset = pausedAt;
   sourceNode.start(0, offset);
-  startedAt = ac.currentTime - offset;
+  startedAt = ac.currentTime - offset / _playbackRate;
   playing = true;
 }
 
@@ -84,7 +86,7 @@ export function play(onEnd) {
 export function pause() {
   if (!playing) return;
   const ac = getContext();
-  pausedAt = ac.currentTime - startedAt;
+  pausedAt = (ac.currentTime - startedAt) * _playbackRate;
   stop(true);
   playing = false;
 }
@@ -130,7 +132,7 @@ export function getCurrentTime() {
   if (!audioBuffer) return 0;
   if (playing) {
     const ac = getContext();
-    const t = ac.currentTime - startedAt;
+    const t = (ac.currentTime - startedAt) * _playbackRate;
     return Math.min(t, audioBuffer.duration);
   }
   return pausedAt;
@@ -261,6 +263,30 @@ function writeString(view, offset, str) {
   for (let i = 0; i < str.length; i++) {
     view.setUint8(offset + i, str.charCodeAt(i));
   }
+}
+
+/**
+ * Set playback speed (0.25 - 2.0).
+ * If currently playing, applies immediately.
+ * @param {number} rate
+ */
+export function setPlaybackRate(rate) {
+  _playbackRate = Math.max(0.25, Math.min(2.0, rate));
+  if (playing) {
+    const pos = getCurrentTime();
+    stop(true);
+    pausedAt = pos;
+    playing = false;
+    play(onEndCallback);
+  }
+}
+
+/**
+ * Get current playback rate.
+ * @returns {number}
+ */
+export function getPlaybackRate() {
+  return _playbackRate;
 }
 
 /**

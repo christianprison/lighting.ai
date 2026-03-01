@@ -28,6 +28,8 @@ let currentPartIndex = 0;      // next part to be tapped
 let currentBarInPart = 0;      // bar counter within current part
 let animFrameId = null;        // requestAnimationFrame for playhead
 let exportInProgress = false;
+let playbackSpeed = 1.0;       // current playback speed multiplier
+let waveformZoom = 1.0;        // waveform zoom level (linked to speed)
 
 const SETTINGS_KEY = 'lightingai_settings';
 
@@ -827,7 +829,7 @@ function buildDropZone() {
 }
 
 function buildWaveform() {
-  return `<div class="waveform-wrap" id="waveform-wrap"><canvas id="waveform-canvas"></canvas></div>`;
+  return `<div class="waveform-wrap" id="waveform-wrap"><div class="waveform-scroll" id="waveform-scroll"><canvas id="waveform-canvas"></canvas></div></div>`;
 }
 
 function buildTransport() {
@@ -835,6 +837,8 @@ function buildTransport() {
   const cur = audio.getCurrentTime();
   const dur = audioMeta ? audioMeta.duration : 0;
   const pct = dur > 0 ? (cur / dur * 100) : 0;
+  const speedLabel = playbackSpeed === 1 ? '1\u00d7' : playbackSpeed.toFixed(2).replace(/0$/, '') + '\u00d7';
+  const zoomLabel = waveformZoom === 1 ? '1\u00d7' : waveformZoom.toFixed(1) + '\u00d7';
   return `
     <div class="transport-bar" id="transport-bar">
       <button class="t-btn" id="t-skip" title="Zum Anfang">&#9198;</button>
@@ -844,6 +848,16 @@ function buildTransport() {
       <span class="t-time" id="t-time">${fmtTime(cur)} / ${fmtTime(dur)}</span>
       <div class="t-progress-wrap" id="t-progress-wrap">
         <div class="t-progress" id="t-progress" style="width:${pct}%"></div>
+      </div>
+      <div class="t-speed" id="t-speed">
+        <button class="t-speed-btn" id="t-speed-down" title="Langsamer">&minus;</button>
+        <span class="t-speed-label" id="t-speed-label">${speedLabel}</span>
+        <button class="t-speed-btn" id="t-speed-up" title="Schneller">+</button>
+      </div>
+      <div class="t-zoom" id="t-zoom">
+        <button class="t-zoom-btn" id="t-zoom-out" title="Zoom Out">&minus;</button>
+        <span class="t-zoom-label" id="t-zoom-label">&#128269; ${zoomLabel}</span>
+        <button class="t-zoom-btn" id="t-zoom-in" title="Zoom In">+</button>
       </div>
     </div>`;
 }
@@ -892,14 +906,16 @@ function buildSplitResult(parts) {
     const dur = (start !== null && end !== null) ? end - start : null;
     const barCount = barMarkers.filter(m => m.partIndex === i).length;
     const cls = isCurrent ? 'current' : (isDone ? 'done' : '');
+    const deleteBtn = isDone ? `<button class="marker-delete" data-type="part" data-time="${start}" data-part="${i}" title="Part-Marker loeschen">&#10005;</button>` : '';
 
-    return `<tr class="${cls}">
+    return `<tr class="${cls}" style="cursor:${isDone ? 'pointer' : 'default'}">
       <td class="st-nr mono text-t3">${p.pos}</td>
       <td class="st-name">${esc(p.name)}</td>
       <td class="st-bars mono">${barCount || '\u2014'}</td>
       <td class="st-start mono text-t3">${start !== null ? fmtTime(start) : '\u2014'}</td>
       <td class="st-dur mono text-t3">${dur !== null ? fmtTime(dur) : '\u2014'}</td>
       <td class="st-check">${isDone ? '\u2713' : ''}</td>
+      <td class="st-actions">${deleteBtn}</td>
     </tr>`;
   }).join('');
 
@@ -914,6 +930,7 @@ function buildSplitResult(parts) {
           <th class="st-start">Start</th>
           <th class="st-dur">Dauer</th>
           <th class="st-check"></th>
+          <th class="st-actions"></th>
         </tr></thead>
         <tbody>${rows}</tbody>
       </table>
@@ -1001,6 +1018,9 @@ function resetAudioSplit() {
   currentPartIndex = 0;
   currentBarInPart = 0;
   exportInProgress = false;
+  playbackSpeed = 1.0;
+  waveformZoom = 1.0;
+  audio.setPlaybackRate(1.0);
 }
 
 /* ── Waveform Drawing ──────────────────────────────── */
@@ -1009,13 +1029,17 @@ function drawWaveform() {
   const canvas = document.getElementById('waveform-canvas');
   if (!canvas) return;
   const wrap = document.getElementById('waveform-wrap');
-  if (!wrap) return;
+  const scroll = document.getElementById('waveform-scroll');
+  if (!wrap || !scroll) return;
 
   const dpr = window.devicePixelRatio || 1;
-  const rect = wrap.getBoundingClientRect();
-  const w = rect.width;
+  const wrapRect = wrap.getBoundingClientRect();
+  const baseW = wrapRect.width;
+  const w = baseW * waveformZoom;
   const h = 120;
 
+  // Size the scrollable inner container
+  scroll.style.width = w + 'px';
   canvas.width = w * dpr;
   canvas.height = h * dpr;
   canvas.style.width = w + 'px';
@@ -1068,6 +1092,7 @@ function drawWaveform() {
   }
 
   // Part markers (amber)
+  const parts = getSortedParts(selectedSongId);
   for (const m of partMarkers) {
     const x = (m.time / duration) * w;
     ctx.strokeStyle = 'rgba(240, 160, 48, 0.8)';
@@ -1078,7 +1103,6 @@ function drawWaveform() {
     ctx.stroke();
 
     // Label
-    const parts = getSortedParts(selectedSongId);
     const partName = m.partIndex < parts.length ? parts[m.partIndex].name : '';
     if (partName) {
       ctx.font = '10px Sora, sans-serif';
@@ -1101,6 +1125,15 @@ function drawWaveform() {
     ctx.lineTo(px, h);
     ctx.stroke();
     ctx.shadowBlur = 0;
+
+    // Auto-scroll to keep playhead visible when zoomed
+    if (waveformZoom > 1) {
+      const scrollLeft = wrap.scrollLeft;
+      const viewW = wrapRect.width;
+      if (px < scrollLeft + 40 || px > scrollLeft + viewW - 40) {
+        wrap.scrollLeft = px - viewW * 0.3;
+      }
+    }
   }
 }
 
@@ -1156,10 +1189,12 @@ function handleAudioFileLoad(file) {
 function handleWaveformClick(e) {
   if (!audioMeta) return;
   const wrap = document.getElementById('waveform-wrap');
-  if (!wrap) return;
+  const scroll = document.getElementById('waveform-scroll');
+  if (!wrap || !scroll) return;
   const rect = wrap.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  const pct = x / rect.width;
+  const x = e.clientX - rect.left + wrap.scrollLeft;
+  const totalW = scroll.getBoundingClientRect().width;
+  const pct = x / totalW;
   const time = pct * audioMeta.duration;
   audio.seek(time);
   drawWaveform();
@@ -1297,6 +1332,76 @@ function handleUndoTap() {
   updateSplitResultLive(parts);
   updateAudioSummaryLive(parts);
   updateTapButtonStates();
+}
+
+/* ── Speed / Zoom / Part-Seek / Marker Edit ─────── */
+
+const SPEED_STEPS = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5];
+const ZOOM_STEPS = [1, 1.5, 2, 3, 4, 6];
+
+function handleSpeedChange(dir) {
+  const curIdx = SPEED_STEPS.indexOf(playbackSpeed);
+  const idx = curIdx === -1 ? SPEED_STEPS.indexOf(1.0) : curIdx;
+  const newIdx = Math.max(0, Math.min(SPEED_STEPS.length - 1, idx + dir));
+  playbackSpeed = SPEED_STEPS[newIdx];
+  audio.setPlaybackRate(playbackSpeed);
+  const label = document.getElementById('t-speed-label');
+  if (label) label.textContent = (playbackSpeed === 1 ? '1\u00d7' : playbackSpeed.toFixed(2).replace(/0$/, '') + '\u00d7');
+}
+
+function handleZoomChange(dir) {
+  const curIdx = ZOOM_STEPS.indexOf(waveformZoom);
+  const idx = curIdx === -1 ? 0 : curIdx;
+  const newIdx = Math.max(0, Math.min(ZOOM_STEPS.length - 1, idx + dir));
+  waveformZoom = ZOOM_STEPS[newIdx];
+  drawWaveform();
+  const label = document.getElementById('t-zoom-label');
+  if (label) label.textContent = '\uD83D\uDD0D ' + (waveformZoom === 1 ? '1\u00d7' : waveformZoom.toFixed(1) + '\u00d7');
+}
+
+function handleSplitRowClick(row) {
+  const rows = Array.from(row.parentElement.children);
+  const idx = rows.indexOf(row);
+  if (idx < 0) return;
+  const startTime = getPartStartTime(idx);
+  if (startTime === null) return;
+  audio.seek(startTime);
+  drawWaveform();
+  updateTransportDisplay();
+}
+
+function handleMarkerDelete(btn) {
+  const type = btn.dataset.type;    // 'part' or 'bar'
+  const time = parseFloat(btn.dataset.time);
+  const partIdx = parseInt(btn.dataset.part, 10);
+  if (isNaN(time)) return;
+
+  if (type === 'part') {
+    // Remove part marker and all bars belonging to this part
+    partMarkers = partMarkers.filter(m => m.partIndex !== partIdx);
+    barMarkers = barMarkers.filter(m => m.partIndex !== partIdx);
+    // Shift subsequent part indices down
+    partMarkers.forEach(m => { if (m.partIndex > partIdx) m.partIndex--; });
+    barMarkers.forEach(m => { if (m.partIndex > partIdx) m.partIndex--; });
+    currentPartIndex = Math.max(0, currentPartIndex - 1);
+    // Recalculate bar counter
+    if (currentPartIndex > 0) {
+      currentBarInPart = barMarkers.filter(m => m.partIndex === currentPartIndex - 1).length;
+    } else {
+      currentBarInPart = 0;
+    }
+  } else {
+    // Remove single bar marker
+    barMarkers = barMarkers.filter(m => !(Math.abs(m.time - time) < 0.001 && m.partIndex === partIdx));
+    if (partIdx === currentPartIndex - 1) {
+      currentBarInPart = barMarkers.filter(m => m.partIndex === partIdx).length;
+    }
+  }
+
+  // Clear undo history (no longer reliable)
+  tapHistory = [];
+  drawWaveform();
+  renderAudioTab();
 }
 
 function updateTapInfo(parts) {
@@ -1445,6 +1550,21 @@ function handleAudioClick(e) {
   if (el.closest('#t-skip')) { handleSkipToStart(); return; }
   if (el.closest('#t-play')) { handlePlayPause(); return; }
   if (el.closest('#t-progress-wrap')) { handleProgressClick(e); return; }
+
+  // Speed control
+  if (el.closest('#t-speed-down')) { handleSpeedChange(-1); return; }
+  if (el.closest('#t-speed-up')) { handleSpeedChange(1); return; }
+
+  // Zoom control
+  if (el.closest('#t-zoom-out')) { handleZoomChange(-1); return; }
+  if (el.closest('#t-zoom-in')) { handleZoomChange(1); return; }
+
+  // Marker delete button (check BEFORE row click)
+  if (el.closest('.marker-delete')) { handleMarkerDelete(el.closest('.marker-delete')); return; }
+
+  // Split result row click → seek to part start
+  const splitRow = el.closest('.split-table tbody tr');
+  if (splitRow) { handleSplitRowClick(splitRow); return; }
 
   // Tap buttons
   if (el.closest('#tap-part') && !el.closest('#tap-part').disabled) { handlePartTap(); return; }
@@ -1701,6 +1821,8 @@ function wireEvents() {
       e.preventDefault();
       handlePlayPause();
     }
+    if (e.key === '[') { handleSpeedChange(-1); }
+    if (e.key === ']') { handleSpeedChange(1); }
   });
 }
 

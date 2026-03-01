@@ -91,6 +91,9 @@ function cacheDom() {
     btnSaveSettings: document.getElementById('btn-save-settings'),
     btnCancelSettings: document.getElementById('btn-cancel-settings'),
     toastContainer: document.getElementById('toast-container'),
+    btnHelp:       document.getElementById('btn-help'),
+    helpModal:     document.getElementById('help-modal'),
+    btnCloseHelp:  document.getElementById('btn-close-help'),
   };
 }
 
@@ -1486,6 +1489,25 @@ function closeSettings() {
   els.modalOverlay.classList.remove('open');
 }
 
+/* ── Help Modal ───────────────────────────────────── */
+
+function openHelp() {
+  els.helpModal.classList.add('open');
+}
+
+function closeHelp() {
+  els.helpModal.classList.remove('open');
+}
+
+function switchHelpTab(tabName) {
+  els.helpModal.querySelectorAll('.help-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.help === tabName);
+  });
+  els.helpModal.querySelectorAll('.help-page').forEach(p => {
+    p.classList.toggle('active', p.id === `help-${tabName}`);
+  });
+}
+
 async function handleTestConnection() {
   const repo  = els.inputRepo.value.trim();
   const token = els.inputToken.value.trim();
@@ -1611,11 +1633,21 @@ function wireEvents() {
   els.btnTest.addEventListener('click', handleTestConnection);
   els.modalOverlay.addEventListener('click', (e) => { if (e.target === els.modalOverlay) closeSettings(); });
 
+  // Help
+  els.btnHelp.addEventListener('click', openHelp);
+  els.btnCloseHelp.addEventListener('click', closeHelp);
+  els.helpModal.addEventListener('click', (e) => {
+    if (e.target === els.helpModal) closeHelp();
+    const tab = e.target.closest('.help-tab');
+    if (tab) switchHelpTab(tab.dataset.help);
+  });
+
   // Save
   els.btnSave.addEventListener('click', handleSave);
   document.addEventListener('keydown', (e) => {
     if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); handleSave(); }
-    if (e.key === 'Escape') closeSettings();
+    if (e.key === 'Escape') { closeSettings(); closeHelp(); }
+    if (e.key === '?' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') openHelp();
   });
 
   // Search

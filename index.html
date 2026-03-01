@@ -21,6 +21,7 @@
     <div class="header-right">
       <span class="sync-status" id="sync-status" data-status="loading">LOADING...</span>
       <button class="icon-btn" id="btn-save" title="Save (Ctrl+S)">&#128190;</button>
+      <button class="icon-btn" id="btn-help" title="Hilfe">&#63;</button>
       <button class="icon-btn" id="btn-settings" title="Settings">&#9881;</button>
     </div>
   </header>
@@ -71,6 +72,125 @@
     <div class="modal-actions">
       <button class="btn" id="btn-cancel-settings">Abbrechen</button>
       <button class="btn btn-primary" id="btn-save-settings">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Help Modal ─────────────────────────────────────── -->
+<div class="modal-overlay" id="help-modal">
+  <div class="modal help-modal">
+    <div class="help-header">
+      <h2>Anleitung</h2>
+      <button class="icon-btn" id="btn-close-help" title="Schliessen">&#10005;</button>
+    </div>
+
+    <nav class="help-tabs">
+      <button class="help-tab active" data-help="general">Allgemein</button>
+      <button class="help-tab" data-help="editor">DB Editor</button>
+      <button class="help-tab" data-help="audio">Audio Split</button>
+      <button class="help-tab" data-help="keys">Shortcuts</button>
+    </nav>
+
+    <!-- Allgemein -->
+    <div class="help-page active" id="help-general">
+      <h3>Was ist lighting.ai?</h3>
+      <p>Lichtsteuerungs-App fuer die Coverband <strong>THE PACT</strong>. Du verwaltest hier die komplette Songdatenbank mit Songstruktur, Parts, Bars und Licht-Cues.</p>
+
+      <h3>Erste Schritte</h3>
+      <div class="help-steps">
+        <div class="help-step">
+          <span class="help-step-nr">1</span>
+          <div><strong>GitHub verbinden</strong><br>Klicke auf das Zahnrad-Icon oben rechts und trage dein GitHub Token ein. Klick auf <em>Test Connection</em> zum Pruefen.</div>
+        </div>
+        <div class="help-step">
+          <span class="help-step-nr">2</span>
+          <div><strong>Song auswaehlen</strong><br>Die Sidebar links zeigt alle Songs. Klicke einen Song an, um ihn zu bearbeiten oder Audio zu splitten.</div>
+        </div>
+        <div class="help-step">
+          <span class="help-step-nr">3</span>
+          <div><strong>Tab waehlen</strong><br><em>DB EDITOR</em> fuer Songdaten, <em>AUDIO SPLIT</em> fuer Tap-to-Split.</div>
+        </div>
+      </div>
+
+      <h3>Speichern</h3>
+      <p>Aenderungen werden erst bei Klick auf das Disketten-Icon (oder <kbd>Ctrl+S</kbd>) nach GitHub committed. Der Status oben rechts zeigt <span class="text-green">SAVED</span> / <span class="text-amber">UNSAVED</span>.</p>
+    </div>
+
+    <!-- DB Editor -->
+    <div class="help-page" id="help-editor">
+      <h3>Song-Felder</h3>
+      <p>Nach Auswahl eines Songs siehst du oben die Stammdaten (Name, Artist, BPM, Key, Jahr, GEMA, Pick, Notizen). Alle Felder sind direkt editierbar.</p>
+
+      <h3>Parts-Tabelle</h3>
+      <div class="help-table">
+        <div class="help-row"><span class="help-key">+ Add Part</span><span>Neuen Part am Ende anfuegen</span></div>
+        <div class="help-row"><span class="help-key">Duplicate</span><span>Ausgewaehlten Part duplizieren</span></div>
+        <div class="help-row"><span class="help-key">Delete</span><span>Ausgewaehlten Part loeschen</span></div>
+        <div class="help-row"><span class="help-key">Grip-Handle</span><span>Parts per Drag nach oben/unten verschieben</span></div>
+      </div>
+      <p>Pro Part sind editierbar: <strong>Name</strong>, <strong>Bars</strong> (Anzahl Takte) und <strong>Light Template</strong> (Dropdown).</p>
+
+      <h3>Bar-Editor</h3>
+      <p>Klicke auf einen Part, dann erscheinen die Bar-Bloecke. Klick auf einen Bar oeffnet den Bar-Editor mit:</p>
+      <div class="help-table">
+        <div class="help-row"><span class="help-key">Lyrics</span><span>Textzeile fuer diesen Takt</span></div>
+        <div class="help-row"><span class="help-key">Accent-Grid</span><span>16tel-Raster: Klicke auf eine Position, um einen Accent zu setzen (Blinder, Blackout, Highlight, Strobe, Fog). Nochmal klicken wechselt den Typ, langer Klick entfernt.</span></div>
+      </div>
+    </div>
+
+    <!-- Audio Split -->
+    <div class="help-page" id="help-audio">
+      <h3>Workflow</h3>
+      <div class="help-steps">
+        <div class="help-step">
+          <span class="help-step-nr">1</span>
+          <div><strong>Song auswaehlen</strong> in der Sidebar (muss Parts haben)</div>
+        </div>
+        <div class="help-step">
+          <span class="help-step-nr">2</span>
+          <div><strong>Audio laden</strong> &mdash; Datei in die Drop-Zone ziehen oder klicken (.wav, .mp3, .m4a, .ogg)</div>
+        </div>
+        <div class="help-step">
+          <span class="help-step-nr">3</span>
+          <div><strong>Play starten</strong> &mdash; Play-Button oder <kbd>Space</kbd></div>
+        </div>
+        <div class="help-step">
+          <span class="help-step-nr">4</span>
+          <div><strong>Parts tappen</strong> &mdash; Bei jedem Part-Beginn den <span class="text-amber">PART TAP</span> druecken. Der Button zeigt den naechsten Part-Namen.</div>
+        </div>
+        <div class="help-step">
+          <span class="help-step-nr">5</span>
+          <div><strong>Bars tappen</strong> &mdash; Innerhalb jedes Parts bei jedem neuen Takt den <span class="text-cyan">BAR TAP</span> druecken.</div>
+        </div>
+        <div class="help-step">
+          <span class="help-step-nr">6</span>
+          <div><strong>Exportieren</strong> &mdash; Wenn alle Parts getappt sind, erscheint der Export-Button. Die Audio-Segmente werden als WAV nach GitHub hochgeladen.</div>
+        </div>
+      </div>
+
+      <h3>Tap-Buttons</h3>
+      <div class="help-table">
+        <div class="help-row"><span class="help-key text-amber">PART TAP</span><span>Markiert Part-Grenze + setzt automatisch einen Bar-Marker. Nur aktiv bei Playback.</span></div>
+        <div class="help-row"><span class="help-key text-cyan">BAR TAP</span><span>Markiert Taktgrenze im aktuellen Part. Nur aktiv bei Playback.</span></div>
+        <div class="help-row"><span class="help-key text-red">UNDO</span><span>Entfernt den letzten Tap. War es ein Part-Tap, wird auch der zugehoerige Bar-Marker entfernt.</span></div>
+      </div>
+
+      <h3>BPM-Schaetzung</h3>
+      <p>Aus den Bar-Tap-Intervallen wird automatisch das BPM berechnet. Weicht es mehr als 3 vom Song-BPM ab, erscheint ein Banner zum Aktualisieren.</p>
+
+      <h3>Waveform</h3>
+      <p>Klick auf die Waveform = Seek. <span class="text-amber">Amber-Linien</span> = Part-Marker, <span class="text-cyan">Cyan-Linien</span> = Bar-Marker, <span class="text-green">Gruene Linie</span> = Playhead.</p>
+    </div>
+
+    <!-- Shortcuts -->
+    <div class="help-page" id="help-keys">
+      <h3>Tastaturkuerzel</h3>
+      <div class="help-table">
+        <div class="help-row"><kbd>Ctrl+S</kbd><span>Speichern (GitHub Commit)</span></div>
+        <div class="help-row"><kbd>Space</kbd><span>Play / Pause (Audio Split Tab)</span></div>
+        <div class="help-row"><kbd>Esc</kbd><span>Modal schliessen</span></div>
+        <div class="help-row"><kbd>?</kbd><span>Diese Hilfe oeffnen</span></div>
+      </div>
     </div>
   </div>
 </div>

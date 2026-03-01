@@ -1334,3 +1334,165 @@ label {
 .bpm-banner .btn {
   flex-shrink: 0;
 }
+
+/* ══════════════════════════════════════════════════════
+   HELP MODAL
+   ══════════════════════════════════════════════════════ */
+
+.help-modal {
+  max-width: 600px;
+  width: 95%;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.help-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.help-header h2 {
+  margin: 0;
+}
+
+/* ── Help Tabs ────────────────────────────────────── */
+.help-tabs {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0;
+}
+
+.help-tab {
+  background: none;
+  border: none;
+  color: var(--t3);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  padding: 8px 14px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: color 0.15s;
+  user-select: none;
+}
+
+.help-tab:hover {
+  color: var(--t2);
+}
+
+.help-tab.active {
+  color: var(--green);
+  border-bottom-color: var(--green);
+}
+
+/* ── Help Pages ───────────────────────────────────── */
+.help-page {
+  display: none;
+  overflow-y: auto;
+  flex: 1;
+  padding-right: 4px;
+}
+
+.help-page.active {
+  display: block;
+}
+
+.help-page h3 {
+  font-size: 0.9rem;
+  color: var(--t1);
+  margin: 16px 0 8px;
+}
+
+.help-page h3:first-child {
+  margin-top: 0;
+}
+
+.help-page p {
+  font-size: 0.85rem;
+  color: var(--t2);
+  line-height: 1.6;
+  margin-bottom: 8px;
+}
+
+/* ── Help Steps ───────────────────────────────────── */
+.help-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.help-step {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.help-step-nr {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(0, 220, 130, 0.15);
+  color: var(--green);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.help-step div {
+  font-size: 0.85rem;
+  color: var(--t2);
+  line-height: 1.5;
+}
+
+/* ── Help Table (key-value rows) ──────────────────── */
+.help-table {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.help-row {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  font-size: 0.85rem;
+}
+
+.help-key {
+  flex-shrink: 0;
+  min-width: 100px;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--t1);
+}
+
+.help-row span:last-child {
+  color: var(--t2);
+}
+
+.help-row kbd,
+.help-page kbd {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 2px 7px;
+  color: var(--t1);
+  line-height: 1.4;
+}

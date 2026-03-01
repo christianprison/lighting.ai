@@ -289,13 +289,8 @@ def build_db(songs_raw: list[dict]) -> dict:
 
         duration_sec = parse_duration_sec(s["duration"])
 
-        # Pick-Feld: 🔻 = Pick-Marker, zusätzlicher Text = Zusatzinfo (z.B. "Harp C")
-        raw_pick = s["pick"].strip()
-        if "🔻" in raw_pick:
-            extra = raw_pick.replace("🔻", "").strip()
-            pick = extra if extra else "🔻"
-        else:
-            pick = raw_pick
+        # Pick-Feld: 🔻 steht für ein Plektrum/Pick, Inhalt 1:1 übernehmen
+        pick = s["pick"].strip()
 
         # GEMA bereinigen
         gema = s["gema_nr"].strip()

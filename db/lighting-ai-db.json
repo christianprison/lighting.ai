@@ -265,7 +265,7 @@
     "5iZfKj": {
       "name": "All The Small Things",
       "artist": "Blink-182",
-      "bpm": 152,
+      "bpm": 161,
       "key": "A dur",
       "year": "1999",
       "pick": "🔻",
@@ -277,7 +277,7 @@
         "5iZfKj_P001": {
           "pos": 1,
           "name": "Thema 1",
-          "bars": 8,
+          "bars": 1,
           "duration_sec": 12,
           "light_template": "intro_buildup",
           "qlc_scene": "09 Alarm",
@@ -288,7 +288,7 @@
         "5iZfKj_P002": {
           "pos": 2,
           "name": "Verse 1",
-          "bars": 16,
+          "bars": 1,
           "duration_sec": 25,
           "light_template": "verse_driving",
           "qlc_scene": "08 swimming ‍",
@@ -299,7 +299,7 @@
         "5iZfKj_P003": {
           "pos": 3,
           "name": "Bridge 1",
-          "bars": 4,
+          "bars": 1,
           "duration_sec": 6,
           "light_template": "prechorus_rise",
           "qlc_scene": "02 slow blue",
@@ -310,7 +310,7 @@
         "5iZfKj_P004": {
           "pos": 4,
           "name": "Chorus 1 (nanana)",
-          "bars": 8,
+          "bars": 1,
           "duration_sec": 12,
           "light_template": "chorus_full",
           "qlc_scene": "10 Strobe",
@@ -321,7 +321,7 @@
         "5iZfKj_P005": {
           "pos": 5,
           "name": "Thema 2",
-          "bars": 8,
+          "bars": 1,
           "duration_sec": 12,
           "light_template": "intro_buildup",
           "qlc_scene": "09 Alarm",
@@ -332,7 +332,7 @@
         "5iZfKj_P006": {
           "pos": 6,
           "name": "Verse 2",
-          "bars": 8,
+          "bars": 1,
           "duration_sec": 13,
           "light_template": "verse_driving",
           "qlc_scene": "08 swimming ‍",
@@ -343,7 +343,7 @@
         "5iZfKj_P007": {
           "pos": 7,
           "name": "Bridge 2",
-          "bars": 4,
+          "bars": 1,
           "duration_sec": 7,
           "light_template": "prechorus_rise",
           "qlc_scene": "02 slow blue",
@@ -354,7 +354,7 @@
         "5iZfKj_P008": {
           "pos": 8,
           "name": "Chorus 2 (nanana)",
-          "bars": 8,
+          "bars": 1,
           "duration_sec": 13,
           "light_template": "chorus_full",
           "qlc_scene": "10 Strobe",
@@ -365,7 +365,7 @@
         "5iZfKj_P009": {
           "pos": 9,
           "name": "Stop",
-          "bars": 8,
+          "bars": 1,
           "duration_sec": 12,
           "light_template": "generic_bpm",
           "qlc_scene": "Spot auf Tim",
@@ -10079,6 +10079,69 @@
       "bar_num": 16,
       "lyrics": "sweet as the punch",
       "audio": "",
+      "has_accents": false
+    },
+    "B0051": {
+      "part_id": "5iZfKj_P001",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "audio/5iZfKj/5iZfKj_P001/bar_001.mp3",
+      "has_accents": false
+    },
+    "B0052": {
+      "part_id": "5iZfKj_P002",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "audio/5iZfKj/5iZfKj_P002/bar_001.mp3",
+      "has_accents": false
+    },
+    "B0053": {
+      "part_id": "5iZfKj_P003",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "audio/5iZfKj/5iZfKj_P003/bar_001.mp3",
+      "has_accents": false
+    },
+    "B0054": {
+      "part_id": "5iZfKj_P004",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "audio/5iZfKj/5iZfKj_P004/bar_001.mp3",
+      "has_accents": false
+    },
+    "B0055": {
+      "part_id": "5iZfKj_P005",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "audio/5iZfKj/5iZfKj_P005/bar_001.mp3",
+      "has_accents": false
+    },
+    "B0056": {
+      "part_id": "5iZfKj_P006",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "audio/5iZfKj/5iZfKj_P006/bar_001.mp3",
+      "has_accents": false
+    },
+    "B0057": {
+      "part_id": "5iZfKj_P007",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "audio/5iZfKj/5iZfKj_P007/bar_001.mp3",
+      "has_accents": false
+    },
+    "B0058": {
+      "part_id": "5iZfKj_P008",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "audio/5iZfKj/5iZfKj_P008/bar_001.mp3",
+      "has_accents": false
+    },
+    "B0059": {
+      "part_id": "5iZfKj_P009",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "audio/5iZfKj/5iZfKj_P009/bar_001.mp3",
       "has_accents": false
     }
   },

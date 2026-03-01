@@ -20,6 +20,7 @@ let selectedBarNum = null;
 
 /* ── Audio Split State ────────────────────────────── */
 let audioMeta = null;          // {duration, sampleRate, channels}
+let audioFileName = null;      // name of loaded file
 let partMarkers = [];          // [{time, partIndex}] sorted
 let barMarkers = [];           // [{time, partIndex}] sorted
 let tapHistory = [];           // [{type:'part'|'bar', time, partIndex}] for undo
@@ -809,6 +810,7 @@ function buildDropZone() {
     return `
       <div class="audio-dropzone has-file" id="audio-dropzone">
         <div class="dz-info">
+          <span class="dz-filename">${esc(audioFileName)}</span>
           <span>${durStr}</span>
           <span>${sr} kHz</span>
           <span>${audioMeta.channels}ch</span>
@@ -1140,6 +1142,7 @@ function handleAudioFileLoad(file) {
     try {
       const meta = await audio.decodeAudio(e.target.result);
       audioMeta = meta;
+      audioFileName = file.name;
       resetAudioSplit();
       renderAudioTab();
       toast(`Audio geladen: ${fmtTime(meta.duration)}`, 'success');
@@ -1662,6 +1665,7 @@ function wireEvents() {
     // Stop audio and reset split state when switching songs
     audio.reset();
     audioMeta = null;
+    audioFileName = null;
     resetAudioSplit();
     cancelAnimationFrame(animFrameId);
     selectedSongId = newId;

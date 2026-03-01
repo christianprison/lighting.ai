@@ -1041,6 +1041,16 @@ label {
   color: var(--t2);
 }
 
+.audio-dropzone.has-file .dz-filename {
+  color: var(--t1);
+  font-weight: 500;
+}
+
+.audio-dropzone.has-file .dz-filename {
+  color: var(--t1);
+  font-weight: 500;
+}
+
 .audio-dropzone.has-file .dz-change {
   font-size: 0.75rem;
   color: var(--t3);

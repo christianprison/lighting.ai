@@ -270,8 +270,8 @@
       "year": "1999",
       "pick": "🔻",
       "gema_nr": "5005294-001",
-      "duration": "2:34",
-      "duration_sec": 154,
+      "duration": "2:18",
+      "duration_sec": 138,
       "audio_ref": "audio/5iZfKj/reference.mp3",
       "audio_ref_name": "All The Small Things.mp3",
       "notes": "nach 2. ref. direkt interlude; ; Intro; Verse 1; Bridge; Chorus; Intro; Verse 2; Bridge; Chorus; Interlude; Power-Bridge; Ende",
@@ -279,7 +279,7 @@
         "5iZfKj_P001": {
           "pos": 1,
           "name": "Thema 1",
-          "bars": 1,
+          "bars": 8,
           "duration_sec": 12,
           "light_template": "intro_buildup",
           "qlc_scene": "09 Alarm",
@@ -290,8 +290,8 @@
         "5iZfKj_P002": {
           "pos": 2,
           "name": "Verse 1",
-          "bars": 1,
-          "duration_sec": 25,
+          "bars": 16,
+          "duration_sec": 24,
           "light_template": "verse_driving",
           "qlc_scene": "08 swimming ‍",
           "qlc_scene_id": 79,
@@ -301,7 +301,7 @@
         "5iZfKj_P003": {
           "pos": 3,
           "name": "Bridge 1",
-          "bars": 1,
+          "bars": 4,
           "duration_sec": 6,
           "light_template": "prechorus_rise",
           "qlc_scene": "02 slow blue",
@@ -312,7 +312,7 @@
         "5iZfKj_P004": {
           "pos": 4,
           "name": "Chorus 1 (nanana)",
-          "bars": 1,
+          "bars": 8,
           "duration_sec": 12,
           "light_template": "chorus_full",
           "qlc_scene": "10 Strobe",
@@ -323,8 +323,8 @@
         "5iZfKj_P005": {
           "pos": 5,
           "name": "Thema 2",
-          "bars": 1,
-          "duration_sec": 12,
+          "bars": 4,
+          "duration_sec": 6,
           "light_template": "intro_buildup",
           "qlc_scene": "09 Alarm",
           "qlc_scene_id": 80,
@@ -334,8 +334,8 @@
         "5iZfKj_P006": {
           "pos": 6,
           "name": "Verse 2",
-          "bars": 1,
-          "duration_sec": 13,
+          "bars": 8,
+          "duration_sec": 12,
           "light_template": "verse_driving",
           "qlc_scene": "08 swimming ‍",
           "qlc_scene_id": 79,
@@ -345,8 +345,8 @@
         "5iZfKj_P007": {
           "pos": 7,
           "name": "Bridge 2",
-          "bars": 1,
-          "duration_sec": 7,
+          "bars": 4,
+          "duration_sec": 6,
           "light_template": "prechorus_rise",
           "qlc_scene": "02 slow blue",
           "qlc_scene_id": 70,
@@ -356,8 +356,8 @@
         "5iZfKj_P008": {
           "pos": 8,
           "name": "Chorus 2 (nanana)",
-          "bars": 1,
-          "duration_sec": 13,
+          "bars": 8,
+          "duration_sec": 12,
           "light_template": "chorus_full",
           "qlc_scene": "10 Strobe",
           "qlc_scene_id": 81,
@@ -367,7 +367,7 @@
         "5iZfKj_P009": {
           "pos": 9,
           "name": "Stop",
-          "bars": 1,
+          "bars": 8,
           "duration_sec": 12,
           "light_template": "generic_bpm",
           "qlc_scene": "Spot auf Tim",
@@ -377,7 +377,7 @@
         },
         "5iZfKj_P010": {
           "pos": 10,
-          "name": "Part 10",
+          "name": "Crescendo",
           "bars": 8,
           "duration_sec": 12,
           "light_template": "generic_bpm",
@@ -10144,6 +10144,27 @@
       "bar_num": 1,
       "lyrics": "",
       "audio": "audio/5iZfKj/5iZfKj_P009/bar_001.mp3",
+      "has_accents": false
+    },
+    "B0060": {
+      "part_id": "5iZfKj_P001",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "audio/5iZfKj/5iZfKj_P001/bar_002.mp3",
+      "has_accents": false
+    },
+    "B0061": {
+      "part_id": "5iZfKj_P001",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "audio/5iZfKj/5iZfKj_P001/bar_003.mp3",
+      "has_accents": false
+    },
+    "B0062": {
+      "part_id": "5iZfKj_P001",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "audio/5iZfKj/5iZfKj_P001/bar_004.mp3",
       "has_accents": false
     }
   },

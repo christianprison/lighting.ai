@@ -10,12 +10,13 @@
  * - Song list rendering & filtering
  */
 
-import { loadDB, saveDB, getSha, testConnection } from './db.js';
+import { loadDB, loadDBLocal, saveDB, getSha, testConnection } from './db.js';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;          // the full DB object
 let dbSha = null;       // current SHA from GitHub
 let dirty = false;      // unsaved local changes?
+let readOnly = true;    // no token → read-only mode
 let activeTab = 'editor';
 let selectedSongId = null;
 
@@ -149,8 +150,7 @@ function renderContent() {
     els.content.innerHTML = `
       <div class="empty-state">
         <div class="icon">&#9881;</div>
-        <p>Konfiguriere zuerst die GitHub-Verbindung in den Settings.</p>
-        <button class="btn btn-primary" onclick="document.getElementById('btn-settings').click()">Settings</button>
+        <p>DB wird geladen...</p>
       </div>`;
     return;
   }
@@ -264,52 +264,83 @@ function handleSaveSettings() {
   const token = els.inputToken.value.trim();
   const path  = els.inputPath.value.trim();
 
-  if (!repo || !token || !path) {
-    toast('Alle Felder muessen ausgefuellt sein.', 'error');
+  if (!path) {
+    toast('DB-Pfad muss ausgefuellt sein.', 'error');
     return;
   }
 
   saveSettings({ repo, token, path });
   closeSettings();
-  toast('Settings gespeichert', 'success');
+  toast(token ? 'Settings gespeichert (read/write)' : 'Settings gespeichert (read-only)', 'success');
   initDB();
 }
 
 /* ── DB Init ───────────────────────────────────────── */
 
 async function initDB() {
-  if (!hasSettings()) {
-    db = null;
-    setSyncStatus('loading');
-    renderContent();
-    renderSongList();
-    return;
-  }
-
   const s = getSettings();
   setSyncStatus('loading');
 
+  // Strategy: If token is set, load via GitHub API (read+write).
+  // Otherwise, load the local file directly (read-only, works on GitHub Pages).
+  if (s.repo && s.token && s.path) {
+    try {
+      const result = await loadDB(s.repo, s.path, s.token);
+      db = result.data;
+      dbSha = result.sha;
+      dirty = false;
+      readOnly = false;
+      setSyncStatus('saved');
+      toast(`DB geladen (read/write) — ${Object.keys(db.songs || {}).length} Songs`, 'success');
+    } catch (e) {
+      setSyncStatus('error');
+      toast(`GitHub API fehlgeschlagen: ${e.message}. Lade lokal...`, 'error', 3000);
+      await loadLocal();
+    }
+  } else {
+    await loadLocal();
+  }
+
+  renderSongList(els.searchBox.value);
+  renderContent();
+  updateSaveButton();
+}
+
+async function loadLocal() {
+  const path = getSettings().path || 'db/lighting-ai-db.json';
   try {
-    const result = await loadDB(s.repo, s.path, s.token);
+    const result = await loadDBLocal(path);
     db = result.data;
-    dbSha = result.sha;
+    dbSha = null;
     dirty = false;
+    readOnly = true;
     setSyncStatus('saved');
-    toast(`DB geladen — ${Object.keys(db.songs || {}).length} Songs`, 'success');
+    toast(`DB geladen (read-only) — ${Object.keys(db.songs || {}).length} Songs`, 'info');
   } catch (e) {
     db = null;
     setSyncStatus('error');
     toast(`DB laden fehlgeschlagen: ${e.message}`, 'error', 5000);
   }
+}
 
-  renderSongList(els.searchBox.value);
-  renderContent();
+function updateSaveButton() {
+  if (readOnly) {
+    els.btnSave.title = 'Read-only — Token in Settings eingeben zum Speichern';
+    els.btnSave.style.opacity = '0.4';
+  } else {
+    els.btnSave.title = 'Save (Ctrl+S)';
+    els.btnSave.style.opacity = '1';
+  }
 }
 
 /* ── Save DB ───────────────────────────────────────── */
 
 async function handleSave() {
   if (!db || !dirty) return;
+  if (readOnly) {
+    toast('Read-only Modus — Token in Settings eingeben zum Speichern', 'error');
+    return;
+  }
   const s = getSettings();
   setSyncStatus('saving');
 
@@ -384,15 +415,8 @@ document.addEventListener('DOMContentLoaded', () => {
   cacheDom();
   wireEvents();
   switchTab('editor');
-
-  if (hasSettings()) {
-    initDB();
-  } else {
-    setSyncStatus('loading');
-    renderContent();
-    // Auto-open settings if not configured
-    openSettings();
-  }
+  // Always load DB on start — works without token (read-only via local fetch)
+  initDB();
 });
 
 /* Expose for inline onclick in rendered HTML */

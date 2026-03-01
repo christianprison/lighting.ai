@@ -179,6 +179,23 @@ export async function uploadFile(repo, path, token, base64content, message) {
 }
 
 /**
+ * Load DB via direct fetch (no token needed).
+ * Works on GitHub Pages (same-origin) and local dev servers.
+ * Returns data only — no SHA (read-only mode).
+ *
+ * @param {string} path - relative path, e.g. "db/lighting-ai-db.json"
+ * @returns {Promise<{data: object, sha: null}>}
+ */
+export async function loadDBLocal(path) {
+  const res = await fetch(path);
+  if (!res.ok) {
+    throw new Error(`Fetch ${res.status}: ${res.statusText}`);
+  }
+  const data = await res.json();
+  return { data, sha: null };
+}
+
+/**
  * Test the GitHub connection by reading the repo root.
  *
  * @param {string} repo

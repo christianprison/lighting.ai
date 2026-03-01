@@ -1067,12 +1067,6 @@ function buildSplitResult(parts) {
 function buildExportSection(parts) {
   if (currentPartIndex < parts.length) return '';
   if (parts.length === 0) return '';
-  if (barMarkers.length === 0) return `
-    <div class="export-section" id="export-section">
-      <div style="font-size:0.8rem;color:var(--t3)">
-        Keine Bars getappt &mdash; tappe zuerst die Taktgrenzen mit BAR TAP.
-      </div>
-    </div>`;
 
   if (exportInProgress) {
     return `
@@ -1092,7 +1086,9 @@ function buildExportSection(parts) {
         <button class="btn btn-primary" id="btn-export">EXPORT</button>
       </div>
       <div style="font-size:0.8rem;color:var(--t3)">
-        ${barMarkers.length} Bars als MP3-Segmente nach <span class="mono">audio/${selectedSongId}/</span> hochladen.
+        ${barMarkers.length > 0
+          ? `${barMarkers.length} Bars als MP3-Segmente nach <span class="mono">audio/${selectedSongId}/</span> hochladen.`
+          : `Part-Zeiten in DB speichern (keine Bar-Segmente zum Exportieren).`}
       </div>
     </div>`;
 }
@@ -1211,29 +1207,18 @@ function drawWaveform() {
     ctx.fillRect(i * barW, mid - barH / 2, Math.max(barW - 0.5, 1), barH || 1);
   }
 
-  // Bar markers (cyan) with bar numbers
+  // Bar markers (cyan lines only, no numbers)
   for (const m of barMarkers) {
     const x = (m.time / duration) * w;
-    // Count bar number within this part
-    const partBars = barMarkers
-      .filter(b => b.partIndex === m.partIndex)
-      .sort((a, b) => a.time - b.time);
-    const barNum = partBars.indexOf(m) + 1;
-
     ctx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(x, 0);
     ctx.lineTo(x, h);
     ctx.stroke();
-
-    // Bar number label at bottom
-    ctx.font = '9px "DM Mono", monospace';
-    ctx.fillStyle = 'rgba(56, 189, 248, 0.8)';
-    ctx.fillText(String(barNum), x + 2, h - 4);
   }
 
-  // Part markers (amber)
+  // Part markers (amber) with part name and bar count
   const parts = getSortedParts(selectedSongId);
   for (const m of partMarkers) {
     const x = (m.time / duration) * w;
@@ -1244,13 +1229,22 @@ function drawWaveform() {
     ctx.lineTo(x, h);
     ctx.stroke();
 
-    // Label
+    // Part name label (top)
     const partName = m.partIndex < parts.length ? parts[m.partIndex].name : '';
     if (partName) {
       ctx.font = '10px Sora, sans-serif';
       ctx.fillStyle = 'rgba(240, 160, 48, 0.9)';
       const labelX = Math.min(x + 4, w - ctx.measureText(partName).width - 4);
       ctx.fillText(partName, labelX, 12);
+    }
+
+    // Bar count label (bottom) — show how many bars in this part
+    const barCount = barMarkers.filter(b => b.partIndex === m.partIndex).length;
+    if (barCount > 0) {
+      const label = `${barCount} bars`;
+      ctx.font = '9px "DM Mono", monospace';
+      ctx.fillStyle = 'rgba(240, 160, 48, 0.7)';
+      ctx.fillText(label, x + 4, h - 4);
     }
   }
 
@@ -1729,12 +1723,6 @@ async function handleAudioExport() {
 
   // Count total bars across all parts
   const totalBars = barMarkers.length;
-  if (totalBars === 0) {
-    toast('Keine Bars getappt — tappe zuerst die Taktgrenzen mit BAR TAP', 'error');
-    exportInProgress = false;
-    renderAudioTab();
-    return;
-  }
   let done = 0;
 
   ensureCollections();
@@ -1746,6 +1734,11 @@ async function handleAudioExport() {
       const part = parts[i];
       const partEnd = getPartEndTime(i);
       const bars = getBarMarkersForPart(i);
+
+      // Update bars count in part (even if no bars were tapped)
+      if (db.songs[selectedSongId].parts[part.id]) {
+        db.songs[selectedSongId].parts[part.id].bars = bars.length;
+      }
 
       if (bars.length === 0 || partEnd === null) continue;
 
@@ -1795,14 +1788,10 @@ async function handleAudioExport() {
         if (textEl()) textEl().textContent = `${done}/${totalBars} hochgeladen`;
       }
 
-      // Update bars count in part
-      if (db.songs[selectedSongId].parts[part.id]) {
-        db.songs[selectedSongId].parts[part.id].bars = bars.length;
-      }
     }
 
     markDirty();
-    toast(`${done} Bar-Segmente exportiert`, 'success');
+    toast(done > 0 ? `${done} Bar-Segmente exportiert` : 'Part-Daten gespeichert', 'success');
   } catch (err) {
     toast(`Export-Fehler: ${err.message}`, 'error', 5000);
   } finally {

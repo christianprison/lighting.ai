@@ -98,6 +98,8 @@ function cacheDom() {
     btnHelp:       document.getElementById('btn-help'),
     helpModal:     document.getElementById('help-modal'),
     btnCloseHelp:  document.getElementById('btn-close-help'),
+    sidebarToggle: document.getElementById('sidebar-toggle'),
+    appEl:         document.getElementById('app'),
   };
 }
 
@@ -1885,6 +1887,23 @@ function markDirty() {
   }
 }
 
+/* ── Sidebar Toggle ────────────────────────────────── */
+
+function toggleSidebar() {
+  const collapsed = els.appEl.classList.toggle('sidebar-collapsed');
+  els.sidebarToggle.innerHTML = collapsed ? '&#9654;' : '&#9664;';
+  els.sidebarToggle.title = collapsed ? 'Sidebar aufklappen' : 'Sidebar einklappen';
+  localStorage.setItem('lightingai_sidebar', collapsed ? 'collapsed' : 'open');
+}
+
+function restoreSidebar() {
+  if (localStorage.getItem('lightingai_sidebar') === 'collapsed') {
+    els.appEl.classList.add('sidebar-collapsed');
+    els.sidebarToggle.innerHTML = '&#9654;';
+    els.sidebarToggle.title = 'Sidebar aufklappen';
+  }
+}
+
 /* ── Event Wiring ──────────────────────────────────── */
 
 function wireEvents() {
@@ -1915,6 +1934,9 @@ function wireEvents() {
     if (e.key === 'Escape') { closeSettings(); closeHelp(); }
     if (e.key === '?' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') openHelp();
   });
+
+  // Sidebar toggle
+  els.sidebarToggle.addEventListener('click', toggleSidebar);
 
   // Search
   els.searchBox.addEventListener('input', () => renderSongList(els.searchBox.value));
@@ -1974,6 +1996,7 @@ function wireEvents() {
 document.addEventListener('DOMContentLoaded', () => {
   cacheDom();
   wireEvents();
+  restoreSidebar();
   switchTab('editor');
   initDB();
 });

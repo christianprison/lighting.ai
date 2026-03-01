@@ -209,11 +209,64 @@ h3 { font-size: 0.95rem; }
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  transition: width 0.2s ease, min-width 0.2s ease;
 }
 
 .sidebar-header {
   padding: 12px;
   border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sidebar-header .search-box { flex: 1; min-width: 0; }
+
+.sidebar-toggle {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--t3);
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 0.7rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.sidebar-toggle:hover {
+  color: var(--t1);
+  border-color: var(--border2);
+  background: var(--bg3);
+}
+
+/* ── Sidebar collapsed state ── */
+#app.sidebar-collapsed {
+  grid-template-columns: 40px 1fr;
+}
+
+#app.sidebar-collapsed #sidebar {
+  overflow: visible;
+}
+
+#app.sidebar-collapsed #sidebar .search-box,
+#app.sidebar-collapsed #sidebar .song-count,
+#app.sidebar-collapsed #sidebar .song-list {
+  display: none;
+}
+
+#app.sidebar-collapsed .sidebar-header {
+  padding: 6px;
+  border-bottom: none;
+  justify-content: center;
+}
+
+#app.sidebar-collapsed .sidebar-toggle {
+  width: 28px;
+  height: 28px;
 }
 
 .search-box {

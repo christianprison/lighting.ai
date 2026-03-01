@@ -1358,12 +1358,16 @@ async function uploadReferenceAudio(arrayBuffer, fileName) {
     markDirty();
 
     // Auto-save DB so audio_ref persists across reloads
-    await handleSave();
-    toast('Referenz-Audio gespeichert', 'success');
+    const saved = await handleSave(false);
+    if (saved) {
+      toast('Referenz-Audio gespeichert', 'success');
+    } else {
+      toast('Audio hochgeladen, aber DB nicht gespeichert \u2014 bitte manuell speichern (Strg+S)', 'error', 5000);
+    }
     renderAudioTab();
   } catch (err) {
     console.error('Reference upload failed:', err);
-    // Non-blocking — split still works without reference
+    toast(`Referenz-Audio Upload fehlgeschlagen: ${err.message}`, 'error', 5000);
   }
 }
 
@@ -1665,11 +1669,7 @@ function updateTapInfo(parts) {
   }
   if (barBtn) {
     const info = barBtn.querySelector('.tap-info');
-    // Show bar count for the part the playhead is currently in
-    const curTime = audio.getCurrentTime();
-    const curPartIdx = partMarkers.length > 0 ? getPartIndexForTime(curTime) : -1;
-    const barsInCurPart = curPartIdx >= 0 ? barMarkers.filter(m => m.partIndex === curPartIdx).length : 0;
-    if (info) info.textContent = `Bar ${barsInCurPart + 1}`;
+    if (info) info.textContent = `Bar ${currentBarInPart + 1}`;
     barBtn.disabled = !audio.isPlaying() || currentPartIndex === 0;
   }
 
@@ -2024,11 +2024,11 @@ function updateSaveButton() {
 
 /* ── Save DB ───────────────────────────────────────── */
 
-async function handleSave() {
-  if (!db || !dirty) return;
+async function handleSave(showToast = true) {
+  if (!db || !dirty) return true;
   if (readOnly) {
     toast('Read-only Modus \u2014 Token in Settings eingeben', 'error');
-    return;
+    return false;
   }
   const s = getSettings();
   setSyncStatus('saving');
@@ -2037,10 +2037,12 @@ async function handleSave() {
     dbSha = newSha;
     dirty = false;
     setSyncStatus('saved');
-    toast('Gespeichert', 'success');
+    if (showToast) toast('Gespeichert', 'success');
+    return true;
   } catch (e) {
     setSyncStatus('error');
     toast(`Speichern fehlgeschlagen: ${e.message}`, 'error', 5000);
+    return false;
   }
 }
 

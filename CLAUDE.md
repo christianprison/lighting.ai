@@ -24,36 +24,52 @@ Eine komfortable Web-Oberfläche für den Lichttechniker **Timo**, die:
 
 ## Architektur
 
-### Service-Architektur (Headless + WebApp)
+### Phase 1: Reine Client-App (GitHub Pages)
 
 ```
 ┌─────────────────────────────────────────────────┐
-│                    Browser (iPad)                │
-│          lighting.ai WebApp (HTML/JS)            │
+│           Browser (iPad / Laptop / Handy)        │
+│           lighting.ai WebApp (HTML/JS)           │
 │    ┌──────────┐  ┌──────────┐  ┌──────────┐    │
 │    │ DB Editor│  │Audio Split│  │ Live UI  │    │
 │    └────┬─────┘  └────┬─────┘  └────┬─────┘    │
+│         │ GitHub API   │ GitHub API  │           │
+│         │ (REST)       │ (REST)      │           │
 └─────────┼──────────────┼────────────┼───────────┘
-          │ WebSocket    │ REST+WS    │ WebSocket
-          ▼              ▼            ▼
-┌─────────────────────────────────────────────────┐
-│             FastAPI Backend (Python)             │
-│                  Linux Mint                      │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐      │
-│  │ DB Svc   │  │Audio Svc │  │Light Svc │      │
-│  │ (CRUD)   │  │(Split/   │  │(DMX Out) │      │
-│  │          │  │ Encode)  │  │          │      │
-│  └────┬─────┘  └────┬─────┘  └────┬─────┘      │
-│       │              │             │             │
-│       ▼              ▼             ▼             │
-│  ┌─────────┐  ┌──────────┐  ┌──────────┐       │
-│  │GitHub   │  │GitHub    │  │ sACN/DMX │       │
-│  │JSON DB  │  │Audio     │  │ (Eth)    │       │
-│  └─────────┘  └──────────┘  └──────────┘       │
-└─────────────────────────────────────────────────┘
+          ▼              ▼            │
+┌─────────────────────────────────┐  │ (Phase 2+)
+│         GitHub Repository       │  │
+│  christianprison/lighting.ai    │  │
+│  ┌──────────┐  ┌──────────┐    │  │
+│  │ db/      │  │ audio/   │    │  │
+│  │ *.json   │  │ *.mp3    │    │  │
+│  └──────────┘  └──────────┘    │  │
+└─────────────────────────────────┘  │
+                                     ▼
+                        ┌──────────────────────┐
+                        │ Linux Mint (Phase 2+)│
+                        │ FastAPI + DMX/sACN   │
+                        │ OSC (XR18 Mixer)     │
+                        └──────────────────────┘
 ```
 
-Services laufen unter **Linux Mint** auf dem Steuer-Laptop. DMX-Hardware ist per Ethernet angeschlossen. UIs sind WebApps, bedienbar von jedem Gerät im Netzwerk.
+**Kein Backend in Phase 1!** Der Browser kommuniziert direkt mit der GitHub API. Audio-Processing (Waveform, Splitting) läuft komplett client-seitig über die Web Audio API. Das FastAPI-Backend kommt erst in Phase 2 dazu, wenn OSC und DMX-Steuerung gebraucht werden.
+
+### Hosting
+
+- **GitHub Pages**: `christianprison.github.io/lighting.ai`
+- Automatisches Deploy bei jedem Push
+- HTTPS, CDN, immer erreichbar, kostenlos
+- Einrichtung: Repo Settings → Pages → Source: `main`, Root `/`
+
+### Phase 2+: Lokaler Server (zusätzlich)
+
+Ab Phase 2 läuft ein FastAPI-Backend auf dem **Linux Mint** Steuer-Laptop:
+
+- OSC-Empfang vom XR18 über WLAN
+- sACN/DMX-Output über Ethernet an Showtec/ENTTEC
+- WebSocket für Live-UI-Updates
+- Die DB-Pflege-App (GitHub Pages) bleibt unabhängig davon nutzbar
 
 ### Netzwerk
 
@@ -74,16 +90,16 @@ Services laufen unter **Linux Mint** auf dem Steuer-Laptop. DMX-Hardware ist per
 
 ## Tech Stack
 
-|Komponente      |Technologie            |Begründung                       |
-|----------------|-----------------------|---------------------------------|
-|Backend         |Python 3.11+ / FastAPI |Async, WebSocket-Support, schnell|
-|Realtime        |WebSocket (FastAPI)    |Low-latency UI-Updates           |
-|Frontend        |Vanilla HTML/CSS/JS    |Single-file, kein Build-Step     |
-|Persistenz      |GitHub API (REST)      |Versionierung gratis, Audio+JSON |
-|Audio Processing|Web Audio API (Browser)|Waveform, Playback, Splitting    |
-|DMX (Phase 3)   |sacn (Python)          |sACN/E1.31 direkt                |
-|OSC (Phase 2)   |python-osc             |XR18 Meter-Daten                 |
-|OS              |Linux Mint             |Vorhandener Steuer-Laptop        |
+|Komponente       |Technologie              |Begründung                        |
+|-----------------|-------------------------|----------------------------------|
+|Frontend         |Vanilla HTML/CSS/JS      |Single-file, kein Build-Step      |
+|Persistenz       |GitHub API (REST, direkt)|Versionierung gratis, Audio+JSON  |
+|Audio Processing |Web Audio API (Browser)  |Waveform, Playback, Splitting     |
+|Hosting          |GitHub Pages             |Kostenlos, HTTPS, immer erreichbar|
+|Backend (Phase 2)|Python 3.11+ / FastAPI   |Async, WebSocket, OSC, DMX        |
+|DMX (Phase 3)    |sacn (Python)            |sACN/E1.31 direkt                 |
+|OSC (Phase 2)    |python-osc               |XR18 Meter-Daten                  |
+|OS (Phase 2+)    |Linux Mint               |Vorhandener Steuer-Laptop         |
 
 -----
 
@@ -179,50 +195,48 @@ outro_fadeout, outro_cut, ballad_warm, generic_bpm
 lighting.ai/
 ├── CLAUDE.md                      # Diese Datei
 ├── README.md
-├── pyproject.toml                 # Python-Projekt-Config
+├── index.html                     # Entry Point (Tab-Router)
 ├── db/
 │   └── lighting-ai-db.json       # Songdatenbank (GitHub-synced)
 ├── audio/                         # Audio-Schnipsel (GitHub-synced)
 │   └── {song_id}/{part_id}/
 │       └── bar_NNN.mp3
-├── server/
-│   ├── __init__.py
-│   ├── main.py                    # FastAPI Entry Point
-│   ├── config.py                  # Settings, GitHub-Config
-│   ├── routers/
-│   │   ├── __init__.py
-│   │   ├── songs.py               # REST: CRUD Songs, Parts
-│   │   ├── setlist.py             # REST: Setlist-Verwaltung
-│   │   ├── audio.py               # REST: Audio Upload/Download
-│   │   └── ws.py                  # WebSocket: Live-Updates
-│   ├── services/
-│   │   ├── __init__.py
-│   │   ├── db_service.py          # JSON DB lesen/schreiben
-│   │   ├── github_service.py      # GitHub API Wrapper
-│   │   └── audio_service.py       # Audio-Splitting, Encoding
-│   └── models/
-│       ├── __init__.py
-│       └── schema.py              # Pydantic Models
 ├── ui/
-│   ├── index.html                 # Haupt-Entry (Tab-Router)
 │   ├── db-editor.html             # DB Editor Tab
 │   ├── audio-split.html           # Audio Split Tab
 │   ├── live.html                  # Live-UI für Timo (Phase 1)
-│   └── assets/
-│       └── style.css              # Shared Dark Theme
-├── tests/
-│   ├── test_db_service.py
-│   ├── test_github_service.py
-│   └── test_audio_service.py
-└── scripts/
-    └── import_pact_json.py        # Import aus BandHelper-Export
+│   └── components/                # Wiederverwendbare UI-Module
+│       ├── song-list.js           # Song-Liste mit Filter
+│       ├── part-table.js          # Parts-Tabelle
+│       ├── waveform.js            # Waveform-Rendering
+│       ├── transport.js           # Play/Pause/Seek
+│       └── github-sync.js         # GitHub API Wrapper
+├── css/
+│   └── style.css                  # Shared Dark Theme
+├── js/
+│   ├── app.js                     # Haupt-App-Logik, Routing
+│   ├── db.js                      # DB Laden/Speichern via GitHub API
+│   ├── audio-engine.js            # Web Audio API Wrapper
+│   └── utils.js                   # Hilfsfunktionen
+├── scripts/
+│   └── import_pact_json.py        # Import aus BandHelper-Export
+└── server/                        # Phase 2+ (FastAPI, OSC, DMX)
+    └── README.md                  # Platzhalter
 ```
 
 -----
 
 ## Entwicklungsrichtlinien
 
-### Python
+### JavaScript (Phase 1)
+
+- Vanilla ES6+ — kein Framework, kein Bundler, kein npm
+- ES Modules (`import`/`export`) wo sinnvoll, ansonsten einfache Script-Tags
+- `async/await` für GitHub API Calls
+- JSDoc-Kommentare für komplexere Funktionen
+- Keine externen Dependencies außer Google Fonts (Sora, DM Mono)
+
+### Python (Phase 2+)
 
 - Python 3.11+
 - Type Hints überall
@@ -330,40 +344,82 @@ Diese Prototypen zeigen das finale Look & Feel. Der Produktionscode soll die gle
 
 -----
 
-## Aufgaben Phase 1 (DB-Pflege-App)
+## Lokale Entwicklung
 
-### Meilenstein 1: Backend Grundgerüst
+### Setup
 
-- [ ] FastAPI Projekt aufsetzen mit WebSocket-Support
-- [ ] Pydantic Models für Song, Part, Bar, Accent, Setlist
-- [ ] DB Service: JSON laden/speichern (lokal + GitHub)
-- [ ] GitHub Service: Lesen, Schreiben, Audio-Upload
-- [ ] REST Routen: CRUD für Songs, Parts, Setlists
+```bash
+git clone git@github.com:christianprison/lighting.ai.git
+cd lighting.ai
+python -m venv .venv
+source .venv/bin/activate
+pip install -e ".[dev]"
+```
+
+### Dev-Server starten
+
+```bash
+# Backend + statische UI-Dateien
+uvicorn server.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+Dann im Browser: `http://localhost:8000` (oder vom iPad: `http://<ip-des-rechners>:8000`)
+
+### Umgebungsvariablen
+
+```bash
+# .env (nicht ins Repo!)
+GITHUB_TOKEN=github_pat_...
+GITHUB_REPO=christianprison/lighting.ai
+GITHUB_DB_PATH=db/lighting-ai-db.json
+```
+
+### Hosting (später)
+
+Die App ist bewusst so gebaut, dass sie später einfach deployed werden kann:
+
+- **GitHub Pages:** Nur die UI-Dateien aus `ui/` — Browser spricht direkt mit GitHub API (kein Backend nötig für reine DB-Pflege)
+- **Render / fly.io / Hetzner:** Für Vollbetrieb mit Backend (Audio-Processing, WebSocket, DMX-Steuerung)
+- **Lokal im Proberaum / Live:** FastAPI auf dem Linux-Rechner, iPad greift über LAN zu
+
+-----
+
+## Aufgaben Phase 1 (DB-Pflege-App, reine Client-App)
+
+### Meilenstein 1: Grundgerüst + GitHub Pages
+
+- [ ] Repo-Struktur anlegen (index.html, css/, js/, ui/)
+- [ ] GitHub Pages aktivieren
+- [ ] GitHub API Wrapper (`js/db.js`): Lesen, Schreiben, SHA-Tracking
+- [ ] Settings-Modal: Token + Repo konfigurieren (localStorage)
+- [ ] DB laden und im Speicher halten, Sync-Status-Anzeige
 
 ### Meilenstein 2: DB Editor UI
 
-- [ ] Song-Liste mit Suchfunktion
-- [ ] Song-Detail: Felder inline editierbar
-- [ ] Parts-Tabelle: Add, Delete, Move, Duplicate
-- [ ] Bar-Editor: Lyrics, Accents auf 16tel-Raster
-- [ ] Template-Picker für Light-Programme
-- [ ] Auto-Save bei Änderungen, Sync-Status-Anzeige
+- [ ] Song-Liste mit Suchfunktion (links)
+- [ ] Song-Detail: Felder inline editierbar (Name, Artist, BPM, Key, Jahr, GEMA, Pick)
+- [ ] Parts-Tabelle: Add, Delete, Move, Duplicate, Bars editierbar
+- [ ] Template-Picker Dropdown für Light-Programme
+- [ ] Auto-Berechnung: Duration pro Part und Song aus Bars + BPM
+- [ ] Bar-Editor: Lyrics-Eingabe, Accents auf 16tel-Raster
+- [ ] Auto-Save / manueller Save-Button → GitHub Commit
 
 ### Meilenstein 3: Audio Split
 
 - [ ] Audio-Datei laden (Drag & Drop, File-Picker)
-- [ ] Waveform-Darstellung (Web Audio API)
-- [ ] Transport: Play, Pause, Seek
-- [ ] Part-Tap: Markiert Part-Grenzen
-- [ ] Bar-Tap: Markiert Taktgrenzen
+- [ ] Waveform-Darstellung (Web Audio API + Canvas)
+- [ ] Transport: Play, Pause, Seek (Klick auf Waveform)
+- [ ] Part-Tap: Markiert Part-Grenzen (übernimmt Part-Namen aus Song)
+- [ ] Bar-Tap: Markiert Taktgrenzen innerhalb Parts
 - [ ] BPM-Schätzung aus Bar-Intervallen
-- [ ] Audio-Schnipsel extrahieren und auf GitHub speichern
+- [ ] Undo-Funktion für Taps
+- [ ] Audio-Schnipsel extrahieren (OfflineAudioContext) und auf GitHub speichern
 
 ### Meilenstein 4: Setlist-Verwaltung
 
 - [ ] Setlist erstellen, bearbeiten, Songs per Drag ordnen
 - [ ] Pausen einfügen
-- [ ] Setlist-Export (PDF für die Band)
+- [ ] Setlist-Export (druckbares HTML/PDF für die Band)
 
 -----
 

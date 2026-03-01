@@ -5,7 +5,7 @@
  * Bar-Editor mit 16tel-Accent-Raster und Summary-Bar.
  */
 
-import { loadDB, loadDBLocal, saveDB, testConnection, uploadFile } from './db.js';
+import { loadDB, loadDBLocal, saveDB, testConnection, uploadFile, deleteFile } from './db.js';
 import * as audio from './audio-engine.js';
 
 /* ── State ─────────────────────────────────────────── */
@@ -1646,6 +1646,29 @@ async function handleAudioExport() {
 
       if (bars.length === 0 || partEnd === null) continue;
 
+      // Clean up old bars that exceed the new bar count
+      const oldBars = Object.entries(db.bars)
+        .filter(([, b]) => b.part_id === part.id)
+        .sort((a, b) => a[1].bar_num - b[1].bar_num);
+
+      for (const [oldBarId, oldBar] of oldBars) {
+        if (oldBar.bar_num > bars.length) {
+          // Delete orphaned audio file from GitHub
+          if (oldBar.audio) {
+            try {
+              if (textEl()) textEl().textContent = `L\u00f6sche alten Bar ${oldBar.bar_num}...`;
+              await deleteFile(s.repo, oldBar.audio, s.token,
+                `Cleanup: ${part.name} Bar ${oldBar.bar_num} (${songName})`);
+            } catch { /* ok if file doesn't exist */ }
+          }
+          // Remove accents for this bar
+          for (const [accId, acc] of Object.entries(db.accents || {})) {
+            if (acc.bar_id === oldBarId) delete db.accents[accId];
+          }
+          delete db.bars[oldBarId];
+        }
+      }
+
       for (let b = 0; b < bars.length; b++) {
         const barStart = bars[b].time;
         const barEnd = (b + 1 < bars.length) ? bars[b + 1].time : partEnd;
@@ -1659,7 +1682,7 @@ async function handleAudioExport() {
 
         await uploadFile(s.repo, path, s.token, base64mp3, `Audio: ${part.name} Bar ${barNum} (${songName})`);
 
-        // Update bar record in DB
+        // Update bar record in DB (preserves existing lyrics/accents)
         const [barId, barData] = getOrCreateBar(part.id, barNum);
         barData.audio = path;
 
@@ -1670,7 +1693,6 @@ async function handleAudioExport() {
       }
 
       // Update bars count in part
-      part.bars = bars.length;
       if (db.songs[selectedSongId].parts[part.id]) {
         db.songs[selectedSongId].parts[part.id].bars = bars.length;
       }

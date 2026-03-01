@@ -179,6 +179,43 @@ export async function uploadFile(repo, path, token, base64content, message) {
 }
 
 /**
+ * Delete a file from a GitHub repo.
+ *
+ * @param {string} repo
+ * @param {string} path
+ * @param {string} token
+ * @param {string} [message]
+ * @returns {Promise<void>}
+ */
+export async function deleteFile(repo, path, token, message) {
+  const commitMsg = message || `Delete ${path} via lighting.ai`;
+
+  // Get SHA of existing file
+  let sha = shaCache[path] || null;
+  if (!sha) {
+    const url = `${GITHUB_API}/repos/${repo}/contents/${path}`;
+    const res = await fetch(url, { headers: headers(token) });
+    if (!res.ok) return; // file doesn't exist — nothing to delete
+    const json = await res.json();
+    sha = json.sha;
+  }
+
+  const url = `${GITHUB_API}/repos/${repo}/contents/${path}`;
+  const res = await fetch(url, {
+    method: 'DELETE',
+    headers: headers(token),
+    body: JSON.stringify({ message: commitMsg, sha }),
+  });
+
+  if (!res.ok && res.status !== 404) {
+    const errBody = await res.json().catch(() => ({}));
+    throw new Error(`GitHub DELETE ${res.status}: ${errBody.message || res.statusText}`);
+  }
+
+  delete shaCache[path];
+}
+
+/**
  * Load DB via direct fetch (no token needed).
  * Works on GitHub Pages (same-origin) and local dev servers.
  * Returns data only — no SHA (read-only mode).

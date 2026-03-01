@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>lighting.ai — THE PACT</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div id="app">
+  <!-- ── Header ──────────────────────────────────── -->
+  <header id="header">
+    <div class="logo">lighting<span>.ai</span></div>
+
+    <nav class="tab-bar">
+      <button class="tab-btn active" id="tab-editor">DB EDITOR</button>
+      <button class="tab-btn" id="tab-audio">AUDIO SPLIT</button>
+    </nav>
+
+    <div class="header-right">
+      <span class="sync-status" id="sync-status" data-status="loading">LOADING...</span>
+      <button class="icon-btn" id="btn-save" title="Save (Ctrl+S)">&#128190;</button>
+      <button class="icon-btn" id="btn-settings" title="Settings">&#9881;</button>
+    </div>
+  </header>
+
+  <!-- ── Sidebar: Song List ──────────────────────── -->
+  <aside id="sidebar">
+    <div class="sidebar-header">
+      <input type="text" class="search-box" id="search-box" placeholder="Song suchen...">
+    </div>
+    <div class="song-count" id="song-count">0 Songs</div>
+    <div class="song-list" id="song-list"></div>
+  </aside>
+
+  <!-- ── Content ─────────────────────────────────── -->
+  <main id="content">
+    <div class="empty-state">
+      <div class="icon">&#9881;</div>
+      <p>Konfiguriere zuerst die GitHub-Verbindung in den Settings.</p>
+    </div>
+  </main>
+</div>
+
+<!-- ── Settings Modal ──────────────────────────────── -->
+<div class="modal-overlay" id="settings-modal">
+  <div class="modal">
+    <h2>Settings</h2>
+
+    <div class="form-group">
+      <label for="set-repo">GitHub Repo</label>
+      <input type="text" id="set-repo" value="christianprison/lighting.ai" placeholder="owner/repo">
+    </div>
+
+    <div class="form-group">
+      <label for="set-token">GitHub Token (PAT)</label>
+      <input type="password" id="set-token" placeholder="github_pat_...">
+    </div>
+
+    <div class="form-group">
+      <label for="set-path">DB-Pfad</label>
+      <input type="text" id="set-path" value="db/lighting-ai-db.json" placeholder="db/lighting-ai-db.json">
+    </div>
+
+    <div style="margin-top: 12px">
+      <button class="btn btn-sm" id="btn-test-conn">Test Connection</button>
+      <span id="test-result" style="margin-left: 8px; font-size: 0.8rem"></span>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn" id="btn-cancel-settings">Abbrechen</button>
+      <button class="btn btn-primary" id="btn-save-settings">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Toast Container ─────────────────────────────── -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- ── Scripts ─────────────────────────────────────── -->
+<script type="module" src="js/app.js"></script>
+
+</body>
+</html>

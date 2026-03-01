@@ -1,0 +1,4886 @@
+{
+  "version": "1.0",
+  "band": "The Pact",
+  "setlist": {
+    "name": "Standard Set",
+    "items": [
+      {
+        "type": "song",
+        "pos": 1,
+        "song_id": "OhbVrp"
+      },
+      {
+        "type": "song",
+        "pos": 2,
+        "song_id": "bfnoGM"
+      },
+      {
+        "type": "song",
+        "pos": 3,
+        "song_id": "gyrDO1"
+      },
+      {
+        "type": "song",
+        "pos": 4,
+        "song_id": "68K4Tu"
+      },
+      {
+        "type": "song",
+        "pos": 5,
+        "song_id": "4IWrXP"
+      },
+      {
+        "type": "song",
+        "pos": 6,
+        "song_id": "7x41Zt"
+      },
+      {
+        "type": "song",
+        "pos": 7,
+        "song_id": "SBvrjn"
+      },
+      {
+        "type": "song",
+        "pos": 8,
+        "song_id": "xkxwnQ"
+      },
+      {
+        "type": "song",
+        "pos": 9,
+        "song_id": "RBMeyy"
+      },
+      {
+        "type": "song",
+        "pos": 10,
+        "song_id": "3Ot1OG"
+      },
+      {
+        "type": "pause"
+      },
+      {
+        "type": "song",
+        "pos": 11,
+        "song_id": "bJmTPS"
+      },
+      {
+        "type": "song",
+        "pos": 12,
+        "song_id": "kDyr7O"
+      },
+      {
+        "type": "song",
+        "pos": 13,
+        "song_id": "IAoCLr"
+      },
+      {
+        "type": "song",
+        "pos": 14,
+        "song_id": "nPFz46"
+      },
+      {
+        "type": "song",
+        "pos": 15,
+        "song_id": "evbLJo"
+      },
+      {
+        "type": "song",
+        "pos": 16,
+        "song_id": "oiVgRV"
+      },
+      {
+        "type": "song",
+        "pos": 17,
+        "song_id": "Z3aWZk"
+      },
+      {
+        "type": "song",
+        "pos": 18,
+        "song_id": "FnIiU7"
+      },
+      {
+        "type": "song",
+        "pos": 19,
+        "song_id": "7yfJs1"
+      },
+      {
+        "type": "song",
+        "pos": 20,
+        "song_id": "vhsBkD"
+      }
+    ]
+  },
+  "songs": {
+    "OhbVrp": {
+      "name": "Mr. Brightside",
+      "artist": "The Killers",
+      "bpm": 148,
+      "key": "Bb dur",
+      "year": "2003",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "3:42",
+      "duration_sec": 222,
+      "notes": "",
+      "parts": {
+        "OhbVrp_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 4,
+          "duration_sec": 6,
+          "light_template": "intro_buildup",
+          "notes": ""
+        },
+        "OhbVrp_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 13,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "OhbVrp_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 13,
+          "light_template": "chorus_anthem",
+          "notes": ""
+        },
+        "OhbVrp_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 13,
+          "light_template": "verse_dark",
+          "notes": ""
+        },
+        "OhbVrp_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 13,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "OhbVrp_P006": {
+          "pos": 6,
+          "name": "Bridge",
+          "bars": 4,
+          "duration_sec": 6,
+          "light_template": "bridge_breakdown",
+          "notes": ""
+        },
+        "OhbVrp_P007": {
+          "pos": 7,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 13,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "OhbVrp_P008": {
+          "pos": 8,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 6,
+          "light_template": "outro_fadeout",
+          "notes": ""
+        }
+      }
+    },
+    "oiVgRV": {
+      "name": "Seven Nation Army",
+      "artist": "The White Stripes",
+      "bpm": 124,
+      "key": "E moll",
+      "year": "2003",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "3:52",
+      "duration_sec": 232,
+      "notes": "",
+      "parts": {
+        "oiVgRV_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 4,
+          "duration_sec": 8,
+          "light_template": "intro_buildup",
+          "notes": ""
+        },
+        "oiVgRV_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "oiVgRV_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "chorus_anthem",
+          "notes": ""
+        },
+        "oiVgRV_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "verse_dark",
+          "notes": ""
+        },
+        "oiVgRV_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "chorus_anthem",
+          "notes": ""
+        },
+        "oiVgRV_P006": {
+          "pos": 6,
+          "name": "Solo",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "solo_intense",
+          "notes": ""
+        },
+        "oiVgRV_P007": {
+          "pos": 7,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "oiVgRV_P008": {
+          "pos": 8,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 8,
+          "light_template": "outro_cut",
+          "notes": ""
+        }
+      }
+    },
+    "5IfLBc": {
+      "name": "Wonderwall",
+      "artist": "Oasis",
+      "bpm": 87,
+      "key": "F# moll",
+      "year": "1995",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "4:18",
+      "duration_sec": 258,
+      "notes": "",
+      "parts": {
+        "5IfLBc_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 4,
+          "duration_sec": 11,
+          "light_template": "intro_buildup",
+          "notes": ""
+        },
+        "5IfLBc_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 22,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "5IfLBc_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 22,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "5IfLBc_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 22,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "5IfLBc_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 22,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "5IfLBc_P006": {
+          "pos": 6,
+          "name": "Bridge",
+          "bars": 4,
+          "duration_sec": 11,
+          "light_template": "bridge_atmospheric",
+          "notes": ""
+        },
+        "5IfLBc_P007": {
+          "pos": 7,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 22,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "5IfLBc_P008": {
+          "pos": 8,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 11,
+          "light_template": "outro_cut",
+          "notes": ""
+        }
+      }
+    },
+    "bfnoGM": {
+      "name": "Sweet Child O' Mine",
+      "artist": "Guns N' Roses",
+      "bpm": 126,
+      "key": "D dur",
+      "year": "1987",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "5:56",
+      "duration_sec": 356,
+      "notes": "",
+      "parts": {
+        "bfnoGM_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "intro_buildup",
+          "notes": ""
+        },
+        "bfnoGM_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "verse_dark",
+          "notes": ""
+        },
+        "bfnoGM_P003": {
+          "pos": 3,
+          "name": "Pre-Chorus",
+          "bars": 4,
+          "duration_sec": 8,
+          "light_template": "prechorus_rise",
+          "notes": ""
+        },
+        "bfnoGM_P004": {
+          "pos": 4,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "bfnoGM_P005": {
+          "pos": 5,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "verse_minimal",
+          "notes": ""
+        },
+        "bfnoGM_P006": {
+          "pos": 6,
+          "name": "Pre-Chorus",
+          "bars": 4,
+          "duration_sec": 8,
+          "light_template": "prechorus_rise",
+          "notes": ""
+        },
+        "bfnoGM_P007": {
+          "pos": 7,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "bfnoGM_P008": {
+          "pos": 8,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 8,
+          "light_template": "outro_fadeout",
+          "notes": ""
+        }
+      }
+    },
+    "bJmTPS": {
+      "name": "Don't Stop Believin'",
+      "artist": "Journey",
+      "bpm": 119,
+      "key": "E dur",
+      "year": "1981",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "4:10",
+      "duration_sec": 250,
+      "notes": "",
+      "parts": {
+        "bJmTPS_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 4,
+          "duration_sec": 8,
+          "light_template": "intro_buildup",
+          "notes": ""
+        },
+        "bJmTPS_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 16,
+          "light_template": "verse_dark",
+          "notes": ""
+        },
+        "bJmTPS_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 16,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "bJmTPS_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 16,
+          "light_template": "verse_minimal",
+          "notes": ""
+        },
+        "bJmTPS_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 16,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "bJmTPS_P006": {
+          "pos": 6,
+          "name": "Bridge",
+          "bars": 4,
+          "duration_sec": 8,
+          "light_template": "bridge_breakdown",
+          "notes": ""
+        },
+        "bJmTPS_P007": {
+          "pos": 7,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 16,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "bJmTPS_P008": {
+          "pos": 8,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 8,
+          "light_template": "outro_fadeout",
+          "notes": ""
+        }
+      }
+    },
+    "IAoCLr": {
+      "name": "Summer of '69",
+      "artist": "Bryan Adams",
+      "bpm": 138,
+      "key": "D dur",
+      "year": "1984",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "3:35",
+      "duration_sec": 215,
+      "notes": "",
+      "parts": {
+        "IAoCLr_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 4,
+          "duration_sec": 7,
+          "light_template": "intro_buildup",
+          "notes": ""
+        },
+        "IAoCLr_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 14,
+          "light_template": "verse_dark",
+          "notes": ""
+        },
+        "IAoCLr_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 14,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "IAoCLr_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 14,
+          "light_template": "verse_dark",
+          "notes": ""
+        },
+        "IAoCLr_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 14,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "IAoCLr_P006": {
+          "pos": 6,
+          "name": "Outro",
+          "bars": 8,
+          "duration_sec": 14,
+          "light_template": "outro_cut",
+          "notes": ""
+        }
+      }
+    },
+    "Z3aWZk": {
+      "name": "Livin' On A Prayer",
+      "artist": "Bon Jovi",
+      "bpm": 123,
+      "key": "C moll",
+      "year": "1986",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "4:09",
+      "duration_sec": 249,
+      "notes": "",
+      "parts": {
+        "Z3aWZk_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 8,
+          "duration_sec": 16,
+          "light_template": "intro_buildup",
+          "notes": ""
+        },
+        "Z3aWZk_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 16,
+          "light_template": "verse_dark",
+          "notes": ""
+        },
+        "Z3aWZk_P003": {
+          "pos": 3,
+          "name": "Pre-Chorus",
+          "bars": 4,
+          "duration_sec": 8,
+          "light_template": "prechorus_rise",
+          "notes": ""
+        },
+        "Z3aWZk_P004": {
+          "pos": 4,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 16,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "Z3aWZk_P005": {
+          "pos": 5,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 16,
+          "light_template": "verse_dark",
+          "notes": ""
+        },
+        "Z3aWZk_P006": {
+          "pos": 6,
+          "name": "Pre-Chorus",
+          "bars": 4,
+          "duration_sec": 8,
+          "light_template": "prechorus_rise",
+          "notes": ""
+        },
+        "Z3aWZk_P007": {
+          "pos": 7,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 16,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "Z3aWZk_P008": {
+          "pos": 8,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 8,
+          "light_template": "outro_cut",
+          "notes": ""
+        }
+      }
+    },
+    "SBvrjn": {
+      "name": "Highway to Hell",
+      "artist": "AC/DC",
+      "bpm": 116,
+      "key": "A dur",
+      "year": "1979",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "3:28",
+      "duration_sec": 208,
+      "notes": "",
+      "parts": {
+        "SBvrjn_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 4,
+          "duration_sec": 8,
+          "light_template": "intro_hit",
+          "notes": ""
+        },
+        "SBvrjn_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "verse_minimal",
+          "notes": ""
+        },
+        "SBvrjn_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "SBvrjn_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "verse_dark",
+          "notes": ""
+        },
+        "SBvrjn_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "SBvrjn_P006": {
+          "pos": 6,
+          "name": "Solo",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "solo_spotlight",
+          "notes": ""
+        },
+        "SBvrjn_P007": {
+          "pos": 7,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "SBvrjn_P008": {
+          "pos": 8,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 8,
+          "light_template": "outro_fadeout",
+          "notes": ""
+        }
+      }
+    },
+    "9Wvgfy": {
+      "name": "Back in Black",
+      "artist": "AC/DC",
+      "bpm": 94,
+      "key": "E dur",
+      "year": "1980",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "4:15",
+      "duration_sec": 255,
+      "notes": "",
+      "parts": {
+        "9Wvgfy_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 4,
+          "duration_sec": 10,
+          "light_template": "intro_hit",
+          "notes": ""
+        },
+        "9Wvgfy_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 20,
+          "light_template": "verse_minimal",
+          "notes": ""
+        },
+        "9Wvgfy_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 20,
+          "light_template": "chorus_anthem",
+          "notes": ""
+        },
+        "9Wvgfy_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 20,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "9Wvgfy_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 20,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "9Wvgfy_P006": {
+          "pos": 6,
+          "name": "Outro",
+          "bars": 8,
+          "duration_sec": 20,
+          "light_template": "outro_cut",
+          "notes": ""
+        }
+      }
+    },
+    "gw2wMq": {
+      "name": "Smoke on the Water",
+      "artist": "Deep Purple",
+      "bpm": 112,
+      "key": "G moll",
+      "year": "1972",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "5:40",
+      "duration_sec": 340,
+      "notes": "",
+      "parts": {
+        "gw2wMq_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "intro_buildup",
+          "notes": ""
+        },
+        "gw2wMq_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "gw2wMq_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "gw2wMq_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "verse_minimal",
+          "notes": ""
+        },
+        "gw2wMq_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "chorus_anthem",
+          "notes": ""
+        },
+        "gw2wMq_P006": {
+          "pos": 6,
+          "name": "Breakdown",
+          "bars": 4,
+          "duration_sec": 9,
+          "light_template": "breakdown_minimal",
+          "notes": ""
+        },
+        "gw2wMq_P007": {
+          "pos": 7,
+          "name": "Solo",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "solo_intense",
+          "notes": ""
+        },
+        "gw2wMq_P008": {
+          "pos": 8,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "gw2wMq_P009": {
+          "pos": 9,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 9,
+          "light_template": "outro_fadeout",
+          "notes": ""
+        }
+      }
+    },
+    "ZcUDIh": {
+      "name": "Born to Be Wild",
+      "artist": "Steppenwolf",
+      "bpm": 148,
+      "key": "E dur",
+      "year": "1968",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "3:30",
+      "duration_sec": 210,
+      "notes": "",
+      "parts": {
+        "ZcUDIh_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 4,
+          "duration_sec": 6,
+          "light_template": "intro_hit",
+          "notes": ""
+        },
+        "ZcUDIh_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 13,
+          "light_template": "verse_minimal",
+          "notes": ""
+        },
+        "ZcUDIh_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 13,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "ZcUDIh_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 13,
+          "light_template": "verse_minimal",
+          "notes": ""
+        },
+        "ZcUDIh_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 13,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "ZcUDIh_P006": {
+          "pos": 6,
+          "name": "Bridge",
+          "bars": 4,
+          "duration_sec": 6,
+          "light_template": "bridge_atmospheric",
+          "notes": ""
+        },
+        "ZcUDIh_P007": {
+          "pos": 7,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 13,
+          "light_template": "chorus_anthem",
+          "notes": ""
+        },
+        "ZcUDIh_P008": {
+          "pos": 8,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 6,
+          "light_template": "outro_cut",
+          "notes": ""
+        }
+      }
+    },
+    "7yfJs1": {
+      "name": "Rockin' All Over the World",
+      "artist": "Status Quo",
+      "bpm": 140,
+      "key": "C dur",
+      "year": "1977",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "3:32",
+      "duration_sec": 212,
+      "notes": "",
+      "parts": {
+        "7yfJs1_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 4,
+          "duration_sec": 7,
+          "light_template": "intro_buildup",
+          "notes": ""
+        },
+        "7yfJs1_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 14,
+          "light_template": "verse_dark",
+          "notes": ""
+        },
+        "7yfJs1_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 14,
+          "light_template": "chorus_anthem",
+          "notes": ""
+        },
+        "7yfJs1_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 14,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "7yfJs1_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 14,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "7yfJs1_P006": {
+          "pos": 6,
+          "name": "Outro",
+          "bars": 8,
+          "duration_sec": 14,
+          "light_template": "outro_cut",
+          "notes": ""
+        }
+      }
+    },
+    "ON43xK": {
+      "name": "All Right Now",
+      "artist": "Free",
+      "bpm": 124,
+      "key": "A dur",
+      "year": "1970",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "4:15",
+      "duration_sec": 255,
+      "notes": "",
+      "parts": {
+        "ON43xK_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 4,
+          "duration_sec": 8,
+          "light_template": "intro_hit",
+          "notes": ""
+        },
+        "ON43xK_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "ON43xK_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "ON43xK_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "ON43xK_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "ON43xK_P006": {
+          "pos": 6,
+          "name": "Outro",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "outro_cut",
+          "notes": ""
+        }
+      }
+    },
+    "mTecQo": {
+      "name": "Johnny B. Goode",
+      "artist": "Chuck Berry",
+      "bpm": 168,
+      "key": "Bb dur",
+      "year": "1958",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "2:41",
+      "duration_sec": 161,
+      "notes": "",
+      "parts": {
+        "mTecQo_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 4,
+          "duration_sec": 6,
+          "light_template": "intro_buildup",
+          "notes": ""
+        },
+        "mTecQo_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 11,
+          "light_template": "verse_minimal",
+          "notes": ""
+        },
+        "mTecQo_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 11,
+          "light_template": "chorus_anthem",
+          "notes": ""
+        },
+        "mTecQo_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 11,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "mTecQo_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 11,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "mTecQo_P006": {
+          "pos": 6,
+          "name": "Outro",
+          "bars": 8,
+          "duration_sec": 11,
+          "light_template": "outro_cut",
+          "notes": ""
+        }
+      }
+    },
+    "Xsf2o3": {
+      "name": "La Bamba",
+      "artist": "Ritchie Valens",
+      "bpm": 143,
+      "key": "C dur",
+      "year": "1958",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "2:10",
+      "duration_sec": 130,
+      "notes": "",
+      "parts": {
+        "Xsf2o3_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 4,
+          "duration_sec": 7,
+          "light_template": "intro_hit",
+          "notes": ""
+        },
+        "Xsf2o3_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 13,
+          "light_template": "verse_dark",
+          "notes": ""
+        },
+        "Xsf2o3_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 13,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "Xsf2o3_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 13,
+          "light_template": "verse_dark",
+          "notes": ""
+        },
+        "Xsf2o3_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 13,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "Xsf2o3_P006": {
+          "pos": 6,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 7,
+          "light_template": "outro_fadeout",
+          "notes": ""
+        }
+      }
+    },
+    "gyrDO1": {
+      "name": "Shut Up and Dance",
+      "artist": "Walk the Moon",
+      "bpm": 128,
+      "key": "Db dur",
+      "year": "2014",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "3:19",
+      "duration_sec": 199,
+      "notes": "",
+      "parts": {
+        "gyrDO1_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 4,
+          "duration_sec": 8,
+          "light_template": "intro_buildup",
+          "notes": ""
+        },
+        "gyrDO1_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "verse_dark",
+          "notes": ""
+        },
+        "gyrDO1_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "gyrDO1_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "verse_minimal",
+          "notes": ""
+        },
+        "gyrDO1_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "gyrDO1_P006": {
+          "pos": 6,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 8,
+          "light_template": "outro_cut",
+          "notes": ""
+        }
+      }
+    },
+    "xkxwnQ": {
+      "name": "Uptown Funk",
+      "artist": "Mark Ronson ft. Bruno Mars",
+      "bpm": 115,
+      "key": "D moll",
+      "year": "2014",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "4:30",
+      "duration_sec": 270,
+      "notes": "",
+      "parts": {
+        "xkxwnQ_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 4,
+          "duration_sec": 8,
+          "light_template": "intro_buildup",
+          "notes": ""
+        },
+        "xkxwnQ_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "xkxwnQ_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "xkxwnQ_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "xkxwnQ_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "chorus_anthem",
+          "notes": ""
+        },
+        "xkxwnQ_P006": {
+          "pos": 6,
+          "name": "Outro",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "outro_cut",
+          "notes": ""
+        }
+      }
+    },
+    "rS7RPe": {
+      "name": "Happy",
+      "artist": "Pharrell Williams",
+      "bpm": 160,
+      "key": "F moll",
+      "year": "2013",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "3:53",
+      "duration_sec": 233,
+      "notes": "",
+      "parts": {
+        "rS7RPe_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 4,
+          "duration_sec": 6,
+          "light_template": "intro_hit",
+          "notes": ""
+        },
+        "rS7RPe_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 12,
+          "light_template": "verse_minimal",
+          "notes": ""
+        },
+        "rS7RPe_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 12,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "rS7RPe_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 12,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "rS7RPe_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 12,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "rS7RPe_P006": {
+          "pos": 6,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 6,
+          "light_template": "outro_fadeout",
+          "notes": ""
+        }
+      }
+    },
+    "MOkIUp": {
+      "name": "Can't Stop the Feeling",
+      "artist": "Justin Timberlake",
+      "bpm": 113,
+      "key": "C dur",
+      "year": "2016",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "3:56",
+      "duration_sec": 236,
+      "notes": "",
+      "parts": {
+        "MOkIUp_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "intro_hit",
+          "notes": ""
+        },
+        "MOkIUp_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "verse_dark",
+          "notes": ""
+        },
+        "MOkIUp_P003": {
+          "pos": 3,
+          "name": "Pre-Chorus",
+          "bars": 4,
+          "duration_sec": 8,
+          "light_template": "prechorus_rise",
+          "notes": ""
+        },
+        "MOkIUp_P004": {
+          "pos": 4,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "MOkIUp_P005": {
+          "pos": 5,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "MOkIUp_P006": {
+          "pos": 6,
+          "name": "Pre-Chorus",
+          "bars": 4,
+          "duration_sec": 8,
+          "light_template": "prechorus_rise",
+          "notes": ""
+        },
+        "MOkIUp_P007": {
+          "pos": 7,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "chorus_anthem",
+          "notes": ""
+        },
+        "MOkIUp_P008": {
+          "pos": 8,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 8,
+          "light_template": "outro_fadeout",
+          "notes": ""
+        }
+      }
+    },
+    "kDyr7O": {
+      "name": "Blinding Lights",
+      "artist": "The Weeknd",
+      "bpm": 171,
+      "key": "F moll",
+      "year": "2019",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "3:20",
+      "duration_sec": 200,
+      "notes": "",
+      "parts": {
+        "kDyr7O_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 4,
+          "duration_sec": 6,
+          "light_template": "intro_hit",
+          "notes": ""
+        },
+        "kDyr7O_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 11,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "kDyr7O_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 11,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "kDyr7O_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 11,
+          "light_template": "verse_minimal",
+          "notes": ""
+        },
+        "kDyr7O_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 11,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "kDyr7O_P006": {
+          "pos": 6,
+          "name": "Bridge",
+          "bars": 4,
+          "duration_sec": 6,
+          "light_template": "bridge_breakdown",
+          "notes": ""
+        },
+        "kDyr7O_P007": {
+          "pos": 7,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 11,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "kDyr7O_P008": {
+          "pos": 8,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 6,
+          "light_template": "outro_fadeout",
+          "notes": ""
+        }
+      }
+    },
+    "SJoRu1": {
+      "name": "Dance Monkey",
+      "artist": "Tones and I",
+      "bpm": 98,
+      "key": "F# moll",
+      "year": "2019",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "3:29",
+      "duration_sec": 209,
+      "notes": "",
+      "parts": {
+        "SJoRu1_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 4,
+          "duration_sec": 10,
+          "light_template": "intro_buildup",
+          "notes": ""
+        },
+        "SJoRu1_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 20,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "SJoRu1_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 20,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "SJoRu1_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 20,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "SJoRu1_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 20,
+          "light_template": "chorus_anthem",
+          "notes": ""
+        },
+        "SJoRu1_P006": {
+          "pos": 6,
+          "name": "Solo",
+          "bars": 8,
+          "duration_sec": 20,
+          "light_template": "solo_intense",
+          "notes": ""
+        },
+        "SJoRu1_P007": {
+          "pos": 7,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 20,
+          "light_template": "chorus_anthem",
+          "notes": ""
+        },
+        "SJoRu1_P008": {
+          "pos": 8,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 10,
+          "light_template": "outro_fadeout",
+          "notes": ""
+        }
+      }
+    },
+    "XXdo0c": {
+      "name": "Lovely Day",
+      "artist": "Bill Withers",
+      "bpm": 98,
+      "key": "E dur",
+      "year": "1977",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "4:15",
+      "duration_sec": 255,
+      "notes": "",
+      "parts": {
+        "XXdo0c_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 4,
+          "duration_sec": 10,
+          "light_template": "intro_buildup",
+          "notes": ""
+        },
+        "XXdo0c_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 20,
+          "light_template": "verse_dark",
+          "notes": ""
+        },
+        "XXdo0c_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 20,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "XXdo0c_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 20,
+          "light_template": "verse_dark",
+          "notes": ""
+        },
+        "XXdo0c_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 20,
+          "light_template": "chorus_anthem",
+          "notes": ""
+        },
+        "XXdo0c_P006": {
+          "pos": 6,
+          "name": "Bridge",
+          "bars": 4,
+          "duration_sec": 10,
+          "light_template": "bridge_breakdown",
+          "notes": ""
+        },
+        "XXdo0c_P007": {
+          "pos": 7,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 20,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "XXdo0c_P008": {
+          "pos": 8,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 10,
+          "light_template": "outro_cut",
+          "notes": ""
+        }
+      }
+    },
+    "Zuzren": {
+      "name": "I Gotta Feeling",
+      "artist": "Black Eyed Peas",
+      "bpm": 128,
+      "key": "G dur",
+      "year": "2009",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "4:49",
+      "duration_sec": 289,
+      "notes": "",
+      "parts": {
+        "Zuzren_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "intro_hit",
+          "notes": ""
+        },
+        "Zuzren_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "verse_dark",
+          "notes": ""
+        },
+        "Zuzren_P003": {
+          "pos": 3,
+          "name": "Pre-Chorus",
+          "bars": 4,
+          "duration_sec": 8,
+          "light_template": "prechorus_rise",
+          "notes": ""
+        },
+        "Zuzren_P004": {
+          "pos": 4,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "Zuzren_P005": {
+          "pos": 5,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "Zuzren_P006": {
+          "pos": 6,
+          "name": "Pre-Chorus",
+          "bars": 4,
+          "duration_sec": 8,
+          "light_template": "prechorus_rise",
+          "notes": ""
+        },
+        "Zuzren_P007": {
+          "pos": 7,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "Zuzren_P008": {
+          "pos": 8,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 8,
+          "light_template": "outro_cut",
+          "notes": ""
+        }
+      }
+    },
+    "68K4Tu": {
+      "name": "Sex on Fire",
+      "artist": "Kings of Leon",
+      "bpm": 153,
+      "key": "E dur",
+      "year": "2008",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "3:23",
+      "duration_sec": 203,
+      "notes": "",
+      "parts": {
+        "68K4Tu_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 4,
+          "duration_sec": 6,
+          "light_template": "intro_buildup",
+          "notes": ""
+        },
+        "68K4Tu_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 13,
+          "light_template": "verse_dark",
+          "notes": ""
+        },
+        "68K4Tu_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 13,
+          "light_template": "chorus_anthem",
+          "notes": ""
+        },
+        "68K4Tu_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 13,
+          "light_template": "verse_dark",
+          "notes": ""
+        },
+        "68K4Tu_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 13,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "68K4Tu_P006": {
+          "pos": 6,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 6,
+          "light_template": "outro_cut",
+          "notes": ""
+        }
+      }
+    },
+    "nPFz46": {
+      "name": "Use Somebody",
+      "artist": "Kings of Leon",
+      "bpm": 135,
+      "key": "C dur",
+      "year": "2008",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "3:51",
+      "duration_sec": 231,
+      "notes": "",
+      "parts": {
+        "nPFz46_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 4,
+          "duration_sec": 7,
+          "light_template": "intro_buildup",
+          "notes": ""
+        },
+        "nPFz46_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 14,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "nPFz46_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 14,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "nPFz46_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 14,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "nPFz46_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 14,
+          "light_template": "chorus_anthem",
+          "notes": ""
+        },
+        "nPFz46_P006": {
+          "pos": 6,
+          "name": "Solo",
+          "bars": 8,
+          "duration_sec": 14,
+          "light_template": "solo_spotlight",
+          "notes": ""
+        },
+        "nPFz46_P007": {
+          "pos": 7,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 14,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "nPFz46_P008": {
+          "pos": 8,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 7,
+          "light_template": "outro_cut",
+          "notes": ""
+        }
+      }
+    },
+    "PDjqip": {
+      "name": "Counting Stars",
+      "artist": "OneRepublic",
+      "bpm": 132,
+      "key": "C# moll",
+      "year": "2013",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "4:17",
+      "duration_sec": 257,
+      "notes": "",
+      "parts": {
+        "PDjqip_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 4,
+          "duration_sec": 7,
+          "light_template": "intro_buildup",
+          "notes": ""
+        },
+        "PDjqip_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "PDjqip_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "chorus_anthem",
+          "notes": ""
+        },
+        "PDjqip_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "PDjqip_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "PDjqip_P006": {
+          "pos": 6,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 7,
+          "light_template": "outro_cut",
+          "notes": ""
+        }
+      }
+    },
+    "VJIqVL": {
+      "name": "Radioactive",
+      "artist": "Imagine Dragons",
+      "bpm": 136,
+      "key": "B moll",
+      "year": "2012",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "3:06",
+      "duration_sec": 186,
+      "notes": "",
+      "parts": {
+        "VJIqVL_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 4,
+          "duration_sec": 7,
+          "light_template": "intro_hit",
+          "notes": ""
+        },
+        "VJIqVL_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 14,
+          "light_template": "verse_dark",
+          "notes": ""
+        },
+        "VJIqVL_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 14,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "VJIqVL_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 14,
+          "light_template": "verse_minimal",
+          "notes": ""
+        },
+        "VJIqVL_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 14,
+          "light_template": "chorus_anthem",
+          "notes": ""
+        },
+        "VJIqVL_P006": {
+          "pos": 6,
+          "name": "Outro",
+          "bars": 8,
+          "duration_sec": 14,
+          "light_template": "outro_cut",
+          "notes": ""
+        }
+      }
+    },
+    "B5Lzxo": {
+      "name": "Thunder",
+      "artist": "Imagine Dragons",
+      "bpm": 168,
+      "key": "C dur",
+      "year": "2017",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "3:07",
+      "duration_sec": 187,
+      "notes": "",
+      "parts": {
+        "B5Lzxo_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 8,
+          "duration_sec": 11,
+          "light_template": "intro_hit",
+          "notes": ""
+        },
+        "B5Lzxo_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 11,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "B5Lzxo_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 11,
+          "light_template": "chorus_anthem",
+          "notes": ""
+        },
+        "B5Lzxo_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 11,
+          "light_template": "verse_minimal",
+          "notes": ""
+        },
+        "B5Lzxo_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 11,
+          "light_template": "chorus_anthem",
+          "notes": ""
+        },
+        "B5Lzxo_P006": {
+          "pos": 6,
+          "name": "Breakdown",
+          "bars": 4,
+          "duration_sec": 6,
+          "light_template": "breakdown_minimal",
+          "notes": ""
+        },
+        "B5Lzxo_P007": {
+          "pos": 7,
+          "name": "Solo",
+          "bars": 8,
+          "duration_sec": 11,
+          "light_template": "solo_spotlight",
+          "notes": ""
+        },
+        "B5Lzxo_P008": {
+          "pos": 8,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 11,
+          "light_template": "chorus_anthem",
+          "notes": ""
+        },
+        "B5Lzxo_P009": {
+          "pos": 9,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 6,
+          "light_template": "outro_cut",
+          "notes": ""
+        }
+      }
+    },
+    "iGFfWd": {
+      "name": "Pompeii",
+      "artist": "Bastille",
+      "bpm": 128,
+      "key": "E moll",
+      "year": "2013",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "3:34",
+      "duration_sec": 214,
+      "notes": "",
+      "parts": {
+        "iGFfWd_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "intro_buildup",
+          "notes": ""
+        },
+        "iGFfWd_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "verse_dark",
+          "notes": ""
+        },
+        "iGFfWd_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "iGFfWd_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "verse_dark",
+          "notes": ""
+        },
+        "iGFfWd_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "chorus_anthem",
+          "notes": ""
+        },
+        "iGFfWd_P006": {
+          "pos": 6,
+          "name": "Breakdown",
+          "bars": 4,
+          "duration_sec": 8,
+          "light_template": "breakdown_minimal",
+          "notes": ""
+        },
+        "iGFfWd_P007": {
+          "pos": 7,
+          "name": "Solo",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "solo_intense",
+          "notes": ""
+        },
+        "iGFfWd_P008": {
+          "pos": 8,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "chorus_anthem",
+          "notes": ""
+        },
+        "iGFfWd_P009": {
+          "pos": 9,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 8,
+          "light_template": "outro_fadeout",
+          "notes": ""
+        }
+      }
+    },
+    "3hjOkY": {
+      "name": "Animal",
+      "artist": "Neon Trees",
+      "bpm": 164,
+      "key": "D dur",
+      "year": "2009",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "3:30",
+      "duration_sec": 210,
+      "notes": "",
+      "parts": {
+        "3hjOkY_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 4,
+          "duration_sec": 6,
+          "light_template": "intro_hit",
+          "notes": ""
+        },
+        "3hjOkY_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 12,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "3hjOkY_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 12,
+          "light_template": "chorus_anthem",
+          "notes": ""
+        },
+        "3hjOkY_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 12,
+          "light_template": "verse_dark",
+          "notes": ""
+        },
+        "3hjOkY_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 12,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "3hjOkY_P006": {
+          "pos": 6,
+          "name": "Solo",
+          "bars": 8,
+          "duration_sec": 12,
+          "light_template": "solo_spotlight",
+          "notes": ""
+        },
+        "3hjOkY_P007": {
+          "pos": 7,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 12,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "3hjOkY_P008": {
+          "pos": 8,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 6,
+          "light_template": "outro_cut",
+          "notes": ""
+        }
+      }
+    },
+    "RBMeyy": {
+      "name": "500 Miles",
+      "artist": "The Proclaimers",
+      "bpm": 132,
+      "key": "E dur",
+      "year": "1988",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "3:33",
+      "duration_sec": 213,
+      "notes": "",
+      "parts": {
+        "RBMeyy_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "intro_buildup",
+          "notes": ""
+        },
+        "RBMeyy_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "verse_dark",
+          "notes": ""
+        },
+        "RBMeyy_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "RBMeyy_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "verse_dark",
+          "notes": ""
+        },
+        "RBMeyy_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "RBMeyy_P006": {
+          "pos": 6,
+          "name": "Breakdown",
+          "bars": 4,
+          "duration_sec": 7,
+          "light_template": "buildup_8bars",
+          "notes": ""
+        },
+        "RBMeyy_P007": {
+          "pos": 7,
+          "name": "Solo",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "solo_spotlight",
+          "notes": ""
+        },
+        "RBMeyy_P008": {
+          "pos": 8,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "RBMeyy_P009": {
+          "pos": 9,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 7,
+          "light_template": "outro_cut",
+          "notes": ""
+        }
+      }
+    },
+    "MDHqJ3": {
+      "name": "Take Me Home, Country Roads",
+      "artist": "John Denver",
+      "bpm": 82,
+      "key": "A dur",
+      "year": "1971",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "3:16",
+      "duration_sec": 196,
+      "notes": "",
+      "parts": {
+        "MDHqJ3_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 4,
+          "duration_sec": 12,
+          "light_template": "intro_buildup",
+          "notes": ""
+        },
+        "MDHqJ3_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 23,
+          "light_template": "verse_minimal",
+          "notes": ""
+        },
+        "MDHqJ3_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 23,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "MDHqJ3_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 23,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "MDHqJ3_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 23,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "MDHqJ3_P006": {
+          "pos": 6,
+          "name": "Bridge",
+          "bars": 4,
+          "duration_sec": 12,
+          "light_template": "bridge_breakdown",
+          "notes": ""
+        },
+        "MDHqJ3_P007": {
+          "pos": 7,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 23,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "MDHqJ3_P008": {
+          "pos": 8,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 12,
+          "light_template": "outro_fadeout",
+          "notes": ""
+        }
+      }
+    },
+    "8aRUhR": {
+      "name": "Sweet Home Alabama",
+      "artist": "Lynyrd Skynyrd",
+      "bpm": 100,
+      "key": "D dur",
+      "year": "1974",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "4:43",
+      "duration_sec": 283,
+      "notes": "",
+      "parts": {
+        "8aRUhR_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 4,
+          "duration_sec": 10,
+          "light_template": "intro_hit",
+          "notes": ""
+        },
+        "8aRUhR_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 19,
+          "light_template": "verse_dark",
+          "notes": ""
+        },
+        "8aRUhR_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 19,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "8aRUhR_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 19,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "8aRUhR_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 19,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "8aRUhR_P006": {
+          "pos": 6,
+          "name": "Solo",
+          "bars": 8,
+          "duration_sec": 19,
+          "light_template": "solo_intense",
+          "notes": ""
+        },
+        "8aRUhR_P007": {
+          "pos": 7,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 19,
+          "light_template": "chorus_anthem",
+          "notes": ""
+        },
+        "8aRUhR_P008": {
+          "pos": 8,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 10,
+          "light_template": "outro_cut",
+          "notes": ""
+        }
+      }
+    },
+    "4IWrXP": {
+      "name": "Proud Mary",
+      "artist": "Creedence Clearwater Revival",
+      "bpm": 130,
+      "key": "D dur",
+      "year": "1969",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "3:09",
+      "duration_sec": 189,
+      "notes": "",
+      "parts": {
+        "4IWrXP_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 4,
+          "duration_sec": 7,
+          "light_template": "intro_buildup",
+          "notes": ""
+        },
+        "4IWrXP_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "verse_dark",
+          "notes": ""
+        },
+        "4IWrXP_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "4IWrXP_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "4IWrXP_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "4IWrXP_P006": {
+          "pos": 6,
+          "name": "Bridge",
+          "bars": 4,
+          "duration_sec": 7,
+          "light_template": "bridge_breakdown",
+          "notes": ""
+        },
+        "4IWrXP_P007": {
+          "pos": 7,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "4IWrXP_P008": {
+          "pos": 8,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 7,
+          "light_template": "outro_fadeout",
+          "notes": ""
+        }
+      }
+    },
+    "vhsBkD": {
+      "name": "Brown Eyed Girl",
+      "artist": "Van Morrison",
+      "bpm": 150,
+      "key": "G dur",
+      "year": "1967",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "3:03",
+      "duration_sec": 183,
+      "notes": "",
+      "parts": {
+        "vhsBkD_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 8,
+          "duration_sec": 13,
+          "light_template": "intro_hit",
+          "notes": ""
+        },
+        "vhsBkD_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 13,
+          "light_template": "verse_minimal",
+          "notes": ""
+        },
+        "vhsBkD_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 13,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "vhsBkD_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 13,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "vhsBkD_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 13,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "vhsBkD_P006": {
+          "pos": 6,
+          "name": "Breakdown",
+          "bars": 4,
+          "duration_sec": 6,
+          "light_template": "buildup_8bars",
+          "notes": ""
+        },
+        "vhsBkD_P007": {
+          "pos": 7,
+          "name": "Solo",
+          "bars": 8,
+          "duration_sec": 13,
+          "light_template": "solo_spotlight",
+          "notes": ""
+        },
+        "vhsBkD_P008": {
+          "pos": 8,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 13,
+          "light_template": "chorus_anthem",
+          "notes": ""
+        },
+        "vhsBkD_P009": {
+          "pos": 9,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 6,
+          "light_template": "outro_cut",
+          "notes": ""
+        }
+      }
+    },
+    "a9U4Uq": {
+      "name": "Twist and Shout",
+      "artist": "The Beatles",
+      "bpm": 128,
+      "key": "D dur",
+      "year": "1963",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "2:33",
+      "duration_sec": 153,
+      "notes": "",
+      "parts": {
+        "a9U4Uq_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 4,
+          "duration_sec": 8,
+          "light_template": "intro_hit",
+          "notes": ""
+        },
+        "a9U4Uq_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "verse_dark",
+          "notes": ""
+        },
+        "a9U4Uq_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "chorus_anthem",
+          "notes": ""
+        },
+        "a9U4Uq_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "a9U4Uq_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "a9U4Uq_P006": {
+          "pos": 6,
+          "name": "Outro",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "outro_cut",
+          "notes": ""
+        }
+      }
+    },
+    "GWlG6g": {
+      "name": "I Love Rock 'n' Roll",
+      "artist": "Joan Jett",
+      "bpm": 96,
+      "key": "E dur",
+      "year": "1981",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "2:55",
+      "duration_sec": 175,
+      "notes": "",
+      "parts": {
+        "GWlG6g_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 4,
+          "duration_sec": 10,
+          "light_template": "intro_hit",
+          "notes": ""
+        },
+        "GWlG6g_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 20,
+          "light_template": "verse_minimal",
+          "notes": ""
+        },
+        "GWlG6g_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 20,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "GWlG6g_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 20,
+          "light_template": "verse_dark",
+          "notes": ""
+        },
+        "GWlG6g_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 20,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "GWlG6g_P006": {
+          "pos": 6,
+          "name": "Outro",
+          "bars": 8,
+          "duration_sec": 20,
+          "light_template": "outro_cut",
+          "notes": ""
+        }
+      }
+    },
+    "3Ot1OG": {
+      "name": "You Shook Me All Night Long",
+      "artist": "AC/DC",
+      "bpm": 128,
+      "key": "G dur",
+      "year": "1980",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "3:30",
+      "duration_sec": 210,
+      "notes": "",
+      "parts": {
+        "3Ot1OG_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "intro_buildup",
+          "notes": ""
+        },
+        "3Ot1OG_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "3Ot1OG_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "chorus_anthem",
+          "notes": ""
+        },
+        "3Ot1OG_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "3Ot1OG_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "3Ot1OG_P006": {
+          "pos": 6,
+          "name": "Breakdown",
+          "bars": 4,
+          "duration_sec": 8,
+          "light_template": "buildup_8bars",
+          "notes": ""
+        },
+        "3Ot1OG_P007": {
+          "pos": 7,
+          "name": "Solo",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "solo_spotlight",
+          "notes": ""
+        },
+        "3Ot1OG_P008": {
+          "pos": 8,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "chorus_anthem",
+          "notes": ""
+        },
+        "3Ot1OG_P009": {
+          "pos": 9,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 8,
+          "light_template": "outro_cut",
+          "notes": ""
+        }
+      }
+    },
+    "MmjxWk": {
+      "name": "Walk of Life",
+      "artist": "Dire Straits",
+      "bpm": 167,
+      "key": "A dur",
+      "year": "1985",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "4:12",
+      "duration_sec": 252,
+      "notes": "",
+      "parts": {
+        "MmjxWk_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 8,
+          "duration_sec": 11,
+          "light_template": "intro_buildup",
+          "notes": ""
+        },
+        "MmjxWk_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 11,
+          "light_template": "verse_minimal",
+          "notes": ""
+        },
+        "MmjxWk_P003": {
+          "pos": 3,
+          "name": "Pre-Chorus",
+          "bars": 4,
+          "duration_sec": 6,
+          "light_template": "prechorus_rise",
+          "notes": ""
+        },
+        "MmjxWk_P004": {
+          "pos": 4,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 11,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "MmjxWk_P005": {
+          "pos": 5,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 11,
+          "light_template": "verse_dark",
+          "notes": ""
+        },
+        "MmjxWk_P006": {
+          "pos": 6,
+          "name": "Pre-Chorus",
+          "bars": 4,
+          "duration_sec": 6,
+          "light_template": "prechorus_rise",
+          "notes": ""
+        },
+        "MmjxWk_P007": {
+          "pos": 7,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 11,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "MmjxWk_P008": {
+          "pos": 8,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 6,
+          "light_template": "outro_fadeout",
+          "notes": ""
+        }
+      }
+    },
+    "I9X7H6": {
+      "name": "Sultans of Swing",
+      "artist": "Dire Straits",
+      "bpm": 148,
+      "key": "D moll",
+      "year": "1978",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "5:48",
+      "duration_sec": 348,
+      "notes": "",
+      "parts": {
+        "I9X7H6_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 8,
+          "duration_sec": 13,
+          "light_template": "intro_hit",
+          "notes": ""
+        },
+        "I9X7H6_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 13,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "I9X7H6_P003": {
+          "pos": 3,
+          "name": "Pre-Chorus",
+          "bars": 4,
+          "duration_sec": 6,
+          "light_template": "prechorus_rise",
+          "notes": ""
+        },
+        "I9X7H6_P004": {
+          "pos": 4,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 13,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "I9X7H6_P005": {
+          "pos": 5,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 13,
+          "light_template": "verse_dark",
+          "notes": ""
+        },
+        "I9X7H6_P006": {
+          "pos": 6,
+          "name": "Pre-Chorus",
+          "bars": 4,
+          "duration_sec": 6,
+          "light_template": "prechorus_rise",
+          "notes": ""
+        },
+        "I9X7H6_P007": {
+          "pos": 7,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 13,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "I9X7H6_P008": {
+          "pos": 8,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 6,
+          "light_template": "outro_fadeout",
+          "notes": ""
+        }
+      }
+    },
+    "aMuFbh": {
+      "name": "Take On Me",
+      "artist": "a-ha",
+      "bpm": 169,
+      "key": "A dur",
+      "year": "1985",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "3:48",
+      "duration_sec": 228,
+      "notes": "",
+      "parts": {
+        "aMuFbh_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 4,
+          "duration_sec": 6,
+          "light_template": "intro_hit",
+          "notes": ""
+        },
+        "aMuFbh_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 11,
+          "light_template": "verse_dark",
+          "notes": ""
+        },
+        "aMuFbh_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 11,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "aMuFbh_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 11,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "aMuFbh_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 11,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "aMuFbh_P006": {
+          "pos": 6,
+          "name": "Solo",
+          "bars": 8,
+          "duration_sec": 11,
+          "light_template": "solo_intense",
+          "notes": ""
+        },
+        "aMuFbh_P007": {
+          "pos": 7,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 11,
+          "light_template": "chorus_anthem",
+          "notes": ""
+        },
+        "aMuFbh_P008": {
+          "pos": 8,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 6,
+          "light_template": "outro_fadeout",
+          "notes": ""
+        }
+      }
+    },
+    "7x41Zt": {
+      "name": "Don't Stop Me Now",
+      "artist": "Queen",
+      "bpm": 154,
+      "key": "F dur",
+      "year": "1978",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "3:29",
+      "duration_sec": 209,
+      "notes": "",
+      "parts": {
+        "7x41Zt_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 8,
+          "duration_sec": 12,
+          "light_template": "intro_hit",
+          "notes": ""
+        },
+        "7x41Zt_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 12,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "7x41Zt_P003": {
+          "pos": 3,
+          "name": "Pre-Chorus",
+          "bars": 4,
+          "duration_sec": 6,
+          "light_template": "prechorus_rise",
+          "notes": ""
+        },
+        "7x41Zt_P004": {
+          "pos": 4,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 12,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "7x41Zt_P005": {
+          "pos": 5,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 12,
+          "light_template": "verse_minimal",
+          "notes": ""
+        },
+        "7x41Zt_P006": {
+          "pos": 6,
+          "name": "Pre-Chorus",
+          "bars": 4,
+          "duration_sec": 6,
+          "light_template": "prechorus_rise",
+          "notes": ""
+        },
+        "7x41Zt_P007": {
+          "pos": 7,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 12,
+          "light_template": "chorus_anthem",
+          "notes": ""
+        },
+        "7x41Zt_P008": {
+          "pos": 8,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 6,
+          "light_template": "outro_fadeout",
+          "notes": ""
+        }
+      }
+    },
+    "pdp4K8": {
+      "name": "Bohemian Rhapsody",
+      "artist": "Queen",
+      "bpm": 72,
+      "key": "Bb dur",
+      "year": "1975",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "5:55",
+      "duration_sec": 355,
+      "notes": "",
+      "parts": {
+        "pdp4K8_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 8,
+          "duration_sec": 27,
+          "light_template": "intro_hit",
+          "notes": ""
+        },
+        "pdp4K8_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 27,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "pdp4K8_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 27,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "pdp4K8_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 27,
+          "light_template": "verse_dark",
+          "notes": ""
+        },
+        "pdp4K8_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 27,
+          "light_template": "chorus_anthem",
+          "notes": ""
+        },
+        "pdp4K8_P006": {
+          "pos": 6,
+          "name": "Breakdown",
+          "bars": 4,
+          "duration_sec": 13,
+          "light_template": "buildup_8bars",
+          "notes": ""
+        },
+        "pdp4K8_P007": {
+          "pos": 7,
+          "name": "Solo",
+          "bars": 8,
+          "duration_sec": 27,
+          "light_template": "solo_spotlight",
+          "notes": ""
+        },
+        "pdp4K8_P008": {
+          "pos": 8,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 27,
+          "light_template": "chorus_anthem",
+          "notes": ""
+        },
+        "pdp4K8_P009": {
+          "pos": 9,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 13,
+          "light_template": "outro_fadeout",
+          "notes": ""
+        }
+      }
+    },
+    "ffUF0e": {
+      "name": "Under Pressure",
+      "artist": "Queen & David Bowie",
+      "bpm": 148,
+      "key": "D dur",
+      "year": "1981",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "4:04",
+      "duration_sec": 244,
+      "notes": "",
+      "parts": {
+        "ffUF0e_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 4,
+          "duration_sec": 6,
+          "light_template": "intro_buildup",
+          "notes": ""
+        },
+        "ffUF0e_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 13,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "ffUF0e_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 13,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "ffUF0e_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 13,
+          "light_template": "verse_minimal",
+          "notes": ""
+        },
+        "ffUF0e_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 13,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "ffUF0e_P006": {
+          "pos": 6,
+          "name": "Outro",
+          "bars": 8,
+          "duration_sec": 13,
+          "light_template": "outro_fadeout",
+          "notes": ""
+        }
+      }
+    },
+    "WIXiiQ": {
+      "name": "With or Without You",
+      "artist": "U2",
+      "bpm": 110,
+      "key": "D dur",
+      "year": "1987",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "4:56",
+      "duration_sec": 296,
+      "notes": "",
+      "parts": {
+        "WIXiiQ_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 4,
+          "duration_sec": 9,
+          "light_template": "intro_hit",
+          "notes": ""
+        },
+        "WIXiiQ_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "verse_minimal",
+          "notes": ""
+        },
+        "WIXiiQ_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "chorus_anthem",
+          "notes": ""
+        },
+        "WIXiiQ_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "WIXiiQ_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "WIXiiQ_P006": {
+          "pos": 6,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 9,
+          "light_template": "outro_cut",
+          "notes": ""
+        }
+      }
+    },
+    "E8JkqH": {
+      "name": "Zombie",
+      "artist": "The Cranberries",
+      "bpm": 83,
+      "key": "E moll",
+      "year": "1994",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "5:06",
+      "duration_sec": 306,
+      "notes": "",
+      "parts": {
+        "E8JkqH_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 8,
+          "duration_sec": 23,
+          "light_template": "intro_hit",
+          "notes": ""
+        },
+        "E8JkqH_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 23,
+          "light_template": "verse_minimal",
+          "notes": ""
+        },
+        "E8JkqH_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 23,
+          "light_template": "chorus_anthem",
+          "notes": ""
+        },
+        "E8JkqH_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 23,
+          "light_template": "verse_dark",
+          "notes": ""
+        },
+        "E8JkqH_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 23,
+          "light_template": "chorus_anthem",
+          "notes": ""
+        },
+        "E8JkqH_P006": {
+          "pos": 6,
+          "name": "Breakdown",
+          "bars": 4,
+          "duration_sec": 12,
+          "light_template": "buildup_8bars",
+          "notes": ""
+        },
+        "E8JkqH_P007": {
+          "pos": 7,
+          "name": "Solo",
+          "bars": 8,
+          "duration_sec": 23,
+          "light_template": "solo_intense",
+          "notes": ""
+        },
+        "E8JkqH_P008": {
+          "pos": 8,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 23,
+          "light_template": "chorus_anthem",
+          "notes": ""
+        },
+        "E8JkqH_P009": {
+          "pos": 9,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 12,
+          "light_template": "outro_cut",
+          "notes": ""
+        }
+      }
+    },
+    "3MB9n7": {
+      "name": "Basket Case",
+      "artist": "Green Day",
+      "bpm": 171,
+      "key": "Eb dur",
+      "year": "1994",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "3:01",
+      "duration_sec": 181,
+      "notes": "",
+      "parts": {
+        "3MB9n7_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 4,
+          "duration_sec": 6,
+          "light_template": "intro_hit",
+          "notes": ""
+        },
+        "3MB9n7_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 11,
+          "light_template": "verse_minimal",
+          "notes": ""
+        },
+        "3MB9n7_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 11,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "3MB9n7_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 11,
+          "light_template": "verse_minimal",
+          "notes": ""
+        },
+        "3MB9n7_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 11,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "3MB9n7_P006": {
+          "pos": 6,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 6,
+          "light_template": "outro_cut",
+          "notes": ""
+        }
+      }
+    },
+    "IWUSmT": {
+      "name": "Song 2",
+      "artist": "Blur",
+      "bpm": 130,
+      "key": "F dur",
+      "year": "1997",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "2:02",
+      "duration_sec": 122,
+      "notes": "",
+      "parts": {
+        "IWUSmT_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 4,
+          "duration_sec": 7,
+          "light_template": "intro_buildup",
+          "notes": ""
+        },
+        "IWUSmT_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "verse_dark",
+          "notes": ""
+        },
+        "IWUSmT_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "IWUSmT_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "IWUSmT_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "IWUSmT_P006": {
+          "pos": 6,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 7,
+          "light_template": "outro_fadeout",
+          "notes": ""
+        }
+      }
+    },
+    "tzQPxC": {
+      "name": "Dakota",
+      "artist": "Stereophonics",
+      "bpm": 140,
+      "key": "A dur",
+      "year": "2005",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "3:55",
+      "duration_sec": 235,
+      "notes": "",
+      "parts": {
+        "tzQPxC_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 4,
+          "duration_sec": 7,
+          "light_template": "intro_buildup",
+          "notes": ""
+        },
+        "tzQPxC_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 14,
+          "light_template": "verse_minimal",
+          "notes": ""
+        },
+        "tzQPxC_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 14,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "tzQPxC_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 14,
+          "light_template": "verse_dark",
+          "notes": ""
+        },
+        "tzQPxC_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 14,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "tzQPxC_P006": {
+          "pos": 6,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 7,
+          "light_template": "outro_fadeout",
+          "notes": ""
+        }
+      }
+    },
+    "5HChpo": {
+      "name": "Black Betty",
+      "artist": "Ram Jam",
+      "bpm": 80,
+      "key": "E moll",
+      "year": "1977",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "3:53",
+      "duration_sec": 233,
+      "notes": "",
+      "parts": {
+        "5HChpo_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 4,
+          "duration_sec": 12,
+          "light_template": "intro_buildup",
+          "notes": ""
+        },
+        "5HChpo_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 24,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "5HChpo_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 24,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "5HChpo_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 24,
+          "light_template": "verse_dark",
+          "notes": ""
+        },
+        "5HChpo_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 24,
+          "light_template": "chorus_anthem",
+          "notes": ""
+        },
+        "5HChpo_P006": {
+          "pos": 6,
+          "name": "Outro",
+          "bars": 8,
+          "duration_sec": 24,
+          "light_template": "outro_fadeout",
+          "notes": ""
+        }
+      }
+    },
+    "evbLJo": {
+      "name": "99 Luftballons",
+      "artist": "Nena",
+      "bpm": 180,
+      "key": "E moll",
+      "year": "1983",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "3:50",
+      "duration_sec": 230,
+      "notes": "",
+      "parts": {
+        "evbLJo_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 4,
+          "duration_sec": 5,
+          "light_template": "intro_buildup",
+          "notes": ""
+        },
+        "evbLJo_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 11,
+          "light_template": "verse_minimal",
+          "notes": ""
+        },
+        "evbLJo_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 11,
+          "light_template": "chorus_anthem",
+          "notes": ""
+        },
+        "evbLJo_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 11,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "evbLJo_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 11,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "evbLJo_P006": {
+          "pos": 6,
+          "name": "Outro",
+          "bars": 8,
+          "duration_sec": 11,
+          "light_template": "outro_fadeout",
+          "notes": ""
+        }
+      }
+    },
+    "LoaeTO": {
+      "name": "Major Tom",
+      "artist": "Peter Schilling",
+      "bpm": 120,
+      "key": "E moll",
+      "year": "1982",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "4:34",
+      "duration_sec": 274,
+      "notes": "",
+      "parts": {
+        "LoaeTO_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 8,
+          "duration_sec": 16,
+          "light_template": "intro_hit",
+          "notes": ""
+        },
+        "LoaeTO_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 16,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "LoaeTO_P003": {
+          "pos": 3,
+          "name": "Pre-Chorus",
+          "bars": 4,
+          "duration_sec": 8,
+          "light_template": "prechorus_rise",
+          "notes": ""
+        },
+        "LoaeTO_P004": {
+          "pos": 4,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 16,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "LoaeTO_P005": {
+          "pos": 5,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 16,
+          "light_template": "verse_minimal",
+          "notes": ""
+        },
+        "LoaeTO_P006": {
+          "pos": 6,
+          "name": "Pre-Chorus",
+          "bars": 4,
+          "duration_sec": 8,
+          "light_template": "prechorus_rise",
+          "notes": ""
+        },
+        "LoaeTO_P007": {
+          "pos": 7,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 16,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "LoaeTO_P008": {
+          "pos": 8,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 8,
+          "light_template": "outro_cut",
+          "notes": ""
+        }
+      }
+    },
+    "doe5c3": {
+      "name": "Rock Me Amadeus",
+      "artist": "Falco",
+      "bpm": 110,
+      "key": "E moll",
+      "year": "1985",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "3:29",
+      "duration_sec": 209,
+      "notes": "",
+      "parts": {
+        "doe5c3_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "intro_buildup",
+          "notes": ""
+        },
+        "doe5c3_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "verse_dark",
+          "notes": ""
+        },
+        "doe5c3_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "doe5c3_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "verse_dark",
+          "notes": ""
+        },
+        "doe5c3_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "doe5c3_P006": {
+          "pos": 6,
+          "name": "Breakdown",
+          "bars": 4,
+          "duration_sec": 9,
+          "light_template": "buildup_8bars",
+          "notes": ""
+        },
+        "doe5c3_P007": {
+          "pos": 7,
+          "name": "Solo",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "solo_intense",
+          "notes": ""
+        },
+        "doe5c3_P008": {
+          "pos": 8,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "doe5c3_P009": {
+          "pos": 9,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 9,
+          "light_template": "outro_cut",
+          "notes": ""
+        }
+      }
+    },
+    "veGprQ": {
+      "name": "Griechischer Wein",
+      "artist": "Udo Juergens",
+      "bpm": 120,
+      "key": "A moll",
+      "year": "1974",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "3:58",
+      "duration_sec": 238,
+      "notes": "",
+      "parts": {
+        "veGprQ_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 4,
+          "duration_sec": 8,
+          "light_template": "intro_hit",
+          "notes": ""
+        },
+        "veGprQ_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 16,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "veGprQ_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 16,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "veGprQ_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 16,
+          "light_template": "verse_dark",
+          "notes": ""
+        },
+        "veGprQ_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 16,
+          "light_template": "chorus_anthem",
+          "notes": ""
+        },
+        "veGprQ_P006": {
+          "pos": 6,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 8,
+          "light_template": "outro_cut",
+          "notes": ""
+        }
+      }
+    },
+    "FnIiU7": {
+      "name": "Atemlos durch die Nacht",
+      "artist": "Helene Fischer",
+      "bpm": 128,
+      "key": "G moll",
+      "year": "2013",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "3:32",
+      "duration_sec": 212,
+      "notes": "",
+      "parts": {
+        "FnIiU7_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "intro_buildup",
+          "notes": ""
+        },
+        "FnIiU7_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "FnIiU7_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "FnIiU7_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "verse_minimal",
+          "notes": ""
+        },
+        "FnIiU7_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "FnIiU7_P006": {
+          "pos": 6,
+          "name": "Breakdown",
+          "bars": 4,
+          "duration_sec": 8,
+          "light_template": "buildup_8bars",
+          "notes": ""
+        },
+        "FnIiU7_P007": {
+          "pos": 7,
+          "name": "Solo",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "solo_intense",
+          "notes": ""
+        },
+        "FnIiU7_P008": {
+          "pos": 8,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 15,
+          "light_template": "chorus_anthem",
+          "notes": ""
+        },
+        "FnIiU7_P009": {
+          "pos": 9,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 8,
+          "light_template": "outro_cut",
+          "notes": ""
+        }
+      }
+    },
+    "4KKEpY": {
+      "name": "Valerie",
+      "artist": "Amy Winehouse / The Zutons",
+      "bpm": 100,
+      "key": "Eb dur",
+      "year": "2006",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "3:54",
+      "duration_sec": 234,
+      "notes": "",
+      "parts": {
+        "4KKEpY_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 8,
+          "duration_sec": 19,
+          "light_template": "intro_hit",
+          "notes": ""
+        },
+        "4KKEpY_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 19,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "4KKEpY_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 19,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "4KKEpY_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 19,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "4KKEpY_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 19,
+          "light_template": "chorus_anthem",
+          "notes": ""
+        },
+        "4KKEpY_P006": {
+          "pos": 6,
+          "name": "Breakdown",
+          "bars": 4,
+          "duration_sec": 10,
+          "light_template": "buildup_8bars",
+          "notes": ""
+        },
+        "4KKEpY_P007": {
+          "pos": 7,
+          "name": "Solo",
+          "bars": 8,
+          "duration_sec": 19,
+          "light_template": "solo_spotlight",
+          "notes": ""
+        },
+        "4KKEpY_P008": {
+          "pos": 8,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 19,
+          "light_template": "chorus_anthem",
+          "notes": ""
+        },
+        "4KKEpY_P009": {
+          "pos": 9,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 10,
+          "light_template": "outro_cut",
+          "notes": ""
+        }
+      }
+    },
+    "EZAmgg": {
+      "name": "Feel Good Inc.",
+      "artist": "Gorillaz",
+      "bpm": 138,
+      "key": "E moll",
+      "year": "2005",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "3:41",
+      "duration_sec": 221,
+      "notes": "",
+      "parts": {
+        "EZAmgg_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 8,
+          "duration_sec": 14,
+          "light_template": "intro_buildup",
+          "notes": ""
+        },
+        "EZAmgg_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 14,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "EZAmgg_P003": {
+          "pos": 3,
+          "name": "Pre-Chorus",
+          "bars": 4,
+          "duration_sec": 7,
+          "light_template": "prechorus_rise",
+          "notes": ""
+        },
+        "EZAmgg_P004": {
+          "pos": 4,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 14,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "EZAmgg_P005": {
+          "pos": 5,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 14,
+          "light_template": "verse_dark",
+          "notes": ""
+        },
+        "EZAmgg_P006": {
+          "pos": 6,
+          "name": "Pre-Chorus",
+          "bars": 4,
+          "duration_sec": 7,
+          "light_template": "prechorus_rise",
+          "notes": ""
+        },
+        "EZAmgg_P007": {
+          "pos": 7,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 14,
+          "light_template": "chorus_anthem",
+          "notes": ""
+        },
+        "EZAmgg_P008": {
+          "pos": 8,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 7,
+          "light_template": "outro_cut",
+          "notes": ""
+        }
+      }
+    },
+    "QBwBAD": {
+      "name": "Seven",
+      "artist": "Sunny Sweeney",
+      "bpm": 100,
+      "key": "G dur",
+      "year": "2014",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "3:20",
+      "duration_sec": 200,
+      "notes": "",
+      "parts": {
+        "QBwBAD_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 8,
+          "duration_sec": 19,
+          "light_template": "intro_hit",
+          "notes": ""
+        },
+        "QBwBAD_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 19,
+          "light_template": "verse_dark",
+          "notes": ""
+        },
+        "QBwBAD_P003": {
+          "pos": 3,
+          "name": "Pre-Chorus",
+          "bars": 4,
+          "duration_sec": 10,
+          "light_template": "prechorus_rise",
+          "notes": ""
+        },
+        "QBwBAD_P004": {
+          "pos": 4,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 19,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "QBwBAD_P005": {
+          "pos": 5,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 19,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "QBwBAD_P006": {
+          "pos": 6,
+          "name": "Pre-Chorus",
+          "bars": 4,
+          "duration_sec": 10,
+          "light_template": "prechorus_rise",
+          "notes": ""
+        },
+        "QBwBAD_P007": {
+          "pos": 7,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 19,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "QBwBAD_P008": {
+          "pos": 8,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 10,
+          "light_template": "outro_fadeout",
+          "notes": ""
+        }
+      }
+    },
+    "3UdRPP": {
+      "name": "Come Together",
+      "artist": "The Beatles",
+      "bpm": 82,
+      "key": "D moll",
+      "year": "1969",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "4:19",
+      "duration_sec": 259,
+      "notes": "",
+      "parts": {
+        "3UdRPP_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 8,
+          "duration_sec": 23,
+          "light_template": "intro_hit",
+          "notes": ""
+        },
+        "3UdRPP_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 23,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "3UdRPP_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 23,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "3UdRPP_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 23,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "3UdRPP_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 23,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "3UdRPP_P006": {
+          "pos": 6,
+          "name": "Breakdown",
+          "bars": 4,
+          "duration_sec": 12,
+          "light_template": "buildup_8bars",
+          "notes": ""
+        },
+        "3UdRPP_P007": {
+          "pos": 7,
+          "name": "Solo",
+          "bars": 8,
+          "duration_sec": 23,
+          "light_template": "solo_intense",
+          "notes": ""
+        },
+        "3UdRPP_P008": {
+          "pos": 8,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 23,
+          "light_template": "chorus_anthem",
+          "notes": ""
+        },
+        "3UdRPP_P009": {
+          "pos": 9,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 12,
+          "light_template": "outro_fadeout",
+          "notes": ""
+        }
+      }
+    },
+    "gdzUvZ": {
+      "name": "Have You Ever Seen the Rain",
+      "artist": "CCR",
+      "bpm": 116,
+      "key": "C dur",
+      "year": "1971",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "2:40",
+      "duration_sec": 160,
+      "notes": "",
+      "parts": {
+        "gdzUvZ_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 4,
+          "duration_sec": 8,
+          "light_template": "intro_hit",
+          "notes": ""
+        },
+        "gdzUvZ_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "verse_minimal",
+          "notes": ""
+        },
+        "gdzUvZ_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "chorus_anthem",
+          "notes": ""
+        },
+        "gdzUvZ_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "verse_minimal",
+          "notes": ""
+        },
+        "gdzUvZ_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "gdzUvZ_P006": {
+          "pos": 6,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 8,
+          "light_template": "outro_cut",
+          "notes": ""
+        }
+      }
+    },
+    "3gpmmI": {
+      "name": "Hey Jude",
+      "artist": "The Beatles",
+      "bpm": 74,
+      "key": "F dur",
+      "year": "1968",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "4:00",
+      "duration_sec": 240,
+      "notes": "",
+      "parts": {
+        "3gpmmI_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 8,
+          "duration_sec": 26,
+          "light_template": "intro_hit",
+          "notes": ""
+        },
+        "3gpmmI_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 26,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "3gpmmI_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 26,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "3gpmmI_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 26,
+          "light_template": "verse_minimal",
+          "notes": ""
+        },
+        "3gpmmI_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 26,
+          "light_template": "chorus_anthem",
+          "notes": ""
+        },
+        "3gpmmI_P006": {
+          "pos": 6,
+          "name": "Breakdown",
+          "bars": 4,
+          "duration_sec": 13,
+          "light_template": "buildup_8bars",
+          "notes": ""
+        },
+        "3gpmmI_P007": {
+          "pos": 7,
+          "name": "Solo",
+          "bars": 8,
+          "duration_sec": 26,
+          "light_template": "solo_intense",
+          "notes": ""
+        },
+        "3gpmmI_P008": {
+          "pos": 8,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 26,
+          "light_template": "chorus_anthem",
+          "notes": ""
+        },
+        "3gpmmI_P009": {
+          "pos": 9,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 13,
+          "light_template": "outro_cut",
+          "notes": ""
+        }
+      }
+    },
+    "CiBlrD": {
+      "name": "Suspicious Minds",
+      "artist": "Elvis Presley",
+      "bpm": 116,
+      "key": "G dur",
+      "year": "1969",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "4:22",
+      "duration_sec": 262,
+      "notes": "",
+      "parts": {
+        "CiBlrD_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "intro_hit",
+          "notes": ""
+        },
+        "CiBlrD_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "CiBlrD_P003": {
+          "pos": 3,
+          "name": "Pre-Chorus",
+          "bars": 4,
+          "duration_sec": 8,
+          "light_template": "prechorus_rise",
+          "notes": ""
+        },
+        "CiBlrD_P004": {
+          "pos": 4,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "CiBlrD_P005": {
+          "pos": 5,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "verse_minimal",
+          "notes": ""
+        },
+        "CiBlrD_P006": {
+          "pos": 6,
+          "name": "Pre-Chorus",
+          "bars": 4,
+          "duration_sec": 8,
+          "light_template": "prechorus_rise",
+          "notes": ""
+        },
+        "CiBlrD_P007": {
+          "pos": 7,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "chorus_anthem",
+          "notes": ""
+        },
+        "CiBlrD_P008": {
+          "pos": 8,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 8,
+          "light_template": "outro_fadeout",
+          "notes": ""
+        }
+      }
+    },
+    "p37eCZ": {
+      "name": "Tainted Love",
+      "artist": "Soft Cell",
+      "bpm": 152,
+      "key": "G moll",
+      "year": "1981",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "2:35",
+      "duration_sec": 155,
+      "notes": "",
+      "parts": {
+        "p37eCZ_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 4,
+          "duration_sec": 6,
+          "light_template": "intro_buildup",
+          "notes": ""
+        },
+        "p37eCZ_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 13,
+          "light_template": "verse_minimal",
+          "notes": ""
+        },
+        "p37eCZ_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 13,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "p37eCZ_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 13,
+          "light_template": "verse_dark",
+          "notes": ""
+        },
+        "p37eCZ_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 13,
+          "light_template": "chorus_anthem",
+          "notes": ""
+        },
+        "p37eCZ_P006": {
+          "pos": 6,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 6,
+          "light_template": "outro_cut",
+          "notes": ""
+        }
+      }
+    },
+    "32JgdP": {
+      "name": "Personal Jesus",
+      "artist": "Depeche Mode",
+      "bpm": 118,
+      "key": "A moll",
+      "year": "1989",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "3:44",
+      "duration_sec": 224,
+      "notes": "",
+      "parts": {
+        "32JgdP_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 4,
+          "duration_sec": 8,
+          "light_template": "intro_buildup",
+          "notes": ""
+        },
+        "32JgdP_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 16,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "32JgdP_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 16,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "32JgdP_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 16,
+          "light_template": "verse_dark",
+          "notes": ""
+        },
+        "32JgdP_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 16,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "32JgdP_P006": {
+          "pos": 6,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 8,
+          "light_template": "outro_cut",
+          "notes": ""
+        }
+      }
+    },
+    "I1af7W": {
+      "name": "Ring of Fire",
+      "artist": "Johnny Cash",
+      "bpm": 108,
+      "key": "G dur",
+      "year": "1963",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "2:38",
+      "duration_sec": 158,
+      "notes": "",
+      "parts": {
+        "I1af7W_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 4,
+          "duration_sec": 9,
+          "light_template": "intro_buildup",
+          "notes": ""
+        },
+        "I1af7W_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 18,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "I1af7W_P003": {
+          "pos": 3,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 18,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "I1af7W_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 18,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "I1af7W_P005": {
+          "pos": 5,
+          "name": "Chorus",
+          "bars": 8,
+          "duration_sec": 18,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "I1af7W_P006": {
+          "pos": 6,
+          "name": "Outro",
+          "bars": 4,
+          "duration_sec": 9,
+          "light_template": "outro_cut",
+          "notes": ""
+        }
+      }
+    }
+  },
+  "bars": {},
+  "accents": {},
+  "meta": {
+    "accent_types": {
+      "bl": "Blinder",
+      "bo": "Blackout",
+      "hl": "Highlight",
+      "st": "Strobe",
+      "fg": "Fog"
+    },
+    "pos_16th_map": "1=eins,2=e,3=und,4=e,5=zwei,6=e,7=und,8=e,9=drei,10=e,11=und,12=e,13=vier,14=e,15=und,16=e",
+    "storage": "github",
+    "audio_path": "audio/{song_id}/{part_id}/"
+  }
+}

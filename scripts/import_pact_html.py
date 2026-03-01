@@ -222,6 +222,223 @@ def parse_notes_to_parts(notes_raw: str, bpm: int) -> list[dict]:
     return parts
 
 
+class LyricsStripper(HTMLParser):
+    """Entfernt HTML-Tags aus BandHelper-Lyrics und gibt Plaintext zurück."""
+
+    def __init__(self):
+        super().__init__()
+        self.text = []
+
+    def handle_starttag(self, tag, attrs):
+        if tag in ("br", "p"):
+            self.text.append("\n")
+
+    def handle_data(self, data):
+        self.text.append(data)
+
+    def get_text(self):
+        return "".join(self.text)
+
+
+def strip_html_lyrics(html: str) -> str:
+    """HTML-Lyrics → Plaintext."""
+    s = LyricsStripper()
+    s.feed(html)
+    return s.get_text()
+
+
+def parse_lyrics_sections(html_lyrics: str) -> list[dict]:
+    """
+    Parst HTML-Lyrics aus BandHelper in Sektionen mit Lyrics-Zeilen.
+
+    Rückgabe: [{"section": "VERSE 1", "lines": ["Line 1", "Line 2", ...]}, ...]
+    """
+    text = strip_html_lyrics(html_lyrics)
+    lines = text.split("\n")
+
+    # Akkorde und Tab-Notation entfernen
+    cleaned_lines = []
+    for line in lines:
+        stripped = line.strip()
+        if not stripped:
+            continue
+        # Tab-Notation (|——— Muster)
+        if re.match(r'^[|\-—\d\s]+$', stripped):
+            continue
+        # Reine Akkordzeilen (H5  E5 F#5 etc.)
+        if re.match(r'^[\s|:]*([A-H][#b♯♭]?\d?\s*)+[|:\s]*$', stripped):
+            continue
+        # Akkord-Patterns wie "||: H5   E5 F♯5 :||"
+        if re.match(r'^\|{0,2}:?\s*[A-H]', stripped) and re.search(r'[|:]', stripped):
+            continue
+        # Reine Akkordnamen ohne Lyrics (z.B. "Fm Fm6", "C/Fm Fm")
+        if re.match(r'^[A-H][#b♯♭]?\d?m?\d?(/[A-H][#b♯♭]?\d?m?\d?)?\s+[A-H]', stripped) and len(stripped) < 20:
+            continue
+        # Inline-Akkorde entfernen (2+ Leerzeichen nach Akkord = Inline-Chord)
+        cleaned = re.sub(r'[A-H][#b♯♭♮]?\d?m?\d?\s{2,}', '', stripped)
+        cleaned = re.sub(r'\s{2,}', ' ', cleaned).strip()
+        if cleaned and len(cleaned) > 1:
+            cleaned_lines.append(cleaned)
+
+    # In Sektionen aufteilen
+    section_pattern = re.compile(
+        r'^(VERSE|CHORUS|THEME|BRIDGE|INTRO|OUTRO|INTERLUDE|SOLO|PRE-CHORUS|BREAKDOWN|CODA)'
+        r'[\s\d:]*',
+        re.IGNORECASE
+    )
+
+    sections = []
+    current_section = {"section": "Intro", "lines": []}
+
+    for line in cleaned_lines:
+        # Songtitel-Zeile überspringen
+        if line.isupper() and len(line.split()) <= 5 and not section_pattern.match(line):
+            continue
+
+        m = section_pattern.match(line)
+        if m:
+            # Neue Sektion starten
+            if current_section["lines"]:
+                sections.append(current_section)
+            section_name = line.rstrip(":").strip()
+            current_section = {"section": section_name, "lines": []}
+        else:
+            # Spielanweisungen filtern (z.B. "Chorus: Repeat 4x Clarinet Solo")
+            if re.match(r'^(Chorus|Repeat|repeat):\s*(Repeat|repeat)', line):
+                continue
+            current_section["lines"].append(line)
+
+    if current_section["lines"]:
+        sections.append(current_section)
+
+    return sections
+
+
+def load_stringbreak_lyrics(stringbreak_path: Path) -> dict[str, list[dict]]:
+    """
+    Lädt Lyrics aus Stringbreak.json und gibt sie nach Song-Name indiziert zurück.
+
+    Rückgabe: {"Along comes Mary": [{"section": "VERSE 1", "lines": [...]}, ...], ...}
+    """
+    if not stringbreak_path.exists():
+        return {}
+
+    with open(stringbreak_path, encoding="utf-8") as f:
+        sb = json.load(f)
+
+    lyrics_by_name = {}
+    for sid, song in sb.get("song", {}).items():
+        lyrics_html = song.get("lyrics", "")
+        if not lyrics_html:
+            continue
+        name = song.get("name", "")
+        sections = parse_lyrics_sections(lyrics_html)
+        if sections:
+            lyrics_by_name[name] = sections
+
+    return lyrics_by_name
+
+
+def match_section_to_part(section_name: str, part_name: str) -> bool:
+    """Prüft ob eine Lyrics-Sektion zu einem Part passt (fuzzy)."""
+    sn = section_name.lower().strip()
+    pn = part_name.lower().strip()
+
+    # Exakter Match
+    if sn == pn:
+        return True
+
+    # Kernwort-Match (VERSE 1 ↔ Verse 1, CHORUS ↔ Chorus (lunch))
+    section_keywords = {
+        "verse": ["verse", "str", "strophe"],
+        "chorus": ["chorus", "ref", "refrain"],
+        "theme": ["theme", "thema", "intro", "interlude"],
+        "bridge": ["bridge"],
+        "intro": ["intro"],
+        "outro": ["outro", "end", "ausklang", "coda"],
+        "solo": ["solo"],
+        "interlude": ["interlude"],
+    }
+
+    # Nummer extrahieren (Verse 1, Chorus 2, etc.)
+    sn_num = re.search(r'\d+', sn)
+    pn_num = re.search(r'\d+', pn)
+    sn_base = re.sub(r'[\d:]+', '', sn).strip()
+    pn_base = re.sub(r'[\d:]+', '', pn).strip()
+
+    for key, aliases in section_keywords.items():
+        if any(a in sn_base for a in [key] + aliases):
+            if any(a in pn_base for a in [key] + aliases):
+                # Basis-Typ matched — prüfe Nummer
+                if sn_num and pn_num:
+                    return sn_num.group() == pn_num.group()
+                # Ohne Nummer: erstes Vorkommen matchen
+                return True
+
+    return False
+
+
+def assign_lyrics_to_db(db: dict, lyrics_by_name: dict[str, list[dict]]) -> int:
+    """
+    Ordnet Lyrics aus Stringbreak den Songs in der DB zu.
+    Erstellt Bar-Einträge mit Lyrics-Zeilen.
+
+    Rückgabe: Anzahl Songs mit zugeordneten Lyrics.
+    """
+    bar_counter = 0
+    songs_with_lyrics = 0
+
+    for song_id, song in db["songs"].items():
+        song_name = song["name"]
+        if song_name not in lyrics_by_name:
+            continue
+
+        sections = lyrics_by_name[song_name]
+        parts = song.get("parts", {})
+        if not parts:
+            continue
+
+        # Parts nach Position sortieren
+        sorted_parts = sorted(parts.items(), key=lambda x: x[1]["pos"])
+
+        # Jede Sektion einem Part zuordnen
+        used_parts = set()
+        section_to_part = {}
+
+        for section in sections:
+            for part_id, part in sorted_parts:
+                if part_id in used_parts:
+                    continue
+                if match_section_to_part(section["section"], part["name"]):
+                    section_to_part[section["section"]] = part_id
+                    used_parts.add(part_id)
+                    break
+
+        # Bars erstellen für zugeordnete Sektionen
+        assigned = False
+        for section in sections:
+            part_id = section_to_part.get(section["section"])
+            if not part_id or not section["lines"]:
+                continue
+
+            for i, lyric_line in enumerate(section["lines"], 1):
+                bar_counter += 1
+                bar_id = f"B{bar_counter:04d}"
+                db["bars"][bar_id] = {
+                    "part_id": part_id,
+                    "bar_num": i,
+                    "lyrics": lyric_line,
+                    "audio": "",
+                    "has_accents": False,
+                }
+                assigned = True
+
+        if assigned:
+            songs_with_lyrics += 1
+
+    return songs_with_lyrics
+
+
 def classify_part_template(name: str) -> str:
     """Weist einem Part-Namen ein Light-Template zu."""
     nl = name.lower()
@@ -368,6 +585,7 @@ def build_db(songs_raw: list[dict]) -> dict:
 def main():
     repo_root = Path(__file__).resolve().parent.parent
     html_path = repo_root / "db" / "Pact Repertoire.html"
+    stringbreak_path = repo_root / "db" / "Stringbreak.json"
     output_path = repo_root / "db" / "lighting-ai-db.json"
 
     print(f"Lese HTML: {html_path}")
@@ -385,6 +603,24 @@ def main():
         print(f"  {s['name']:40s} {s['artist']:30s} {tempo:>4s} BPM  {s['key']:12s} {s['gema_nr']:16s} {parts_info}")
 
     db = build_db(parser.songs)
+
+    # Lyrics aus Stringbreak.json extrahieren und zuordnen
+    print(f"\nLese Lyrics: {stringbreak_path}")
+    lyrics_by_name = load_stringbreak_lyrics(stringbreak_path)
+    print(f"  Songs mit Lyrics in Stringbreak: {len(lyrics_by_name)}")
+
+    # Matching Songs finden
+    pact_names = {s["name"] for s in db["songs"].values()}
+    matching = pact_names & set(lyrics_by_name.keys())
+    print(f"  Davon im Pact-Repertoire: {len(matching)}")
+    for name in sorted(matching):
+        sections = lyrics_by_name[name]
+        lines = sum(len(s["lines"]) for s in sections)
+        print(f"    {name}: {len(sections)} Sektionen, {lines} Lyrics-Zeilen")
+
+    songs_with_lyrics = assign_lyrics_to_db(db, lyrics_by_name)
+    print(f"  Songs mit zugeordneten Lyrics: {songs_with_lyrics}")
+    print(f"  Bars mit Lyrics: {len(db['bars'])}")
 
     print(f"\nSchreibe DB: {output_path}")
     print(f"  Songs: {len(db['songs'])}")

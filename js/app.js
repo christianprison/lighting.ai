@@ -1356,7 +1356,11 @@ async function uploadReferenceAudio(arrayBuffer, fileName) {
     song.audio_ref = path;
     song.audio_ref_name = fileName;
     markDirty();
+
+    // Auto-save DB so audio_ref persists across reloads
+    await handleSave();
     toast('Referenz-Audio gespeichert', 'success');
+    renderAudioTab();
   } catch (err) {
     console.error('Reference upload failed:', err);
     // Non-blocking — split still works without reference
@@ -1373,14 +1377,22 @@ async function loadReferenceAudio() {
   if (audioMeta) return; // already loaded
 
   const s = getSettings();
+  const refName = song.audio_ref_name || song.audio_ref.split('/').pop();
 
   try {
-    // Try direct fetch first (works on GitHub Pages / local dev)
+    toast(`Lade Referenz-Audio: ${refName}...`, 'info');
+
     let arrayBuf;
+
+    // Try direct fetch first (works on GitHub Pages / local dev)
     try {
       const res = await fetch(song.audio_ref);
       if (res.ok) {
-        arrayBuf = await res.arrayBuffer();
+        const ct = res.headers.get('content-type') || '';
+        // Guard against HTML soft-404 pages
+        if (!ct.includes('text/html')) {
+          arrayBuf = await res.arrayBuffer();
+        }
       }
     } catch { /* fall through to API */ }
 
@@ -1398,15 +1410,19 @@ async function loadReferenceAudio() {
       }
     }
 
-    if (!arrayBuf) return;
+    if (!arrayBuf) {
+      toast(`Referenz-Audio nicht gefunden: ${refName}`, 'error');
+      return;
+    }
 
     const meta = await audio.decodeAudio(arrayBuf);
     audioMeta = meta;
-    audioFileName = song.audio_ref_name || song.audio_ref.split('/').pop();
+    audioFileName = refName;
     renderAudioTab();
     toast(`Referenz-Audio geladen: ${fmtTime(meta.duration)}`, 'success');
   } catch (err) {
     console.error('Reference load failed:', err);
+    toast(`Referenz-Audio Fehler: ${err.message}`, 'error');
   }
 }
 

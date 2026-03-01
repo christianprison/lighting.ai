@@ -1152,6 +1152,40 @@ function resetAudioSplit() {
   audio.setPlaybackRate(1.0);
 }
 
+/**
+ * Save current partMarkers + barMarkers into the song object in the DB.
+ * Called after tapping is done (export) and can be restored on reload.
+ */
+function saveMarkersToSong() {
+  if (!selectedSongId || !db.songs[selectedSongId]) return;
+  const song = db.songs[selectedSongId];
+  song.split_markers = {
+    partMarkers: partMarkers.map(m => ({ time: m.time, partIndex: m.partIndex })),
+    barMarkers: barMarkers.map(m => ({ time: m.time, partIndex: m.partIndex })),
+  };
+}
+
+/**
+ * Restore partMarkers + barMarkers from the song object in the DB.
+ * Called after loading reference audio.
+ */
+function restoreMarkersFromSong() {
+  if (!selectedSongId || !db.songs[selectedSongId]) return;
+  const song = db.songs[selectedSongId];
+  if (!song.split_markers) return;
+
+  const sm = song.split_markers;
+  if (Array.isArray(sm.partMarkers) && sm.partMarkers.length > 0) {
+    partMarkers = sm.partMarkers.map(m => ({ time: m.time, partIndex: m.partIndex }));
+    currentPartIndex = partMarkers.length;
+  }
+  if (Array.isArray(sm.barMarkers) && sm.barMarkers.length > 0) {
+    barMarkers = sm.barMarkers.map(m => ({ time: m.time, partIndex: m.partIndex }));
+    const lastBar = barMarkers[barMarkers.length - 1];
+    currentBarInPart = barMarkers.filter(b => b.partIndex === lastBar.partIndex).length;
+  }
+}
+
 /* ── Waveform Drawing ──────────────────────────────── */
 
 function drawWaveform() {
@@ -1207,7 +1241,15 @@ function drawWaveform() {
     ctx.fillRect(i * barW, mid - barH / 2, Math.max(barW - 0.5, 1), barH || 1);
   }
 
-  // Bar markers (cyan lines only, no numbers)
+  // Build absolute bar numbering: count bars across all parts in order
+  const allBarsSorted = [...barMarkers].sort((a, b) => a.time - b.time);
+  const barAbsoluteNum = new Map(); // barMarker → absolute number
+  for (let i = 0; i < allBarsSorted.length; i++) {
+    barAbsoluteNum.set(allBarsSorted[i], i + 1);
+  }
+
+  // Bar markers (cyan lines with absolute bar number)
+  ctx.font = '9px "DM Mono", monospace';
   for (const m of barMarkers) {
     const x = (m.time / duration) * w;
     ctx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
@@ -1216,9 +1258,16 @@ function drawWaveform() {
     ctx.moveTo(x, 0);
     ctx.lineTo(x, h);
     ctx.stroke();
+
+    // Absolute bar number label at bottom
+    const absNum = barAbsoluteNum.get(m);
+    if (absNum) {
+      ctx.fillStyle = 'rgba(56, 189, 248, 0.7)';
+      ctx.fillText(String(absNum), x + 2, h - 4);
+    }
   }
 
-  // Part markers (amber) with part name and bar count
+  // Part markers (amber) with part name
   const parts = getSortedParts(selectedSongId);
   for (const m of partMarkers) {
     const x = (m.time / duration) * w;
@@ -1236,15 +1285,6 @@ function drawWaveform() {
       ctx.fillStyle = 'rgba(240, 160, 48, 0.9)';
       const labelX = Math.min(x + 4, w - ctx.measureText(partName).width - 4);
       ctx.fillText(partName, labelX, 12);
-    }
-
-    // Bar count label (bottom) — show how many bars in this part
-    const barCount = barMarkers.filter(b => b.partIndex === m.partIndex).length;
-    if (barCount > 0) {
-      const label = `${barCount} bars`;
-      ctx.font = '9px "DM Mono", monospace';
-      ctx.fillStyle = 'rgba(240, 160, 48, 0.7)';
-      ctx.fillText(label, x + 4, h - 4);
     }
   }
 
@@ -1422,6 +1462,10 @@ async function loadReferenceAudio() {
     const meta = await audio.decodeAudio(arrayBuf);
     audioMeta = meta;
     audioFileName = refName;
+
+    // Restore part/bar markers from DB if available
+    restoreMarkersFromSong();
+
     renderAudioTab();
     toast(`Referenz-Audio geladen: ${fmtTime(meta.duration)}`, 'success');
   } catch (err) {
@@ -1520,6 +1564,10 @@ function handlePartTap() {
   currentPartIndex++;
   currentBarInPart = 0;
 
+  // Persist markers to song object
+  saveMarkersToSong();
+  markDirty();
+
   // Update UI elements without full re-render
   drawWaveform();
   updateTapInfo(parts);
@@ -1539,6 +1587,10 @@ function handleBarTap() {
   barMarkers.push({ time, partIndex: activePartIdx });
   tapHistory.push({ type: 'bar', time, partIndex: activePartIdx });
   currentBarInPart = barMarkers.filter(m => m.partIndex === activePartIdx).length;
+
+  // Persist markers to song object
+  saveMarkersToSong();
+  markDirty();
 
   drawWaveform();
   updateTapInfo(getSortedParts(selectedSongId));
@@ -1578,6 +1630,10 @@ function handleUndoTap() {
     barMarkers = barMarkers.filter(m => m.time !== last.time || m.partIndex !== last.partIndex);
     currentBarInPart = barMarkers.filter(m => m.partIndex === last.partIndex).length;
   }
+
+  // Persist updated markers
+  saveMarkersToSong();
+  markDirty();
 
   drawWaveform();
   const parts = getSortedParts(selectedSongId);
@@ -1824,6 +1880,7 @@ async function handleAudioExport() {
 
     }
 
+    saveMarkersToSong();
     markDirty();
     toast(done > 0 ? `${done} Bar-Segmente exportiert` : 'Part-Daten gespeichert', 'success');
   } catch (err) {

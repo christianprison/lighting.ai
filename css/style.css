@@ -1658,3 +1658,282 @@ label {
   color: var(--t1);
   line-height: 1.4;
 }
+
+/* ══════════════════════════════════════════════════════
+   SETLIST — Meilenstein 4
+   ══════════════════════════════════════════════════════ */
+
+/* ── Setlist Panel Layout ──────────────────────────── */
+.setlist-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.setlist-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+/* ── Setlist Header (Name + Actions) ───────────────── */
+.setlist-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.setlist-name-input {
+  flex: 1;
+  font-size: 1.1rem;
+  font-weight: 600;
+  max-width: 400px;
+}
+
+.setlist-actions {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+}
+
+/* ── Setlist Items ─────────────────────────────────── */
+.setlist-items {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-width: 960px;
+  min-height: 100px;
+}
+
+.setlist-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: background 0.1s, border-color 0.15s, opacity 0.15s, transform 0.15s;
+  user-select: none;
+  position: relative;
+}
+
+.setlist-card:hover {
+  background: var(--bg3);
+  border-color: var(--border2);
+}
+
+.setlist-card.dragging {
+  opacity: 0.4;
+  border-color: var(--green);
+}
+
+.setlist-card .sl-pos {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--t3);
+  min-width: 28px;
+  text-align: center;
+}
+
+.setlist-card .sl-name {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--t1);
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.setlist-card .sl-artist {
+  font-size: 0.8rem;
+  color: var(--t3);
+  min-width: 100px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.setlist-card .sl-meta {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.setlist-card .sl-meta span {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--t3);
+  white-space: nowrap;
+}
+
+.setlist-card .sl-btns {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.setlist-card .sl-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  color: var(--t3);
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.15s;
+}
+
+.setlist-card .sl-btn:hover {
+  background: var(--bg4);
+  border-color: var(--border2);
+  color: var(--t1);
+}
+
+.setlist-card .sl-btn.sl-remove:hover {
+  color: var(--red);
+  background: rgba(255, 59, 92, 0.1);
+}
+
+.setlist-card .sl-grip {
+  cursor: grab;
+  color: var(--t4);
+  font-size: 1rem;
+  padding: 0 4px;
+  touch-action: none;
+}
+
+.setlist-card .sl-grip:active {
+  cursor: grabbing;
+}
+
+/* ── Pause Item ────────────────────────────────────── */
+.setlist-card.pause {
+  background: transparent;
+  border-style: dashed;
+  border-color: var(--border);
+  justify-content: center;
+  padding: 6px 12px;
+  min-height: 36px;
+}
+
+.setlist-card.pause .sl-pause-label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--t4);
+  flex: 1;
+  text-align: center;
+}
+
+/* ── Drag Indicator Line ───────────────────────────── */
+.setlist-drop-indicator {
+  height: 2px;
+  background: var(--green);
+  border-radius: 1px;
+  margin: -1px 0;
+  pointer-events: none;
+  box-shadow: 0 0 6px rgba(0, 220, 130, 0.4);
+}
+
+/* ── Song Search Overlay ───────────────────────────── */
+.song-search-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+
+.song-search-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.song-search-panel {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius2);
+  width: 90%;
+  max-width: 500px;
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.song-search-header {
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.song-search-header input {
+  flex: 1;
+}
+
+.song-search-header .icon-btn {
+  flex-shrink: 0;
+}
+
+.song-search-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+
+.song-search-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background 0.1s;
+  min-height: 44px;
+}
+
+.song-search-item:hover {
+  background: var(--bg3);
+}
+
+.song-search-item.in-setlist {
+  opacity: 0.35;
+}
+
+.song-search-item .ssi-name {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--t1);
+}
+
+.song-search-item .ssi-artist {
+  font-size: 0.8rem;
+  color: var(--t3);
+}
+
+.song-search-item .ssi-bpm {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--t3);
+}

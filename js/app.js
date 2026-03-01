@@ -80,6 +80,7 @@ function cacheDom() {
     syncStatus:    document.getElementById('sync-status'),
     tabEditor:     document.getElementById('tab-editor'),
     tabAudio:      document.getElementById('tab-audio'),
+    tabSetlist:    document.getElementById('tab-setlist'),
     btnSettings:   document.getElementById('btn-settings'),
     btnSave:       document.getElementById('btn-save'),
     searchBox:     document.getElementById('search-box'),
@@ -249,6 +250,7 @@ function switchTab(tab) {
   activeTab = tab;
   els.tabEditor.classList.toggle('active', tab === 'editor');
   els.tabAudio.classList.toggle('active', tab === 'audio');
+  els.tabSetlist.classList.toggle('active', tab === 'setlist');
   renderContent();
 }
 
@@ -258,7 +260,8 @@ function renderContent() {
     return;
   }
   if (activeTab === 'editor') renderEditorTab();
-  else renderAudioTab();
+  else if (activeTab === 'audio') renderAudioTab();
+  else if (activeTab === 'setlist') renderSetlistTab();
 }
 
 /* ══════════════════════════════════════════════════════
@@ -1241,15 +1244,7 @@ function drawWaveform() {
     ctx.fillRect(i * barW, mid - barH / 2, Math.max(barW - 0.5, 1), barH || 1);
   }
 
-  // Build absolute bar numbering: count bars across all parts in order
-  const allBarsSorted = [...barMarkers].sort((a, b) => a.time - b.time);
-  const barAbsoluteNum = new Map(); // barMarker → absolute number
-  for (let i = 0; i < allBarsSorted.length; i++) {
-    barAbsoluteNum.set(allBarsSorted[i], i + 1);
-  }
-
-  // Bar markers (cyan lines with absolute bar number)
-  ctx.font = '9px "DM Mono", monospace';
+  // Bar markers (cyan lines only — no labels)
   for (const m of barMarkers) {
     const x = (m.time / duration) * w;
     ctx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
@@ -1258,17 +1253,20 @@ function drawWaveform() {
     ctx.moveTo(x, 0);
     ctx.lineTo(x, h);
     ctx.stroke();
-
-    // Absolute bar number label at bottom
-    const absNum = barAbsoluteNum.get(m);
-    if (absNum) {
-      ctx.fillStyle = 'rgba(56, 189, 248, 0.7)';
-      ctx.fillText(String(absNum), x + 2, h - 4);
-    }
   }
 
-  // Part markers (amber) with part name
+  // Compute absolute bar offset per part (for part boundary labels)
+  const allBarsSorted = [...barMarkers].sort((a, b) => a.time - b.time);
+  const partStartBar = {}; // partIndex → first absolute bar number
+  let absCounter = 1;
   const parts = getSortedParts(selectedSongId);
+  for (let pi = 0; pi < parts.length; pi++) {
+    const barsInPart = allBarsSorted.filter(b => b.partIndex === pi);
+    partStartBar[pi] = barsInPart.length > 0 ? absCounter : absCounter;
+    absCounter += barsInPart.length;
+  }
+
+  // Part markers (amber) with part name + absolute bar number
   for (const m of partMarkers) {
     const x = (m.time / duration) * w;
     ctx.strokeStyle = 'rgba(240, 160, 48, 0.8)';
@@ -1285,6 +1283,14 @@ function drawWaveform() {
       ctx.fillStyle = 'rgba(240, 160, 48, 0.9)';
       const labelX = Math.min(x + 4, w - ctx.measureText(partName).width - 4);
       ctx.fillText(partName, labelX, 12);
+    }
+
+    // Absolute bar number at bottom (e.g. "Takt 61")
+    const startBar = partStartBar[m.partIndex];
+    if (startBar !== undefined) {
+      ctx.font = '9px "DM Mono", monospace';
+      ctx.fillStyle = 'rgba(240, 160, 48, 0.7)';
+      ctx.fillText(String(startBar), x + 4, h - 4);
     }
   }
 
@@ -1963,6 +1969,494 @@ function handleAudioDrop(e) {
   if (file) handleAudioFileLoad(file);
 }
 
+/* ══════════════════════════════════════════════════════
+   SETLIST TAB — Meilenstein 4
+   ══════════════════════════════════════════════════════ */
+
+function ensureSetlist() {
+  if (!db.setlist) db.setlist = { name: 'Setlist', items: [] };
+  if (!db.setlist.items) db.setlist.items = [];
+}
+
+function renderSetlistTab() {
+  ensureSetlist();
+  const sl = db.setlist;
+  const items = sl.items || [];
+
+  // Compute summary
+  const songItems = items.filter(i => i.type === 'song');
+  const pauseCount = items.filter(i => i.type === 'pause').length;
+  const totalSec = songItems.reduce((sum, i) => {
+    const s = db.songs[i.song_id];
+    return sum + (s ? (s.duration_sec || 0) : 0);
+  }, 0);
+  const sets = pauseCount + 1;
+
+  els.content.innerHTML = `
+    <div class="setlist-panel">
+      <div class="setlist-scroll" id="setlist-scroll">
+        <div class="setlist-header">
+          <input type="text" class="setlist-name-input" id="setlist-name" value="${esc(sl.name || 'Setlist')}" placeholder="Setlist-Name">
+          <div class="setlist-actions">
+            <button class="btn btn-sm" id="sl-add-song">+ SONG</button>
+            <button class="btn btn-sm" id="sl-add-pause">+ PAUSE</button>
+            <button class="btn btn-sm btn-primary" id="sl-export">EXPORT</button>
+          </div>
+        </div>
+        <div class="setlist-items" id="setlist-items">
+          ${buildSetlistItems(items)}
+        </div>
+      </div>
+      <div class="summary-bar">
+        <span class="summary-item"><span class="summary-label">Songs</span><span class="mono">${songItems.length}</span></span>
+        <span class="summary-item"><span class="summary-label">Pausen</span><span class="mono">${pauseCount}</span></span>
+        <span class="summary-item"><span class="summary-label">Sets</span><span class="mono">${sets}</span></span>
+        <span class="summary-item"><span class="summary-label">Dauer</span><span class="mono">${fmtDur(totalSec)}</span></span>
+      </div>
+    </div>`;
+
+  wireSetlistDragDrop();
+}
+
+function buildSetlistItems(items) {
+  if (!items.length) {
+    return '<div class="empty-state" style="padding:40px 0"><div class="icon">&#9835;</div><p>Noch keine Songs in der Setlist.</p></div>';
+  }
+  let setNum = 1;
+  let songNum = 1;
+  const parts = [];
+  for (let idx = 0; idx < items.length; idx++) {
+    const item = items[idx];
+    if (item.type === 'pause') {
+      parts.push(`<div class="setlist-card pause" data-idx="${idx}" draggable="true">
+        <span class="sl-grip" title="Verschieben">&#8942;&#8942;</span>
+        <span class="sl-pause-label">&#9646;&#9646; PAUSE &mdash; Set ${setNum} / Set ${setNum + 1}</span>
+        <div class="sl-btns">
+          <button class="sl-btn sl-remove" title="Entfernen" data-action="remove" data-idx="${idx}">&times;</button>
+        </div>
+      </div>`);
+      setNum++;
+      continue;
+    }
+    const song = db.songs[item.song_id];
+    if (!song) continue;
+    const partsCount = Object.keys(song.parts || {}).length;
+    const dur = song.duration || fmtDur(song.duration_sec || 0);
+    parts.push(`<div class="setlist-card" data-idx="${idx}" data-song-id="${item.song_id}" draggable="true">
+      <span class="sl-grip" title="Verschieben">&#8942;&#8942;</span>
+      <span class="sl-pos">${songNum}</span>
+      <span class="sl-name">${esc(song.name)}</span>
+      <span class="sl-artist">${esc(song.artist || '')}</span>
+      <div class="sl-meta">
+        <span>${song.bpm || '\u2014'} bpm</span>
+        <span>${partsCount} P</span>
+        <span>${dur}</span>
+      </div>
+      <div class="sl-btns">
+        <button class="sl-btn sl-edit" title="Im DB Editor anzeigen" data-action="edit" data-idx="${idx}">&#9998;</button>
+        <button class="sl-btn sl-remove" title="Entfernen" data-action="remove" data-idx="${idx}">&times;</button>
+      </div>
+    </div>`);
+    songNum++;
+  }
+  return parts.join('');
+}
+
+/* ── Setlist Drag & Drop (mouse + touch) ──────────── */
+
+let _slDragIdx = null;
+let _slDropIdx = null;
+let _slDragEl = null;
+let _slTouchClone = null;
+
+function wireSetlistDragDrop() {
+  const container = document.getElementById('setlist-items');
+  if (!container) return;
+
+  // Mouse drag
+  container.addEventListener('dragstart', slDragStart);
+  container.addEventListener('dragover', slDragOver);
+  container.addEventListener('dragleave', slDragLeave);
+  container.addEventListener('drop', slDrop);
+  container.addEventListener('dragend', slDragEnd);
+
+  // Touch drag
+  container.addEventListener('touchstart', slTouchStart, { passive: false });
+}
+
+function slDragStart(e) {
+  const card = e.target.closest('.setlist-card');
+  if (!card || !e.target.closest('.sl-grip')) { e.preventDefault(); return; }
+  _slDragIdx = parseInt(card.dataset.idx);
+  _slDragEl = card;
+  card.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', _slDragIdx);
+}
+
+function slDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  removeDropIndicators();
+  const target = getDropTarget(e.clientY);
+  if (target !== null && target !== _slDragIdx) {
+    showDropIndicator(target);
+    _slDropIdx = target;
+  }
+}
+
+function slDragLeave(e) {
+  if (!e.currentTarget.contains(e.relatedTarget)) removeDropIndicators();
+}
+
+function slDrop(e) {
+  e.preventDefault();
+  removeDropIndicators();
+  if (_slDragIdx !== null && _slDropIdx !== null && _slDragIdx !== _slDropIdx) {
+    moveSetlistItem(_slDragIdx, _slDropIdx);
+  }
+  slDragEnd();
+}
+
+function slDragEnd() {
+  if (_slDragEl) _slDragEl.classList.remove('dragging');
+  _slDragIdx = null;
+  _slDropIdx = null;
+  _slDragEl = null;
+  removeDropIndicators();
+}
+
+/* Touch drag support */
+function slTouchStart(e) {
+  const grip = e.target.closest('.sl-grip');
+  if (!grip) return;
+  const card = grip.closest('.setlist-card');
+  if (!card) return;
+  e.preventDefault();
+
+  _slDragIdx = parseInt(card.dataset.idx);
+  _slDragEl = card;
+  card.classList.add('dragging');
+
+  // Create a floating clone
+  const rect = card.getBoundingClientRect();
+  _slTouchClone = card.cloneNode(true);
+  _slTouchClone.style.cssText = `position:fixed;left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;opacity:0.8;z-index:9999;pointer-events:none;`;
+  document.body.appendChild(_slTouchClone);
+
+  document.addEventListener('touchmove', slTouchMove, { passive: false });
+  document.addEventListener('touchend', slTouchEnd);
+}
+
+function slTouchMove(e) {
+  e.preventDefault();
+  const touch = e.touches[0];
+  if (_slTouchClone) {
+    _slTouchClone.style.top = (touch.clientY - 20) + 'px';
+  }
+  removeDropIndicators();
+  const target = getDropTarget(touch.clientY);
+  if (target !== null && target !== _slDragIdx) {
+    showDropIndicator(target);
+    _slDropIdx = target;
+  }
+}
+
+function slTouchEnd() {
+  document.removeEventListener('touchmove', slTouchMove);
+  document.removeEventListener('touchend', slTouchEnd);
+  if (_slTouchClone) { _slTouchClone.remove(); _slTouchClone = null; }
+  removeDropIndicators();
+  if (_slDragIdx !== null && _slDropIdx !== null && _slDragIdx !== _slDropIdx) {
+    moveSetlistItem(_slDragIdx, _slDropIdx);
+  }
+  slDragEnd();
+}
+
+function getDropTarget(clientY) {
+  const container = document.getElementById('setlist-items');
+  if (!container) return null;
+  const cards = [...container.querySelectorAll('.setlist-card')];
+  for (let i = 0; i < cards.length; i++) {
+    const rect = cards[i].getBoundingClientRect();
+    const mid = rect.top + rect.height / 2;
+    if (clientY < mid) return i;
+  }
+  return cards.length; // After last item
+}
+
+function showDropIndicator(idx) {
+  const container = document.getElementById('setlist-items');
+  if (!container) return;
+  const cards = [...container.querySelectorAll('.setlist-card')];
+  const indicator = document.createElement('div');
+  indicator.className = 'setlist-drop-indicator';
+  if (idx < cards.length) {
+    container.insertBefore(indicator, cards[idx]);
+  } else {
+    container.appendChild(indicator);
+  }
+}
+
+function removeDropIndicators() {
+  document.querySelectorAll('.setlist-drop-indicator').forEach(el => el.remove());
+}
+
+function moveSetlistItem(fromIdx, toIdx) {
+  ensureSetlist();
+  const items = db.setlist.items;
+  if (fromIdx < 0 || fromIdx >= items.length) return;
+  const [item] = items.splice(fromIdx, 1);
+  const insertAt = toIdx > fromIdx ? toIdx - 1 : toIdx;
+  items.splice(insertAt, 0, item);
+  renumberSetlist();
+  markDirty();
+  renderSetlistTab();
+}
+
+function renumberSetlist() {
+  ensureSetlist();
+  let pos = 1;
+  for (const item of db.setlist.items) {
+    if (item.type === 'song') {
+      item.pos = pos++;
+    }
+  }
+}
+
+/* ── Setlist Event Handlers ───────────────────────── */
+
+function handleSetlistClick(e) {
+  const el = e.target;
+
+  // Add Song button
+  if (el.closest('#sl-add-song')) {
+    openSongSearchOverlay();
+    return;
+  }
+
+  // Add Pause button
+  if (el.closest('#sl-add-pause')) {
+    ensureSetlist();
+    db.setlist.items.push({ type: 'pause' });
+    markDirty();
+    renderSetlistTab();
+    return;
+  }
+
+  // Export button
+  if (el.closest('#sl-export')) {
+    exportSetlist();
+    return;
+  }
+
+  // Remove item
+  const removeBtn = el.closest('[data-action="remove"]');
+  if (removeBtn) {
+    const idx = parseInt(removeBtn.dataset.idx);
+    ensureSetlist();
+    db.setlist.items.splice(idx, 1);
+    renumberSetlist();
+    markDirty();
+    renderSetlistTab();
+    return;
+  }
+
+  // Edit (jump to DB Editor)
+  const editBtn = el.closest('[data-action="edit"]');
+  if (editBtn) {
+    const card = editBtn.closest('.setlist-card');
+    const songId = card?.dataset.songId;
+    if (songId && db.songs[songId]) {
+      selectedSongId = songId;
+      renderSongList(els.searchBox.value);
+      switchTab('editor');
+    }
+    return;
+  }
+}
+
+function handleSetlistChange(e) {
+  const el = e.target;
+  if (el.id === 'setlist-name') {
+    ensureSetlist();
+    db.setlist.name = el.value.trim() || 'Setlist';
+    markDirty();
+  }
+}
+
+/* ── Song Search Overlay ──────────────────────────── */
+
+function openSongSearchOverlay() {
+  // Create overlay if not present
+  let overlay = document.getElementById('song-search-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'song-search-overlay';
+    overlay.className = 'song-search-overlay';
+    overlay.innerHTML = `
+      <div class="song-search-panel">
+        <div class="song-search-header">
+          <input type="text" id="sl-song-search" class="search-box" placeholder="Song suchen...">
+          <button class="icon-btn" id="sl-search-close" title="Schliessen">&#10005;</button>
+        </div>
+        <div class="song-search-list" id="sl-song-list"></div>
+      </div>`;
+    document.body.appendChild(overlay);
+
+    // Close on overlay background click
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) closeSongSearchOverlay();
+    });
+    document.getElementById('sl-search-close').addEventListener('click', closeSongSearchOverlay);
+    document.getElementById('sl-song-search').addEventListener('input', (e) => {
+      renderSongSearchList(e.target.value);
+    });
+    document.getElementById('sl-song-list').addEventListener('click', (e) => {
+      const item = e.target.closest('.song-search-item');
+      if (!item) return;
+      const songId = item.dataset.songId;
+      if (songId) addSongToSetlist(songId);
+    });
+  }
+
+  overlay.classList.add('open');
+  const searchInput = document.getElementById('sl-song-search');
+  searchInput.value = '';
+  renderSongSearchList('');
+  setTimeout(() => searchInput.focus(), 100);
+}
+
+function closeSongSearchOverlay() {
+  const overlay = document.getElementById('song-search-overlay');
+  if (overlay) overlay.classList.remove('open');
+}
+
+function renderSongSearchList(filter) {
+  const list = document.getElementById('sl-song-list');
+  if (!list) return;
+  const songs = getSortedSongs();
+  const q = filter.toLowerCase().trim();
+  const filtered = q
+    ? songs.filter(s => s.name.toLowerCase().includes(q) || (s.artist || '').toLowerCase().includes(q))
+    : songs;
+
+  const inSetlist = new Set((db.setlist?.items || []).filter(i => i.type === 'song').map(i => i.song_id));
+
+  list.innerHTML = filtered.map(s => `
+    <div class="song-search-item${inSetlist.has(s.id) ? ' in-setlist' : ''}" data-song-id="${s.id}">
+      <div style="flex:1;min-width:0">
+        <div class="ssi-name">${esc(s.name)}</div>
+        <div class="ssi-artist">${esc(s.artist || '')}</div>
+      </div>
+      <span class="ssi-bpm">${s.bpm || ''}</span>
+    </div>
+  `).join('');
+}
+
+function addSongToSetlist(songId) {
+  ensureSetlist();
+  const items = db.setlist.items;
+  items.push({ type: 'song', pos: items.filter(i => i.type === 'song').length + 1, song_id: songId });
+  markDirty();
+  // Update the search list (mark as in-setlist) and re-render setlist
+  renderSongSearchList(document.getElementById('sl-song-search')?.value || '');
+  renderSetlistTab();
+  // Re-open overlay since renderSetlistTab redraws content
+  const overlay = document.getElementById('song-search-overlay');
+  if (overlay) overlay.classList.add('open');
+}
+
+/* ── Setlist Export ────────────────────────────────── */
+
+function exportSetlist() {
+  ensureSetlist();
+  const sl = db.setlist;
+  const items = sl.items || [];
+  const band = db.band || 'The Pact';
+  const date = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+  let setNum = 1;
+  let songNum = 1;
+  let totalSec = 0;
+
+  let rows = '';
+  for (const item of items) {
+    if (item.type === 'pause') {
+      rows += `<tr class="pause-row"><td colspan="5"><div class="pause-line">PAUSE &mdash; Ende Set ${setNum}</div></td></tr>\n`;
+      setNum++;
+      continue;
+    }
+    const song = db.songs[item.song_id];
+    if (!song) continue;
+    totalSec += song.duration_sec || 0;
+    if (songNum === 1 || rows.includes('pause-row')) {
+      // Set header (only on first row after a pause or at start)
+    }
+    rows += `<tr>
+      <td class="nr">${songNum}</td>
+      <td class="name">${esc(song.name)}</td>
+      <td class="artist">${esc(song.artist || '')}</td>
+      <td class="bpm">${song.bpm || ''}</td>
+      <td class="dur">${song.duration || fmtDur(song.duration_sec || 0)}</td>
+    </tr>\n`;
+    songNum++;
+  }
+
+  const html = `<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>${esc(band)} &mdash; ${esc(sl.name || 'Setlist')}</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@300;400;500;600&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Sora', sans-serif; font-size: 13px; color: #222; padding: 24px; max-width: 700px; margin: 0 auto; }
+    h1 { font-size: 1.4rem; margin-bottom: 2px; }
+    .subtitle { font-size: 0.85rem; color: #666; margin-bottom: 16px; }
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; color: #999; padding: 6px 8px; border-bottom: 2px solid #333; }
+    td { padding: 7px 8px; border-bottom: 1px solid #ddd; font-size: 0.9rem; }
+    .nr { width: 30px; text-align: center; font-family: 'DM Mono', monospace; color: #999; }
+    .name { font-weight: 500; }
+    .artist { color: #666; }
+    .bpm { width: 50px; text-align: center; font-family: 'DM Mono', monospace; color: #888; }
+    .dur { width: 50px; text-align: right; font-family: 'DM Mono', monospace; color: #888; }
+    .pause-row td { border-bottom: none; padding: 4px 0; }
+    .pause-line { text-align: center; font-family: 'DM Mono', monospace; font-size: 0.75rem; font-weight: 500; letter-spacing: 0.1em; color: #999; border-top: 2px solid #333; border-bottom: 2px solid #333; padding: 6px 0; margin: 8px 0; }
+    .footer { margin-top: 16px; font-family: 'DM Mono', monospace; font-size: 0.75rem; color: #999; display: flex; gap: 24px; }
+    @media print {
+      body { padding: 12px; font-size: 12px; }
+      .no-print { display: none; }
+      td { padding: 5px 6px; }
+    }
+  </style>
+</head>
+<body>
+  <h1>${esc(band)}</h1>
+  <div class="subtitle">${esc(sl.name || 'Setlist')} &mdash; ${date}</div>
+  <table>
+    <thead><tr><th>#</th><th>Song</th><th>Artist</th><th>BPM</th><th style="text-align:right">Dauer</th></tr></thead>
+    <tbody>
+      ${rows}
+    </tbody>
+  </table>
+  <div class="footer">
+    <span>${songNum - 1} Songs</span>
+    <span>${setNum} Set${setNum > 1 ? 's' : ''}</span>
+    <span>Gesamtdauer: ${fmtDur(totalSec)}</span>
+  </div>
+  <div class="no-print" style="margin-top:24px;text-align:center">
+    <button onclick="window.print()" style="font-family:'Sora',sans-serif;padding:8px 24px;font-size:0.9rem;cursor:pointer;border:1px solid #ccc;border-radius:6px;background:#fff">Drucken / PDF</button>
+  </div>
+</body>
+</html>`;
+
+  const win = window.open('', '_blank');
+  win.document.write(html);
+  win.document.close();
+}
+
 /* ── Settings Modal ────────────────────────────────── */
 
 function openSettings() {
@@ -2133,6 +2627,7 @@ function wireEvents() {
   // Tabs
   els.tabEditor.addEventListener('click', () => switchTab('editor'));
   els.tabAudio.addEventListener('click',  () => switchTab('audio'));
+  els.tabSetlist.addEventListener('click', () => switchTab('setlist'));
 
   // Settings
   els.btnSettings.addEventListener('click', openSettings);
@@ -2188,6 +2683,10 @@ function wireEvents() {
   els.content.addEventListener('click', (e) => {
     if (activeTab === 'editor') handleEditorClick(e);
     else if (activeTab === 'audio') handleAudioClick(e);
+    else if (activeTab === 'setlist') handleSetlistClick(e);
+  });
+  els.content.addEventListener('change', (e) => {
+    if (activeTab === 'setlist') handleSetlistChange(e);
   });
 
   // Audio drag & drop on content area

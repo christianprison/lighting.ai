@@ -1512,16 +1512,30 @@ function handleBarTap() {
   if (currentPartIndex === 0) return; // No part started yet
 
   const time = audio.getCurrentTime();
-  const activePartIdx = currentPartIndex - 1;
+
+  // Determine which part this bar belongs to based on playback time
+  const activePartIdx = getPartIndexForTime(time);
 
   barMarkers.push({ time, partIndex: activePartIdx });
   tapHistory.push({ type: 'bar', time, partIndex: activePartIdx });
-  currentBarInPart++;
+  currentBarInPart = barMarkers.filter(m => m.partIndex === activePartIdx).length;
 
   drawWaveform();
   updateTapInfo(getSortedParts(selectedSongId));
   updateSplitResultLive(getSortedParts(selectedSongId));
   updateAudioSummaryLive(getSortedParts(selectedSongId));
+}
+
+/**
+ * Find the partIndex for a given time based on part markers.
+ * Returns the index of the last part whose start time is <= the given time.
+ */
+function getPartIndexForTime(time) {
+  let idx = 0;
+  for (const m of partMarkers) {
+    if (m.time <= time) idx = m.partIndex;
+  }
+  return idx;
 }
 
 function handleUndoTap() {
@@ -1542,7 +1556,7 @@ function handleUndoTap() {
   } else {
     // Remove the bar marker
     barMarkers = barMarkers.filter(m => m.time !== last.time || m.partIndex !== last.partIndex);
-    currentBarInPart = Math.max(0, currentBarInPart - 1);
+    currentBarInPart = barMarkers.filter(m => m.partIndex === last.partIndex).length;
   }
 
   drawWaveform();
@@ -1635,7 +1649,11 @@ function updateTapInfo(parts) {
   }
   if (barBtn) {
     const info = barBtn.querySelector('.tap-info');
-    if (info) info.textContent = `Bar ${currentBarInPart + 1}`;
+    // Show bar count for the part the playhead is currently in
+    const curTime = audio.getCurrentTime();
+    const curPartIdx = partMarkers.length > 0 ? getPartIndexForTime(curTime) : -1;
+    const barsInCurPart = curPartIdx >= 0 ? barMarkers.filter(m => m.partIndex === curPartIdx).length : 0;
+    if (info) info.textContent = `Bar ${barsInCurPart + 1}`;
     barBtn.disabled = !audio.isPlaying() || currentPartIndex === 0;
   }
 

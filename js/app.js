@@ -5,7 +5,8 @@
  * Bar-Editor mit 16tel-Accent-Raster und Summary-Bar.
  */
 
-import { loadDB, loadDBLocal, saveDB, testConnection } from './db.js';
+import { loadDB, loadDBLocal, saveDB, testConnection, uploadFile } from './db.js';
+import * as audio from './audio-engine.js';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -16,6 +17,16 @@ let activeTab = 'editor';
 let selectedSongId = null;
 let selectedPartId = null;
 let selectedBarNum = null;
+
+/* ── Audio Split State ────────────────────────────── */
+let audioMeta = null;          // {duration, sampleRate, channels}
+let partMarkers = [];          // [{time, partIndex}] sorted
+let barMarkers = [];           // [{time, partIndex}] sorted
+let tapHistory = [];           // [{type:'part'|'bar', time, partIndex}] for undo
+let currentPartIndex = 0;      // next part to be tapped
+let currentBarInPart = 0;      // bar counter within current part
+let animFrameId = null;        // requestAnimationFrame for playhead
+let exportInProgress = false;
 
 const SETTINGS_KEY = 'lightingai_settings';
 
@@ -222,6 +233,10 @@ function renderSongList(filter = '') {
 /* ── Tab Routing ───────────────────────────────────── */
 
 function switchTab(tab) {
+  // Stop playhead animation when leaving audio tab
+  if (activeTab === 'audio' && tab !== 'audio') {
+    cancelAnimationFrame(animFrameId);
+  }
   activeTab = tab;
   els.tabEditor.classList.toggle('active', tab === 'editor');
   els.tabAudio.classList.toggle('active', tab === 'audio');
@@ -738,10 +753,722 @@ function handleAccentToggle(pos16) {
   renderBarSection();
 }
 
-/* ── Audio Tab (placeholder) ───────────────────────── */
+/* ══════════════════════════════════════════════════════
+   AUDIO SPLIT TAB — Meilenstein 3
+   ══════════════════════════════════════════════════════ */
 
 function renderAudioTab() {
-  els.content.innerHTML = `<div class="empty-state"><div class="icon">&#9836;</div><p>Audio Split wird in Meilenstein 3 implementiert.</p></div>`;
+  if (!selectedSongId || !db.songs[selectedSongId]) {
+    els.content.innerHTML = `<div class="empty-state"><div class="icon">&#9836;</div><p>Song aus der Liste links ausw\u00e4hlen, um Audio zu splitten.</p></div>`;
+    return;
+  }
+
+  const song = db.songs[selectedSongId];
+  const parts = getSortedParts(selectedSongId);
+  const hasBuf = !!audio.getBuffer();
+  const isPlay = audio.isPlaying();
+
+  els.content.innerHTML = `
+    <div class="audio-panel">
+      <div class="audio-scroll" id="audio-scroll">
+        ${buildSongHeader(song)}
+        ${buildDropZone()}
+        ${hasBuf ? buildWaveform() : ''}
+        ${hasBuf ? buildTransport() : ''}
+        ${hasBuf ? buildTapButtons(parts, isPlay) : ''}
+        ${hasBuf ? buildBpmBanner(song) : ''}
+        ${hasBuf ? buildSplitResult(parts) : ''}
+        ${hasBuf ? buildExportSection(parts) : ''}
+      </div>
+      ${hasBuf ? buildAudioSummary(parts) : ''}
+    </div>`;
+
+  if (hasBuf) {
+    requestAnimationFrame(() => drawWaveform());
+  }
+}
+
+function buildSongHeader(song) {
+  return `
+    <div class="audio-song-header">
+      <div>
+        <div class="ash-name">${esc(song.name)}</div>
+        <div class="ash-artist">${esc(song.artist)}</div>
+      </div>
+      <div class="ash-bpm">${song.bpm || '\u2014'} BPM</div>
+    </div>`;
+}
+
+function buildDropZone() {
+  if (audioMeta) {
+    const durStr = fmtTime(audioMeta.duration);
+    const sr = (audioMeta.sampleRate / 1000).toFixed(1);
+    return `
+      <div class="audio-dropzone has-file" id="audio-dropzone">
+        <div class="dz-info">
+          <span>${durStr}</span>
+          <span>${sr} kHz</span>
+          <span>${audioMeta.channels}ch</span>
+        </div>
+        <span class="dz-change">Klick zum Wechseln</span>
+      </div>`;
+  }
+  return `
+    <div class="audio-dropzone" id="audio-dropzone">
+      <div class="dz-icon">&#127925;</div>
+      <div class="dz-text">Audio-Datei hier ablegen oder klicken</div>
+      <div class="dz-formats">.wav .mp3 .m4a .ogg</div>
+    </div>`;
+}
+
+function buildWaveform() {
+  return `<div class="waveform-wrap" id="waveform-wrap"><canvas id="waveform-canvas"></canvas></div>`;
+}
+
+function buildTransport() {
+  const isPlay = audio.isPlaying();
+  const cur = audio.getCurrentTime();
+  const dur = audioMeta ? audioMeta.duration : 0;
+  const pct = dur > 0 ? (cur / dur * 100) : 0;
+  return `
+    <div class="transport-bar" id="transport-bar">
+      <button class="t-btn" id="t-skip" title="Zum Anfang">&#9198;</button>
+      <button class="t-btn${isPlay ? ' playing' : ''}" id="t-play" title="${isPlay ? 'Pause' : 'Play'}">
+        ${isPlay ? '&#9646;&#9646;' : '&#9654;'}
+      </button>
+      <span class="t-time" id="t-time">${fmtTime(cur)} / ${fmtTime(dur)}</span>
+      <div class="t-progress-wrap" id="t-progress-wrap">
+        <div class="t-progress" id="t-progress" style="width:${pct}%"></div>
+      </div>
+    </div>`;
+}
+
+function buildTapButtons(parts, isPlay) {
+  const nextPartName = currentPartIndex < parts.length ? parts[currentPartIndex].name : '\u2014';
+  const allPartsDone = currentPartIndex >= parts.length;
+  const barLabel = currentBarInPart > 0 ? `Bar ${currentBarInPart + 1}` : 'Bar 1';
+
+  return `
+    <div class="tap-row" id="tap-row">
+      <button class="tap-btn tap-part" id="tap-part" ${!isPlay || allPartsDone ? 'disabled' : ''}>
+        <span class="tap-label">PART TAP</span>
+        <span class="tap-info">${esc(nextPartName)}</span>
+      </button>
+      <button class="tap-btn tap-bar" id="tap-bar" ${!isPlay || currentPartIndex === 0 ? 'disabled' : ''}>
+        <span class="tap-label">BAR TAP</span>
+        <span class="tap-info">${barLabel}</span>
+      </button>
+      <button class="tap-btn tap-undo" id="tap-undo" ${tapHistory.length === 0 ? 'disabled' : ''}>
+        <span class="tap-label">UNDO</span>
+      </button>
+    </div>`;
+}
+
+function buildBpmBanner(song) {
+  const est = estimateBpm();
+  if (!est || !song.bpm) return '';
+  const diff = Math.abs(est - song.bpm);
+  if (diff <= 3) return '';
+  return `
+    <div class="bpm-banner" id="bpm-banner">
+      <span class="bpm-banner-text">Gesch\u00e4tztes BPM: <strong>${est}</strong> (Song: ${song.bpm}) \u2014 Differenz: ${diff}</span>
+      <button class="btn btn-sm" id="btn-update-bpm">BPM aktualisieren</button>
+    </div>`;
+}
+
+function buildSplitResult(parts) {
+  if (parts.length === 0) return '';
+
+  const rows = parts.map((p, i) => {
+    const isDone = i < currentPartIndex;
+    const isCurrent = i === currentPartIndex - 1 && currentPartIndex > 0;
+    const start = getPartStartTime(i);
+    const end = getPartEndTime(i);
+    const dur = (start !== null && end !== null) ? end - start : null;
+    const barCount = barMarkers.filter(m => m.partIndex === i).length;
+    const cls = isCurrent ? 'current' : (isDone ? 'done' : '');
+
+    return `<tr class="${cls}">
+      <td class="st-nr mono text-t3">${p.pos}</td>
+      <td class="st-name">${esc(p.name)}</td>
+      <td class="st-bars mono">${barCount || '\u2014'}</td>
+      <td class="st-start mono text-t3">${start !== null ? fmtTime(start) : '\u2014'}</td>
+      <td class="st-dur mono text-t3">${dur !== null ? fmtTime(dur) : '\u2014'}</td>
+      <td class="st-check">${isDone ? '\u2713' : ''}</td>
+    </tr>`;
+  }).join('');
+
+  return `
+    <div class="split-result">
+      <h3>Split-Ergebnis</h3>
+      <table class="split-table">
+        <thead><tr>
+          <th class="st-nr">#</th>
+          <th class="st-name">Name</th>
+          <th class="st-bars">Bars</th>
+          <th class="st-start">Start</th>
+          <th class="st-dur">Dauer</th>
+          <th class="st-check"></th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+function buildExportSection(parts) {
+  if (currentPartIndex < parts.length) return '';
+  if (parts.length === 0) return '';
+
+  if (exportInProgress) {
+    return `
+      <div class="export-section" id="export-section">
+        <div class="export-header"><h3>Export</h3></div>
+        <div class="export-progress">
+          <div class="export-progress-bar"><div class="export-progress-fill" id="export-fill" style="width:0%"></div></div>
+          <div class="export-progress-text" id="export-text">Exportiere...</div>
+        </div>
+      </div>`;
+  }
+
+  return `
+    <div class="export-section" id="export-section">
+      <div class="export-header">
+        <h3>Export nach GitHub</h3>
+        <button class="btn btn-primary" id="btn-export">EXPORT</button>
+      </div>
+      <div style="font-size:0.8rem;color:var(--t3)">
+        ${parts.length} Parts als WAV-Segmente nach <span class="mono">audio/${selectedSongId}/</span> hochladen.
+      </div>
+    </div>`;
+}
+
+function buildAudioSummary(parts) {
+  const totalBars = barMarkers.length;
+  const est = estimateBpm();
+  return `
+    <div class="summary-bar">
+      <span class="summary-item"><span class="summary-label">Parts</span><span class="mono">${partMarkers.length}</span></span>
+      <span class="summary-item"><span class="summary-label">Bars</span><span class="mono">${totalBars}</span></span>
+      <span class="summary-item"><span class="summary-label">BPM (est.)</span><span class="mono">${est || '\u2014'}</span></span>
+      <span class="summary-item"><span class="summary-label">Storage</span><span class="mono text-green">GitHub</span></span>
+    </div>`;
+}
+
+/* ── Audio Helper Functions ────────────────────────── */
+
+function fmtTime(sec) {
+  if (sec == null || isNaN(sec)) return '0:00';
+  const m = Math.floor(sec / 60);
+  const s = Math.floor(sec % 60);
+  const ms = Math.floor((sec % 1) * 10);
+  return `${m}:${String(s).padStart(2, '0')}.${ms}`;
+}
+
+function getPartStartTime(partIndex) {
+  const marker = partMarkers.find(m => m.partIndex === partIndex);
+  return marker ? marker.time : null;
+}
+
+function getPartEndTime(partIndex) {
+  const nextMarker = partMarkers.find(m => m.partIndex === partIndex + 1);
+  if (nextMarker) return nextMarker.time;
+  // If this is the last tapped part
+  if (partIndex === currentPartIndex - 1 && audioMeta) return audioMeta.duration;
+  return null;
+}
+
+function estimateBpm() {
+  if (barMarkers.length < 2) return null;
+  const intervals = [];
+  for (let i = 1; i < barMarkers.length; i++) {
+    const dt = barMarkers[i].time - barMarkers[i - 1].time;
+    if (dt >= 0.3 && dt <= 4.0) intervals.push(dt);
+  }
+  if (intervals.length === 0) return null;
+  const avg = intervals.reduce((a, b) => a + b, 0) / intervals.length;
+  return Math.round(240 / avg);
+}
+
+function resetAudioSplit() {
+  partMarkers = [];
+  barMarkers = [];
+  tapHistory = [];
+  currentPartIndex = 0;
+  currentBarInPart = 0;
+  exportInProgress = false;
+}
+
+/* ── Waveform Drawing ──────────────────────────────── */
+
+function drawWaveform() {
+  const canvas = document.getElementById('waveform-canvas');
+  if (!canvas) return;
+  const wrap = document.getElementById('waveform-wrap');
+  if (!wrap) return;
+
+  const dpr = window.devicePixelRatio || 1;
+  const rect = wrap.getBoundingClientRect();
+  const w = rect.width;
+  const h = 120;
+
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
+  canvas.style.width = w + 'px';
+  canvas.style.height = h + 'px';
+
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  // Clear
+  ctx.clearRect(0, 0, w, h);
+
+  const buf = audio.getBuffer();
+  if (!buf) return;
+  const duration = buf.duration;
+
+  // Draw waveform bars
+  const buckets = Math.floor(w / 2); // 2px per bar
+  const peaks = audio.getPeaks(buckets);
+  const barW = w / buckets;
+  const mid = h / 2;
+
+  // Midline
+  ctx.strokeStyle = 'rgba(92, 96, 128, 0.2)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(0, mid);
+  ctx.lineTo(w, mid);
+  ctx.stroke();
+
+  // Waveform bars
+  for (let i = 0; i < buckets; i++) {
+    const amp = peaks[i];
+    const barH = amp * (h * 0.9);
+    const opacity = 0.3 + amp * 0.7;
+    ctx.fillStyle = `rgba(0, 220, 130, ${opacity})`;
+    ctx.fillRect(i * barW, mid - barH / 2, Math.max(barW - 0.5, 1), barH || 1);
+  }
+
+  // Bar markers (cyan)
+  for (const m of barMarkers) {
+    // Skip if also a part marker (to avoid double-draw)
+    if (partMarkers.some(pm => pm.time === m.time)) continue;
+    const x = (m.time / duration) * w;
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, h);
+    ctx.stroke();
+  }
+
+  // Part markers (amber)
+  for (const m of partMarkers) {
+    const x = (m.time / duration) * w;
+    ctx.strokeStyle = 'rgba(240, 160, 48, 0.8)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, h);
+    ctx.stroke();
+
+    // Label
+    const parts = getSortedParts(selectedSongId);
+    const partName = m.partIndex < parts.length ? parts[m.partIndex].name : '';
+    if (partName) {
+      ctx.font = '10px Sora, sans-serif';
+      ctx.fillStyle = 'rgba(240, 160, 48, 0.9)';
+      const labelX = Math.min(x + 4, w - ctx.measureText(partName).width - 4);
+      ctx.fillText(partName, labelX, 12);
+    }
+  }
+
+  // Playhead (green with glow)
+  const cur = audio.getCurrentTime();
+  if (cur > 0 || audio.isPlaying()) {
+    const px = (cur / duration) * w;
+    ctx.shadowColor = '#00dc82';
+    ctx.shadowBlur = 6;
+    ctx.strokeStyle = '#00dc82';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(px, 0);
+    ctx.lineTo(px, h);
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+  }
+}
+
+function startPlayheadAnimation() {
+  cancelAnimationFrame(animFrameId);
+  function tick() {
+    drawWaveform();
+    updateTransportDisplay();
+    if (audio.isPlaying()) {
+      animFrameId = requestAnimationFrame(tick);
+    }
+  }
+  animFrameId = requestAnimationFrame(tick);
+}
+
+function stopPlayheadAnimation() {
+  cancelAnimationFrame(animFrameId);
+  drawWaveform();
+  updateTransportDisplay();
+}
+
+function updateTransportDisplay() {
+  const timeEl = document.getElementById('t-time');
+  const progressEl = document.getElementById('t-progress');
+  if (!timeEl || !progressEl || !audioMeta) return;
+
+  const cur = audio.getCurrentTime();
+  const dur = audioMeta.duration;
+  timeEl.textContent = `${fmtTime(cur)} / ${fmtTime(dur)}`;
+  progressEl.style.width = `${(cur / dur * 100)}%`;
+}
+
+/* ── Audio Split Event Handlers ────────────────────── */
+
+function handleAudioFileLoad(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    try {
+      const meta = await audio.decodeAudio(e.target.result);
+      audioMeta = meta;
+      resetAudioSplit();
+      renderAudioTab();
+      toast(`Audio geladen: ${fmtTime(meta.duration)}`, 'success');
+    } catch (err) {
+      toast(`Audio-Fehler: ${err.message}`, 'error');
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function handleWaveformClick(e) {
+  if (!audioMeta) return;
+  const wrap = document.getElementById('waveform-wrap');
+  if (!wrap) return;
+  const rect = wrap.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const pct = x / rect.width;
+  const time = pct * audioMeta.duration;
+  audio.seek(time);
+  drawWaveform();
+  updateTransportDisplay();
+}
+
+function handlePlayPause() {
+  if (!audio.getBuffer()) return;
+  if (audio.isPlaying()) {
+    audio.pause();
+    stopPlayheadAnimation();
+    updateTapButtonStates();
+  } else {
+    audio.play(() => {
+      stopPlayheadAnimation();
+      updateTapButtonStates();
+      updatePlayButton();
+    });
+    startPlayheadAnimation();
+    updateTapButtonStates();
+  }
+  updatePlayButton();
+}
+
+function handleSkipToStart() {
+  audio.seek(0);
+  drawWaveform();
+  updateTransportDisplay();
+}
+
+function handleProgressClick(e) {
+  if (!audioMeta) return;
+  const wrap = document.getElementById('t-progress-wrap');
+  if (!wrap) return;
+  const rect = wrap.getBoundingClientRect();
+  const pct = (e.clientX - rect.left) / rect.width;
+  const time = pct * audioMeta.duration;
+  audio.seek(time);
+  drawWaveform();
+  updateTransportDisplay();
+}
+
+function updatePlayButton() {
+  const btn = document.getElementById('t-play');
+  if (!btn) return;
+  const isPlay = audio.isPlaying();
+  btn.classList.toggle('playing', isPlay);
+  btn.innerHTML = isPlay ? '&#9646;&#9646;' : '&#9654;';
+  btn.title = isPlay ? 'Pause' : 'Play';
+}
+
+function updateTapButtonStates() {
+  const isPlay = audio.isPlaying();
+  const parts = getSortedParts(selectedSongId);
+  const allPartsDone = currentPartIndex >= parts.length;
+
+  const partBtn = document.getElementById('tap-part');
+  const barBtn = document.getElementById('tap-bar');
+  const undoBtn = document.getElementById('tap-undo');
+
+  if (partBtn) partBtn.disabled = !isPlay || allPartsDone;
+  if (barBtn) barBtn.disabled = !isPlay || currentPartIndex === 0;
+  if (undoBtn) undoBtn.disabled = tapHistory.length === 0;
+}
+
+function handlePartTap() {
+  if (!audio.isPlaying()) return;
+  const parts = getSortedParts(selectedSongId);
+  if (currentPartIndex >= parts.length) return;
+
+  const time = audio.getCurrentTime();
+
+  // Add part marker
+  partMarkers.push({ time, partIndex: currentPartIndex });
+
+  // Also add a bar marker at the same position
+  barMarkers.push({ time, partIndex: currentPartIndex });
+
+  // Record for undo
+  tapHistory.push({ type: 'part', time, partIndex: currentPartIndex });
+
+  currentPartIndex++;
+  currentBarInPart = 1; // First bar of new part already placed
+
+  // Update UI elements without full re-render
+  drawWaveform();
+  updateTapInfo(parts);
+  updateSplitResultLive(parts);
+  updateAudioSummaryLive(parts);
+}
+
+function handleBarTap() {
+  if (!audio.isPlaying()) return;
+  if (currentPartIndex === 0) return; // No part started yet
+
+  const time = audio.getCurrentTime();
+  const activePartIdx = currentPartIndex - 1;
+
+  barMarkers.push({ time, partIndex: activePartIdx });
+  tapHistory.push({ type: 'bar', time, partIndex: activePartIdx });
+  currentBarInPart++;
+
+  drawWaveform();
+  updateTapInfo(getSortedParts(selectedSongId));
+  updateSplitResultLive(getSortedParts(selectedSongId));
+  updateAudioSummaryLive(getSortedParts(selectedSongId));
+}
+
+function handleUndoTap() {
+  if (tapHistory.length === 0) return;
+  const last = tapHistory.pop();
+
+  if (last.type === 'part') {
+    // Remove the part marker
+    partMarkers = partMarkers.filter(m => m.time !== last.time || m.partIndex !== last.partIndex);
+    // Remove the bar marker placed with this part
+    barMarkers = barMarkers.filter(m => m.time !== last.time || m.partIndex !== last.partIndex);
+    currentPartIndex--;
+    // Recalculate currentBarInPart for previous part
+    if (currentPartIndex > 0) {
+      const prevPartIdx = currentPartIndex - 1;
+      currentBarInPart = barMarkers.filter(m => m.partIndex === prevPartIdx).length;
+    } else {
+      currentBarInPart = 0;
+    }
+  } else {
+    // Remove the bar marker
+    barMarkers = barMarkers.filter(m => m.time !== last.time || m.partIndex !== last.partIndex);
+    currentBarInPart = Math.max(0, currentBarInPart - 1);
+  }
+
+  drawWaveform();
+  const parts = getSortedParts(selectedSongId);
+  updateTapInfo(parts);
+  updateSplitResultLive(parts);
+  updateAudioSummaryLive(parts);
+  updateTapButtonStates();
+}
+
+function updateTapInfo(parts) {
+  const partBtn = document.getElementById('tap-part');
+  const barBtn = document.getElementById('tap-bar');
+
+  if (partBtn) {
+    const info = partBtn.querySelector('.tap-info');
+    const nextName = currentPartIndex < parts.length ? parts[currentPartIndex].name : '\u2014';
+    if (info) info.textContent = nextName;
+    partBtn.disabled = !audio.isPlaying() || currentPartIndex >= parts.length;
+  }
+  if (barBtn) {
+    const info = barBtn.querySelector('.tap-info');
+    if (info) info.textContent = `Bar ${currentBarInPart + 1}`;
+    barBtn.disabled = !audio.isPlaying() || currentPartIndex === 0;
+  }
+
+  const undoBtn = document.getElementById('tap-undo');
+  if (undoBtn) undoBtn.disabled = tapHistory.length === 0;
+
+  // Check if all parts done and show export
+  if (currentPartIndex >= parts.length && !document.getElementById('export-section')) {
+    renderAudioTab();
+  }
+}
+
+function updateSplitResultLive(parts) {
+  const tbody = document.querySelector('.split-table tbody');
+  if (!tbody) return;
+
+  const rows = tbody.querySelectorAll('tr');
+  parts.forEach((p, i) => {
+    if (!rows[i]) return;
+    const isDone = i < currentPartIndex;
+    const isCurrent = i === currentPartIndex - 1 && currentPartIndex > 0;
+    const start = getPartStartTime(i);
+    const end = getPartEndTime(i);
+    const dur = (start !== null && end !== null) ? end - start : null;
+    const barCount = barMarkers.filter(m => m.partIndex === i).length;
+
+    rows[i].className = isCurrent ? 'current' : (isDone ? 'done' : '');
+    const tds = rows[i].querySelectorAll('td');
+    if (tds[2]) tds[2].textContent = barCount || '\u2014';
+    if (tds[3]) tds[3].textContent = start !== null ? fmtTime(start) : '\u2014';
+    if (tds[4]) tds[4].textContent = dur !== null ? fmtTime(dur) : '\u2014';
+    if (tds[5]) tds[5].textContent = isDone ? '\u2713' : '';
+  });
+}
+
+function updateAudioSummaryLive(parts) {
+  const bar = document.querySelector('.audio-panel .summary-bar');
+  if (!bar) return;
+  const items = bar.querySelectorAll('.summary-item .mono');
+  if (items[0]) items[0].textContent = partMarkers.length;
+  if (items[1]) items[1].textContent = barMarkers.length;
+  if (items[2]) items[2].textContent = estimateBpm() || '\u2014';
+}
+
+/* ── BPM Update ────────────────────────────────────── */
+
+function handleBpmUpdate() {
+  const est = estimateBpm();
+  if (!est || !selectedSongId) return;
+  const song = db.songs[selectedSongId];
+  if (!song) return;
+  song.bpm = est;
+  markDirty();
+  toast(`BPM auf ${est} aktualisiert`, 'success');
+  renderAudioTab();
+}
+
+/* ── Audio Export to GitHub ─────────────────────────── */
+
+async function handleAudioExport() {
+  if (!selectedSongId || !audioMeta || exportInProgress) return;
+  const s = getSettings();
+  if (!s.token || !s.repo) {
+    toast('GitHub Token in Settings erforderlich', 'error');
+    return;
+  }
+
+  const parts = getSortedParts(selectedSongId);
+  if (currentPartIndex < parts.length) return;
+
+  exportInProgress = true;
+  renderAudioTab();
+
+  const fillEl = () => document.getElementById('export-fill');
+  const textEl = () => document.getElementById('export-text');
+  const totalSegments = parts.length;
+  let done = 0;
+
+  try {
+    for (let i = 0; i < parts.length; i++) {
+      const part = parts[i];
+      const startTime = getPartStartTime(i);
+      const endTime = getPartEndTime(i);
+
+      if (startTime === null || endTime === null) continue;
+
+      if (textEl()) textEl().textContent = `Exportiere ${part.name}... (${done + 1}/${totalSegments})`;
+
+      const base64wav = await audio.exportSegmentWav(startTime, endTime);
+      const path = `audio/${selectedSongId}/${part.id}/full.wav`;
+
+      await uploadFile(s.repo, path, s.token, base64wav, `Audio: ${part.name} (${db.songs[selectedSongId].name})`);
+
+      done++;
+      const pct = (done / totalSegments * 100).toFixed(0);
+      if (fillEl()) fillEl().style.width = pct + '%';
+      if (textEl()) textEl().textContent = `${done}/${totalSegments} hochgeladen`;
+    }
+
+    toast(`${done} Audio-Segmente exportiert`, 'success');
+  } catch (err) {
+    toast(`Export-Fehler: ${err.message}`, 'error', 5000);
+  } finally {
+    exportInProgress = false;
+    renderAudioTab();
+  }
+}
+
+/* ── Audio Tab Event Delegation ────────────────────── */
+
+function handleAudioClick(e) {
+  const el = e.target;
+
+  // Drop zone
+  if (el.closest('#audio-dropzone')) {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.wav,.mp3,.m4a,.ogg';
+    input.onchange = () => { if (input.files[0]) handleAudioFileLoad(input.files[0]); };
+    input.click();
+    return;
+  }
+
+  // Waveform seek
+  if (el.closest('#waveform-wrap')) {
+    handleWaveformClick(e);
+    return;
+  }
+
+  // Transport
+  if (el.closest('#t-skip')) { handleSkipToStart(); return; }
+  if (el.closest('#t-play')) { handlePlayPause(); return; }
+  if (el.closest('#t-progress-wrap')) { handleProgressClick(e); return; }
+
+  // Tap buttons
+  if (el.closest('#tap-part') && !el.closest('#tap-part').disabled) { handlePartTap(); return; }
+  if (el.closest('#tap-bar') && !el.closest('#tap-bar').disabled) { handleBarTap(); return; }
+  if (el.closest('#tap-undo') && !el.closest('#tap-undo').disabled) { handleUndoTap(); return; }
+
+  // BPM update
+  if (el.closest('#btn-update-bpm')) { handleBpmUpdate(); return; }
+
+  // Export
+  if (el.closest('#btn-export')) { handleAudioExport(); return; }
+}
+
+function handleAudioDragOver(e) {
+  e.preventDefault();
+  const dz = document.getElementById('audio-dropzone');
+  if (dz) dz.classList.add('dragover');
+}
+
+function handleAudioDragLeave(e) {
+  const dz = document.getElementById('audio-dropzone');
+  if (dz) dz.classList.remove('dragover');
+}
+
+function handleAudioDrop(e) {
+  e.preventDefault();
+  const dz = document.getElementById('audio-dropzone');
+  if (dz) dz.classList.remove('dragover');
+  const file = e.dataTransfer?.files[0];
+  if (file) handleAudioFileLoad(file);
 }
 
 /* ── Settings Modal ────────────────────────────────── */
@@ -900,6 +1627,11 @@ function wireEvents() {
     if (!item) return;
     const newId = item.dataset.id;
     if (newId === selectedSongId) return;
+    // Stop audio and reset split state when switching songs
+    audio.reset();
+    audioMeta = null;
+    resetAudioSplit();
+    cancelAnimationFrame(animFrameId);
     selectedSongId = newId;
     selectedPartId = null;
     selectedBarNum = null;
@@ -909,7 +1641,31 @@ function wireEvents() {
 
   // Editor event delegation
   els.content.addEventListener('change', handleEditorChange);
-  els.content.addEventListener('click', handleEditorClick);
+  els.content.addEventListener('click', (e) => {
+    if (activeTab === 'editor') handleEditorClick(e);
+    else if (activeTab === 'audio') handleAudioClick(e);
+  });
+
+  // Audio drag & drop on content area
+  els.content.addEventListener('dragover', (e) => {
+    if (activeTab === 'audio') handleAudioDragOver(e);
+  });
+  els.content.addEventListener('dragleave', (e) => {
+    if (activeTab === 'audio') handleAudioDragLeave(e);
+  });
+  els.content.addEventListener('drop', (e) => {
+    if (activeTab === 'audio') handleAudioDrop(e);
+  });
+
+  // Keyboard shortcuts for audio
+  document.addEventListener('keydown', (e) => {
+    if (activeTab !== 'audio' || !audio.getBuffer()) return;
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (e.code === 'Space') {
+      e.preventDefault();
+      handlePlayPause();
+    }
+  });
 }
 
 /* ── Boot ──────────────────────────────────────────── */

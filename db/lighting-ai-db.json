@@ -253,6 +253,11 @@
         "type": "song",
         "pos": 50,
         "song_id": "HDX1IN"
+      },
+      {
+        "type": "song",
+        "pos": 51,
+        "song_id": "FaAM01"
       }
     ]
   },
@@ -1593,15 +1598,88 @@
     "dgSleW": {
       "name": "Bitter End",
       "artist": "Placebo",
-      "bpm": 201,
+      "bpm": 186,
       "key": "Em",
       "year": "",
       "pick": "🔻",
       "gema_nr": "7745639-001",
-      "duration": "3:22",
-      "duration_sec": 202,
+      "duration": "3:12",
+      "duration_sec": 192,
       "notes": "",
-      "parts": {}
+      "parts": {
+        "dgSleW_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 4,
+          "duration_sec": 5,
+          "light_template": "intro_buildup",
+          "notes": ""
+        },
+        "dgSleW_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 16,
+          "duration_sec": 21,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "dgSleW_P003": {
+          "pos": 3,
+          "name": "Chorus 1",
+          "bars": 8,
+          "duration_sec": 10,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "dgSleW_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 16,
+          "duration_sec": 21,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "dgSleW_P005": {
+          "pos": 5,
+          "name": "Chorus 2",
+          "bars": 16,
+          "duration_sec": 21,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "dgSleW_P006": {
+          "pos": 6,
+          "name": "Bridge",
+          "bars": 16,
+          "duration_sec": 21,
+          "light_template": "bridge_atmospheric",
+          "notes": ""
+        },
+        "dgSleW_P007": {
+          "pos": 7,
+          "name": "Chorus 3",
+          "bars": 16,
+          "duration_sec": 21,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "dgSleW_P008": {
+          "pos": 8,
+          "name": "Outro",
+          "bars": 20,
+          "duration_sec": 26,
+          "light_template": "outro_fadeout",
+          "notes": ""
+        },
+        "dgSleW_P009": {
+          "pos": 9,
+          "name": "Ending",
+          "bars": 4,
+          "duration_sec": 5,
+          "light_template": "outro_cut",
+          "notes": ""
+        }
+      }
     },
     "F71u8Z": {
       "name": "Black Chandelier",
@@ -1611,10 +1689,107 @@
       "year": "",
       "pick": "",
       "gema_nr": "13108148-001",
-      "duration": "4:11",
-      "duration_sec": 251,
+      "duration": "4:05",
+      "duration_sec": 245,
       "notes": "",
-      "parts": {}
+      "parts": {
+        "F71u8Z_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "intro_buildup",
+          "notes": ""
+        },
+        "F71u8Z_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 16,
+          "duration_sec": 34,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "F71u8Z_P003": {
+          "pos": 3,
+          "name": "Pre-Chorus 1",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "prechorus_rise",
+          "notes": ""
+        },
+        "F71u8Z_P004": {
+          "pos": 4,
+          "name": "Chorus 1",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "F71u8Z_P005": {
+          "pos": 5,
+          "name": "Interlude",
+          "bars": 2,
+          "duration_sec": 4,
+          "light_template": "generic_bpm",
+          "notes": ""
+        },
+        "F71u8Z_P006": {
+          "pos": 6,
+          "name": "Verse 2",
+          "bars": 16,
+          "duration_sec": 34,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "F71u8Z_P007": {
+          "pos": 7,
+          "name": "Pre-Chorus 2",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "prechorus_rise",
+          "notes": ""
+        },
+        "F71u8Z_P008": {
+          "pos": 8,
+          "name": "Chorus 2",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "F71u8Z_P009": {
+          "pos": 9,
+          "name": "Bridge / Solo",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "solo_spotlight",
+          "notes": ""
+        },
+        "F71u8Z_P010": {
+          "pos": 10,
+          "name": "Pre-Chorus 3",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "prechorus_rise",
+          "notes": ""
+        },
+        "F71u8Z_P011": {
+          "pos": 11,
+          "name": "Chorus 3",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "F71u8Z_P012": {
+          "pos": 12,
+          "name": "Chorus 4 / Outro",
+          "bars": 15,
+          "duration_sec": 32,
+          "light_template": "outro_fadeout",
+          "notes": ""
+        }
+      }
     },
     "uoloAE": {
       "name": "Boys Don‘t Cry",
@@ -2541,15 +2716,104 @@
     "QeOWYg": {
       "name": "Enjoy The Silence",
       "artist": "Depeche Mode",
-      "bpm": 0,
+      "bpm": 113,
       "key": "D moll",
       "year": "",
       "pick": "",
       "gema_nr": "2484355-001",
-      "duration": "",
-      "duration_sec": 0,
+      "duration": "4:18",
+      "duration_sec": 258,
       "notes": "",
-      "parts": {}
+      "parts": {
+        "QeOWYg_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 16,
+          "duration_sec": 34,
+          "light_template": "intro_buildup",
+          "notes": ""
+        },
+        "QeOWYg_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "verse_minimal",
+          "notes": ""
+        },
+        "QeOWYg_P003": {
+          "pos": 3,
+          "name": "Chorus 1",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "QeOWYg_P004": {
+          "pos": 4,
+          "name": "Instrumental 1",
+          "bars": 10,
+          "duration_sec": 21,
+          "light_template": "generic_bpm",
+          "notes": ""
+        },
+        "QeOWYg_P005": {
+          "pos": 5,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "verse_minimal",
+          "notes": ""
+        },
+        "QeOWYg_P006": {
+          "pos": 6,
+          "name": "Chorus 2",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "QeOWYg_P007": {
+          "pos": 7,
+          "name": "Instrumental 2",
+          "bars": 12,
+          "duration_sec": 25,
+          "light_template": "generic_bpm",
+          "notes": ""
+        },
+        "QeOWYg_P008": {
+          "pos": 8,
+          "name": "Chorus 3",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "QeOWYg_P009": {
+          "pos": 9,
+          "name": "Bridge",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "bridge_atmospheric",
+          "notes": ""
+        },
+        "QeOWYg_P010": {
+          "pos": 10,
+          "name": "Chorus 4",
+          "bars": 16,
+          "duration_sec": 34,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "QeOWYg_P011": {
+          "pos": 11,
+          "name": "Outro",
+          "bars": 20,
+          "duration_sec": 42,
+          "light_template": "outro_fadeout",
+          "notes": ""
+        }
+      }
     },
     "EfmiXn": {
       "name": "Every You Every Me",
@@ -4727,28 +4991,222 @@
     "gRbHPO": {
       "name": "Last Resort",
       "artist": "Papa Roach",
-      "bpm": 0,
+      "bpm": 91,
       "key": "",
       "year": "",
       "pick": "",
       "gema_nr": "5431691-001",
-      "duration": "",
-      "duration_sec": 0,
+      "duration": "3:20",
+      "duration_sec": 200,
       "notes": "",
-      "parts": {}
+      "parts": {
+        "gRbHPO_P001": {
+          "pos": 1,
+          "name": "Intro (Clean)",
+          "bars": 4,
+          "duration_sec": 11,
+          "light_template": "intro_buildup",
+          "notes": ""
+        },
+        "gRbHPO_P002": {
+          "pos": 2,
+          "name": "Intro (Full)",
+          "bars": 4,
+          "duration_sec": 11,
+          "light_template": "intro_hit",
+          "notes": ""
+        },
+        "gRbHPO_P003": {
+          "pos": 3,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 21,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "gRbHPO_P004": {
+          "pos": 4,
+          "name": "Pre-Chorus 1",
+          "bars": 4,
+          "duration_sec": 11,
+          "light_template": "prechorus_rise",
+          "notes": ""
+        },
+        "gRbHPO_P005": {
+          "pos": 5,
+          "name": "Chorus 1",
+          "bars": 8,
+          "duration_sec": 21,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "gRbHPO_P006": {
+          "pos": 6,
+          "name": "Post-Chorus",
+          "bars": 4,
+          "duration_sec": 11,
+          "light_template": "generic_bpm",
+          "notes": ""
+        },
+        "gRbHPO_P007": {
+          "pos": 7,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 21,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "gRbHPO_P008": {
+          "pos": 8,
+          "name": "Pre-Chorus 2",
+          "bars": 4,
+          "duration_sec": 11,
+          "light_template": "prechorus_rise",
+          "notes": ""
+        },
+        "gRbHPO_P009": {
+          "pos": 9,
+          "name": "Chorus 2",
+          "bars": 8,
+          "duration_sec": 21,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "gRbHPO_P010": {
+          "pos": 10,
+          "name": "Bridge",
+          "bars": 8,
+          "duration_sec": 21,
+          "light_template": "bridge_breakdown",
+          "notes": ""
+        },
+        "gRbHPO_P011": {
+          "pos": 11,
+          "name": "Chorus 3",
+          "bars": 8,
+          "duration_sec": 21,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "gRbHPO_P012": {
+          "pos": 12,
+          "name": "Outro",
+          "bars": 8,
+          "duration_sec": 21,
+          "light_template": "outro_cut",
+          "notes": ""
+        }
+      }
     },
     "XJ5YzI": {
       "name": "Lights Out",
       "artist": "Royal Blood",
-      "bpm": 80,
+      "bpm": 90,
       "key": "D moll",
       "year": "",
       "pick": "",
       "gema_nr": "19582994-003",
-      "duration": "4:10",
-      "duration_sec": 250,
+      "duration": "3:57",
+      "duration_sec": 237,
       "notes": "",
-      "parts": {}
+      "parts": {
+        "XJ5YzI_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 4,
+          "duration_sec": 11,
+          "light_template": "intro_buildup",
+          "notes": ""
+        },
+        "XJ5YzI_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 21,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "XJ5YzI_P003": {
+          "pos": 3,
+          "name": "Pre-Chorus 1",
+          "bars": 4,
+          "duration_sec": 11,
+          "light_template": "prechorus_rise",
+          "notes": ""
+        },
+        "XJ5YzI_P004": {
+          "pos": 4,
+          "name": "Chorus 1",
+          "bars": 8,
+          "duration_sec": 21,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "XJ5YzI_P005": {
+          "pos": 5,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 21,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "XJ5YzI_P006": {
+          "pos": 6,
+          "name": "Pre-Chorus 2",
+          "bars": 4,
+          "duration_sec": 11,
+          "light_template": "prechorus_rise",
+          "notes": ""
+        },
+        "XJ5YzI_P007": {
+          "pos": 7,
+          "name": "Chorus 2",
+          "bars": 8,
+          "duration_sec": 21,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "XJ5YzI_P008": {
+          "pos": 8,
+          "name": "Breakdown",
+          "bars": 4,
+          "duration_sec": 11,
+          "light_template": "breakdown_minimal",
+          "notes": ""
+        },
+        "XJ5YzI_P009": {
+          "pos": 9,
+          "name": "Bridge",
+          "bars": 8,
+          "duration_sec": 21,
+          "light_template": "bridge_atmospheric",
+          "notes": ""
+        },
+        "XJ5YzI_P010": {
+          "pos": 10,
+          "name": "Solo",
+          "bars": 16,
+          "duration_sec": 43,
+          "light_template": "solo_intense",
+          "notes": ""
+        },
+        "XJ5YzI_P011": {
+          "pos": 11,
+          "name": "Chorus 3",
+          "bars": 8,
+          "duration_sec": 21,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "XJ5YzI_P012": {
+          "pos": 12,
+          "name": "Outro",
+          "bars": 9,
+          "duration_sec": 24,
+          "light_template": "outro_cut",
+          "notes": ""
+        }
+      }
     },
     "BKpY4X": {
       "name": "Lonely Boy",
@@ -4927,10 +5385,91 @@
       "year": "",
       "pick": "",
       "gema_nr": "30270858-001",
-      "duration": "",
-      "duration_sec": 0,
+      "duration": "3:59",
+      "duration_sec": 239,
       "notes": "",
-      "parts": {}
+      "parts": {
+        "rK4O7W_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 4,
+          "duration_sec": 9,
+          "light_template": "intro_buildup",
+          "notes": ""
+        },
+        "rK4O7W_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 16,
+          "duration_sec": 36,
+          "light_template": "verse_minimal",
+          "notes": ""
+        },
+        "rK4O7W_P003": {
+          "pos": 3,
+          "name": "Chorus 1",
+          "bars": 4,
+          "duration_sec": 9,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "rK4O7W_P004": {
+          "pos": 4,
+          "name": "Instrumental 1",
+          "bars": 8,
+          "duration_sec": 18,
+          "light_template": "generic_bpm",
+          "notes": ""
+        },
+        "rK4O7W_P005": {
+          "pos": 5,
+          "name": "Verse 2",
+          "bars": 16,
+          "duration_sec": 36,
+          "light_template": "verse_minimal",
+          "notes": ""
+        },
+        "rK4O7W_P006": {
+          "pos": 6,
+          "name": "Chorus 2",
+          "bars": 4,
+          "duration_sec": 9,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "rK4O7W_P007": {
+          "pos": 7,
+          "name": "Instrumental 2",
+          "bars": 12,
+          "duration_sec": 27,
+          "light_template": "solo_spotlight",
+          "notes": ""
+        },
+        "rK4O7W_P008": {
+          "pos": 8,
+          "name": "Verse 3",
+          "bars": 16,
+          "duration_sec": 36,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "rK4O7W_P009": {
+          "pos": 9,
+          "name": "Chorus 3",
+          "bars": 4,
+          "duration_sec": 9,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "rK4O7W_P010": {
+          "pos": 10,
+          "name": "Outro",
+          "bars": 16,
+          "duration_sec": 36,
+          "light_template": "outro_fadeout",
+          "notes": ""
+        }
+      }
     },
     "Rxj9bi": {
       "name": "Mr. Brightside",
@@ -6485,7 +7024,7 @@
     "rNOnoq": {
       "name": "Should I Stay Or Should I Go",
       "artist": "The Clash",
-      "bpm": 0,
+      "bpm": 113,
       "key": "D dur",
       "year": "1982",
       "pick": "",
@@ -6493,7 +7032,80 @@
       "duration": "2:30",
       "duration_sec": 150,
       "notes": "",
-      "parts": {}
+      "parts": {
+        "rNOnoq_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 4,
+          "duration_sec": 8,
+          "light_template": "intro_hit",
+          "notes": ""
+        },
+        "rNOnoq_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "rNOnoq_P003": {
+          "pos": 3,
+          "name": "Chorus 1",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "rNOnoq_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "rNOnoq_P005": {
+          "pos": 5,
+          "name": "Chorus 2",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "rNOnoq_P006": {
+          "pos": 6,
+          "name": "Bridge",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "bridge_atmospheric",
+          "notes": ""
+        },
+        "rNOnoq_P007": {
+          "pos": 7,
+          "name": "Guitar Solo",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "solo_intense",
+          "notes": ""
+        },
+        "rNOnoq_P008": {
+          "pos": 8,
+          "name": "Chorus 3",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "rNOnoq_P009": {
+          "pos": 9,
+          "name": "Outro",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "outro_cut",
+          "notes": ""
+        }
+      }
     },
     "srQxlI": {
       "name": "Song 2",
@@ -6847,15 +7459,112 @@
     "SaUgTX": {
       "name": "Supergirl",
       "artist": "Raemon",
-      "bpm": 0,
+      "bpm": 116,
       "key": "F# moll",
       "year": "",
       "pick": "",
       "gema_nr": "5003467-001",
-      "duration": "",
-      "duration_sec": 0,
+      "duration": "4:06",
+      "duration_sec": 246,
       "notes": "",
-      "parts": {}
+      "parts": {
+        "SaUgTX_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "intro_buildup",
+          "notes": ""
+        },
+        "SaUgTX_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "verse_minimal",
+          "notes": ""
+        },
+        "SaUgTX_P003": {
+          "pos": 3,
+          "name": "Chorus 1",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "chorus_half",
+          "notes": ""
+        },
+        "SaUgTX_P004": {
+          "pos": 4,
+          "name": "Interlude",
+          "bars": 4,
+          "duration_sec": 8,
+          "light_template": "generic_bpm",
+          "notes": ""
+        },
+        "SaUgTX_P005": {
+          "pos": 5,
+          "name": "Verse 2",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "SaUgTX_P006": {
+          "pos": 6,
+          "name": "Chorus 2",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "SaUgTX_P007": {
+          "pos": 7,
+          "name": "Chorus 3",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "SaUgTX_P008": {
+          "pos": 8,
+          "name": "Bridge",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "bridge_atmospheric",
+          "notes": ""
+        },
+        "SaUgTX_P009": {
+          "pos": 9,
+          "name": "Interlude 2",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "solo_spotlight",
+          "notes": ""
+        },
+        "SaUgTX_P010": {
+          "pos": 10,
+          "name": "Verse 3",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "SaUgTX_P011": {
+          "pos": 11,
+          "name": "Chorus 4",
+          "bars": 16,
+          "duration_sec": 33,
+          "light_template": "chorus_anthem",
+          "notes": ""
+        },
+        "SaUgTX_P012": {
+          "pos": 12,
+          "name": "Outro",
+          "bars": 16,
+          "duration_sec": 33,
+          "light_template": "outro_fadeout",
+          "notes": ""
+        }
+      }
     },
     "SQfqPy": {
       "name": "Teenage Dirtbag",
@@ -8881,7 +9590,166 @@
       "duration": "3:49",
       "duration_sec": 229,
       "notes": "",
-      "parts": {}
+      "parts": {
+        "HDX1IN_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 4,
+          "duration_sec": 7,
+          "light_template": "intro_buildup",
+          "notes": ""
+        },
+        "HDX1IN_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 16,
+          "duration_sec": 28,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "HDX1IN_P003": {
+          "pos": 3,
+          "name": "Pre-Chorus 1",
+          "bars": 8,
+          "duration_sec": 14,
+          "light_template": "prechorus_rise",
+          "notes": ""
+        },
+        "HDX1IN_P004": {
+          "pos": 4,
+          "name": "Chorus 1",
+          "bars": 16,
+          "duration_sec": 28,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "HDX1IN_P005": {
+          "pos": 5,
+          "name": "Verse 2",
+          "bars": 16,
+          "duration_sec": 28,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "HDX1IN_P006": {
+          "pos": 6,
+          "name": "Pre-Chorus 2",
+          "bars": 8,
+          "duration_sec": 14,
+          "light_template": "prechorus_rise",
+          "notes": ""
+        },
+        "HDX1IN_P007": {
+          "pos": 7,
+          "name": "Chorus 2",
+          "bars": 16,
+          "duration_sec": 28,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "HDX1IN_P008": {
+          "pos": 8,
+          "name": "Bridge",
+          "bars": 8,
+          "duration_sec": 14,
+          "light_template": "bridge_atmospheric",
+          "notes": ""
+        },
+        "HDX1IN_P009": {
+          "pos": 9,
+          "name": "Chorus 3",
+          "bars": 16,
+          "duration_sec": 28,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "HDX1IN_P010": {
+          "pos": 10,
+          "name": "Outro",
+          "bars": 8,
+          "duration_sec": 14,
+          "light_template": "outro_fadeout",
+          "notes": ""
+        }
+      }
+    },
+    "FaAM01": {
+      "name": "Fluorescent Adolescent",
+      "artist": "Arctic Monkeys",
+      "bpm": 112,
+      "key": "E dur",
+      "year": "2007",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "3:04",
+      "duration_sec": 184,
+      "notes": "",
+      "parts": {
+        "FaAM01_P001": {
+          "pos": 1,
+          "name": "Intro",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "intro_buildup",
+          "notes": ""
+        },
+        "FaAM01_P002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "bars": 16,
+          "duration_sec": 34,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "FaAM01_P003": {
+          "pos": 3,
+          "name": "Chorus 1",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "FaAM01_P004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "bars": 16,
+          "duration_sec": 34,
+          "light_template": "verse_driving",
+          "notes": ""
+        },
+        "FaAM01_P005": {
+          "pos": 5,
+          "name": "Chorus 2",
+          "bars": 10,
+          "duration_sec": 21,
+          "light_template": "chorus_full",
+          "notes": ""
+        },
+        "FaAM01_P006": {
+          "pos": 6,
+          "name": "Middle 8",
+          "bars": 8,
+          "duration_sec": 17,
+          "light_template": "bridge_atmospheric",
+          "notes": ""
+        },
+        "FaAM01_P007": {
+          "pos": 7,
+          "name": "Interlude",
+          "bars": 4,
+          "duration_sec": 9,
+          "light_template": "generic_bpm",
+          "notes": ""
+        },
+        "FaAM01_P008": {
+          "pos": 8,
+          "name": "Outro",
+          "bars": 16,
+          "duration_sec": 34,
+          "light_template": "outro_fadeout",
+          "notes": ""
+        }
+      }
     }
   },
   "bars": {

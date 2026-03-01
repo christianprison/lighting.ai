@@ -270,8 +270,8 @@
       "year": "1999",
       "pick": "🔻",
       "gema_nr": "5005294-001",
-      "duration": "2:52",
-      "duration_sec": 172,
+      "duration": "2:34",
+      "duration_sec": 154,
       "notes": "nach 2. ref. direkt interlude; ; Intro; Verse 1; Bridge; Chorus; Intro; Verse 2; Bridge; Chorus; Interlude; Power-Bridge; Ende",
       "parts": {
         "5iZfKj_P001": {
@@ -288,8 +288,8 @@
         "5iZfKj_P002": {
           "pos": 2,
           "name": "Verse 1",
-          "bars": 15,
-          "duration_sec": 24,
+          "bars": 16,
+          "duration_sec": 25,
           "light_template": "verse_driving",
           "qlc_scene": "08 swimming ‍",
           "qlc_scene_id": 79,
@@ -332,8 +332,8 @@
         "5iZfKj_P006": {
           "pos": 6,
           "name": "Verse 2",
-          "bars": 7,
-          "duration_sec": 11,
+          "bars": 8,
+          "duration_sec": 13,
           "light_template": "verse_driving",
           "qlc_scene": "08 swimming ‍",
           "qlc_scene_id": 79,
@@ -354,8 +354,8 @@
         "5iZfKj_P008": {
           "pos": 8,
           "name": "Chorus 2 (nanana)",
-          "bars": 7,
-          "duration_sec": 11,
+          "bars": 8,
+          "duration_sec": 13,
           "light_template": "chorus_full",
           "qlc_scene": "10 Strobe",
           "qlc_scene_id": 81,
@@ -408,9 +408,9 @@
         },
         "5iZfKj_P013": {
           "pos": 13,
-          "name": "Part 13",
-          "bars": 3,
-          "duration_sec": 5,
+          "name": "Ausklang",
+          "bars": 0,
+          "duration_sec": 0,
           "light_template": "generic_bpm",
           "qlc_scene": "01 statisch bunt",
           "qlc_scene_id": 71,

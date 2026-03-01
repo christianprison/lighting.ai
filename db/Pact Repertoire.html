@@ -1,0 +1,1051 @@
+	<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+	<html>
+		<head>
+			<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+			<style type="text/css">
+				html, body {
+					height: 100%;
+				}
+				body {
+					 font-family: Verdana, Arial, sans-serif;
+					 margin: 0;
+					 padding: 0;
+				}
+				.page {
+					height: 100%;
+					position: relative;
+				}
+				.footer {
+					position: absolute;
+					bottom: 0;
+					right: 0;
+					font-size: 10px;
+					line-height: 138%;
+					text-align: right;
+				}
+				table {
+					width: 100%;
+					border-collapse: collapse;
+				}
+				tr {
+					vertical-align: top;
+				}
+				.title {
+					position: relative;
+					font-size: 19px;
+					line-height: 138%;
+					font-weight: bold;
+					margin-top: 0;
+					margin-bottom: 4px;
+				}
+				.title.border {
+					border-bottom: 2px solid #000000;
+				}
+				.subtitle {
+					position: absolute;
+					right: 0px;
+					bottom: 0px;
+					text-align: right;
+					font-color: #666666;
+					font-size: 10px;
+					line-height: 138%;
+					font-weight: bold;
+				}
+				.heading {
+					font-size: 11px;
+					line-height: 138%;
+					font-weight: bold;
+					padding: 1px 4px 3px 4px;
+					background: #2678B7;
+					color: #FFFFFF;
+				}
+				p.heading {
+					margin: 0;
+				}
+				.label {
+					font-size: 10px;
+					line-height: 138%;
+					padding: 1px 0px 1px 0px;
+					background: #FFFFFF;
+					color: #000000;
+					border-bottom: 1px solid #000000;
+				}
+				.label.right {
+					text-align: right;
+					padding-right: 18px;
+				}
+				.pause_name {
+					font-size: 11px;
+					line-height: 138%;
+					font-weight: bold;
+					font-style: italic;
+					margin: 0;
+					padding: 0px 4px 1px 4px;
+					background: none;
+					color: #000000;
+					border-top: 2px solid #777777;
+					border-bottom: 2px solid #777777;
+					min-height: 3px;
+				}
+				.pause_default {
+					margin: 0;
+					padding: 0 0 5px 0;
+					background: #777777;
+				}
+				.song_link {
+					font-size: 17px;
+					margin: 0;
+					padding: 0;
+					line-height: 9px;
+				}
+				.set_list_notes_label {
+					font-size: 11px;
+					line-height: 138%;
+					font-weight: bold;
+					margin: 12px 0 0 0;
+					color: #000000;
+					min-height: 3px;
+				}
+				.set_list_notes {
+					font-size: 11px;
+					line-height: 138%;
+					margin: 0;
+					color: #000000;
+					min-height: 3px;
+				}
+				.colored_row {
+					background: #E3E3E3;
+				}
+				.clear_row {
+					background: none;
+				}
+				.number {
+					font-size: 17px;
+					line-height: 138%;
+					font-weight: bold;
+					padding: 2px 18px 2px 0px;
+					text-align: right;
+				}
+				.song {
+					font-size: 17px;
+					line-height: 138%;
+					font-weight: bold;
+					padding: 2px 18px 2px 0px;
+				}
+				p.song {
+					font-size: 17px;
+					margin: 4px 0 6px 0;
+					padding: 0px;
+				}
+				.artist, .midiPresets {
+					font-size: 17px;
+					line-height: 138%;
+					font-weight: normal;
+					padding: 2px 18px 2px 0px;
+				}
+				.custom {
+					font-size: 17px;
+					line-height: 138%;
+					font-weight: normal;
+					padding: 2px 18px 2px 0px;
+				}
+				.custom.right {
+					text-align: right;
+				}
+				.tags {
+					font-size: 17px;
+					line-height: 138%;
+					font-weight: normal;
+					padding: 2px 18px 2px 0px;
+				}
+				.key {
+					font-size: 17px;
+					line-height: 138%;
+					font-weight: bold;
+					padding: 2px 18px 2px 0px;
+				}
+				.timeSignature {
+					font-size: 17px;
+					line-height: 138%;
+					font-weight: bold;
+					padding: 2px 18px 2px 0px;
+				}
+				.tempo {
+					font-size: 17px;
+					line-height: 138%;
+					font-weight: bold;
+					padding: 2px 18px 2px 0px;
+					text-align: right;
+				}
+				.duration {
+					font-size: 17px;
+					line-height: 138%;
+					font-weight: bold;
+					padding: 2px 18px 2px 0px;
+					text-align: right;
+				}
+				.midiSong, .rating {
+					font-size: 17px;
+					line-height: 138%;
+					font-weight: bold;
+					padding: 2px 18px 2px 0px;
+					text-align: right;
+				}
+				.midiProgram {
+					font-size: 15px;
+					line-height: 138%;
+					font-weight: bold;
+					padding: 2px 18px 2px 0px;
+					text-align: right;
+				}
+				.notes {
+					font-size: 15px;
+					line-height: 138%;
+					font-weight: normal;
+					padding: %ipx 18px %ipx 0px;
+				}
+				.red {
+					color: #D72629;
+				}
+				.orange {
+					color: #F68B27;
+				}
+				.yellow {
+					color: #F0BE03;
+				}
+				.green {
+					color: #51D43E;
+				}
+				.darkgreen {
+					color: #199002;
+				}
+				.blue {
+					color: #32C1F1;
+				}
+				.darkblue {
+					color: #247CBF;
+				}
+				.purple {
+					color: #8D22FF;
+				}
+				.pink {
+					color: #FF6EC7;
+				}
+				.gray {
+					color: #999999;
+				}
+				.darkgray {
+					color: #595959;
+				}
+				.brown {
+					color: #874B12;
+				}
+				.black {
+					color: #000000;
+				}
+				.reset {
+					clear: both;
+				}
+			</style>
+		</head>
+		<body>
+		<div class="page">
+
+			<p class="title ">Pact Repertoire <span class="subtitle">50 Songs</span></p>
+
+			<table>
+
+				<tr><td colspan="10" class="heading">A</td></tr>
+				<tr>
+					<td class="label">Titel</td>
+					<td class="label right">Tempo</td>
+					<td class="label ">Interpret</td>
+					<td class="label ">GEMA Werkenr.</td>
+					<td class="label right">Jahr</td>
+					<td class="label ">Pick</td>
+					<td class="label ">Tonart</td>
+					<td class="label right">Dauer</td>
+					<td class="label ">Notizen</td>
+				</tr>
+				<tr class="clear_row">
+					<td class="song ">All The Small Things</td>
+					<td class="tempo">152</td>
+					<td class="artist">Blink-182</td>
+					<td class="custom ">5005294-001</td>
+					<td class="custom right">1999</td>
+					<td class="custom ">🔻</td>
+					<td class="key">A dur</td>
+					<td class="duration">2:52</td>
+					<td class="notes">nach 2. ref. direkt interlude; ; Intro; Verse 1; Bridge; Chorus; Intro; Verse 2; Bridge; Chorus; Interlude; Power-Bridge; Ende</td>
+				</tr>
+				<tr class="colored_row">
+					<td class="song ">Along comes Mary</td>
+					<td class="tempo">156</td>
+					<td class="artist">Bloodhound Gang</td>
+					<td class="custom ">1022042-001</td>
+					<td class="custom right">1998</td>
+					<td class="custom ">🔻</td>
+					<td class="key">H moll</td>
+					<td class="duration">3:19</td>
+					<td class="notes">Intro; Verse 1; Bridge 1 (Mary); Bridge 2; Chorus (lunch); Interlude; Verse 2; Bridge 1; Bridge 2; Chorus; Interlude; Verse 3; Bridge 1; Bridge 2; Chorus; Chorus Variation 1; Chorus Variation 2; Chorus Variation 3; End e a capella (punch); ; </td>
+				</tr>
+				<tr class="clear_row">
+					<td class="song ">Always Where I Need to Be</td>
+					<td class="tempo">168</td>
+					<td class="artist">The Kooks</td>
+					<td class="custom ">9963288-001</td>
+					<td class="custom right">2008</td>
+					<td class="custom "></td>
+					<td class="key">A dur</td>
+					<td class="duration">2:50</td>
+					<td class="notes">nach solo 4 Takte rhythmisch, dann erst stops; ; 12 Intro 4 git, 8 alle; 8   Verse; 12 Bridge; 8   Chorus Du-dup; 8   Verse; 12 Bridge; 8  Chorus Du-dup; 16 Guitar Solo (wie Intro) statt 8 im original; 16 Bridge 8 normal, 8 ohne drums, letzter akkord = Dominante mit Rhythmik; 8   Chorus Du-dup; 8   Vox solo; Abschlag auf 1; ; </td>
+				</tr>
+				<tr class="colored_row">
+					<td class="song ">Animal</td>
+					<td class="tempo">164</td>
+					<td class="artist">Neon Trees</td>
+					<td class="custom ">11739277-001</td>
+					<td class="custom right">2009</td>
+					<td class="custom "></td>
+					<td class="key">D dur</td>
+					<td class="duration">3:30</td>
+					<td class="notes">8T alle, 2 single git lines; 1T drums; 8T Str fast keine git, nur am Ende da da da; 8T Str fast keine git; 2T Stop auf subdominante; 14T Ref (6+8); 2t Auslauf Tonika ta ta ta; 8T Str ska-git; 8T Str ska-git; 14T Ref (6+8); 10T Interlude AAHHAAEHAA; 8T Intro; 4T Tonika, fast nur Bass, stop auf 3; 14T Ref (6+8); 16T Solo ; 14T Ref (6+8); Stop auf 1 Tonika</td>
+				</tr>
+				<tr class="clear_row">
+					<td class="song ">Are You Gonna Be My Girl</td>
+					<td class="tempo">206</td>
+					<td class="artist">Jet</td>
+					<td class="custom ">7944469-001</td>
+					<td class="custom right">2003</td>
+					<td class="custom ">🔻</td>
+					<td class="key">E moll</td>
+					<td class="duration">3:54</td>
+					<td class="notes">Intro; Verse 1; ; Bridge; ; Chorus; ; Thema; Verse 2; Bridge; Chorus; rest 8/4; Guitar+Clap; Guitar Solo; Chorus; End</td>
+				</tr>
+				<tr><td colspan="10" class="heading">B</td></tr>
+				<tr>
+					<td class="label">Titel</td>
+					<td class="label right">Tempo</td>
+					<td class="label ">Interpret</td>
+					<td class="label ">GEMA Werkenr.</td>
+					<td class="label right">Jahr</td>
+					<td class="label ">Pick</td>
+					<td class="label ">Tonart</td>
+					<td class="label right">Dauer</td>
+					<td class="label ">Notizen</td>
+				</tr>
+				<tr class="clear_row">
+					<td class="song ">Basket Case</td>
+					<td class="tempo">168</td>
+					<td class="artist">Green Day</td>
+					<td class="custom ">3327614-001</td>
+					<td class="custom right">1994</td>
+					<td class="custom "></td>
+					<td class="key">E dur</td>
+					<td class="duration">3:10</td>
+					<td class="notes">riff vor solo 4x, ending 4x; ; Intro; Chorus 1; Verse; Main chorus; Chords; Bridge; Verse; Main chorus; Outro; ; </td>
+				</tr>
+				<tr class="colored_row">
+					<td class="song ">Bitter End</td>
+					<td class="tempo">201</td>
+					<td class="artist">Placebo</td>
+					<td class="custom ">7745639-001</td>
+					<td class="custom right"></td>
+					<td class="custom ">🔻</td>
+					<td class="key">Em</td>
+					<td class="duration">3:22</td>
+					<td class="notes"></td>
+				</tr>
+				<tr class="clear_row">
+					<td class="song ">Black Chandelier</td>
+					<td class="tempo">112</td>
+					<td class="artist">Biffy Clyro</td>
+					<td class="custom ">13108148-001</td>
+					<td class="custom right"></td>
+					<td class="custom "></td>
+					<td class="key">E moll</td>
+					<td class="duration">4:11</td>
+					<td class="notes"></td>
+				</tr>
+				<tr class="colored_row">
+					<td class="song ">Boys Don‘t Cry</td>
+					<td class="tempo">170</td>
+					<td class="artist">Oleander</td>
+					<td class="custom ">1136253-001</td>
+					<td class="custom right">1999</td>
+					<td class="custom "></td>
+					<td class="key">A dur</td>
+					<td class="duration">3:14</td>
+					<td class="notes">intro 4 liegend, stop 4. takt auf 1; Thema mit 2. teil 1x; strophe 69 rhythm, stop auf cis; strophe arpeggios; bridge arpeggios; Thema mit 2. teil 2x letzter takt stop auf; 1 über 4 takte liegen lassen, edge slide; strophe ohne git mit toms; alternative bridge arpeggios; strophe arpeggios; Thema 1. teil doppel 2. teil 1x mit ritardando</td>
+				</tr>
+				<tr><td colspan="10" class="heading">C</td></tr>
+				<tr>
+					<td class="label">Titel</td>
+					<td class="label right">Tempo</td>
+					<td class="label ">Interpret</td>
+					<td class="label ">GEMA Werkenr.</td>
+					<td class="label right">Jahr</td>
+					<td class="label ">Pick</td>
+					<td class="label ">Tonart</td>
+					<td class="label right">Dauer</td>
+					<td class="label ">Notizen</td>
+				</tr>
+				<tr class="clear_row">
+					<td class="song ">Chelsea Dagger</td>
+					<td class="tempo">156</td>
+					<td class="artist">The Fratellis</td>
+					<td class="custom ">9360582-001</td>
+					<td class="custom right">2006</td>
+					<td class="custom "></td>
+					<td class="key">G dur</td>
+					<td class="duration">3:45</td>
+					<td class="notes">1. ref ist kurz; interlude kommt nach 2. Bridge; in Strophe A7 statt a moll; döpp dö dö döpp; letzter teil gitarre roziger; ; 4 Drums, am Ende Git und Bass zusammen Riff; 12 Intro (4 bass, 4 alle, 4 Dominante); 16 ba da dapp; 16 verse; 8 alternativer verse (git nur 2 und 4); 8 ba da dapp; 16 verse; 8 alternativer verse; 16 unisono; 16 ref; 16 ba da dapp; abschlag auf 1; KURZ</td>
+				</tr>
+				<tr class="colored_row">
+					<td class="song ">Creep</td>
+					<td class="tempo">96</td>
+					<td class="artist">Radiohead</td>
+					<td class="custom ">2862546-001</td>
+					<td class="custom right">1993</td>
+					<td class="custom ">🔻</td>
+					<td class="key">G dur</td>
+					<td class="duration">3:56</td>
+					<td class="notes">Intro (8T); Verse (16T); Chorus (8T), 8.T Ausklang; Verse (16T); Chorus (8T), 8.T normal; Solo (16T), 15.T Ausklang; Verse (8T) nur Bass, Gitarre, Gesang, Ride; Verse (8T) sanfte Drums, 7.T Ausklang; ; </td>
+				</tr>
+				<tr><td colspan="10" class="heading">D</td></tr>
+				<tr>
+					<td class="label">Titel</td>
+					<td class="label right">Tempo</td>
+					<td class="label ">Interpret</td>
+					<td class="label ">GEMA Werkenr.</td>
+					<td class="label right">Jahr</td>
+					<td class="label ">Pick</td>
+					<td class="label ">Tonart</td>
+					<td class="label right">Dauer</td>
+					<td class="label ">Notizen</td>
+				</tr>
+				<tr class="clear_row">
+					<td class="song ">Dancing with myself</td>
+					<td class="tempo">180</td>
+					<td class="artist">Billy Idol</td>
+					<td class="custom ">1173946-006</td>
+					<td class="custom right">1981</td>
+					<td class="custom "></td>
+					<td class="key">E dur</td>
+					<td class="duration">3:22</td>
+					<td class="notes">Intro: Drums > Gitarre > Bass; Verse 1; Chorus; 1T E; Verse 2; Chorus; Interlude; Verse 3 mit Stopp; Chorus mit Variation; Outro (oh-oh-oh, lang); Ausklang; ; </td>
+				</tr>
+				<tr class="colored_row">
+					<td class="song ">Down In The Past</td>
+					<td class="tempo">108</td>
+					<td class="artist">Mando Diao</td>
+					<td class="custom ">8685312-001</td>
+					<td class="custom right">2004</td>
+					<td class="custom ">🔻</td>
+					<td class="key">A moll</td>
+					<td class="duration">3:58</td>
+					<td class="notes">Intro; Thema; Verse; Chorus; Verse; Chorus; Guitar Solo; Bass Solo; Verse (1/2 leise); Chorus; End</td>
+				</tr>
+				<tr><td colspan="10" class="heading">E</td></tr>
+				<tr>
+					<td class="label">Titel</td>
+					<td class="label right">Tempo</td>
+					<td class="label ">Interpret</td>
+					<td class="label ">GEMA Werkenr.</td>
+					<td class="label right">Jahr</td>
+					<td class="label ">Pick</td>
+					<td class="label ">Tonart</td>
+					<td class="label right">Dauer</td>
+					<td class="label ">Notizen</td>
+				</tr>
+				<tr class="clear_row">
+					<td class="song ">Enjoy The Silence</td>
+					<td class="tempo"></td>
+					<td class="artist">Depeche Mode</td>
+					<td class="custom ">	2484355-001</td>
+					<td class="custom right"></td>
+					<td class="custom "></td>
+					<td class="key">D moll</td>
+					<td class="duration"></td>
+					<td class="notes"></td>
+				</tr>
+				<tr class="colored_row">
+					<td class="song ">Every You Every Me</td>
+					<td class="tempo"></td>
+					<td class="artist">Placebo</td>
+					<td class="custom ">4666736-001</td>
+					<td class="custom right">1999</td>
+					<td class="custom "></td>
+					<td class="key">C moll</td>
+					<td class="duration">3:47</td>
+					<td class="notes">Placebo 4 Strophen immer Strophe Refrain durchziehen in der 3. Oder 4. Strophe dezent die Gitarre mal ein bisschen aus das Schlagzeug setzt vielleicht auch mal kurz aus und am Ende spielt die Gitarre noch ein paar overdubs</td>
+				</tr>
+				<tr><td colspan="10" class="heading">F</td></tr>
+				<tr>
+					<td class="label">Titel</td>
+					<td class="label right">Tempo</td>
+					<td class="label ">Interpret</td>
+					<td class="label ">GEMA Werkenr.</td>
+					<td class="label right">Jahr</td>
+					<td class="label ">Pick</td>
+					<td class="label ">Tonart</td>
+					<td class="label right">Dauer</td>
+					<td class="label ">Notizen</td>
+				</tr>
+				<tr class="clear_row">
+					<td class="song ">Fight for your Right</td>
+					<td class="tempo">135</td>
+					<td class="artist">Beasty Boys</td>
+					<td class="custom ">2035424-001</td>
+					<td class="custom right">1986</td>
+					<td class="custom "></td>
+					<td class="key">A moll</td>
+					<td class="duration">3:56</td>
+					<td class="notes">A-Alarm - “Kick it”; Intro; Verse 1; Chorus; Verse 2; Chorus; Chorus; F; Gitarrensolo; Verse 3; Chorus; Chorus; F; Paaaaaaaarty (4x); Ausklang</td>
+				</tr>
+				<tr class="colored_row">
+					<td class="song ">Flourescent Adolescent</td>
+					<td class="tempo">110</td>
+					<td class="artist">Arctic Monkeys</td>
+					<td class="custom ">9714554-001</td>
+					<td class="custom right">2007</td>
+					<td class="custom "></td>
+					<td class="key">E dur</td>
+					<td class="duration">3:08</td>
+					<td class="notes">end-akkord = cis moll; ; 4 Intro alle mit Stops; 4 Intro alle mit Beat ; 4 Verse ohne Git; 4 Verse alle; 9 Bridge (erst Pausen dann Beat); 8 Verse (letzte 2 Takte Pause); 8 Bridge (erst Beat dann Pausen); 8 Interlude; 4 Intro alle mit Stops; 4 Intro alle mit Stops + Vocals; 5 Intro Stops anders + Vocals; 16 Refrain; Abschlag auf 1 in Cis moll; ; </td>
+				</tr>
+				<tr><td colspan="10" class="heading">G</td></tr>
+				<tr>
+					<td class="label">Titel</td>
+					<td class="label right">Tempo</td>
+					<td class="label ">Interpret</td>
+					<td class="label ">GEMA Werkenr.</td>
+					<td class="label right">Jahr</td>
+					<td class="label ">Pick</td>
+					<td class="label ">Tonart</td>
+					<td class="label right">Dauer</td>
+					<td class="label ">Notizen</td>
+				</tr>
+				<tr class="clear_row">
+					<td class="song ">Goodbye</td>
+					<td class="tempo">100</td>
+					<td class="artist">Die Happy</td>
+					<td class="custom ">5469032-001</td>
+					<td class="custom right"></td>
+					<td class="custom "></td>
+					<td class="key"></td>
+					<td class="duration">3:21</td>
+					<td class="notes">nach dem interlude nicht Ref sondern Strophe; ; 1. Strophe; 2. Strophe; ; Chorus; ; 3. Strophe; ; Chorus; ; Bridge; ; Strophe 4; ; Chorus; Chorus (Bah-dababah); Ende auf G</td>
+				</tr>
+				<tr><td colspan="10" class="heading">H</td></tr>
+				<tr>
+					<td class="label">Titel</td>
+					<td class="label right">Tempo</td>
+					<td class="label ">Interpret</td>
+					<td class="label ">GEMA Werkenr.</td>
+					<td class="label right">Jahr</td>
+					<td class="label ">Pick</td>
+					<td class="label ">Tonart</td>
+					<td class="label right">Dauer</td>
+					<td class="label ">Notizen</td>
+				</tr>
+				<tr class="clear_row">
+					<td class="song ">Hail to the Freaks</td>
+					<td class="tempo">160</td>
+					<td class="artist">Beatsteaks</td>
+					<td class="custom ">9741854-001</td>
+					<td class="custom right">2007</td>
+					<td class="custom ">🔻</td>
+					<td class="key">h Moll</td>
+					<td class="duration">3:10</td>
+					<td class="notes">Intro: Drums > Gitarre 1 > Gitarre 2; Verse 1; Bridge; Verse 2; Bridge; Chorus; Interlude Bass; Gitarrensolo; Bridge; Chorus; Outro; Outro Halftime; Outro Power; Abschlag</td>
+				</tr>
+				<tr><td colspan="10" class="heading">I</td></tr>
+				<tr>
+					<td class="label">Titel</td>
+					<td class="label right">Tempo</td>
+					<td class="label ">Interpret</td>
+					<td class="label ">GEMA Werkenr.</td>
+					<td class="label right">Jahr</td>
+					<td class="label ">Pick</td>
+					<td class="label ">Tonart</td>
+					<td class="label right">Dauer</td>
+					<td class="label ">Notizen</td>
+				</tr>
+				<tr class="clear_row">
+					<td class="song ">Inside</td>
+					<td class="tempo">82</td>
+					<td class="artist">Stiltskin</td>
+					<td class="custom ">3482697-001</td>
+					<td class="custom right">1994</td>
+					<td class="custom "></td>
+					<td class="key">D moll</td>
+					<td class="duration">4:26</td>
+					<td class="notes">Intro; Verse 1; Bridge; Chorus; Verse 2; Bridge; Chorus; Gitarrensolo (kurz); Bridge instr.; Basssolo; Chorus; Chorus + 4T; Ausklang; ; </td>
+				</tr>
+				<tr><td colspan="10" class="heading">J</td></tr>
+				<tr>
+					<td class="label">Titel</td>
+					<td class="label right">Tempo</td>
+					<td class="label ">Interpret</td>
+					<td class="label ">GEMA Werkenr.</td>
+					<td class="label right">Jahr</td>
+					<td class="label ">Pick</td>
+					<td class="label ">Tonart</td>
+					<td class="label right">Dauer</td>
+					<td class="label ">Notizen</td>
+				</tr>
+				<tr class="clear_row">
+					<td class="song ">Join me in Death</td>
+					<td class="tempo">115</td>
+					<td class="artist">H.I.M.</td>
+					<td class="custom ">4763576-001</td>
+					<td class="custom right">1998</td>
+					<td class="custom "></td>
+					<td class="key">G moll</td>
+					<td class="duration">3:31</td>
+					<td class="notes">Intro (Guitar + Vox); Intro (alle); Verse 1; Chorus; Verse 2; Chorus; Interlude (Ende Stopp); Chorus; Ausklang</td>
+				</tr>
+				<tr><td colspan="10" class="heading">K</td></tr>
+				<tr>
+					<td class="label">Titel</td>
+					<td class="label right">Tempo</td>
+					<td class="label ">Interpret</td>
+					<td class="label ">GEMA Werkenr.</td>
+					<td class="label right">Jahr</td>
+					<td class="label ">Pick</td>
+					<td class="label ">Tonart</td>
+					<td class="label right">Dauer</td>
+					<td class="label ">Notizen</td>
+				</tr>
+				<tr class="clear_row">
+					<td class="song ">Killing In The Name Of</td>
+					<td class="tempo"></td>
+					<td class="artist">Rage Against the Machine</td>
+					<td class="custom ">3212653-001</td>
+					<td class="custom right"></td>
+					<td class="custom "></td>
+					<td class="key"></td>
+					<td class="duration">4:30</td>
+					<td class="notes"></td>
+				</tr>
+				<tr><td colspan="10" class="heading">L</td></tr>
+				<tr>
+					<td class="label">Titel</td>
+					<td class="label right">Tempo</td>
+					<td class="label ">Interpret</td>
+					<td class="label ">GEMA Werkenr.</td>
+					<td class="label right">Jahr</td>
+					<td class="label ">Pick</td>
+					<td class="label ">Tonart</td>
+					<td class="label right">Dauer</td>
+					<td class="label ">Notizen</td>
+				</tr>
+				<tr class="clear_row">
+					<td class="song ">Last Nite</td>
+					<td class="tempo">210</td>
+					<td class="artist">The Strokes</td>
+					<td class="custom ">5771373-001</td>
+					<td class="custom right">2001</td>
+					<td class="custom "></td>
+					<td class="key">C dur</td>
+					<td class="duration">3:15</td>
+					<td class="notes">Intro sub/dom (02); ref C|C|d|G|e,d|; ref; ref; str 4x F|G|; ref; ref; str 4x F|G|; Solo 2 ref; str (stop auf 3); ref; ref; str 4x F|G|; stop auf 1; ; über e und d spiet die git G; ; in der bridge spielt die git oben C</td>
+				</tr>
+				<tr class="colored_row">
+					<td class="song ">Last Resort</td>
+					<td class="tempo"></td>
+					<td class="artist">Papa Roach</td>
+					<td class="custom ">5431691-001</td>
+					<td class="custom right"></td>
+					<td class="custom "></td>
+					<td class="key"></td>
+					<td class="duration"></td>
+					<td class="notes"></td>
+				</tr>
+				<tr class="clear_row">
+					<td class="song ">Lights Out</td>
+					<td class="tempo">80</td>
+					<td class="artist">Royal Blood</td>
+					<td class="custom ">19582994-003</td>
+					<td class="custom right"></td>
+					<td class="custom "></td>
+					<td class="key">D moll</td>
+					<td class="duration">4:10</td>
+					<td class="notes"></td>
+				</tr>
+				<tr class="colored_row">
+					<td class="song ">Lonely Boy</td>
+					<td class="tempo">170</td>
+					<td class="artist">The Black Keys</td>
+					<td class="custom ">12474664-001</td>
+					<td class="custom right">2011</td>
+					<td class="custom "></td>
+					<td class="key">E moll</td>
+					<td class="duration">3:14</td>
+					<td class="notes">Intro; Piano part; Bridge; Chorus; Bridge; Verse; Chorus; Intro; Piano part; Chorus</td>
+				</tr>
+				<tr><td colspan="10" class="heading">M</td></tr>
+				<tr>
+					<td class="label">Titel</td>
+					<td class="label right">Tempo</td>
+					<td class="label ">Interpret</td>
+					<td class="label ">GEMA Werkenr.</td>
+					<td class="label right">Jahr</td>
+					<td class="label ">Pick</td>
+					<td class="label ">Tonart</td>
+					<td class="label right">Dauer</td>
+					<td class="label ">Notizen</td>
+				</tr>
+				<tr class="clear_row">
+					<td class="song ">Moon over Bourbon Street</td>
+					<td class="tempo">108</td>
+					<td class="artist">Sting</td>
+					<td class="custom ">30270858-001</td>
+					<td class="custom right"></td>
+					<td class="custom "></td>
+					<td class="key">F moll</td>
+					<td class="duration"></td>
+					<td class="notes"></td>
+				</tr>
+				<tr class="colored_row">
+					<td class="song ">Mr. Brightside</td>
+					<td class="tempo">148</td>
+					<td class="artist">The Killers</td>
+					<td class="custom ">8359965-001</td>
+					<td class="custom right">2003</td>
+					<td class="custom "></td>
+					<td class="key">C dur</td>
+					<td class="duration">3:44</td>
+					<td class="notes">Guitar (4T); Guitar+Vox+HH (8T); Verse (8T); Bridge (16T); Chorus (16T); Synth Break (8T); Verse (8T) 7.T Ausklang; Verse (8T); Bridge (16T); Chorus (16T); Interlude (8T); Synth Break (16T); 15.T Ding-Dang-Dong</td>
+				</tr>
+				<tr><td colspan="10" class="heading">N</td></tr>
+				<tr>
+					<td class="label">Titel</td>
+					<td class="label right">Tempo</td>
+					<td class="label ">Interpret</td>
+					<td class="label ">GEMA Werkenr.</td>
+					<td class="label right">Jahr</td>
+					<td class="label ">Pick</td>
+					<td class="label ">Tonart</td>
+					<td class="label right">Dauer</td>
+					<td class="label ">Notizen</td>
+				</tr>
+				<tr class="clear_row">
+					<td class="song ">Narcotic</td>
+					<td class="tempo">100</td>
+					<td class="artist">Liquido</td>
+					<td class="custom ">4588324-001</td>
+					<td class="custom right">1999</td>
+					<td class="custom "></td>
+					<td class="key">A Dur</td>
+					<td class="duration">3:50</td>
+					<td class="notes">Intro Gitarre; Intro alle; Verse 1; Chorus; Verse 2; Chorus; Interlude (Stopps); Chorus; Chorus; Ausklang</td>
+				</tr>
+				<tr><td colspan="10" class="heading">R</td></tr>
+				<tr>
+					<td class="label">Titel</td>
+					<td class="label right">Tempo</td>
+					<td class="label ">Interpret</td>
+					<td class="label ">GEMA Werkenr.</td>
+					<td class="label right">Jahr</td>
+					<td class="label ">Pick</td>
+					<td class="label ">Tonart</td>
+					<td class="label right">Dauer</td>
+					<td class="label ">Notizen</td>
+				</tr>
+				<tr class="clear_row">
+					<td class="song ">Rock‘n‘Roll Queen</td>
+					<td class="tempo">142</td>
+					<td class="artist">Subways</td>
+					<td class="custom ">keine Gema Werknr.</td>
+					<td class="custom right">2005</td>
+					<td class="custom ">🔻Harp C</td>
+					<td class="key">G moll</td>
+					<td class="duration">3:30</td>
+					<td class="notes">Strophe leise; Refrain (immer 4 x); Strophe; Refrain; Strophe Gitarrensolo (doppelte Länge); Refrain; Strophe leise; Refrain Stopp im 2. (von 4)</td>
+				</tr>
+				<tr class="colored_row">
+					<td class="song ">Run</td>
+					<td class="tempo">80</td>
+					<td class="artist">Snow Patrol</td>
+					<td class="custom ">8221698-001</td>
+					<td class="custom right">2007</td>
+					<td class="custom "></td>
+					<td class="key">A moll</td>
+					<td class="duration">5:55</td>
+					<td class="notes">4t nur Git; 4t intro; 16t str; 16t ref; 4t intro; 4t str ohne drums; 4t str; 16t ref; 16t solo; 16t ref; 8t ref  ohne drums; ausklang auf 1</td>
+				</tr>
+				<tr><td colspan="10" class="heading">S</td></tr>
+				<tr>
+					<td class="label">Titel</td>
+					<td class="label right">Tempo</td>
+					<td class="label ">Interpret</td>
+					<td class="label ">GEMA Werkenr.</td>
+					<td class="label right">Jahr</td>
+					<td class="label ">Pick</td>
+					<td class="label ">Tonart</td>
+					<td class="label right">Dauer</td>
+					<td class="label ">Notizen</td>
+				</tr>
+				<tr class="clear_row">
+					<td class="song ">Self Esteem</td>
+					<td class="tempo">104</td>
+					<td class="artist">The Offspring</td>
+					<td class="custom ">3447679-001</td>
+					<td class="custom right">1994</td>
+					<td class="custom ">🔻</td>
+					<td class="key">Em</td>
+					<td class="duration">4:17</td>
+					<td class="notes">La la lalala; Thema; Basssolo; Verse 1; Verse 2; Chorus; Verse 3; Chorus; Interlude; Basssolo; Verse 4; Chorus; Interlude; Abschlag; </td>
+				</tr>
+				<tr class="colored_row">
+					<td class="song ">Sex on Fire</td>
+					<td class="tempo">154</td>
+					<td class="artist">Kings of Leon</td>
+					<td class="custom ">10323130-001</td>
+					<td class="custom right">2008</td>
+					<td class="custom "></td>
+					<td class="key">D dur</td>
+					<td class="duration">3:23</td>
+					<td class="notes">Intro; Strophe; Ref einfach; Strophe; Ref doppelt; Strophe; Ref einfach; Ref mit Stops doppelt; Ref wieder normal doppelt; End: Dopelschlag auf D auf 1 (und folgende 16tel); ;  | 4T Pause dann Strophe Rest ab H ohne Gesang; Ganze Strophe ohne Gesang; 1. Strophe (2. Teil 8tel, Ende auf H bleiben!); Chorus; 2. Strophe (2. Teil 8tel, Ende auf C); Chorus; Chorus; 3. Strophe; Chorus; Chorus; Chorus BD+Bass; Chorus BD+Bass + D4 D7 G7 G4; Chorus; Chorus; Ende: DD</td>
+				</tr>
+				<tr class="clear_row">
+					<td class="song ">She Hates Me</td>
+					<td class="tempo">110</td>
+					<td class="artist">Puddle Of Mudd</td>
+					<td class="custom ">5944351-001</td>
+					<td class="custom right">2001</td>
+					<td class="custom "></td>
+					<td class="key">D dur</td>
+					<td class="duration">3:34</td>
+					<td class="notes">; Intro; Verse 1a (Guitar); Verse 1b (all); Chorus ; Verse 2a (8el); Verse 2b (Punk); Chorus; Guitar Solo; Verse 3 (laid back, Ende Punk); Chorus; Coda (lalalalala); Ende auf “hates me”</td>
+				</tr>
+				<tr class="colored_row">
+					<td class="song ">Should I Stay Or Should I Go</td>
+					<td class="tempo"></td>
+					<td class="artist">The Clash</td>
+					<td class="custom ">1533437-001</td>
+					<td class="custom right">1982</td>
+					<td class="custom "></td>
+					<td class="key">D dur</td>
+					<td class="duration">2:30</td>
+					<td class="notes"></td>
+				</tr>
+				<tr class="clear_row">
+					<td class="song ">Song 2</td>
+					<td class="tempo">128</td>
+					<td class="artist">Blur</td>
+					<td class="custom ">4169152-001</td>
+					<td class="custom right">1997</td>
+					<td class="custom ">🔻</td>
+					<td class="key">F# moll</td>
+					<td class="duration">2:02</td>
+					<td class="notes">Drums; Guitar + Drums (2x); Intro/Chorus (x4); Guitar+Drums (x8); Intro/Chorus (x3); Post—Chorus; Interlude; Guitar+Drums (x4); Intro/Chorus (x3); Post—Chorus; Interlude; Ending; ; ; ; </td>
+				</tr>
+				<tr class="colored_row">
+					<td class="song ">Space Lord</td>
+					<td class="tempo">96</td>
+					<td class="artist">Monster Magnet</td>
+					<td class="custom ">4380355-001</td>
+					<td class="custom right">1998</td>
+					<td class="custom ">🔻Harp D</td>
+					<td class="key">A moll</td>
+					<td class="duration">4:30</td>
+					<td class="notes">Gitarre (4T); Gitarre + Gesang (8T); Chorus (4T); Alle (4T); Verse (8T); Chorus (8T); Alle (4T); Verse mit Power (8T); nur Gitarre (4T); Gitarre + Gesang (4T); Verse alle (4T); Chorus (4T); Alle + "Glocke" (4T); Verse mit Power (8T); RAGE (8T); Zwischenteil (8T); Zwischenteil mit Gesang (8T); RAGE (8T); Powerchorus + Gitarrensolo (16T); 8T Fade out Action | Gitarre (4T); Gitarre + Gesang (8T); Chorus (4T); Alle (4T); Verse (8T); Chorus (8T); Alle (4T); Verse mit Power (8T); nur Gitarre (4T); Gitarre + Gesang (4T); Verse alle (4T); Chorus (4T); Alle + "Glocke" (4T); Verse mit Power (8T); RAGE (8T); Zwischenteil (8T); Zwischenteil mit Gesang (8T); RAGE (8T); Powerchorus + Gitarrensolo (16T); 8T Fade out Action</td>
+				</tr>
+				<tr class="clear_row">
+					<td class="song ">Supergirl</td>
+					<td class="tempo"></td>
+					<td class="artist">Raemon</td>
+					<td class="custom ">5003467-001</td>
+					<td class="custom right"></td>
+					<td class="custom "></td>
+					<td class="key">F# moll</td>
+					<td class="duration"></td>
+					<td class="notes"></td>
+				</tr>
+				<tr><td colspan="10" class="heading">T</td></tr>
+				<tr>
+					<td class="label">Titel</td>
+					<td class="label right">Tempo</td>
+					<td class="label ">Interpret</td>
+					<td class="label ">GEMA Werkenr.</td>
+					<td class="label right">Jahr</td>
+					<td class="label ">Pick</td>
+					<td class="label ">Tonart</td>
+					<td class="label right">Dauer</td>
+					<td class="label ">Notizen</td>
+				</tr>
+				<tr class="clear_row">
+					<td class="song ">Teenage Dirtbag</td>
+					<td class="tempo">95</td>
+					<td class="artist">Wheatus</td>
+					<td class="custom ">4898649-001</td>
+					<td class="custom right">2000</td>
+					<td class="custom "></td>
+					<td class="key">D dur</td>
+					<td class="duration">4:02</td>
+					<td class="notes">Intro; Verse 1; Bridge; Chorus; Intro; Verse 2; Bridge; Chorus; Interlude; Verse 3 (Guitar + Vox); Chorus (+Bass, no Drums); Interlude; End</td>
+				</tr>
+				<tr class="colored_row">
+					<td class="song ">Tension</td>
+					<td class="tempo">149</td>
+					<td class="artist">Grant Kilpatrick</td>
+					<td class="custom ">22971706-001</td>
+					<td class="custom right">2019</td>
+					<td class="custom ">🔻</td>
+					<td class="key">A moll</td>
+					<td class="duration">3:07</td>
+					<td class="notes">Intro Guitar, dann Gesang (Strophe); Strophe (Rest); Chorus; Strophe; Chorus; Gitarrenthema; Interlude; Chorus; Gitarrensolo (lang); Gitarrenthema ; schnelles Ende; ;  | Änderungen:; in Am</td>
+				</tr>
+				<tr class="clear_row">
+					<td class="song ">The Boys Of Summer</td>
+					<td class="tempo">190</td>
+					<td class="artist">The Ataris</td>
+					<td class="custom ">1763139-001</td>
+					<td class="custom right">2003</td>
+					<td class="custom ">🔻</td>
+					<td class="key">A moll</td>
+					<td class="duration">3:30</td>
+					<td class="notes">2 soli, zweitere von den palms eingeleitet; nach dem 2. solo keine git in der str (nur pete), dann 8tel ab g, ende 1 takt stop auf 1; letzter ref mit melodie; ; Intro; Verse 1; Chorus; Interlude 1; Verse 2; Chorus; Interlude 2; Gitarrensolo; Verse 3 mit Stopp; Chorus; Chorus; Outro; ; </td>
+				</tr>
+				<tr class="colored_row">
+					<td class="song ">The Middle</td>
+					<td class="tempo">160</td>
+					<td class="artist">Jimmy Eat World</td>
+					<td class="custom ">6103711-001</td>
+					<td class="custom right">2001</td>
+					<td class="custom "></td>
+					<td class="key">C dur</td>
+					<td class="duration">2:53</td>
+					<td class="notes">middle ende kurz auf 4und; ; 8 Intro nur git; 16 verse; 8 ref; 16 verse; 16 ref; 16 solo; 16 verse (erste 2 Takte nur snare) ; 16 ref abschlag nach all right</td>
+				</tr>
+				<tr class="clear_row">
+					<td class="song ">The Pretender</td>
+					<td class="tempo">87</td>
+					<td class="artist">Foo Fighters</td>
+					<td class="custom ">9903932-001</td>
+					<td class="custom right">2007</td>
+					<td class="custom ">🔻</td>
+					<td class="key">E moll</td>
+					<td class="duration">4:28</td>
+					<td class="notes">Intro; Verse 1; Pre-Chorus; Chorus; Verse 2; Pre-Chorus; Chorus; Pre-Verse; Guitar Break; Interlude; Guitar + Vox; Chorus ; End</td>
+				</tr>
+				<tr class="colored_row">
+					<td class="song ">The Reason</td>
+					<td class="tempo">83</td>
+					<td class="artist">Hoobastank</td>
+					<td class="custom ">8124133-001</td>
+					<td class="custom right">2004</td>
+					<td class="custom "></td>
+					<td class="key">C Dur</td>
+					<td class="duration">3:46</td>
+					<td class="notes"></td>
+				</tr>
+				<tr class="clear_row">
+					<td class="song ">Today</td>
+					<td class="tempo">83</td>
+					<td class="artist">Smashing Pumpkins</td>
+					<td class="custom ">3215434-001</td>
+					<td class="custom right">1993</td>
+					<td class="custom "></td>
+					<td class="key">C dur</td>
+					<td class="duration">3:23</td>
+					<td class="notes">Intro Guitar; Intro all; Verse 1; Bridge 1; Verse 2; Bridge 2; Chorus ft; B-Teil; ; 4 guitar only; 8 Intro CGFF CGFF CGaF CGFF; 8 Verse CGFF CGFF CGFF CGaa; 8 ref dFaa dFaa dFaa dFEh; 8 verse; 8 ref dFCG dFCG dFCG dFEh QQ; CGCF CGCF CGaF CGAA AA; 7 ref ohne Eh; CGaF CGaF CGaF CGaF; C; ; </td>
+				</tr>
+				<tr class="colored_row">
+					<td class="song ">Torn</td>
+					<td class="tempo">104</td>
+					<td class="artist">Hands like Houses</td>
+					<td class="custom ">3139029-001</td>
+					<td class="custom right">2014</td>
+					<td class="custom "></td>
+					<td class="key">C dur</td>
+					<td class="duration">3:58</td>
+					<td class="notes">Ref immer 3x (auch am Ende wenn man den gestopten Durchlauf nicht mitzählt); 2. Strophe sehr kurz; Vor Basssolo aFaF, vor Git Solo aFF, Stop jeweils auf 4;  ; 0:00 Verse1a Guit; 0:15  Verse 1b +Drums/Bass; 0:30 Bridge 1 (Ganze Noten, Ende 8el Steigerung); 0:39 Chorus 1; 1:10 Verse 2 (Guitar + Hits); 1:25 Bridge 2; 1:34 Chorus 2; 2:04 Torn, Toms; 2:15 Bass-Solo + Huhuu; 2:24 Bridge, Guitar+Vox; 2:34 Chorus 3a Guitar+Vox Breaks; 2:44 Chorus 3b (alle);          Chorus 3a;          Chorus 3b; 3:14 Steigerung 8tel; 3:21 Solo</td>
+				</tr>
+				<tr><td colspan="10" class="heading">V</td></tr>
+				<tr>
+					<td class="label">Titel</td>
+					<td class="label right">Tempo</td>
+					<td class="label ">Interpret</td>
+					<td class="label ">GEMA Werkenr.</td>
+					<td class="label right">Jahr</td>
+					<td class="label ">Pick</td>
+					<td class="label ">Tonart</td>
+					<td class="label right">Dauer</td>
+					<td class="label ">Notizen</td>
+				</tr>
+				<tr class="clear_row">
+					<td class="song ">Valerie</td>
+					<td class="tempo">86</td>
+					<td class="artist">The Zutons</td>
+					<td class="custom ">9714569-001</td>
+					<td class="custom right">2006</td>
+					<td class="custom "></td>
+					<td class="key">C dur</td>
+					<td class="duration">3:58</td>
+					<td class="notes">; Intro mit Hihat click; 2. Str 1x ohne und 1x mit Uh Uh; 3. str erstmal nur vocals, gitarre dazu auf D, dann direkt zur bridge; ; Intro; Verse 1; Bridge (uh); Chorus (Valerie); Verse 2; Verse 3; Bridge; Chorus; Verse 4 a capella + HiHat, dann alle; Bridge; Chorus; Ausklang</td>
+				</tr>
+				<tr><td colspan="10" class="heading">W</td></tr>
+				<tr>
+					<td class="label">Titel</td>
+					<td class="label right">Tempo</td>
+					<td class="label ">Interpret</td>
+					<td class="label ">GEMA Werkenr.</td>
+					<td class="label right">Jahr</td>
+					<td class="label ">Pick</td>
+					<td class="label ">Tonart</td>
+					<td class="label right">Dauer</td>
+					<td class="label ">Notizen</td>
+				</tr>
+				<tr class="clear_row">
+					<td class="song ">Word Up</td>
+					<td class="tempo">120</td>
+					<td class="artist">Gun</td>
+					<td class="custom ">1997703-001</td>
+					<td class="custom right">1994</td>
+					<td class="custom "></td>
+					<td class="key">A moll</td>
+					<td class="duration">4:21</td>
+					<td class="notes">Intro; Verse 1; Chorus; Verse 2; Chorus (halb); Interlude; Gitarrensolo; W - O - R - D - up; Verse 3; Chorus; Abschlag; </td>
+				</tr>
+				<tr><td colspan="10" class="heading">Y</td></tr>
+				<tr>
+					<td class="label">Titel</td>
+					<td class="label right">Tempo</td>
+					<td class="label ">Interpret</td>
+					<td class="label ">GEMA Werkenr.</td>
+					<td class="label right">Jahr</td>
+					<td class="label ">Pick</td>
+					<td class="label ">Tonart</td>
+					<td class="label right">Dauer</td>
+					<td class="label ">Notizen</td>
+				</tr>
+				<tr class="clear_row">
+					<td class="song ">Yellow</td>
+					<td class="tempo">87</td>
+					<td class="artist">Coldplay</td>
+					<td class="custom ">5268308-001</td>
+					<td class="custom right">2000</td>
+					<td class="custom "></td>
+					<td class="key">A dur</td>
+					<td class="duration">4:25</td>
+					<td class="notes">Intro  (4T) nur Gitarre; Thema  (8T) alle; Verse (20T); Chorus (8T); Thema (8T); Verse (14T); Chorus (8T); Thema (8T); Thema (12T) „I‘ts true...“; Finish (A Em!! auf D Ausklang)</td>
+				</tr>
+				<tr class="colored_row">
+					<td class="song ">You're all I have</td>
+					<td class="tempo">136</td>
+					<td class="artist">Snow Patrol</td>
+					<td class="custom "></td>
+					<td class="custom right"></td>
+					<td class="custom "></td>
+					<td class="key"></td>
+					<td class="duration">3:49</td>
+					<td class="notes"></td>
+				</tr>
+			</table>
+	</div>
+	</body>
+</html>

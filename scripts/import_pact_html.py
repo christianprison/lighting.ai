@@ -10,6 +10,7 @@ import json
 import re
 import string
 import random
+import xml.etree.ElementTree as ET
 from html.parser import HTMLParser
 from pathlib import Path
 
@@ -439,6 +440,212 @@ def assign_lyrics_to_db(db: dict, lyrics_by_name: dict[str, list[dict]]) -> int:
     return songs_with_lyrics
 
 
+def load_qlc_chasers(qxw_path: Path) -> dict:
+    """
+    Parst die QLC+ Workspace-Datei und extrahiert Song-Chasers.
+
+    Rückgabe: {
+        "song_name": {
+            "qlc_id": 90,
+            "steps": [
+                {"pos": 1, "name": "Intro", "duration_sec": 14, "qlc_scene": "08 swimming",
+                 "qlc_scene_id": 79, "timestamp": "0:02"},
+                ...
+            ]
+        },
+        ...
+    }
+    """
+    if not qxw_path.exists():
+        return {}
+
+    tree = ET.parse(qxw_path)
+    root = tree.getroot()
+    ns = {'q': 'http://www.qlcplus.org/Workspace'}
+
+    engine = root.find('q:Engine', ns)
+    if engine is None:
+        return {}
+
+    functions = engine.findall('q:Function', ns)
+
+    # Funktions-Lookup für Scene/Collection-Namen
+    func_lookup = {}
+    for f in functions:
+        func_lookup[f.get('ID')] = {
+            'name': f.get('Name', ''),
+            'type': f.get('Type', ''),
+        }
+
+    # Song-Chasers extrahieren (Path="Pact Songs")
+    chasers = [f for f in functions
+                if f.get('Type') == 'Chaser' and f.get('Path') == 'Pact Songs']
+
+    result = {}
+    for ch in chasers:
+        chaser_name = ch.get('Name', '').strip()
+
+        # Disabled Chasers überspringen
+        if '🚫' in chaser_name:
+            continue
+
+        # Mashup-Chasers überspringen (z.B. "Boys don't cry + The Boys of Summer")
+        if ' + ' in chaser_name:
+            continue
+
+        steps_raw = ch.findall('q:Step', ns)
+        if not steps_raw:
+            continue
+
+        steps = []
+        part_pos = 0
+
+        for step in steps_raw:
+            note = step.get('Note', '').strip()
+            hold = int(step.get('Hold', '0'))
+            scene_id = step.text or ''
+
+            # ∞-Hold-Steps am Anfang/Ende sind Standby (Song-Titel), überspringen
+            if hold == 4294967294:
+                continue
+
+            # Steps ohne Note UND sehr kurze Dauer (<= 3s) sind Übergänge
+            if not note and hold <= 3000:
+                continue
+
+            duration_sec = round(hold / 1000)
+            if duration_sec <= 0:
+                continue
+
+            part_pos += 1
+
+            # Scene-Name auflösen
+            scene_info = func_lookup.get(scene_id, {})
+            scene_name = scene_info.get('name', '')
+            # Emojis aus Scene-Namen entfernen für saubere DB
+            scene_name_clean = re.sub(r'[\U0001F300-\U0001FAFF\u2600-\u27BF\u2B50\u26A0\uFE0F]+',
+                                        '', scene_name).strip()
+
+            # Timestamp aus Note extrahieren (z.B. "Verse 1 0:16" → "0:16")
+            timestamp = ''
+            ts_match = re.search(r'(\d+:\d+)\s*$', note)
+            if ts_match:
+                timestamp = ts_match.group(1)
+                note = note[:ts_match.start()].strip()
+
+            # Timing-Klammern extrahieren (z.B. "[26s]", "[1:05]")
+            bracket_match = re.search(r'\[[\d:s]+\]\s*$', note)
+            if bracket_match:
+                if not timestamp:
+                    timestamp = bracket_match.group().strip('[]')
+                note = note[:bracket_match.start()].strip()
+
+            # Leere Notes mit sinnvollem Default befüllen
+            if not note:
+                note = f"Part {part_pos}"
+
+            steps.append({
+                "pos": part_pos,
+                "name": note,
+                "duration_sec": duration_sec,
+                "qlc_scene": scene_name_clean,
+                "qlc_scene_id": int(scene_id) if scene_id.isdigit() else 0,
+                "timestamp": timestamp,
+            })
+
+        if steps:
+            result[chaser_name] = {
+                "qlc_id": int(ch.get('ID', '0')),
+                "steps": steps,
+            }
+
+    return result
+
+
+def normalize_name(name: str) -> str:
+    """Normalisiert Apostrophe und Sonderzeichen für Vergleiche."""
+    return name.replace('\u2018', "'").replace('\u2019', "'").replace('\u201C', '"').replace('\u201D', '"')
+
+
+def match_qlc_to_pact(qlc_name: str, pact_name: str) -> bool:
+    """Fuzzy-Match zwischen QLC+-Chaser-Name und Pact-Song-Name."""
+    qn = normalize_name(qlc_name).lower().strip()
+    pn = normalize_name(pact_name).lower().strip()
+    if qn == pn:
+        return True
+    # Teilstring-Match (z.B. "Always where I need to be" ↔ "Always Where I Need to Be")
+    if qn in pn or pn in qn:
+        return True
+    # Wort-basierter Match (erstes signifikantes Wort)
+    qn_words = [w for w in qn.split() if len(w) > 2]
+    pn_words = [w for w in pn.split() if len(w) > 2]
+    if qn_words and pn_words and qn_words[0] == pn_words[0]:
+        # Mindestens 2 Wörter müssen matchen bei Mehwort-Titeln
+        common = set(qn_words) & set(pn_words)
+        if len(common) >= min(2, len(qn_words)):
+            return True
+    return False
+
+
+def apply_qlc_data(db: dict, qlc_chasers: dict) -> int:
+    """
+    Ersetzt die Notizen-basierten Parts durch QLC+-Chaser-Steps
+    (weil QLC+-Daten autoritativer sind: echte Timings, echte Lichtprogramme).
+
+    Für Songs OHNE QLC+-Daten bleiben die Notizen-Parts erhalten.
+
+    Rückgabe: Anzahl Songs mit QLC+-Parts.
+    """
+    songs_updated = 0
+
+    for song_id, song in db["songs"].items():
+        song_name = song["name"]
+
+        # Matching QLC+ Chaser finden
+        matched_chaser = None
+        for qlc_name, chaser_data in qlc_chasers.items():
+            if match_qlc_to_pact(qlc_name, song_name):
+                matched_chaser = chaser_data
+                break
+
+        if not matched_chaser:
+            continue
+
+        steps = matched_chaser["steps"]
+        bpm = song.get("bpm", 0)
+
+        # Parts aus QLC+-Steps erstellen (ersetzt Notizen-Parts)
+        new_parts = {}
+        for step in steps:
+            part_id = f"{song_id}_P{step['pos']:03d}"
+            template = classify_part_template(step["name"])
+
+            # Bars aus Duration + BPM schätzen
+            bars = 0
+            if bpm > 0 and step["duration_sec"] > 0:
+                bars = round((step["duration_sec"] * bpm) / (4 * 60))
+                if bars < 1:
+                    bars = 1
+
+            new_parts[part_id] = {
+                "pos": step["pos"],
+                "name": step["name"],
+                "bars": bars,
+                "duration_sec": step["duration_sec"],
+                "light_template": template,
+                "qlc_scene": step["qlc_scene"],
+                "qlc_scene_id": step["qlc_scene_id"],
+                "timestamp": step["timestamp"],
+                "notes": "",
+            }
+
+        song["parts"] = new_parts
+        song["qlc_id"] = matched_chaser["qlc_id"]
+        songs_updated += 1
+
+    return songs_updated
+
+
 def classify_part_template(name: str) -> str:
     """Weist einem Part-Namen ein Light-Template zu."""
     nl = name.lower()
@@ -603,6 +810,50 @@ def main():
         print(f"  {s['name']:40s} {s['artist']:30s} {tempo:>4s} BPM  {s['key']:12s} {s['gema_nr']:16s} {parts_info}")
 
     db = build_db(parser.songs)
+
+    # QLC+ Chaser-Daten laden und Parts ersetzen
+    qxw_path = repo_root / "db" / "ThePact.qxw"
+    print(f"\nLese QLC+: {qxw_path}")
+    qlc_chasers = load_qlc_chasers(qxw_path)
+    print(f"  Song-Chasers gefunden: {len(qlc_chasers)}")
+
+    songs_updated = apply_qlc_data(db, qlc_chasers)
+    print(f"  Songs mit QLC+-Parts aktualisiert: {songs_updated}")
+
+    # Welche QLC+-Songs wurden nicht gematcht?
+    pact_names = {s["name"].lower() for s in db["songs"].values()}
+    unmatched_qlc = [name for name in qlc_chasers
+                     if not any(match_qlc_to_pact(name, pn) for pn in pact_names)]
+    if unmatched_qlc:
+        print(f"  QLC+-Songs ohne Pact-Match: {', '.join(unmatched_qlc)}")
+
+    # Welche Pact-Songs haben keine QLC+-Daten?
+    songs_without_qlc = [s["name"] for s in db["songs"].values() if "qlc_id" not in s]
+    if songs_without_qlc:
+        print(f"  Pact-Songs ohne QLC+-Daten: {len(songs_without_qlc)}")
+        for name in sorted(songs_without_qlc):
+            print(f"    {name}")
+
+    # QLC+ Scene-Palette in Meta speichern
+    if qxw_path.exists():
+        tree = ET.parse(qxw_path)
+        root_xml = tree.getroot()
+        ns_qlc = {'q': 'http://www.qlcplus.org/Workspace'}
+        engine_xml = root_xml.find('q:Engine', ns_qlc)
+        func_list = engine_xml.findall('q:Function', ns_qlc)
+        scene_palette = {}
+        for f in func_list:
+            fid = f.get('ID', '')
+            fname = f.get('Name', '')
+            ftype = f.get('Type', '')
+            if ftype in ('Collection', 'Scene') and fid.isdigit():
+                # Emojis entfernen
+                clean_name = re.sub(r'[\U0001F300-\U0001FAFF\u2600-\u27BF\u2B50\u26A0\uFE0F]+',
+                                    '', fname).strip()
+                if clean_name:
+                    scene_palette[fid] = clean_name
+        db["meta"]["qlc_scenes"] = scene_palette
+        print(f"  QLC+ Scenes/Collections in Meta: {len(scene_palette)}")
 
     # Lyrics aus Stringbreak.json extrahieren und zuordnen
     print(f"\nLese Lyrics: {stringbreak_path}")

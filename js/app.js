@@ -875,6 +875,8 @@ function handleAccentToggle(pos16) {
    AUDIO SPLIT TAB — Meilenstein 3
    ══════════════════════════════════════════════════════ */
 
+let _refLoadingFor = null; // songId currently loading reference for
+
 function renderAudioTab() {
   if (!selectedSongId || !db.songs[selectedSongId]) {
     els.content.innerHTML = `<div class="empty-state"><div class="icon">&#9836;</div><p>Song aus der Liste links ausw\u00e4hlen, um Audio zu splitten.</p></div>`;
@@ -886,11 +888,17 @@ function renderAudioTab() {
   const hasBuf = !!audio.getBuffer();
   const isPlay = audio.isPlaying();
 
+  // Auto-load reference audio if available and not yet loaded
+  if (!hasBuf && song.audio_ref && _refLoadingFor !== selectedSongId) {
+    _refLoadingFor = selectedSongId;
+    loadReferenceAudio().finally(() => { _refLoadingFor = null; });
+  }
+
   els.content.innerHTML = `
     <div class="audio-panel">
       <div class="audio-scroll" id="audio-scroll">
         ${buildSongHeader(song)}
-        ${buildDropZone()}
+        ${buildDropZone(song)}
         ${hasBuf ? buildWaveform() : ''}
         ${hasBuf ? buildTransport() : ''}
         ${hasBuf ? buildTapButtons(parts, isPlay) : ''}
@@ -917,7 +925,7 @@ function buildSongHeader(song) {
     </div>`;
 }
 
-function buildDropZone() {
+function buildDropZone(song) {
   if (audioMeta) {
     const durStr = fmtTime(audioMeta.duration);
     const sr = (audioMeta.sampleRate / 1000).toFixed(1);
@@ -932,10 +940,17 @@ function buildDropZone() {
         <span class="dz-change">Klick zum Wechseln</span>
       </div>`;
   }
+  if (_refLoadingFor === selectedSongId) {
+    return `
+      <div class="audio-dropzone loading" id="audio-dropzone">
+        <div class="dz-text">Referenz-Audio wird geladen...</div>
+      </div>`;
+  }
+  const hasRef = song && song.audio_ref;
   return `
     <div class="audio-dropzone" id="audio-dropzone">
       <div class="dz-icon">&#127925;</div>
-      <div class="dz-text">Audio-Datei hier ablegen oder klicken</div>
+      <div class="dz-text">${hasRef ? 'Referenz-Audio wird geladen... oder neue Datei ablegen' : 'Audio-Datei hier ablegen oder klicken'}</div>
       <div class="dz-formats">.wav .mp3 .m4a .ogg</div>
     </div>`;
 }
@@ -1300,17 +1315,105 @@ function handleAudioFileLoad(file) {
   const reader = new FileReader();
   reader.onload = async (e) => {
     try {
-      const meta = await audio.decodeAudio(e.target.result);
+      const arrayBuf = e.target.result;
+      const meta = await audio.decodeAudio(arrayBuf);
       audioMeta = meta;
       audioFileName = file.name;
       resetAudioSplit();
       renderAudioTab();
       toast(`Audio geladen: ${fmtTime(meta.duration)}`, 'success');
+
+      // Upload reference audio to GitHub in background
+      uploadReferenceAudio(arrayBuf, file.name);
     } catch (err) {
       toast(`Audio-Fehler: ${err.message}`, 'error');
     }
   };
   reader.readAsArrayBuffer(file);
+}
+
+/**
+ * Upload the full reference audio to GitHub and store path in song.
+ */
+async function uploadReferenceAudio(arrayBuffer, fileName) {
+  if (!selectedSongId) return;
+  const s = getSettings();
+  if (!s.token || !s.repo) return; // read-only mode, skip
+
+  const song = db.songs[selectedSongId];
+  if (!song) return;
+
+  const ext = (fileName.match(/\.(\w+)$/) || [, 'mp3'])[1].toLowerCase();
+  const path = `audio/${selectedSongId}/reference.${ext}`;
+
+  try {
+    // Convert ArrayBuffer to base64
+    const bytes = new Uint8Array(arrayBuffer);
+    const chunkSize = 8192;
+    let binary = '';
+    for (let i = 0; i < bytes.length; i += chunkSize) {
+      binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
+    }
+    const base64 = btoa(binary);
+
+    await uploadFile(s.repo, path, s.token, base64,
+      `Referenz-Audio: ${song.name} (${fileName})`);
+
+    song.audio_ref = path;
+    song.audio_ref_name = fileName;
+    markDirty();
+    toast('Referenz-Audio gespeichert', 'success');
+  } catch (err) {
+    console.error('Reference upload failed:', err);
+    // Non-blocking — split still works without reference
+  }
+}
+
+/**
+ * Load reference audio from GitHub for current song.
+ */
+async function loadReferenceAudio() {
+  if (!selectedSongId) return;
+  const song = db.songs[selectedSongId];
+  if (!song || !song.audio_ref) return;
+  if (audioMeta) return; // already loaded
+
+  const s = getSettings();
+
+  try {
+    // Try direct fetch first (works on GitHub Pages / local dev)
+    let arrayBuf;
+    try {
+      const res = await fetch(song.audio_ref);
+      if (res.ok) {
+        arrayBuf = await res.arrayBuffer();
+      }
+    } catch { /* fall through to API */ }
+
+    // Fallback: fetch via GitHub API
+    if (!arrayBuf && s.token && s.repo) {
+      const url = `https://api.github.com/repos/${s.repo}/contents/${song.audio_ref}`;
+      const res = await fetch(url, {
+        headers: {
+          'Authorization': `token ${s.token}`,
+          'Accept': 'application/vnd.github.v3.raw',
+        },
+      });
+      if (res.ok) {
+        arrayBuf = await res.arrayBuffer();
+      }
+    }
+
+    if (!arrayBuf) return;
+
+    const meta = await audio.decodeAudio(arrayBuf);
+    audioMeta = meta;
+    audioFileName = song.audio_ref_name || song.audio_ref.split('/').pop();
+    renderAudioTab();
+    toast(`Referenz-Audio geladen: ${fmtTime(meta.duration)}`, 'success');
+  } catch (err) {
+    console.error('Reference load failed:', err);
+  }
 }
 
 function handleWaveformClick(e) {

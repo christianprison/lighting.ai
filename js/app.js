@@ -1052,6 +1052,12 @@ function buildSplitResult(parts) {
 function buildExportSection(parts) {
   if (currentPartIndex < parts.length) return '';
   if (parts.length === 0) return '';
+  if (barMarkers.length === 0) return `
+    <div class="export-section" id="export-section">
+      <div style="font-size:0.8rem;color:var(--t3)">
+        Keine Bars getappt &mdash; tappe zuerst die Taktgrenzen mit BAR TAP.
+      </div>
+    </div>`;
 
   if (exportInProgress) {
     return `
@@ -1190,17 +1196,26 @@ function drawWaveform() {
     ctx.fillRect(i * barW, mid - barH / 2, Math.max(barW - 0.5, 1), barH || 1);
   }
 
-  // Bar markers (cyan)
+  // Bar markers (cyan) with bar numbers
   for (const m of barMarkers) {
-    // Skip if also a part marker (to avoid double-draw)
-    if (partMarkers.some(pm => pm.time === m.time)) continue;
     const x = (m.time / duration) * w;
+    // Count bar number within this part
+    const partBars = barMarkers
+      .filter(b => b.partIndex === m.partIndex)
+      .sort((a, b) => a.time - b.time);
+    const barNum = partBars.indexOf(m) + 1;
+
     ctx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(x, 0);
     ctx.lineTo(x, h);
     ctx.stroke();
+
+    // Bar number label at bottom
+    ctx.font = '9px "DM Mono", monospace';
+    ctx.fillStyle = 'rgba(56, 189, 248, 0.8)';
+    ctx.fillText(String(barNum), x + 2, h - 4);
   }
 
   // Part markers (amber)
@@ -1611,6 +1626,12 @@ async function handleAudioExport() {
 
   // Count total bars across all parts
   const totalBars = barMarkers.length;
+  if (totalBars === 0) {
+    toast('Keine Bars getappt — tappe zuerst die Taktgrenzen mit BAR TAP', 'error');
+    exportInProgress = false;
+    renderAudioTab();
+    return;
+  }
   let done = 0;
 
   ensureCollections();

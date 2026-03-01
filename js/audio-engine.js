@@ -182,7 +182,8 @@ export function getPeaks(buckets) {
  */
 export async function exportSegmentMp3(startTime, endTime, kbps = 128) {
   if (!audioBuffer) throw new Error('No audio loaded');
-  if (typeof lamejs === 'undefined') throw new Error('lamejs not loaded');
+  const lame = window.lamejs;
+  if (!lame) throw new Error('lamejs not loaded — CDN script missing?');
 
   const sr = audioBuffer.sampleRate;
   const channels = audioBuffer.numberOfChannels;
@@ -207,15 +208,15 @@ export async function exportSegmentMp3(startTime, endTime, kbps = 128) {
     ? floatTo16(audioBuffer.getChannelData(1).slice(startSample, endSample))
     : left;
 
-  const mp3enc = new lamejs.Mp3Encoder(channels > 1 ? 2 : 1, sr, kbps);
+  const numCh = channels > 1 ? 2 : 1;
+  const mp3enc = new lame.Mp3Encoder(numCh, sr, kbps);
   const mp3Chunks = [];
   const blockSize = 1152;
 
   for (let i = 0; i < length; i += blockSize) {
     const leftChunk = left.subarray(i, i + blockSize);
-    const rightChunk = channels > 1 ? right.subarray(i, i + blockSize) : leftChunk;
-    const mp3buf = channels > 1
-      ? mp3enc.encodeBuffer(leftChunk, rightChunk)
+    const mp3buf = numCh === 2
+      ? mp3enc.encodeBuffer(leftChunk, right.subarray(i, i + blockSize))
       : mp3enc.encodeBuffer(leftChunk);
     if (mp3buf.length > 0) mp3Chunks.push(mp3buf);
   }
@@ -231,10 +232,11 @@ export async function exportSegmentMp3(startTime, endTime, kbps = 128) {
     offset += chunk.length;
   }
 
-  // Convert to base64
+  // Convert to base64 (chunk-safe for large arrays)
+  const chunkSize = 8192;
   let binary = '';
-  for (let i = 0; i < mp3Data.length; i++) {
-    binary += String.fromCharCode(mp3Data[i]);
+  for (let i = 0; i < mp3Data.length; i += chunkSize) {
+    binary += String.fromCharCode.apply(null, mp3Data.subarray(i, i + chunkSize));
   }
   return btoa(binary);
 }

@@ -1379,17 +1379,14 @@ function handlePartTap() {
 
   const time = audio.getCurrentTime();
 
-  // Add part marker
+  // Add part marker (no automatic bar marker — first bar must be tapped separately)
   partMarkers.push({ time, partIndex: currentPartIndex });
-
-  // Also add a bar marker at the same position
-  barMarkers.push({ time, partIndex: currentPartIndex });
 
   // Record for undo
   tapHistory.push({ type: 'part', time, partIndex: currentPartIndex });
 
   currentPartIndex++;
-  currentBarInPart = 1; // First bar of new part already placed
+  currentBarInPart = 0;
 
   // Update UI elements without full re-render
   drawWaveform();
@@ -1422,8 +1419,6 @@ function handleUndoTap() {
   if (last.type === 'part') {
     // Remove the part marker
     partMarkers = partMarkers.filter(m => m.time !== last.time || m.partIndex !== last.partIndex);
-    // Remove the bar marker placed with this part
-    barMarkers = barMarkers.filter(m => m.time !== last.time || m.partIndex !== last.partIndex);
     currentPartIndex--;
     // Recalculate currentBarInPart for previous part
     if (currentPartIndex > 0) {

@@ -23,6 +23,10 @@ let partsTabFilterSong = '';  // '' = alle Songs, or song_id
 let partsTabSelectedPart = null;  // {songId, partId}
 let partsTabSelectedBar = null;   // bar number or null
 
+/* ── Takte Tab State ─────────────────────────────── */
+let takteTabFilterSong = '';
+let takteTabSelectedBar = null;  // {songId, partId, barNum}
+
 /* ── Audio Split State ────────────────────────────── */
 let audioMeta = null;          // {duration, sampleRate, channels}
 let audioFileName = null;      // name of loaded file
@@ -85,6 +89,7 @@ function cacheDom() {
     syncStatus:    document.getElementById('sync-status'),
     tabEditor:     document.getElementById('tab-editor'),
     tabParts:      document.getElementById('tab-parts'),
+    tabTakte:      document.getElementById('tab-takte'),
     tabAudio:      document.getElementById('tab-audio'),
     tabSetlist:    document.getElementById('tab-setlist'),
     btnSettings:   document.getElementById('btn-settings'),
@@ -277,6 +282,7 @@ function switchTab(tab) {
   activeTab = tab;
   els.tabEditor.classList.toggle('active', tab === 'editor');
   els.tabParts.classList.toggle('active', tab === 'parts');
+  els.tabTakte.classList.toggle('active', tab === 'takte');
   els.tabAudio.classList.toggle('active', tab === 'audio');
   els.tabSetlist.classList.toggle('active', tab === 'setlist');
   renderContent();
@@ -289,6 +295,7 @@ function renderContent() {
   }
   if (activeTab === 'editor') renderEditorTab();
   else if (activeTab === 'parts') renderPartsTab();
+  else if (activeTab === 'takte') renderTakteTab();
   else if (activeTab === 'audio') renderAudioTab();
   else if (activeTab === 'setlist') renderSetlistTab();
 }
@@ -426,9 +433,14 @@ function renderPartsTable() {
             <td class="pt-pos mono text-t3">${p.pos}</td>
             <td class="pt-play">${hasAudio ? `<button class="btn-part-play${isPlaying ? ' playing' : ''}" data-action="play-part" data-part-id="${p.id}" title="${isPlaying ? 'Stop' : 'Part abspielen'}">${isPlaying ? '&#9632;' : '&#9654;'}</button>` : ''}</td>
             <td class="pt-name"><input type="text" value="${esc(p.name)}" data-part-field="name" class="part-input"></td>
-            <td class="pt-start"><input type="number" value="${st.startBar}" data-part-field="start_bar" class="part-input-num mono" min="0" step="1" title="Bar ${st.startBar + 1} \u2014 ${fmtDur(Math.round(st.startSec))}"></td>
+            <td class="pt-start">
+              <div class="start-cell">
+                <input type="number" value="${st.startBar}" data-part-field="start_bar" class="part-input-num mono" min="0" step="1" title="Takt-Offset ab Songstart">
+                <span class="start-time mono text-t3">${fmtDur(Math.round(st.startSec))}</span>
+              </div>
+            </td>
             <td class="pt-bars"><input type="number" value="${p.bars || 0}" data-part-field="bars" class="part-input-num mono" min="0" step="1"></td>
-            <td class="pt-dur mono text-t3 part-duration">${fmtDur(calcPartDuration(p.bars, song.bpm))}</td>
+            <td class="pt-dur"><input type="number" value="${calcPartDuration(p.bars, song.bpm)}" data-part-field="duration_sec" class="part-input-num mono" min="0" step="1" title="Dauer in Sekunden"></td>
             <td class="pt-tmpl">
               <select data-part-field="light_template" class="part-select">
                 <option value="">\u2014</option>
@@ -611,8 +623,23 @@ function handleEditorChange(e) {
       }
     } else if (field === 'start_bar') {
       part.start_bar = parseInt(el.value, 10) || 0;
-      // Re-render full table to update subsequent starts
       renderPartsTable();
+    } else if (field === 'duration_sec') {
+      const newDur = parseInt(el.value, 10) || 0;
+      const bpm = song.bpm || 0;
+      if (bpm > 0) {
+        part.bars = Math.round(newDur * bpm / 240);
+      }
+      part.duration_sec = calcPartDuration(part.bars, bpm);
+      recalcSongDuration();
+      const durField = document.getElementById('song-duration-field');
+      if (durField) durField.value = song.duration || '';
+      renderSummary();
+      renderPartsTable();
+      if (partId === selectedPartId) {
+        if (selectedBarNum && selectedBarNum > part.bars) selectedBarNum = null;
+        renderBarSection();
+      }
     } else if (field === 'light_template') {
       part.light_template = el.value;
     } else if (field === 'name') {
@@ -798,7 +825,7 @@ function handlePartAction(action) {
   }
 }
 
-/* ── Part Audio Playback (DB Editor) ───────────────── */
+/* ── Part Audio Playback ──────────────────────────── */
 
 /** AudioContext for part playback (separate from audio-engine to avoid conflicts) */
 let _partPlayCtx = null;
@@ -806,6 +833,12 @@ let _partPlaySources = [];
 let _partPlayIndex = 0;
 let _partPlayBuffers = [];
 let _partPlayActive = false;
+
+function refreshPartPlayUI() {
+  if (activeTab === 'editor') renderPartsTable();
+  else if (activeTab === 'parts') renderPartsTab();
+  else if (activeTab === 'takte') renderTakteTab();
+}
 
 async function handlePartPlay(partId) {
   // If already playing this part → stop
@@ -822,7 +855,7 @@ async function handlePartPlay(partId) {
 
   _playingPartId = partId;
   _partPlayActive = true;
-  renderPartsTable();
+  refreshPartPlayUI();
 
   try {
     if (!_partPlayCtx) {
@@ -859,7 +892,7 @@ async function handlePartPlay(partId) {
       if (_playingPartId === partId) {
         _playingPartId = null;
         _partPlayActive = false;
-        renderPartsTable();
+        refreshPartPlayUI();
       }
     };
   } catch (err) {
@@ -879,7 +912,7 @@ function stopPartPlay() {
   _partPlayActive = false;
   const wasPlaying = _playingPartId;
   _playingPartId = null;
-  if (wasPlaying) renderPartsTable();
+  if (wasPlaying) refreshPartPlayUI();
 }
 
 function handleAccentToggle(pos16) {
@@ -2632,6 +2665,7 @@ function buildPartsTabTable(parts, filterSong) {
     <table class="parts-tab-table">
       <thead><tr>
         <th class="ptt-pos">#</th>
+        <th class="ptt-play"></th>
         ${showSongCol ? '<th class="ptt-song">Song</th>' : ''}
         <th class="ptt-name">Part Name</th>
         <th class="ptt-start">Start</th>
@@ -2645,13 +2679,22 @@ function buildPartsTabTable(parts, filterSong) {
           const isActive = sel && sel.songId === p.songId && sel.partId === p.partId;
           const dur = calcPartDuration(p.bars || 0, p.bpm);
           const st = allStarts[p.songId]?.get(p.partId) || { startBar: 0, startSec: 0 };
+          const audioBars = getAudioBarsForPart(p.partId);
+          const hasAudio = audioBars.length > 0;
+          const isPlaying = _partPlayActive && _playingPartId === p.partId;
           return `<tr class="ptt-row${isActive ? ' active' : ''}" data-song-id="${p.songId}" data-part-id="${p.partId}">
             <td class="ptt-pos mono text-t3">${showSongCol ? idx + 1 : p.pos}</td>
+            <td class="ptt-play">${hasAudio ? `<button class="btn-part-play${isPlaying ? ' playing' : ''}" data-action="play-part" data-part-id="${p.partId}" title="${isPlaying ? 'Stop' : 'Part abspielen'}">${isPlaying ? '&#9632;' : '&#9654;'}</button>` : ''}</td>
             ${showSongCol ? `<td class="ptt-song"><span class="ptt-song-name">${esc(p.songName)}</span></td>` : ''}
             <td class="ptt-name"><input type="text" value="${esc(p.name)}" data-ptf="name" class="part-input"></td>
-            <td class="ptt-start"><input type="number" value="${st.startBar}" data-ptf="start_bar" class="part-input-num mono" min="0" step="1" title="Bar ${st.startBar + 1} \u2014 ${fmtDur(Math.round(st.startSec))}"></td>
+            <td class="ptt-start">
+              <div class="start-cell">
+                <input type="number" value="${st.startBar}" data-ptf="start_bar" class="part-input-num mono" min="0" step="1" title="Takt-Offset ab Songstart">
+                <span class="start-time mono text-t3">${fmtDur(Math.round(st.startSec))}</span>
+              </div>
+            </td>
             <td class="ptt-bars"><input type="number" value="${p.bars || 0}" data-ptf="bars" class="part-input-num mono" min="0" step="1"></td>
-            <td class="ptt-dur mono text-t3 pt-duration">${fmtDur(dur)}</td>
+            <td class="ptt-dur"><input type="number" value="${dur}" data-ptf="duration_sec" class="part-input-num mono" min="0" step="1" title="Dauer in Sekunden"></td>
             <td class="ptt-tmpl">
               <select data-ptf="light_template" class="part-select">
                 <option value="">\u2014</option>
@@ -2742,6 +2785,13 @@ function buildPartsTabBarEditor() {
 
 function handlePartsTabClick(e) {
   const el = e.target;
+
+  // Play part button
+  const playBtn = el.closest('[data-action="play-part"]');
+  if (playBtn) {
+    handlePartPlay(playBtn.dataset.partId);
+    return;
+  }
 
   // Toolbar actions
   const actionBtn = el.closest('[data-pt-action]');
@@ -2837,8 +2887,20 @@ function handlePartsTabChange(e) {
       }
     } else if (field === 'start_bar') {
       part.start_bar = parseInt(el.value, 10) || 0;
-      // Re-render to update subsequent starts
       renderPartsTab();
+    } else if (field === 'duration_sec') {
+      const newDur = parseInt(el.value, 10) || 0;
+      const bpm = song.bpm || 0;
+      if (bpm > 0) {
+        part.bars = Math.round(newDur * bpm / 240);
+      }
+      part.duration_sec = calcPartDuration(part.bars, bpm);
+      recalcSongDurationFor(songId);
+      renderPartsTab();
+      if (partsTabSelectedPart && partsTabSelectedPart.partId === partId) {
+        if (partsTabSelectedBar && partsTabSelectedBar > part.bars) partsTabSelectedBar = null;
+        renderPartsTabBarSection();
+      }
     } else if (field === 'light_template') {
       part.light_template = el.value;
     } else if (field === 'notes') {
@@ -2988,6 +3050,271 @@ function handlePartsTabAccentToggle(pos) {
   barData.has_accents = Object.values(db.accents).some(a => a.bar_id === barId);
   markDirty();
   renderPartsTabBarSection();
+}
+
+/* ══════════════════════════════════════════════════════
+   TAKTE TAB
+   ══════════════════════════════════════════════════════ */
+
+function getAllBarsFlat() {
+  if (!db || !db.songs) return [];
+  const rows = [];
+  for (const [songId, song] of Object.entries(db.songs)) {
+    const parts = getSortedParts(songId);
+    const starts = calcPartStarts(songId);
+    for (const p of parts) {
+      const st = starts.get(p.id) || { startBar: 0, startSec: 0 };
+      const barCount = p.bars || 0;
+      for (let n = 1; n <= barCount; n++) {
+        const found = findBar(p.id, n);
+        const barData = found ? found[1] : {};
+        const barId = found ? found[0] : null;
+        const accCount = barId ? getAccentsForBar(barId).length : 0;
+        const absBar = st.startBar + n;
+        const bpm = song.bpm || 0;
+        const barSec = bpm > 0 ? (st.startBar + n - 1) * 4 * 60 / bpm : 0;
+        rows.push({
+          songId, songName: song.name, bpm,
+          partId: p.id, partName: p.name,
+          barNum: n, absBar, barSec,
+          lyrics: barData.lyrics || '',
+          audio: barData.audio || '',
+          accCount, barId
+        });
+      }
+    }
+  }
+  return rows;
+}
+
+function renderTakteTab() {
+  const songs = getSortedSongs();
+  const filterSong = takteTabFilterSong;
+  ensureCollections();
+
+  let allBars;
+  if (filterSong) {
+    allBars = getAllBarsFlat().filter(b => b.songId === filterSong);
+  } else {
+    allBars = getAllBarsFlat();
+    allBars.sort((a, b) => a.songName.localeCompare(b.songName, 'de') || a.absBar - b.absBar);
+  }
+
+  const sel = takteTabSelectedBar;
+  const uniqueSongs = new Set(allBars.map(b => b.songId)).size;
+  const withLyrics = allBars.filter(b => b.lyrics).length;
+  const withAccents = allBars.filter(b => b.accCount > 0).length;
+
+  els.content.innerHTML = `
+    <div class="parts-tab-panel">
+      <div class="parts-tab-scroll" id="takte-tab-scroll">
+        <div class="parts-tab-header">
+          <div class="parts-tab-filter">
+            <label>Song-Filter</label>
+            <select id="tt-song-filter" class="parts-tab-filter-select">
+              <option value="">Alle Songs (${songs.length})</option>
+              ${songs.map(s => `<option value="${s.id}"${s.id === filterSong ? ' selected' : ''}>${esc(s.name)}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+        ${allBars.length === 0
+          ? '<div class="empty-state" style="padding:60px 0"><div class="icon">&#9881;</div><p>Keine Takte gefunden.</p></div>'
+          : buildTakteTabTable(allBars, filterSong)}
+        <div id="tt-editor-area"></div>
+      </div>
+      <div class="summary-bar">
+        <span class="summary-item"><span class="summary-label">Songs</span><span class="mono">${uniqueSongs}</span></span>
+        <span class="summary-item"><span class="summary-label">Takte</span><span class="mono">${allBars.length}</span></span>
+        <span class="summary-item"><span class="summary-label">mit Lyrics</span><span class="mono">${withLyrics}</span></span>
+        <span class="summary-item"><span class="summary-label">mit Accents</span><span class="mono">${withAccents}</span></span>
+      </div>
+    </div>`;
+
+  renderTakteEditorSection();
+}
+
+function buildTakteTabTable(bars, filterSong) {
+  const showSongCol = !filterSong;
+  const sel = takteTabSelectedBar;
+
+  return `
+    <table class="parts-tab-table takte-tab-table">
+      <thead><tr>
+        <th class="ttt-nr">#</th>
+        ${showSongCol ? '<th class="ttt-song">Song</th>' : ''}
+        <th class="ttt-part">Part</th>
+        <th class="ttt-bar">Takt</th>
+        <th class="ttt-time">Zeit</th>
+        <th class="ttt-lyrics">Lyrics</th>
+        <th class="ttt-acc">Acc.</th>
+        <th class="ttt-audio">Audio</th>
+      </tr></thead>
+      <tbody>
+        ${bars.map((b, idx) => {
+          const isActive = sel && sel.songId === b.songId && sel.partId === b.partId && sel.barNum === b.barNum;
+          return `<tr class="ttt-row${isActive ? ' active' : ''}" data-song-id="${b.songId}" data-part-id="${b.partId}" data-bar-num="${b.barNum}">
+            <td class="ttt-nr mono text-t3">${showSongCol ? idx + 1 : b.absBar}</td>
+            ${showSongCol ? `<td class="ttt-song"><span class="ttt-song-name">${esc(b.songName)}</span></td>` : ''}
+            <td class="ttt-part text-t2">${esc(b.partName)}</td>
+            <td class="ttt-bar mono">${b.barNum}</td>
+            <td class="ttt-time mono text-t3">${fmtDur(Math.round(b.barSec))}</td>
+            <td class="ttt-lyrics"><input type="text" value="${esc(b.lyrics)}" data-ttf="lyrics" class="part-input" placeholder="\u2014"></td>
+            <td class="ttt-acc mono text-t3">${b.accCount || '\u2014'}</td>
+            <td class="ttt-audio">${b.audio ? '<span class="text-green">\u2713</span>' : '<span class="text-t4">\u2014</span>'}</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>`;
+}
+
+function renderTakteEditorSection() {
+  const area = document.getElementById('tt-editor-area');
+  if (!area) return;
+
+  const sel = takteTabSelectedBar;
+  if (!sel) { area.innerHTML = ''; return; }
+
+  const song = db.songs[sel.songId];
+  if (!song) { area.innerHTML = ''; return; }
+
+  ensureCollections();
+  const [barId, barData] = getOrCreateBar(sel.partId, sel.barNum);
+  const accents = getAccentsForBar(barId);
+
+  const cells = Array.from({ length: 16 }, (_, i) => {
+    const pos = i + 1;
+    const accent = accents.find(a => a.pos_16th === pos);
+    const isBeat = (pos - 1) % 4 === 0;
+    const cls = ['accent-cell', isBeat ? 'beat' : '', accent ? accent.type : ''].filter(Boolean).join(' ');
+    return `<div class="${cls}" data-pos16="${pos}" data-tt-accent="1">
+      <span class="accent-num">${BEAT_LABELS[i]}</span>
+      ${accent ? `<span class="accent-tag">${accent.type}</span>` : ''}
+    </div>`;
+  }).join('');
+
+  const part = song.parts[sel.partId];
+  area.innerHTML = `
+    <div class="bar-editor">
+      <div class="bar-editor-header">
+        <h3>Takt ${sel.barNum} \u2014 ${esc(part?.name || '')} <span class="text-t3">(${esc(song.name)})</span></h3>
+        <div class="accent-legend">
+          ${Object.entries(ACCENT_INFO).map(([k, v]) => `<span class="legend-item ${k}">${v}</span>`).join('')}
+        </div>
+      </div>
+      <div style="margin-bottom: 12px">
+        <label>Lyrics</label>
+        <input type="text" class="bar-lyrics-input" value="${esc(barData.lyrics || '')}" data-tt-bar-lyrics="1" placeholder="Textzeile...">
+      </div>
+      <div class="accent-grid">${cells}</div>
+    </div>`;
+}
+
+/* ── Takte Tab Event Handlers ────────────────────── */
+
+function handleTakteTabClick(e) {
+  const el = e.target;
+
+  // Accent cell
+  const accentCell = el.closest('[data-tt-accent]');
+  if (accentCell) {
+    const pos = parseInt(accentCell.dataset.pos16, 10);
+    handleTakteAccentToggle(pos);
+    return;
+  }
+
+  // Song name click → filter
+  const songNameEl = el.closest('.ttt-song-name');
+  if (songNameEl) {
+    const row = songNameEl.closest('.ttt-row');
+    if (row) {
+      takteTabFilterSong = row.dataset.songId;
+      takteTabSelectedBar = null;
+      renderTakteTab();
+      return;
+    }
+  }
+
+  // Row click (not on input)
+  const row = el.closest('.ttt-row');
+  if (row && !el.closest('input, select')) {
+    const songId = row.dataset.songId;
+    const partId = row.dataset.partId;
+    const barNum = parseInt(row.dataset.barNum, 10);
+    const curSel = takteTabSelectedBar;
+    const wasSame = curSel && curSel.songId === songId && curSel.partId === partId && curSel.barNum === barNum;
+    if (wasSame) return;
+    takteTabSelectedBar = { songId, partId, barNum };
+    document.querySelectorAll('.ttt-row').forEach(r => {
+      r.classList.toggle('active',
+        r.dataset.songId === songId && r.dataset.partId === partId && parseInt(r.dataset.barNum, 10) === barNum);
+    });
+    renderTakteEditorSection();
+    return;
+  }
+}
+
+function handleTakteTabChange(e) {
+  const el = e.target;
+
+  // Song filter
+  if (el.id === 'tt-song-filter') {
+    takteTabFilterSong = el.value;
+    takteTabSelectedBar = null;
+    renderTakteTab();
+    return;
+  }
+
+  // Lyrics in table row
+  if (el.dataset.ttf === 'lyrics') {
+    const row = el.closest('.ttt-row');
+    if (!row) return;
+    const partId = row.dataset.partId;
+    const barNum = parseInt(row.dataset.barNum, 10);
+    const [, barData] = getOrCreateBar(partId, barNum);
+    barData.lyrics = el.value;
+    markDirty();
+    return;
+  }
+
+  // Lyrics in editor
+  if (el.hasAttribute('data-tt-bar-lyrics')) {
+    const sel = takteTabSelectedBar;
+    if (!sel) return;
+    const [, barData] = getOrCreateBar(sel.partId, sel.barNum);
+    barData.lyrics = el.value;
+    markDirty();
+    // Sync table row
+    const row = document.querySelector(`.ttt-row[data-part-id="${sel.partId}"][data-bar-num="${sel.barNum}"]`);
+    const inp = row?.querySelector('[data-ttf="lyrics"]');
+    if (inp && inp !== el) inp.value = el.value;
+    return;
+  }
+}
+
+function handleTakteAccentToggle(pos) {
+  const sel = takteTabSelectedBar;
+  if (!sel) return;
+  ensureCollections();
+  const [barId, barData] = getOrCreateBar(sel.partId, sel.barNum);
+
+  const existing = Object.entries(db.accents).find(([, a]) => a.bar_id === barId && a.pos_16th === pos);
+
+  if (existing) {
+    const [accId, acc] = existing;
+    const typeIdx = ACCENT_TYPES.indexOf(acc.type);
+    if (typeIdx < ACCENT_TYPES.length - 1) {
+      acc.type = ACCENT_TYPES[typeIdx + 1];
+    } else {
+      delete db.accents[accId];
+    }
+  } else {
+    const newId = nextId('A', db.accents);
+    db.accents[newId] = { bar_id: barId, pos_16th: pos, type: ACCENT_TYPES[0], notes: '' };
+  }
+
+  barData.has_accents = Object.values(db.accents).some(a => a.bar_id === barId);
+  markDirty();
+  renderTakteEditorSection();
 }
 
 /* ── Settings Modal ────────────────────────────────── */
@@ -3160,6 +3487,7 @@ function wireEvents() {
   // Tabs
   els.tabEditor.addEventListener('click', () => switchTab('editor'));
   els.tabParts.addEventListener('click',  () => switchTab('parts'));
+  els.tabTakte.addEventListener('click',  () => switchTab('takte'));
   els.tabAudio.addEventListener('click',  () => switchTab('audio'));
   els.tabSetlist.addEventListener('click', () => switchTab('setlist'));
 
@@ -3217,11 +3545,13 @@ function wireEvents() {
   els.content.addEventListener('click', (e) => {
     if (activeTab === 'editor') handleEditorClick(e);
     else if (activeTab === 'parts') handlePartsTabClick(e);
+    else if (activeTab === 'takte') handleTakteTabClick(e);
     else if (activeTab === 'audio') handleAudioClick(e);
     else if (activeTab === 'setlist') handleSetlistClick(e);
   });
   els.content.addEventListener('change', (e) => {
     if (activeTab === 'parts') handlePartsTabChange(e);
+    else if (activeTab === 'takte') handleTakteTabChange(e);
     else if (activeTab === 'setlist') handleSetlistChange(e);
   });
 

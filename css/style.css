@@ -675,9 +675,9 @@ label {
 .parts-table .pt-pos { width: 36px; text-align: center; font-size: 0.8rem; }
 .parts-table .pt-play { width: 36px; text-align: center; padding: 0; }
 .parts-table .pt-name { min-width: 120px; }
-.parts-table .pt-start { width: 72px; }
+.parts-table .pt-start { width: 110px; }
 .parts-table .pt-bars { width: 72px; }
-.parts-table .pt-dur  { width: 64px; font-size: 0.8rem; text-align: center; }
+.parts-table .pt-dur  { width: 72px; }
 .parts-table .pt-tmpl { min-width: 160px; }
 .parts-table .pt-grip { width: 28px; text-align: center; font-size: 1.1rem; cursor: grab; }
 
@@ -1751,9 +1751,9 @@ label {
 .parts-tab-table .ptt-pos { width: 36px; text-align: center; font-size: 0.8rem; }
 .parts-tab-table .ptt-song { min-width: 140px; max-width: 200px; }
 .parts-tab-table .ptt-name { min-width: 120px; }
-.parts-tab-table .ptt-start { width: 72px; }
+.parts-tab-table .ptt-start { width: 110px; }
 .parts-tab-table .ptt-bars { width: 72px; }
-.parts-tab-table .ptt-dur { width: 64px; font-size: 0.8rem; text-align: center; }
+.parts-tab-table .ptt-dur { width: 72px; }
 .parts-tab-table .ptt-tmpl { min-width: 160px; }
 .parts-tab-table .ptt-notes { min-width: 120px; }
 
@@ -1775,6 +1775,39 @@ label {
   font-size: 0.8rem;
   color: var(--t3);
 }
+
+.parts-tab-table .ptt-play { width: 36px; text-align: center; padding: 0; }
+
+/* Start cell: bar input + time label */
+.start-cell {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.start-cell .part-input-num { width: 52px; flex-shrink: 0; }
+.start-cell .start-time { font-size: 0.75rem; white-space: nowrap; }
+
+/* ── Takte Tab ─────────────────────────────────────── */
+
+.takte-tab-table .ttt-nr { width: 36px; text-align: center; font-size: 0.8rem; }
+.takte-tab-table .ttt-song { min-width: 120px; max-width: 180px; }
+.takte-tab-table .ttt-part { width: 110px; font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.takte-tab-table .ttt-bar { width: 48px; text-align: center; }
+.takte-tab-table .ttt-time { width: 56px; text-align: center; font-size: 0.8rem; }
+.takte-tab-table .ttt-lyrics { min-width: 160px; }
+.takte-tab-table .ttt-acc { width: 48px; text-align: center; font-size: 0.8rem; }
+.takte-tab-table .ttt-audio { width: 48px; text-align: center; }
+
+.ttt-song-name {
+  font-size: 0.8rem;
+  color: var(--cyan);
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+.ttt-song-name:hover { text-decoration: underline; }
 
 /* ══════════════════════════════════════════════════════
    SETLIST — Meilenstein 4

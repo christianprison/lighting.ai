@@ -2325,6 +2325,13 @@ label {
   line-height: 1.5;
 }
 
+/* Section headers like [Verse 1] — visual hint that these are metadata, not lyrics */
+.lyrics-line.section-header .ll-text {
+  color: var(--t3);
+  font-style: italic;
+  font-size: 0.8rem;
+}
+
 .lyrics-line.empty .ll-text {
   color: var(--t4);
 }

@@ -1551,8 +1551,8 @@ function handleAudioFileLoad(file) {
       renderAudioTab();
       toast(`Audio geladen: ${fmtTime(meta.duration)}`, 'success');
 
-      // Upload reference audio to GitHub
-      uploadReferenceAudio(arrayBuf, file.name);
+      // Upload reference audio to GitHub (awaited so audio_ref is set before user can switch songs)
+      await uploadReferenceAudio(arrayBuf, file.name);
     } catch (err) {
       toast(`Audio-Fehler: ${err.message}`, 'error');
     }
@@ -1564,17 +1564,24 @@ function handleAudioFileLoad(file) {
  * Upload the full reference audio to GitHub and store path in song.
  */
 async function uploadReferenceAudio(arrayBuffer, fileName) {
-  if (!selectedSongId) return;
+  const songId = selectedSongId;  // capture — user might switch songs during upload
+  if (!songId) return;
   const s = getSettings();
   if (!s.token || !s.repo) return; // read-only mode, skip
 
-  const song = db.songs[selectedSongId];
+  const song = db.songs[songId];
   if (!song) return;
 
   const ext = (fileName.match(/\.(\w+)$/) || [, 'mp3'])[1].toLowerCase();
-  const path = `audio/${selectedSongId}/reference.${ext}`;
+  const path = `audio/${songId}/reference.${ext}`;
+
+  // Set audio_ref immediately so it persists even if upload takes time
+  song.audio_ref = path;
+  song.audio_ref_name = fileName;
 
   try {
+    toast('Referenz-Audio wird hochgeladen...', 'info');
+
     // Convert ArrayBuffer to base64
     const bytes = new Uint8Array(arrayBuffer);
     const chunkSize = 8192;
@@ -1587,8 +1594,6 @@ async function uploadReferenceAudio(arrayBuffer, fileName) {
     await uploadFile(s.repo, path, s.token, base64,
       `Referenz-Audio: ${song.name} (${fileName})`);
 
-    song.audio_ref = path;
-    song.audio_ref_name = fileName;
     markDirty();
 
     // Auto-save DB so audio_ref persists across reloads
@@ -1598,7 +1603,8 @@ async function uploadReferenceAudio(arrayBuffer, fileName) {
     } else {
       toast('Audio hochgeladen, aber DB nicht gespeichert \u2014 bitte manuell speichern (Strg+S)', 'error', 5000);
     }
-    renderAudioTab();
+    // Only re-render if still on the same song
+    if (selectedSongId === songId && activeTab === 'audio') renderAudioTab();
   } catch (err) {
     console.error('Reference upload failed:', err);
     toast(`Referenz-Audio Upload fehlgeschlagen: ${err.message}`, 'error', 5000);
@@ -2287,6 +2293,7 @@ function buildLyricsEditor(parts) {
     const marker = lyricsMarkers.find(m => m.lineIdx === i);
     const isSelected = lyricsSelectedLine === i;
     const isEmpty = line.trim() === '';
+    const isHeader = isSectionHeader(line);
 
     let markerHtml = '';
     if (marker) {
@@ -2298,7 +2305,14 @@ function buildLyricsEditor(parts) {
       }
     }
 
-    html += `<div class="lyrics-line${isSelected ? ' selected' : ''}${isEmpty ? ' empty' : ''}${marker ? ' has-marker' : ''}" data-line-idx="${i}">
+    const classes = ['lyrics-line',
+      isSelected ? 'selected' : '',
+      isEmpty ? 'empty' : '',
+      isHeader ? 'section-header' : '',
+      marker ? 'has-marker' : '',
+    ].filter(Boolean).join(' ');
+
+    html += `<div class="${classes}" data-line-idx="${i}">
       <span class="ll-num">${i + 1}</span>
       ${markerHtml}
       <span class="ll-text">${isEmpty ? '&nbsp;' : esc(line)}</span>
@@ -2347,6 +2361,14 @@ function getNextUnassignedPartIndex() {
  * Compute how lyrics lines distribute across parts and bars.
  * Returns [{type:'part', partName} | {type:'bar', partName, barNum, lines:[]}]
  */
+/**
+ * Check if a line is a section header (e.g. [Verse 1], [Chorus]).
+ * These are metadata — not actual lyrics to distribute to bars.
+ */
+function isSectionHeader(line) {
+  return /^\[.*\]$/.test(line.trim());
+}
+
 function computeLyricsDistribution(parts) {
   if (lyricsLines.length === 0) return [];
 
@@ -2361,12 +2383,14 @@ function computeLyricsDistribution(parts) {
 
   function flushBar() {
     if (currentPart !== null && currentBarNum > 0) {
+      // Filter out section headers and empty lines from bar text
+      const textLines = currentLines.filter(l => l.trim() && !isSectionHeader(l));
       result.push({
         type: 'bar',
         partIndex: currentPart,
         partName: currentPart < parts.length ? parts[currentPart].name : '?',
         barNum: currentBarNum,
-        lines: currentLines.filter(l => l.trim())
+        lines: textLines
       });
     }
     currentLines = [];
@@ -2380,8 +2404,8 @@ function computeLyricsDistribution(parts) {
         currentPart = marker.partIndex;
         currentBarNum = 1;
         currentLines = [];
-        result.push({ type: 'part', partName: parts[currentPart]?.name || '?' });
-        // The first line after part marker starts bar 1
+        result.push({ type: 'part', partIndex: currentPart, partName: parts[currentPart]?.name || '?' });
+        // Include this line (will be filtered if it's a section header)
         currentLines.push(lyricsLines[i]);
       } else {
         // bar marker

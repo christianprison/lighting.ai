@@ -167,6 +167,42 @@ function fmtDur(sec) {
 }
 
 /**
+ * Sanitize a string for use as a folder/file name.
+ * Replaces special chars with underscores, trims, collapses multiple underscores.
+ */
+function sanitizePath(str) {
+  return (str || 'unknown')
+    .replace(/[\/\\:*?"<>|#%&{}$!@`=+^~]/g, '_')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/_+/g, '_');
+}
+
+/**
+ * Build the GitHub path for the reference audio file.
+ * Format: audio/{Song Title}/reference.mp3
+ */
+function buildRefAudioPath(song) {
+  const songDir = sanitizePath(song.name);
+  return `audio/${songDir}/reference.mp3`;
+}
+
+/**
+ * Build the GitHub path for a bar audio file.
+ * Format: audio/{Song Title}/{NN Part Name}/{GlobalBarNum} {Song Title} {Part Name}.mp3
+ * @param {object} song - the song object
+ * @param {object} part - {id, pos, name, bars, ...}
+ * @param {number} barNum - bar number within the part (1-based)
+ * @param {number} globalBarNum - bar number within the song (1-based)
+ */
+function buildBarAudioPath(song, part, barNum, globalBarNum) {
+  const songDir = sanitizePath(song.name);
+  const partDir = `${String(part.pos).padStart(2, '0')} ${sanitizePath(part.name)}`;
+  const barFile = `${String(globalBarNum).padStart(3, '0')} ${sanitizePath(song.name)} ${sanitizePath(part.name)}.mp3`;
+  return `audio/${songDir}/${partDir}/${barFile}`;
+}
+
+/**
  * Compute start_bar for each part in a song.
  * If a part has a manual start_bar override, use it; otherwise cumulate.
  * Returns Map<partId, {startBar, startSec}>
@@ -1227,7 +1263,7 @@ function buildExportSection(parts) {
       </div>
       <div style="font-size:0.8rem;color:var(--t3)">
         ${barMarkers.length > 0
-          ? `${barMarkers.length} Bars als MP3-Segmente nach <span class="mono">audio/${selectedSongId}/</span> hochladen.`
+          ? `${barMarkers.length} Bars als MP3-Segmente nach <span class="mono">audio/${sanitizePath(db.songs[selectedSongId]?.name || '')}/</span> hochladen.`
           : `Part-Zeiten in DB speichern (keine Bar-Segmente zum Exportieren).`}
       </div>
     </div>`;
@@ -1523,26 +1559,23 @@ function handleAudioFileLoad(file) {
     try {
       const arrayBuf = e.target.result;
 
+      // Clone BEFORE decodeAudio — decodeAudioData detaches the original ArrayBuffer!
+      const uploadBuf = arrayBuf.slice(0);
+
       // Check if a reference audio already exists on GitHub
       const song = selectedSongId ? db.songs[selectedSongId] : null;
       if (song && song.audio_ref) {
-        const existingSha = getSha(song.audio_ref);
-        // Also check via DB field — even if SHA not cached, the path exists
-        const hasExisting = existingSha || song.audio_ref;
-        if (hasExisting) {
-          const confirmed = await showConfirm(
-            'Referenz-Audio ersetzen?',
-            `Für <strong>${esc(song.name)}</strong> existiert bereits eine Referenz-Audiodatei auf GitHub.<br><br>` +
-            `Durch das Ersetzen können alle bestehenden Zeitinformationen (Part-Marker, Bar-Marker, Audio-Segmente) ungültig werden.<br><br>` +
-            `<strong>Trotzdem ersetzen?</strong>`,
-            'Ersetzen'
-          );
-          if (!confirmed) {
-            // User cancelled — reload existing reference from GitHub
-            toast('Lade bestehende Referenz-Audio...', 'info');
-            await loadReferenceAudio();
-            return;
-          }
+        const confirmed = await showConfirm(
+          'Referenz-Audio ersetzen?',
+          `F\u00fcr <strong>${esc(song.name)}</strong> existiert bereits eine Referenz-Audiodatei.<br><br>` +
+          `Durch das Ersetzen k\u00f6nnen alle bestehenden Zeitinformationen (Part-Marker, Bar-Marker, Audio-Segmente) ung\u00fcltig werden.<br><br>` +
+          `<strong>Trotzdem ersetzen?</strong>`,
+          'Ersetzen'
+        );
+        if (!confirmed) {
+          toast('Lade bestehende Referenz-Audio...', 'info');
+          await loadReferenceAudio();
+          return;
         }
       }
 
@@ -1553,9 +1586,10 @@ function handleAudioFileLoad(file) {
       renderAudioTab();
       toast(`Audio geladen: ${fmtTime(meta.duration)}`, 'success');
 
-      // Upload reference audio to GitHub (awaited so audio_ref is set before user can switch songs)
-      await uploadReferenceAudio(arrayBuf, file.name);
+      // Upload the CLONED buffer (original was detached by decodeAudioData)
+      await uploadReferenceAudio(uploadBuf, file.name);
     } catch (err) {
+      console.error('Audio file load error:', err);
       toast(`Audio-Fehler: ${err.message}`, 'error');
     }
   };
@@ -1566,29 +1600,30 @@ function handleAudioFileLoad(file) {
  * Upload the full reference audio to GitHub and store path in song.
  */
 async function uploadReferenceAudio(arrayBuffer, fileName) {
-  const songId = selectedSongId;  // capture — user might switch songs during upload
+  const songId = selectedSongId;
   if (!songId) return;
 
   const song = db.songs[songId];
   if (!song) return;
 
-  const ext = (fileName.match(/\.(\w+)$/) || [, 'mp3'])[1].toLowerCase();
-  const path = `audio/${songId}/reference.${ext}`;
+  const path = buildRefAudioPath(song);
 
-  // Always set audio_ref and cache in memory (works even without token)
+  // Always cache in memory for instant reload on song switch
+  _audioRefCache[songId] = arrayBuffer.slice(0);
+
+  // Always set audio_ref in DB (in-memory) so other tabs know it exists
   song.audio_ref = path;
   song.audio_ref_name = fileName;
-  _audioRefCache[songId] = arrayBuffer.slice(0); // clone for later reload
+  markDirty();
 
   const s = getSettings();
   if (!s.token || !s.repo) {
-    markDirty();
-    toast('Referenz-Audio im Speicher gehalten (kein Token f\u00fcr GitHub-Upload)', 'info');
+    toast('Kein GitHub-Token \u2014 Audio nur im Speicher, nicht auf GitHub', 'info', 4000);
     return;
   }
 
   try {
-    toast('Referenz-Audio wird hochgeladen...', 'info');
+    toast('Referenz-Audio wird auf GitHub hochgeladen...', 'info');
 
     // Convert ArrayBuffer to base64
     const bytes = new Uint8Array(arrayBuffer);
@@ -1600,22 +1635,21 @@ async function uploadReferenceAudio(arrayBuffer, fileName) {
     const base64 = btoa(binary);
 
     await uploadFile(s.repo, path, s.token, base64,
-      `Referenz-Audio: ${song.name} (${fileName})`);
+      `Referenz-Audio: ${song.name}`);
 
-    markDirty();
+    toast('Referenz-Audio auf GitHub gespeichert \u2713', 'success');
 
-    // Auto-save DB so audio_ref persists across reloads
-    const saved = await handleSave(false);
-    if (saved) {
-      toast('Referenz-Audio gespeichert', 'success');
-    } else {
-      toast('Audio hochgeladen, aber DB nicht gespeichert \u2014 bitte manuell speichern (Strg+S)', 'error', 5000);
+    // Auto-save DB so audio_ref persists across page reloads
+    await handleSave(false);
+
+    // Re-render if still on the same song
+    if (selectedSongId === songId) {
+      if (activeTab === 'audio') renderAudioTab();
+      else if (activeTab === 'lyrics') renderLyricsTab();
     }
-    // Only re-render if still on the same song
-    if (selectedSongId === songId && activeTab === 'audio') renderAudioTab();
   } catch (err) {
     console.error('Reference upload failed:', err);
-    toast(`Referenz-Audio Upload fehlgeschlagen: ${err.message}`, 'error', 5000);
+    toast(`Upload fehlgeschlagen: ${err.message}`, 'error', 5000);
   }
 }
 
@@ -2059,7 +2093,9 @@ async function handleAudioExport() {
   ensureCollections();
 
   try {
-    const songName = db.songs[selectedSongId].name;
+    const song = db.songs[selectedSongId];
+    const songName = song.name;
+    let globalBarOffset = 0;
 
     for (let i = 0; i < parts.length; i++) {
       const part = parts[i];
@@ -2067,8 +2103,8 @@ async function handleAudioExport() {
       const bars = getBarMarkersForPart(i);
 
       // Update bars count in part (even if no bars were tapped)
-      if (db.songs[selectedSongId].parts[part.id]) {
-        db.songs[selectedSongId].parts[part.id].bars = bars.length;
+      if (song.parts[part.id]) {
+        song.parts[part.id].bars = bars.length;
       }
 
       if (bars.length === 0 || partEnd === null) continue;
@@ -2100,12 +2136,12 @@ async function handleAudioExport() {
         const barStart = bars[b].time;
         const barEnd = (b + 1 < bars.length) ? bars[b + 1].time : partEnd;
         const barNum = b + 1;
-        const barNumStr = String(barNum).padStart(3, '0');
+        const globalBarNum = globalBarOffset + barNum;
 
         if (textEl()) textEl().textContent = `Exportiere ${part.name} Bar ${barNum}... (${done + 1}/${totalBars})`;
 
         const base64mp3 = await audio.exportSegmentMp3(barStart, barEnd);
-        const path = `audio/${selectedSongId}/${part.id}/bar_${barNumStr}.mp3`;
+        const path = buildBarAudioPath(song, part, barNum, globalBarNum);
 
         await uploadFile(s.repo, path, s.token, base64mp3, `Audio: ${part.name} Bar ${barNum} (${songName})`);
 
@@ -2119,6 +2155,7 @@ async function handleAudioExport() {
         if (textEl()) textEl().textContent = `${done}/${totalBars} hochgeladen`;
       }
 
+      globalBarOffset += bars.length;
     }
 
     saveMarkersToSong();
@@ -3952,6 +3989,8 @@ function wireEvents() {
     const rawId = item.dataset.id;
     const newId = rawId === '__all__' ? null : rawId;
     if (newId === selectedSongId) return;
+    // Remember current tab — must be preserved across song switch
+    const currentTab = activeTab;
     // Stop audio and reset split state when switching songs
     audio.reset();
     audioMeta = null;
@@ -3966,7 +4005,9 @@ function wireEvents() {
     takteTabSelectedBar = null;
     stopLyricsPartPlay();
     renderSongList(els.searchBox.value);
-    renderContent();
+    // Restore tab (defensive — ensure no code above changed it)
+    if (activeTab !== currentTab) switchTab(currentTab);
+    else renderContent();
   });
 
   // Editor event delegation

@@ -175,6 +175,9 @@
         <div class="help-row"><span class="help-key">Accent-Grid</span><span>16tel-Raster: Klicke auf eine Position, um einen Accent zu setzen (Blinder, Blackout, Highlight, Strobe, Fog). Nochmal klicken wechselt den Typ.</span></div>
       </div>
 
+      <h3>Mini-Waveform</h3>
+      <p>Ist Referenz-Audio geladen und der Song hat Part-Marker (aus dem Audio Split), zeigt die Tabelle eine <strong>Waveform-Spalte</strong> mit der Huellkurve jedes Parts. So siehst du auf einen Blick, wo laute/leise Stellen liegen.</p>
+
       <h3>Part-Playback</h3>
       <p>Hat ein Part Audio-Segmente (aus dem Audio Split exportiert), erscheint ein <span class="text-green">&#9654;</span> Play-Button. Dieser spielt alle Takte des Parts hintereinander ab.</p>
     </div>
@@ -189,10 +192,14 @@
         <div class="help-row"><span class="help-key">&#9654;</span><span>Takt abspielen (nur wenn Audio-Segment vorhanden)</span></div>
         <div class="help-row"><span class="help-key">Part</span><span>Zugehoeriger Part-Name</span></div>
         <div class="help-row"><span class="help-key">Takt</span><span>Taktnummer innerhalb des Parts</span></div>
+        <div class="help-row"><span class="help-key">Waveform</span><span>Mini-Huellkurve des Takts (<span class="text-cyan">cyan</span>). Wird angezeigt wenn Referenz-Audio geladen ist und Bar-Marker im Audio Split gesetzt wurden.</span></div>
         <div class="help-row"><span class="help-key">Lyrics</span><span>Direkt editierbare Textzeile</span></div>
         <div class="help-row"><span class="help-key">Acc.</span><span>Anzahl Accents in diesem Takt</span></div>
         <div class="help-row"><span class="help-key">Audio</span><span><span class="text-green">&#10003;</span> wenn Audio-Segment vorhanden</span></div>
       </div>
+
+      <h3>Alle Takte loeschen</h3>
+      <p>Oben rechts ueber der Tabelle gibt es den Button <span class="text-red">Alle Takte l&ouml;schen</span>. Dieser entfernt <strong>alle Takte und Accents</strong> des aktuell ausgewaehlten Songs (bzw. aller Songs, wenn kein Song ausgewaehlt ist). Eine Best&auml;tigung wird abgefragt.</p>
 
       <h3>Accent-Editor</h3>
       <p>Klicke auf eine Taktzeile, um den Accent-Editor zu oeffnen. Das 16tel-Raster zeigt die Positionen innerhalb des Takts. Klick auf eine Position setzt oder wechselt den Accent-Typ.</p>
@@ -242,13 +249,14 @@
 
       <h3>Tap-Buttons</h3>
       <div class="help-table">
-        <div class="help-row"><span class="help-key text-amber">PART TAP</span><span>Markiert Part-Grenze + setzt automatisch einen Bar-Marker. Nur aktiv bei Playback.</span></div>
+        <div class="help-row"><span class="help-key text-amber">PART TAP</span><span>Markiert Part-Grenze <strong>und setzt automatisch den ersten Bar-Marker</strong> an derselben Position. Der erste Takt eines Parts startet so immer exakt am Part-Beginn. Nur aktiv bei Playback.</span></div>
         <div class="help-row"><span class="help-key text-cyan">BAR TAP</span><span>Markiert Taktgrenze im aktuellen Part. Nur aktiv bei Playback.</span></div>
-        <div class="help-row"><span class="help-key text-red">UNDO</span><span>Entfernt den letzten Tap. War es ein Part-Tap, wird auch der zugehoerige Bar-Marker entfernt.</span></div>
+        <div class="help-row"><span class="help-key text-red">UNDO</span><span>Entfernt den letzten Tap. War es ein Part-Tap, wird auch der automatisch gesetzte erste Bar-Marker entfernt.</span></div>
       </div>
 
       <h3>Marker bearbeiten</h3>
       <div class="help-table">
+        <div class="help-row"><span class="help-key">Drag &amp; Drop</span><span><strong>Part- und Bar-Marker</strong> koennen direkt auf der Waveform per Maus oder Touch verschoben werden. Den Cursor ueber einen Marker halten &mdash; er wechselt zu einem Resize-Cursor. Dann ziehen. Beim Verschieben eines Part-Markers wandert der erste Bar-Marker automatisch mit. Besonders nuetzlich bei hoeherer Zoomstufe (z.B. 6&times;).</span></div>
         <div class="help-row"><span class="help-key">Part-Zeile klicken</span><span>Springt den Abspielcursor zum Startpunkt dieses Parts (in der Split-Ergebnis-Tabelle).</span></div>
         <div class="help-row"><span class="help-key text-red">&times; Button</span><span>Loescht einen gesetzten Part-Marker samt aller zugehoerigen Bar-Marker. Erscheint in der rechten Spalte der Split-Ergebnis-Tabelle.</span></div>
       </div>
@@ -257,7 +265,7 @@
       <p>Aus den Bar-Tap-Intervallen wird automatisch das BPM berechnet. Weicht es mehr als 3 vom Song-BPM ab, erscheint ein Banner zum Aktualisieren.</p>
 
       <h3>Waveform</h3>
-      <p>Klick auf die Waveform = Seek. <span class="text-amber">Amber-Linien</span> = Part-Marker, <span class="text-cyan">Cyan-Linien</span> = Bar-Marker, <span class="text-green">Gruene Linie</span> = Playhead. Bei gezoomter Ansicht scrollt die Waveform automatisch mit dem Playhead mit.</p>
+      <p>Klick auf die Waveform = Seek. <span class="text-amber">Amber-Linien</span> = Part-Marker, <span class="text-cyan">Cyan-Linien</span> = Bar-Marker, <span class="text-green">Gruene Linie</span> = Playhead. Marker werden beim Drag hervorgehoben und zeigen die aktuelle Zeitposition an. Bei gezoomter Ansicht scrollt die Waveform automatisch mit dem Playhead mit.</p>
     </div>
 
     <!-- Lyrics -->
@@ -286,10 +294,17 @@
         </div>
       </div>
 
+      <h3>Parts ein-/ausklappen</h3>
+      <div class="help-table">
+        <div class="help-row"><span class="help-key">&#9654; / &#9660;</span><span>Klick auf das Dreieck links neben dem Part-Namen klappt den Part zu oder auf. Zugeklappte Parts zeigen eine kursive Textvorschau.</span></div>
+        <div class="help-row"><span class="help-key">Alle zuklappen</span><span>Button oben rechts ueber der Parts-Liste klappt alle nicht-instrumentalen Parts auf einmal zu oder auf. Praktisch fuer schnelles Scrollen bei vielen Parts.</span></div>
+      </div>
+
       <h3>Hinweise</h3>
       <div class="help-table">
         <div class="help-row"><span class="help-key">1 Zeile = 1 Takt</span><span>Pro Textfeld: Zeile 1 geht in Takt 1, Zeile 2 in Takt 2 usw.</span></div>
         <div class="help-row"><span class="help-key">Leerzeile</span><span>Leere Zeilen ergeben instrumentale Takte (kein Text).</span></div>
+        <div class="help-row"><span class="help-key">Instrumental</span><span>Checkbox <em>Instrumental</em> markiert einen Part als rein instrumental &mdash; das Textfeld wird ausgeblendet.</span></div>
         <div class="help-row"><span class="help-key">Play</span><span>Spielt den Part ueber die Referenz-Audio ab (wenn vorhanden), sonst ueber gespeicherte Bar-MP3s.</span></div>
       </div>
     </div>

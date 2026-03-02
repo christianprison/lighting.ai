@@ -388,38 +388,49 @@ Die App ist bewusst so gebaut, dass sie später einfach deployed werden kann:
 
 ### Meilenstein 1: Grundgerüst + GitHub Pages
 
-- [ ] Repo-Struktur anlegen (index.html, css/, js/, ui/)
-- [ ] GitHub Pages aktivieren
-- [ ] GitHub API Wrapper (`js/db.js`): Lesen, Schreiben, SHA-Tracking
-- [ ] Settings-Modal: Token + Repo konfigurieren (localStorage)
-- [ ] DB laden und im Speicher halten, Sync-Status-Anzeige
+- [x] Repo-Struktur anlegen (index.html, css/, js/, ui/)
+- [x] GitHub Pages aktivieren
+- [x] GitHub API Wrapper (`js/db.js`): Lesen, Schreiben, SHA-Tracking
+- [x] Settings-Modal: Token + Repo konfigurieren (localStorage)
+- [x] DB laden und im Speicher halten, Sync-Status-Anzeige
 
 ### Meilenstein 2: DB Editor UI
 
-- [ ] Song-Liste mit Suchfunktion (links)
-- [ ] Song-Detail: Felder inline editierbar (Name, Artist, BPM, Key, Jahr, GEMA, Pick)
-- [ ] Parts-Tabelle: Add, Delete, Move, Duplicate, Bars editierbar
-- [ ] Template-Picker Dropdown für Light-Programme
-- [ ] Auto-Berechnung: Duration pro Part und Song aus Bars + BPM
-- [ ] Bar-Editor: Lyrics-Eingabe, Accents auf 16tel-Raster
-- [ ] Auto-Save / manueller Save-Button → GitHub Commit
+- [x] Song-Liste mit Suchfunktion (links)
+- [x] Song-Detail: Felder inline editierbar (Name, Artist, BPM, Key, Jahr, GEMA, Pick)
+- [x] Parts-Tabelle: Add, Delete, Move, Duplicate, Bars editierbar
+- [x] Template-Picker Dropdown für Light-Programme
+- [x] Auto-Berechnung: Duration pro Part und Song aus Bars + BPM
+- [x] Bar-Editor: Lyrics-Eingabe, Accents auf 16tel-Raster
+- [x] Auto-Save / manueller Save-Button → GitHub Commit
+- [x] Parts-Tab: Mini-Waveform pro Part-Zeile (grün, aus Referenz-Audio)
+- [x] Takte-Tab: Mini-Waveform pro Takt-Zeile (cyan, aus Referenz-Audio + Bar-Markern)
+- [x] Takte-Tab: "Alle Takte löschen" Button mit Bestätigung
+- [x] Lyrics-Tab: Parts ein-/ausklappen (einzeln + alle auf einmal)
+- [x] Lyrics-Tab: Instrumental-Checkbox pro Part
 
 ### Meilenstein 3: Audio Split
 
-- [ ] Audio-Datei laden (Drag & Drop, File-Picker)
-- [ ] Waveform-Darstellung (Web Audio API + Canvas)
-- [ ] Transport: Play, Pause, Seek (Klick auf Waveform)
-- [ ] Part-Tap: Markiert Part-Grenzen (übernimmt Part-Namen aus Song)
-- [ ] Bar-Tap: Markiert Taktgrenzen innerhalb Parts
-- [ ] BPM-Schätzung aus Bar-Intervallen
-- [ ] Undo-Funktion für Taps
-- [ ] Audio-Schnipsel extrahieren (OfflineAudioContext) und auf GitHub speichern
+- [x] Audio-Datei laden (Drag & Drop, File-Picker)
+- [x] Waveform-Darstellung (Web Audio API + Canvas)
+- [x] Transport: Play, Pause, Seek (Klick auf Waveform)
+- [x] Part-Tap: Markiert Part-Grenzen (übernimmt Part-Namen aus Song)
+- [x] Bar-Tap: Markiert Taktgrenzen innerhalb Parts
+- [x] BPM-Schätzung aus Bar-Intervallen
+- [x] Undo-Funktion für Taps
+- [x] Audio-Schnipsel extrahieren (OfflineAudioContext) und auf GitHub speichern
+- [x] Referenz-Audio automatisch aus DB laden (`audio_ref`)
+- [x] Part-Tap setzt automatisch ersten Bar-Marker (Takt 1 = Part-Start)
+- [x] Marker per Drag & Drop verschiebbar (Part + Bar, Maus + Touch/iPad)
+- [x] Visuelles Feedback beim Drag: Marker-Hervorhebung + Zeitanzeige
+- [x] Erster Bar-Marker folgt automatisch beim Verschieben des Part-Markers
+- [x] Zoom-Stufen bis 6× für präzises Marker-Editing
 
 ### Meilenstein 4: Setlist-Verwaltung
 
-- [ ] Setlist erstellen, bearbeiten, Songs per Drag ordnen
-- [ ] Pausen einfügen
-- [ ] Setlist-Export (druckbares HTML/PDF für die Band)
+- [x] Setlist erstellen, bearbeiten, Songs per Drag ordnen
+- [x] Pausen einfügen
+- [x] Setlist-Export (druckbares HTML/PDF für die Band)
 
 -----
 

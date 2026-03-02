@@ -633,7 +633,9 @@
             "partIndex": 11
           }
         ]
-      }
+      },
+      "audio_ref": "audio/All The Small Things/All The Small Things - Full Song.mp3",
+      "audio_ref_name": "All The Small Things - Full Song.mp3"
     },
     "tdyEcs": {
       "name": "Along comes Mary",
@@ -938,7 +940,9 @@
           }
         ],
         "barMarkers": []
-      }
+      },
+      "audio_ref": "audio/Along comes Mary/Along comes Mary - Full Song.mp3",
+      "audio_ref_name": "Along comes Mary - Full Song.mp3"
     },
     "CC9FBm": {
       "name": "Always Where I Need to Be",
@@ -1183,7 +1187,9 @@
           }
         ],
         "barMarkers": []
-      }
+      },
+      "audio_ref": "audio/Always Where I Need to Be/Always Where I Need to Be - Full Song.mp3",
+      "audio_ref_name": "Always Where I Need to Be - Full Song.mp3"
     },
     "UNIriZ": {
       "name": "Animal",
@@ -1352,7 +1358,9 @@
           "notes": ""
         }
       },
-      "qlc_id": 90
+      "qlc_id": 90,
+      "audio_ref": "audio/Animal/Animal - Full Song.mp3",
+      "audio_ref_name": "Animal - Full Song.mp3"
     },
     "5D6dZO": {
       "name": "Are You Gonna Be My Girl",
@@ -1642,7 +1650,9 @@
           "notes": ""
         }
       },
-      "qlc_id": 175
+      "qlc_id": 175,
+      "audio_ref": "audio/Are You Gonna Be My Girl/Are You Gonna Be My Girl - Full Song.mp3",
+      "audio_ref_name": "Are You Gonna Be My Girl - Full Song.mp3"
     },
     "CEGcgc": {
       "name": "Basket Case",
@@ -1778,7 +1788,9 @@
           "notes": ""
         }
       },
-      "qlc_id": 91
+      "qlc_id": 91,
+      "audio_ref": "audio/Basket Case/Basket Case - Full Song.mp3",
+      "audio_ref_name": "Basket Case - Full Song.mp3"
     },
     "dgSleW": {
       "name": "Bitter End",
@@ -2334,7 +2346,9 @@
           "notes": ""
         }
       },
-      "qlc_id": 93
+      "qlc_id": 93,
+      "audio_ref": "audio/Chelsea Dagger/Chelsea Dagger - Full Song.mp3",
+      "audio_ref_name": "Chelsea Dagger - Full Song.mp3"
     },
     "Lnql7n": {
       "name": "Creep",
@@ -2459,7 +2473,9 @@
           "notes": ""
         }
       },
-      "qlc_id": 176
+      "qlc_id": 176,
+      "audio_ref": "audio/Creep/Creep - Full Song.mp3",
+      "audio_ref_name": "Creep - Full Song.mp3"
     },
     "pVmkRc": {
       "name": "Dancing with myself",
@@ -2584,7 +2600,9 @@
           "notes": ""
         }
       },
-      "qlc_id": 177
+      "qlc_id": 177,
+      "audio_ref": "audio/Dancing with myself/Dancing with myself - Full Song.mp3",
+      "audio_ref_name": "Dancing with myself - Full Song.mp3"
     },
     "9G8cU7": {
       "name": "Down In The Past",
@@ -2896,7 +2914,9 @@
           "notes": ""
         }
       },
-      "qlc_id": 94
+      "qlc_id": 94,
+      "audio_ref": "audio/Down In The Past/Down In The Past - Full Song.mp3",
+      "audio_ref_name": "Down In The Past - Full Song.mp3"
     },
     "QeOWYg": {
       "name": "Enjoy The Silence",
@@ -3167,7 +3187,9 @@
           "notes": ""
         }
       },
-      "qlc_id": 95
+      "qlc_id": 95,
+      "audio_ref": "audio/Every You Every Me/Every You Every Me - Full Song.mp3",
+      "audio_ref_name": "Every You Every Me - Full Song.mp3"
     },
     "BfbgVC": {
       "name": "Fight for your Right",
@@ -3699,7 +3721,9 @@
           "notes": ""
         }
       },
-      "qlc_id": 96
+      "qlc_id": 96,
+      "audio_ref": "audio/Fight for your Right/Fight for your Right - Full Song.mp3",
+      "audio_ref_name": "Fight for your Right - Full Song.mp3"
     },
     "ZhSlyd": {
       "name": "Flourescent Adolescent",
@@ -4165,7 +4189,9 @@
           "notes": ""
         }
       },
-      "qlc_id": 174
+      "qlc_id": 174,
+      "audio_ref": "audio/Hail to the Freaks/Hail to the Freaks - Full Song.mp3",
+      "audio_ref_name": "Hail to the Freaks - Full Song.mp3"
     },
     "1FXXiL": {
       "name": "Inside",
@@ -4334,7 +4360,9 @@
           "notes": ""
         }
       },
-      "qlc_id": 87
+      "qlc_id": 87,
+      "audio_ref": "audio/Inside/Inside - Full Song.mp3",
+      "audio_ref_name": "Inside - Full Song.mp3"
     },
     "B3R92r": {
       "name": "Join me in Death",
@@ -4690,7 +4718,9 @@
           "notes": ""
         }
       },
-      "qlc_id": 178
+      "qlc_id": 178,
+      "audio_ref": "audio/Join me in Death/Join me in Death - Full Song.mp3",
+      "audio_ref_name": "Join me in Death - Full Song.mp3"
     },
     "mBeBeI": {
       "name": "Killing In The Name Of",
@@ -5171,7 +5201,9 @@
           "notes": ""
         }
       },
-      "qlc_id": 41
+      "qlc_id": 41,
+      "audio_ref": "audio/Last Nite/Last Nite - Full Song.mp3",
+      "audio_ref_name": "Last Nite - Full Song.mp3"
     },
     "gRbHPO": {
       "name": "Last Resort",
@@ -5560,7 +5592,9 @@
           "notes": ""
         }
       },
-      "qlc_id": 30
+      "qlc_id": 30,
+      "audio_ref": "audio/Lonely Boy/Lonely Boy - Full Song.mp3",
+      "audio_ref_name": "Lonely Boy - Full Song.mp3"
     },
     "rK4O7W": {
       "name": "Moon over Bourbon Street",
@@ -5772,7 +5806,9 @@
           "light_template": "generic_bpm",
           "notes": ""
         }
-      }
+      },
+      "audio_ref": "audio/Mr. Brightside/Mr. Brightside - Full Song.mp3",
+      "audio_ref_name": "Mr. Brightside - Full Song.mp3"
     },
     "pdWrqc": {
       "name": "Narcotic",
@@ -5974,7 +6010,9 @@
           "notes": ""
         }
       },
-      "qlc_id": 99
+      "qlc_id": 99,
+      "audio_ref": "audio/Narcotic/Narcotic - Full Song.mp3",
+      "audio_ref_name": "Narcotic - Full Song.mp3"
     },
     "Pol09a": {
       "name": "Rock‘n‘Roll Queen",
@@ -6334,7 +6372,9 @@
           "notes": ""
         }
       },
-      "qlc_id": 101
+      "qlc_id": 101,
+      "audio_ref": "audio/Run/Run - Full Song.mp3",
+      "audio_ref_name": "Run - Full Song.mp3"
     },
     "lVbPMR": {
       "name": "Self Esteem",
@@ -6701,7 +6741,9 @@
           "notes": ""
         }
       },
-      "qlc_id": 102
+      "qlc_id": 102,
+      "audio_ref": "audio/Self Esteem/Self Esteem - Full Song.mp3",
+      "audio_ref_name": "Self Esteem - Full Song.mp3"
     },
     "Wa1bpl": {
       "name": "Sex on Fire",
@@ -7057,7 +7099,9 @@
           "notes": ""
         }
       },
-      "qlc_id": 104
+      "qlc_id": 104,
+      "audio_ref": "audio/Sex on Fire/Sex on Fire - Full Song.mp3",
+      "audio_ref_name": "Sex on Fire - Full Song.mp3"
     },
     "RED66i": {
       "name": "She Hates Me",
@@ -7204,7 +7248,9 @@
           "notes": ""
         }
       },
-      "qlc_id": 171
+      "qlc_id": 171,
+      "audio_ref": "audio/She Hates Me/She Hates Me - Full Song.mp3",
+      "audio_ref_name": "She Hates Me - Full Song.mp3"
     },
     "rNOnoq": {
       "name": "Should I Stay Or Should I Go",
@@ -7290,7 +7336,9 @@
           "light_template": "outro_cut",
           "notes": ""
         }
-      }
+      },
+      "audio_ref": "audio/Should I Stay Or Should I Go/Should I Stay Or Should I Go - Full Song.mp3",
+      "audio_ref_name": "Should I Stay Or Should I Go - Full Song.mp3"
     },
     "srQxlI": {
       "name": "Song 2",
@@ -7470,7 +7518,9 @@
           "notes": ""
         }
       },
-      "qlc_id": 106
+      "qlc_id": 106,
+      "audio_ref": "audio/Song 2/Song 2 - Full Song.mp3",
+      "audio_ref_name": "Song 2 - Full Song.mp3"
     },
     "JHUGOo": {
       "name": "Space Lord",
@@ -7639,7 +7689,9 @@
           "notes": ""
         }
       },
-      "qlc_id": 172
+      "qlc_id": 172,
+      "audio_ref": "audio/Space Lord/Space Lord - Full Song.mp3",
+      "audio_ref_name": "Space Lord - Full Song.mp3"
     },
     "SaUgTX": {
       "name": "Supergirl",
@@ -7929,7 +7981,9 @@
           "notes": ""
         }
       },
-      "qlc_id": 107
+      "qlc_id": 107,
+      "audio_ref": "audio/Teenage Dirtbag/Teenage Dirtbag - Full Song.mp3",
+      "audio_ref_name": "Teenage Dirtbag - Full Song.mp3"
     },
     "SlpEnr": {
       "name": "Tension",
@@ -8076,7 +8130,9 @@
           "notes": ""
         }
       },
-      "qlc_id": 56
+      "qlc_id": 56,
+      "audio_ref": "audio/Tension/Tension - Full Song.mp3",
+      "audio_ref_name": "Tension - Full Song.mp3"
     },
     "Ja3p3E": {
       "name": "The Boys Of Summer",
@@ -8300,7 +8356,9 @@
           "notes": ""
         }
       },
-      "qlc_id": 108
+      "qlc_id": 108,
+      "audio_ref": "audio/The Boys Of Summer/The Boys Of Summer - Full Song.mp3",
+      "audio_ref_name": "The Boys Of Summer - Full Song.mp3"
     },
     "fwA4K7": {
       "name": "The Middle",
@@ -8436,7 +8494,9 @@
           "notes": ""
         }
       },
-      "qlc_id": 73
+      "qlc_id": 73,
+      "audio_ref": "audio/The Middle/The Middle - Full Song.mp3",
+      "audio_ref_name": "The Middle - Full Song.mp3"
     },
     "LjFWZO": {
       "name": "The Pretender",
@@ -8660,7 +8720,9 @@
           "notes": ""
         }
       },
-      "qlc_id": 173
+      "qlc_id": 173,
+      "audio_ref": "audio/The Pretender/The Pretender - Full Song.mp3",
+      "audio_ref_name": "The Pretender - Full Song.mp3"
     },
     "DYL6l8": {
       "name": "The Reason",
@@ -8943,7 +9005,9 @@
           "notes": ""
         }
       },
-      "qlc_id": 110
+      "qlc_id": 110,
+      "audio_ref": "audio/Today/Today - Full Song.mp3",
+      "audio_ref_name": "Today - Full Song.mp3"
     },
     "GXCFTH": {
       "name": "Torn",
@@ -9145,7 +9209,9 @@
           "notes": ""
         }
       },
-      "qlc_id": 111
+      "qlc_id": 111,
+      "audio_ref": "audio/Torn/Torn - Full Song.mp3",
+      "audio_ref_name": "Torn - Full Song.mp3"
     },
     "Dp8xoz": {
       "name": "Valerie",
@@ -9303,7 +9369,9 @@
           "notes": ""
         }
       },
-      "qlc_id": 72
+      "qlc_id": 72,
+      "audio_ref": "audio/Valerie/Valerie - Full Song.mp3",
+      "audio_ref_name": "Valerie - Full Song.mp3"
     },
     "zf3UaB": {
       "name": "Word Up",
@@ -9615,7 +9683,9 @@
           "notes": ""
         }
       },
-      "qlc_id": 112
+      "qlc_id": 112,
+      "audio_ref": "audio/Word Up/Word Up - Full Song.mp3",
+      "audio_ref_name": "Word Up - Full Song.mp3"
     },
     "sowvsF": {
       "name": "Yellow",
@@ -9762,7 +9832,9 @@
           "notes": ""
         }
       },
-      "qlc_id": 24
+      "qlc_id": 24,
+      "audio_ref": "audio/Yellow/Yellow - Full Song.mp3",
+      "audio_ref_name": "Yellow - Full Song.mp3"
     },
     "HDX1IN": {
       "name": "You're all I have",
@@ -9934,7 +10006,9 @@
           "light_template": "outro_fadeout",
           "notes": ""
         }
-      }
+      },
+      "audio_ref": "audio/Fluorescent Adolescent/Fluorescent Adolescent - Full Song.mp3",
+      "audio_ref_name": "Fluorescent Adolescent - Full Song.mp3"
     },
     "I8M2A8": {
       "name": "Seven Nation Army + Sweet Dreams",
@@ -9946,7 +10020,9 @@
       "gema_nr": "",
       "duration": "",
       "duration_sec": 0,
-      "notes": "Medley"
+      "notes": "Medley",
+      "audio_ref": "audio/Seven Nation Army + Sweet Dreams/Seven Nation Army + Sweet Dreams - Full Song.mp3",
+      "audio_ref_name": "Seven Nation Army + Sweet Dreams - Full Song.mp3"
     }
   },
   "bars": {

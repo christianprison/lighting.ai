@@ -1,0 +1,4 @@
+# Cached data files (synced at runtime)
+*.json
+*.qxw
+!.gitkeep

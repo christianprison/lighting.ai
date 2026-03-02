@@ -1,0 +1,16 @@
+# lighting.ai Live Controller Configuration
+
+github:
+  repo: christianprison/lighting.ai
+  db_path: db/lighting-ai-db.json
+  qxw_path: db/ThePact.qxw
+  # token: github_pat_...  # Or set env GITHUB_TOKEN
+
+qlc:
+  osc_host: "127.0.0.1"
+  osc_port: 7700          # QLC+ OSC input port (default for Universe 1)
+  osc_universe: 0         # OSC universe index (0-based)
+
+server:
+  host: "0.0.0.0"
+  port: 8080

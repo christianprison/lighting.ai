@@ -45,6 +45,12 @@ let waveformZoom = 1.0;        // waveform zoom level (linked to speed)
 let _playingPartId = null;     // part ID currently being played in DB Editor
 const _audioRefCache = {};     // songId → ArrayBuffer (cached reference audio)
 
+/* ── Waveform Marker Drag State ──────────────────── */
+let _dragMarker = null;        // { type: 'part'|'bar', index: number, originalTime: number }
+let _isDragging = false;       // true while actively dragging (moved > threshold)
+let _dragStartX = 0;           // mouse/touch start X for drag threshold
+let _dragSuppressClick = false; // prevent seek after drag ends
+
 const SETTINGS_KEY = 'lightingai_settings';
 
 /* ── Constants ─────────────────────────────────────── */
@@ -1170,7 +1176,10 @@ function renderAudioTab() {
     </div>`;
 
   if (hasBuf) {
-    requestAnimationFrame(() => drawWaveform());
+    requestAnimationFrame(() => {
+      drawWaveform();
+      initWaveformDrag();
+    });
   }
 }
 
@@ -1503,15 +1512,23 @@ function drawWaveform() {
     ctx.fillRect(i * barW, mid - barH / 2, Math.max(barW - 0.5, 1), barH || 1);
   }
 
-  // Bar markers (cyan lines only — no labels)
-  for (const m of barMarkers) {
+  // Bar markers (cyan lines — highlight when dragging)
+  for (let bi = 0; bi < barMarkers.length; bi++) {
+    const m = barMarkers[bi];
     const x = (m.time / duration) * w;
-    ctx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
-    ctx.lineWidth = 1;
+    const isDragTarget = _isDragging && _dragMarker && _dragMarker.type === 'bar' && _dragMarker.index === bi;
+    ctx.strokeStyle = isDragTarget ? 'rgba(56, 189, 248, 0.9)' : 'rgba(56, 189, 248, 0.4)';
+    ctx.lineWidth = isDragTarget ? 2 : 1;
     ctx.beginPath();
     ctx.moveTo(x, 0);
     ctx.lineTo(x, h);
     ctx.stroke();
+    // Show time label when dragging a bar marker
+    if (isDragTarget) {
+      ctx.font = '10px "DM Mono", monospace';
+      ctx.fillStyle = 'rgba(56, 189, 248, 0.95)';
+      ctx.fillText(fmtTime(m.time), x + 4, h / 2);
+    }
   }
 
   // Compute absolute bar offset per part from DB bar counts
@@ -1553,10 +1570,12 @@ function drawWaveform() {
   }
 
   // Part markers (amber) with part name + absolute bar number
-  for (const m of partMarkers) {
+  for (let pi2 = 0; pi2 < partMarkers.length; pi2++) {
+    const m = partMarkers[pi2];
     const x = (m.time / duration) * w;
-    ctx.strokeStyle = 'rgba(240, 160, 48, 0.8)';
-    ctx.lineWidth = 2;
+    const isDragTarget = _isDragging && _dragMarker && _dragMarker.type === 'part' && _dragMarker.index === pi2;
+    ctx.strokeStyle = isDragTarget ? 'rgba(240, 160, 48, 1.0)' : 'rgba(240, 160, 48, 0.8)';
+    ctx.lineWidth = isDragTarget ? 3 : 2;
     ctx.beginPath();
     ctx.moveTo(x, 0);
     ctx.lineTo(x, h);
@@ -1571,9 +1590,13 @@ function drawWaveform() {
       ctx.fillText(partName, labelX, 12);
     }
 
-    // Absolute bar number above bottom
+    // Absolute bar number above bottom (or time during drag)
     const startBar = partStartBar[m.partIndex];
-    if (startBar !== undefined) {
+    if (isDragTarget) {
+      ctx.font = '11px "DM Mono", monospace';
+      ctx.fillStyle = 'rgba(240, 160, 48, 1.0)';
+      ctx.fillText(fmtTime(m.time), x + 4, h - 14);
+    } else if (startBar !== undefined) {
       ctx.font = '11px "DM Mono", monospace';
       ctx.fillStyle = 'rgba(240, 160, 48, 0.85)';
       ctx.fillText(String(startBar), x + 4, h - 14);
@@ -1632,6 +1655,220 @@ function updateTransportDisplay() {
   const dur = audioMeta.duration;
   timeEl.textContent = `${fmtTime(cur)} / ${fmtTime(dur)}`;
   progressEl.style.width = `${(cur / dur * 100)}%`;
+}
+
+/* ── Waveform Marker Drag System ──────────────────── */
+
+const DRAG_HIT_PX = 10;    // pixel threshold to grab a marker
+const DRAG_MOVE_PX = 3;    // min pixels before drag activates
+
+/**
+ * Find the nearest marker to a given x pixel position on the waveform.
+ * Returns { type: 'part'|'bar', index, marker, distPx } or null.
+ */
+function hitTestMarker(xPx) {
+  if (!audioMeta) return null;
+  const scroll = document.getElementById('waveform-scroll');
+  if (!scroll) return null;
+  const totalW = scroll.getBoundingClientRect().width;
+  const duration = audioMeta.duration;
+  if (duration <= 0 || totalW <= 0) return null;
+
+  let best = null;
+  let bestDist = DRAG_HIT_PX + 1;
+
+  // Check part markers
+  for (let i = 0; i < partMarkers.length; i++) {
+    const mx = (partMarkers[i].time / duration) * totalW;
+    const dist = Math.abs(xPx - mx);
+    if (dist < bestDist) {
+      bestDist = dist;
+      best = { type: 'part', index: i, marker: partMarkers[i], distPx: dist };
+    }
+  }
+
+  // Check bar markers
+  for (let i = 0; i < barMarkers.length; i++) {
+    const mx = (barMarkers[i].time / duration) * totalW;
+    const dist = Math.abs(xPx - mx);
+    if (dist < bestDist) {
+      bestDist = dist;
+      best = { type: 'bar', index: i, marker: barMarkers[i], distPx: dist };
+    }
+  }
+
+  return best && best.distPx <= DRAG_HIT_PX ? best : null;
+}
+
+/**
+ * Convert a mouse/touch event to an X position relative to the scrollable waveform content.
+ */
+function waveformEventX(e) {
+  const wrap = document.getElementById('waveform-wrap');
+  if (!wrap) return 0;
+  const rect = wrap.getBoundingClientRect();
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  return clientX - rect.left + wrap.scrollLeft;
+}
+
+function onWaveformPointerDown(e) {
+  if (!audioMeta) return;
+  // Only handle primary button (left click) or touch
+  if (e.type === 'mousedown' && e.button !== 0) return;
+
+  const x = waveformEventX(e);
+  const hit = hitTestMarker(x);
+  if (!hit) return; // No marker hit → let click handler do seek
+
+  // Start potential drag
+  _dragMarker = {
+    type: hit.type,
+    index: hit.index,
+    originalTime: hit.marker.time,
+  };
+  _isDragging = false;
+  _dragStartX = e.touches ? e.touches[0].clientX : e.clientX;
+
+  // Prevent text selection during drag
+  e.preventDefault();
+}
+
+function onWaveformPointerMove(e) {
+  const wrap = document.getElementById('waveform-wrap');
+  if (!wrap || !audioMeta) return;
+
+  if (_dragMarker) {
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const dx = Math.abs(clientX - _dragStartX);
+
+    // Activate drag after threshold
+    if (!_isDragging && dx >= DRAG_MOVE_PX) {
+      _isDragging = true;
+      wrap.classList.add('dragging');
+    }
+
+    if (_isDragging) {
+      e.preventDefault();
+      const x = waveformEventX(e);
+      const scroll = document.getElementById('waveform-scroll');
+      if (!scroll || !audioMeta) return;
+      const totalW = scroll.getBoundingClientRect().width;
+      const duration = audioMeta.duration;
+      const newTime = Math.max(0, Math.min(duration, (x / totalW) * duration));
+
+      // Update marker time
+      if (_dragMarker.type === 'part') {
+        const oldTime = partMarkers[_dragMarker.index].time;
+        partMarkers[_dragMarker.index].time = newTime;
+        // Move the first bar of this part along with the part marker
+        const partIdx = partMarkers[_dragMarker.index].partIndex;
+        const barsInPart = barMarkers
+          .filter(bm => bm.partIndex === partIdx)
+          .sort((a, b) => a.time - b.time);
+        if (barsInPart.length > 0 && Math.abs(barsInPart[0].time - oldTime) < 0.01) {
+          barsInPart[0].time = newTime;
+        }
+      } else {
+        barMarkers[_dragMarker.index].time = newTime;
+      }
+
+      drawWaveform();
+    }
+  } else {
+    // Hover cursor: show col-resize when near a marker
+    const x = waveformEventX(e);
+    const hit = hitTestMarker(x);
+    wrap.style.cursor = hit ? 'col-resize' : 'crosshair';
+  }
+}
+
+function onWaveformPointerUp(e) {
+  const wrap = document.getElementById('waveform-wrap');
+  if (wrap) {
+    wrap.classList.remove('dragging');
+    wrap.style.cursor = 'crosshair';
+  }
+
+  if (_dragMarker && _isDragging) {
+    // Finalize drag — snap first bar of each part to part marker
+    snapFirstBarsToPartMarkers();
+
+    // Sort markers by time to maintain order
+    partMarkers.sort((a, b) => a.time - b.time);
+    barMarkers.sort((a, b) => a.time - b.time);
+
+    // Re-index part markers sequentially
+    partMarkers.forEach((m, i) => { m.partIndex = i; });
+    // Re-assign bar markers to correct parts based on time
+    reassignBarMarkerParts();
+
+    // Persist and update UI
+    saveMarkersToSong();
+    markDirty();
+    drawWaveform();
+    renderAudioTab();
+
+    _dragSuppressClick = true;
+  }
+
+  _dragMarker = null;
+  _isDragging = false;
+}
+
+/**
+ * After dragging, re-assign each bar marker to the correct part based on time.
+ */
+function reassignBarMarkerParts() {
+  for (const bm of barMarkers) {
+    let assignedPart = 0;
+    for (const pm of partMarkers) {
+      if (pm.time <= bm.time) assignedPart = pm.partIndex;
+    }
+    bm.partIndex = assignedPart;
+  }
+  // Update currentBarInPart
+  if (currentPartIndex > 0) {
+    currentBarInPart = barMarkers.filter(m => m.partIndex === currentPartIndex - 1).length;
+  }
+}
+
+/**
+ * Ensure the first bar marker of each part is snapped to its part marker time.
+ */
+function snapFirstBarsToPartMarkers() {
+  for (const pm of partMarkers) {
+    const barsInPart = barMarkers
+      .filter(bm => bm.partIndex === pm.partIndex)
+      .sort((a, b) => a.time - b.time);
+    if (barsInPart.length > 0) {
+      barsInPart[0].time = pm.time;
+    }
+  }
+}
+
+/**
+ * Attach drag event listeners to the waveform wrap element.
+ * Called after each renderAudioTab since innerHTML replaces the elements.
+ */
+function initWaveformDrag() {
+  const wrap = document.getElementById('waveform-wrap');
+  if (!wrap) return;
+
+  // Remove old document-level listeners to prevent duplicates
+  document.removeEventListener('mousemove', onWaveformPointerMove);
+  document.removeEventListener('mouseup', onWaveformPointerUp);
+  document.removeEventListener('touchmove', onWaveformPointerMove);
+  document.removeEventListener('touchend', onWaveformPointerUp);
+
+  // Mouse events
+  wrap.addEventListener('mousedown', onWaveformPointerDown);
+  document.addEventListener('mousemove', onWaveformPointerMove);
+  document.addEventListener('mouseup', onWaveformPointerUp);
+
+  // Touch events (iPad support)
+  wrap.addEventListener('touchstart', onWaveformPointerDown, { passive: false });
+  document.addEventListener('touchmove', onWaveformPointerMove, { passive: false });
+  document.addEventListener('touchend', onWaveformPointerUp);
 }
 
 /* ── Audio Split Event Handlers ────────────────────── */
@@ -1805,6 +2042,11 @@ async function loadReferenceAudio() {
 }
 
 function handleWaveformClick(e) {
+  // Suppress seek after a drag operation
+  if (_dragSuppressClick) {
+    _dragSuppressClick = false;
+    return;
+  }
   if (!audioMeta) return;
   const wrap = document.getElementById('waveform-wrap');
   const scroll = document.getElementById('waveform-scroll');
@@ -1812,6 +2054,11 @@ function handleWaveformClick(e) {
   const rect = wrap.getBoundingClientRect();
   const x = e.clientX - rect.left + wrap.scrollLeft;
   const totalW = scroll.getBoundingClientRect().width;
+
+  // Don't seek if clicking on a marker — drag handles that
+  const hit = hitTestMarker(x);
+  if (hit) return;
+
   const pct = x / totalW;
   const time = pct * audioMeta.duration;
   audio.seek(time);
@@ -1885,14 +2132,17 @@ function handlePartTap() {
 
   const time = audio.getCurrentTime();
 
-  // Add part marker (no automatic bar marker — first bar must be tapped separately)
+  // Add part marker
   partMarkers.push({ time, partIndex: currentPartIndex });
 
-  // Record for undo
-  tapHistory.push({ type: 'part', time, partIndex: currentPartIndex });
+  // Automatically add first bar marker at the same position as the part marker
+  barMarkers.push({ time, partIndex: currentPartIndex });
+
+  // Record for undo (both part + auto-bar)
+  tapHistory.push({ type: 'part', time, partIndex: currentPartIndex, autoBar: true });
 
   currentPartIndex++;
-  currentBarInPart = 0;
+  currentBarInPart = 1; // first bar already added
 
   // Persist markers to song object
   saveMarkersToSong();
@@ -1947,6 +2197,10 @@ function handleUndoTap() {
   if (last.type === 'part') {
     // Remove the part marker
     partMarkers = partMarkers.filter(m => m.time !== last.time || m.partIndex !== last.partIndex);
+    // Also remove the auto-bar if it was added with the part tap
+    if (last.autoBar) {
+      barMarkers = barMarkers.filter(m => !(Math.abs(m.time - last.time) < 0.001 && m.partIndex === last.partIndex));
+    }
     currentPartIndex--;
     // Recalculate currentBarInPart for previous part
     if (currentPartIndex > 0) {
@@ -3657,9 +3911,12 @@ function renderTakteTab() {
   const withLyrics = allBars.filter(b => b.lyrics).length;
   const withAccents = allBars.filter(b => b.accCount > 0).length;
 
+  const songLabel = filterSong ? esc(db.songs[filterSong]?.name || '') : 'alle Songs';
+
   els.content.innerHTML = `
     <div class="parts-tab-panel">
       <div class="parts-tab-scroll" id="takte-tab-scroll">
+        ${allBars.length > 0 ? `<div class="takte-toolbar"><button class="btn btn-small btn-danger" id="btn-delete-all-bars" title="Alle Takte l\u00f6schen">Alle Takte l\u00f6schen</button></div>` : ''}
         ${allBars.length === 0
           ? '<div class="empty-state" style="padding:60px 0"><div class="icon">&#9881;</div><p>Keine Takte gefunden.</p></div>'
           : buildTakteTabTable(allBars, filterSong)}
@@ -3757,8 +4014,54 @@ function renderTakteEditorSection() {
 
 /* ── Takte Tab Event Handlers ────────────────────── */
 
+async function handleDeleteAllBars() {
+  const filterSong = selectedSongId;
+  const songLabel = filterSong ? (db.songs[filterSong]?.name || 'diesen Song') : 'alle Songs';
+  const ok = await showConfirm(
+    'Alle Takte l\u00f6schen?',
+    `Alle Takte und Accents f\u00fcr <strong>${esc(songLabel)}</strong> werden unwiderruflich gel\u00f6scht.`,
+    'L\u00f6schen'
+  );
+  if (!ok) return;
+
+  ensureCollections();
+  const parts = filterSong ? getSortedParts(filterSong) : null;
+  const partIds = parts ? new Set(parts.map(p => p.id)) : null;
+
+  // Collect bar IDs to delete
+  const barIdsToDelete = [];
+  for (const [barId, bar] of Object.entries(db.bars)) {
+    if (!partIds || partIds.has(bar.part_id)) {
+      barIdsToDelete.push(barId);
+    }
+  }
+
+  // Delete accents for those bars
+  for (const [accId, acc] of Object.entries(db.accents)) {
+    if (barIdsToDelete.includes(acc.bar_id)) {
+      delete db.accents[accId];
+    }
+  }
+
+  // Delete bars
+  for (const barId of barIdsToDelete) {
+    delete db.bars[barId];
+  }
+
+  takteTabSelectedBar = null;
+  markDirty();
+  renderTakteTab();
+  toast(`${barIdsToDelete.length} Takte gel\u00f6scht`, 'success');
+}
+
 function handleTakteTabClick(e) {
   const el = e.target;
+
+  // Delete all bars button
+  if (el.closest('#btn-delete-all-bars')) {
+    handleDeleteAllBars();
+    return;
+  }
 
   // Play bar button
   const playBtn = el.closest('[data-action="play-bar"]');

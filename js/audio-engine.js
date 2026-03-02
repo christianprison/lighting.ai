@@ -54,10 +54,10 @@ export function getBuffer() {
  * Start or resume playback from the current position.
  * @param {Function} [onEnd] - called when playback reaches end
  */
-export function play(onEnd) {
+export async function play(onEnd) {
   if (!audioBuffer) return;
   const ac = getContext();
-  if (ac.state === 'suspended') ac.resume();
+  if (ac.state === 'suspended') await ac.resume();
 
   stop(true); // stop previous source without resetting position
 

@@ -1255,15 +1255,13 @@ function drawWaveform() {
     ctx.stroke();
   }
 
-  // Compute absolute bar offset per part (for part boundary labels)
-  const allBarsSorted = [...barMarkers].sort((a, b) => a.time - b.time);
+  // Compute absolute bar offset per part from DB bar counts
+  const parts = getSortedParts(selectedSongId);
   const partStartBar = {}; // partIndex → first absolute bar number
   let absCounter = 1;
-  const parts = getSortedParts(selectedSongId);
   for (let pi = 0; pi < parts.length; pi++) {
-    const barsInPart = allBarsSorted.filter(b => b.partIndex === pi);
-    partStartBar[pi] = barsInPart.length > 0 ? absCounter : absCounter;
-    absCounter += barsInPart.length;
+    partStartBar[pi] = absCounter;
+    absCounter += (parts[pi].bars || 0);
   }
 
   // Part markers (amber) with part name + absolute bar number
@@ -1668,8 +1666,28 @@ function handleZoomChange(dir) {
   const curIdx = ZOOM_STEPS.indexOf(waveformZoom);
   const idx = curIdx === -1 ? 0 : curIdx;
   const newIdx = Math.max(0, Math.min(ZOOM_STEPS.length - 1, idx + dir));
+  const oldZoom = waveformZoom;
   waveformZoom = ZOOM_STEPS[newIdx];
+
+  // Preserve scroll position relative to current playhead / view center
+  const wrap = document.getElementById('waveform-wrap');
+  let scrollRatio = 0;
+  if (wrap && oldZoom > 0) {
+    const viewCenter = wrap.scrollLeft + wrap.clientWidth / 2;
+    const oldWidth = wrap.clientWidth * oldZoom;
+    scrollRatio = oldWidth > 0 ? viewCenter / oldWidth : 0;
+  }
+
   drawWaveform();
+
+  // Restore scroll so the same time position stays centered
+  if (wrap && waveformZoom > 1) {
+    const newWidth = wrap.clientWidth * waveformZoom;
+    wrap.scrollLeft = scrollRatio * newWidth - wrap.clientWidth / 2;
+  } else if (wrap) {
+    wrap.scrollLeft = 0;
+  }
+
   const label = document.getElementById('t-zoom-label');
   if (label) label.textContent = '\uD83D\uDD0D ' + (waveformZoom === 1 ? '1\u00d7' : waveformZoom.toFixed(1) + '\u00d7');
 }

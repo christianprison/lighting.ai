@@ -1360,7 +1360,56 @@
       },
       "qlc_id": 90,
       "audio_ref": "audio/Animal/Animal - Full Song.mp3",
-      "audio_ref_name": "Animal - Full Song.mp3"
+      "audio_ref_name": "Animal (Neon Trees).mp3",
+      "split_markers": {
+        "partMarkers": [
+          {
+            "time": 2.5600000000000023,
+            "partIndex": 0
+          },
+          {
+            "time": 17.562666666666672,
+            "partIndex": 1
+          },
+          {
+            "time": 41.77599999999998,
+            "partIndex": 2
+          },
+          {
+            "time": 44.72533333333334,
+            "partIndex": 3
+          },
+          {
+            "time": 68.83733333333336,
+            "partIndex": 4
+          },
+          {
+            "time": 93.13066666666666,
+            "partIndex": 5
+          },
+          {
+            "time": 114.3786666666667,
+            "partIndex": 6
+          },
+          {
+            "time": 129.51466666666667,
+            "partIndex": 7
+          },
+          {
+            "time": 141.44389743589744,
+            "partIndex": 8
+          },
+          {
+            "time": 145.98810256410252,
+            "partIndex": 9
+          },
+          {
+            "time": 147.47076923076918,
+            "partIndex": 10
+          }
+        ],
+        "barMarkers": []
+      }
     },
     "5D6dZO": {
       "name": "Are You Gonna Be My Girl",

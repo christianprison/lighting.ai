@@ -1206,6 +1206,21 @@ label {
   cursor: col-resize !important;
 }
 
+/* ── Mini Waveforms (Parts + Takte table) ────────── */
+.mini-waveform {
+  width: 120px;
+  height: 28px;
+  border-radius: 3px;
+  background: var(--bg);
+  display: block;
+}
+.mini-waveform-sm {
+  width: 80px;
+  height: 22px;
+}
+.ptt-wave { width: 130px; }
+.ttt-wave { width: 90px; }
+
 .waveform-wrap canvas {
   display: block;
   height: 100%;
@@ -2236,12 +2251,19 @@ label {
   justify-content: flex-end;
 }
 
+/* ── Parts Toolbar ──────────────────────────────── */
+.lyrics-parts-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin: 8px 0 4px;
+}
+
 /* ── Parts List with Lyrics ──────────────────────── */
 .lyrics-parts-list {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin: 12px 0;
+  margin: 4px 0 12px;
 }
 
 .lyrics-part-card {
@@ -2256,6 +2278,33 @@ label {
   align-items: center;
   gap: 10px;
   margin-bottom: 6px;
+}
+
+.lyrics-part-card.collapsed .lyrics-part-header {
+  margin-bottom: 0;
+}
+
+.lyrics-collapse-btn {
+  background: none;
+  border: none;
+  color: var(--t3);
+  cursor: pointer;
+  font-size: 0.65rem;
+  padding: 2px 4px;
+  line-height: 1;
+  transition: color 0.15s;
+}
+.lyrics-collapse-btn:hover {
+  color: var(--t1);
+}
+
+.lyrics-preview {
+  font-size: 0.72rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 300px;
+  font-style: italic;
 }
 
 .lyrics-part-name {

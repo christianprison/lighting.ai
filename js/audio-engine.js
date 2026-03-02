@@ -173,6 +173,38 @@ export function getPeaks(buckets) {
 }
 
 /**
+ * Extract waveform peaks for a specific time range.
+ * @param {number} startSec - start time in seconds
+ * @param {number} endSec - end time in seconds
+ * @param {number} buckets - number of output peaks
+ * @returns {Float32Array}
+ */
+export function getPeaksRange(startSec, endSec, buckets) {
+  if (!audioBuffer || buckets <= 0) return new Float32Array(buckets);
+  const sr = audioBuffer.sampleRate;
+  const chan = audioBuffer.getChannelData(0);
+  const sStart = Math.max(0, Math.floor(startSec * sr));
+  const sEnd = Math.min(chan.length, Math.floor(endSec * sr));
+  const rangeLen = sEnd - sStart;
+  if (rangeLen <= 0) return new Float32Array(buckets);
+
+  const step = rangeLen / buckets;
+  const peaks = new Float32Array(buckets);
+
+  for (let i = 0; i < buckets; i++) {
+    const from = sStart + Math.floor(i * step);
+    const to = sStart + Math.floor((i + 1) * step);
+    let max = 0;
+    for (let j = from; j < to; j++) {
+      const abs = Math.abs(chan[j]);
+      if (abs > max) max = abs;
+    }
+    peaks[i] = max;
+  }
+  return peaks;
+}
+
+/**
  * Export a segment of the audio buffer as MP3 (Base64 string).
  * Uses lamejs for client-side MP3 encoding.
  * @param {number} startTime - start in seconds

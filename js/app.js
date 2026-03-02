@@ -29,6 +29,7 @@ let takteTabSelectedBar = null;  // {songId, partId, barNum}
 
 /* ── Lyrics Tab State ───────────────────────────── */
 let _lyricsPlayingPart = null;    // partId currently playing in lyrics tab
+let _lyricsCollapsed = new Set(); // Set of partIds that are collapsed
 
 /* ── Audio Split State ────────────────────────────── */
 let audioMeta = null;          // {duration, sampleRate, channels}
@@ -1657,6 +1658,58 @@ function updateTransportDisplay() {
   progressEl.style.width = `${(cur / dur * 100)}%`;
 }
 
+/* ── Mini Waveform Rendering ──────────────────────── */
+
+/**
+ * Draw a mini waveform onto a canvas element using reference audio peaks.
+ * @param {HTMLCanvasElement} canvas
+ * @param {number} startSec - start time in seconds
+ * @param {number} endSec - end time in seconds
+ * @param {string} [color='#00dc82'] - waveform bar color
+ */
+function drawMiniWaveform(canvas, startSec, endSec, color = '#00dc82') {
+  if (!canvas || !audio.getBuffer()) return;
+  const dpr = window.devicePixelRatio || 1;
+  const w = canvas.clientWidth;
+  const h = canvas.clientHeight;
+  if (w <= 0 || h <= 0) return;
+
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, w, h);
+
+  const buckets = Math.floor(w);
+  const peaks = audio.getPeaksRange(startSec, endSec, buckets);
+  const mid = h / 2;
+
+  for (let i = 0; i < buckets; i++) {
+    const amp = peaks[i];
+    const barH = amp * (h * 0.85);
+    const opacity = 0.35 + amp * 0.65;
+    ctx.fillStyle = color.replace(')', `, ${opacity})`).replace('rgb', 'rgba');
+    ctx.fillRect(i, mid - barH / 2, 1, barH || 1);
+  }
+}
+
+/**
+ * After rendering a tab with mini waveform canvases, call this to draw them.
+ * Each canvas should have: data-wave-start, data-wave-end, and optionally data-wave-color.
+ */
+function renderMiniWaveforms(container) {
+  if (!audio.getBuffer()) return;
+  const canvases = (container || document).querySelectorAll('canvas[data-wave-start]');
+  for (const c of canvases) {
+    const start = parseFloat(c.dataset.waveStart);
+    const end = parseFloat(c.dataset.waveEnd);
+    const color = c.dataset.waveColor || 'rgb(0, 220, 130)';
+    if (!isNaN(start) && !isNaN(end) && end > start) {
+      drawMiniWaveform(c, start, end, color);
+    }
+  }
+}
+
 /* ── Waveform Marker Drag System ──────────────────── */
 
 const DRAG_HIT_PX = 10;    // pixel threshold to grab a marker
@@ -2624,13 +2677,23 @@ function buildLyricsRawImport(song, geniusUrl) {
 }
 
 function buildLyricsPartsList(parts, song, hasBuf) {
-  let html = '<div class="lyrics-parts-list" id="lyrics-parts-list">';
+  // Count non-instrumental parts for the toggle-all button
+  const nonInstrParts = parts.filter(p => !p.instrumental);
+  const allCollapsed = nonInstrParts.length > 0 && nonInstrParts.every(p => _lyricsCollapsed.has(p.id));
+
+  let html = '<div class="lyrics-parts-toolbar">';
+  if (nonInstrParts.length > 1) {
+    html += `<button class="btn btn-sm" id="lyrics-toggle-all" title="${allCollapsed ? 'Alle aufklappen' : 'Alle zuklappen'}">${allCollapsed ? '&#9660; Alle aufklappen' : '&#9650; Alle zuklappen'}</button>`;
+  }
+  html += '</div>';
+  html += '<div class="lyrics-parts-list" id="lyrics-parts-list">';
 
   for (let i = 0; i < parts.length; i++) {
     const part = parts[i];
     const barCount = part.bars || 0;
     const dur = calcPartDuration(barCount, song.bpm || 0);
     const isInstr = !!part.instrumental;
+    const isCollapsed = !isInstr && _lyricsCollapsed.has(part.id);
 
     // Collect existing lyrics from DB bars
     const barLyrics = [];
@@ -2639,6 +2702,7 @@ function buildLyricsPartsList(parts, song, hasBuf) {
       barLyrics.push(found ? (found[1].lyrics || '') : '');
     }
     const lyricsText = barLyrics.join('\n');
+    const lyricsPreview = barLyrics.filter(l => l).slice(0, 2).join(' / ');
 
     // Can we play this part?
     const canPlayRef = hasBuf && partMarkers.some(m => m.partIndex === i);
@@ -2647,10 +2711,12 @@ function buildLyricsPartsList(parts, song, hasBuf) {
     const isPlaying = _lyricsPlayingPart === part.id;
 
     html += `
-      <div class="lyrics-part-card${isInstr ? ' instrumental' : ''}" data-part-id="${part.id}" data-part-index="${i}">
+      <div class="lyrics-part-card${isInstr ? ' instrumental' : ''}${isCollapsed ? ' collapsed' : ''}" data-part-id="${part.id}" data-part-index="${i}">
         <div class="lyrics-part-header">
+          ${!isInstr ? `<button class="lyrics-collapse-btn" data-lyrics-collapse="${part.id}" title="${isCollapsed ? 'Aufklappen' : 'Zuklappen'}">${isCollapsed ? '&#9654;' : '&#9660;'}</button>` : ''}
           <span class="lyrics-part-name text-amber">${esc(part.name)}</span>
           <span class="lyrics-part-info text-t3 mono">${barCount} Takte${dur ? ' \u00b7 ' + fmtTime(dur) : ''}</span>
+          ${isCollapsed && lyricsPreview ? `<span class="lyrics-preview text-t3">${esc(lyricsPreview)}</span>` : ''}
           <label class="lyrics-instr-label" title="Instrumental (kein Text)">
             <input type="checkbox" class="lyrics-instr-check" data-instr-part="${part.id}" ${isInstr ? 'checked' : ''}>
             <span>Instrumental</span>
@@ -2660,7 +2726,7 @@ function buildLyricsPartsList(parts, song, hasBuf) {
             ${isPlaying ? '&#9724;' : '&#9654;'}
           </button>` : ''}
         </div>
-        ${!isInstr ? `<textarea class="lyrics-part-text" data-lyrics-part="${part.id}" rows="${Math.max(2, barCount)}" placeholder="${barCount > 0 ? barCount + ' Zeilen = ' + barCount + ' Takte (1 Zeile pro Takt)' : 'Keine Takte'}">${esc(lyricsText)}</textarea>
+        ${!isInstr && !isCollapsed ? `<textarea class="lyrics-part-text" data-lyrics-part="${part.id}" rows="${Math.max(2, barCount)}" placeholder="${barCount > 0 ? barCount + ' Zeilen = ' + barCount + ' Takte (1 Zeile pro Takt)' : 'Keine Takte'}">${esc(lyricsText)}</textarea>
         <div class="lyrics-part-bar-hint text-t3">${barCount > 0 ? 'Zeile 1 = Takt 1, Zeile 2 = Takt 2, ...' : ''}</div>` : ''}
       </div>`;
   }
@@ -2853,6 +2919,33 @@ function handleLyricsClick(e) {
   // Apply to DB
   if (el.closest('#lyrics-apply')) {
     applyLyricsToDB();
+    return;
+  }
+
+  // Toggle-all collapse/expand
+  if (el.closest('#lyrics-toggle-all')) {
+    const parts = getSortedParts(selectedSongId);
+    const nonInstr = parts.filter(p => !p.instrumental);
+    const allCollapsed = nonInstr.every(p => _lyricsCollapsed.has(p.id));
+    if (allCollapsed) {
+      nonInstr.forEach(p => _lyricsCollapsed.delete(p.id));
+    } else {
+      nonInstr.forEach(p => _lyricsCollapsed.add(p.id));
+    }
+    renderLyricsTab();
+    return;
+  }
+
+  // Collapse/expand single part
+  const collapseBtn = el.closest('[data-lyrics-collapse]');
+  if (collapseBtn) {
+    const partId = collapseBtn.dataset.lyricsCollapse;
+    if (_lyricsCollapsed.has(partId)) {
+      _lyricsCollapsed.delete(partId);
+    } else {
+      _lyricsCollapsed.add(partId);
+    }
+    renderLyricsTab();
     return;
   }
 
@@ -3463,11 +3556,15 @@ function renderPartsTab() {
     </div>`;
 
   renderPartsTabBarSection();
+
+  // Draw mini waveforms after DOM is ready
+  requestAnimationFrame(() => renderMiniWaveforms());
 }
 
 function buildPartsTabTable(parts, filterSong) {
   const showSongCol = !filterSong;
   const sel = partsTabSelectedPart;
+  const hasBuf = !!audio.getBuffer();
 
   // Pre-compute starts for all involved songs
   const songIds = [...new Set(parts.map(p => p.songId))];
@@ -3481,6 +3578,7 @@ function buildPartsTabTable(parts, filterSong) {
         <th class="ptt-play"></th>
         ${showSongCol ? '<th class="ptt-song">Song</th>' : ''}
         <th class="ptt-name">Part Name</th>
+        ${hasBuf ? '<th class="ptt-wave">Waveform</th>' : ''}
         <th class="ptt-start">Start</th>
         <th class="ptt-bars">Takte</th>
         <th class="ptt-dur">Dauer</th>
@@ -3495,11 +3593,24 @@ function buildPartsTabTable(parts, filterSong) {
           const audioBars = getAudioBarsForPart(p.partId);
           const hasAudio = audioBars.length > 0;
           const isPlaying = _partPlayActive && _playingPartId === p.partId;
+
+          // Compute waveform time range from part markers (if available for this song)
+          let waveCanvas = '';
+          if (hasBuf && p.songId === selectedSongId) {
+            const partIdx = getSortedParts(p.songId).findIndex(sp => sp.id === p.partId);
+            const wStart = getPartStartTime(partIdx);
+            const wEnd = getPartEndTime(partIdx);
+            if (wStart !== null && wEnd !== null) {
+              waveCanvas = `<canvas class="mini-waveform" data-wave-start="${wStart}" data-wave-end="${wEnd}" data-wave-color="rgb(0, 220, 130)"></canvas>`;
+            }
+          }
+
           return `<tr class="ptt-row${isActive ? ' active' : ''}" data-song-id="${p.songId}" data-part-id="${p.partId}">
             <td class="ptt-pos mono text-t3">${showSongCol ? idx + 1 : p.pos}</td>
             <td class="ptt-play">${hasAudio ? `<button class="btn-part-play${isPlaying ? ' playing' : ''}" data-action="play-part" data-part-id="${p.partId}" title="${isPlaying ? 'Stop' : 'Part abspielen'}">${isPlaying ? '&#9632;' : '&#9654;'}</button>` : ''}</td>
             ${showSongCol ? `<td class="ptt-song"><span class="ptt-song-name">${esc(p.songName)}</span></td>` : ''}
             <td class="ptt-name"><input type="text" value="${esc(p.name)}" data-ptf="name" class="part-input"></td>
+            ${hasBuf ? `<td class="ptt-wave">${waveCanvas}</td>` : ''}
             <td class="ptt-start">
               <div class="start-cell">
                 <input type="number" value="${st.startBar}" data-ptf="start_bar" class="part-input-num mono" min="0" step="1" title="Takt-Offset ab Songstart">
@@ -3931,11 +4042,39 @@ function renderTakteTab() {
     </div>`;
 
   renderTakteEditorSection();
+
+  // Draw mini waveforms after DOM is ready
+  requestAnimationFrame(() => renderMiniWaveforms());
+}
+
+/**
+ * Get the time range of a bar from bar markers (for the selected song).
+ * Returns { start, end } in seconds or null.
+ */
+function getBarTimeRange(partId, barNum) {
+  if (!audioMeta || !selectedSongId) return null;
+  const parts = getSortedParts(selectedSongId);
+  const partIdx = parts.findIndex(p => p.id === partId);
+  if (partIdx < 0) return null;
+
+  // Get sorted bar markers for this part
+  const barsInPart = barMarkers
+    .filter(m => m.partIndex === partIdx)
+    .sort((a, b) => a.time - b.time);
+
+  if (barNum < 1 || barNum > barsInPart.length) return null;
+  const start = barsInPart[barNum - 1].time;
+  const end = barNum < barsInPart.length
+    ? barsInPart[barNum].time
+    : (getPartEndTime(partIdx) || audioMeta.duration);
+  return { start, end };
 }
 
 function buildTakteTabTable(bars, filterSong) {
   const showSongCol = !filterSong;
   const sel = takteTabSelectedBar;
+  const hasBuf = !!audio.getBuffer();
+  const showWave = hasBuf && filterSong === selectedSongId;
 
   return `
     <table class="parts-tab-table takte-tab-table">
@@ -3945,6 +4084,7 @@ function buildTakteTabTable(bars, filterSong) {
         ${showSongCol ? '<th class="ttt-song">Song</th>' : ''}
         <th class="ttt-part">Part</th>
         <th class="ttt-bar">Takt</th>
+        ${showWave ? '<th class="ttt-wave">Waveform</th>' : ''}
         <th class="ttt-time">Zeit</th>
         <th class="ttt-lyrics">Lyrics</th>
         <th class="ttt-acc">Acc.</th>
@@ -3954,12 +4094,22 @@ function buildTakteTabTable(bars, filterSong) {
         ${bars.map((b, idx) => {
           const isActive = sel && sel.songId === b.songId && sel.partId === b.partId && sel.barNum === b.barNum;
           const isBarPlaying = _barPlayId === b.barId && _partPlayActive;
+
+          let waveCanvas = '';
+          if (showWave) {
+            const range = getBarTimeRange(b.partId, b.barNum);
+            if (range) {
+              waveCanvas = `<canvas class="mini-waveform mini-waveform-sm" data-wave-start="${range.start}" data-wave-end="${range.end}" data-wave-color="rgb(56, 189, 248)"></canvas>`;
+            }
+          }
+
           return `<tr class="ttt-row${isActive ? ' active' : ''}" data-song-id="${b.songId}" data-part-id="${b.partId}" data-bar-num="${b.barNum}">
             <td class="ttt-nr mono text-t3">${showSongCol ? idx + 1 : b.absBar}</td>
             <td class="ttt-play">${b.audio ? `<button class="btn-bar-play${isBarPlaying ? ' playing' : ''}" data-action="play-bar" data-play-part-id="${b.partId}" data-play-bar-num="${b.barNum}" title="${isBarPlaying ? 'Stop' : 'Takt abspielen'}">${isBarPlaying ? '&#9632;' : '&#9654;'}</button>` : ''}</td>
             ${showSongCol ? `<td class="ttt-song"><span class="ttt-song-name">${esc(b.songName)}</span></td>` : ''}
             <td class="ttt-part text-t2">${esc(b.partName)}</td>
             <td class="ttt-bar mono">${b.barNum}</td>
+            ${showWave ? `<td class="ttt-wave">${waveCanvas}</td>` : ''}
             <td class="ttt-time mono text-t3">${fmtDur(Math.round(b.barSec))}</td>
             <td class="ttt-lyrics"><input type="text" value="${esc(b.lyrics)}" data-ttf="lyrics" class="part-input" placeholder="\u2014"></td>
             <td class="ttt-acc mono text-t3">${b.accCount || '\u2014'}</td>

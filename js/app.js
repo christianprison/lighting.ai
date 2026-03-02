@@ -172,7 +172,7 @@ function fmtDur(sec) {
  */
 function sanitizePath(str) {
   return (str || 'unknown')
-    .replace(/[\/\\:*?"<>|#%&{}$!@`=+^~]/g, '_')
+    .replace(/[\/\\:*?"<>|#%&{}$!@`=^~]/g, '_')
     .replace(/\s+/g, ' ')
     .trim()
     .replace(/_+/g, '_');

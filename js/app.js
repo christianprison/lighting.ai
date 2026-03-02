@@ -180,11 +180,11 @@ function sanitizePath(str) {
 
 /**
  * Build the GitHub path for the reference audio file.
- * Format: audio/{Song Title}/reference.mp3
+ * Format: audio/{Song Title}/{Song Title} - Full Song.mp3
  */
 function buildRefAudioPath(song) {
   const songDir = sanitizePath(song.name);
-  return `audio/${songDir}/reference.mp3`;
+  return `audio/${songDir}/${songDir} - Full Song.mp3`;
 }
 
 /**
@@ -234,11 +234,9 @@ async function fetchAudioUrl(url) {
 }
 
 /**
- * Migrate all audio paths in the DB from old ID-based format
- * (e.g. audio/5iZfKj/reference.mp3, audio/5iZfKj/5iZfKj_P001/bar_001.mp3)
- * to the new human-readable format
- * (e.g. audio/All The Small Things/reference.mp3,
- *       audio/All The Small Things/01 Thema 1/001 All The Small Things Thema 1.mp3).
+ * Migrate all audio paths in the DB to the current canonical format.
+ * Reference: audio/{Song Title}/{Song Title} - Full Song.mp3
+ * Bar:       audio/{Song Title}/{NN Part Name}/{GlobalBarNum} {Song Title} {Part Name}.mp3
  *
  * Runs once after DB load. Only touches in-memory data; changes persist on next save.
  */
@@ -1769,12 +1767,6 @@ async function loadReferenceAudio() {
     if (!arrayBuf) {
       toast(`Lade Referenz-Audio: ${refName}...`, 'info');
       arrayBuf = await fetchAudioUrl(song.audio_ref);
-    }
-
-    // 3. Legacy fallback: try old ID-based path (audio/{songId}/reference.mp3)
-    if (!arrayBuf) {
-      const legacyPath = `audio/${songId}/reference.mp3`;
-      arrayBuf = await fetchAudioUrl(legacyPath);
     }
 
     if (!arrayBuf) {

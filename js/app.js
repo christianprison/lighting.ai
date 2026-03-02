@@ -2301,6 +2301,7 @@ function buildLyricsPartsList(parts, song, hasBuf) {
     const part = parts[i];
     const barCount = part.bars || 0;
     const dur = calcPartDuration(barCount, song.bpm || 0);
+    const isInstr = !!part.instrumental;
 
     // Collect existing lyrics from DB bars
     const barLyrics = [];
@@ -2317,17 +2318,21 @@ function buildLyricsPartsList(parts, song, hasBuf) {
     const isPlaying = _lyricsPlayingPart === part.id;
 
     html += `
-      <div class="lyrics-part-card" data-part-id="${part.id}" data-part-index="${i}">
+      <div class="lyrics-part-card${isInstr ? ' instrumental' : ''}" data-part-id="${part.id}" data-part-index="${i}">
         <div class="lyrics-part-header">
           <span class="lyrics-part-name text-amber">${esc(part.name)}</span>
           <span class="lyrics-part-info text-t3 mono">${barCount} Takte${dur ? ' \u00b7 ' + fmtTime(dur) : ''}</span>
+          <label class="lyrics-instr-label" title="Instrumental (kein Text)">
+            <input type="checkbox" class="lyrics-instr-check" data-instr-part="${part.id}" ${isInstr ? 'checked' : ''}>
+            <span>Instrumental</span>
+          </label>
           <div style="flex:1"></div>
           ${canPlay ? `<button class="btn btn-sm btn-part-play${isPlaying ? ' playing' : ''}" data-lyrics-play="${part.id}" data-part-index="${i}" title="${isPlaying ? 'Stopp' : 'Part abspielen'}">
             ${isPlaying ? '&#9724;' : '&#9654;'}
           </button>` : ''}
         </div>
-        <textarea class="lyrics-part-text" data-lyrics-part="${part.id}" rows="${Math.max(2, barCount)}" placeholder="${barCount > 0 ? barCount + ' Zeilen = ' + barCount + ' Takte (1 Zeile pro Takt)' : 'Keine Takte'}">${esc(lyricsText)}</textarea>
-        <div class="lyrics-part-bar-hint text-t3">${barCount > 0 ? 'Zeile 1 = Takt 1, Zeile 2 = Takt 2, ...' : ''}</div>
+        ${!isInstr ? `<textarea class="lyrics-part-text" data-lyrics-part="${part.id}" rows="${Math.max(2, barCount)}" placeholder="${barCount > 0 ? barCount + ' Zeilen = ' + barCount + ' Takte (1 Zeile pro Takt)' : 'Keine Takte'}">${esc(lyricsText)}</textarea>
+        <div class="lyrics-part-bar-hint text-t3">${barCount > 0 ? 'Zeile 1 = Takt 1, Zeile 2 = Takt 2, ...' : ''}</div>` : ''}
       </div>`;
   }
 
@@ -2371,15 +2376,14 @@ function distributeLyricsToparts() {
 
   if (sections.length === 0) { toast('Kein verteilbarer Text gefunden', 'error'); return; }
 
-  // Distribute sections to parts
-  const textareas = document.querySelectorAll('.lyrics-part-text');
+  // Distribute sections to parts (skip instrumental parts)
   let sIdx = 0;
   for (let i = 0; i < parts.length && sIdx < sections.length; i++) {
     const part = parts[i];
     const barCount = part.bars || 0;
-    if (barCount === 0) continue; // skip parts without bars
+    if (barCount === 0 || part.instrumental) continue;
 
-    const ta = textareas[i];
+    const ta = document.querySelector(`.lyrics-part-text[data-lyrics-part="${part.id}"]`);
     if (!ta) continue;
 
     const section = sections[sIdx];
@@ -2412,15 +2416,26 @@ function applyLyricsToDB() {
   if (rawEl) song.lyrics_raw = rawEl.value;
 
   let appliedCount = 0;
-  const textareas = document.querySelectorAll('.lyrics-part-text');
 
   for (let i = 0; i < parts.length; i++) {
     const part = parts[i];
-    const ta = textareas[i];
+    const barCount = part.bars || 0;
+
+    // Instrumental parts: clear lyrics for all bars
+    if (part.instrumental) {
+      for (let b = 1; b <= barCount; b++) {
+        const [, barData] = getOrCreateBar(part.id, b);
+        barData.lyrics = '';
+        appliedCount++;
+      }
+      continue;
+    }
+
+    // Find textarea by data attribute (not by index — instrumental parts have none)
+    const ta = document.querySelector(`.lyrics-part-text[data-lyrics-part="${part.id}"]`);
     if (!ta) continue;
 
     const lines = ta.value.split('\n');
-    const barCount = part.bars || 0;
 
     for (let b = 1; b <= barCount; b++) {
       const text = (b - 1 < lines.length) ? lines[b - 1].trim() : '';
@@ -2518,6 +2533,23 @@ function handleLyricsClick(e) {
     const partId = playBtn.dataset.lyricsPlay;
     const partIndex = parseInt(playBtn.dataset.partIndex, 10);
     handleLyricsPartPlay(partId, partIndex);
+    return;
+  }
+}
+
+function handleLyricsChange(e) {
+  const el = e.target;
+
+  // Instrumental checkbox
+  if (el.classList.contains('lyrics-instr-check')) {
+    const partId = el.dataset.instrPart;
+    if (!partId || !selectedSongId) return;
+    const song = db.songs[selectedSongId];
+    if (!song || !song.parts[partId]) return;
+    song.parts[partId].instrumental = el.checked;
+    markDirty();
+    // Re-render just this card to show/hide textarea
+    renderLyricsTab();
     return;
   }
 }
@@ -4023,6 +4055,7 @@ function wireEvents() {
   els.content.addEventListener('change', (e) => {
     if (activeTab === 'parts') handlePartsTabChange(e);
     else if (activeTab === 'takte') handleTakteTabChange(e);
+    else if (activeTab === 'lyrics') handleLyricsChange(e);
     else if (activeTab === 'setlist') handleSetlistChange(e);
   });
 

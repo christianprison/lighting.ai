@@ -3900,6 +3900,17 @@ function closeSettings() {
 /* ── Help Modal ───────────────────────────────────── */
 
 function openHelp() {
+  // Map program tab to help tab
+  const helpTabMap = {
+    setlist: 'setlist',
+    editor: 'editor',
+    parts: 'parts',
+    takte: 'takte',
+    lyrics: 'lyrics',
+    audio: 'audio',
+  };
+  const helpTab = helpTabMap[activeTab] || 'general';
+  switchHelpTab(helpTab);
   els.helpModal.classList.add('open');
 }
 

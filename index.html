@@ -90,15 +90,18 @@
     </div>
 
     <nav class="help-tabs">
-      <button class="help-tab active" data-help="general">Allgemein</button>
+      <button class="help-tab" data-help="general">Allgemein</button>
+      <button class="help-tab" data-help="setlist">Setlist</button>
       <button class="help-tab" data-help="editor">Songs</button>
-      <button class="help-tab" data-help="audio">Audio Split</button>
+      <button class="help-tab" data-help="parts">Parts</button>
+      <button class="help-tab" data-help="takte">Takte</button>
       <button class="help-tab" data-help="lyrics">Lyrics</button>
+      <button class="help-tab" data-help="audio">Audio Split</button>
       <button class="help-tab" data-help="keys">Shortcuts</button>
     </nav>
 
     <!-- Allgemein -->
-    <div class="help-page active" id="help-general">
+    <div class="help-page" id="help-general">
       <h3>Was ist lighting.ai?</h3>
       <p>Lichtsteuerungs-App fuer die Coverband <strong>THE PACT</strong>. Du verwaltest hier die komplette Songdatenbank mit Songstruktur, Parts, Bars und Licht-Cues.</p>
 
@@ -122,26 +125,77 @@
       <p>Aenderungen werden erst bei Klick auf das Disketten-Icon (oder <kbd>Ctrl+S</kbd>) nach GitHub committed. Der Status oben rechts zeigt <span class="text-green">SAVED</span> / <span class="text-amber">UNSAVED</span>.</p>
     </div>
 
-    <!-- DB Editor -->
+    <!-- Setlist -->
+    <div class="help-page" id="help-setlist">
+      <h3>Setlist verwalten</h3>
+      <p>Hier stellst du die Setlist fuer den Auftritt zusammen.</p>
+      <div class="help-table">
+        <div class="help-row"><span class="help-key">Song hinzufuegen</span><span>Klick auf <em>+ Song</em> oeffnet die Song-Suche. Waehle einen Song aus, um ihn an die Setlist anzuhaengen.</span></div>
+        <div class="help-row"><span class="help-key">Pause einfuegen</span><span>Klick auf <em>+ Pause</em> fuegt einen Pausen-Marker zwischen Songs ein.</span></div>
+        <div class="help-row"><span class="help-key">Reihenfolge</span><span>Songs per Drag &amp; Drop (Grip-Handle links) in der Reihenfolge verschieben. Funktioniert mit Maus und Touch.</span></div>
+        <div class="help-row"><span class="help-key">Entfernen</span><span>Klick auf das <span class="text-red">&times;</span> Icon entfernt den Eintrag aus der Setlist.</span></div>
+        <div class="help-row"><span class="help-key">Bearbeiten</span><span>Klick auf das Stift-Icon springt zum Songs-Tab und waehlt den Song aus.</span></div>
+      </div>
+      <h3>Export</h3>
+      <p>Klick auf <em>Export HTML</em> erzeugt eine druckbare Setlist als HTML-Datei.</p>
+    </div>
+
+    <!-- Songs (DB Editor) -->
     <div class="help-page" id="help-editor">
       <h3>Song-Felder</h3>
       <p>Nach Auswahl eines Songs siehst du oben die Stammdaten (Name, Artist, BPM, Key, Jahr, GEMA, Pick, Notizen). Alle Felder sind direkt editierbar.</p>
 
-      <h3>Parts-Tabelle</h3>
+      <h3>Parts-Tabelle (Read-Only)</h3>
+      <p>Die Parts-Tabelle zeigt eine Uebersicht aller Parts des Songs. Die Reihenfolge laesst sich per <em>Move Up/Down</em> oder Grip-Handle aendern. Fuer die Detail-Bearbeitung (Name, Takte, Template) wechsle in den <strong>Parts-Tab</strong>.</p>
       <div class="help-table">
         <div class="help-row"><span class="help-key">+ Add Part</span><span>Neuen Part am Ende anfuegen</span></div>
-        <div class="help-row"><span class="help-key">Duplicate</span><span>Ausgewaehlten Part duplizieren</span></div>
-        <div class="help-row"><span class="help-key">Delete</span><span>Ausgewaehlten Part loeschen</span></div>
-        <div class="help-row"><span class="help-key">Grip-Handle</span><span>Parts per Drag nach oben/unten verschieben</span></div>
+        <div class="help-row"><span class="help-key">DUP</span><span>Ausgewaehlten Part duplizieren</span></div>
+        <div class="help-row"><span class="help-key">DEL</span><span>Ausgewaehlten Part loeschen</span></div>
+        <div class="help-row"><span class="help-key">&#9650; &#9660;</span><span>Part nach oben/unten verschieben</span></div>
       </div>
-      <p>Pro Part sind editierbar: <strong>Name</strong>, <strong>Bars</strong> (Anzahl Takte) und <strong>Light Template</strong> (Dropdown).</p>
+    </div>
+
+    <!-- Parts -->
+    <div class="help-page" id="help-parts">
+      <h3>Parts bearbeiten</h3>
+      <p>Der Parts-Tab zeigt alle Parts des aktuell ausgewaehlten Songs. Waehle <em>Alle Songs</em> in der Sidebar, um Parts aller Songs zu sehen.</p>
+
+      <h3>Felder</h3>
+      <div class="help-table">
+        <div class="help-row"><span class="help-key">Name</span><span>Part-Name (z.B. Intro, Verse 1, Chorus)</span></div>
+        <div class="help-row"><span class="help-key">Bars</span><span>Anzahl Takte in diesem Part</span></div>
+        <div class="help-row"><span class="help-key">Light Template</span><span>Lichtprogramm-Vorlage (Dropdown)</span></div>
+        <div class="help-row"><span class="help-key">Notes</span><span>Freitext-Notizen zum Part</span></div>
+      </div>
 
       <h3>Bar-Editor</h3>
-      <p>Klicke auf einen Part, dann erscheinen die Bar-Bloecke. Klick auf einen Bar oeffnet den Bar-Editor mit:</p>
+      <p>Klicke auf einen Part, dann erscheinen die Bar-Bloecke darunter. Klick auf einen Bar oeffnet den Bar-Editor:</p>
       <div class="help-table">
         <div class="help-row"><span class="help-key">Lyrics</span><span>Textzeile fuer diesen Takt</span></div>
-        <div class="help-row"><span class="help-key">Accent-Grid</span><span>16tel-Raster: Klicke auf eine Position, um einen Accent zu setzen (Blinder, Blackout, Highlight, Strobe, Fog). Nochmal klicken wechselt den Typ, langer Klick entfernt.</span></div>
+        <div class="help-row"><span class="help-key">Accent-Grid</span><span>16tel-Raster: Klicke auf eine Position, um einen Accent zu setzen (Blinder, Blackout, Highlight, Strobe, Fog). Nochmal klicken wechselt den Typ.</span></div>
       </div>
+
+      <h3>Part-Playback</h3>
+      <p>Hat ein Part Audio-Segmente (aus dem Audio Split exportiert), erscheint ein <span class="text-green">&#9654;</span> Play-Button. Dieser spielt alle Takte des Parts hintereinander ab.</p>
+    </div>
+
+    <!-- Takte -->
+    <div class="help-page" id="help-takte">
+      <h3>Takte bearbeiten</h3>
+      <p>Der Takte-Tab zeigt alle Takte des aktuell ausgewaehlten Songs in einer flachen Tabelle. Waehle <em>Alle Songs</em> in der Sidebar fuer eine Song-uebergreifende Ansicht.</p>
+
+      <h3>Spalten</h3>
+      <div class="help-table">
+        <div class="help-row"><span class="help-key">&#9654;</span><span>Takt abspielen (nur wenn Audio-Segment vorhanden)</span></div>
+        <div class="help-row"><span class="help-key">Part</span><span>Zugehoeriger Part-Name</span></div>
+        <div class="help-row"><span class="help-key">Takt</span><span>Taktnummer innerhalb des Parts</span></div>
+        <div class="help-row"><span class="help-key">Lyrics</span><span>Direkt editierbare Textzeile</span></div>
+        <div class="help-row"><span class="help-key">Acc.</span><span>Anzahl Accents in diesem Takt</span></div>
+        <div class="help-row"><span class="help-key">Audio</span><span><span class="text-green">&#10003;</span> wenn Audio-Segment vorhanden</span></div>
+      </div>
+
+      <h3>Accent-Editor</h3>
+      <p>Klicke auf eine Taktzeile, um den Accent-Editor zu oeffnen. Das 16tel-Raster zeigt die Positionen innerhalb des Takts. Klick auf eine Position setzt oder wechselt den Accent-Typ.</p>
     </div>
 
     <!-- Audio Split -->

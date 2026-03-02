@@ -1556,41 +1556,48 @@ function handleAudioFileLoad(file) {
   if (!file) return;
   const reader = new FileReader();
   reader.onload = async (e) => {
-    try {
-      const arrayBuf = e.target.result;
+    const arrayBuf = e.target.result;
 
-      // Clone BEFORE decodeAudio — decodeAudioData detaches the original ArrayBuffer!
-      const uploadBuf = arrayBuf.slice(0);
+    // Clone BEFORE decodeAudio — decodeAudioData detaches the original ArrayBuffer!
+    const uploadBuf = arrayBuf.slice(0);
 
-      // Check if a reference audio already exists on GitHub
-      const song = selectedSongId ? db.songs[selectedSongId] : null;
-      if (song && song.audio_ref) {
-        const confirmed = await showConfirm(
-          'Referenz-Audio ersetzen?',
-          `F\u00fcr <strong>${esc(song.name)}</strong> existiert bereits eine Referenz-Audiodatei.<br><br>` +
-          `Durch das Ersetzen k\u00f6nnen alle bestehenden Zeitinformationen (Part-Marker, Bar-Marker, Audio-Segmente) ung\u00fcltig werden.<br><br>` +
-          `<strong>Trotzdem ersetzen?</strong>`,
-          'Ersetzen'
-        );
-        if (!confirmed) {
-          toast('Lade bestehende Referenz-Audio...', 'info');
-          await loadReferenceAudio();
-          return;
-        }
+    // Check if a reference audio already exists
+    const song = selectedSongId ? db.songs[selectedSongId] : null;
+    if (song && song.audio_ref) {
+      const confirmed = await showConfirm(
+        'Referenz-Audio ersetzen?',
+        `F\u00fcr <strong>${esc(song.name)}</strong> existiert bereits eine Referenz-Audiodatei.<br><br>` +
+        `Durch das Ersetzen k\u00f6nnen alle bestehenden Zeitinformationen (Part-Marker, Bar-Marker, Audio-Segmente) ung\u00fcltig werden.<br><br>` +
+        `<strong>Trotzdem ersetzen?</strong>`,
+        'Ersetzen'
+      );
+      if (!confirmed) {
+        toast('Lade bestehende Referenz-Audio...', 'info');
+        await loadReferenceAudio();
+        return;
       }
+    }
 
+    // 1. Decode audio for playback (detaches arrayBuf — that's why we cloned above)
+    try {
       const meta = await audio.decodeAudio(arrayBuf);
       audioMeta = meta;
       audioFileName = file.name;
       resetAudioSplit();
       renderAudioTab();
       toast(`Audio geladen: ${fmtTime(meta.duration)}`, 'success');
+    } catch (err) {
+      console.error('Audio decode error:', err);
+      toast(`Audio-Decode-Fehler: ${err.message}`, 'error');
+      return;
+    }
 
-      // Upload the CLONED buffer (original was detached by decodeAudioData)
+    // 2. Upload to GitHub (separate try/catch — decode success should not be rolled back)
+    try {
       await uploadReferenceAudio(uploadBuf, file.name);
     } catch (err) {
-      console.error('Audio file load error:', err);
-      toast(`Audio-Fehler: ${err.message}`, 'error');
+      console.error('Reference upload error:', err);
+      toast(`Upload-Fehler: ${err.message}`, 'error', 5000);
     }
   };
   reader.readAsArrayBuffer(file);

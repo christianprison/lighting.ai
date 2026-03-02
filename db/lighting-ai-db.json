@@ -35,8 +35,8 @@
       "year": "1999",
       "pick": "🔻",
       "gema_nr": "5005294-001",
-      "duration": "2:18",
-      "duration_sec": 138,
+      "duration": "2:26",
+      "duration_sec": 146,
       "audio_ref": "audio/5iZfKj/reference.mp3",
       "audio_ref_name": "All The Small Things.mp3",
       "notes": "nach 2. ref. direkt interlude; ; Intro; Verse 1; Bridge; Chorus; Intro; Verse 2; Bridge; Chorus; Interlude; Power-Bridge; Ende",
@@ -154,7 +154,7 @@
         "5iZfKj_P011": {
           "pos": 11,
           "name": "Bridge 3 (schnell)",
-          "bars": 7,
+          "bars": 8,
           "duration_sec": 12,
           "light_template": "prechorus_rise",
           "qlc_scene": "09 Alarm",
@@ -165,7 +165,7 @@
         "5iZfKj_P012": {
           "pos": 12,
           "name": "Chorus 3 (nanana)",
-          "bars": 10,
+          "bars": 9,
           "duration_sec": 13,
           "light_template": "chorus_full",
           "qlc_scene": "10 Strobe",
@@ -10300,9 +10300,9 @@
     "B0052": {
       "part_id": "5iZfKj_P002",
       "bar_num": 1,
-      "lyrics": "",
+      "lyrics": "small things",
       "audio": "audio/5iZfKj/5iZfKj_P002/bar_001.mp3",
-      "has_accents": false
+      "has_accents": true
     },
     "B0053": {
       "part_id": "5iZfKj_P003",
@@ -10405,105 +10405,105 @@
     "B0067": {
       "part_id": "5iZfKj_P001",
       "bar_num": 9,
-      "lyrics": "",
+      "lyrics": "All the",
       "audio": "audio/5iZfKj/5iZfKj_P001/bar_009.mp3",
       "has_accents": false
     },
     "B0068": {
       "part_id": "5iZfKj_P002",
       "bar_num": 2,
-      "lyrics": "",
+      "lyrics": "true care",
       "audio": "audio/5iZfKj/5iZfKj_P002/bar_002.mp3",
       "has_accents": false
     },
     "B0069": {
       "part_id": "5iZfKj_P002",
       "bar_num": 3,
-      "lyrics": "",
+      "lyrics": "truth brings",
       "audio": "audio/5iZfKj/5iZfKj_P002/bar_003.mp3",
       "has_accents": false
     },
     "B0070": {
       "part_id": "5iZfKj_P002",
       "bar_num": 4,
-      "lyrics": "",
+      "lyrics": "I'll take",
       "audio": "audio/5iZfKj/5iZfKj_P002/bar_004.mp3",
       "has_accents": false
     },
     "B0071": {
       "part_id": "5iZfKj_P002",
       "bar_num": 5,
-      "lyrics": "",
+      "lyrics": "one lift",
       "audio": "audio/5iZfKj/5iZfKj_P002/bar_005.mp3",
       "has_accents": false
     },
     "B0072": {
       "part_id": "5iZfKj_P002",
       "bar_num": 6,
-      "lyrics": "",
+      "lyrics": "Your ride,",
       "audio": "audio/5iZfKj/5iZfKj_P002/bar_006.mp3",
       "has_accents": false
     },
     "B0073": {
       "part_id": "5iZfKj_P002",
       "bar_num": 7,
-      "lyrics": "",
+      "lyrics": "best trip",
       "audio": "audio/5iZfKj/5iZfKj_P002/bar_007.mp3",
       "has_accents": false
     },
     "B0074": {
       "part_id": "5iZfKj_P002",
       "bar_num": 8,
-      "lyrics": "",
+      "lyrics": "Always",
       "audio": "audio/5iZfKj/5iZfKj_P002/bar_008.mp3",
       "has_accents": false
     },
     "B0075": {
       "part_id": "5iZfKj_P002",
       "bar_num": 9,
-      "lyrics": "",
+      "lyrics": "I know",
       "audio": "audio/5iZfKj/5iZfKj_P002/bar_009.mp3",
       "has_accents": false
     },
     "B0076": {
       "part_id": "5iZfKj_P002",
       "bar_num": 10,
-      "lyrics": "",
+      "lyrics": "You'll be",
       "audio": "audio/5iZfKj/5iZfKj_P002/bar_010.mp3",
       "has_accents": false
     },
     "B0077": {
       "part_id": "5iZfKj_P002",
       "bar_num": 11,
-      "lyrics": "",
+      "lyrics": "at my show",
       "audio": "audio/5iZfKj/5iZfKj_P002/bar_011.mp3",
       "has_accents": false
     },
     "B0078": {
       "part_id": "5iZfKj_P002",
       "bar_num": 12,
-      "lyrics": "",
+      "lyrics": "Watching",
       "audio": "audio/5iZfKj/5iZfKj_P002/bar_012.mp3",
       "has_accents": false
     },
     "B0079": {
       "part_id": "5iZfKj_P002",
       "bar_num": 13,
-      "lyrics": "",
+      "lyrics": "waiting",
       "audio": "audio/5iZfKj/5iZfKj_P002/bar_013.mp3",
       "has_accents": false
     },
     "B0080": {
       "part_id": "5iZfKj_P002",
       "bar_num": 14,
-      "lyrics": "",
+      "lyrics": "Commi-",
       "audio": "audio/5iZfKj/5iZfKj_P002/bar_014.mp3",
       "has_accents": false
     },
     "B0081": {
       "part_id": "5iZfKj_P002",
       "bar_num": 15,
-      "lyrics": "",
+      "lyrics": "serating",
       "audio": "audio/5iZfKj/5iZfKj_P002/bar_015.mp3",
       "has_accents": false
     },
@@ -10977,7 +10977,26 @@
       "has_accents": false
     }
   },
-  "accents": {},
+  "accents": {
+    "A0001": {
+      "bar_id": "B0052",
+      "pos_16th": 1,
+      "type": "bo",
+      "notes": ""
+    },
+    "A0002": {
+      "bar_id": "B0052",
+      "pos_16th": 2,
+      "type": "bo",
+      "notes": ""
+    },
+    "A0003": {
+      "bar_id": "B0052",
+      "pos_16th": 3,
+      "type": "bo",
+      "notes": ""
+    }
+  },
   "meta": {
     "accent_types": {
       "bl": "Blinder",

@@ -409,7 +409,7 @@ function renderPartsTable() {
           <th class="pt-play"></th>
           <th class="pt-name">Name</th>
           <th class="pt-start">Start</th>
-          <th class="pt-bars">Bars</th>
+          <th class="pt-bars">Takte</th>
           <th class="pt-dur">Dauer</th>
           <th class="pt-tmpl">Light Template</th>
           <th class="pt-grip"></th>
@@ -538,7 +538,7 @@ function renderSummary() {
   area.innerHTML = `
     <div class="summary-bar">
       <span class="summary-item"><span class="summary-label">Parts</span><span class="mono">${parts.length}</span></span>
-      <span class="summary-item"><span class="summary-label">Total Bars</span><span class="mono">${totalBars}</span></span>
+      <span class="summary-item"><span class="summary-label">Takte</span><span class="mono">${totalBars}</span></span>
       <span class="summary-item"><span class="summary-label">Dauer</span><span class="mono">${fmtDur(totalSec)}</span></span>
       <span class="summary-item"><span class="summary-label">BPM</span><span class="mono">${song.bpm || '\u2014'}</span></span>
     </div>`;
@@ -1091,7 +1091,7 @@ function buildSplitResult(parts) {
         <thead><tr>
           <th class="st-nr">#</th>
           <th class="st-name">Name</th>
-          <th class="st-bars">Bars</th>
+          <th class="st-bars">Takte</th>
           <th class="st-start">Start</th>
           <th class="st-dur">Dauer</th>
           <th class="st-check"></th>
@@ -1137,7 +1137,7 @@ function buildAudioSummary(parts) {
   return `
     <div class="summary-bar">
       <span class="summary-item"><span class="summary-label">Parts</span><span class="mono">${partMarkers.length}</span></span>
-      <span class="summary-item"><span class="summary-label">Bars</span><span class="mono">${totalBars}</span></span>
+      <span class="summary-item"><span class="summary-label">Takte</span><span class="mono">${totalBars}</span></span>
       <span class="summary-item"><span class="summary-label">BPM (est.)</span><span class="mono">${est || '\u2014'}</span></span>
       <span class="summary-item"><span class="summary-label">Storage</span><span class="mono text-green">GitHub</span></span>
     </div>`;
@@ -1297,6 +1297,35 @@ function drawWaveform() {
   for (let pi = 0; pi < parts.length; pi++) {
     partStartBar[pi] = absCounter;
     absCounter += (parts[pi].bars || 0);
+  }
+
+  // Ghost markers: expected part positions from DB (dashed, dimmed)
+  const song = db.songs[selectedSongId];
+  if (song && song.bpm > 0 && parts.length > 0) {
+    const starts = calcPartStarts(selectedSongId);
+    ctx.setLineDash([4, 4]);
+    for (let pi = 0; pi < parts.length; pi++) {
+      const st = starts.get(parts[pi].id);
+      if (!st || st.startSec <= 0) continue;
+      const x = (st.startSec / duration) * w;
+      // Ghost line
+      ctx.strokeStyle = 'rgba(240, 160, 48, 0.25)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, h);
+      ctx.stroke();
+      // Ghost label (only if no tapped marker near this position)
+      const hasTapped = partMarkers.some(m => m.partIndex === pi);
+      if (!hasTapped) {
+        ctx.font = '9px Sora, sans-serif';
+        ctx.fillStyle = 'rgba(240, 160, 48, 0.35)';
+        const label = parts[pi].name;
+        const labelX = Math.min(x + 3, w - ctx.measureText(label).width - 3);
+        ctx.fillText(label, labelX, 11);
+      }
+    }
+    ctx.setLineDash([]);
   }
 
   // Part markers (amber) with part name + absolute bar number
@@ -2563,7 +2592,7 @@ function renderPartsTab() {
             <label>Song-Filter</label>
             <select id="pt-song-filter" class="parts-tab-filter-select">
               <option value="">Alle Songs (${songs.length})</option>
-              ${songs.map(s => `<option value="${s.id}"${s.id === filterSong ? ' selected' : ''}>${esc(s.name)} — ${esc(s.artist || '')}</option>`).join('')}
+              ${songs.map(s => `<option value="${s.id}"${s.id === filterSong ? ' selected' : ''}>${esc(s.name)}</option>`).join('')}
             </select>
           </div>
           <div class="parts-toolbar">
@@ -2582,7 +2611,7 @@ function renderPartsTab() {
       <div class="summary-bar">
         <span class="summary-item"><span class="summary-label">Songs</span><span class="mono">${uniqueSongs}</span></span>
         <span class="summary-item"><span class="summary-label">Parts</span><span class="mono">${allParts.length}</span></span>
-        <span class="summary-item"><span class="summary-label">Total Bars</span><span class="mono">${totalBars}</span></span>
+        <span class="summary-item"><span class="summary-label">Takte</span><span class="mono">${totalBars}</span></span>
         <span class="summary-item"><span class="summary-label">Dauer</span><span class="mono">${fmtDur(totalSec)}</span></span>
       </div>
     </div>`;
@@ -2606,7 +2635,7 @@ function buildPartsTabTable(parts, filterSong) {
         ${showSongCol ? '<th class="ptt-song">Song</th>' : ''}
         <th class="ptt-name">Part Name</th>
         <th class="ptt-start">Start</th>
-        <th class="ptt-bars">Bars</th>
+        <th class="ptt-bars">Takte</th>
         <th class="ptt-dur">Dauer</th>
         <th class="ptt-tmpl">Light Template</th>
         <th class="ptt-notes">Notizen</th>

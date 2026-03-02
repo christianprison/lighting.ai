@@ -151,6 +151,27 @@ function fmtDur(sec) {
   return `${m}:${String(s).padStart(2, '0')}`;
 }
 
+/**
+ * Compute start_bar for each part in a song.
+ * If a part has a manual start_bar override, use it; otherwise cumulate.
+ * Returns Map<partId, {startBar, startSec}>
+ */
+function calcPartStarts(songId) {
+  const song = db.songs[songId];
+  if (!song) return new Map();
+  const parts = getSortedParts(songId);
+  const bpm = song.bpm || 0;
+  const result = new Map();
+  let cumulBars = 0;
+  for (const p of parts) {
+    const startBar = (typeof p.start_bar === 'number') ? p.start_bar : cumulBars;
+    const startSec = bpm > 0 ? startBar * 4 * 60 / bpm : 0;
+    result.set(p.id, { startBar, startSec });
+    cumulBars = startBar + (p.bars || 0);
+  }
+  return result;
+}
+
 /* ── DB Helpers ────────────────────────────────────── */
 
 function ensureCollections() {
@@ -368,6 +389,8 @@ function renderPartsTable() {
 
   const hasSel = !!selectedPartId;
 
+  const starts = calcPartStarts(selectedSongId);
+
   area.innerHTML = `
     <div class="parts-header">
       <h3>Parts <span class="text-t3">(${parts.length})</span></h3>
@@ -385,6 +408,7 @@ function renderPartsTable() {
           <th class="pt-pos">#</th>
           <th class="pt-play"></th>
           <th class="pt-name">Name</th>
+          <th class="pt-start">Start</th>
           <th class="pt-bars">Bars</th>
           <th class="pt-dur">Dauer</th>
           <th class="pt-tmpl">Light Template</th>
@@ -396,11 +420,13 @@ function renderPartsTable() {
           const audioBars = getAudioBarsForPart(p.id);
           const hasAudio = audioBars.length > 0;
           const isPlaying = _partPlayActive && _playingPartId === p.id;
+          const st = starts.get(p.id) || { startBar: 0, startSec: 0 };
           return `
           <tr class="part-row${p.id === selectedPartId ? ' active' : ''}" data-part-id="${p.id}">
             <td class="pt-pos mono text-t3">${p.pos}</td>
             <td class="pt-play">${hasAudio ? `<button class="btn-part-play${isPlaying ? ' playing' : ''}" data-action="play-part" data-part-id="${p.id}" title="${isPlaying ? 'Stop' : 'Part abspielen'}">${isPlaying ? '&#9632;' : '&#9654;'}</button>` : ''}</td>
             <td class="pt-name"><input type="text" value="${esc(p.name)}" data-part-field="name" class="part-input"></td>
+            <td class="pt-start"><input type="number" value="${st.startBar}" data-part-field="start_bar" class="part-input-num mono" min="0" step="1" title="Bar ${st.startBar + 1} \u2014 ${fmtDur(Math.round(st.startSec))}"></td>
             <td class="pt-bars"><input type="number" value="${p.bars || 0}" data-part-field="bars" class="part-input-num mono" min="0" step="1"></td>
             <td class="pt-dur mono text-t3 part-duration">${fmtDur(calcPartDuration(p.bars, song.bpm))}</td>
             <td class="pt-tmpl">
@@ -538,15 +564,10 @@ function handleEditorChange(e) {
         p.duration_sec = calcPartDuration(p.bars || 0, song.bpm);
       }
       recalcSongDuration();
-      // Update duration cells in DOM without full re-render
-      document.querySelectorAll('.part-duration').forEach(cell => {
-        const pid = cell.closest('[data-part-id]')?.dataset.partId;
-        if (pid && song.parts[pid]) {
-          cell.textContent = fmtDur(calcPartDuration(song.parts[pid].bars || 0, song.bpm));
-        }
-      });
       const durField = document.getElementById('song-duration-field');
       if (durField) durField.value = song.duration || '';
+      // Re-render parts table (durations + start times depend on BPM)
+      renderPartsTable();
       renderSummary();
       renderSongList(els.searchBox.value);
     } else if (field === 'notes') {
@@ -581,11 +602,17 @@ function handleEditorChange(e) {
       const durField = document.getElementById('song-duration-field');
       if (durField) durField.value = song.duration || '';
       renderSummary();
+      // Bars changed → re-render full parts table to update subsequent start values
+      renderPartsTable();
       // Re-render bar section if this part is selected
       if (partId === selectedPartId) {
         if (selectedBarNum && selectedBarNum > part.bars) selectedBarNum = null;
         renderBarSection();
       }
+    } else if (field === 'start_bar') {
+      part.start_bar = parseInt(el.value, 10) || 0;
+      // Re-render full table to update subsequent starts
+      renderPartsTable();
     } else if (field === 'light_template') {
       part.light_template = el.value;
     } else if (field === 'name') {
@@ -2566,12 +2593,19 @@ function renderPartsTab() {
 function buildPartsTabTable(parts, filterSong) {
   const showSongCol = !filterSong;
   const sel = partsTabSelectedPart;
+
+  // Pre-compute starts for all involved songs
+  const songIds = [...new Set(parts.map(p => p.songId))];
+  const allStarts = {};
+  for (const sid of songIds) allStarts[sid] = calcPartStarts(sid);
+
   return `
     <table class="parts-tab-table">
       <thead><tr>
         <th class="ptt-pos">#</th>
         ${showSongCol ? '<th class="ptt-song">Song</th>' : ''}
         <th class="ptt-name">Part Name</th>
+        <th class="ptt-start">Start</th>
         <th class="ptt-bars">Bars</th>
         <th class="ptt-dur">Dauer</th>
         <th class="ptt-tmpl">Light Template</th>
@@ -2581,10 +2615,12 @@ function buildPartsTabTable(parts, filterSong) {
         ${parts.map((p, idx) => {
           const isActive = sel && sel.songId === p.songId && sel.partId === p.partId;
           const dur = calcPartDuration(p.bars || 0, p.bpm);
+          const st = allStarts[p.songId]?.get(p.partId) || { startBar: 0, startSec: 0 };
           return `<tr class="ptt-row${isActive ? ' active' : ''}" data-song-id="${p.songId}" data-part-id="${p.partId}">
             <td class="ptt-pos mono text-t3">${showSongCol ? idx + 1 : p.pos}</td>
             ${showSongCol ? `<td class="ptt-song"><span class="ptt-song-name">${esc(p.songName)}</span></td>` : ''}
             <td class="ptt-name"><input type="text" value="${esc(p.name)}" data-ptf="name" class="part-input"></td>
+            <td class="ptt-start"><input type="number" value="${st.startBar}" data-ptf="start_bar" class="part-input-num mono" min="0" step="1" title="Bar ${st.startBar + 1} \u2014 ${fmtDur(Math.round(st.startSec))}"></td>
             <td class="ptt-bars"><input type="number" value="${p.bars || 0}" data-ptf="bars" class="part-input-num mono" min="0" step="1"></td>
             <td class="ptt-dur mono text-t3 pt-duration">${fmtDur(dur)}</td>
             <td class="ptt-tmpl">
@@ -2763,13 +2799,17 @@ function handlePartsTabChange(e) {
     if (field === 'bars') {
       part.bars = parseInt(el.value, 10) || 0;
       part.duration_sec = calcPartDuration(part.bars, song.bpm || 0);
-      const durCell = row.querySelector('.pt-duration');
-      if (durCell) durCell.textContent = fmtDur(part.duration_sec);
       recalcSongDurationFor(songId);
+      // Bars changed → re-render to update subsequent start values
+      renderPartsTab();
       if (partsTabSelectedPart && partsTabSelectedPart.partId === partId) {
         if (partsTabSelectedBar && partsTabSelectedBar > part.bars) partsTabSelectedBar = null;
         renderPartsTabBarSection();
       }
+    } else if (field === 'start_bar') {
+      part.start_bar = parseInt(el.value, 10) || 0;
+      // Re-render to update subsequent starts
+      renderPartsTab();
     } else if (field === 'light_template') {
       part.light_template = el.value;
     } else if (field === 'notes') {

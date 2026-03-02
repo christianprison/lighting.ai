@@ -675,6 +675,7 @@ label {
 .parts-table .pt-pos { width: 36px; text-align: center; font-size: 0.8rem; }
 .parts-table .pt-play { width: 36px; text-align: center; padding: 0; }
 .parts-table .pt-name { min-width: 120px; }
+.parts-table .pt-start { width: 72px; }
 .parts-table .pt-bars { width: 72px; }
 .parts-table .pt-dur  { width: 64px; font-size: 0.8rem; text-align: center; }
 .parts-table .pt-tmpl { min-width: 160px; }
@@ -1750,6 +1751,7 @@ label {
 .parts-tab-table .ptt-pos { width: 36px; text-align: center; font-size: 0.8rem; }
 .parts-tab-table .ptt-song { min-width: 140px; max-width: 200px; }
 .parts-tab-table .ptt-name { min-width: 120px; }
+.parts-tab-table .ptt-start { width: 72px; }
 .parts-tab-table .ptt-bars { width: 72px; }
 .parts-tab-table .ptt-dur { width: 64px; font-size: 0.8rem; text-align: center; }
 .parts-tab-table .ptt-tmpl { min-width: 160px; }

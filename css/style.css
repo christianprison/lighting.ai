@@ -674,11 +674,11 @@ label {
 
 .parts-table .pt-pos { width: 36px; text-align: center; font-size: 0.8rem; }
 .parts-table .pt-play { width: 36px; text-align: center; padding: 0; }
-.parts-table .pt-name { min-width: 120px; }
-.parts-table .pt-start { width: 110px; }
-.parts-table .pt-bars { width: 72px; }
-.parts-table .pt-dur  { width: 72px; }
-.parts-table .pt-tmpl { min-width: 160px; }
+.parts-table .pt-name { min-width: 120px; font-size: 0.85rem; }
+.parts-table .pt-start { width: 90px; font-size: 0.8rem; }
+.parts-table .pt-bars { width: 48px; text-align: center; }
+.parts-table .pt-dur  { width: 56px; font-size: 0.8rem; text-align: center; }
+.parts-table .pt-tmpl { min-width: 120px; font-size: 0.8rem; }
 .parts-table .pt-grip { width: 28px; text-align: center; font-size: 1.1rem; cursor: grab; }
 
 /* Play button in parts table */

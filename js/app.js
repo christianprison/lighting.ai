@@ -418,7 +418,7 @@ function renderPartsTable() {
           <th class="pt-start">Start</th>
           <th class="pt-bars">Takte</th>
           <th class="pt-dur">Dauer</th>
-          <th class="pt-tmpl">Light Template</th>
+          <th class="pt-tmpl">Template</th>
           <th class="pt-grip"></th>
         </tr>
       </thead>
@@ -428,25 +428,16 @@ function renderPartsTable() {
           const hasAudio = audioBars.length > 0;
           const isPlaying = _partPlayActive && _playingPartId === p.id;
           const st = starts.get(p.id) || { startBar: 0, startSec: 0 };
+          const dur = calcPartDuration(p.bars, song.bpm);
           return `
           <tr class="part-row${p.id === selectedPartId ? ' active' : ''}" data-part-id="${p.id}">
             <td class="pt-pos mono text-t3">${p.pos}</td>
             <td class="pt-play">${hasAudio ? `<button class="btn-part-play${isPlaying ? ' playing' : ''}" data-action="play-part" data-part-id="${p.id}" title="${isPlaying ? 'Stop' : 'Part abspielen'}">${isPlaying ? '&#9632;' : '&#9654;'}</button>` : ''}</td>
-            <td class="pt-name"><input type="text" value="${esc(p.name)}" data-part-field="name" class="part-input"></td>
-            <td class="pt-start">
-              <div class="start-cell">
-                <input type="number" value="${st.startBar}" data-part-field="start_bar" class="part-input-num mono" min="0" step="1" title="Takt-Offset ab Songstart">
-                <span class="start-time mono text-t3">${fmtDur(Math.round(st.startSec))}</span>
-              </div>
-            </td>
-            <td class="pt-bars"><input type="number" value="${p.bars || 0}" data-part-field="bars" class="part-input-num mono" min="0" step="1"></td>
-            <td class="pt-dur"><input type="number" value="${calcPartDuration(p.bars, song.bpm)}" data-part-field="duration_sec" class="part-input-num mono" min="0" step="1" title="Dauer in Sekunden"></td>
-            <td class="pt-tmpl">
-              <select data-part-field="light_template" class="part-select">
-                <option value="">\u2014</option>
-                ${LIGHT_TEMPLATES.map(t => `<option value="${t}"${t === p.light_template ? ' selected' : ''}>${t}</option>`).join('')}
-              </select>
-            </td>
+            <td class="pt-name">${esc(p.name)}</td>
+            <td class="pt-start mono text-t3">${st.startBar} <span class="text-t4">${fmtDur(Math.round(st.startSec))}</span></td>
+            <td class="pt-bars mono">${p.bars || 0}</td>
+            <td class="pt-dur mono text-t3">${fmtDur(dur)}</td>
+            <td class="pt-tmpl text-t3">${p.light_template || '\u2014'}</td>
             <td class="pt-grip text-t4">\u2807</td>
           </tr>`;
         }).join('')}
@@ -1289,10 +1280,10 @@ function drawWaveform() {
   if (!buf) return;
   const duration = buf.duration;
 
-  // Draw waveform bars
-  const buckets = Math.floor(w / 2); // 2px per bar
+  // Draw waveform bars (1px per bar for high resolution at all zoom levels)
+  const buckets = Math.floor(w);
   const peaks = audio.getPeaks(buckets);
-  const barW = w / buckets;
+  const barW = 1;
   const mid = h / 2;
 
   // Midline
@@ -1380,12 +1371,12 @@ function drawWaveform() {
       ctx.fillText(partName, labelX, 12);
     }
 
-    // Absolute bar number at bottom (e.g. "Takt 61")
+    // Absolute bar number above bottom
     const startBar = partStartBar[m.partIndex];
     if (startBar !== undefined) {
-      ctx.font = '9px "DM Mono", monospace';
-      ctx.fillStyle = 'rgba(240, 160, 48, 0.7)';
-      ctx.fillText(String(startBar), x + 4, h - 4);
+      ctx.font = '11px "DM Mono", monospace';
+      ctx.fillStyle = 'rgba(240, 160, 48, 0.85)';
+      ctx.fillText(String(startBar), x + 4, h - 14);
     }
   }
 

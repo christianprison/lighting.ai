@@ -318,13 +318,17 @@ export function isSegmentPlaying() {
  * @param {number} rate
  */
 export function setPlaybackRate(rate) {
-  _playbackRate = Math.max(0.25, Math.min(2.0, rate));
+  const newRate = Math.max(0.25, Math.min(2.0, rate));
   if (playing) {
+    // Capture position BEFORE changing rate (getCurrentTime uses _playbackRate)
     const pos = getCurrentTime();
+    _playbackRate = newRate;
     stop(true);
     pausedAt = pos;
     playing = false;
     play(onEndCallback);
+  } else {
+    _playbackRate = newRate;
   }
 }
 

@@ -266,31 +266,31 @@
       <div class="help-steps">
         <div class="help-step">
           <span class="help-step-nr">1</span>
-          <div><strong>Song auswaehlen</strong> in der Sidebar (muss Parts haben)</div>
+          <div><strong>Song auswaehlen</strong> in der Sidebar (muss Parts mit Takten haben)</div>
         </div>
         <div class="help-step">
           <span class="help-step-nr">2</span>
-          <div><strong>Lyrics importieren</strong> &mdash; Klick auf den Genius-Link, Songtext kopieren und in das Textfeld einfuegen. Oder direkt eintippen.</div>
+          <div><strong>Rohtext einfuegen</strong> &mdash; Klick auf den Genius-Link, Songtext kopieren und in das Rohtext-Feld einfuegen.</div>
         </div>
         <div class="help-step">
           <span class="help-step-nr">3</span>
-          <div><strong>Audio starten</strong> &mdash; Play-Button oder <kbd>Space</kbd>. Die Referenz-Audio wird automatisch geladen.</div>
+          <div><strong>Verteilen</strong> &mdash; Klick auf VERTEILEN verteilt den Rohtext automatisch auf die Parts (getrennt durch Leerzeilen). Section-Header wie [Verse 1] werden uebersprungen.</div>
         </div>
         <div class="help-step">
           <span class="help-step-nr">4</span>
-          <div><strong>Marker setzen</strong> &mdash; Waehrend der Wiedergabe Zeilen im Text anklicken und mit <span class="text-amber">PART</span> oder <span class="text-cyan">BAR</span> markieren. Part-Marker ordnen die Zeile dem naechsten Part zu, Bar-Marker setzen Taktgrenzen.</div>
+          <div><strong>Anpassen</strong> &mdash; Text direkt in den Part-Textfeldern bearbeiten. Jede Zeile entspricht einem Takt. Play-Button neben jedem Part fuer Hoerprobe.</div>
         </div>
         <div class="help-step">
           <span class="help-step-nr">5</span>
-          <div><strong>Uebernehmen</strong> &mdash; Klick auf <em>In DB uebernehmen</em> verteilt den Text auf die Takte in der Datenbank.</div>
+          <div><strong>Uebernehmen</strong> &mdash; Klick auf <em>In DB uebernehmen</em> schreibt den Text in die Takt-Eintraege der Datenbank.</div>
         </div>
       </div>
 
-      <h3>Marker-Typen</h3>
+      <h3>Hinweise</h3>
       <div class="help-table">
-        <div class="help-row"><span class="help-key text-amber">PART</span><span>Markiert den Beginn eines Parts. Der Part-Name wird aus der Songstruktur uebernommen.</span></div>
-        <div class="help-row"><span class="help-key text-cyan">BAR</span><span>Markiert eine Taktgrenze innerhalb des aktuellen Parts.</span></div>
-        <div class="help-row"><span class="help-key text-red">Marker loeschen</span><span>Klick auf einen bestehenden Marker entfernt ihn.</span></div>
+        <div class="help-row"><span class="help-key">1 Zeile = 1 Takt</span><span>Pro Textfeld: Zeile 1 geht in Takt 1, Zeile 2 in Takt 2 usw.</span></div>
+        <div class="help-row"><span class="help-key">Leerzeile</span><span>Leere Zeilen ergeben instrumentale Takte (kein Text).</span></div>
+        <div class="help-row"><span class="help-key">Play</span><span>Spielt den Part ueber die Referenz-Audio ab (wenn vorhanden), sonst ueber gespeicherte Bar-MP3s.</span></div>
       </div>
     </div>
 

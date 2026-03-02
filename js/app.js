@@ -28,10 +28,7 @@ let takteTabFilterSong = '';
 let takteTabSelectedBar = null;  // {songId, partId, barNum}
 
 /* ── Lyrics Tab State ───────────────────────────── */
-let lyricsLines = [];             // raw text lines
-let lyricsMarkers = [];           // [{lineIdx, type:'part'|'bar', partIndex, barNum}]
-let lyricsSelectedLine = null;    // line index currently focused
-let _lyricsAnimFrame = null;      // playhead animation for lyrics tab
+let _lyricsPlayingPart = null;    // partId currently playing in lyrics tab
 
 /* ── Audio Split State ────────────────────────────── */
 let audioMeta = null;          // {duration, sampleRate, channels}
@@ -46,6 +43,7 @@ let exportInProgress = false;
 let playbackSpeed = 1.0;       // current playback speed multiplier
 let waveformZoom = 1.0;        // waveform zoom level (linked to speed)
 let _playingPartId = null;     // part ID currently being played in DB Editor
+const _audioRefCache = {};     // songId → ArrayBuffer (cached reference audio)
 
 const SETTINGS_KEY = 'lightingai_settings';
 
@@ -295,9 +293,13 @@ function renderSongList(filter = '') {
 /* ── Tab Routing ───────────────────────────────────── */
 
 function switchTab(tab) {
-  // Stop playhead animation when leaving audio/lyrics tab
-  if ((activeTab === 'audio' || activeTab === 'lyrics') && tab !== 'audio' && tab !== 'lyrics') {
+  // Stop playhead animation when leaving audio tab
+  if (activeTab === 'audio' && tab !== 'audio') {
     cancelAnimationFrame(animFrameId);
+  }
+  // Stop lyrics part playback when leaving lyrics tab
+  if (activeTab === 'lyrics' && tab !== 'lyrics') {
+    stopLyricsPartPlay();
   }
   activeTab = tab;
   els.tabEditor?.classList.toggle('active', tab === 'editor');
@@ -1566,8 +1568,6 @@ function handleAudioFileLoad(file) {
 async function uploadReferenceAudio(arrayBuffer, fileName) {
   const songId = selectedSongId;  // capture — user might switch songs during upload
   if (!songId) return;
-  const s = getSettings();
-  if (!s.token || !s.repo) return; // read-only mode, skip
 
   const song = db.songs[songId];
   if (!song) return;
@@ -1575,9 +1575,17 @@ async function uploadReferenceAudio(arrayBuffer, fileName) {
   const ext = (fileName.match(/\.(\w+)$/) || [, 'mp3'])[1].toLowerCase();
   const path = `audio/${songId}/reference.${ext}`;
 
-  // Set audio_ref immediately so it persists even if upload takes time
+  // Always set audio_ref and cache in memory (works even without token)
   song.audio_ref = path;
   song.audio_ref_name = fileName;
+  _audioRefCache[songId] = arrayBuffer.slice(0); // clone for later reload
+
+  const s = getSettings();
+  if (!s.token || !s.repo) {
+    markDirty();
+    toast('Referenz-Audio im Speicher gehalten (kein Token f\u00fcr GitHub-Upload)', 'info');
+    return;
+  }
 
   try {
     toast('Referenz-Audio wird hochgeladen...', 'info');
@@ -1620,27 +1628,33 @@ async function loadReferenceAudio() {
   if (!song || !song.audio_ref) return;
   if (audioMeta) return; // already loaded
 
+  const songId = selectedSongId;
   const s = getSettings();
   const refName = song.audio_ref_name || song.audio_ref.split('/').pop();
 
   try {
-    toast(`Lade Referenz-Audio: ${refName}...`, 'info');
-
     let arrayBuf;
 
-    // Try direct fetch first (works on GitHub Pages / local dev)
-    try {
-      const res = await fetch(song.audio_ref);
-      if (res.ok) {
-        const ct = res.headers.get('content-type') || '';
-        // Guard against HTML soft-404 pages
-        if (!ct.includes('text/html')) {
-          arrayBuf = await res.arrayBuffer();
-        }
-      }
-    } catch { /* fall through to API */ }
+    // 1. Check in-memory cache first (instant, no network)
+    if (_audioRefCache[songId]) {
+      arrayBuf = _audioRefCache[songId];
+    }
 
-    // Fallback: fetch via GitHub API
+    // 2. Try direct fetch (works on GitHub Pages / local dev)
+    if (!arrayBuf) {
+      toast(`Lade Referenz-Audio: ${refName}...`, 'info');
+      try {
+        const res = await fetch(song.audio_ref);
+        if (res.ok) {
+          const ct = res.headers.get('content-type') || '';
+          if (!ct.includes('text/html')) {
+            arrayBuf = await res.arrayBuffer();
+          }
+        }
+      } catch { /* fall through to API */ }
+    }
+
+    // 3. Fallback: fetch via GitHub API
     if (!arrayBuf && s.token && s.repo) {
       const url = `https://api.github.com/repos/${s.repo}/contents/${song.audio_ref}`;
       const res = await fetch(url, {
@@ -1659,6 +1673,9 @@ async function loadReferenceAudio() {
       return;
     }
 
+    // Cache for quick reload on song switch
+    _audioRefCache[songId] = arrayBuf.slice(0);
+
     const meta = await audio.decodeAudio(arrayBuf);
     audioMeta = meta;
     audioFileName = refName;
@@ -1666,7 +1683,11 @@ async function loadReferenceAudio() {
     // Restore part/bar markers from DB if available
     restoreMarkersFromSong();
 
-    renderAudioTab();
+    // Re-render the active tab that uses audio
+    if (selectedSongId === songId) {
+      if (activeTab === 'audio') renderAudioTab();
+      else if (activeTab === 'lyrics') renderLyricsTab();
+    }
     toast(`Referenz-Audio geladen: ${fmtTime(meta.duration)}`, 'success');
   } catch (err) {
     console.error('Reference load failed:', err);
@@ -2184,7 +2205,7 @@ function handleAudioDrop(e) {
 }
 
 /* ══════════════════════════════════════════════════════
-   LYRICS TAB — Songtext-Import und Takt-Zuordnung
+   LYRICS TAB — Part-basierter Songtext-Editor
    ══════════════════════════════════════════════════════ */
 
 function renderLyricsTab() {
@@ -2203,301 +2224,238 @@ function renderLyricsTab() {
     loadReferenceAudio().finally(() => { _refLoadingFor = null; });
   }
 
-  // Restore raw lyrics from song if available and lyricsLines is empty
-  if (lyricsLines.length === 0 && song.lyrics_raw) {
-    lyricsLines = song.lyrics_raw.split('\n');
-    restoreLyricsMarkers();
-  }
-
-  const hasLyrics = lyricsLines.length > 0;
-  const searchQuery = encodeURIComponent(`${song.name} ${song.artist} lyrics`);
   const geniusUrl = `https://genius.com/search?q=${encodeURIComponent(song.name + ' ' + song.artist)}`;
+
+  // Check if any part has lyrics in DB bars
+  ensureCollections();
 
   els.content.innerHTML = `
     <div class="lyrics-panel">
       <div class="lyrics-scroll" id="lyrics-scroll">
         ${buildSongHeader(song)}
-        ${hasBuf ? buildLyricsTransport() : (song.audio_ref ? '<div class="lyrics-info text-t3" style="padding:8px 0">Referenz-Audio wird geladen...</div>' : '')}
-        ${!hasLyrics ? buildLyricsImport(geniusUrl) : ''}
-        ${hasLyrics ? buildLyricsEditor(parts) : ''}
-        ${hasLyrics ? buildLyricsPreview(parts) : ''}
-      </div>
-    </div>`;
-
-  if (hasBuf) {
-    startLyricsPlayhead();
-  }
-}
-
-function buildLyricsTransport() {
-  const isPlay = audio.isPlaying();
-  const cur = audio.getCurrentTime();
-  const dur = audioMeta ? audioMeta.duration : 0;
-  const pct = dur > 0 ? (cur / dur * 100) : 0;
-  const speedLabel = playbackSpeed === 1 ? '1\u00d7' : playbackSpeed.toFixed(2).replace(/0$/, '') + '\u00d7';
-  return `
-    <div class="transport-bar lyrics-transport" id="lyrics-transport">
-      <button class="t-btn" id="lt-skip" title="Zum Anfang">&#9198;</button>
-      <button class="t-btn${isPlay ? ' playing' : ''}" id="lt-play" title="${isPlay ? 'Pause' : 'Play'}">
-        ${isPlay ? '&#9646;&#9646;' : '&#9654;'}
-      </button>
-      <span class="t-time" id="lt-time">${fmtTime(cur)} / ${fmtTime(dur)}</span>
-      <div class="t-progress-wrap" id="lt-progress-wrap">
-        <div class="t-progress" id="lt-progress" style="width:${pct}%"></div>
-      </div>
-      <div class="t-speed">
-        <button class="t-speed-btn" id="lt-speed-down" title="Langsamer">&minus;</button>
-        <span class="t-speed-label" id="lt-speed-label">${speedLabel}</span>
-        <button class="t-speed-btn" id="lt-speed-up" title="Schneller">+</button>
+        ${buildLyricsRawImport(song, geniusUrl)}
+        ${parts.length > 0 ? buildLyricsPartsList(parts, song, hasBuf) : '<div class="empty-state"><p>Keine Parts vorhanden. Erst Parts im Parts-Tab anlegen.</p></div>'}
+        ${parts.length > 0 ? `<div class="lyrics-actions">
+          <button class="btn btn-primary" id="lyrics-apply">In DB &uuml;bernehmen</button>
+        </div>` : ''}
       </div>
     </div>`;
 }
 
-function buildLyricsImport(geniusUrl) {
+function buildLyricsRawImport(song, geniusUrl) {
+  const raw = song.lyrics_raw || '';
   return `
-    <div class="lyrics-import" id="lyrics-import">
-      <div class="lyrics-import-header">
-        <h3>Songtext importieren</h3>
+    <div class="lyrics-raw-section" id="lyrics-raw-section">
+      <div class="lyrics-raw-header">
+        <h3>Rohtext</h3>
         <a href="${geniusUrl}" target="_blank" rel="noopener" class="btn btn-sm lyrics-genius-link" title="Auf Genius.com suchen">&#127925; Genius.com</a>
       </div>
-      <textarea id="lyrics-paste" class="lyrics-paste" rows="16" placeholder="Songtext hier einfuegen...&#10;&#10;Tipp: Auf Genius.com den Songtext kopieren und hier einfuegen.&#10;Leerzeilen zwischen Strophen werden als Abschnitt-Grenzen erkannt."></textarea>
+      <textarea id="lyrics-raw-text" class="lyrics-paste" rows="8" placeholder="Songtext hier einfuegen...&#10;Tipp: Auf Genius.com den Songtext kopieren und hier einfuegen.&#10;Dann auf VERTEILEN klicken, um den Text auf die Parts aufzuteilen.">${esc(raw)}</textarea>
       <div class="lyrics-import-actions">
-        <button class="btn btn-primary" id="lyrics-import-btn">Importieren</button>
+        <button class="btn btn-sm" id="lyrics-distribute-btn" title="Rohtext automatisch auf Parts verteilen">VERTEILEN</button>
       </div>
     </div>`;
 }
 
-function buildLyricsEditor(parts) {
-  // Build the line-by-line editor with markers
-  const nextPartIdx = getNextUnassignedPartIndex();
-  const nextPartName = nextPartIdx < parts.length ? parts[nextPartIdx].name : '\u2014';
+function buildLyricsPartsList(parts, song, hasBuf) {
+  let html = '<div class="lyrics-parts-list" id="lyrics-parts-list">';
 
-  let html = `
-    <div class="lyrics-editor" id="lyrics-editor">
-      <div class="lyrics-editor-toolbar">
-        <span class="lyrics-mode-info text-t3">Klicke eine Zeile an, dann setze Marker:</span>
-        <button class="btn btn-sm lyrics-marker-btn lyrics-marker-part" id="lm-part" ${lyricsSelectedLine === null ? 'disabled' : ''}>
-          PART <span class="lyrics-marker-hint">${esc(nextPartName)}</span>
-        </button>
-        <button class="btn btn-sm lyrics-marker-btn lyrics-marker-bar" id="lm-bar" ${lyricsSelectedLine === null ? 'disabled' : ''}>
-          BAR
-        </button>
-        <div style="flex:1"></div>
-        <button class="btn btn-sm" id="lm-clear" title="Alle Marker entfernen">Marker Reset</button>
-        <button class="btn btn-sm btn-primary" id="lm-apply">In DB &uuml;bernehmen</button>
-      </div>
-      <div class="lyrics-lines" id="lyrics-lines">`;
-
-  for (let i = 0; i < lyricsLines.length; i++) {
-    const line = lyricsLines[i];
-    const marker = lyricsMarkers.find(m => m.lineIdx === i);
-    const isSelected = lyricsSelectedLine === i;
-    const isEmpty = line.trim() === '';
-    const isHeader = isSectionHeader(line);
-
-    let markerHtml = '';
-    if (marker) {
-      if (marker.type === 'part') {
-        const pName = marker.partIndex < parts.length ? parts[marker.partIndex].name : '?';
-        markerHtml = `<span class="lm-tag lm-tag-part" data-lm-remove="${i}" title="Part-Marker entfernen">${esc(pName)}</span>`;
-      } else {
-        markerHtml = `<span class="lm-tag lm-tag-bar" data-lm-remove="${i}" title="Bar-Marker entfernen">Bar ${marker.barNum}</span>`;
-      }
-    }
-
-    const classes = ['lyrics-line',
-      isSelected ? 'selected' : '',
-      isEmpty ? 'empty' : '',
-      isHeader ? 'section-header' : '',
-      marker ? 'has-marker' : '',
-    ].filter(Boolean).join(' ');
-
-    html += `<div class="${classes}" data-line-idx="${i}">
-      <span class="ll-num">${i + 1}</span>
-      ${markerHtml}
-      <span class="ll-text">${isEmpty ? '&nbsp;' : esc(line)}</span>
-    </div>`;
-  }
-
-  html += `</div></div>`;
-
-  // Edit raw text button
-  html += `<div style="padding:8px 0"><button class="btn btn-sm" id="lyrics-edit-raw">Rohtext bearbeiten</button></div>`;
-
-  return html;
-}
-
-function buildLyricsPreview(parts) {
-  // Preview: how lyrics will be distributed across bars
-  const dist = computeLyricsDistribution(parts);
-  if (dist.length === 0) return '';
-
-  let html = '<div class="lyrics-preview"><h3>Vorschau: Lyrics &rarr; Takte</h3><div class="lyrics-preview-table">';
-  for (const entry of dist) {
-    if (entry.type === 'part') {
-      html += `<div class="lp-part"><span class="text-amber">${esc(entry.partName)}</span></div>`;
-    } else {
-      const text = entry.lines.join(' / ');
-      html += `<div class="lp-bar">
-        <span class="lp-bar-num mono text-t3">Bar ${entry.barNum}</span>
-        <span class="lp-bar-text">${text ? esc(text) : '<span class="text-t4">(instrumental)</span>'}</span>
-      </div>`;
-    }
-  }
-  html += '</div></div>';
-  return html;
-}
-
-function getNextUnassignedPartIndex() {
-  const partMarkerIndices = lyricsMarkers.filter(m => m.type === 'part').map(m => m.partIndex);
-  const parts = getSortedParts(selectedSongId);
   for (let i = 0; i < parts.length; i++) {
-    if (!partMarkerIndices.includes(i)) return i;
+    const part = parts[i];
+    const barCount = part.bars || 0;
+    const dur = calcPartDuration(barCount, song.bpm || 0);
+
+    // Collect existing lyrics from DB bars
+    const barLyrics = [];
+    for (let b = 1; b <= barCount; b++) {
+      const found = findBar(part.id, b);
+      barLyrics.push(found ? (found[1].lyrics || '') : '');
+    }
+    const lyricsText = barLyrics.join('\n');
+
+    // Can we play this part?
+    const canPlayRef = hasBuf && partMarkers.some(m => m.partIndex === i);
+    const canPlayBars = getAudioBarsForPart(part.id).length > 0;
+    const canPlay = canPlayRef || canPlayBars;
+    const isPlaying = _lyricsPlayingPart === part.id;
+
+    html += `
+      <div class="lyrics-part-card" data-part-id="${part.id}" data-part-index="${i}">
+        <div class="lyrics-part-header">
+          <span class="lyrics-part-name text-amber">${esc(part.name)}</span>
+          <span class="lyrics-part-info text-t3 mono">${barCount} Takte${dur ? ' \u00b7 ' + fmtTime(dur) : ''}</span>
+          <div style="flex:1"></div>
+          ${canPlay ? `<button class="btn btn-sm btn-part-play${isPlaying ? ' playing' : ''}" data-lyrics-play="${part.id}" data-part-index="${i}" title="${isPlaying ? 'Stopp' : 'Part abspielen'}">
+            ${isPlaying ? '&#9724;' : '&#9654;'}
+          </button>` : ''}
+        </div>
+        <textarea class="lyrics-part-text" data-lyrics-part="${part.id}" rows="${Math.max(2, barCount)}" placeholder="${barCount > 0 ? barCount + ' Zeilen = ' + barCount + ' Takte (1 Zeile pro Takt)' : 'Keine Takte'}">${esc(lyricsText)}</textarea>
+        <div class="lyrics-part-bar-hint text-t3">${barCount > 0 ? 'Zeile 1 = Takt 1, Zeile 2 = Takt 2, ...' : ''}</div>
+      </div>`;
   }
-  return parts.length;
+
+  html += '</div>';
+  return html;
 }
 
 /**
- * Compute how lyrics lines distribute across parts and bars.
- * Returns [{type:'part', partName} | {type:'bar', partName, barNum, lines:[]}]
+ * Distribute raw text across parts based on blank-line separation.
+ * Section headers like [Verse 1] are matched to part names if possible.
  */
+function distributeLyricsToparts() {
+  if (!selectedSongId) return;
+  const song = db.songs[selectedSongId];
+  const rawEl = document.getElementById('lyrics-raw-text');
+  if (!rawEl) return;
+
+  const rawText = rawEl.value.trim();
+  if (!rawText) { toast('Kein Rohtext vorhanden', 'error'); return; }
+
+  // Save raw text
+  song.lyrics_raw = rawEl.value;
+
+  const parts = getSortedParts(selectedSongId);
+  if (parts.length === 0) { toast('Keine Parts vorhanden', 'error'); return; }
+
+  // Split into sections by blank lines
+  const sections = [];
+  let currentSection = [];
+  for (const line of rawText.split('\n')) {
+    if (line.trim() === '' && currentSection.length > 0) {
+      sections.push(currentSection);
+      currentSection = [];
+    } else if (line.trim() !== '') {
+      // Skip section headers like [Verse 1]
+      if (/^\[.*\]$/.test(line.trim())) continue;
+      currentSection.push(line);
+    }
+  }
+  if (currentSection.length > 0) sections.push(currentSection);
+
+  if (sections.length === 0) { toast('Kein verteilbarer Text gefunden', 'error'); return; }
+
+  // Distribute sections to parts
+  const textareas = document.querySelectorAll('.lyrics-part-text');
+  let sIdx = 0;
+  for (let i = 0; i < parts.length && sIdx < sections.length; i++) {
+    const part = parts[i];
+    const barCount = part.bars || 0;
+    if (barCount === 0) continue; // skip parts without bars
+
+    const ta = textareas[i];
+    if (!ta) continue;
+
+    const section = sections[sIdx];
+    sIdx++;
+
+    // Pad or trim to match bar count
+    const lines = [];
+    for (let b = 0; b < barCount; b++) {
+      lines.push(b < section.length ? section[b] : '');
+    }
+    ta.value = lines.join('\n');
+  }
+
+  markDirty();
+  toast(`Text auf ${Math.min(sIdx, parts.length)} Parts verteilt`, 'success');
+}
+
 /**
- * Check if a line is a section header (e.g. [Verse 1], [Chorus]).
- * These are metadata — not actual lyrics to distribute to bars.
+ * Apply lyrics from all part textareas into DB bar records.
  */
-function isSectionHeader(line) {
-  return /^\[.*\]$/.test(line.trim());
-}
-
-function computeLyricsDistribution(parts) {
-  if (lyricsLines.length === 0) return [];
-
-  // Sort markers by lineIdx
-  const sorted = [...lyricsMarkers].sort((a, b) => a.lineIdx - b.lineIdx);
-  if (sorted.length === 0) return [];
-
-  const result = [];
-  let currentPart = null;
-  let currentBarNum = 0;
-  let currentLines = [];
-
-  function flushBar() {
-    if (currentPart !== null && currentBarNum > 0) {
-      // Filter out section headers and empty lines from bar text
-      const textLines = currentLines.filter(l => l.trim() && !isSectionHeader(l));
-      result.push({
-        type: 'bar',
-        partIndex: currentPart,
-        partName: currentPart < parts.length ? parts[currentPart].name : '?',
-        barNum: currentBarNum,
-        lines: textLines
-      });
-    }
-    currentLines = [];
-  }
-
-  for (let i = 0; i < lyricsLines.length; i++) {
-    const marker = sorted.find(m => m.lineIdx === i);
-    if (marker) {
-      if (marker.type === 'part') {
-        flushBar();
-        currentPart = marker.partIndex;
-        currentBarNum = 1;
-        currentLines = [];
-        result.push({ type: 'part', partIndex: currentPart, partName: parts[currentPart]?.name || '?' });
-        // Include this line (will be filtered if it's a section header)
-        currentLines.push(lyricsLines[i]);
-      } else {
-        // bar marker
-        flushBar();
-        currentBarNum = marker.barNum;
-        currentLines.push(lyricsLines[i]);
-      }
-    } else if (currentPart !== null) {
-      currentLines.push(lyricsLines[i]);
-    }
-  }
-  flushBar();
-  return result;
-}
-
-function restoreLyricsMarkers() {
-  if (!selectedSongId || !db.songs[selectedSongId]) return;
-  const song = db.songs[selectedSongId];
-  if (song.lyrics_markers && Array.isArray(song.lyrics_markers)) {
-    lyricsMarkers = song.lyrics_markers.map(m => ({ ...m }));
-  }
-}
-
-function saveLyricsToSong() {
-  if (!selectedSongId || !db.songs[selectedSongId]) return;
-  const song = db.songs[selectedSongId];
-  song.lyrics_raw = lyricsLines.join('\n');
-  song.lyrics_markers = lyricsMarkers.map(m => ({ ...m }));
-}
-
 function applyLyricsToDB() {
   if (!selectedSongId) return;
   const parts = getSortedParts(selectedSongId);
-  const dist = computeLyricsDistribution(parts);
+  const song = db.songs[selectedSongId];
 
   ensureCollections();
 
+  // Save raw text
+  const rawEl = document.getElementById('lyrics-raw-text');
+  if (rawEl) song.lyrics_raw = rawEl.value;
+
   let appliedCount = 0;
-  for (const entry of dist) {
-    if (entry.type === 'bar') {
-      const part = parts[entry.partIndex];
-      if (!part) continue;
-      const [, barData] = getOrCreateBar(part.id, entry.barNum);
-      barData.lyrics = entry.lines.join(' / ');
+  const textareas = document.querySelectorAll('.lyrics-part-text');
+
+  for (let i = 0; i < parts.length; i++) {
+    const part = parts[i];
+    const ta = textareas[i];
+    if (!ta) continue;
+
+    const lines = ta.value.split('\n');
+    const barCount = part.bars || 0;
+
+    for (let b = 1; b <= barCount; b++) {
+      const text = (b - 1 < lines.length) ? lines[b - 1].trim() : '';
+      const [, barData] = getOrCreateBar(part.id, b);
+      barData.lyrics = text;
       appliedCount++;
     }
   }
 
-  saveLyricsToSong();
   markDirty();
   toast(`${appliedCount} Takte mit Lyrics aktualisiert`, 'success');
-  renderLyricsTab();
 }
 
-/* ── Lyrics Tab Audio Playback ────────────────────── */
+/* ── Lyrics Part Playback ─────────────────────────── */
 
-function handleLyricsPlayPause() {
-  if (!audio.getBuffer()) return;
-  if (audio.isPlaying()) {
-    audio.pause();
-    cancelAnimationFrame(_lyricsAnimFrame);
-  } else {
-    audio.play();
-    startLyricsPlayhead();
+function handleLyricsPartPlay(partId, partIndex) {
+  // Toggle off if already playing this part
+  if (_lyricsPlayingPart === partId) {
+    stopLyricsPartPlay();
+    return;
   }
-  updateLyricsTransport();
+
+  stopLyricsPartPlay();
+  _lyricsPlayingPart = partId;
+
+  // Try reference audio segment first
+  const hasBuf = !!audio.getBuffer();
+  const startTime = getPartStartTime(partIndex);
+  const endTime = getPartEndTime(partIndex);
+
+  if (hasBuf && startTime !== null && endTime !== null) {
+    // Play segment from reference audio
+    audio.playSegments([{ startTime, endTime }], () => {
+      _lyricsPlayingPart = null;
+      updateLyricsPlayButtons();
+    });
+    updateLyricsPlayButtons();
+    return;
+  }
+
+  // Fallback: play bar MP3 files
+  handlePartPlay(partId);
+  _lyricsPlayingPart = partId;
+  updateLyricsPlayButtons();
+
+  // Override the end callback
+  const origInterval = setInterval(() => {
+    if (!_partPlayActive) {
+      clearInterval(origInterval);
+      _lyricsPlayingPart = null;
+      updateLyricsPlayButtons();
+    }
+  }, 200);
 }
 
-function updateLyricsTransport() {
-  const timeEl = document.getElementById('lt-time');
-  const progEl = document.getElementById('lt-progress');
-  const playBtn = document.getElementById('lt-play');
-  if (!timeEl || !audioMeta) return;
-
-  const cur = audio.getCurrentTime();
-  const dur = audioMeta.duration;
-  timeEl.textContent = `${fmtTime(cur)} / ${fmtTime(dur)}`;
-  if (progEl) progEl.style.width = (dur > 0 ? cur / dur * 100 : 0) + '%';
-  if (playBtn) {
-    const isPlay = audio.isPlaying();
-    playBtn.innerHTML = isPlay ? '&#9646;&#9646;' : '&#9654;';
-    playBtn.classList.toggle('playing', isPlay);
+function stopLyricsPartPlay() {
+  if (_lyricsPlayingPart) {
+    audio.stopSegments();
+    stopPartPlay();
+    _lyricsPlayingPart = null;
+    updateLyricsPlayButtons();
   }
 }
 
-function startLyricsPlayhead() {
-  cancelAnimationFrame(_lyricsAnimFrame);
-  function tick() {
-    updateLyricsTransport();
-    _lyricsAnimFrame = requestAnimationFrame(tick);
-  }
-  _lyricsAnimFrame = requestAnimationFrame(tick);
+function updateLyricsPlayButtons() {
+  document.querySelectorAll('[data-lyrics-play]').forEach(btn => {
+    const partId = btn.dataset.lyricsPlay;
+    const isPlaying = _lyricsPlayingPart === partId;
+    btn.innerHTML = isPlaying ? '&#9724;' : '&#9654;';
+    btn.classList.toggle('playing', isPlaying);
+    btn.title = isPlaying ? 'Stopp' : 'Part abspielen';
+  });
 }
 
 /* ── Lyrics Tab Event Handlers ────────────────────── */
@@ -2505,192 +2463,26 @@ function startLyricsPlayhead() {
 function handleLyricsClick(e) {
   const el = e.target;
 
-  // Transport controls
-  if (el.closest('#lt-skip')) { audio.seek(0); updateLyricsTransport(); return; }
-  if (el.closest('#lt-play')) { handleLyricsPlayPause(); return; }
-  if (el.closest('#lt-progress-wrap')) {
-    const wrap = document.getElementById('lt-progress-wrap');
-    if (wrap && audioMeta) {
-      const rect = wrap.getBoundingClientRect();
-      const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-      audio.seek(pct * audioMeta.duration);
-      updateLyricsTransport();
-    }
-    return;
-  }
-  if (el.closest('#lt-speed-down')) { handleSpeedChange(-1); updateLyricsTransport(); return; }
-  if (el.closest('#lt-speed-up'))   { handleSpeedChange(1); updateLyricsTransport(); return; }
-
-  // Import button
-  if (el.closest('#lyrics-import-btn')) {
-    const ta = document.getElementById('lyrics-paste');
-    if (ta && ta.value.trim()) {
-      lyricsLines = ta.value.split('\n');
-      lyricsMarkers = [];
-      // Auto-detect: lines that look like section headers get part markers
-      autoDetectPartMarkers();
-      saveLyricsToSong();
-      markDirty();
-      renderLyricsTab();
-      toast(`${lyricsLines.length} Zeilen importiert`, 'success');
-    }
-    return;
-  }
-
-  // Edit raw text
-  if (el.closest('#lyrics-edit-raw')) {
-    // Replace editor with textarea
-    lyricsSelectedLine = null;
-    const editor = document.getElementById('lyrics-editor');
-    if (editor) {
-      editor.outerHTML = buildLyricsImportWithText();
-    }
-    return;
-  }
-
-  // Remove marker (click on tag)
-  const rmTag = el.closest('[data-lm-remove]');
-  if (rmTag) {
-    const lineIdx = parseInt(rmTag.dataset.lmRemove, 10);
-    lyricsMarkers = lyricsMarkers.filter(m => m.lineIdx !== lineIdx);
-    recalcBarNumbers();
-    saveLyricsToSong();
-    markDirty();
-    renderLyricsTab();
-    return;
-  }
-
-  // Set part marker
-  if (el.closest('#lm-part')) {
-    if (lyricsSelectedLine !== null) {
-      setLyricsMarker(lyricsSelectedLine, 'part');
-    }
-    return;
-  }
-
-  // Set bar marker
-  if (el.closest('#lm-bar')) {
-    if (lyricsSelectedLine !== null) {
-      setLyricsMarker(lyricsSelectedLine, 'bar');
-    }
-    return;
-  }
-
-  // Clear all markers
-  if (el.closest('#lm-clear')) {
-    lyricsMarkers = [];
-    lyricsSelectedLine = null;
-    saveLyricsToSong();
-    markDirty();
-    renderLyricsTab();
+  // Distribute raw text to parts
+  if (el.closest('#lyrics-distribute-btn')) {
+    distributeLyricsToparts();
     return;
   }
 
   // Apply to DB
-  if (el.closest('#lm-apply')) {
+  if (el.closest('#lyrics-apply')) {
     applyLyricsToDB();
     return;
   }
 
-  // Line selection
-  const lineEl = el.closest('.lyrics-line');
-  if (lineEl) {
-    const idx = parseInt(lineEl.dataset.lineIdx, 10);
-    lyricsSelectedLine = (lyricsSelectedLine === idx) ? null : idx;
-    // Update selection visually without full re-render
-    document.querySelectorAll('.lyrics-line').forEach(l => {
-      l.classList.toggle('selected', parseInt(l.dataset.lineIdx, 10) === lyricsSelectedLine);
-    });
-    // Update marker buttons
-    const partBtn = document.getElementById('lm-part');
-    const barBtn = document.getElementById('lm-bar');
-    if (partBtn) partBtn.disabled = lyricsSelectedLine === null;
-    if (barBtn) barBtn.disabled = lyricsSelectedLine === null;
-    // Update next part hint
-    if (partBtn && lyricsSelectedLine !== null) {
-      const nextIdx = getNextUnassignedPartIndex();
-      const parts = getSortedParts(selectedSongId);
-      const hint = partBtn.querySelector('.lyrics-marker-hint');
-      if (hint) hint.textContent = nextIdx < parts.length ? parts[nextIdx].name : '\u2014';
-    }
+  // Part play button
+  const playBtn = el.closest('[data-lyrics-play]');
+  if (playBtn) {
+    const partId = playBtn.dataset.lyricsPlay;
+    const partIndex = parseInt(playBtn.dataset.partIndex, 10);
+    handleLyricsPartPlay(partId, partIndex);
     return;
   }
-}
-
-function buildLyricsImportWithText() {
-  const raw = lyricsLines.join('\n');
-  return `
-    <div class="lyrics-import" id="lyrics-import">
-      <div class="lyrics-import-header">
-        <h3>Songtext bearbeiten</h3>
-      </div>
-      <textarea id="lyrics-paste" class="lyrics-paste" rows="16">${esc(raw)}</textarea>
-      <div class="lyrics-import-actions">
-        <button class="btn btn-primary" id="lyrics-import-btn">Aktualisieren</button>
-      </div>
-    </div>`;
-}
-
-function setLyricsMarker(lineIdx, type) {
-  // Remove any existing marker on this line
-  lyricsMarkers = lyricsMarkers.filter(m => m.lineIdx !== lineIdx);
-
-  if (type === 'part') {
-    const partIndex = getNextUnassignedPartIndex();
-    lyricsMarkers.push({ lineIdx, type: 'part', partIndex, barNum: 1 });
-  } else {
-    // Bar marker — find current part and compute bar number
-    lyricsMarkers.push({ lineIdx, type: 'bar', partIndex: -1, barNum: 0 });
-  }
-
-  recalcBarNumbers();
-  saveLyricsToSong();
-  markDirty();
-  renderLyricsTab();
-}
-
-function recalcBarNumbers() {
-  // Sort markers by line index
-  const sorted = [...lyricsMarkers].sort((a, b) => a.lineIdx - b.lineIdx);
-
-  let currentPartIndex = -1;
-  let barCounter = 0;
-
-  for (const m of sorted) {
-    if (m.type === 'part') {
-      currentPartIndex = m.partIndex;
-      barCounter = 1;
-      m.barNum = 1;
-    } else {
-      m.partIndex = currentPartIndex;
-      barCounter++;
-      m.barNum = barCounter;
-    }
-  }
-
-  lyricsMarkers = sorted;
-}
-
-/**
- * Auto-detect section headers like [Verse 1], [Chorus], etc.
- * and common patterns from Genius.com lyrics.
- */
-function autoDetectPartMarkers() {
-  const parts = getSortedParts(selectedSongId);
-  if (parts.length === 0) return;
-
-  let partIdx = 0;
-  const sectionPattern = /^\[.*\]$|^(Verse|Chorus|Bridge|Intro|Outro|Pre-Chorus|Hook|Refrain|Strophe|Interlude|Solo|Breakdown|Instrumental|Ausklang)/i;
-
-  for (let i = 0; i < lyricsLines.length && partIdx < parts.length; i++) {
-    const line = lyricsLines[i].trim();
-    if (sectionPattern.test(line)) {
-      lyricsMarkers.push({ lineIdx: i, type: 'part', partIndex: partIdx, barNum: 1 });
-      partIdx++;
-    }
-  }
-
-  recalcBarNumbers();
 }
 
 /* ══════════════════════════════════════════════════════
@@ -4172,10 +3964,7 @@ function wireEvents() {
     partsTabSelectedPart = null;
     partsTabSelectedBar = null;
     takteTabSelectedBar = null;
-    lyricsLines = [];
-    lyricsMarkers = [];
-    lyricsSelectedLine = null;
-    cancelAnimationFrame(_lyricsAnimFrame);
+    stopLyricsPartPlay();
     renderSongList(els.searchBox.value);
     renderContent();
   });
@@ -4221,12 +4010,7 @@ function wireEvents() {
       if (e.key === 'z' || e.key === 'Z') { if (!e.ctrlKey && !e.metaKey) handleUndoTap(); }
     }
 
-    // Lyrics tab
-    if (activeTab === 'lyrics' && audio.getBuffer()) {
-      if (e.code === 'Space') { e.preventDefault(); handleLyricsPlayPause(); }
-      if (e.key === '[') { handleSpeedChange(-1); }
-      if (e.key === ']') { handleSpeedChange(1); }
-    }
+    // Lyrics tab: no keyboard shortcuts needed (per-part play via buttons)
   });
 }
 

@@ -2145,6 +2145,7 @@ label {
    LYRICS TAB
    ══════════════════════════════════════════════════════ */
 
+/* ── Lyrics Tab ─────────────────────────────────── */
 .lyrics-panel {
   display: flex;
   flex-direction: column;
@@ -2157,24 +2158,23 @@ label {
   padding: 16px 20px;
 }
 
-/* ── Lyrics Transport (reuses .transport-bar base styles) ── */
-.lyrics-transport {
-  margin-bottom: 12px;
-}
-
-/* ── Import Section ─────────────────────────────── */
-.lyrics-import {
+/* ── Raw Text Import Section ─────────────────────── */
+.lyrics-raw-section {
   margin: 12px 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg2);
+  padding: 12px;
 }
 
-.lyrics-import-header {
+.lyrics-raw-header {
   display: flex;
   align-items: center;
   gap: 12px;
   margin-bottom: 10px;
 }
 
-.lyrics-import-header h3 {
+.lyrics-raw-header h3 {
   margin: 0;
   font-size: 0.9rem;
   color: var(--t1);
@@ -2198,7 +2198,7 @@ label {
 
 .lyrics-paste {
   width: 100%;
-  min-height: 200px;
+  min-height: 100px;
   background: var(--bg3);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -2222,197 +2222,90 @@ label {
   justify-content: flex-end;
 }
 
-/* ── Editor Section ─────────────────────────────── */
-.lyrics-editor {
+/* ── Parts List with Lyrics ──────────────────────── */
+.lyrics-parts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   margin: 12px 0;
 }
 
-.lyrics-editor-toolbar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 10px;
-  flex-wrap: wrap;
-}
-
-.lyrics-mode-info {
-  font-size: 0.75rem;
-  margin-right: 4px;
-}
-
-.lyrics-marker-btn {
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-}
-
-.lyrics-marker-part {
-  border-color: var(--amber);
-  color: var(--amber);
-}
-
-.lyrics-marker-part:hover:not([disabled]) {
-  background: rgba(240, 160, 48, 0.1);
-}
-
-.lyrics-marker-bar {
-  border-color: var(--cyan);
-  color: var(--cyan);
-}
-
-.lyrics-marker-bar:hover:not([disabled]) {
-  background: rgba(56, 189, 248, 0.1);
-}
-
-.lyrics-marker-hint {
-  font-weight: 400;
-  opacity: 0.7;
-  margin-left: 4px;
-  font-size: 0.7rem;
-}
-
-/* ── Lyrics Lines ───────────────────────────────── */
-.lyrics-lines {
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--bg3);
-  max-height: 50vh;
-  overflow-y: auto;
-}
-
-.lyrics-line {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  padding: 4px 10px;
-  cursor: pointer;
-  transition: background 0.1s;
-  min-height: 28px;
-  border-left: 3px solid transparent;
-}
-
-.lyrics-line:hover {
-  background: var(--bg4);
-}
-
-.lyrics-line.selected {
-  background: var(--bg4);
-  border-left-color: var(--green);
-}
-
-.lyrics-line.empty {
-  opacity: 0.4;
-  min-height: 16px;
-}
-
-.lyrics-line.has-marker {
-  border-left-color: transparent;
-}
-
-.ll-num {
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  color: var(--t4);
-  width: 24px;
-  text-align: right;
-  flex-shrink: 0;
-  user-select: none;
-}
-
-.ll-text {
-  font-size: 0.85rem;
-  color: var(--t1);
-  line-height: 1.5;
-}
-
-/* Section headers like [Verse 1] — visual hint that these are metadata, not lyrics */
-.lyrics-line.section-header .ll-text {
-  color: var(--t3);
-  font-style: italic;
-  font-size: 0.8rem;
-}
-
-.lyrics-line.empty .ll-text {
-  color: var(--t4);
-}
-
-/* ── Marker Tags ────────────────────────────────── */
-.lm-tag {
-  font-family: var(--font-mono);
-  font-size: 0.6rem;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  padding: 1px 6px;
-  border-radius: 3px;
-  cursor: pointer;
-  flex-shrink: 0;
-  user-select: none;
-  transition: opacity 0.15s;
-}
-
-.lm-tag:hover {
-  opacity: 0.6;
-}
-
-.lm-tag-part {
-  background: rgba(240, 160, 48, 0.15);
-  color: var(--amber);
-  border: 1px solid rgba(240, 160, 48, 0.3);
-}
-
-.lm-tag-bar {
-  background: rgba(56, 189, 248, 0.12);
-  color: var(--cyan);
-  border: 1px solid rgba(56, 189, 248, 0.25);
-}
-
-/* ── Preview Section ────────────────────────────── */
-.lyrics-preview {
-  margin: 16px 0;
+.lyrics-part-card {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--bg2);
-  padding: 12px;
+  padding: 10px 12px;
 }
 
-.lyrics-preview h3 {
-  font-size: 0.85rem;
-  color: var(--t2);
-  margin: 0 0 10px 0;
-}
-
-.lyrics-preview-table {
+.lyrics-part-header {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.lp-part {
-  font-size: 0.8rem;
-  font-weight: 600;
-  padding: 6px 8px 2px 8px;
-  margin-top: 6px;
-}
-
-.lp-part:first-child {
-  margin-top: 0;
-}
-
-.lp-bar {
-  display: flex;
+  align-items: center;
   gap: 10px;
-  align-items: baseline;
-  padding: 2px 8px 2px 20px;
-  font-size: 0.8rem;
+  margin-bottom: 6px;
 }
 
-.lp-bar-num {
-  flex-shrink: 0;
-  width: 48px;
-  font-size: 0.7rem;
+.lyrics-part-name {
+  font-weight: 600;
+  font-size: 0.85rem;
 }
 
-.lp-bar-text {
+.lyrics-part-info {
+  font-size: 0.72rem;
+}
+
+.btn-part-play {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  border: 1px solid var(--border2);
+  background: var(--bg3);
   color: var(--t2);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.btn-part-play:hover {
+  background: var(--bg4);
+  color: var(--green);
+}
+
+.btn-part-play.playing {
+  color: var(--red);
+  border-color: var(--red);
+}
+
+.lyrics-part-text {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--t1);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  line-height: 1.6;
+  padding: 8px 10px;
+  resize: vertical;
+  min-height: 40px;
+}
+
+.lyrics-part-text:focus {
+  outline: none;
+  border-color: var(--green);
+}
+
+.lyrics-part-bar-hint {
+  font-size: 0.65rem;
+  margin-top: 4px;
+}
+
+/* ── Apply Button ────────────────────────────────── */
+.lyrics-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin: 8px 0 16px 0;
 }

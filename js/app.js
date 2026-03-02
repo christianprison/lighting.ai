@@ -137,7 +137,7 @@ function cacheDom() {
 function setSyncStatus(status) {
   const labels = {
     saved: 'SAVED', unsaved: 'UNSAVED', saving: 'SAVING...',
-    error: 'ERROR', loading: 'LOADING...',
+    error: 'ERROR', loading: 'LOADING...', readonly: 'READ-ONLY',
   };
   els.syncStatus.dataset.status = status;
   els.syncStatus.textContent = labels[status] || status;
@@ -4438,7 +4438,7 @@ async function initDB() {
       toast(`DB geladen (read/write) \u2014 ${Object.keys(db.songs || {}).length} Songs`, 'success');
     } catch (e) {
       setSyncStatus('error');
-      toast(`GitHub API fehlgeschlagen: ${e.message}`, 'error', 3000);
+      toast(`GitHub API fehlgeschlagen: ${e.message} \u2014 Fallback auf lokale DB (read-only)`, 'error', 5000);
       await loadLocal();
     }
   } else {
@@ -4458,9 +4458,11 @@ async function loadLocal() {
     dbSha = null;
     dirty = false;
     readOnly = true;
-    setSyncStatus('saved');
+    setSyncStatus('readonly');
     migrateAudioPaths();
-    toast(`DB geladen (read-only) \u2014 ${Object.keys(db.songs || {}).length} Songs`, 'info');
+    const hasToken = !!getSettings().token;
+    const hint = hasToken ? ' \u2014 Token pr\u00fcfen!' : '';
+    toast(`DB geladen (read-only${hint}) \u2014 ${Object.keys(db.songs || {}).length} Songs`, hasToken ? 'error' : 'info', hasToken ? 5000 : 3000);
   } catch (e) {
     db = null;
     setSyncStatus('error');
@@ -4470,7 +4472,10 @@ async function loadLocal() {
 
 function updateSaveButton() {
   if (readOnly) {
-    els.btnSave.title = 'Read-only \u2014 Token in Settings eingeben';
+    const hasToken = !!getSettings().token;
+    els.btnSave.title = hasToken
+      ? 'Read-only \u2014 GitHub-Verbindung fehlgeschlagen. Token pr\u00fcfen!'
+      : 'Read-only \u2014 Token in Settings eingeben';
     els.btnSave.style.opacity = '0.4';
   } else {
     els.btnSave.title = 'Save (Ctrl+S)';
@@ -4483,7 +4488,11 @@ function updateSaveButton() {
 async function handleSave(showToast = true) {
   if (!db || !dirty) return true;
   if (readOnly) {
-    toast('Read-only Modus \u2014 Token in Settings eingeben', 'error');
+    const hasToken = !!getSettings().token;
+    const msg = hasToken
+      ? 'Read-only Modus \u2014 GitHub-Verbindung fehlgeschlagen. Token in Settings pr\u00fcfen!'
+      : 'Read-only Modus \u2014 Token in Settings eingeben';
+    toast(msg, 'error', 5000);
     return false;
   }
   const s = getSettings();
@@ -4538,6 +4547,10 @@ function wireEvents() {
   els.tabSetlist?.addEventListener('click', () => switchTab('setlist'));
 
   // Settings
+  els.syncStatus.addEventListener('click', () => {
+    const st = els.syncStatus.dataset.status;
+    if (st === 'readonly' || st === 'error') openSettings();
+  });
   els.btnSettings.addEventListener('click', openSettings);
   els.btnCancelSettings.addEventListener('click', closeSettings);
   els.btnSaveSettings.addEventListener('click', handleSaveSettings);

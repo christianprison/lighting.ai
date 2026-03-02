@@ -179,6 +179,18 @@ h3 { font-size: 0.95rem; }
   border: 1px solid rgba(92, 96, 128, 0.25);
 }
 
+.sync-status[data-status="readonly"] {
+  color: var(--amber);
+  background: rgba(240, 160, 48, 0.1);
+  border: 1px solid rgba(240, 160, 48, 0.25);
+  cursor: pointer;
+}
+
+.sync-status[data-status="error"] ,
+.sync-status[data-status="readonly"] {
+  cursor: pointer;
+}
+
 /* ── Icon Buttons ──────────────────────────────────── */
 .icon-btn {
   background: none;

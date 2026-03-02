@@ -280,11 +280,11 @@ function switchTab(tab) {
     cancelAnimationFrame(animFrameId);
   }
   activeTab = tab;
-  els.tabEditor.classList.toggle('active', tab === 'editor');
-  els.tabParts.classList.toggle('active', tab === 'parts');
-  els.tabTakte.classList.toggle('active', tab === 'takte');
-  els.tabAudio.classList.toggle('active', tab === 'audio');
-  els.tabSetlist.classList.toggle('active', tab === 'setlist');
+  els.tabEditor?.classList.toggle('active', tab === 'editor');
+  els.tabParts?.classList.toggle('active', tab === 'parts');
+  els.tabTakte?.classList.toggle('active', tab === 'takte');
+  els.tabAudio?.classList.toggle('active', tab === 'audio');
+  els.tabSetlist?.classList.toggle('active', tab === 'setlist');
   renderContent();
 }
 
@@ -3485,11 +3485,11 @@ function restoreSidebar() {
 
 function wireEvents() {
   // Tabs
-  els.tabEditor.addEventListener('click', () => switchTab('editor'));
-  els.tabParts.addEventListener('click',  () => switchTab('parts'));
-  els.tabTakte.addEventListener('click',  () => switchTab('takte'));
-  els.tabAudio.addEventListener('click',  () => switchTab('audio'));
-  els.tabSetlist.addEventListener('click', () => switchTab('setlist'));
+  els.tabEditor?.addEventListener('click', () => switchTab('editor'));
+  els.tabParts?.addEventListener('click',  () => switchTab('parts'));
+  els.tabTakte?.addEventListener('click',  () => switchTab('takte'));
+  els.tabAudio?.addEventListener('click',  () => switchTab('audio'));
+  els.tabSetlist?.addEventListener('click', () => switchTab('setlist'));
 
   // Settings
   els.btnSettings.addEventListener('click', openSettings);

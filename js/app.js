@@ -27,6 +27,12 @@ let partsTabSelectedBar = null;   // bar number or null
 let takteTabFilterSong = '';
 let takteTabSelectedBar = null;  // {songId, partId, barNum}
 
+/* ── Lyrics Tab State ───────────────────────────── */
+let lyricsLines = [];             // raw text lines
+let lyricsMarkers = [];           // [{lineIdx, type:'part'|'bar', partIndex, barNum}]
+let lyricsSelectedLine = null;    // line index currently focused
+let _lyricsAnimFrame = null;      // playhead animation for lyrics tab
+
 /* ── Audio Split State ────────────────────────────── */
 let audioMeta = null;          // {duration, sampleRate, channels}
 let audioFileName = null;      // name of loaded file
@@ -91,6 +97,7 @@ function cacheDom() {
     tabParts:      document.getElementById('tab-parts'),
     tabTakte:      document.getElementById('tab-takte'),
     tabAudio:      document.getElementById('tab-audio'),
+    tabLyrics:     document.getElementById('tab-lyrics'),
     tabSetlist:    document.getElementById('tab-setlist'),
     btnSettings:   document.getElementById('btn-settings'),
     btnSave:       document.getElementById('btn-save'),
@@ -288,8 +295,8 @@ function renderSongList(filter = '') {
 /* ── Tab Routing ───────────────────────────────────── */
 
 function switchTab(tab) {
-  // Stop playhead animation when leaving audio tab
-  if (activeTab === 'audio' && tab !== 'audio') {
+  // Stop playhead animation when leaving audio/lyrics tab
+  if ((activeTab === 'audio' || activeTab === 'lyrics') && tab !== 'audio' && tab !== 'lyrics') {
     cancelAnimationFrame(animFrameId);
   }
   activeTab = tab;
@@ -297,6 +304,7 @@ function switchTab(tab) {
   els.tabParts?.classList.toggle('active', tab === 'parts');
   els.tabTakte?.classList.toggle('active', tab === 'takte');
   els.tabAudio?.classList.toggle('active', tab === 'audio');
+  els.tabLyrics?.classList.toggle('active', tab === 'lyrics');
   els.tabSetlist?.classList.toggle('active', tab === 'setlist');
   renderContent();
 }
@@ -310,6 +318,7 @@ function renderContent() {
   else if (activeTab === 'parts') renderPartsTab();
   else if (activeTab === 'takte') renderTakteTab();
   else if (activeTab === 'audio') renderAudioTab();
+  else if (activeTab === 'lyrics') renderLyricsTab();
   else if (activeTab === 'setlist') renderSetlistTab();
 }
 
@@ -2169,6 +2178,498 @@ function handleAudioDrop(e) {
 }
 
 /* ══════════════════════════════════════════════════════
+   LYRICS TAB — Songtext-Import und Takt-Zuordnung
+   ══════════════════════════════════════════════════════ */
+
+function renderLyricsTab() {
+  if (!selectedSongId || !db.songs[selectedSongId]) {
+    els.content.innerHTML = `<div class="empty-state"><div class="icon">&#9835;</div><p>Song aus der Liste links ausw&auml;hlen.</p></div>`;
+    return;
+  }
+
+  const song = db.songs[selectedSongId];
+  const parts = getSortedParts(selectedSongId);
+  const hasBuf = !!audio.getBuffer();
+
+  // Auto-load reference audio
+  if (!hasBuf && song.audio_ref && _refLoadingFor !== selectedSongId) {
+    _refLoadingFor = selectedSongId;
+    loadReferenceAudio().finally(() => { _refLoadingFor = null; });
+  }
+
+  // Restore raw lyrics from song if available and lyricsLines is empty
+  if (lyricsLines.length === 0 && song.lyrics_raw) {
+    lyricsLines = song.lyrics_raw.split('\n');
+    restoreLyricsMarkers();
+  }
+
+  const hasLyrics = lyricsLines.length > 0;
+  const searchQuery = encodeURIComponent(`${song.name} ${song.artist} lyrics`);
+  const geniusUrl = `https://genius.com/search?q=${encodeURIComponent(song.name + ' ' + song.artist)}`;
+
+  els.content.innerHTML = `
+    <div class="lyrics-panel">
+      <div class="lyrics-scroll" id="lyrics-scroll">
+        ${buildSongHeader(song)}
+        ${hasBuf ? buildLyricsTransport() : (song.audio_ref ? '<div class="lyrics-info text-t3" style="padding:8px 0">Referenz-Audio wird geladen...</div>' : '')}
+        ${!hasLyrics ? buildLyricsImport(geniusUrl) : ''}
+        ${hasLyrics ? buildLyricsEditor(parts) : ''}
+        ${hasLyrics ? buildLyricsPreview(parts) : ''}
+      </div>
+    </div>`;
+
+  if (hasBuf) {
+    startLyricsPlayhead();
+  }
+}
+
+function buildLyricsTransport() {
+  const isPlay = audio.isPlaying();
+  const cur = audio.getCurrentTime();
+  const dur = audioMeta ? audioMeta.duration : 0;
+  const pct = dur > 0 ? (cur / dur * 100) : 0;
+  const speedLabel = playbackSpeed === 1 ? '1\u00d7' : playbackSpeed.toFixed(2).replace(/0$/, '') + '\u00d7';
+  return `
+    <div class="transport-bar lyrics-transport" id="lyrics-transport">
+      <button class="t-btn" id="lt-skip" title="Zum Anfang">&#9198;</button>
+      <button class="t-btn${isPlay ? ' playing' : ''}" id="lt-play" title="${isPlay ? 'Pause' : 'Play'}">
+        ${isPlay ? '&#9646;&#9646;' : '&#9654;'}
+      </button>
+      <span class="t-time" id="lt-time">${fmtTime(cur)} / ${fmtTime(dur)}</span>
+      <div class="t-progress-wrap" id="lt-progress-wrap">
+        <div class="t-progress" id="lt-progress" style="width:${pct}%"></div>
+      </div>
+      <div class="t-speed">
+        <button class="t-speed-btn" id="lt-speed-down" title="Langsamer">&minus;</button>
+        <span class="t-speed-label" id="lt-speed-label">${speedLabel}</span>
+        <button class="t-speed-btn" id="lt-speed-up" title="Schneller">+</button>
+      </div>
+    </div>`;
+}
+
+function buildLyricsImport(geniusUrl) {
+  return `
+    <div class="lyrics-import" id="lyrics-import">
+      <div class="lyrics-import-header">
+        <h3>Songtext importieren</h3>
+        <a href="${geniusUrl}" target="_blank" rel="noopener" class="btn btn-sm lyrics-genius-link" title="Auf Genius.com suchen">&#127925; Genius.com</a>
+      </div>
+      <textarea id="lyrics-paste" class="lyrics-paste" rows="16" placeholder="Songtext hier einfuegen...&#10;&#10;Tipp: Auf Genius.com den Songtext kopieren und hier einfuegen.&#10;Leerzeilen zwischen Strophen werden als Abschnitt-Grenzen erkannt."></textarea>
+      <div class="lyrics-import-actions">
+        <button class="btn btn-primary" id="lyrics-import-btn">Importieren</button>
+      </div>
+    </div>`;
+}
+
+function buildLyricsEditor(parts) {
+  // Build the line-by-line editor with markers
+  const nextPartIdx = getNextUnassignedPartIndex();
+  const nextPartName = nextPartIdx < parts.length ? parts[nextPartIdx].name : '\u2014';
+
+  let html = `
+    <div class="lyrics-editor" id="lyrics-editor">
+      <div class="lyrics-editor-toolbar">
+        <span class="lyrics-mode-info text-t3">Klicke eine Zeile an, dann setze Marker:</span>
+        <button class="btn btn-sm lyrics-marker-btn lyrics-marker-part" id="lm-part" ${lyricsSelectedLine === null ? 'disabled' : ''}>
+          PART <span class="lyrics-marker-hint">${esc(nextPartName)}</span>
+        </button>
+        <button class="btn btn-sm lyrics-marker-btn lyrics-marker-bar" id="lm-bar" ${lyricsSelectedLine === null ? 'disabled' : ''}>
+          BAR
+        </button>
+        <div style="flex:1"></div>
+        <button class="btn btn-sm" id="lm-clear" title="Alle Marker entfernen">Marker Reset</button>
+        <button class="btn btn-sm btn-primary" id="lm-apply">In DB &uuml;bernehmen</button>
+      </div>
+      <div class="lyrics-lines" id="lyrics-lines">`;
+
+  for (let i = 0; i < lyricsLines.length; i++) {
+    const line = lyricsLines[i];
+    const marker = lyricsMarkers.find(m => m.lineIdx === i);
+    const isSelected = lyricsSelectedLine === i;
+    const isEmpty = line.trim() === '';
+
+    let markerHtml = '';
+    if (marker) {
+      if (marker.type === 'part') {
+        const pName = marker.partIndex < parts.length ? parts[marker.partIndex].name : '?';
+        markerHtml = `<span class="lm-tag lm-tag-part" data-lm-remove="${i}" title="Part-Marker entfernen">${esc(pName)}</span>`;
+      } else {
+        markerHtml = `<span class="lm-tag lm-tag-bar" data-lm-remove="${i}" title="Bar-Marker entfernen">Bar ${marker.barNum}</span>`;
+      }
+    }
+
+    html += `<div class="lyrics-line${isSelected ? ' selected' : ''}${isEmpty ? ' empty' : ''}${marker ? ' has-marker' : ''}" data-line-idx="${i}">
+      <span class="ll-num">${i + 1}</span>
+      ${markerHtml}
+      <span class="ll-text">${isEmpty ? '&nbsp;' : esc(line)}</span>
+    </div>`;
+  }
+
+  html += `</div></div>`;
+
+  // Edit raw text button
+  html += `<div style="padding:8px 0"><button class="btn btn-sm" id="lyrics-edit-raw">Rohtext bearbeiten</button></div>`;
+
+  return html;
+}
+
+function buildLyricsPreview(parts) {
+  // Preview: how lyrics will be distributed across bars
+  const dist = computeLyricsDistribution(parts);
+  if (dist.length === 0) return '';
+
+  let html = '<div class="lyrics-preview"><h3>Vorschau: Lyrics &rarr; Takte</h3><div class="lyrics-preview-table">';
+  for (const entry of dist) {
+    if (entry.type === 'part') {
+      html += `<div class="lp-part"><span class="text-amber">${esc(entry.partName)}</span></div>`;
+    } else {
+      const text = entry.lines.join(' / ');
+      html += `<div class="lp-bar">
+        <span class="lp-bar-num mono text-t3">Bar ${entry.barNum}</span>
+        <span class="lp-bar-text">${text ? esc(text) : '<span class="text-t4">(instrumental)</span>'}</span>
+      </div>`;
+    }
+  }
+  html += '</div></div>';
+  return html;
+}
+
+function getNextUnassignedPartIndex() {
+  const partMarkerIndices = lyricsMarkers.filter(m => m.type === 'part').map(m => m.partIndex);
+  const parts = getSortedParts(selectedSongId);
+  for (let i = 0; i < parts.length; i++) {
+    if (!partMarkerIndices.includes(i)) return i;
+  }
+  return parts.length;
+}
+
+/**
+ * Compute how lyrics lines distribute across parts and bars.
+ * Returns [{type:'part', partName} | {type:'bar', partName, barNum, lines:[]}]
+ */
+function computeLyricsDistribution(parts) {
+  if (lyricsLines.length === 0) return [];
+
+  // Sort markers by lineIdx
+  const sorted = [...lyricsMarkers].sort((a, b) => a.lineIdx - b.lineIdx);
+  if (sorted.length === 0) return [];
+
+  const result = [];
+  let currentPart = null;
+  let currentBarNum = 0;
+  let currentLines = [];
+
+  function flushBar() {
+    if (currentPart !== null && currentBarNum > 0) {
+      result.push({
+        type: 'bar',
+        partIndex: currentPart,
+        partName: currentPart < parts.length ? parts[currentPart].name : '?',
+        barNum: currentBarNum,
+        lines: currentLines.filter(l => l.trim())
+      });
+    }
+    currentLines = [];
+  }
+
+  for (let i = 0; i < lyricsLines.length; i++) {
+    const marker = sorted.find(m => m.lineIdx === i);
+    if (marker) {
+      if (marker.type === 'part') {
+        flushBar();
+        currentPart = marker.partIndex;
+        currentBarNum = 1;
+        currentLines = [];
+        result.push({ type: 'part', partName: parts[currentPart]?.name || '?' });
+        // The first line after part marker starts bar 1
+        currentLines.push(lyricsLines[i]);
+      } else {
+        // bar marker
+        flushBar();
+        currentBarNum = marker.barNum;
+        currentLines.push(lyricsLines[i]);
+      }
+    } else if (currentPart !== null) {
+      currentLines.push(lyricsLines[i]);
+    }
+  }
+  flushBar();
+  return result;
+}
+
+function restoreLyricsMarkers() {
+  if (!selectedSongId || !db.songs[selectedSongId]) return;
+  const song = db.songs[selectedSongId];
+  if (song.lyrics_markers && Array.isArray(song.lyrics_markers)) {
+    lyricsMarkers = song.lyrics_markers.map(m => ({ ...m }));
+  }
+}
+
+function saveLyricsToSong() {
+  if (!selectedSongId || !db.songs[selectedSongId]) return;
+  const song = db.songs[selectedSongId];
+  song.lyrics_raw = lyricsLines.join('\n');
+  song.lyrics_markers = lyricsMarkers.map(m => ({ ...m }));
+}
+
+function applyLyricsToDB() {
+  if (!selectedSongId) return;
+  const parts = getSortedParts(selectedSongId);
+  const dist = computeLyricsDistribution(parts);
+
+  ensureCollections();
+
+  let appliedCount = 0;
+  for (const entry of dist) {
+    if (entry.type === 'bar') {
+      const part = parts[entry.partIndex];
+      if (!part) continue;
+      const [, barData] = getOrCreateBar(part.id, entry.barNum);
+      barData.lyrics = entry.lines.join(' / ');
+      appliedCount++;
+    }
+  }
+
+  saveLyricsToSong();
+  markDirty();
+  toast(`${appliedCount} Takte mit Lyrics aktualisiert`, 'success');
+  renderLyricsTab();
+}
+
+/* ── Lyrics Tab Audio Playback ────────────────────── */
+
+function handleLyricsPlayPause() {
+  if (!audio.getBuffer()) return;
+  if (audio.isPlaying()) {
+    audio.pause();
+    cancelAnimationFrame(_lyricsAnimFrame);
+  } else {
+    audio.play();
+    startLyricsPlayhead();
+  }
+  updateLyricsTransport();
+}
+
+function updateLyricsTransport() {
+  const timeEl = document.getElementById('lt-time');
+  const progEl = document.getElementById('lt-progress');
+  const playBtn = document.getElementById('lt-play');
+  if (!timeEl || !audioMeta) return;
+
+  const cur = audio.getCurrentTime();
+  const dur = audioMeta.duration;
+  timeEl.textContent = `${fmtTime(cur)} / ${fmtTime(dur)}`;
+  if (progEl) progEl.style.width = (dur > 0 ? cur / dur * 100 : 0) + '%';
+  if (playBtn) {
+    const isPlay = audio.isPlaying();
+    playBtn.innerHTML = isPlay ? '&#9646;&#9646;' : '&#9654;';
+    playBtn.classList.toggle('playing', isPlay);
+  }
+}
+
+function startLyricsPlayhead() {
+  cancelAnimationFrame(_lyricsAnimFrame);
+  function tick() {
+    updateLyricsTransport();
+    _lyricsAnimFrame = requestAnimationFrame(tick);
+  }
+  _lyricsAnimFrame = requestAnimationFrame(tick);
+}
+
+/* ── Lyrics Tab Event Handlers ────────────────────── */
+
+function handleLyricsClick(e) {
+  const el = e.target;
+
+  // Transport controls
+  if (el.closest('#lt-skip')) { audio.seek(0); updateLyricsTransport(); return; }
+  if (el.closest('#lt-play')) { handleLyricsPlayPause(); return; }
+  if (el.closest('#lt-progress-wrap')) {
+    const wrap = document.getElementById('lt-progress-wrap');
+    if (wrap && audioMeta) {
+      const rect = wrap.getBoundingClientRect();
+      const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+      audio.seek(pct * audioMeta.duration);
+      updateLyricsTransport();
+    }
+    return;
+  }
+  if (el.closest('#lt-speed-down')) { handleSpeedChange(-1); updateLyricsTransport(); return; }
+  if (el.closest('#lt-speed-up'))   { handleSpeedChange(1); updateLyricsTransport(); return; }
+
+  // Import button
+  if (el.closest('#lyrics-import-btn')) {
+    const ta = document.getElementById('lyrics-paste');
+    if (ta && ta.value.trim()) {
+      lyricsLines = ta.value.split('\n');
+      lyricsMarkers = [];
+      // Auto-detect: lines that look like section headers get part markers
+      autoDetectPartMarkers();
+      saveLyricsToSong();
+      markDirty();
+      renderLyricsTab();
+      toast(`${lyricsLines.length} Zeilen importiert`, 'success');
+    }
+    return;
+  }
+
+  // Edit raw text
+  if (el.closest('#lyrics-edit-raw')) {
+    // Replace editor with textarea
+    lyricsSelectedLine = null;
+    const editor = document.getElementById('lyrics-editor');
+    if (editor) {
+      editor.outerHTML = buildLyricsImportWithText();
+    }
+    return;
+  }
+
+  // Remove marker (click on tag)
+  const rmTag = el.closest('[data-lm-remove]');
+  if (rmTag) {
+    const lineIdx = parseInt(rmTag.dataset.lmRemove, 10);
+    lyricsMarkers = lyricsMarkers.filter(m => m.lineIdx !== lineIdx);
+    recalcBarNumbers();
+    saveLyricsToSong();
+    markDirty();
+    renderLyricsTab();
+    return;
+  }
+
+  // Set part marker
+  if (el.closest('#lm-part')) {
+    if (lyricsSelectedLine !== null) {
+      setLyricsMarker(lyricsSelectedLine, 'part');
+    }
+    return;
+  }
+
+  // Set bar marker
+  if (el.closest('#lm-bar')) {
+    if (lyricsSelectedLine !== null) {
+      setLyricsMarker(lyricsSelectedLine, 'bar');
+    }
+    return;
+  }
+
+  // Clear all markers
+  if (el.closest('#lm-clear')) {
+    lyricsMarkers = [];
+    lyricsSelectedLine = null;
+    saveLyricsToSong();
+    markDirty();
+    renderLyricsTab();
+    return;
+  }
+
+  // Apply to DB
+  if (el.closest('#lm-apply')) {
+    applyLyricsToDB();
+    return;
+  }
+
+  // Line selection
+  const lineEl = el.closest('.lyrics-line');
+  if (lineEl) {
+    const idx = parseInt(lineEl.dataset.lineIdx, 10);
+    lyricsSelectedLine = (lyricsSelectedLine === idx) ? null : idx;
+    // Update selection visually without full re-render
+    document.querySelectorAll('.lyrics-line').forEach(l => {
+      l.classList.toggle('selected', parseInt(l.dataset.lineIdx, 10) === lyricsSelectedLine);
+    });
+    // Update marker buttons
+    const partBtn = document.getElementById('lm-part');
+    const barBtn = document.getElementById('lm-bar');
+    if (partBtn) partBtn.disabled = lyricsSelectedLine === null;
+    if (barBtn) barBtn.disabled = lyricsSelectedLine === null;
+    // Update next part hint
+    if (partBtn && lyricsSelectedLine !== null) {
+      const nextIdx = getNextUnassignedPartIndex();
+      const parts = getSortedParts(selectedSongId);
+      const hint = partBtn.querySelector('.lyrics-marker-hint');
+      if (hint) hint.textContent = nextIdx < parts.length ? parts[nextIdx].name : '\u2014';
+    }
+    return;
+  }
+}
+
+function buildLyricsImportWithText() {
+  const raw = lyricsLines.join('\n');
+  return `
+    <div class="lyrics-import" id="lyrics-import">
+      <div class="lyrics-import-header">
+        <h3>Songtext bearbeiten</h3>
+      </div>
+      <textarea id="lyrics-paste" class="lyrics-paste" rows="16">${esc(raw)}</textarea>
+      <div class="lyrics-import-actions">
+        <button class="btn btn-primary" id="lyrics-import-btn">Aktualisieren</button>
+      </div>
+    </div>`;
+}
+
+function setLyricsMarker(lineIdx, type) {
+  // Remove any existing marker on this line
+  lyricsMarkers = lyricsMarkers.filter(m => m.lineIdx !== lineIdx);
+
+  if (type === 'part') {
+    const partIndex = getNextUnassignedPartIndex();
+    lyricsMarkers.push({ lineIdx, type: 'part', partIndex, barNum: 1 });
+  } else {
+    // Bar marker — find current part and compute bar number
+    lyricsMarkers.push({ lineIdx, type: 'bar', partIndex: -1, barNum: 0 });
+  }
+
+  recalcBarNumbers();
+  saveLyricsToSong();
+  markDirty();
+  renderLyricsTab();
+}
+
+function recalcBarNumbers() {
+  // Sort markers by line index
+  const sorted = [...lyricsMarkers].sort((a, b) => a.lineIdx - b.lineIdx);
+
+  let currentPartIndex = -1;
+  let barCounter = 0;
+
+  for (const m of sorted) {
+    if (m.type === 'part') {
+      currentPartIndex = m.partIndex;
+      barCounter = 1;
+      m.barNum = 1;
+    } else {
+      m.partIndex = currentPartIndex;
+      barCounter++;
+      m.barNum = barCounter;
+    }
+  }
+
+  lyricsMarkers = sorted;
+}
+
+/**
+ * Auto-detect section headers like [Verse 1], [Chorus], etc.
+ * and common patterns from Genius.com lyrics.
+ */
+function autoDetectPartMarkers() {
+  const parts = getSortedParts(selectedSongId);
+  if (parts.length === 0) return;
+
+  let partIdx = 0;
+  const sectionPattern = /^\[.*\]$|^(Verse|Chorus|Bridge|Intro|Outro|Pre-Chorus|Hook|Refrain|Strophe|Interlude|Solo|Breakdown|Instrumental|Ausklang)/i;
+
+  for (let i = 0; i < lyricsLines.length && partIdx < parts.length; i++) {
+    const line = lyricsLines[i].trim();
+    if (sectionPattern.test(line)) {
+      lyricsMarkers.push({ lineIdx: i, type: 'part', partIndex: partIdx, barNum: 1 });
+      partIdx++;
+    }
+  }
+
+  recalcBarNumbers();
+}
+
+/* ══════════════════════════════════════════════════════
    SETLIST TAB — Meilenstein 4
    ══════════════════════════════════════════════════════ */
 
@@ -3584,6 +4085,7 @@ function wireEvents() {
   els.tabParts?.addEventListener('click',  () => switchTab('parts'));
   els.tabTakte?.addEventListener('click',  () => switchTab('takte'));
   els.tabAudio?.addEventListener('click',  () => switchTab('audio'));
+  els.tabLyrics?.addEventListener('click', () => switchTab('lyrics'));
   els.tabSetlist?.addEventListener('click', () => switchTab('setlist'));
 
   // Settings
@@ -3635,6 +4137,10 @@ function wireEvents() {
     partsTabSelectedPart = null;
     partsTabSelectedBar = null;
     takteTabSelectedBar = null;
+    lyricsLines = [];
+    lyricsMarkers = [];
+    lyricsSelectedLine = null;
+    cancelAnimationFrame(_lyricsAnimFrame);
     renderSongList(els.searchBox.value);
     renderContent();
   });
@@ -3646,6 +4152,7 @@ function wireEvents() {
     else if (activeTab === 'parts') handlePartsTabClick(e);
     else if (activeTab === 'takte') handleTakteTabClick(e);
     else if (activeTab === 'audio') handleAudioClick(e);
+    else if (activeTab === 'lyrics') handleLyricsClick(e);
     else if (activeTab === 'setlist') handleSetlistClick(e);
   });
   els.content.addEventListener('change', (e) => {
@@ -3665,19 +4172,26 @@ function wireEvents() {
     if (activeTab === 'audio') handleAudioDrop(e);
   });
 
-  // Keyboard shortcuts for audio
+  // Keyboard shortcuts for audio & lyrics tabs
   document.addEventListener('keydown', (e) => {
-    if (activeTab !== 'audio' || !audio.getBuffer()) return;
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-    if (e.code === 'Space') {
-      e.preventDefault();
-      handlePlayPause();
+
+    // Audio Split tab
+    if (activeTab === 'audio' && audio.getBuffer()) {
+      if (e.code === 'Space') { e.preventDefault(); handlePlayPause(); }
+      if (e.key === '[') { handleSpeedChange(-1); }
+      if (e.key === ']') { handleSpeedChange(1); }
+      if (e.key === 'p' || e.key === 'P') { handlePartTap(); }
+      if (e.key === 'b' || e.key === 'B') { handleBarTap(); }
+      if (e.key === 'z' || e.key === 'Z') { if (!e.ctrlKey && !e.metaKey) handleUndoTap(); }
     }
-    if (e.key === '[') { handleSpeedChange(-1); }
-    if (e.key === ']') { handleSpeedChange(1); }
-    if (e.key === 'p' || e.key === 'P') { handlePartTap(); }
-    if (e.key === 'b' || e.key === 'B') { handleBarTap(); }
-    if (e.key === 'z' || e.key === 'Z') { if (!e.ctrlKey && !e.metaKey) handleUndoTap(); }
+
+    // Lyrics tab
+    if (activeTab === 'lyrics' && audio.getBuffer()) {
+      if (e.code === 'Space') { e.preventDefault(); handleLyricsPlayPause(); }
+      if (e.key === '[') { handleSpeedChange(-1); }
+      if (e.key === ']') { handleSpeedChange(1); }
+    }
   });
 }
 

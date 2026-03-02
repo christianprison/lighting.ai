@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>lighting.ai</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+--bg:#08090d;--bg2:#0e1017;--bg3:#151820;--bg4:#1c1f2b;
+--border:#1e2230;--border2:#2a2e40;
+--t1:#eef0f6;--t2:#a0a4b8;--t3:#5c6080;--t4:#363a52;
+--green:#00dc82;--green2:#00dc8230;--green3:#00dc8212;
+--red:#ff3b5c;--red2:#ff3b5c28;
+--amber:#f0a030;--amber2:#f0a03025;
+--cyan:#38bdf8;--cyan2:#38bdf825;
+--r:8px}
+html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(--t1);
+font-family:'Sora',system-ui,sans-serif;font-size:14px;-webkit-user-select:none;user-select:none}
+
+.app{display:grid;grid-template-rows:1fr 94px;height:100vh;height:100dvh}
+.main{display:grid;grid-template-columns:280px 1fr 250px;min-height:0;border-bottom:1px solid var(--border)}
+.panel{display:flex;flex-direction:column;min-height:0;background:var(--bg);border-right:1px solid var(--border)}
+.panel:last-child{border-right:none;border-left:1px solid var(--border)}
+.panel-head{padding:12px 16px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);flex-shrink:0;
+font-family:'DM Mono',monospace;font-size:10px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--t3)}
+.panel-head .ind{width:5px;height:5px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green)}
+.scroll{flex:1;overflow-y:auto;overflow-x:hidden;padding:6px;scrollbar-width:none}
+.scroll::-webkit-scrollbar{display:none}
+
+.part{display:grid;grid-template-columns:22px 1fr auto;align-items:center;gap:8px;
+padding:0 12px;margin-bottom:3px;border-radius:var(--r);background:var(--bg2);border:1.5px solid transparent;
+cursor:pointer;transition:all .1s;position:relative;overflow:hidden}
+.part:active{transform:scale(.97)}
+.part.done{opacity:.35}
+.part.active{background:var(--green3);border-color:var(--green);box-shadow:0 0 24px #00dc8210}
+.part.next{background:var(--bg3);border-color:var(--border2)}
+.part-n{font-family:'DM Mono',monospace;font-size:10px;color:var(--t4);text-align:right}
+.part.active .part-n{color:var(--green)}
+.part-body{display:flex;flex-direction:column;justify-content:center;gap:2px;overflow:hidden}
+.part-name{font-weight:500;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.part-info{font-family:'DM Mono',monospace;font-size:10px;color:var(--t3);white-space:nowrap}
+.part.active .part-info{color:var(--green)}
+.part-badge{font-family:'DM Mono',monospace;font-size:10px;color:var(--t3);
+background:var(--bg);padding:2px 8px;border-radius:4px;white-space:nowrap;align-self:center}
+.part.active .part-badge{color:var(--green);background:#00dc820d}
+.part-prog{position:absolute;bottom:0;left:0;height:2.5px;background:var(--green);transition:width .3s;box-shadow:0 0 8px var(--green)}
+
+.center{display:flex;flex-direction:column;min-height:0;background:var(--bg);border-right:1px solid var(--border)}
+.song-bar{flex-shrink:0;padding:14px 20px 12px;text-align:center;border-bottom:1px solid var(--border);
+background:linear-gradient(180deg,var(--bg2),var(--bg))}
+.song-bar h1{font-size:22px;font-weight:700;letter-spacing:-.3px;margin-bottom:5px}
+.song-meta{font-family:'DM Mono',monospace;font-size:11px;color:var(--t3);display:flex;justify-content:center;gap:18px}
+.song-meta .v{color:var(--t1);font-weight:500}
+.ctrls{flex:1;display:flex;flex-direction:column;padding:12px 18px;gap:14px;justify-content:space-between;min-height:0}
+.badges{display:flex;justify-content:center;gap:8px;flex-shrink:0}
+.badge{font-family:'DM Mono',monospace;font-size:9px;font-weight:500;letter-spacing:1.5px;padding:4px 11px;border-radius:20px;display:flex;align-items:center;gap:5px}
+.badge.live{background:var(--green2);color:var(--green);border:1px solid var(--green)}
+.badge.qlc{background:var(--cyan2);color:var(--cyan);border:1px solid #38bdf850}
+.pulse{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 1.4s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+.beat-area{display:flex;align-items:center;justify-content:center;gap:0;flex-shrink:0}
+.beat-row{display:flex;align-items:center;gap:0}
+.tap-btn{width:56px;height:56px;border-radius:50%;background:var(--bg3);border:3px solid var(--border2);
+cursor:pointer;transition:all 70ms;display:flex;align-items:center;justify-content:center;
+font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:var(--t3);position:relative;z-index:1;
+flex-shrink:0;touch-action:manipulation}
+.tap-btn:active{transform:scale(.92)}
+.tap-btn.on{background:var(--green);border-color:var(--green);color:var(--bg);
+box-shadow:0 0 28px #00dc8270,0 0 60px #00dc8225;font-weight:700}
+.tap-btn .tap-label{position:absolute;bottom:-14px;left:50%;transform:translateX(-50%);
+font-size:7px;letter-spacing:1.5px;color:var(--t4);white-space:nowrap}
+.tap-btn.on .tap-label{color:var(--green)}
+@keyframes tapFlash{0%{box-shadow:0 0 40px #00dc8290,0 0 80px #00dc8240}100%{box-shadow:0 0 28px #00dc8270,0 0 60px #00dc8225}}
+.tap-btn.flash{animation:tapFlash .15s ease}
+.beat-connector{width:14px;height:2px;background:var(--border);flex-shrink:0}
+.beat-connector.lit{background:var(--green);box-shadow:0 0 4px var(--green)}
+.beat-dots{display:flex;gap:8px;align-items:center}
+.bdot{width:24px;height:24px;border-radius:50%;background:var(--bg3);border:2px solid var(--border2);transition:all 70ms;flex-shrink:0}
+.bdot.on{background:var(--cyan);border-color:var(--cyan);box-shadow:0 0 14px #38bdf860}
+.bpm-box{font-family:'DM Mono',monospace;text-align:center;line-height:1.1;margin-left:18px;flex-shrink:0}
+.bpm-num{font-size:30px;font-weight:500;color:var(--t1)}
+.bpm-label{font-size:9px;color:var(--t3);letter-spacing:2px}
+
+.overrides{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;flex-shrink:0}
+.obtn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:12px 4px;border-radius:var(--r);
+border:1.5px solid var(--border2);background:var(--bg3);font-family:'DM Mono',monospace;font-size:9px;font-weight:500;
+letter-spacing:.8px;text-transform:uppercase;color:var(--t2);cursor:pointer;transition:all .1s}
+.obtn:active{transform:scale(.93)}
+.obtn .ico{font-size:18px;line-height:1}
+.obtn.r{color:var(--red);border-color:var(--red2)}
+.obtn.r.on{background:var(--red2);border-color:var(--red);box-shadow:0 0 20px #ff3b5c18}
+.obtn.a{color:var(--amber);border-color:var(--amber2)}
+.obtn.a.on{background:var(--amber2);border-color:var(--amber)}
+.obtn.c{color:var(--cyan);border-color:var(--cyan2)}
+.obtn.c.on{background:var(--cyan2);border-color:var(--cyan)}
+.obtn.p{color:var(--green);border-color:var(--green2)}
+.obtn.p.on{background:var(--green2);border-color:var(--green)}
+.navrow{display:grid;grid-template-columns:1fr 1fr;gap:8px;flex-shrink:0}
+.nbtn{display:flex;align-items:center;justify-content:center;gap:6px;padding:14px;border-radius:var(--r);
+border:1.5px solid var(--border2);background:var(--bg3);color:var(--t1);font-size:13px;font-weight:600;
+cursor:pointer;transition:all .1s}
+.nbtn:active{transform:scale(.96)}
+.nbtn.go{background:var(--green3);border-color:var(--green);color:var(--green)}
+.nbtn.go:active{background:var(--green2)}
+
+.song{display:grid;grid-template-columns:22px 1fr auto;align-items:center;gap:8px;
+padding:9px 10px;margin-bottom:2px;border-radius:6px;border:1.5px solid transparent;cursor:pointer;transition:all .1s}
+.song:active{transform:scale(.97)}
+.song.active{background:var(--green3);border-color:var(--green)}
+.song.played{opacity:.3}
+.song-i{font-family:'DM Mono',monospace;font-size:10px;color:var(--t4);text-align:right}
+.song.active .song-i{color:var(--green)}
+.song-t{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.song-b{font-family:'DM Mono',monospace;font-size:10px;color:var(--t4)}
+
+/* ═══ TIMELINE ═══ */
+.timeline{background:var(--bg2);display:grid;
+grid-template-columns:100px 1fr 52px;grid-template-rows:auto auto;
+column-gap:12px;row-gap:0;padding:8px 16px 6px;border-top:1px solid var(--border);align-items:start}
+.tl-label{grid-column:1;grid-row:1/3;display:flex;flex-direction:column;gap:1px;padding-top:4px}
+.tl-part-name{font-family:'Sora',sans-serif;font-size:14px;font-weight:600;color:var(--green)}
+.tl-part-count{font-family:'DM Mono',monospace;font-size:10px;color:var(--t3)}
+.tl-track{grid-column:2;grid-row:1}
+.tl-bars{display:flex;gap:2px;height:32px;align-items:stretch}
+
+/* individual bar with cue overlay */
+.tl-bar{flex:1;border-radius:3px;background:var(--bg3);border:1px solid var(--border);
+display:flex;align-items:center;justify-content:center;position:relative;
+font-family:'DM Mono',monospace;font-size:8px;color:var(--t4);cursor:pointer;transition:all .12s;overflow:hidden}
+.tl-bar.done{background:var(--bg4);border-color:var(--border2)}
+.tl-bar.active{background:var(--green2);border-color:var(--green);box-shadow:0 0 10px #00dc8220;color:var(--green)}
+.tl-bar.active.flash{box-shadow:0 0 20px #00dc8250}
+
+/* cue markers inside bars — 16th note resolution */
+/* pos naming: 1,1+,1e,1e+ / 2,2+,2e,2e+ / 3,3+,3e,3e+ / 4,4+,4e,4e+ */
+.cue{position:absolute;top:1px;font-size:9px;line-height:1;pointer-events:none;filter:drop-shadow(0 0 2px rgba(0,0,0,.8))}
+.cue.p0{left:2px}.cue.p1{left:6.25%}.cue.p2{left:12.5%}.cue.p3{left:18.75%}
+.cue.p4{left:25%}.cue.p5{left:31.25%}.cue.p6{left:37.5%}.cue.p7{left:43.75%}
+.cue.p8{left:50%}.cue.p9{left:56.25%}.cue.p10{left:62.5%}.cue.p11{left:68.75%}
+.cue.p12{left:75%}.cue.p13{left:81.25%}.cue.p14{left:87.5%}.cue.p15{left:93.75%}
+.cue-bl{color:var(--amber)}
+.cue-bo{color:var(--red)}
+.cue-hl{color:var(--green)}
+.cue-st{color:var(--amber)}
+.cue-fg{color:var(--cyan)}
+
+.tl-right{grid-column:3;grid-row:1/3;display:flex;flex-direction:column;align-items:flex-end;gap:1px;padding-top:4px}
+.tl-elapsed{font-family:'DM Mono',monospace;font-size:16px;color:var(--t1);font-weight:500}
+.tl-remaining{font-family:'DM Mono',monospace;font-size:10px;color:var(--t3)}
+
+.tl-lyrics{grid-column:2;grid-row:2;overflow:hidden;display:flex;gap:24px;padding-top:1px}
+.lyric-half{font-family:'DM Mono',monospace;font-size:10px;color:var(--t2);
+white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;line-height:1.3}
+.lyric-half.second{color:var(--t3)}
+.lyric-half.instrumental{color:var(--t4);font-style:italic}
+
+.modes{position:fixed;top:6px;left:8px;display:flex;gap:3px;z-index:10}
+.mbtn{font-family:'DM Mono',monospace;font-size:9px;font-weight:500;letter-spacing:1px;
+padding:4px 9px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--t4);cursor:pointer;transition:all .1s}
+.mbtn.on{background:var(--green3);border-color:var(--green);color:var(--green)}
+</style>
+</head>
+<body>
+<div class="modes">
+<button class="mbtn on" onclick="modeSwitch(this)">LIVE</button>
+<button class="mbtn" onclick="modeSwitch(this)">EDIT</button>
+</div>
+<div class="app">
+<div class="main">
+<div class="panel">
+<div class="panel-head"><div class="ind"></div>PARTS</div>
+<div class="scroll" id="parts"></div>
+</div>
+<div class="center">
+<div class="song-bar">
+<h1 id="stitle">The Awakening</h1>
+<div class="song-meta">
+<span>BPM <span class="v" id="mbpm">121</span></span>
+<span>BAR <span class="v" id="mbar">5</span>/<span class="v" id="mbart">8</span></span>
+<span>TIME <span class="v">4/4</span></span>
+</div>
+</div>
+<div class="ctrls">
+<div class="badges">
+<div class="badge live"><div class="pulse"></div>LIVE</div>
+<div class="badge qlc">QLC+ &#x25CF;</div>
+</div>
+<div class="beat-area">
+<div class="beat-row">
+<div class="tap-btn" id="tap">1<span class="tap-label">TAP</span></div>
+<div class="beat-connector" id="conn1"></div>
+<div class="beat-dots">
+<div class="bdot" id="b2"></div>
+<div class="bdot" id="b3"></div>
+<div class="bdot" id="b4"></div>
+</div>
+</div>
+<div class="bpm-box"><div class="bpm-num" id="bpmdisp">121</div><div class="bpm-label">BPM</div></div>
+</div>
+<div class="overrides">
+<button class="obtn r" onclick="tog(this)"><span class="ico">&#x2B1B;</span>BLACK</button>
+<button class="obtn a" onclick="tog(this)"><span class="ico">&#x26A1;</span>STROBE</button>
+<button class="obtn c" onclick="tog(this)"><span class="ico">&#x2744;</span>FREEZE</button>
+<button class="obtn c" onclick="tog(this)"><span class="ico">&#x2601;</span>FOG</button>
+</div>
+<div class="overrides">
+<button class="obtn a" onclick="tog(this)"><span class="ico">&#x1F4A5;</span>BLINDER</button>
+<button class="obtn r" onclick="tog(this)"><span class="ico">&#x25A0;</span>BLACKOUT</button>
+<button class="obtn p" onclick="tog(this)"><span class="ico">&#x2605;</span>HL A+B</button>
+<button class="obtn c" onclick="tog(this)"><span class="ico">&#x1F3AF;</span>SPOT</button>
+</div>
+<div class="navrow">
+<button class="nbtn" onclick="prev()">&#x25C0; PREV</button>
+<button class="nbtn go" onclick="next()">NEXT &#x25B6;</button>
+</div>
+</div>
+</div>
+<div class="panel" style="border-right:none">
+<div class="panel-head">SETLIST</div>
+<div class="scroll" id="songs"></div>
+</div>
+</div>
+<div class="timeline" id="timeline"></div>
+</div>
+<script>
+// Cue types: bl=blinder, bo=blackout, hl=highlight A+B, st=strobe, fg=fog
+// Each cue: {bar:N, pos:"1"|"1e"|"1u"|"1ue"|"2"|...|"4ue", type:...}
+// 16th grid: 1-e-und-e-2-e-und-e-3-e-und-e-4-e-und-e (standard counting)
+var SL=[
+{name:"The Awakening",bpm:121,sec:[
+{n:"Intro",b:8,ly:[],cues:[{bar:1,pos:"1",type:"fg"},{bar:8,pos:"1",type:"bl"}]},
+{n:"Verse 1",b:16,ly:["Standing at the edge of something new, shadows fading...","Every step I take is leading through, the darkness breaking..."],cues:[{bar:1,pos:"1",type:"hl"},{bar:9,pos:"1",type:"hl"}]},
+{n:"Chorus 1",b:8,ly:["This is the awakening...","Can you feel the fire rising..."],cues:[{bar:1,pos:"1",type:"bl"},{bar:3,pos:"2",type:"bl"},{bar:3,pos:"2ue",type:"st"},{bar:5,pos:"1",type:"bl"},{bar:8,pos:"4",type:"bo"}]},
+{n:"Verse 2",b:16,ly:["Voices echo down the empty hall, memories like ghosts...","I won't be afraid to let them fall, some promises..."],cues:[{bar:1,pos:"1",type:"hl"},{bar:9,pos:"1",type:"hl"}]},
+{n:"Chorus 2",b:8,ly:["This is the awakening...","Can you feel the fire rising..."],cues:[{bar:1,pos:"1",type:"bl"},{bar:5,pos:"1",type:"bl"},{bar:8,pos:"1",type:"st"}]},
+{n:"Bridge",b:8,ly:["And if the world comes crashing down...","I'll find my way, I'll hold my ground..."],cues:[{bar:1,pos:"1",type:"bo"},{bar:5,pos:"1",type:"bl"},{bar:8,pos:"3",type:"fg"}]},
+{n:"Solo",b:16,ly:[],cues:[{bar:1,pos:"1",type:"hl"},{bar:8,pos:"1",type:"bl"},{bar:9,pos:"1",type:"st"},{bar:16,pos:"1",type:"bl"}]},
+{n:"Chorus 3",b:8,ly:["This is the awakening...","We are the fire rising..."],cues:[{bar:1,pos:"1",type:"bl"},{bar:1,pos:"3",type:"fg"},{bar:5,pos:"1",type:"bl"},{bar:7,pos:"1",type:"st"},{bar:8,pos:"1",type:"bo"}]},
+{n:"Outro",b:8,ly:[],cues:[{bar:1,pos:"1",type:"hl"},{bar:8,pos:"1",type:"bo"}]}
+]},
+{name:"Behind Walls",bpm:135,sec:[
+{n:"Intro",b:4,ly:[],cues:[{bar:1,pos:"1",type:"fg"},{bar:4,pos:"1",type:"bl"}]},
+{n:"Verse 1",b:16,ly:["Built these walls so high, no one gets in...","Concrete heart, a fortress made of skin..."],cues:[{bar:1,pos:"1",type:"hl"},{bar:9,pos:"1",type:"hl"}]},
+{n:"Chorus",b:8,ly:["Behind walls, behind walls...","I can hear you calling..."],cues:[{bar:1,pos:"1",type:"bl"},{bar:5,pos:"1",type:"bl"}]},
+{n:"Verse 2",b:16,ly:["Silence speaks in languages of pain...","The armor's heavy, weighing on my chest..."],cues:[{bar:1,pos:"1",type:"hl"}]},
+{n:"Chorus 2",b:8,ly:["Behind walls, behind walls...","I can hear you calling..."],cues:[{bar:1,pos:"1",type:"bl"},{bar:5,pos:"1",type:"bl"},{bar:8,pos:"1",type:"bo"}]},
+{n:"Outro",b:8,ly:[],cues:[{bar:8,pos:"1",type:"bo"}]}
+]},
+{name:"Cold Embrace",bpm:98,sec:[
+{n:"Intro",b:8,ly:[],cues:[{bar:1,pos:"1",type:"fg"}]},
+{n:"Verse",b:16,ly:["Winter wraps its arms around this town...","Your breath like smoke dissolving in the air..."],cues:[{bar:1,pos:"1",type:"hl"}]},
+{n:"Chorus",b:8,ly:["Cold embrace, hold me tight...","Numb the feeling, fade the light..."],cues:[{bar:1,pos:"1",type:"bl"},{bar:5,pos:"1",type:"bl"}]},
+{n:"Bridge",b:8,ly:["Somewhere underneath the ice...","There's a heart that paid the price..."],cues:[{bar:1,pos:"1",type:"bo"},{bar:5,pos:"1",type:"hl"}]},
+{n:"Chorus 2",b:8,ly:["Cold embrace, one last time...","Let the winter take what's mine..."],cues:[{bar:1,pos:"1",type:"bl"},{bar:8,pos:"1",type:"bo"}]},
+{n:"Outro",b:4,ly:[],cues:[{bar:4,pos:"1",type:"bo"}]}
+]},
+{name:"Dark Water",bpm:142,sec:[
+{n:"Intro",b:8,ly:[],cues:[{bar:1,pos:"1",type:"fg"},{bar:8,pos:"1",type:"bl"}]},
+{n:"Verse 1",b:16,ly:["Sinking deeper, can't see the shore...","Lungs are burning, holding my breath..."],cues:[{bar:1,pos:"1",type:"hl"}]},
+{n:"Drop",b:8,ly:["Dark water - pull me under...","Dark water - drag me down..."],cues:[{bar:1,pos:"1",type:"bl"},{bar:1,pos:"2",type:"st"},{bar:5,pos:"1",type:"bl"}]},
+{n:"Verse 2",b:16,ly:["Surface breaking, gasping for air...","The ocean doesn't care for names..."],cues:[{bar:1,pos:"1",type:"hl"}]},
+{n:"Drop 2",b:8,ly:["Dark water - pull me under...","Dark water - let me drown..."],cues:[{bar:1,pos:"1",type:"bl"},{bar:1,pos:"2",type:"st"},{bar:5,pos:"1",type:"bl"},{bar:8,pos:"1",type:"bo"}]},
+{n:"Outro",b:8,ly:[],cues:[{bar:8,pos:"4",type:"bo"}]}
+]},
+{name:"Echo Chamber",bpm:128,sec:[
+{n:"Intro",b:4,ly:[],cues:[]},
+{n:"Verse",b:16,ly:["Talking to myself again tonight...","Every word bouncing off the walls..."],cues:[{bar:1,pos:"1",type:"hl"}]},
+{n:"Chorus",b:8,ly:["Echo chamber, hear me now...","Screaming loud but making no sound..."],cues:[{bar:1,pos:"1",type:"bl"},{bar:5,pos:"1",type:"bl"}]},
+{n:"Solo",b:16,ly:[],cues:[{bar:1,pos:"1",type:"hl"},{bar:8,pos:"1",type:"st"}]},
+{n:"Chorus 2",b:8,ly:["Echo chamber, set me free...","Break the walls surrounding me..."],cues:[{bar:1,pos:"1",type:"bl"},{bar:5,pos:"1",type:"bl"},{bar:8,pos:"1",type:"bo"}]},
+{n:"Outro",b:4,ly:[],cues:[{bar:4,pos:"1",type:"bo"}]}
+]},
+{name:"Fire Inside",bpm:155,sec:[
+{n:"Intro",b:4,ly:[],cues:[{bar:1,pos:"1",type:"fg"},{bar:4,pos:"1",type:"bl"}]},
+{n:"Verse 1",b:8,ly:["Spark ignites beneath my skin...","Burning from within..."],cues:[{bar:1,pos:"1",type:"hl"}]},
+{n:"Chorus",b:8,ly:["There's a fire inside...","Can't hold it back..."],cues:[{bar:1,pos:"1",type:"bl"},{bar:5,pos:"1",type:"bl"}]},
+{n:"Verse 2",b:8,ly:["Ashes falling like the snow...","Embers start to glow..."],cues:[{bar:1,pos:"1",type:"hl"}]},
+{n:"Chorus 2",b:8,ly:["There's a fire inside...","Let it burn..."],cues:[{bar:1,pos:"1",type:"bl"},{bar:5,pos:"1",type:"bl"}]},
+{n:"Bridge",b:8,ly:["When everything's in flames...","We find out who remains..."],cues:[{bar:1,pos:"1",type:"bo"},{bar:5,pos:"1",type:"bl"},{bar:8,pos:"1",type:"fg"}]},
+{n:"Chorus 3",b:8,ly:["There's a fire inside...","We won't let it die..."],cues:[{bar:1,pos:"1",type:"bl"},{bar:5,pos:"1",type:"st"},{bar:8,pos:"1",type:"bo"}]},
+{n:"Outro",b:4,ly:[],cues:[{bar:4,pos:"1",type:"bo"}]}
+]},
+{name:"Ghost Signal",bpm:110,sec:[
+{n:"Intro",b:8,ly:[],cues:[{bar:1,pos:"1",type:"fg"}]},
+{n:"Verse",b:16,ly:["Static on the line, a voice I used to know...","Transmission fading, signal running low..."],cues:[{bar:1,pos:"1",type:"hl"}]},
+{n:"Chorus",b:8,ly:["Ghost signal, are you there...","Fading in and out of the air..."],cues:[{bar:1,pos:"1",type:"bl"},{bar:5,pos:"1",type:"bl"}]},
+{n:"Breakdown",b:8,ly:[],cues:[{bar:1,pos:"1",type:"bo"},{bar:8,pos:"3",type:"bl"}]},
+{n:"Chorus 2",b:8,ly:["Ghost signal, one last sign...","Reaching through the noise..."],cues:[{bar:1,pos:"1",type:"bl"},{bar:8,pos:"1",type:"bo"}]},
+{n:"Outro",b:8,ly:[],cues:[{bar:8,pos:"1",type:"bo"}]}
+]},
+{name:"Hollow Ground",bpm:118,sec:[
+{n:"Intro",b:8,ly:[],cues:[{bar:1,pos:"1",type:"fg"},{bar:8,pos:"1",type:"bl"}]},
+{n:"Verse",b:16,ly:["Walking on hollow ground...","The earth gives way beneath my feet..."],cues:[{bar:1,pos:"1",type:"hl"}]},
+{n:"Chorus",b:8,ly:["We're standing on hollow ground...","Don't look down..."],cues:[{bar:1,pos:"1",type:"bl"},{bar:5,pos:"1",type:"bl"}]},
+{n:"Verse 2",b:16,ly:["Foundations made of sand...","Castles built by hand..."],cues:[{bar:1,pos:"1",type:"hl"}]},
+{n:"Chorus 2",b:8,ly:["We're standing on hollow ground...","It's crumbling now..."],cues:[{bar:1,pos:"1",type:"bl"},{bar:5,pos:"1",type:"bl"},{bar:8,pos:"1",type:"bo"}]},
+{n:"Outro",b:4,ly:[],cues:[{bar:4,pos:"1",type:"bo"}]}
+]}
+];
+
+var CUE_ICONS={bl:"\uD83D\uDCA5",bo:"\u25A0",hl:"\u2605",st:"\u26A1",fg:"\u2601"};
+// 16th note counting: 1-e-und-e-2-e-und-e-3-e-und-e-4-e-und-e
+// pos: "1","1e","1u","1ue" / "2","2e","2u","2ue" / "3","3e","3u","3ue" / "4","4e","4u","4ue"
+var POS_MAP={"1":0,"1e":1,"1u":2,"1ue":3,"2":4,"2e":5,"2u":6,"2ue":7,"3":8,"3e":9,"3u":10,"3ue":11,"4":12,"4e":13,"4u":14,"4ue":15};
+
+var S={si:0,pi:2,bar:5,beat:1,played:{}};
+var tapTimes=[];
+function onTap(){
+var now=performance.now();tapTimes.push(now);if(tapTimes.length>8)tapTimes.shift();
+S.beat=1;S.bar++;var sec=SL[S.si].sec[S.pi];
+if(S.bar>sec.b){if(S.pi<SL[S.si].sec.length-1){S.pi++;S.bar=1}else S.bar=sec.b}
+if(tapTimes.length>=2){var iv=[];for(var i=1;i<tapTimes.length;i++)iv.push(tapTimes[i]-tapTimes[i-1]);
+if(iv[iv.length-1]>4000){tapTimes=[now]}else{var avg=iv.reduce(function(a,b){return a+b},0)/iv.length;
+var bpm=Math.round(240000/avg);if(bpm>=40&&bpm<=220){SL[S.si].bpm=bpm;restartBeatSim(bpm)}}}
+var tap=document.getElementById('tap');tap.classList.remove('flash');tap.offsetWidth;tap.classList.add('flash');
+updateBeats();R();
+}
+function barSec(bars,bpm){return Math.round(bars*4*60/bpm)}
+function fmt(s){return Math.floor(s/60)+':'+String(Math.abs(s)%60).padStart(2,'0')}
+function partH(bars){return Math.max(36,24+bars*3)}
+function updateBeats(){
+var tap=document.getElementById('tap'),conn=document.getElementById('conn1');
+if(S.beat===1){tap.classList.add('on');conn.classList.add('lit')}else{tap.classList.remove('on');conn.classList.remove('lit')}
+for(var i=2;i<=4;i++)document.getElementById('b'+i).className=S.beat>=i?'bdot on':'bdot';
+}
+function R(){
+var song=SL[S.si],sec=song.sec[S.pi],bpm=song.bpm;
+document.getElementById('stitle').textContent=song.name;
+document.getElementById('mbpm').textContent=bpm;
+document.getElementById('bpmdisp').textContent=bpm;
+document.getElementById('mbar').textContent=S.bar;
+document.getElementById('mbart').textContent=sec.b;
+var ph='';
+for(var i=0;i<song.sec.length;i++){var s=song.sec[i];
+var c=i<S.pi?'done':i===S.pi?'active':i===S.pi+1?'next':'';
+var p=i===S.pi?Math.min(100,S.bar/s.b*100):0;var dur=barSec(s.b,bpm);var h=partH(s.b);
+var info=i===S.pi?S.bar+'/'+s.b+'T':fmt(dur)+' '+s.b+'T';
+var badge=i===S.pi?fmt(barSec(S.bar,bpm))+' / '+fmt(dur):fmt(dur);
+ph+='<div class="part '+c+'" style="min-height:'+h+'px" onclick="goSec('+i+')">';
+ph+='<span class="part-n">'+(i+1)+'</span>';
+ph+='<div class="part-body"><span class="part-name">'+s.n+'</span><span class="part-info">'+info+'</span></div>';
+ph+='<span class="part-badge">'+badge+'</span>';
+if(c==='active')ph+='<div class="part-prog" style="width:'+p+'%"></div>';
+ph+='</div>';}
+document.getElementById('parts').innerHTML=ph;
+var ae=document.querySelector('.part.active');if(ae)ae.scrollIntoView({block:'nearest',behavior:'smooth'});
+var sh='';for(var i=0;i<SL.length;i++){var s=SL[i];
+var c=i===S.si?'active':S.played[i]?'played':'';
+sh+='<div class="song '+c+'" onclick="goSong('+i+')"><span class="song-i">'+String(i+1).padStart(2,'0')+'</span><span class="song-t">'+s.name+'</span><span class="song-b">'+s.bpm+'</span></div>';}
+document.getElementById('songs').innerHTML=sh;
+
+// Build cue lookup: cueMap[bar] = [{beat,type},...]
+var cueMap={};if(sec.cues){for(var i=0;i<sec.cues.length;i++){var cu=sec.cues[i];if(!cueMap[cu.bar])cueMap[cu.bar]=[];cueMap[cu.bar].push(cu);}}
+
+var bh='';
+for(var i=1;i<=sec.b;i++){var bc=i<S.bar?'done':i===S.bar?'active':'';
+var fl=i===S.bar&&S.beat===1?'flash':'';
+var cues='';if(cueMap[i]){for(var j=0;j<cueMap[i].length;j++){var cu=cueMap[i][j];
+var pi=POS_MAP[cu.pos]||0;
+cues+='<span class="cue p'+pi+' cue-'+cu.type+'">'+CUE_ICONS[cu.type]+'</span>';}}
+bh+='<div class="tl-bar '+bc+' '+fl+'">'+i+cues+'</div>';}
+var secEl=barSec(S.bar,bpm),secTot=barSec(sec.b,bpm);
+var ly=sec.ly;var lyH;
+if(ly&&ly.length>=2)lyH='<div class="lyric-half">'+ly[0]+'</div><div class="lyric-half second">'+ly[1]+'</div>';
+else if(ly&&ly.length===1)lyH='<div class="lyric-half">'+ly[0]+'</div>';
+else lyH='<div class="lyric-half instrumental">instrumental</div>';
+document.getElementById('timeline').innerHTML=
+'<div class="tl-label"><span class="tl-part-name">'+sec.n+'</span><span class="tl-part-count">'+S.bar+' / '+sec.b+' Takte</span></div>'+
+'<div class="tl-track"><div class="tl-bars">'+bh+'</div></div>'+
+'<div class="tl-right"><span class="tl-elapsed">'+fmt(secEl)+'</span><span class="tl-remaining">-'+fmt(secTot-secEl)+'</span></div>'+
+'<div></div><div class="tl-lyrics">'+lyH+'</div><div></div>';
+}
+function goSec(i){var s=SL[S.si];if(i>=0&&i<s.sec.length){S.pi=i;S.bar=1;S.beat=1;R();updateBeats()}}
+function goSong(i){if(i>=0&&i<SL.length){S.played[S.si]=true;S.si=i;S.pi=0;S.bar=1;S.beat=1;R();updateBeats()}}
+function next(){var s=SL[S.si];if(S.pi<s.sec.length-1)goSec(S.pi+1);else if(S.si<SL.length-1)goSong(S.si+1)}
+function prev(){if(S.pi>0)goSec(S.pi-1)}
+function tog(el){if(el.classList.contains('on'))el.classList.remove('on');else el.classList.add('on')}
+function modeSwitch(el){var bs=document.querySelectorAll('.mbtn');for(var i=0;i<bs.length;i++)bs[i].classList.remove('on');el.classList.add('on')}
+var beatTimer=null;
+function restartBeatSim(bpm){if(beatTimer)clearInterval(beatTimer);beatTimer=setInterval(tick,Math.round(60000/bpm))}
+function tick(){S.beat=(S.beat%4)+1;
+if(S.beat===1){S.bar++;var sec=SL[S.si].sec[S.pi];
+if(S.bar>sec.b){if(S.pi<SL[S.si].sec.length-1){S.pi++;S.bar=1}else S.bar=sec.b}R();}
+updateBeats();}
+restartBeatSim(121);R();updateBeats();
+var tapEl=document.getElementById('tap');
+tapEl.addEventListener('touchstart',function(e){e.preventDefault();onTap()},{passive:false});
+tapEl.addEventListener('mousedown',function(e){e.preventDefault();onTap()});
+</script>
+</body>
+</html>

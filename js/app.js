@@ -18,6 +18,11 @@ let selectedSongId = null;
 let selectedPartId = null;
 let selectedBarNum = null;
 
+/* ── Parts Tab State ──────────────────────────────── */
+let partsTabFilterSong = '';  // '' = alle Songs, or song_id
+let partsTabSelectedPart = null;  // {songId, partId}
+let partsTabSelectedBar = null;   // bar number or null
+
 /* ── Audio Split State ────────────────────────────── */
 let audioMeta = null;          // {duration, sampleRate, channels}
 let audioFileName = null;      // name of loaded file
@@ -79,6 +84,7 @@ function cacheDom() {
   els = {
     syncStatus:    document.getElementById('sync-status'),
     tabEditor:     document.getElementById('tab-editor'),
+    tabParts:      document.getElementById('tab-parts'),
     tabAudio:      document.getElementById('tab-audio'),
     tabSetlist:    document.getElementById('tab-setlist'),
     btnSettings:   document.getElementById('btn-settings'),
@@ -249,6 +255,7 @@ function switchTab(tab) {
   }
   activeTab = tab;
   els.tabEditor.classList.toggle('active', tab === 'editor');
+  els.tabParts.classList.toggle('active', tab === 'parts');
   els.tabAudio.classList.toggle('active', tab === 'audio');
   els.tabSetlist.classList.toggle('active', tab === 'setlist');
   renderContent();
@@ -260,6 +267,7 @@ function renderContent() {
     return;
   }
   if (activeTab === 'editor') renderEditorTab();
+  else if (activeTab === 'parts') renderPartsTab();
   else if (activeTab === 'audio') renderAudioTab();
   else if (activeTab === 'setlist') renderSetlistTab();
 }
@@ -2475,6 +2483,444 @@ function exportSetlist() {
   win.document.close();
 }
 
+/* ══════════════════════════════════════════════════════
+   PARTS TAB
+   ══════════════════════════════════════════════════════ */
+
+function getAllPartsFlat() {
+  if (!db || !db.songs) return [];
+  const rows = [];
+  for (const [songId, song] of Object.entries(db.songs)) {
+    const sorted = getSortedParts(songId);
+    for (const p of sorted) {
+      rows.push({ songId, songName: song.name, songArtist: song.artist || '', bpm: song.bpm || 0, partId: p.id, ...p });
+    }
+  }
+  return rows;
+}
+
+function renderPartsTab() {
+  const songs = getSortedSongs();
+  const filterSong = partsTabFilterSong;
+
+  // Get parts based on filter
+  let allParts;
+  if (filterSong) {
+    const song = db.songs[filterSong];
+    if (!song) { allParts = []; }
+    else {
+      allParts = getSortedParts(filterSong).map(p => ({
+        songId: filterSong, songName: song.name, songArtist: song.artist || '',
+        bpm: song.bpm || 0, partId: p.id, ...p
+      }));
+    }
+  } else {
+    allParts = getAllPartsFlat();
+    // Sort by song name, then position
+    allParts.sort((a, b) => a.songName.localeCompare(b.songName, 'de') || a.pos - b.pos);
+  }
+
+  const sel = partsTabSelectedPart;
+  const hasSel = !!(sel && sel.partId);
+
+  // Summary stats
+  const totalBars = allParts.reduce((s, p) => s + (p.bars || 0), 0);
+  const totalSec = allParts.reduce((s, p) => s + calcPartDuration(p.bars || 0, p.bpm), 0);
+  const uniqueSongs = new Set(allParts.map(p => p.songId)).size;
+
+  els.content.innerHTML = `
+    <div class="parts-tab-panel">
+      <div class="parts-tab-scroll" id="parts-tab-scroll">
+        <div class="parts-tab-header">
+          <div class="parts-tab-filter">
+            <label>Song-Filter</label>
+            <select id="pt-song-filter" class="parts-tab-filter-select">
+              <option value="">Alle Songs (${songs.length})</option>
+              ${songs.map(s => `<option value="${s.id}"${s.id === filterSong ? ' selected' : ''}>${esc(s.name)} — ${esc(s.artist || '')}</option>`).join('')}
+            </select>
+          </div>
+          <div class="parts-toolbar">
+            ${filterSong ? `<button class="btn btn-sm btn-primary" data-pt-action="add">+ ADD</button>` : ''}
+            <button class="btn btn-sm" data-pt-action="move-up" ${hasSel ? '' : 'disabled'}>&#9650;</button>
+            <button class="btn btn-sm" data-pt-action="move-down" ${hasSel ? '' : 'disabled'}>&#9660;</button>
+            <button class="btn btn-sm" data-pt-action="dup" ${hasSel ? '' : 'disabled'}>DUP</button>
+            <button class="btn btn-sm btn-danger" data-pt-action="del" ${hasSel ? '' : 'disabled'}>DEL</button>
+          </div>
+        </div>
+        ${allParts.length === 0
+          ? '<div class="empty-state" style="padding:60px 0"><div class="icon">&#9881;</div><p>Keine Parts gefunden.</p></div>'
+          : buildPartsTabTable(allParts, filterSong)}
+        <div id="pt-bar-area"></div>
+      </div>
+      <div class="summary-bar">
+        <span class="summary-item"><span class="summary-label">Songs</span><span class="mono">${uniqueSongs}</span></span>
+        <span class="summary-item"><span class="summary-label">Parts</span><span class="mono">${allParts.length}</span></span>
+        <span class="summary-item"><span class="summary-label">Total Bars</span><span class="mono">${totalBars}</span></span>
+        <span class="summary-item"><span class="summary-label">Dauer</span><span class="mono">${fmtDur(totalSec)}</span></span>
+      </div>
+    </div>`;
+
+  renderPartsTabBarSection();
+}
+
+function buildPartsTabTable(parts, filterSong) {
+  const showSongCol = !filterSong;
+  const sel = partsTabSelectedPart;
+  return `
+    <table class="parts-tab-table">
+      <thead><tr>
+        <th class="ptt-pos">#</th>
+        ${showSongCol ? '<th class="ptt-song">Song</th>' : ''}
+        <th class="ptt-name">Part Name</th>
+        <th class="ptt-bars">Bars</th>
+        <th class="ptt-dur">Dauer</th>
+        <th class="ptt-tmpl">Light Template</th>
+        <th class="ptt-notes">Notizen</th>
+      </tr></thead>
+      <tbody>
+        ${parts.map((p, idx) => {
+          const isActive = sel && sel.songId === p.songId && sel.partId === p.partId;
+          const dur = calcPartDuration(p.bars || 0, p.bpm);
+          return `<tr class="ptt-row${isActive ? ' active' : ''}" data-song-id="${p.songId}" data-part-id="${p.partId}">
+            <td class="ptt-pos mono text-t3">${showSongCol ? idx + 1 : p.pos}</td>
+            ${showSongCol ? `<td class="ptt-song"><span class="ptt-song-name">${esc(p.songName)}</span></td>` : ''}
+            <td class="ptt-name"><input type="text" value="${esc(p.name)}" data-ptf="name" class="part-input"></td>
+            <td class="ptt-bars"><input type="number" value="${p.bars || 0}" data-ptf="bars" class="part-input-num mono" min="0" step="1"></td>
+            <td class="ptt-dur mono text-t3 pt-duration">${fmtDur(dur)}</td>
+            <td class="ptt-tmpl">
+              <select data-ptf="light_template" class="part-select">
+                <option value="">\u2014</option>
+                ${LIGHT_TEMPLATES.map(t => `<option value="${t}"${t === p.light_template ? ' selected' : ''}>${t}</option>`).join('')}
+              </select>
+            </td>
+            <td class="ptt-notes"><input type="text" value="${esc(p.notes || '')}" data-ptf="notes" class="part-input ptt-notes-input" placeholder="\u2014"></td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>`;
+}
+
+function renderPartsTabBarSection() {
+  const area = document.getElementById('pt-bar-area');
+  if (!area) return;
+
+  const sel = partsTabSelectedPart;
+  if (!sel || !sel.songId || !sel.partId) { area.innerHTML = ''; return; }
+
+  const song = db.songs[sel.songId];
+  if (!song || !song.parts[sel.partId]) { area.innerHTML = ''; return; }
+
+  const part = song.parts[sel.partId];
+  const barCount = part.bars || 0;
+
+  if (barCount === 0) {
+    area.innerHTML = `<div class="bar-section"><p class="text-t3">Keine Bars \u2014 setze die Bars-Anzahl oben.</p></div>`;
+    return;
+  }
+
+  ensureCollections();
+  const blocks = Array.from({ length: barCount }, (_, i) => {
+    const n = i + 1;
+    const found = findBar(sel.partId, n);
+    const hasAcc = found ? getAccentsForBar(found[0]).length > 0 : false;
+    const hasLyr = found && found[1].lyrics;
+    return `<div class="bar-block${n === partsTabSelectedBar ? ' active' : ''}${hasAcc ? ' has-accents' : ''}${hasLyr ? ' has-lyrics' : ''}" data-bar-num="${n}">${n}</div>`;
+  }).join('');
+
+  let editor = '';
+  if (partsTabSelectedBar && partsTabSelectedBar <= barCount) {
+    editor = buildPartsTabBarEditor();
+  }
+
+  area.innerHTML = `
+    <div class="bar-section">
+      <h3>Bars \u2014 ${esc(part.name)} <span class="text-t3">(${barCount} Takte, ${esc(song.name)})</span></h3>
+      <div class="bar-blocks">${blocks}</div>
+      ${editor}
+    </div>`;
+}
+
+function buildPartsTabBarEditor() {
+  const sel = partsTabSelectedPart;
+  if (!sel) return '';
+  const [barId, barData] = getOrCreateBar(sel.partId, partsTabSelectedBar);
+  const accents = getAccentsForBar(barId);
+
+  const cells = Array.from({ length: 16 }, (_, i) => {
+    const pos = i + 1;
+    const accent = accents.find(a => a.pos_16th === pos);
+    const isBeat = (pos - 1) % 4 === 0;
+    const cls = ['accent-cell', isBeat ? 'beat' : '', accent ? accent.type : ''].filter(Boolean).join(' ');
+    return `<div class="${cls}" data-pos16="${pos}" data-pt-accent="1">
+      <span class="accent-num">${BEAT_LABELS[i]}</span>
+      ${accent ? `<span class="accent-tag">${accent.type}</span>` : ''}
+    </div>`;
+  }).join('');
+
+  return `
+    <div class="bar-editor">
+      <div class="bar-editor-header">
+        <h3>Bar ${partsTabSelectedBar}</h3>
+        <div class="accent-legend">
+          ${Object.entries(ACCENT_INFO).map(([k, v]) => `<span class="legend-item ${k}">${v}</span>`).join('')}
+        </div>
+      </div>
+      <div style="margin-bottom: 12px">
+        <label>Lyrics</label>
+        <input type="text" class="bar-lyrics-input" value="${esc(barData.lyrics || '')}" data-pt-bar-lyrics="1" placeholder="Textzeile...">
+      </div>
+      <div class="accent-grid">${cells}</div>
+    </div>`;
+}
+
+/* ── Parts Tab Event Handlers ─────────────────────── */
+
+function handlePartsTabClick(e) {
+  const el = e.target;
+
+  // Toolbar actions
+  const actionBtn = el.closest('[data-pt-action]');
+  if (actionBtn && !actionBtn.disabled) {
+    handlePartsTabAction(actionBtn.dataset.ptAction);
+    return;
+  }
+
+  // Accent cell
+  const accentCell = el.closest('[data-pt-accent]');
+  if (accentCell) {
+    const pos = parseInt(accentCell.dataset.pos16, 10);
+    handlePartsTabAccentToggle(pos);
+    return;
+  }
+
+  // Bar block
+  const barBlock = el.closest('[data-bar-num]');
+  if (barBlock && !barBlock.closest('.bar-editor')) {
+    const barNum = parseInt(barBlock.dataset.barNum, 10);
+    partsTabSelectedBar = (partsTabSelectedBar === barNum) ? null : barNum;
+    renderPartsTabBarSection();
+    return;
+  }
+
+  // Song name click → navigate to that song's filter
+  const songNameEl = el.closest('.ptt-song-name');
+  if (songNameEl) {
+    const row = songNameEl.closest('.ptt-row');
+    if (row) {
+      partsTabFilterSong = row.dataset.songId;
+      partsTabSelectedPart = null;
+      partsTabSelectedBar = null;
+      renderPartsTab();
+      return;
+    }
+  }
+
+  // Row click (not on input/select)
+  const row = el.closest('.ptt-row');
+  if (row && !el.closest('input, select')) {
+    const songId = row.dataset.songId;
+    const partId = row.dataset.partId;
+    const wasSame = partsTabSelectedPart && partsTabSelectedPart.songId === songId && partsTabSelectedPart.partId === partId;
+    if (wasSame) return;
+    partsTabSelectedPart = { songId, partId };
+    partsTabSelectedBar = null;
+    // Update active row visually
+    document.querySelectorAll('.ptt-row').forEach(r => {
+      r.classList.toggle('active', r.dataset.songId === songId && r.dataset.partId === partId);
+    });
+    // Enable toolbar buttons
+    document.querySelectorAll('.parts-toolbar .btn:not([data-pt-action="add"])').forEach(btn => {
+      btn.disabled = false;
+    });
+    renderPartsTabBarSection();
+    return;
+  }
+}
+
+function handlePartsTabChange(e) {
+  const el = e.target;
+
+  // Song filter dropdown
+  if (el.id === 'pt-song-filter') {
+    partsTabFilterSong = el.value;
+    partsTabSelectedPart = null;
+    partsTabSelectedBar = null;
+    renderPartsTab();
+    return;
+  }
+
+  // Part field edit
+  if (el.dataset.ptf) {
+    const row = el.closest('.ptt-row');
+    if (!row) return;
+    const songId = row.dataset.songId;
+    const partId = row.dataset.partId;
+    const song = db.songs[songId];
+    const part = song?.parts[partId];
+    if (!part) return;
+
+    const field = el.dataset.ptf;
+    if (field === 'bars') {
+      part.bars = parseInt(el.value, 10) || 0;
+      part.duration_sec = calcPartDuration(part.bars, song.bpm || 0);
+      const durCell = row.querySelector('.pt-duration');
+      if (durCell) durCell.textContent = fmtDur(part.duration_sec);
+      recalcSongDurationFor(songId);
+      if (partsTabSelectedPart && partsTabSelectedPart.partId === partId) {
+        if (partsTabSelectedBar && partsTabSelectedBar > part.bars) partsTabSelectedBar = null;
+        renderPartsTabBarSection();
+      }
+    } else if (field === 'light_template') {
+      part.light_template = el.value;
+    } else if (field === 'notes') {
+      part.notes = el.value;
+    } else if (field === 'name') {
+      part.name = el.value;
+      if (partsTabSelectedPart && partsTabSelectedPart.partId === partId) {
+        renderPartsTabBarSection();
+      }
+    } else {
+      part[field] = el.value;
+    }
+    markDirty();
+    return;
+  }
+
+  // Bar lyrics
+  if (el.hasAttribute('data-pt-bar-lyrics')) {
+    const sel = partsTabSelectedPart;
+    if (!sel || !partsTabSelectedBar) return;
+    const [, barData] = getOrCreateBar(sel.partId, partsTabSelectedBar);
+    barData.lyrics = el.value;
+    markDirty();
+    return;
+  }
+}
+
+function recalcSongDurationFor(songId) {
+  const song = db.songs[songId];
+  if (!song) return;
+  const totalSec = Object.values(song.parts || {})
+    .reduce((sum, p) => sum + calcPartDuration(p.bars || 0, song.bpm || 0), 0);
+  song.duration_sec = totalSec;
+  song.duration = fmtDur(totalSec);
+}
+
+function handlePartsTabAction(action) {
+  const sel = partsTabSelectedPart;
+  const filterSong = partsTabFilterSong;
+
+  switch (action) {
+    case 'add': {
+      if (!filterSong) return;
+      const song = db.songs[filterSong];
+      if (!song) return;
+      if (!song.parts) song.parts = {};
+      const parts = getSortedParts(filterSong);
+      const newPos = parts.length > 0 ? Math.max(...parts.map(p => p.pos)) + 1 : 1;
+      const newId = nextPartId(filterSong);
+      song.parts[newId] = { pos: newPos, name: 'New Part', bars: 0, duration_sec: 0, light_template: 'generic_bpm', notes: '' };
+      partsTabSelectedPart = { songId: filterSong, partId: newId };
+      partsTabSelectedBar = null;
+      markDirty();
+      renderPartsTab();
+      setTimeout(() => {
+        const input = document.querySelector(`[data-part-id="${newId}"] [data-ptf="name"]`);
+        if (input) { input.focus(); input.select(); }
+      }, 50);
+      break;
+    }
+
+    case 'del': {
+      if (!sel) return;
+      const song = db.songs[sel.songId];
+      if (!song || !song.parts[sel.partId]) return;
+      ensureCollections();
+      for (const [barId, b] of Object.entries(db.bars)) {
+        if (b.part_id === sel.partId) {
+          for (const [accId, a] of Object.entries(db.accents)) {
+            if (a.bar_id === barId) delete db.accents[accId];
+          }
+          delete db.bars[barId];
+        }
+      }
+      delete song.parts[sel.partId];
+      getSortedParts(sel.songId).forEach((p, i) => { song.parts[p.id].pos = i + 1; });
+      recalcSongDurationFor(sel.songId);
+      partsTabSelectedPart = null;
+      partsTabSelectedBar = null;
+      markDirty();
+      renderPartsTab();
+      break;
+    }
+
+    case 'move-up':
+    case 'move-down': {
+      if (!sel) return;
+      const song = db.songs[sel.songId];
+      if (!song) return;
+      const parts = getSortedParts(sel.songId);
+      const idx = parts.findIndex(p => p.id === sel.partId);
+      if (action === 'move-up' && idx <= 0) return;
+      if (action === 'move-down' && (idx < 0 || idx >= parts.length - 1)) return;
+      const swapIdx = action === 'move-up' ? idx - 1 : idx + 1;
+      const curr = song.parts[parts[idx].id];
+      const other = song.parts[parts[swapIdx].id];
+      [curr.pos, other.pos] = [other.pos, curr.pos];
+      markDirty();
+      renderPartsTab();
+      break;
+    }
+
+    case 'dup': {
+      if (!sel) return;
+      const song = db.songs[sel.songId];
+      if (!song || !song.parts[sel.partId]) return;
+      const src = song.parts[sel.partId];
+      for (const p of Object.values(song.parts)) {
+        if (p.pos > src.pos) p.pos += 1;
+      }
+      const newId = nextPartId(sel.songId);
+      song.parts[newId] = {
+        pos: src.pos + 1, name: src.name + ' (Copy)', bars: src.bars,
+        duration_sec: src.duration_sec, light_template: src.light_template, notes: src.notes || ''
+      };
+      partsTabSelectedPart = { songId: sel.songId, partId: newId };
+      partsTabSelectedBar = null;
+      markDirty();
+      recalcSongDurationFor(sel.songId);
+      renderPartsTab();
+      break;
+    }
+  }
+}
+
+function handlePartsTabAccentToggle(pos) {
+  const sel = partsTabSelectedPart;
+  if (!sel || !partsTabSelectedBar) return;
+  ensureCollections();
+  const [barId, barData] = getOrCreateBar(sel.partId, partsTabSelectedBar);
+
+  const existing = Object.entries(db.accents).find(([, a]) => a.bar_id === barId && a.pos_16th === pos);
+
+  if (existing) {
+    const [accId, acc] = existing;
+    const typeIdx = ACCENT_TYPES.indexOf(acc.type);
+    if (typeIdx < ACCENT_TYPES.length - 1) {
+      acc.type = ACCENT_TYPES[typeIdx + 1];
+    } else {
+      delete db.accents[accId];
+    }
+  } else {
+    const newId = nextId('A', db.accents);
+    db.accents[newId] = { bar_id: barId, pos_16th: pos, type: ACCENT_TYPES[0], notes: '' };
+  }
+
+  barData.has_accents = Object.values(db.accents).some(a => a.bar_id === barId);
+  markDirty();
+  renderPartsTabBarSection();
+}
+
 /* ── Settings Modal ────────────────────────────────── */
 
 function openSettings() {
@@ -2644,6 +3090,7 @@ function restoreSidebar() {
 function wireEvents() {
   // Tabs
   els.tabEditor.addEventListener('click', () => switchTab('editor'));
+  els.tabParts.addEventListener('click',  () => switchTab('parts'));
   els.tabAudio.addEventListener('click',  () => switchTab('audio'));
   els.tabSetlist.addEventListener('click', () => switchTab('setlist'));
 
@@ -2700,11 +3147,13 @@ function wireEvents() {
   els.content.addEventListener('change', handleEditorChange);
   els.content.addEventListener('click', (e) => {
     if (activeTab === 'editor') handleEditorClick(e);
+    else if (activeTab === 'parts') handlePartsTabClick(e);
     else if (activeTab === 'audio') handleAudioClick(e);
     else if (activeTab === 'setlist') handleSetlistClick(e);
   });
   els.content.addEventListener('change', (e) => {
-    if (activeTab === 'setlist') handleSetlistChange(e);
+    if (activeTab === 'parts') handlePartsTabChange(e);
+    else if (activeTab === 'setlist') handleSetlistChange(e);
   });
 
   // Audio drag & drop on content area

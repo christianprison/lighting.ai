@@ -1030,7 +1030,7 @@
         "CC9FBm_P001": {
           "pos": 1,
           "name": "Intro (nur Axel)",
-          "bars": 4,
+          "bars": 0,
           "duration_sec": 6,
           "light_template": "intro_buildup",
           "qlc_scene": "Spot auf Axel",
@@ -1041,7 +1041,7 @@
         "CC9FBm_P002": {
           "pos": 2,
           "name": "Intro (alle)",
-          "bars": 8,
+          "bars": 0,
           "duration_sec": 11,
           "light_template": "intro_buildup",
           "qlc_scene": "09 Alarm",
@@ -1052,7 +1052,7 @@
         "CC9FBm_P003": {
           "pos": 3,
           "name": "Verse 1",
-          "bars": 12,
+          "bars": 0,
           "duration_sec": 17,
           "light_template": "verse_driving",
           "qlc_scene": "03 walking",
@@ -1063,7 +1063,7 @@
         "CC9FBm_P004": {
           "pos": 4,
           "name": "Chorus 1",
-          "bars": 8,
+          "bars": 0,
           "duration_sec": 12,
           "light_template": "chorus_full",
           "qlc_scene": "06 blinking",
@@ -1074,7 +1074,7 @@
         "CC9FBm_P005": {
           "pos": 5,
           "name": "Dudup 1",
-          "bars": 8,
+          "bars": 0,
           "duration_sec": 11,
           "light_template": "generic_bpm",
           "qlc_scene": "09 Alarm",
@@ -1085,7 +1085,7 @@
         "CC9FBm_P006": {
           "pos": 6,
           "name": "Verse 2",
-          "bars": 12,
+          "bars": 0,
           "duration_sec": 17,
           "light_template": "verse_driving",
           "qlc_scene": "03 walking",
@@ -1096,7 +1096,7 @@
         "CC9FBm_P007": {
           "pos": 7,
           "name": "Chorus 2",
-          "bars": 8,
+          "bars": 0,
           "duration_sec": 11,
           "light_template": "chorus_full",
           "qlc_scene": "06 blinking",
@@ -1107,7 +1107,7 @@
         "CC9FBm_P008": {
           "pos": 8,
           "name": "Dudup 2",
-          "bars": 8,
+          "bars": 0,
           "duration_sec": 11,
           "light_template": "generic_bpm",
           "qlc_scene": "09 Alarm",
@@ -1118,7 +1118,7 @@
         "CC9FBm_P009": {
           "pos": 9,
           "name": "Solo Axel",
-          "bars": 16,
+          "bars": 0,
           "duration_sec": 23,
           "light_template": "solo_spotlight",
           "qlc_scene": "Spot auf Axel",
@@ -1129,7 +1129,7 @@
         "CC9FBm_P010": {
           "pos": 10,
           "name": "Interlude 1",
-          "bars": 8,
+          "bars": 0,
           "duration_sec": 11,
           "light_template": "bridge_atmospheric",
           "qlc_scene": "06 blinking",
@@ -1140,7 +1140,7 @@
         "CC9FBm_P011": {
           "pos": 11,
           "name": "Interlude 2 (stop)",
-          "bars": 2,
+          "bars": 0,
           "duration_sec": 3,
           "light_template": "bridge_atmospheric",
           "qlc_scene": "01 statisch bunt",
@@ -1151,7 +1151,7 @@
         "CC9FBm_P012": {
           "pos": 12,
           "name": "\"eventually\"",
-          "bars": 1,
+          "bars": 0,
           "duration_sec": 2,
           "light_template": "generic_bpm",
           "qlc_scene": "10 Strobe",
@@ -1162,7 +1162,7 @@
         "CC9FBm_P013": {
           "pos": 13,
           "name": "Dudup 3",
-          "bars": 8,
+          "bars": 0,
           "duration_sec": 11,
           "light_template": "generic_bpm",
           "qlc_scene": "09 Alarm",
@@ -1173,7 +1173,7 @@
         "CC9FBm_P014": {
           "pos": 14,
           "name": "Dudup 4",
-          "bars": 8,
+          "bars": 0,
           "duration_sec": 11,
           "light_template": "generic_bpm",
           "qlc_scene": "10 Strobe",
@@ -1184,7 +1184,7 @@
         "CC9FBm_P015": {
           "pos": 15,
           "name": "Ausklang",
-          "bars": 3,
+          "bars": 0,
           "duration_sec": 4,
           "light_template": "outro_fadeout",
           "qlc_scene": "01 statisch bunt",
@@ -1193,7 +1193,72 @@
           "notes": ""
         }
       },
-      "qlc_id": 64
+      "qlc_id": 64,
+      "split_markers": {
+        "partMarkers": [
+          {
+            "time": 1.365333333333183,
+            "partIndex": 0
+          },
+          {
+            "time": 7.071999999999889,
+            "partIndex": 1
+          },
+          {
+            "time": 18.426666666666506,
+            "partIndex": 2
+          },
+          {
+            "time": 35.55199999999991,
+            "partIndex": 3
+          },
+          {
+            "time": 46.8746666666666,
+            "partIndex": 4
+          },
+          {
+            "time": 58.11200000000008,
+            "partIndex": 5
+          },
+          {
+            "time": 75.075382765531,
+            "partIndex": 6
+          },
+          {
+            "time": 86.3500494321977,
+            "partIndex": 7
+          },
+          {
+            "time": 97.58738276553095,
+            "partIndex": 8
+          },
+          {
+            "time": 120.21671609886425,
+            "partIndex": 9
+          },
+          {
+            "time": 131.61938276553087,
+            "partIndex": 10
+          },
+          {
+            "time": 142.10569939879747,
+            "partIndex": 11
+          },
+          {
+            "time": 143.0230327321308,
+            "partIndex": 12
+          },
+          {
+            "time": 154.21236606546427,
+            "partIndex": 13
+          },
+          {
+            "time": 165.38036606546416,
+            "partIndex": 14
+          }
+        ],
+        "barMarkers": []
+      }
     },
     "UNIriZ": {
       "name": "Animal",

@@ -180,11 +180,11 @@ function sanitizePath(str) {
 
 /**
  * Build the GitHub path for the reference audio file.
- * Format: audio/{Song Title}/reference.mp3
+ * Format: audio/{Song Title}/{Song Title} - Full Song.mp3
  */
 function buildRefAudioPath(song) {
   const songDir = sanitizePath(song.name);
-  return `audio/${songDir}/reference.mp3`;
+  return `audio/${songDir}/${songDir} - Full Song.mp3`;
 }
 
 /**

@@ -261,7 +261,15 @@ function renderSongList(filter = '') {
     : songs;
 
   els.songCount.textContent = `${filtered.length} / ${songs.length} Songs`;
-  els.songList.innerHTML = filtered.map(s => `
+  const allActive = selectedSongId === null && !q;
+  els.songList.innerHTML =
+    (!q ? `<div class="song-item song-item-all${allActive ? ' active' : ''}" data-id="__all__">
+      <div style="flex:1;min-width:0">
+        <div class="song-name">Alle Songs</div>
+        <div class="song-artist">${songs.length} Songs</div>
+      </div>
+    </div>` : '') +
+    filtered.map(s => `
     <div class="song-item${s.id === selectedSongId ? ' active' : ''}" data-id="${s.id}">
       <div style="flex:1;min-width:0">
         <div class="song-name">${esc(s.name)}</div>
@@ -824,6 +832,7 @@ let _partPlaySources = [];
 let _partPlayIndex = 0;
 let _partPlayBuffers = [];
 let _partPlayActive = false;
+let _barPlayId = null;          // bar ID currently being played (single bar)
 
 function refreshPartPlayUI() {
   if (activeTab === 'editor') renderPartsTable();
@@ -901,9 +910,62 @@ function stopPartPlay() {
   _partPlaySources = [];
   _partPlayBuffers = [];
   _partPlayActive = false;
-  const wasPlaying = _playingPartId;
+  const wasPlaying = _playingPartId || _barPlayId;
   _playingPartId = null;
+  _barPlayId = null;
   if (wasPlaying) refreshPartPlayUI();
+}
+
+async function handleBarPlay(partId, barNum) {
+  ensureCollections();
+  const found = findBar(partId, barNum);
+  if (!found) return;
+  const [barId, barData] = found;
+  if (!barData.audio) return;
+
+  // If already playing this bar → stop
+  if (_barPlayId === barId && _partPlayActive) {
+    stopPartPlay();
+    _barPlayId = null;
+    return;
+  }
+
+  stopPartPlay();
+  _barPlayId = barId;
+  _partPlayActive = true;
+
+  try {
+    if (!_partPlayCtx) {
+      _partPlayCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (_partPlayCtx.state === 'suspended') await _partPlayCtx.resume();
+
+    const resp = await fetch(barData.audio);
+    if (!resp.ok) throw new Error(`Fetch ${barData.audio}: ${resp.status}`);
+    const arrBuf = await resp.arrayBuffer();
+    const decoded = await _partPlayCtx.decodeAudioData(arrBuf);
+
+    const src = _partPlayCtx.createBufferSource();
+    src.buffer = decoded;
+    src.connect(_partPlayCtx.destination);
+    src.onended = () => {
+      if (_barPlayId === barId) {
+        _barPlayId = null;
+        _partPlayActive = false;
+        renderTakteTab();
+      }
+    };
+    src.start(0);
+    _partPlaySources = [src];
+    _partPlayBuffers = [decoded];
+
+    renderTakteTab();
+  } catch (err) {
+    console.error('Bar playback error:', err);
+    toast(`Wiedergabe-Fehler: ${err.message}`, 'error');
+    stopPartPlay();
+    _barPlayId = null;
+  }
 }
 
 function handleAccentToggle(pos16) {
@@ -1185,8 +1247,10 @@ function getPartStartTime(partIndex) {
 function getPartEndTime(partIndex) {
   const nextMarker = partMarkers.find(m => m.partIndex === partIndex + 1);
   if (nextMarker) return nextMarker.time;
-  // If this is the last tapped part
-  if (partIndex === currentPartIndex - 1 && audioMeta) return audioMeta.duration;
+  // If this part has a marker and no higher marker exists, it's the last part → use audio end
+  const hasMarker = partMarkers.some(m => m.partIndex === partIndex);
+  const hasHigher = partMarkers.some(m => m.partIndex > partIndex);
+  if (hasMarker && !hasHigher && audioMeta) return audioMeta.duration;
   return null;
 }
 
@@ -2580,10 +2644,9 @@ function getAllPartsFlat() {
 }
 
 function renderPartsTab() {
-  const songs = getSortedSongs();
-  const filterSong = partsTabFilterSong;
+  const filterSong = selectedSongId;
 
-  // Get parts based on filter
+  // Get parts based on selected song
   let allParts;
   if (filterSong) {
     const song = db.songs[filterSong];
@@ -2596,7 +2659,6 @@ function renderPartsTab() {
     }
   } else {
     allParts = getAllPartsFlat();
-    // Sort by song name, then position
     allParts.sort((a, b) => a.songName.localeCompare(b.songName, 'de') || a.pos - b.pos);
   }
 
@@ -2612,13 +2674,6 @@ function renderPartsTab() {
     <div class="parts-tab-panel">
       <div class="parts-tab-scroll" id="parts-tab-scroll">
         <div class="parts-tab-header">
-          <div class="parts-tab-filter">
-            <label>Song-Filter</label>
-            <select id="pt-song-filter" class="parts-tab-filter-select">
-              <option value="">Alle Songs (${songs.length})</option>
-              ${songs.map(s => `<option value="${s.id}"${s.id === filterSong ? ' selected' : ''}>${esc(s.name)}</option>`).join('')}
-            </select>
-          </div>
           <div class="parts-toolbar">
             ${filterSong ? `<button class="btn btn-sm btn-primary" data-pt-action="add">+ ADD</button>` : ''}
             <button class="btn btn-sm" data-pt-action="move-up" ${hasSel ? '' : 'disabled'}>&#9650;</button>
@@ -2808,14 +2863,17 @@ function handlePartsTabClick(e) {
     return;
   }
 
-  // Song name click → navigate to that song's filter
+  // Song name click → select song in sidebar
   const songNameEl = el.closest('.ptt-song-name');
   if (songNameEl) {
     const row = songNameEl.closest('.ptt-row');
-    if (row) {
-      partsTabFilterSong = row.dataset.songId;
+    if (row && row.dataset.songId !== selectedSongId) {
+      selectedSongId = row.dataset.songId;
+      selectedPartId = null;
+      selectedBarNum = null;
       partsTabSelectedPart = null;
       partsTabSelectedBar = null;
+      renderSongList(els.searchBox.value);
       renderPartsTab();
       return;
     }
@@ -2845,15 +2903,6 @@ function handlePartsTabClick(e) {
 
 function handlePartsTabChange(e) {
   const el = e.target;
-
-  // Song filter dropdown
-  if (el.id === 'pt-song-filter') {
-    partsTabFilterSong = el.value;
-    partsTabSelectedPart = null;
-    partsTabSelectedBar = null;
-    renderPartsTab();
-    return;
-  }
 
   // Part field edit
   if (el.dataset.ptf) {
@@ -2930,7 +2979,7 @@ function recalcSongDurationFor(songId) {
 
 function handlePartsTabAction(action) {
   const sel = partsTabSelectedPart;
-  const filterSong = partsTabFilterSong;
+  const filterSong = selectedSongId;
 
   switch (action) {
     case 'add': {
@@ -3079,8 +3128,7 @@ function getAllBarsFlat() {
 }
 
 function renderTakteTab() {
-  const songs = getSortedSongs();
-  const filterSong = takteTabFilterSong;
+  const filterSong = selectedSongId;
   ensureCollections();
 
   let allBars;
@@ -3099,15 +3147,6 @@ function renderTakteTab() {
   els.content.innerHTML = `
     <div class="parts-tab-panel">
       <div class="parts-tab-scroll" id="takte-tab-scroll">
-        <div class="parts-tab-header">
-          <div class="parts-tab-filter">
-            <label>Song-Filter</label>
-            <select id="tt-song-filter" class="parts-tab-filter-select">
-              <option value="">Alle Songs (${songs.length})</option>
-              ${songs.map(s => `<option value="${s.id}"${s.id === filterSong ? ' selected' : ''}>${esc(s.name)}</option>`).join('')}
-            </select>
-          </div>
-        </div>
         ${allBars.length === 0
           ? '<div class="empty-state" style="padding:60px 0"><div class="icon">&#9881;</div><p>Keine Takte gefunden.</p></div>'
           : buildTakteTabTable(allBars, filterSong)}
@@ -3132,6 +3171,7 @@ function buildTakteTabTable(bars, filterSong) {
     <table class="parts-tab-table takte-tab-table">
       <thead><tr>
         <th class="ttt-nr">#</th>
+        <th class="ttt-play"></th>
         ${showSongCol ? '<th class="ttt-song">Song</th>' : ''}
         <th class="ttt-part">Part</th>
         <th class="ttt-bar">Takt</th>
@@ -3143,8 +3183,10 @@ function buildTakteTabTable(bars, filterSong) {
       <tbody>
         ${bars.map((b, idx) => {
           const isActive = sel && sel.songId === b.songId && sel.partId === b.partId && sel.barNum === b.barNum;
+          const isBarPlaying = _barPlayId === b.barId && _partPlayActive;
           return `<tr class="ttt-row${isActive ? ' active' : ''}" data-song-id="${b.songId}" data-part-id="${b.partId}" data-bar-num="${b.barNum}">
             <td class="ttt-nr mono text-t3">${showSongCol ? idx + 1 : b.absBar}</td>
+            <td class="ttt-play">${b.audio ? `<button class="btn-bar-play${isBarPlaying ? ' playing' : ''}" data-action="play-bar" data-play-part-id="${b.partId}" data-play-bar-num="${b.barNum}" title="${isBarPlaying ? 'Stop' : 'Takt abspielen'}">${isBarPlaying ? '&#9632;' : '&#9654;'}</button>` : ''}</td>
             ${showSongCol ? `<td class="ttt-song"><span class="ttt-song-name">${esc(b.songName)}</span></td>` : ''}
             <td class="ttt-part text-t2">${esc(b.partName)}</td>
             <td class="ttt-bar mono">${b.barNum}</td>
@@ -3205,6 +3247,13 @@ function renderTakteEditorSection() {
 function handleTakteTabClick(e) {
   const el = e.target;
 
+  // Play bar button
+  const playBtn = el.closest('[data-action="play-bar"]');
+  if (playBtn) {
+    handleBarPlay(playBtn.dataset.playPartId, parseInt(playBtn.dataset.playBarNum, 10));
+    return;
+  }
+
   // Accent cell
   const accentCell = el.closest('[data-tt-accent]');
   if (accentCell) {
@@ -3213,13 +3262,16 @@ function handleTakteTabClick(e) {
     return;
   }
 
-  // Song name click → filter
+  // Song name click → select song in sidebar
   const songNameEl = el.closest('.ttt-song-name');
   if (songNameEl) {
     const row = songNameEl.closest('.ttt-row');
-    if (row) {
-      takteTabFilterSong = row.dataset.songId;
+    if (row && row.dataset.songId !== selectedSongId) {
+      selectedSongId = row.dataset.songId;
+      selectedPartId = null;
+      selectedBarNum = null;
       takteTabSelectedBar = null;
+      renderSongList(els.searchBox.value);
       renderTakteTab();
       return;
     }
@@ -3246,14 +3298,6 @@ function handleTakteTabClick(e) {
 
 function handleTakteTabChange(e) {
   const el = e.target;
-
-  // Song filter
-  if (el.id === 'tt-song-filter') {
-    takteTabFilterSong = el.value;
-    takteTabSelectedBar = null;
-    renderTakteTab();
-    return;
-  }
 
   // Lyrics in table row
   if (el.dataset.ttf === 'lyrics') {
@@ -3516,7 +3560,8 @@ function wireEvents() {
   els.songList.addEventListener('click', (e) => {
     const item = e.target.closest('.song-item');
     if (!item) return;
-    const newId = item.dataset.id;
+    const rawId = item.dataset.id;
+    const newId = rawId === '__all__' ? null : rawId;
     if (newId === selectedSongId) return;
     // Stop audio and reset split state when switching songs
     audio.reset();
@@ -3527,6 +3572,9 @@ function wireEvents() {
     selectedSongId = newId;
     selectedPartId = null;
     selectedBarNum = null;
+    partsTabSelectedPart = null;
+    partsTabSelectedBar = null;
+    takteTabSelectedBar = null;
     renderSongList(els.searchBox.value);
     renderContent();
   });

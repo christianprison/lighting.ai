@@ -710,6 +710,42 @@ label {
   background: rgba(255, 59, 92, 0.1);
 }
 
+/* Bar play button (Takte tab) */
+.btn-bar-play {
+  background: none;
+  border: 1px solid var(--border2);
+  color: var(--green);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 0.65rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, border-color 0.15s;
+  padding: 0;
+  line-height: 1;
+}
+.btn-bar-play:hover {
+  background: var(--bg4);
+  border-color: var(--green);
+}
+.btn-bar-play.playing {
+  color: var(--red);
+  border-color: var(--red);
+}
+.btn-bar-play.playing:hover {
+  background: rgba(255, 59, 92, 0.1);
+}
+
+.ttt-play { width: 36px; text-align: center; padding: 0; }
+
+/* "Alle Songs" item in song list */
+.song-item-all {
+  border-bottom: 1px solid var(--border);
+}
+
 /* Parts table inline inputs */
 .part-input {
   width: 100%;

@@ -206,15 +206,33 @@
 
     <!-- Shortcuts -->
     <div class="help-page" id="help-keys">
-      <h3>Tastaturkuerzel</h3>
+      <h3>Allgemein</h3>
       <div class="help-table">
         <div class="help-row"><kbd>Ctrl+S</kbd><span>Speichern (GitHub Commit)</span></div>
-        <div class="help-row"><kbd>Space</kbd><span>Play / Pause (Audio Split Tab)</span></div>
-        <div class="help-row"><kbd>[</kbd><span>Speed langsamer (Audio Split Tab)</span></div>
-        <div class="help-row"><kbd>]</kbd><span>Speed schneller (Audio Split Tab)</span></div>
         <div class="help-row"><kbd>Esc</kbd><span>Modal schliessen</span></div>
         <div class="help-row"><kbd>?</kbd><span>Diese Hilfe oeffnen</span></div>
       </div>
+      <h3>Audio Split Tab</h3>
+      <div class="help-table">
+        <div class="help-row"><kbd>Space</kbd><span>Play / Pause</span></div>
+        <div class="help-row"><kbd>P</kbd><span><span class="text-amber">Part Tap</span> &mdash; setzt Marker am aktuellen Part-Beginn</span></div>
+        <div class="help-row"><kbd>B</kbd><span><span class="text-cyan">Bar Tap</span> &mdash; setzt Taktgrenze im aktuellen Part</span></div>
+        <div class="help-row"><kbd>Z</kbd><span>Undo &mdash; letzten Tap rueckgaengig machen</span></div>
+        <div class="help-row"><kbd>[</kbd><span>Speed langsamer</span></div>
+        <div class="help-row"><kbd>]</kbd><span>Speed schneller</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Confirm Modal ──────────────────────────────── -->
+<div class="modal-overlay" id="confirm-modal">
+  <div class="modal confirm-modal">
+    <h2 id="confirm-title">Bist du sicher?</h2>
+    <p id="confirm-message"></p>
+    <div class="modal-actions">
+      <button class="btn" id="confirm-cancel">Abbrechen</button>
+      <button class="btn btn-danger" id="confirm-ok">Ersetzen</button>
     </div>
   </div>
 </div>

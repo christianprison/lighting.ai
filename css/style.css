@@ -500,6 +500,14 @@ label {
   margin-top: 20px;
 }
 
+/* Confirm Modal */
+.confirm-modal p {
+  color: var(--t2);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin-bottom: 0;
+}
+
 /* ── Toast / Notifications ─────────────────────────── */
 .toast-container {
   position: fixed;
@@ -1334,6 +1342,15 @@ label {
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+.tap-btn .tap-label kbd {
+  font-size: 0.6rem;
+  opacity: 0.5;
+  margin-left: 4px;
+  padding: 1px 4px;
+  border: 1px solid currentColor;
+  border-radius: 3px;
+  vertical-align: middle;
 }
 
 .tap-btn .tap-info {

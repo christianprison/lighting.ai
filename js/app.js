@@ -5,7 +5,7 @@
  * Bar-Editor mit 16tel-Accent-Raster und Summary-Bar.
  */
 
-import { loadDB, loadDBLocal, saveDB, testConnection, uploadFile, deleteFile } from './db.js';
+import { loadDB, loadDBLocal, saveDB, testConnection, uploadFile, deleteFile, getSha } from './db.js';
 import * as audio from './audio-engine.js';
 
 /* ── State ─────────────────────────────────────────── */
@@ -112,6 +112,11 @@ function cacheDom() {
     btnCloseHelp:  document.getElementById('btn-close-help'),
     sidebarToggle: document.getElementById('sidebar-toggle'),
     appEl:         document.getElementById('app'),
+    confirmModal:  document.getElementById('confirm-modal'),
+    confirmTitle:  document.getElementById('confirm-title'),
+    confirmMsg:    document.getElementById('confirm-message'),
+    confirmOk:     document.getElementById('confirm-ok'),
+    confirmCancel: document.getElementById('confirm-cancel'),
   };
 }
 
@@ -1121,15 +1126,15 @@ function buildTapButtons(parts, isPlay) {
   return `
     <div class="tap-row" id="tap-row">
       <button class="tap-btn tap-part" id="tap-part" ${!isPlay || allPartsDone ? 'disabled' : ''}>
-        <span class="tap-label">PART TAP</span>
+        <span class="tap-label">PART TAP <kbd>P</kbd></span>
         <span class="tap-info">${esc(nextPartName)}</span>
       </button>
       <button class="tap-btn tap-bar" id="tap-bar" ${!isPlay || currentPartIndex === 0 ? 'disabled' : ''}>
-        <span class="tap-label">BAR TAP</span>
+        <span class="tap-label">BAR TAP <kbd>B</kbd></span>
         <span class="tap-info">${barLabel}</span>
       </button>
       <button class="tap-btn tap-undo" id="tap-undo" ${tapHistory.length === 0 ? 'disabled' : ''}>
-        <span class="tap-label">UNDO</span>
+        <span class="tap-label">UNDO <kbd>Z</kbd></span>
       </button>
     </div>`;
 }
@@ -1506,6 +1511,30 @@ function handleAudioFileLoad(file) {
   reader.onload = async (e) => {
     try {
       const arrayBuf = e.target.result;
+
+      // Check if a reference audio already exists on GitHub
+      const song = selectedSongId ? db.songs[selectedSongId] : null;
+      if (song && song.audio_ref) {
+        const existingSha = getSha(song.audio_ref);
+        // Also check via DB field — even if SHA not cached, the path exists
+        const hasExisting = existingSha || song.audio_ref;
+        if (hasExisting) {
+          const confirmed = await showConfirm(
+            'Referenz-Audio ersetzen?',
+            `Für <strong>${esc(song.name)}</strong> existiert bereits eine Referenz-Audiodatei auf GitHub.<br><br>` +
+            `Durch das Ersetzen können alle bestehenden Zeitinformationen (Part-Marker, Bar-Marker, Audio-Segmente) ungültig werden.<br><br>` +
+            `<strong>Trotzdem ersetzen?</strong>`,
+            'Ersetzen'
+          );
+          if (!confirmed) {
+            // User cancelled — reload existing reference from GitHub
+            toast('Lade bestehende Referenz-Audio...', 'info');
+            await loadReferenceAudio();
+            return;
+          }
+        }
+      }
+
       const meta = await audio.decodeAudio(arrayBuf);
       audioMeta = meta;
       audioFileName = file.name;
@@ -1513,7 +1542,7 @@ function handleAudioFileLoad(file) {
       renderAudioTab();
       toast(`Audio geladen: ${fmtTime(meta.duration)}`, 'success');
 
-      // Upload reference audio to GitHub in background
+      // Upload reference audio to GitHub
       uploadReferenceAudio(arrayBuf, file.name);
     } catch (err) {
       toast(`Audio-Fehler: ${err.message}`, 'error');
@@ -3377,6 +3406,37 @@ function closeHelp() {
   els.helpModal.classList.remove('open');
 }
 
+/* ── Confirm Modal ─────────────────────────────────── */
+
+/**
+ * Show a modal confirm dialog. Returns a Promise<boolean>.
+ * @param {string} title - dialog title
+ * @param {string} message - HTML message body
+ * @param {string} [okLabel='Ersetzen'] - label for the confirm button
+ */
+function showConfirm(title, message, okLabel = 'Ersetzen') {
+  return new Promise((resolve) => {
+    els.confirmTitle.textContent = title;
+    els.confirmMsg.innerHTML = message;
+    els.confirmOk.textContent = okLabel;
+    els.confirmModal.classList.add('open');
+
+    function cleanup() {
+      els.confirmModal.classList.remove('open');
+      els.confirmOk.removeEventListener('click', onOk);
+      els.confirmCancel.removeEventListener('click', onCancel);
+      els.confirmModal.removeEventListener('click', onBg);
+    }
+    function onOk() { cleanup(); resolve(true); }
+    function onCancel() { cleanup(); resolve(false); }
+    function onBg(e) { if (e.target === els.confirmModal) { cleanup(); resolve(false); } }
+
+    els.confirmOk.addEventListener('click', onOk);
+    els.confirmCancel.addEventListener('click', onCancel);
+    els.confirmModal.addEventListener('click', onBg);
+  });
+}
+
 function switchHelpTab(tabName) {
   els.helpModal.querySelectorAll('.help-tab').forEach(t => {
     t.classList.toggle('active', t.dataset.help === tabName);
@@ -3546,7 +3606,7 @@ function wireEvents() {
   els.btnSave.addEventListener('click', handleSave);
   document.addEventListener('keydown', (e) => {
     if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); handleSave(); }
-    if (e.key === 'Escape') { closeSettings(); closeHelp(); }
+    if (e.key === 'Escape') { closeSettings(); closeHelp(); els.confirmModal?.classList.remove('open'); }
     if (e.key === '?' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') openHelp();
   });
 
@@ -3615,6 +3675,9 @@ function wireEvents() {
     }
     if (e.key === '[') { handleSpeedChange(-1); }
     if (e.key === ']') { handleSpeedChange(1); }
+    if (e.key === 'p' || e.key === 'P') { handlePartTap(); }
+    if (e.key === 'b' || e.key === 'B') { handleBarTap(); }
+    if (e.key === 'z' || e.key === 'Z') { if (!e.ctrlKey && !e.metaKey) handleUndoTap(); }
   });
 }
 

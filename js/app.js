@@ -203,6 +203,93 @@ function buildBarAudioPath(song, part, barNum, globalBarNum) {
 }
 
 /**
+ * Try fetching an audio URL. If the new-format path fails (404),
+ * try the GitHub API as fallback, then try the legacy ID-based path.
+ * Returns an ArrayBuffer or null.
+ */
+async function fetchAudioUrl(url) {
+  const s = getSettings();
+
+  // 1. Direct fetch (works on GitHub Pages / local dev)
+  try {
+    const res = await fetch(url);
+    if (res.ok) {
+      const ct = res.headers.get('content-type') || '';
+      if (!ct.includes('text/html')) return await res.arrayBuffer();
+    }
+  } catch { /* fall through */ }
+
+  // 2. GitHub API fetch
+  if (s.token && s.repo) {
+    try {
+      const apiUrl = `https://api.github.com/repos/${s.repo}/contents/${url}`;
+      const res = await fetch(apiUrl, {
+        headers: { 'Authorization': `token ${s.token}`, 'Accept': 'application/vnd.github.v3.raw' },
+      });
+      if (res.ok) return await res.arrayBuffer();
+    } catch { /* fall through */ }
+  }
+
+  return null;
+}
+
+/**
+ * Migrate all audio paths in the DB from old ID-based format
+ * (e.g. audio/5iZfKj/reference.mp3, audio/5iZfKj/5iZfKj_P001/bar_001.mp3)
+ * to the new human-readable format
+ * (e.g. audio/All The Small Things/reference.mp3,
+ *       audio/All The Small Things/01 Thema 1/001 All The Small Things Thema 1.mp3).
+ *
+ * Runs once after DB load. Only touches in-memory data; changes persist on next save.
+ */
+function migrateAudioPaths() {
+  if (!db || !db.songs) return;
+  let changed = 0;
+
+  for (const [songId, song] of Object.entries(db.songs)) {
+    // Migrate song.audio_ref
+    if (song.audio_ref) {
+      const expected = buildRefAudioPath(song);
+      if (song.audio_ref !== expected) {
+        song.audio_ref = expected;
+        changed++;
+      }
+    }
+
+    // Build part lookup: partId → part object (with pos & name)
+    const parts = getSortedParts(songId);
+    const partById = {};
+    for (const p of parts) partById[p.id] = p;
+
+    // Compute global bar offsets per part
+    let globalOffset = 0;
+    const partGlobalOffset = {};
+    for (const p of parts) {
+      partGlobalOffset[p.id] = globalOffset;
+      globalOffset += (p.bars || 0);
+    }
+
+    // Migrate bar.audio paths
+    for (const [, bar] of Object.entries(db.bars || {})) {
+      if (!bar.audio) continue;
+      const part = partById[bar.part_id];
+      if (!part) continue;
+      const globalBarNum = partGlobalOffset[bar.part_id] + bar.bar_num;
+      const expected = buildBarAudioPath(song, part, bar.bar_num, globalBarNum);
+      if (bar.audio !== expected) {
+        bar.audio = expected;
+        changed++;
+      }
+    }
+  }
+
+  if (changed > 0) {
+    markDirty();
+    console.log(`migrateAudioPaths: updated ${changed} path(s)`);
+  }
+}
+
+/**
  * Compute start_bar for each part in a song.
  * If a part has a manual start_bar override, use it; otherwise cumulate.
  * Returns Map<partId, {startBar, startSec}>
@@ -918,10 +1005,8 @@ async function handlePartPlay(partId) {
     // Fetch and decode all bar audio files
     _partPlayBuffers = [];
     for (const bar of audioBars) {
-      const url = bar.audio;
-      const resp = await fetch(url);
-      if (!resp.ok) throw new Error(`Fetch ${url}: ${resp.status}`);
-      const arrBuf = await resp.arrayBuffer();
+      const arrBuf = await fetchAudioUrl(bar.audio);
+      if (!arrBuf) throw new Error(`Audio nicht gefunden: ${bar.audio}`);
       const decoded = await _partPlayCtx.decodeAudioData(arrBuf);
       _partPlayBuffers.push(decoded);
     }
@@ -992,9 +1077,8 @@ async function handleBarPlay(partId, barNum) {
     }
     if (_partPlayCtx.state === 'suspended') await _partPlayCtx.resume();
 
-    const resp = await fetch(barData.audio);
-    if (!resp.ok) throw new Error(`Fetch ${barData.audio}: ${resp.status}`);
-    const arrBuf = await resp.arrayBuffer();
+    const arrBuf = await fetchAudioUrl(barData.audio);
+    if (!arrBuf) throw new Error(`Audio nicht gefunden: ${barData.audio}`);
     const decoded = await _partPlayCtx.decodeAudioData(arrBuf);
 
     const src = _partPlayCtx.createBufferSource();
@@ -1681,32 +1765,16 @@ async function loadReferenceAudio() {
       arrayBuf = _audioRefCache[songId];
     }
 
-    // 2. Try direct fetch (works on GitHub Pages / local dev)
+    // 2. Try fetching (direct + GitHub API fallback)
     if (!arrayBuf) {
       toast(`Lade Referenz-Audio: ${refName}...`, 'info');
-      try {
-        const res = await fetch(song.audio_ref);
-        if (res.ok) {
-          const ct = res.headers.get('content-type') || '';
-          if (!ct.includes('text/html')) {
-            arrayBuf = await res.arrayBuffer();
-          }
-        }
-      } catch { /* fall through to API */ }
+      arrayBuf = await fetchAudioUrl(song.audio_ref);
     }
 
-    // 3. Fallback: fetch via GitHub API
-    if (!arrayBuf && s.token && s.repo) {
-      const url = `https://api.github.com/repos/${s.repo}/contents/${song.audio_ref}`;
-      const res = await fetch(url, {
-        headers: {
-          'Authorization': `token ${s.token}`,
-          'Accept': 'application/vnd.github.v3.raw',
-        },
-      });
-      if (res.ok) {
-        arrayBuf = await res.arrayBuffer();
-      }
+    // 3. Legacy fallback: try old ID-based path (audio/{songId}/reference.mp3)
+    if (!arrayBuf) {
+      const legacyPath = `audio/${songId}/reference.mp3`;
+      arrayBuf = await fetchAudioUrl(legacyPath);
     }
 
     if (!arrayBuf) {
@@ -2544,6 +2612,23 @@ function handleLyricsClick(e) {
   }
 }
 
+/**
+ * Save the raw lyrics textarea value into the current song object.
+ * Called on song switch, tab switch, and periodically via change events.
+ */
+function saveLyricsRawText() {
+  if (!selectedSongId) return;
+  const song = db.songs[selectedSongId];
+  if (!song) return;
+  const rawEl = document.getElementById('lyrics-raw-text');
+  if (!rawEl) return;
+  const val = rawEl.value;
+  if (val !== (song.lyrics_raw || '')) {
+    song.lyrics_raw = val;
+    markDirty();
+  }
+}
+
 function handleLyricsChange(e) {
   const el = e.target;
 
@@ -2557,6 +2642,12 @@ function handleLyricsChange(e) {
     markDirty();
     // Re-render just this card to show/hide textarea
     renderLyricsTab();
+    return;
+  }
+
+  // Auto-save raw lyrics text on any change in the raw textarea
+  if (el.id === 'lyrics-raw-text') {
+    saveLyricsRawText();
     return;
   }
 }
@@ -3890,6 +3981,7 @@ async function initDB() {
       dirty = false;
       readOnly = false;
       setSyncStatus('saved');
+      migrateAudioPaths();
       toast(`DB geladen (read/write) \u2014 ${Object.keys(db.songs || {}).length} Songs`, 'success');
     } catch (e) {
       setSyncStatus('error');
@@ -3914,6 +4006,7 @@ async function loadLocal() {
     dirty = false;
     readOnly = true;
     setSyncStatus('saved');
+    migrateAudioPaths();
     toast(`DB geladen (read-only) \u2014 ${Object.keys(db.songs || {}).length} Songs`, 'info');
   } catch (e) {
     db = null;
@@ -4028,6 +4121,8 @@ function wireEvents() {
     const rawId = item.dataset.id;
     const newId = rawId === '__all__' ? null : rawId;
     if (newId === selectedSongId) return;
+    // Auto-save raw lyrics text before switching away
+    saveLyricsRawText();
     // Remember current tab — must be preserved across song switch
     const currentTab = activeTab;
     // Stop audio and reset split state when switching songs
@@ -4064,6 +4159,12 @@ function wireEvents() {
     else if (activeTab === 'takte') handleTakteTabChange(e);
     else if (activeTab === 'lyrics') handleLyricsChange(e);
     else if (activeTab === 'setlist') handleSetlistChange(e);
+  });
+  // input events for lyrics raw textarea (change fires only on blur)
+  els.content.addEventListener('input', (e) => {
+    if (activeTab === 'lyrics' && e.target.id === 'lyrics-raw-text') {
+      saveLyricsRawText();
+    }
   });
 
   // Audio drag & drop on content area

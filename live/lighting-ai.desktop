@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=lighting.ai
+Comment=Live Controller für THE PACT Bühnenbeleuchtung
+Exec=bash /home/thepact/git/lighting.ai_neu/live/start-live.sh
+Icon=applications-multimedia
+Terminal=true
+Type=Application
+Categories=AudioVideo;

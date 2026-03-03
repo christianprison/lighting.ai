@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>lighting.ai — Live</title>
+<title>lighting.ai</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -21,9 +21,8 @@
 html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(--t1);
 font-family:'Sora',system-ui,sans-serif;font-size:14px;-webkit-user-select:none;user-select:none}
 
-/* ═══ LAYOUT ═══ */
-.app{display:grid;grid-template-rows:1fr auto;height:100vh;height:100dvh}
-.main{display:grid;grid-template-columns:250px 1fr 200px;min-height:0;border-bottom:1px solid var(--border)}
+.app{display:grid;grid-template-rows:1fr 94px;height:100vh;height:100dvh}
+.main{display:grid;grid-template-columns:280px 1fr 250px;min-height:0;border-bottom:1px solid var(--border)}
 .panel{display:flex;flex-direction:column;min-height:0;background:var(--bg);border-right:1px solid var(--border)}
 .panel:last-child{border-right:none;border-left:1px solid var(--border)}
 .panel-head{padding:12px 16px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);flex-shrink:0;
@@ -32,20 +31,26 @@ font-family:'DM Mono',monospace;font-size:10px;font-weight:500;letter-spacing:2p
 .scroll{flex:1;overflow-y:auto;overflow-x:hidden;padding:6px;scrollbar-width:none}
 .scroll::-webkit-scrollbar{display:none}
 
-/* ═══ SETLIST (LEFT) ═══ */
-.song{display:grid;grid-template-columns:22px 1fr auto;align-items:center;gap:8px;
-padding:9px 10px;margin-bottom:2px;border-radius:6px;border:1.5px solid transparent;cursor:pointer;transition:all .1s}
-.song:active{transform:scale(.97)}
-.song.active{background:var(--green3);border-color:var(--green)}
-.song.played{opacity:.3}
-.song.no-chaser{opacity:.5}
-.song-i{font-family:'DM Mono',monospace;font-size:10px;color:var(--t4);text-align:right}
-.song.active .song-i{color:var(--green)}
-.song-t{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.song-b{font-family:'DM Mono',monospace;font-size:10px;color:var(--t4)}
-.song-pause{height:12px;margin:4px 16px;border-bottom:1px dashed var(--border2)}
+/* ═══ PARTS (LEFT) ═══ */
+.part{display:grid;grid-template-columns:22px 1fr auto;align-items:center;gap:8px;
+padding:0 12px;margin-bottom:3px;border-radius:var(--r);background:var(--bg2);border:1.5px solid transparent;
+cursor:pointer;transition:all .1s;position:relative;overflow:hidden}
+.part:active{transform:scale(.97)}
+.part.done{opacity:.35}
+.part.active{background:var(--green3);border-color:var(--green);box-shadow:0 0 24px #00dc8210}
+.part.next{background:var(--bg3);border-color:var(--border2)}
+.part-n{font-family:'DM Mono',monospace;font-size:10px;color:var(--t4);text-align:right}
+.part.active .part-n{color:var(--green)}
+.part-body{display:flex;flex-direction:column;justify-content:center;gap:2px;overflow:hidden}
+.part-name{font-weight:500;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.part-info{font-family:'DM Mono',monospace;font-size:10px;color:var(--t3);white-space:nowrap}
+.part.active .part-info{color:var(--green)}
+.part-badge{font-family:'DM Mono',monospace;font-size:10px;color:var(--t3);
+background:var(--bg);padding:2px 8px;border-radius:4px;white-space:nowrap;align-self:center}
+.part.active .part-badge{color:var(--green);background:#00dc820d}
+.part-prog{position:absolute;bottom:0;left:0;height:2.5px;background:var(--green);transition:width .3s;box-shadow:0 0 8px var(--green)}
 
-/* ═══ CENTER COLUMN ═══ */
+/* ═══ CENTER ═══ */
 .center{display:flex;flex-direction:column;min-height:0;background:var(--bg);border-right:1px solid var(--border)}
 .song-bar{flex-shrink:0;padding:14px 20px 12px;text-align:center;border-bottom:1px solid var(--border);
 background:linear-gradient(180deg,var(--bg2),var(--bg))}
@@ -53,42 +58,18 @@ background:linear-gradient(180deg,var(--bg2),var(--bg))}
 .song-bar .artist{font-size:12px;color:var(--t3);margin-bottom:5px}
 .song-meta{font-family:'DM Mono',monospace;font-size:11px;color:var(--t3);display:flex;justify-content:center;gap:18px}
 .song-meta .v{color:var(--t1);font-weight:500}
-
-/* Parts list in center */
-.parts-scroll{flex:1;overflow-y:auto;padding:8px 12px;scrollbar-width:none}
-.parts-scroll::-webkit-scrollbar{display:none}
-
-.step{display:grid;grid-template-columns:28px 1fr auto;align-items:center;gap:10px;
-padding:10px 12px;margin-bottom:3px;border-radius:var(--r);background:var(--bg2);border:1.5px solid transparent;
-cursor:pointer;transition:all .1s;position:relative;overflow:hidden}
-.step:active{transform:scale(.97)}
-.step.done{opacity:.35}
-.step.active{background:var(--green3);border-color:var(--green);box-shadow:0 0 24px #00dc8210}
-.step.next{background:var(--bg3);border-color:var(--border2)}
-.step.title{opacity:.3;padding:6px 12px}
-.step-n{font-family:'DM Mono',monospace;font-size:10px;color:var(--t4);text-align:right}
-.step.active .step-n{color:var(--green)}
-.step-body{display:flex;flex-direction:column;gap:2px;overflow:hidden}
-.step-name{font-weight:500;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.step-func{font-family:'DM Mono',monospace;font-size:10px;color:var(--t3);white-space:nowrap}
-.step.active .step-func{color:var(--green)}
-.step-badge{font-family:'DM Mono',monospace;font-size:10px;color:var(--t3);
-background:var(--bg);padding:2px 8px;border-radius:4px;white-space:nowrap;align-self:center}
-.step.active .step-badge{color:var(--green);background:#00dc820d}
-.step-prog{position:absolute;bottom:0;left:0;height:2.5px;background:var(--green);transition:width .3s;box-shadow:0 0 8px var(--green)}
-
-/* Navigation row */
-.nav-area{flex-shrink:0;padding:10px 12px;display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--border)}
-.navrow{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.nbtn{display:flex;align-items:center;justify-content:center;gap:6px;padding:16px;border-radius:var(--r);
-border:1.5px solid var(--border2);background:var(--bg3);color:var(--t1);font-size:14px;font-weight:600;
-cursor:pointer;transition:all .1s;touch-action:manipulation}
-.nbtn:active{transform:scale(.96)}
-.nbtn.go{background:var(--green3);border-color:var(--green);color:var(--green)}
-.nbtn.go:active{background:var(--green2)}
+.ctrls{flex:1;display:flex;flex-direction:column;padding:12px 18px;gap:14px;justify-content:space-between;min-height:0}
+.badges{display:flex;justify-content:center;gap:8px;flex-shrink:0}
+.badge{font-family:'DM Mono',monospace;font-size:9px;font-weight:500;letter-spacing:1.5px;padding:4px 11px;border-radius:20px;display:flex;align-items:center;gap:5px}
+.badge.live{background:var(--green2);color:var(--green);border:1px solid var(--green)}
+.badge.qlc{background:var(--cyan2);color:var(--cyan);border:1px solid #38bdf850}
+.badge.off{background:var(--bg3);color:var(--t4);border:1px solid var(--border)}
+.pulse{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 1.4s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
 /* Beat area */
-.beat-area{display:flex;align-items:center;justify-content:center;gap:12px;flex-shrink:0;padding:6px 0}
+.beat-area{display:flex;align-items:center;justify-content:center;gap:0;flex-shrink:0}
+.beat-row{display:flex;align-items:center;gap:0}
 .tap-btn{width:56px;height:56px;border-radius:50%;background:var(--bg3);border:3px solid var(--border2);
 cursor:pointer;transition:all 70ms;display:flex;align-items:center;justify-content:center;
 font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:var(--t3);position:relative;z-index:1;
@@ -101,50 +82,85 @@ font-size:7px;letter-spacing:1.5px;color:var(--t4);white-space:nowrap}
 .tap-btn.on .tap-label{color:var(--green)}
 @keyframes tapFlash{0%{box-shadow:0 0 40px #00dc8290,0 0 80px #00dc8240}100%{box-shadow:0 0 28px #00dc8270,0 0 60px #00dc8225}}
 .tap-btn.flash{animation:tapFlash .15s ease}
-.bpm-box{font-family:'DM Mono',monospace;text-align:center;line-height:1.1;flex-shrink:0}
+.beat-connector{width:14px;height:2px;background:var(--border);flex-shrink:0}
+.beat-connector.lit{background:var(--green);box-shadow:0 0 4px var(--green)}
+.beat-dots{display:flex;gap:8px;align-items:center}
+.bdot{width:24px;height:24px;border-radius:50%;background:var(--bg3);border:2px solid var(--border2);transition:all 70ms;flex-shrink:0}
+.bdot.on{background:var(--cyan);border-color:var(--cyan);box-shadow:0 0 14px #38bdf860}
+.bpm-box{font-family:'DM Mono',monospace;text-align:center;line-height:1.1;margin-left:18px;flex-shrink:0}
 .bpm-num{font-size:30px;font-weight:500;color:var(--t1)}
 .bpm-label{font-size:9px;color:var(--t3);letter-spacing:2px}
 
-/* ═══ RIGHT PANEL: ACCENTS + STATUS ═══ */
-.accent-scroll{flex:1;padding:8px;display:flex;flex-direction:column;gap:8px}
-.abtn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
-padding:16px 8px;border-radius:var(--r);
-border:1.5px solid var(--border2);background:var(--bg3);font-family:'DM Mono',monospace;font-size:10px;font-weight:500;
+/* Override buttons */
+.overrides{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;flex-shrink:0}
+.obtn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:12px 4px;border-radius:var(--r);
+border:1.5px solid var(--border2);background:var(--bg3);font-family:'DM Mono',monospace;font-size:9px;font-weight:500;
 letter-spacing:.8px;text-transform:uppercase;color:var(--t2);cursor:pointer;transition:all .1s;touch-action:manipulation}
-.abtn:active{transform:scale(.93)}
-.abtn .ico{font-size:22px;line-height:1}
-.abtn.r{color:var(--red);border-color:var(--red2)}
-.abtn.r:active,.abtn.r.on{background:var(--red2);border-color:var(--red);box-shadow:0 0 20px #ff3b5c18}
-.abtn.a{color:var(--amber);border-color:var(--amber2)}
-.abtn.a:active,.abtn.a.on{background:var(--amber2);border-color:var(--amber)}
-.abtn.c{color:var(--cyan);border-color:var(--cyan2)}
-.abtn.c:active,.abtn.c.on{background:var(--cyan2);border-color:var(--cyan)}
+.obtn:active{transform:scale(.93)}
+.obtn .ico{font-size:18px;line-height:1}
+.obtn.r{color:var(--red);border-color:var(--red2)}
+.obtn.r.on{background:var(--red2);border-color:var(--red);box-shadow:0 0 20px #ff3b5c18}
+.obtn.a{color:var(--amber);border-color:var(--amber2)}
+.obtn.a.on{background:var(--amber2);border-color:var(--amber)}
+.obtn.c{color:var(--cyan);border-color:var(--cyan2)}
+.obtn.c.on{background:var(--cyan2);border-color:var(--cyan)}
+.obtn.p{color:var(--green);border-color:var(--green2)}
+.obtn.p.on{background:var(--green2);border-color:var(--green)}
 
-.divider{height:1px;background:var(--border);margin:4px 0}
+/* Nav row */
+.navrow{display:grid;grid-template-columns:1fr 1fr;gap:8px;flex-shrink:0}
+.nbtn{display:flex;align-items:center;justify-content:center;gap:6px;padding:14px;border-radius:var(--r);
+border:1.5px solid var(--border2);background:var(--bg3);color:var(--t1);font-size:13px;font-weight:600;
+cursor:pointer;transition:all .1s;touch-action:manipulation}
+.nbtn:active{transform:scale(.96)}
+.nbtn.go{background:var(--green3);border-color:var(--green);color:var(--green)}
+.nbtn.go:active{background:var(--green2)}
 
-/* Status section */
-.status-section{flex-shrink:0;padding:10px 12px;border-top:1px solid var(--border)}
-.status-row{display:flex;align-items:center;gap:6px;padding:4px 0;font-family:'DM Mono',monospace;font-size:10px;color:var(--t3)}
-.status-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
-.status-dot.ok{background:var(--green);box-shadow:0 0 6px var(--green)}
-.status-dot.warn{background:var(--amber);box-shadow:0 0 6px var(--amber)}
-.status-dot.err{background:var(--red);box-shadow:0 0 6px var(--red)}
-.sync-btn{margin-top:8px;width:100%;padding:8px;border-radius:var(--r);border:1px solid var(--border2);
-background:var(--bg3);color:var(--t2);font-family:'DM Mono',monospace;font-size:10px;font-weight:500;
-letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all .1s}
-.sync-btn:active{transform:scale(.96);background:var(--bg4)}
+/* ═══ SETLIST (RIGHT) ═══ */
+.song{display:grid;grid-template-columns:22px 1fr auto;align-items:center;gap:8px;
+padding:9px 10px;margin-bottom:2px;border-radius:6px;border:1.5px solid transparent;cursor:pointer;transition:all .1s}
+.song:active{transform:scale(.97)}
+.song.active{background:var(--green3);border-color:var(--green)}
+.song.played{opacity:.3}
+.song.no-chaser{opacity:.5}
+.song-i{font-family:'DM Mono',monospace;font-size:10px;color:var(--t4);text-align:right}
+.song.active .song-i{color:var(--green)}
+.song-t{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.song-b{font-family:'DM Mono',monospace;font-size:10px;color:var(--t4)}
+.song-pause{height:12px;margin:4px 16px;border-bottom:1px dashed var(--border2)}
 
-/* ═══ STATUS BAR (BOTTOM) ═══ */
-.statusbar{background:var(--bg2);padding:6px 16px;display:flex;align-items:center;justify-content:space-between;
-border-top:1px solid var(--border);font-family:'DM Mono',monospace;font-size:10px;color:var(--t3)}
-.statusbar .badges{display:flex;gap:8px}
-.badge{font-family:'DM Mono',monospace;font-size:9px;font-weight:500;letter-spacing:1.5px;
-padding:3px 10px;border-radius:20px;display:flex;align-items:center;gap:5px}
-.badge.live{background:var(--green2);color:var(--green);border:1px solid var(--green)}
-.badge.qlc{background:var(--cyan2);color:var(--cyan);border:1px solid #38bdf850}
-.badge.off{background:var(--bg3);color:var(--t4);border:1px solid var(--border)}
-.pulse{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 1.4s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+/* ═══ TIMELINE (BOTTOM) ═══ */
+.timeline{background:var(--bg2);display:grid;
+grid-template-columns:120px 1fr 140px;grid-template-rows:auto auto;
+column-gap:12px;row-gap:0;padding:8px 16px 6px;border-top:1px solid var(--border);align-items:start}
+.tl-label{grid-column:1;grid-row:1/3;display:flex;flex-direction:column;gap:1px;padding-top:4px}
+.tl-part-name{font-family:'Sora',sans-serif;font-size:14px;font-weight:600;color:var(--green)}
+.tl-part-count{font-family:'DM Mono',monospace;font-size:10px;color:var(--t3)}
+.tl-track{grid-column:2;grid-row:1}
+.tl-bars{display:flex;gap:2px;height:32px;align-items:stretch}
+.tl-bar{flex:1;border-radius:3px;background:var(--bg3);border:1px solid var(--border);
+display:flex;align-items:center;justify-content:center;position:relative;
+font-family:'DM Mono',monospace;font-size:8px;color:var(--t4);cursor:pointer;transition:all .12s;overflow:hidden;
+min-width:6px}
+.tl-bar.done{background:var(--bg4);border-color:var(--border2)}
+.tl-bar.active{background:var(--green2);border-color:var(--green);box-shadow:0 0 10px #00dc8220;color:var(--green)}
+.tl-right{grid-column:3;grid-row:1/3;display:flex;flex-direction:column;align-items:flex-end;gap:4px;padding-top:4px}
+.tl-status{font-family:'DM Mono',monospace;font-size:10px;color:var(--t3);display:flex;align-items:center;gap:6px}
+.tl-status .dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.tl-status .dot.ok{background:var(--green);box-shadow:0 0 4px var(--green)}
+.tl-status .dot.err{background:var(--red);box-shadow:0 0 4px var(--red)}
+.tl-status .dot.warn{background:var(--amber);box-shadow:0 0 4px var(--amber)}
+.tl-info{grid-column:2;grid-row:2;font-family:'DM Mono',monospace;font-size:10px;color:var(--t3);
+padding-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tl-sync{font-family:'DM Mono',monospace;font-size:9px;color:var(--t4);cursor:pointer;
+padding:2px 8px;border-radius:3px;border:1px solid var(--border);background:transparent;transition:all .1s;margin-top:2px}
+.tl-sync:active{background:var(--bg4);color:var(--t2)}
+
+/* ═══ MODE TOGGLE ═══ */
+.modes{position:fixed;top:6px;left:8px;display:flex;gap:3px;z-index:10}
+.mbtn{font-family:'DM Mono',monospace;font-size:9px;font-weight:500;letter-spacing:1px;
+padding:4px 9px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--t4);cursor:pointer;transition:all .1s}
+.mbtn.on{background:var(--green3);border-color:var(--green);color:var(--green)}
 
 /* ═══ CONNECTION OVERLAY ═══ */
 .conn-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(8,9,13,.9);
@@ -155,6 +171,12 @@ display:none;align-items:center;justify-content:center;z-index:100;flex-directio
 </style>
 </head>
 <body>
+
+<div class="modes">
+  <button class="mbtn on" onclick="modeSwitch(this)">LIVE</button>
+  <button class="mbtn" onclick="modeSwitch(this)">EDIT</button>
+</div>
+
 <div class="conn-overlay" id="connOverlay">
   <div class="conn-dot"></div>
   <div class="conn-msg">Verbinde mit Server...</div>
@@ -162,13 +184,14 @@ display:none;align-items:center;justify-content:center;z-index:100;flex-directio
 
 <div class="app">
 <div class="main">
-<!-- LEFT: SETLIST -->
+
+<!-- LEFT: PARTS -->
 <div class="panel">
-  <div class="panel-head"><div class="ind"></div>SETLIST</div>
-  <div class="scroll" id="setlist"></div>
+  <div class="panel-head"><div class="ind"></div>PARTS</div>
+  <div class="scroll" id="parts"></div>
 </div>
 
-<!-- CENTER: CURRENT SONG -->
+<!-- CENTER -->
 <div class="center">
   <div class="song-bar">
     <h1 id="songTitle">-</h1>
@@ -178,11 +201,34 @@ display:none;align-items:center;justify-content:center;z-index:100;flex-directio
       <span>STEP <span class="v" id="metaStep">-</span>/<span class="v" id="metaTotal">-</span></span>
     </div>
   </div>
-  <div class="parts-scroll" id="steps"></div>
-  <div class="nav-area">
+  <div class="ctrls">
+    <div class="badges">
+      <div class="badge live" id="badgeLive"><div class="pulse"></div>LIVE</div>
+      <div class="badge" id="badgeQlc">QLC+ &#x25CF;</div>
+    </div>
     <div class="beat-area">
-      <div class="tap-btn" id="tap">TAP<span class="tap-label">TEMPO</span></div>
+      <div class="beat-row">
+        <div class="tap-btn" id="tap">1<span class="tap-label">TAP</span></div>
+        <div class="beat-connector" id="conn1"></div>
+        <div class="beat-dots">
+          <div class="bdot" id="b2"></div>
+          <div class="bdot" id="b3"></div>
+          <div class="bdot" id="b4"></div>
+        </div>
+      </div>
       <div class="bpm-box"><div class="bpm-num" id="bpmDisp">-</div><div class="bpm-label">BPM</div></div>
+    </div>
+    <div class="overrides">
+      <button class="obtn a" data-accent="blind"><span class="ico">&#x1F4A5;</span>BLINDER</button>
+      <button class="obtn a" data-accent="strobe"><span class="ico">&#x26A1;</span>STROBE</button>
+      <button class="obtn c" data-accent="fog_5s"><span class="ico">&#x2601;</span>FOG 5s</button>
+      <button class="obtn c" data-accent="fog_10s"><span class="ico">&#x2601;</span>FOG 10s</button>
+    </div>
+    <div class="overrides">
+      <button class="obtn r" data-accent="blackout"><span class="ico">&#x25A0;</span>BLACK</button>
+      <button class="obtn a" data-accent="alarm"><span class="ico">&#x1F514;</span>ALARM</button>
+      <button class="obtn c" data-accent="fog_on"><span class="ico">&#x2601;</span>FOG AN</button>
+      <button class="obtn r" data-accent="fog_off"><span class="ico">&#x2B1B;</span>FOG AUS</button>
     </div>
     <div class="navrow">
       <button class="nbtn" id="btnPrev">&#x25C0; PREV</button>
@@ -191,50 +237,50 @@ display:none;align-items:center;justify-content:center;z-index:100;flex-directio
   </div>
 </div>
 
-<!-- RIGHT: ACCENTS + STATUS -->
+<!-- RIGHT: SETLIST -->
 <div class="panel" style="border-right:none">
-  <div class="panel-head">ACCENTS</div>
-  <div class="accent-scroll">
-    <button class="abtn a" data-accent="blind"><span class="ico">&#x1F4A5;</span>BLINDER</button>
-    <button class="abtn c" data-accent="strobe"><span class="ico">&#x26A1;</span>STROBE</button>
-    <button class="abtn c" data-accent="fog_5s"><span class="ico">&#x2601;</span>FOG 5s</button>
-    <button class="abtn c" data-accent="fog_10s"><span class="ico">&#x2601;</span>FOG 10s</button>
-    <button class="abtn r" data-accent="blackout"><span class="ico">&#x25A0;</span>BLACKOUT</button>
-    <div class="divider"></div>
-    <button class="abtn a" data-accent="alarm"><span class="ico">&#x1F514;</span>ALARM</button>
-  </div>
-  <div class="status-section">
-    <div class="status-row"><div class="status-dot" id="dotQlc"></div><span id="statusQlc">QLC+ —</span></div>
-    <div class="status-row"><div class="status-dot" id="dotSync"></div><span id="statusSync">DB —</span></div>
-    <button class="sync-btn" id="btnSync">SYNC</button>
-  </div>
-</div>
+  <div class="panel-head">SETLIST</div>
+  <div class="scroll" id="setlist"></div>
 </div>
 
-<!-- BOTTOM STATUS BAR -->
-<div class="statusbar">
-  <div class="badges">
-    <div class="badge live" id="badgeLive"><div class="pulse"></div>LIVE</div>
-    <div class="badge" id="badgeQlc">QLC+ &#x25CF;</div>
-  </div>
-  <span id="wsStatus">WS: Verbinde...</span>
 </div>
+
+<!-- BOTTOM: TIMELINE -->
+<div class="timeline" id="timeline">
+  <div class="tl-label">
+    <span class="tl-part-name" id="tlPart">-</span>
+    <span class="tl-part-count" id="tlCount">-</span>
+  </div>
+  <div class="tl-track"><div class="tl-bars" id="tlBars"></div></div>
+  <div class="tl-right">
+    <div class="tl-status"><div class="dot" id="dotQlc"></div><span id="statusQlc">QLC+ —</span></div>
+    <div class="tl-status"><div class="dot" id="dotSync"></div><span id="statusSync">DB —</span></div>
+    <button class="tl-sync" id="btnSync">SYNC</button>
+  </div>
+  <div></div>
+  <div class="tl-info" id="tlInfo"></div>
+  <div></div>
+</div>
+
 </div>
 
 <script>
-// ═══════════════════════════════════════════
-// lighting.ai Live Controller UI
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════════
+// lighting.ai Live Controller
+// Reference-UI Layout + Server Connectivity
+// ═══════════════════════════════════════════════
 
-var state = {};        // Live state from server
-var setlist = [];      // Setlist items
-var songs = {};        // All songs
-var qlcMapping = {};   // song_id -> chaser data
+var state = {};
+var setlist = [];
+var songs = {};
+var qlcMapping = {};
 var ws = null;
 var wsReady = false;
 var reconnTimer = null;
+var beat = 1;
+var beatTimer = null;
 
-// ─── WebSocket ───────────────────────────
+// ─── WebSocket ────────────────────────────────
 function connectWS() {
   var proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
   var url = proto + '//' + location.host + '/ws';
@@ -242,19 +288,17 @@ function connectWS() {
   ws.onopen = function() {
     wsReady = true;
     document.getElementById('connOverlay').classList.remove('show');
-    document.getElementById('wsStatus').textContent = 'WS: Verbunden';
     if (reconnTimer) { clearTimeout(reconnTimer); reconnTimer = null; }
   };
   ws.onmessage = function(e) {
     var msg = JSON.parse(e.data);
     if (msg.type === 'state') {
       state = msg.data;
-      renderState();
+      renderAll();
     }
   };
   ws.onclose = function() {
     wsReady = false;
-    document.getElementById('wsStatus').textContent = 'WS: Getrennt';
     document.getElementById('connOverlay').classList.add('show');
     reconnTimer = setTimeout(connectWS, 2000);
   };
@@ -263,32 +307,50 @@ function connectWS() {
 
 function sendCmd(action, params) {
   if (!ws || !wsReady) return;
-  var msg = Object.assign({ action: action }, params || {});
-  ws.send(JSON.stringify(msg));
+  ws.send(JSON.stringify(Object.assign({ action: action }, params || {})));
 }
 
-// ─── REST API ────────────────────────────
+// ─── REST API ─────────────────────────────────
 function fetchJSON(url) {
   return fetch(url).then(function(r) { return r.json(); });
 }
 
 async function loadInitialData() {
   try {
-    var [songsData, setlistData, qlcData] = await Promise.all([
+    var results = await Promise.all([
       fetchJSON('/api/songs'),
       fetchJSON('/api/setlist'),
       fetchJSON('/api/qlc/mapping'),
     ]);
-    songs = songsData;
-    setlist = setlistData.items || [];
-    qlcMapping = qlcData.song_mapping || {};
-    renderSetlist();
+    songs = results[0];
+    setlist = results[1].items || [];
+    qlcMapping = results[2].song_mapping || {};
+    renderAll();
   } catch (e) {
     console.error('Failed to load initial data:', e);
   }
 }
 
-// ─── Render: Setlist ─────────────────────
+// ─── Helpers ──────────────────────────────────
+function escHtml(s) {
+  var d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function formatSyncTime(iso) {
+  try {
+    var d = new Date(iso);
+    var diffMin = Math.round((new Date() - d) / 60000);
+    if (diffMin < 1) return 'gerade eben';
+    if (diffMin < 60) return 'vor ' + diffMin + 'min';
+    var diffH = Math.round(diffMin / 60);
+    if (diffH < 24) return 'vor ' + diffH + 'h';
+    return d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
+  } catch (e) { return ''; }
+}
+
+// ─── Render: Setlist (right panel) ────────────
 function renderSetlist() {
   var el = document.getElementById('setlist');
   var h = '';
@@ -307,22 +369,21 @@ function renderSetlist() {
     if (!hasChaser) cls += ' no-chaser';
     h += '<div class="song ' + cls + '" data-sid="' + sid + '">';
     h += '<span class="song-i">' + String(idx).padStart(2, '0') + '</span>';
-    h += '<span class="song-t">' + (item.name || '?') + '</span>';
+    h += '<span class="song-t">' + escHtml(item.name || '?') + '</span>';
     h += '<span class="song-b">' + (item.bpm || '') + '</span>';
     h += '</div>';
   }
   el.innerHTML = h;
-  // Scroll active into view
   var active = el.querySelector('.song.active');
   if (active) active.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
 }
 
-// ─── Render: Steps (center) ──────────────
-function renderSteps() {
-  var el = document.getElementById('steps');
+// ─── Render: Parts (left panel) ───────────────
+function renderParts() {
+  var el = document.getElementById('parts');
   var sid = state.current_song_id;
   if (!sid || !qlcMapping[sid]) {
-    el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--t3)">Kein Song ausgew&auml;hlt</div>';
+    el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--t3)">Kein Song ausgew\u00e4hlt</div>';
     return;
   }
   var chaser = qlcMapping[sid];
@@ -332,35 +393,85 @@ function renderSteps() {
   for (var i = 0; i < steps.length; i++) {
     var s = steps[i];
     var cls = '';
-    if (s.is_title) cls = 'title';
+    if (s.is_title) cls = 'done';
     else if (i < curStep) cls = 'done';
     else if (i === curStep) cls = 'active';
     else if (i === curStep + 1) cls = 'next';
 
     var holdLabel = '';
     if (s.is_manual) holdLabel = 'MANUAL';
-    else if (s.hold_sec !== null) holdLabel = s.hold_sec + 's';
+    else if (s.hold_sec !== null && s.hold_sec !== undefined) holdLabel = s.hold_sec + 's';
 
-    var funcName = s.function_name || '';
-    var note = s.note || '';
+    var name = s.note || s.function_name || '\u2014';
+    var info = (s.note && s.function_name) ? s.function_name : '';
 
-    h += '<div class="step ' + cls + '" data-step="' + i + '">';
-    h += '<span class="step-n">' + (i + 1) + '</span>';
-    h += '<div class="step-body">';
-    h += '<span class="step-name">' + escHtml(note || funcName || '—') + '</span>';
-    if (funcName && note) h += '<span class="step-func">' + escHtml(funcName) + '</span>';
+    h += '<div class="part ' + cls + '" style="min-height:42px" data-step="' + i + '">';
+    h += '<span class="part-n">' + (i + 1) + '</span>';
+    h += '<div class="part-body"><span class="part-name">' + escHtml(name) + '</span>';
+    if (info) h += '<span class="part-info">' + escHtml(info) + '</span>';
     h += '</div>';
-    h += '<span class="step-badge">' + holdLabel + '</span>';
+    h += '<span class="part-badge">' + holdLabel + '</span>';
     h += '</div>';
   }
   el.innerHTML = h;
-  // Scroll active step into view
-  var activeStep = el.querySelector('.step.active');
-  if (activeStep) activeStep.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  var active = el.querySelector('.part.active');
+  if (active) active.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
 }
 
-// ─── Render: State (full update) ─────────
-function renderState() {
+// ─── Render: Timeline (bottom) ────────────────
+function renderTimeline() {
+  var sid = state.current_song_id;
+  var partName = state.current_part_name || state.current_function_name || '-';
+  var curStep = state.current_step || 0;
+  var totalSteps = state.total_steps || 0;
+
+  document.getElementById('tlPart').textContent = partName;
+  document.getElementById('tlCount').textContent = totalSteps > 0
+    ? 'Step ' + (curStep + 1) + ' / ' + totalSteps : '-';
+
+  // Step blocks in timeline
+  var bh = '';
+  if (sid && qlcMapping[sid]) {
+    var steps = qlcMapping[sid].steps || [];
+    for (var i = 0; i < steps.length; i++) {
+      var cls = i < curStep ? 'done' : i === curStep ? 'active' : '';
+      bh += '<div class="tl-bar ' + cls + '" data-step="' + i + '">' + (i + 1) + '</div>';
+    }
+  }
+  document.getElementById('tlBars').innerHTML = bh;
+
+  // Current function name
+  document.getElementById('tlInfo').textContent = state.current_function_name || '';
+
+  // QLC+ status
+  var dotQlc = document.getElementById('dotQlc');
+  var statusQlc = document.getElementById('statusQlc');
+  var badgeQlc = document.getElementById('badgeQlc');
+  if (state.qlc_connected) {
+    dotQlc.className = 'dot ok';
+    statusQlc.textContent = 'QLC+ OK';
+    badgeQlc.className = 'badge qlc';
+  } else {
+    dotQlc.className = 'dot err';
+    statusQlc.textContent = 'QLC+ \u2014';
+    badgeQlc.className = 'badge off';
+  }
+
+  // DB sync status
+  var dotSync = document.getElementById('dotSync');
+  var statusSync = document.getElementById('statusSync');
+  if (state.db_synced) {
+    dotSync.className = 'dot ok';
+    var ts = state.db_sync_time ? formatSyncTime(state.db_sync_time) : '';
+    statusSync.textContent = 'DB OK' + (ts ? ' ' + ts : '');
+  } else {
+    dotSync.className = 'dot warn';
+    statusSync.textContent = 'DB Offline';
+  }
+}
+
+// ─── Render: Full update ──────────────────────
+function renderAll() {
   // Song header
   document.getElementById('songTitle').textContent = state.current_song_name || '-';
   document.getElementById('songArtist').textContent = state.current_artist || '';
@@ -369,61 +480,44 @@ function renderState() {
   document.getElementById('metaTotal').textContent = state.total_steps || '-';
   document.getElementById('bpmDisp').textContent = state.current_bpm || '-';
 
-  // QLC+ status
-  var dotQlc = document.getElementById('dotQlc');
-  var statusQlc = document.getElementById('statusQlc');
-  var badgeQlc = document.getElementById('badgeQlc');
-  if (state.qlc_connected) {
-    dotQlc.className = 'status-dot ok';
-    statusQlc.textContent = 'QLC+ Verbunden';
-    badgeQlc.className = 'badge qlc';
-  } else {
-    dotQlc.className = 'status-dot err';
-    statusQlc.textContent = 'QLC+ Getrennt';
-    badgeQlc.className = 'badge off';
+  // Start beat sim if we have BPM
+  if (state.current_bpm && state.current_bpm > 0) {
+    restartBeatSim(state.current_bpm);
   }
 
-  // DB sync status
-  var dotSync = document.getElementById('dotSync');
-  var statusSync = document.getElementById('statusSync');
-  if (state.db_synced) {
-    dotSync.className = 'status-dot ok';
-    var timeStr = state.db_sync_time ? formatSyncTime(state.db_sync_time) : '';
-    statusSync.textContent = 'DB Aktuell' + (timeStr ? ' (' + timeStr + ')' : '') +
-      (state.db_sync_method ? ' [' + state.db_sync_method + ']' : '');
-  } else {
-    dotSync.className = 'status-dot warn';
-    statusSync.textContent = 'DB Offline';
-  }
-
-  // Setlist + Steps
   renderSetlist();
-  renderSteps();
+  renderParts();
+  renderTimeline();
 }
 
-// ─── Helpers ─────────────────────────────
-function escHtml(s) {
-  var d = document.createElement('div');
-  d.textContent = s;
-  return d.innerHTML;
+// ─── Beat visualization ───────────────────────
+function updateBeats() {
+  var tap = document.getElementById('tap');
+  var conn = document.getElementById('conn1');
+  if (beat === 1) {
+    tap.classList.add('on');
+    conn.classList.add('lit');
+  } else {
+    tap.classList.remove('on');
+    conn.classList.remove('lit');
+  }
+  for (var i = 2; i <= 4; i++) {
+    document.getElementById('b' + i).className = beat >= i ? 'bdot on' : 'bdot';
+  }
 }
 
-function formatSyncTime(iso) {
-  try {
-    var d = new Date(iso);
-    var now = new Date();
-    var diffMin = Math.round((now - d) / 60000);
-    if (diffMin < 1) return 'gerade eben';
-    if (diffMin < 60) return 'vor ' + diffMin + 'min';
-    var diffH = Math.round(diffMin / 60);
-    if (diffH < 24) return 'vor ' + diffH + 'h';
-    return d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
-  } catch (e) { return ''; }
+function restartBeatSim(bpm) {
+  if (beatTimer) clearInterval(beatTimer);
+  if (!bpm || bpm <= 0) return;
+  beatTimer = setInterval(function() {
+    beat = (beat % 4) + 1;
+    updateBeats();
+  }, Math.round(60000 / bpm));
 }
 
-// ─── Event handlers ──────────────────────
+// ─── Event Handlers ───────────────────────────
 
-// Setlist: click song
+// Setlist click
 document.getElementById('setlist').addEventListener('click', function(e) {
   var songEl = e.target.closest('.song');
   if (!songEl) return;
@@ -431,11 +525,19 @@ document.getElementById('setlist').addEventListener('click', function(e) {
   if (sid) sendCmd('select_song', { song_id: sid });
 });
 
-// Steps: click step
-document.getElementById('steps').addEventListener('click', function(e) {
-  var stepEl = e.target.closest('.step');
-  if (!stepEl) return;
-  var idx = parseInt(stepEl.dataset.step, 10);
+// Parts click
+document.getElementById('parts').addEventListener('click', function(e) {
+  var partEl = e.target.closest('.part');
+  if (!partEl) return;
+  var idx = parseInt(partEl.dataset.step, 10);
+  if (!isNaN(idx)) sendCmd('goto', { step: idx });
+});
+
+// Timeline step click
+document.getElementById('tlBars').addEventListener('click', function(e) {
+  var barEl = e.target.closest('.tl-bar');
+  if (!barEl) return;
+  var idx = parseInt(barEl.dataset.step, 10);
   if (!isNaN(idx)) sendCmd('goto', { step: idx });
 });
 
@@ -443,12 +545,10 @@ document.getElementById('steps').addEventListener('click', function(e) {
 document.getElementById('btnNext').addEventListener('click', function() { sendCmd('next'); });
 document.getElementById('btnPrev').addEventListener('click', function() { sendCmd('prev'); });
 
-// Accent buttons
-document.querySelectorAll('.abtn[data-accent]').forEach(function(btn) {
+// Accent buttons (overrides)
+document.querySelectorAll('.obtn[data-accent]').forEach(function(btn) {
   btn.addEventListener('click', function() {
-    var type = this.dataset.accent;
-    sendCmd('accent', { type: type });
-    // Visual flash feedback
+    sendCmd('accent', { type: this.dataset.accent });
     this.classList.add('on');
     var self = this;
     setTimeout(function() { self.classList.remove('on'); }, 300);
@@ -462,36 +562,55 @@ function onTap() {
   var now = performance.now();
   tapTimes.push(now);
   if (tapTimes.length > 8) tapTimes.shift();
-  // Flash
-  tapEl.classList.add('on');
+  beat = 1;
   tapEl.classList.remove('flash');
   tapEl.offsetWidth;
   tapEl.classList.add('flash');
-  setTimeout(function() { tapEl.classList.remove('on'); }, 150);
-  // Send tap to server
+  updateBeats();
   sendCmd('tap');
+  // BPM from tap intervals (tap = downbeat, so interval = 4 beats)
+  if (tapTimes.length >= 2) {
+    var iv = [];
+    for (var i = 1; i < tapTimes.length; i++) iv.push(tapTimes[i] - tapTimes[i - 1]);
+    if (iv[iv.length - 1] > 4000) { tapTimes = [now]; }
+    else {
+      var avg = iv.reduce(function(a, b) { return a + b; }, 0) / iv.length;
+      var bpm = Math.round(240000 / avg);
+      if (bpm >= 40 && bpm <= 220) {
+        document.getElementById('bpmDisp').textContent = bpm;
+        restartBeatSim(bpm);
+      }
+    }
+  }
 }
 tapEl.addEventListener('touchstart', function(e) { e.preventDefault(); onTap(); }, { passive: false });
 tapEl.addEventListener('mousedown', function(e) { e.preventDefault(); onTap(); });
 
 // Sync button
 document.getElementById('btnSync').addEventListener('click', async function() {
-  this.textContent = 'SYNCING...';
+  this.textContent = 'SYNC...';
   try {
     var result = await fetch('/api/sync', { method: 'POST' }).then(function(r) { return r.json(); });
-    this.textContent = result.ok ? 'SYNC OK' : 'SYNC FAILED';
-    // Reload data after sync
+    this.textContent = result.ok ? 'OK' : 'FAIL';
     await loadInitialData();
-    renderState();
+    renderAll();
   } catch (e) {
-    this.textContent = 'SYNC ERROR';
+    this.textContent = 'ERR';
   }
   var self = this;
   setTimeout(function() { self.textContent = 'SYNC'; }, 3000);
 });
 
-// ─── Init ────────────────────────────────
+// Mode toggle (visual only)
+function modeSwitch(el) {
+  var bs = document.querySelectorAll('.mbtn');
+  for (var i = 0; i < bs.length; i++) bs[i].classList.remove('on');
+  el.classList.add('on');
+}
+
+// ─── Init ─────────────────────────────────────
 document.getElementById('connOverlay').classList.add('show');
+updateBeats();
 loadInitialData().then(function() {
   connectWS();
 });

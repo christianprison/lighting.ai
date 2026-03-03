@@ -1212,7 +1212,8 @@
           "qlc_scene": "08 swimming ‍",
           "qlc_scene_id": 79,
           "timestamp": "0:02",
-          "notes": ""
+          "notes": "",
+          "instrumental": true
         },
         "UNIriZ_P002": {
           "pos": 2,

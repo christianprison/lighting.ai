@@ -3610,7 +3610,8 @@
       },
       "qlc_id": 94,
       "audio_ref": "audio/Down In The Past/Down In The Past - Full Song.mp3",
-      "audio_ref_name": "Down In The Past - Full Song.mp3"
+      "audio_ref_name": "Down In The Past - Full Song.mp3",
+      "lyrics_raw": "[Intro]Yeah!\n\n[Verse 1]\nWell, I don't wanna hang around with you\nI've got my motor, baby, and I'm gonna see you through\nYou think I wanna be alone with you\nIt doesn't matter, baby, 'cause you overreacted too\n\n[Pre-Chorus]\nBut since you're down there, where will I just be?\nI'm getting fine, girl\nDressing up for stormy weather\n[Chorus]\nSo touch me\nDown in the past\nWhere my mother will last\nAnd it's true that I'm in for a punch and a blast\nYeah, down in the past\nWhere my mother will last\nAnd she will make sure that you remember\nYeah!\n\n[Verse 2]\nWell, I don't wanna slide away with you\nI've got ten little soldiers pointing at you\nHoney, you just left me for a new one\nIt doesn't matter baby cause your hair is ugly too\n\n[Pre-Chorus]\nBut since you're down there, where will I just be\nI'm getting fine, girl\nDressing up for stormy weather\n\n[Chorus]\nSo touch me\nDown in the past\nWhere my mother will last\nAnd it's true that I'm in for a punch and a blast\nYeah, down in the past\nWhere my mother will last\nAnd she will make sure that you remember\nYeah, yeah!"
     },
     "QeOWYg": {
       "name": "Enjoy The Silence",
@@ -3712,7 +3713,8 @@
           "light_template": "outro_fadeout",
           "notes": ""
         }
-      }
+      },
+      "lyrics_raw": "[Verse 1]\nWords like violence break the silence\nCome crashing in into my little world\nPainful to me, pierce right through me\nCan't you understand? Oh, my little girl\n\n[Chorus]\nAll I ever wanted\nAll I ever needed is here in my arms\nWords are very unnecessary\nThey can only do harm\n[Instrumental Break]\n\n[Verse 2]\nVows are spoken to be broken\nFeelings are intense, words are trivial\nPleasures remain, so does the pain\nWords are meaningless and forgettable\n\n[Chorus]\nAll I ever wanted\nAll I ever needed is here in my arms\nWords are very unnecessary\nThey can only do harm\n\n[Instrumental Break]\n\n[Chorus]\nAll I ever wanted\nAll I ever needed is here in my arms\nWords are very unnecessary\nThey can only do harm\nAll I ever wanted\nAll I ever needed is here in my arms\nWords are very unnecessary\nThey can only do harm\n\n[Instrumental Break]\n\n[Outro]\nEnjoy the silence"
     },
     "EfmiXn": {
       "name": "Every You Every Me",
@@ -17688,6 +17690,1623 @@
     "B1107": {
       "part_id": "pVmkRc_P010",
       "bar_num": 10,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1108": {
+      "part_id": "9G8cU7_P001",
+      "bar_num": 1,
+      "lyrics": "[Intro]Yeah!",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1109": {
+      "part_id": "9G8cU7_P001",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1110": {
+      "part_id": "9G8cU7_P001",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1111": {
+      "part_id": "9G8cU7_P001",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1112": {
+      "part_id": "9G8cU7_P002",
+      "bar_num": 1,
+      "lyrics": "Well, I don't wanna hang around with you",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1113": {
+      "part_id": "9G8cU7_P002",
+      "bar_num": 2,
+      "lyrics": "I've got my motor, baby, and I'm gonna see you through",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1114": {
+      "part_id": "9G8cU7_P002",
+      "bar_num": 3,
+      "lyrics": "You think I wanna be alone with you",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1115": {
+      "part_id": "9G8cU7_P002",
+      "bar_num": 4,
+      "lyrics": "It doesn't matter, baby, 'cause you overreacted too",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1116": {
+      "part_id": "9G8cU7_P002",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1117": {
+      "part_id": "9G8cU7_P002",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1118": {
+      "part_id": "9G8cU7_P002",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1119": {
+      "part_id": "9G8cU7_P002",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1120": {
+      "part_id": "9G8cU7_P003",
+      "bar_num": 1,
+      "lyrics": "But since you're down there, where will I just be?",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1121": {
+      "part_id": "9G8cU7_P003",
+      "bar_num": 2,
+      "lyrics": "I'm getting fine, girl",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1122": {
+      "part_id": "9G8cU7_P003",
+      "bar_num": 3,
+      "lyrics": "Dressing up for stormy weather",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1123": {
+      "part_id": "9G8cU7_P003",
+      "bar_num": 4,
+      "lyrics": "So touch me",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1124": {
+      "part_id": "9G8cU7_P003",
+      "bar_num": 5,
+      "lyrics": "Down in the past",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1125": {
+      "part_id": "9G8cU7_P003",
+      "bar_num": 6,
+      "lyrics": "Where my mother will last",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1126": {
+      "part_id": "9G8cU7_P003",
+      "bar_num": 7,
+      "lyrics": "And it's true that I'm in for a punch and a blast",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1127": {
+      "part_id": "9G8cU7_P003",
+      "bar_num": 8,
+      "lyrics": "Yeah, down in the past",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1128": {
+      "part_id": "9G8cU7_P004",
+      "bar_num": 1,
+      "lyrics": "Well, I don't wanna slide away with you",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1129": {
+      "part_id": "9G8cU7_P004",
+      "bar_num": 2,
+      "lyrics": "I've got ten little soldiers pointing at you",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1130": {
+      "part_id": "9G8cU7_P005",
+      "bar_num": 1,
+      "lyrics": "But since you're down there, where will I just be",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1131": {
+      "part_id": "9G8cU7_P005",
+      "bar_num": 2,
+      "lyrics": "I'm getting fine, girl",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1132": {
+      "part_id": "9G8cU7_P006",
+      "bar_num": 1,
+      "lyrics": "So touch me",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1133": {
+      "part_id": "9G8cU7_P006",
+      "bar_num": 2,
+      "lyrics": "Down in the past",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1134": {
+      "part_id": "9G8cU7_P007",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1135": {
+      "part_id": "9G8cU7_P007",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1136": {
+      "part_id": "9G8cU7_P008",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1137": {
+      "part_id": "9G8cU7_P008",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1138": {
+      "part_id": "9G8cU7_P008",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1139": {
+      "part_id": "9G8cU7_P008",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1140": {
+      "part_id": "9G8cU7_P009",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1141": {
+      "part_id": "9G8cU7_P009",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1142": {
+      "part_id": "9G8cU7_P009",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1143": {
+      "part_id": "9G8cU7_P010",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1144": {
+      "part_id": "9G8cU7_P010",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1145": {
+      "part_id": "9G8cU7_P010",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1146": {
+      "part_id": "9G8cU7_P010",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1147": {
+      "part_id": "9G8cU7_P011",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1148": {
+      "part_id": "9G8cU7_P011",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1149": {
+      "part_id": "9G8cU7_P011",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1150": {
+      "part_id": "9G8cU7_P011",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1151": {
+      "part_id": "9G8cU7_P011",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1152": {
+      "part_id": "9G8cU7_P011",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1153": {
+      "part_id": "9G8cU7_P011",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1154": {
+      "part_id": "9G8cU7_P011",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1155": {
+      "part_id": "9G8cU7_P012",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1156": {
+      "part_id": "9G8cU7_P012",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1157": {
+      "part_id": "9G8cU7_P013",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1158": {
+      "part_id": "9G8cU7_P013",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1159": {
+      "part_id": "9G8cU7_P014",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1160": {
+      "part_id": "9G8cU7_P014",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1161": {
+      "part_id": "9G8cU7_P015",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1162": {
+      "part_id": "9G8cU7_P015",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1163": {
+      "part_id": "9G8cU7_P016",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1164": {
+      "part_id": "9G8cU7_P016",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1165": {
+      "part_id": "9G8cU7_P016",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1166": {
+      "part_id": "9G8cU7_P016",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1167": {
+      "part_id": "9G8cU7_P017",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1168": {
+      "part_id": "9G8cU7_P017",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1169": {
+      "part_id": "9G8cU7_P017",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1170": {
+      "part_id": "9G8cU7_P018",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1171": {
+      "part_id": "9G8cU7_P018",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1172": {
+      "part_id": "9G8cU7_P018",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1173": {
+      "part_id": "9G8cU7_P018",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1174": {
+      "part_id": "9G8cU7_P019",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1175": {
+      "part_id": "9G8cU7_P019",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1176": {
+      "part_id": "9G8cU7_P019",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1177": {
+      "part_id": "9G8cU7_P019",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1178": {
+      "part_id": "9G8cU7_P020",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1179": {
+      "part_id": "9G8cU7_P020",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1180": {
+      "part_id": "9G8cU7_P020",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1181": {
+      "part_id": "9G8cU7_P020",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1182": {
+      "part_id": "9G8cU7_P021",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1183": {
+      "part_id": "9G8cU7_P021",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1184": {
+      "part_id": "9G8cU7_P021",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1185": {
+      "part_id": "9G8cU7_P021",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1186": {
+      "part_id": "9G8cU7_P021",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1187": {
+      "part_id": "9G8cU7_P021",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1188": {
+      "part_id": "9G8cU7_P021",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1189": {
+      "part_id": "9G8cU7_P021",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1190": {
+      "part_id": "9G8cU7_P022",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1191": {
+      "part_id": "9G8cU7_P022",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1192": {
+      "part_id": "9G8cU7_P022",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1193": {
+      "part_id": "9G8cU7_P022",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1194": {
+      "part_id": "9G8cU7_P023",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1195": {
+      "part_id": "9G8cU7_P023",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1196": {
+      "part_id": "9G8cU7_P023",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1197": {
+      "part_id": "9G8cU7_P023",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1198": {
+      "part_id": "9G8cU7_P023",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1199": {
+      "part_id": "9G8cU7_P023",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1200": {
+      "part_id": "9G8cU7_P023",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1201": {
+      "part_id": "9G8cU7_P023",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1202": {
+      "part_id": "9G8cU7_P024",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1203": {
+      "part_id": "9G8cU7_P024",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1204": {
+      "part_id": "9G8cU7_P024",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1205": {
+      "part_id": "9G8cU7_P024",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1206": {
+      "part_id": "9G8cU7_P025",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1207": {
+      "part_id": "9G8cU7_P025",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1208": {
+      "part_id": "9G8cU7_P025",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1209": {
+      "part_id": "9G8cU7_P026",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1210": {
+      "part_id": "9G8cU7_P026",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1211": {
+      "part_id": "9G8cU7_P026",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1212": {
+      "part_id": "9G8cU7_P026",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1213": {
+      "part_id": "9G8cU7_P027",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1214": {
+      "part_id": "9G8cU7_P027",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1215": {
+      "part_id": "9G8cU7_P027",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1216": {
+      "part_id": "9G8cU7_P027",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1217": {
+      "part_id": "QeOWYg_P001",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1218": {
+      "part_id": "QeOWYg_P001",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1219": {
+      "part_id": "QeOWYg_P001",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1220": {
+      "part_id": "QeOWYg_P001",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1221": {
+      "part_id": "QeOWYg_P001",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1222": {
+      "part_id": "QeOWYg_P001",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1223": {
+      "part_id": "QeOWYg_P001",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1224": {
+      "part_id": "QeOWYg_P001",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1225": {
+      "part_id": "QeOWYg_P001",
+      "bar_num": 9,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1226": {
+      "part_id": "QeOWYg_P001",
+      "bar_num": 10,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1227": {
+      "part_id": "QeOWYg_P001",
+      "bar_num": 11,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1228": {
+      "part_id": "QeOWYg_P001",
+      "bar_num": 12,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1229": {
+      "part_id": "QeOWYg_P001",
+      "bar_num": 13,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1230": {
+      "part_id": "QeOWYg_P001",
+      "bar_num": 14,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1231": {
+      "part_id": "QeOWYg_P001",
+      "bar_num": 15,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1232": {
+      "part_id": "QeOWYg_P001",
+      "bar_num": 16,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1233": {
+      "part_id": "QeOWYg_P002",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1234": {
+      "part_id": "QeOWYg_P002",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1235": {
+      "part_id": "QeOWYg_P002",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1236": {
+      "part_id": "QeOWYg_P002",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1237": {
+      "part_id": "QeOWYg_P002",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1238": {
+      "part_id": "QeOWYg_P002",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1239": {
+      "part_id": "QeOWYg_P002",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1240": {
+      "part_id": "QeOWYg_P002",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1241": {
+      "part_id": "QeOWYg_P003",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1242": {
+      "part_id": "QeOWYg_P003",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1243": {
+      "part_id": "QeOWYg_P003",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1244": {
+      "part_id": "QeOWYg_P003",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1245": {
+      "part_id": "QeOWYg_P003",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1246": {
+      "part_id": "QeOWYg_P003",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1247": {
+      "part_id": "QeOWYg_P003",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1248": {
+      "part_id": "QeOWYg_P003",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1249": {
+      "part_id": "QeOWYg_P004",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1250": {
+      "part_id": "QeOWYg_P004",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1251": {
+      "part_id": "QeOWYg_P004",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1252": {
+      "part_id": "QeOWYg_P004",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1253": {
+      "part_id": "QeOWYg_P004",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1254": {
+      "part_id": "QeOWYg_P004",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1255": {
+      "part_id": "QeOWYg_P004",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1256": {
+      "part_id": "QeOWYg_P004",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1257": {
+      "part_id": "QeOWYg_P004",
+      "bar_num": 9,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1258": {
+      "part_id": "QeOWYg_P004",
+      "bar_num": 10,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1259": {
+      "part_id": "QeOWYg_P005",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1260": {
+      "part_id": "QeOWYg_P005",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1261": {
+      "part_id": "QeOWYg_P005",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1262": {
+      "part_id": "QeOWYg_P005",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1263": {
+      "part_id": "QeOWYg_P005",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1264": {
+      "part_id": "QeOWYg_P005",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1265": {
+      "part_id": "QeOWYg_P005",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1266": {
+      "part_id": "QeOWYg_P005",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1267": {
+      "part_id": "QeOWYg_P006",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1268": {
+      "part_id": "QeOWYg_P006",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1269": {
+      "part_id": "QeOWYg_P006",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1270": {
+      "part_id": "QeOWYg_P006",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1271": {
+      "part_id": "QeOWYg_P006",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1272": {
+      "part_id": "QeOWYg_P006",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1273": {
+      "part_id": "QeOWYg_P006",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1274": {
+      "part_id": "QeOWYg_P006",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1275": {
+      "part_id": "QeOWYg_P007",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1276": {
+      "part_id": "QeOWYg_P007",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1277": {
+      "part_id": "QeOWYg_P007",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1278": {
+      "part_id": "QeOWYg_P007",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1279": {
+      "part_id": "QeOWYg_P007",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1280": {
+      "part_id": "QeOWYg_P007",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1281": {
+      "part_id": "QeOWYg_P007",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1282": {
+      "part_id": "QeOWYg_P007",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1283": {
+      "part_id": "QeOWYg_P007",
+      "bar_num": 9,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1284": {
+      "part_id": "QeOWYg_P007",
+      "bar_num": 10,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1285": {
+      "part_id": "QeOWYg_P007",
+      "bar_num": 11,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1286": {
+      "part_id": "QeOWYg_P007",
+      "bar_num": 12,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1287": {
+      "part_id": "QeOWYg_P008",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1288": {
+      "part_id": "QeOWYg_P008",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1289": {
+      "part_id": "QeOWYg_P008",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1290": {
+      "part_id": "QeOWYg_P008",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1291": {
+      "part_id": "QeOWYg_P008",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1292": {
+      "part_id": "QeOWYg_P008",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1293": {
+      "part_id": "QeOWYg_P008",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1294": {
+      "part_id": "QeOWYg_P008",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1295": {
+      "part_id": "QeOWYg_P009",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1296": {
+      "part_id": "QeOWYg_P009",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1297": {
+      "part_id": "QeOWYg_P009",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1298": {
+      "part_id": "QeOWYg_P009",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1299": {
+      "part_id": "QeOWYg_P009",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1300": {
+      "part_id": "QeOWYg_P009",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1301": {
+      "part_id": "QeOWYg_P009",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1302": {
+      "part_id": "QeOWYg_P009",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1303": {
+      "part_id": "QeOWYg_P010",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1304": {
+      "part_id": "QeOWYg_P010",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1305": {
+      "part_id": "QeOWYg_P010",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1306": {
+      "part_id": "QeOWYg_P010",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1307": {
+      "part_id": "QeOWYg_P010",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1308": {
+      "part_id": "QeOWYg_P010",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1309": {
+      "part_id": "QeOWYg_P010",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1310": {
+      "part_id": "QeOWYg_P010",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1311": {
+      "part_id": "QeOWYg_P010",
+      "bar_num": 9,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1312": {
+      "part_id": "QeOWYg_P010",
+      "bar_num": 10,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1313": {
+      "part_id": "QeOWYg_P010",
+      "bar_num": 11,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1314": {
+      "part_id": "QeOWYg_P010",
+      "bar_num": 12,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1315": {
+      "part_id": "QeOWYg_P010",
+      "bar_num": 13,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1316": {
+      "part_id": "QeOWYg_P010",
+      "bar_num": 14,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1317": {
+      "part_id": "QeOWYg_P010",
+      "bar_num": 15,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1318": {
+      "part_id": "QeOWYg_P010",
+      "bar_num": 16,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1319": {
+      "part_id": "QeOWYg_P011",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1320": {
+      "part_id": "QeOWYg_P011",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1321": {
+      "part_id": "QeOWYg_P011",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1322": {
+      "part_id": "QeOWYg_P011",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1323": {
+      "part_id": "QeOWYg_P011",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1324": {
+      "part_id": "QeOWYg_P011",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1325": {
+      "part_id": "QeOWYg_P011",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1326": {
+      "part_id": "QeOWYg_P011",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1327": {
+      "part_id": "QeOWYg_P011",
+      "bar_num": 9,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1328": {
+      "part_id": "QeOWYg_P011",
+      "bar_num": 10,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1329": {
+      "part_id": "QeOWYg_P011",
+      "bar_num": 11,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1330": {
+      "part_id": "QeOWYg_P011",
+      "bar_num": 12,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1331": {
+      "part_id": "QeOWYg_P011",
+      "bar_num": 13,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1332": {
+      "part_id": "QeOWYg_P011",
+      "bar_num": 14,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1333": {
+      "part_id": "QeOWYg_P011",
+      "bar_num": 15,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1334": {
+      "part_id": "QeOWYg_P011",
+      "bar_num": 16,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1335": {
+      "part_id": "QeOWYg_P011",
+      "bar_num": 17,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1336": {
+      "part_id": "QeOWYg_P011",
+      "bar_num": 18,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1337": {
+      "part_id": "QeOWYg_P011",
+      "bar_num": 19,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1338": {
+      "part_id": "QeOWYg_P011",
+      "bar_num": 20,
       "lyrics": "",
       "audio": "",
       "has_accents": false

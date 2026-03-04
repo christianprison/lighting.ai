@@ -40,6 +40,13 @@ FUNCTION_TO_COLLECTION: dict[int, int] = {
     534: 6, 535: 59, 536: 55, 537: 9, 538: 94, 545: 21,
     553: 66, 554: 81, 555: 83, 559: 49, 564: 74, 565: 50,
     578: 65, 579: 62, 580: 63, 581: 61, 582: 64, 597: 69,
+    # Accent / utility functions — map to QLC+ buttons manually
+    31: 105,   # blind √
+    36: 106,   # blackout (scene)
+    37: 107,   # Fog 10s √
+    38: 108,   # Fog on
+    39: 109,   # Fog off
+    279: 110,  # Alarm neu (rot/grün alternierend)
 }
 
 # Accent channel map for direct accent triggers (legacy, separate from collections)

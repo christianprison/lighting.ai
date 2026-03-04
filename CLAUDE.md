@@ -277,8 +277,9 @@ lighting.ai/
 
 ### Git Workflow
 
+- **Deploy-Branch: `main`** — GitHub Pages deployt aus `main`, Root `/`
+- Feature-Branches (z.B. `claude/...`) werden in `main` gemergt für Deploy
 - Commit Messages auf Deutsch oder Englisch — egal, Hauptsache klar
-- Feature-Branches für größere Änderungen
 - `db/lighting-ai-db.json` wird auch durch die App committed (auto-save)
 - Audio-Dateien kommen als Binary Blobs rein (kein LFS nötig, Dateien sind klein)
 

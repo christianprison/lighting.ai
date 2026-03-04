@@ -3432,10 +3432,15 @@ function lyricsInputFocusIn(input) {
   if (_isIPad) {
     const panel = document.querySelector('.lyrics-panel');
     if (panel) panel.classList.add('lyrics-kbd-mode');
-    // Scroll the focused card into view after layout shift
+    // Scroll the part card's top edge flush with the viewport top
+    // BEFORE the keyboard slides in, so the black area behind the keyboard
+    // is below the visible content, not behind it.
     const card = input.closest('.lyrics-part-card');
     if (card) {
-      requestAnimationFrame(() => card.scrollIntoView({ block: 'nearest', behavior: 'smooth' }));
+      requestAnimationFrame(() => {
+        const top = card.getBoundingClientRect().top + window.scrollY;
+        window.scrollTo({ top: top - 8, behavior: 'smooth' });
+      });
     }
   }
 }

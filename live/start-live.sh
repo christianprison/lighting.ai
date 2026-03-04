@@ -48,8 +48,8 @@ echo "Server startet auf ${HOST}:${PORT}..."
 echo "iPad: http://${IP}:${PORT}"
 echo ""
 
-# Open browser automatically
-xdg-open "http://localhost:${PORT}" 2>/dev/null &
+# Open browser automatically (Chrome im Kiosk-Modus)
+google-chrome --new-window "http://localhost:${PORT}" 2>/dev/null &
 
 cd "$REPO"
 uvicorn live.server.main:app --host "$HOST" --port "$PORT"

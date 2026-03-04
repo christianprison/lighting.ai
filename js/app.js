@@ -52,6 +52,7 @@ let _dragMarker = null;        // { type: 'part'|'bar', index: number, originalT
 let _isDragging = false;       // true while actively dragging (moved > threshold)
 let _dragStartX = 0;           // mouse/touch start X for drag threshold
 let _dragSuppressClick = false; // prevent seek after drag ends
+let _suppressAutoScroll = false; // prevent auto-scroll after drag finalize
 
 const SETTINGS_KEY = 'lightingai_settings';
 
@@ -1631,7 +1632,7 @@ function drawWaveform() {
     ctx.shadowBlur = 0;
 
     // Auto-scroll to keep playhead visible when zoomed
-    if (waveformZoom > 1) {
+    if (waveformZoom > 1 && !_suppressAutoScroll) {
       const scrollLeft = wrap.scrollLeft;
       const viewW = wrapRect.width;
       if (px < scrollLeft + 40 || px > scrollLeft + viewW - 40) {
@@ -1926,11 +1927,27 @@ function onWaveformPointerUp(e) {
     // Re-assign bar markers to correct parts based on time
     reassignBarMarkerParts();
 
-    // Persist and update UI
+    // Persist and update UI — preserve scroll positions across re-render
     saveMarkersToSong();
     markDirty();
-    drawWaveform();
+
+    const scrollEl = document.getElementById('audio-scroll');
+    const savedScrollTop = scrollEl ? scrollEl.scrollTop : 0;
+    const savedWrapScroll = wrap ? wrap.scrollLeft : 0;
+
+    _suppressAutoScroll = true;
     renderAudioTab();
+
+    // Restore scroll after renderAudioTab's requestAnimationFrame has run
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const scrollEl2 = document.getElementById('audio-scroll');
+        if (scrollEl2) scrollEl2.scrollTop = savedScrollTop;
+        const wrap2 = document.getElementById('waveform-wrap');
+        if (wrap2) wrap2.scrollLeft = savedWrapScroll;
+        _suppressAutoScroll = false;
+      });
+    });
 
     _dragSuppressClick = true;
   }

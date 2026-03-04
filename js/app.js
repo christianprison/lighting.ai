@@ -1864,12 +1864,16 @@ function onWaveformPointerMove(e) {
         const oldTime = partMarkers[_dragMarker.index].time;
         partMarkers[_dragMarker.index].time = newTime;
         // Move the nearest bar marker along with the part marker (0.2s tolerance)
-        const partIdx = partMarkers[_dragMarker.index].partIndex;
-        const barsInPart = barMarkers
-          .filter(bm => bm.partIndex === partIdx)
-          .sort((a, b) => a.time - b.time);
-        if (barsInPart.length > 0 && Math.abs(barsInPart[0].time - oldTime) < 0.2) {
-          barsInPart[0].time = newTime;
+        // Search ALL bar markers regardless of partIndex — a bar just before
+        // the part marker belongs to the previous part but should still follow
+        let nearestBar = null;
+        let nearestDist = Infinity;
+        for (const bm of barMarkers) {
+          const d = Math.abs(bm.time - oldTime);
+          if (d < nearestDist) { nearestBar = bm; nearestDist = d; }
+        }
+        if (nearestBar && nearestDist < 0.2) {
+          nearestBar.time = newTime;
         }
       } else {
         barMarkers[_dragMarker.index].time = newTime;
@@ -1978,29 +1982,15 @@ function reassignBarMarkerParts() {
 function snapFirstBarsToPartMarkers() {
   const SNAP_TOLERANCE = 0.2; // seconds
   for (const pm of partMarkers) {
-    const barsInPart = barMarkers
-      .filter(bm => bm.partIndex === pm.partIndex)
-      .sort((a, b) => a.time - b.time);
-    if (barsInPart.length > 0) {
-      // If the first bar of this part is within tolerance, snap it
-      if (Math.abs(barsInPart[0].time - pm.time) <= SNAP_TOLERANCE) {
-        barsInPart[0].time = pm.time;
-      }
-    } else {
-      // No bar assigned to this part yet — find nearest bar marker within tolerance
-      let nearest = null;
-      let nearestDist = Infinity;
-      for (const bm of barMarkers) {
-        const d = Math.abs(bm.time - pm.time);
-        if (d <= SNAP_TOLERANCE && d < nearestDist) {
-          nearest = bm;
-          nearestDist = d;
-        }
-      }
-      if (nearest) {
-        nearest.time = pm.time;
-        nearest.partIndex = pm.partIndex;
-      }
+    // Find the nearest bar marker across ALL bars (regardless of partIndex)
+    let nearest = null;
+    let nearestDist = Infinity;
+    for (const bm of barMarkers) {
+      const d = Math.abs(bm.time - pm.time);
+      if (d < nearestDist) { nearest = bm; nearestDist = d; }
+    }
+    if (nearest && nearestDist <= SNAP_TOLERANCE) {
+      nearest.time = pm.time;
     }
   }
 }

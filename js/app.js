@@ -3427,19 +3427,40 @@ function handleLyricsChange(e) {
 
 const _isIPad = /iPad|Macintosh/i.test(navigator.userAgent) && 'ontouchend' in document;
 
+// Track visual viewport height via CSS custom property (iPad keyboard fix).
+// When the keyboard opens, visualViewport.height shrinks. The panel uses
+// height: var(--vv-h) so it never extends behind the keyboard → no black band.
+let _vvCleanup = null;
+function _startVisualViewportTracking() {
+  if (_vvCleanup || !window.visualViewport) return;
+  const update = () => {
+    document.documentElement.style.setProperty('--vv-h', `${window.visualViewport.height}px`);
+  };
+  update();
+  window.visualViewport.addEventListener('resize', update);
+  window.visualViewport.addEventListener('scroll', update);
+  _vvCleanup = () => {
+    window.visualViewport.removeEventListener('resize', update);
+    window.visualViewport.removeEventListener('scroll', update);
+    document.documentElement.style.removeProperty('--vv-h');
+    _vvCleanup = null;
+  };
+}
+
+// Remember scroll position so we can restore it when leaving kbd mode
+let _savedScrollY = 0;
+
 function lyricsInputFocusIn(input) {
-  // iPad: hide waveforms + raw section to save vertical space for on-screen keyboard
   if (_isIPad) {
+    _savedScrollY = window.scrollY;
+    _startVisualViewportTracking();
     const panel = document.querySelector('.lyrics-panel');
     if (panel) panel.classList.add('lyrics-kbd-mode');
-    // Scroll the part card's top edge flush with the viewport top
-    // BEFORE the keyboard slides in, so the black area behind the keyboard
-    // is below the visible content, not behind it.
+    // Scroll the focused input into view inside the now-fixed panel
     const card = input.closest('.lyrics-part-card');
     if (card) {
       requestAnimationFrame(() => {
-        const top = card.getBoundingClientRect().top + window.scrollY;
-        window.scrollTo({ top: top - 8, behavior: 'smooth' });
+        card.scrollIntoView({ block: 'start', behavior: 'smooth' });
       });
     }
   }
@@ -3462,11 +3483,13 @@ function lyricsInputFocusOut(input) {
   // iPad: restore full layout (small delay to handle tab between inputs)
   if (_isIPad) {
     setTimeout(() => {
-      // Only restore if no other lyrics input has focus
       const active = document.activeElement;
       if (!active || !active.classList.contains('lyrics-bar-input')) {
         const panel = document.querySelector('.lyrics-panel');
         if (panel) panel.classList.remove('lyrics-kbd-mode');
+        if (_vvCleanup) _vvCleanup();
+        // Restore original scroll position
+        window.scrollTo(0, _savedScrollY);
       }
     }, 150);
   }

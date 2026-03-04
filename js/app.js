@@ -30,6 +30,7 @@ let takteTabSelectedBar = null;  // {songId, partId, barNum}
 
 /* ── Lyrics Tab State ───────────────────────────── */
 let _lyricsPlayingPart = null;    // partId currently playing in lyrics tab
+let _lyricsPausedPart = null;     // partId currently paused in lyrics tab
 let _lyricsCollapsed = new Set(); // Set of partIds that are collapsed
 
 /* ── Audio Split State ────────────────────────────── */
@@ -1265,7 +1266,8 @@ function buildTransport() {
 function buildTapButtons(parts, isPlay) {
   const nextPartName = currentPartIndex < parts.length ? parts[currentPartIndex].name : '\u2014';
   const allPartsDone = currentPartIndex >= parts.length;
-  const barLabel = currentBarInPart > 0 ? `Bar ${currentBarInPart + 1}` : 'Bar 1';
+  const nextAbsBar = barMarkers.length + 1;
+  const barLabel = `Bar ${nextAbsBar}`;
 
   return `
     <div class="tap-row" id="tap-row">
@@ -1530,10 +1532,11 @@ function drawWaveform() {
     ctx.fillRect(i * barW, mid - barH / 2, Math.max(barW - 0.5, 1), barH || 1);
   }
 
-  // Bar markers (cyan lines — highlight when dragging)
+  // Bar markers (cyan lines — highlight when dragging, with absolute bar number)
   for (let bi = 0; bi < barMarkers.length; bi++) {
     const m = barMarkers[bi];
     const x = (m.time / duration) * w;
+    const absBarNum = bi + 1; // absolute bar number from song start
     const isDragTarget = _isDragging && _dragMarker && _dragMarker.type === 'bar' && _dragMarker.index === bi;
     ctx.strokeStyle = isDragTarget ? 'rgba(56, 189, 248, 0.9)' : 'rgba(56, 189, 248, 0.4)';
     ctx.lineWidth = isDragTarget ? 2 : 1;
@@ -1541,7 +1544,13 @@ function drawWaveform() {
     ctx.moveTo(x, 0);
     ctx.lineTo(x, h);
     ctx.stroke();
-    // Show time label when dragging a bar marker
+    // Bar number label (skip if a part marker sits at same position — part label takes priority)
+    const isPartStart = partMarkers.some(pm => Math.abs(pm.time - m.time) < 0.01);
+    if (!isPartStart) {
+      ctx.font = '9px "DM Mono", monospace';
+      ctx.fillStyle = isDragTarget ? 'rgba(56, 189, 248, 0.95)' : 'rgba(56, 189, 248, 0.6)';
+      ctx.fillText(String(absBarNum), x + 3, 10);
+    }
     if (isDragTarget) {
       ctx.font = '10px "DM Mono", monospace';
       ctx.fillStyle = 'rgba(56, 189, 248, 0.95)';
@@ -1609,7 +1618,9 @@ function drawWaveform() {
     }
 
     // Absolute bar number above bottom (or time during drag)
-    const startBar = partStartBar[m.partIndex];
+    // Use barMarkers (tapped) if available, fallback to DB-based count
+    const firstBarIdx = barMarkers.findIndex(b => b.partIndex === m.partIndex);
+    const startBar = firstBarIdx >= 0 ? firstBarIdx + 1 : partStartBar[m.partIndex];
     if (isDragTarget) {
       ctx.font = '11px "DM Mono", monospace';
       ctx.fillStyle = 'rgba(240, 160, 48, 1.0)';
@@ -2520,7 +2531,7 @@ function updateTapInfo(parts) {
   }
   if (barBtn) {
     const info = barBtn.querySelector('.tap-info');
-    if (info) info.textContent = `Bar ${currentBarInPart + 1}`;
+    if (info) info.textContent = `Bar ${barMarkers.length + 1}`;
     barBtn.disabled = !audio.isPlaying() || currentPartIndex === 0;
   }
 
@@ -2825,6 +2836,19 @@ function buildLyricsRawImport(song, geniusUrl) {
     </div>`;
 }
 
+/**
+ * Extract base function name from a part name (e.g. "Chorus 2" → "Chorus", "Bridge" → "Bridge").
+ * Returns null for Verse/Strophe parts (those are excluded from lyrics copying).
+ */
+function getLyricsPartBaseName(name) {
+  if (!name) return null;
+  const n = name.trim();
+  // Exclude Verse / Strophe
+  if (/^(verse|strophe)\b/i.test(n)) return null;
+  // Strip trailing number: "Chorus 2" → "Chorus", "Bridge" → "Bridge"
+  return n.replace(/\s*\d+\s*$/, '').trim() || null;
+}
+
 function buildLyricsPartsList(parts, song, hasBuf) {
   // Count non-instrumental parts for the toggle-all button
   const nonInstrParts = parts.filter(p => !p.instrumental);
@@ -2859,6 +2883,21 @@ function buildLyricsPartsList(parts, song, hasBuf) {
     const canPlayBars = getAudioBarsForPart(part.id).length > 0;
     const canPlay = canPlayRef || canPlayBars;
     const isPlaying = _lyricsPlayingPart === part.id;
+    const isPaused = _lyricsPausedPart === part.id;
+
+    // Find previous part with same base name (for "copy lyrics" button)
+    const baseName = getLyricsPartBaseName(part.name);
+    let prevSamePartId = null;
+    let prevSamePartName = null;
+    if (baseName && !isInstr) {
+      for (let j = i - 1; j >= 0; j--) {
+        if (getLyricsPartBaseName(parts[j].name) === baseName && !parts[j].instrumental) {
+          prevSamePartId = parts[j].id;
+          prevSamePartName = parts[j].name;
+          break;
+        }
+      }
+    }
 
     html += `
       <div class="lyrics-part-card${isInstr ? ' instrumental' : ''}${isCollapsed ? ' collapsed' : ''}" data-part-id="${part.id}" data-part-index="${i}">
@@ -2872,8 +2911,9 @@ function buildLyricsPartsList(parts, song, hasBuf) {
             <span>Instrumental</span>
           </label>
           <div style="flex:1"></div>
-          ${canPlay ? `<button class="btn btn-sm btn-part-play${isPlaying ? ' playing' : ''}" data-lyrics-play="${part.id}" data-part-index="${i}" title="${isPlaying ? 'Stopp' : 'Part abspielen'}">
-            ${isPlaying ? '&#9724;' : '&#9654;'}
+          ${prevSamePartId ? `<button class="btn btn-sm btn-lyrics-copy" data-lyrics-copy-from="${prevSamePartId}" data-lyrics-copy-to="${part.id}" title="Text aus ${esc(prevSamePartName)} übernehmen">Text aus ${esc(prevSamePartName)} &#x2192;</button>` : ''}
+          ${canPlay ? `<button class="btn btn-sm btn-part-play${isPlaying ? ' playing' : ''}${isPaused ? ' paused' : ''}" data-lyrics-play="${part.id}" data-part-index="${i}" title="${isPlaying ? 'Pause' : isPaused ? 'Fortsetzen' : 'Part abspielen'}">
+            ${isPlaying ? '&#9646;&#9646;' : '&#9654;'}
           </button>` : ''}
         </div>
         ${!isInstr && !isCollapsed ? buildLyricsPartBody(part, i, barCount, barLyrics, hasBuf, absBarOffset) : ''}
@@ -3182,15 +3222,21 @@ let _lyricsAnimFrame = null;        // animation frame for lyrics playhead
 let _lyricsPlayPartIndex = null;    // partIndex currently playing
 
 function handleLyricsPartPlay(partId, partIndex) {
-  // Toggle off if already playing this part
+  // Pause if currently playing this part
   if (_lyricsPlayingPart === partId) {
-    stopLyricsPartPlay();
+    pauseLyricsPartPlay();
     return;
   }
 
-  // Stop previous playback (lightweight — skip redraw if nothing was playing)
-  const wasPlaying = !!_lyricsPlayingPart;
-  if (wasPlaying) stopLyricsPartPlay();
+  // Resume if this part is paused
+  if (_lyricsPausedPart === partId) {
+    resumeLyricsPartPlay();
+    return;
+  }
+
+  // Stop any previous playback or paused state
+  if (_lyricsPlayingPart) stopLyricsPartPlay();
+  if (_lyricsPausedPart) clearLyricsPausedState();
 
   _lyricsPlayingPart = partId;
   _lyricsPlayPartIndex = partIndex;
@@ -3204,6 +3250,7 @@ function handleLyricsPartPlay(partId, partIndex) {
   if (hasBuf && startTime !== null && endTime !== null) {
     audio.playSegments([{ startTime, endTime }], () => {
       _lyricsPlayingPart = null;
+      _lyricsPausedPart = null;
       _lyricsPlayPartIndex = null;
       stopLyricsPlayheadAnimation();
       updateLyricsPlayButtons();
@@ -3212,7 +3259,7 @@ function handleLyricsPartPlay(partId, partIndex) {
     return;
   }
 
-  // Fallback: play bar MP3 files
+  // Fallback: play bar MP3 files (no pause support for bar-by-bar playback)
   handlePartPlay(partId);
 
   const origInterval = setInterval(() => {
@@ -3225,12 +3272,39 @@ function handleLyricsPartPlay(partId, partIndex) {
   }, 200);
 }
 
+function pauseLyricsPartPlay() {
+  if (!_lyricsPlayingPart) return;
+  audio.pauseSegments();
+  stopLyricsPlayheadAnimation();
+  _lyricsPausedPart = _lyricsPlayingPart;
+  _lyricsPlayingPart = null;
+  updateLyricsPlayButtons();
+}
+
+function resumeLyricsPartPlay() {
+  if (!_lyricsPausedPart) return;
+  _lyricsPlayingPart = _lyricsPausedPart;
+  _lyricsPausedPart = null;
+  audio.resumeSegments();
+  startLyricsPlayheadAnimation();
+  updateLyricsPlayButtons();
+}
+
+function clearLyricsPausedState() {
+  if (_lyricsPausedPart) {
+    audio.stopSegments();
+    _lyricsPausedPart = null;
+    _lyricsPlayPartIndex = null;
+  }
+}
+
 function stopLyricsPartPlay() {
-  if (_lyricsPlayingPart) {
+  if (_lyricsPlayingPart || _lyricsPausedPart) {
     audio.stopSegments();
     stopPartPlay();
     stopLyricsPlayheadAnimation();
     _lyricsPlayingPart = null;
+    _lyricsPausedPart = null;
     _lyricsPlayPartIndex = null;
     updateLyricsPlayButtons();
   }
@@ -3293,10 +3367,64 @@ function updateLyricsPlayButtons() {
   document.querySelectorAll('[data-lyrics-play]').forEach(btn => {
     const partId = btn.dataset.lyricsPlay;
     const isPlaying = _lyricsPlayingPart === partId;
-    btn.innerHTML = isPlaying ? '&#9724;' : '&#9654;';
+    const isPaused = _lyricsPausedPart === partId;
+    btn.innerHTML = isPlaying ? '&#9646;&#9646;' : '&#9654;';
     btn.classList.toggle('playing', isPlaying);
-    btn.title = isPlaying ? 'Stopp' : 'Part abspielen';
+    btn.classList.toggle('paused', isPaused);
+    btn.title = isPlaying ? 'Pause' : isPaused ? 'Fortsetzen' : 'Part abspielen';
   });
+}
+
+/**
+ * Copy lyrics bar-by-bar from one part to another.
+ */
+function copyLyricsFromPart(fromPartId, toPartId) {
+  const db = getDB();
+  if (!db || !db.songs || !selectedSongId) return;
+  const song = db.songs[selectedSongId];
+  if (!song || !song.parts) return;
+
+  const fromPart = song.parts[fromPartId];
+  const toPart = song.parts[toPartId];
+  if (!fromPart || !toPart) return;
+
+  const fromBars = fromPart.bars || 0;
+  const toBars = toPart.bars || 0;
+  const count = Math.min(fromBars, toBars);
+
+  // Copy lyrics bar by bar
+  for (let b = 1; b <= count; b++) {
+    const srcBar = findBar(fromPartId, b);
+    const srcLyrics = srcBar ? (srcBar[1].lyrics || '') : '';
+
+    // Find or create target bar
+    let tgtBar = findBar(toPartId, b);
+    if (tgtBar) {
+      tgtBar[1].lyrics = srcLyrics;
+    } else {
+      // Create bar entry in DB
+      const barId = 'B' + Date.now().toString(36) + '_' + b;
+      if (!db.bars) db.bars = {};
+      db.bars[barId] = {
+        part_id: toPartId,
+        bar_num: b,
+        lyrics: srcLyrics,
+        audio: '',
+        has_accents: false
+      };
+    }
+  }
+
+  // Update UI inputs directly
+  document.querySelectorAll(`input[data-lyrics-bar-part="${toPartId}"]`).forEach(inp => {
+    const barNum = parseInt(inp.dataset.lyricsBarNum, 10);
+    if (barNum <= count) {
+      const srcBar = findBar(fromPartId, barNum);
+      inp.value = srcBar ? (srcBar[1].lyrics || '') : '';
+    }
+  });
+
+  markDirty();
 }
 
 /* ── Lyrics Tab Event Handlers ────────────────────── */
@@ -3364,6 +3492,15 @@ function handleLyricsClick(e) {
     return;
   }
 
+  // Copy lyrics from previous same-name part
+  const copyBtn = el.closest('[data-lyrics-copy-from]');
+  if (copyBtn) {
+    const fromPartId = copyBtn.dataset.lyricsCopyFrom;
+    const toPartId = copyBtn.dataset.lyricsCopyTo;
+    copyLyricsFromPart(fromPartId, toPartId);
+    return;
+  }
+
   // Part play button
   const playBtn = el.closest('[data-lyrics-play]');
   if (playBtn) {
@@ -3427,19 +3564,40 @@ function handleLyricsChange(e) {
 
 const _isIPad = /iPad|Macintosh/i.test(navigator.userAgent) && 'ontouchend' in document;
 
+// Track visual viewport height via CSS custom property (iPad keyboard fix).
+// When the keyboard opens, visualViewport.height shrinks. The panel uses
+// height: var(--vv-h) so it never extends behind the keyboard → no black band.
+let _vvCleanup = null;
+function _startVisualViewportTracking() {
+  if (_vvCleanup || !window.visualViewport) return;
+  const update = () => {
+    document.documentElement.style.setProperty('--vv-h', `${window.visualViewport.height}px`);
+  };
+  update();
+  window.visualViewport.addEventListener('resize', update);
+  window.visualViewport.addEventListener('scroll', update);
+  _vvCleanup = () => {
+    window.visualViewport.removeEventListener('resize', update);
+    window.visualViewport.removeEventListener('scroll', update);
+    document.documentElement.style.removeProperty('--vv-h');
+    _vvCleanup = null;
+  };
+}
+
+// Remember scroll position so we can restore it when leaving kbd mode
+let _savedScrollY = 0;
+
 function lyricsInputFocusIn(input) {
-  // iPad: hide waveforms + raw section to save vertical space for on-screen keyboard
   if (_isIPad) {
+    _savedScrollY = window.scrollY;
+    _startVisualViewportTracking();
     const panel = document.querySelector('.lyrics-panel');
     if (panel) panel.classList.add('lyrics-kbd-mode');
-    // Scroll the part card's top edge flush with the viewport top
-    // BEFORE the keyboard slides in, so the black area behind the keyboard
-    // is below the visible content, not behind it.
+    // Scroll the focused input into view inside the now-fixed panel
     const card = input.closest('.lyrics-part-card');
     if (card) {
       requestAnimationFrame(() => {
-        const top = card.getBoundingClientRect().top + window.scrollY;
-        window.scrollTo({ top: top - 8, behavior: 'smooth' });
+        card.scrollIntoView({ block: 'start', behavior: 'smooth' });
       });
     }
   }
@@ -3462,11 +3620,13 @@ function lyricsInputFocusOut(input) {
   // iPad: restore full layout (small delay to handle tab between inputs)
   if (_isIPad) {
     setTimeout(() => {
-      // Only restore if no other lyrics input has focus
       const active = document.activeElement;
       if (!active || !active.classList.contains('lyrics-bar-input')) {
         const panel = document.querySelector('.lyrics-panel');
         if (panel) panel.classList.remove('lyrics-kbd-mode');
+        if (_vvCleanup) _vvCleanup();
+        // Restore original scroll position
+        window.scrollTo(0, _savedScrollY);
       }
     }, 150);
   }

@@ -2372,8 +2372,36 @@ label {
 }
 
 .btn-part-play.playing {
-  color: var(--red);
-  border-color: var(--red);
+  color: var(--amber);
+  border-color: var(--amber);
+}
+
+.btn-part-play.paused {
+  color: var(--green);
+  border-color: var(--green);
+  animation: lyrics-paused-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes lyrics-paused-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* ── Copy Lyrics Button ─────────────────────────── */
+.btn-lyrics-copy {
+  font-size: 0.7rem;
+  color: var(--cyan);
+  border: 1px solid var(--border2);
+  background: var(--bg3);
+  border-radius: var(--radius);
+  padding: 2px 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s;
+}
+.btn-lyrics-copy:hover {
+  background: var(--bg4);
+  border-color: var(--cyan);
 }
 
 /* ── Lyrics Part Scroll Container ────────────────── */
@@ -2457,7 +2485,21 @@ label {
   margin-top: 4px;
 }
 
-/* ── iPad Keyboard Mode (hide non-essential elements) ── */
+/* ── iPad Keyboard Mode ── */
+/* Lock the panel to the visual viewport so nothing renders behind the keyboard.
+   Safari doesn't repaint the area behind the sliding keyboard → black band.
+   Fix: make panel position:fixed, height = visualViewport.height (--vv-h),
+   and let it scroll internally. No content exists behind the keyboard anymore. */
+.lyrics-kbd-mode {
+  position: fixed !important;
+  top: 0; left: 0; right: 0;
+  height: var(--vv-h, 100vh);
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+  z-index: 10;
+  background: var(--bg);
+}
+
 .lyrics-kbd-mode .lyrics-raw-section,
 .lyrics-kbd-mode .lyrics-wave-wrap,
 .lyrics-kbd-mode .audio-song-header {

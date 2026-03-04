@@ -45,7 +45,13 @@ body {
   line-height: 1.5;
   overflow: hidden;
   height: 100vh;
+  height: 100dvh;
   width: 100vw;
+  /* iOS safe areas for notch/rounded corners */
+  padding-top: env(safe-area-inset-top);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 /* ── Typography ────────────────────────────────────── */
@@ -65,7 +71,10 @@ h3 { font-size: 0.95rem; }
     "header  header"
     "sidebar content";
   height: 100vh;
+  height: 100dvh;
   width: 100vw;
+  overflow: hidden;
+  position: relative;
 }
 
 /* ── Header ────────────────────────────────────────── */
@@ -78,6 +87,10 @@ h3 { font-size: 0.95rem; }
   background: var(--bg2);
   border-bottom: 1px solid var(--border);
   z-index: 100;
+  position: sticky;
+  top: 0;
+  min-height: var(--header-h);
+  flex-shrink: 0;
 }
 
 #header .logo {

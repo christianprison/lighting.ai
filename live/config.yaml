@@ -3,7 +3,7 @@
 github:
   repo: christianprison/lighting.ai
   db_path: db/lighting-ai-db.json
-  qxw_path: db/ThePact.qxw
+  qxw_path: db/lightingAI.qxw
   # token: github_pat_...  # Or set env GITHUB_TOKEN
 
 qlc:

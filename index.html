@@ -20,6 +20,7 @@
       <button class="tab-btn" id="tab-lyrics">LYRICS</button>
       <button class="tab-btn" id="tab-takte">TAKTE</button>
       <button class="tab-btn" id="tab-audio">AUDIO SPLIT</button>
+      <button class="tab-btn" id="tab-qlc">QLC+</button>
     </nav>
 
     <div class="header-right">
@@ -97,6 +98,7 @@
       <button class="help-tab" data-help="takte">Takte</button>
       <button class="help-tab" data-help="lyrics">Lyrics</button>
       <button class="help-tab" data-help="audio">Audio Split</button>
+      <button class="help-tab" data-help="qlc">QLC+</button>
       <button class="help-tab" data-help="keys">Shortcuts</button>
     </nav>
 
@@ -306,6 +308,39 @@
         <div class="help-row"><span class="help-key">Leerzeile</span><span>Leere Zeilen ergeben instrumentale Takte (kein Text).</span></div>
         <div class="help-row"><span class="help-key">Instrumental</span><span>Checkbox <em>Instrumental</em> markiert einen Part als rein instrumental &mdash; das Textfeld wird ausgeblendet.</span></div>
         <div class="help-row"><span class="help-key">Play</span><span>Spielt den Part ueber die Referenz-Audio ab (wenn vorhanden), sonst ueber gespeicherte Bar-MP3s.</span></div>
+      </div>
+    </div>
+
+    <!-- QLC+ -->
+    <div class="help-page" id="help-qlc">
+      <h3>QLC+ Collections</h3>
+      <p>Der QLC+ Tab zeigt alle Collections aus der QLC+ Workspace-Datei (ThePact.qxw) als klickbare Buttons, organisiert in Ordnern.</p>
+
+      <h3>Workflow: QLC+ anlernen</h3>
+      <div class="help-steps">
+        <div class="help-step">
+          <span class="help-step-nr">1</span>
+          <div><strong>Backend starten</strong> &mdash; <code>uvicorn live.server.main:app --reload --port 8000</code></div>
+        </div>
+        <div class="help-step">
+          <span class="help-step-nr">2</span>
+          <div><strong>In QLC+</strong> einen Virtual Console Button auswaehlen und <em>Auto Detect</em> aktivieren.</div>
+        </div>
+        <div class="help-step">
+          <span class="help-step-nr">3</span>
+          <div><strong>In lighting.ai</strong> auf den entsprechenden Collection-Button klicken. Das sendet einen OSC-Befehl an QLC+.</div>
+        </div>
+        <div class="help-step">
+          <span class="help-step-nr">4</span>
+          <div><strong>QLC+ erkennt</strong> den Channel automatisch. Die Zuordnung ist gespeichert.</div>
+        </div>
+      </div>
+
+      <h3>OSC-Einstellungen</h3>
+      <div class="help-table">
+        <div class="help-row"><span class="help-key">Host</span><span>IP-Adresse von QLC+ (Standard: 127.0.0.1)</span></div>
+        <div class="help-row"><span class="help-key">Port</span><span>OSC Input Port in QLC+ (Standard: 7700)</span></div>
+        <div class="help-row"><span class="help-key">Universe</span><span>OSC Universe-Nummer (Standard: 2)</span></div>
       </div>
     </div>
 

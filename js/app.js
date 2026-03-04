@@ -2898,50 +2898,13 @@ function buildLyricsPartBody(part, partIndex, barCount, barLyrics, hasBuf, absBa
   const partEnd = getPartEndTime(partIndex);
   const showWave = hasBuf && partMarker && partEnd;
 
-  // Calculate proportional bar widths from bar markers (matching waveform)
-  // Bar markers include the first bar at the part start, so boundaries are:
-  // [bar1(=partStart), bar2, bar3, ..., partEnd]
-  const bars = getBarMarkersForPart(partIndex);
-  let barWidths = null; // null = equal width fallback
-  if (showWave && bars.length > 0 && partEnd) {
-    const boundaries = [...bars.map(m => m.time), partEnd];
-    const durations = [];
-    for (let i = 0; i < boundaries.length - 1; i++) {
-      durations.push(Math.max(0, boundaries[i + 1] - boundaries[i]));
-    }
-    if (durations.length === barCount) {
-      barWidths = durations;
-    }
-  }
-
-  // Calculate min-width per cell based on text content (~7px per char for mono 0.72rem + 8px padding)
+  // Uniform cell width: determined by the longest text in any bar of this part
   const PX_PER_CHAR = 7;
   const CELL_PAD = 10;
   const MIN_CELL_W = 32;
-  const cellMinWidths = barLyrics.map(text => Math.max(MIN_CELL_W, (text || '').length * PX_PER_CHAR + CELL_PAD));
-
-  // If proportional widths are used, check if any cell is too narrow for its text
-  // and scale the total row width up to accommodate
-  let totalMinWidth = 0;
-  if (barWidths) {
-    const totalDur = barWidths.reduce((a, b) => a + b, 0);
-    if (totalDur > 0) {
-      // Find the scale factor needed so every cell is at least cellMinWidths[i] wide
-      // At base: cellWidth[i] = (barWidths[i]/totalDur) * containerWidth
-      // We need: (barWidths[i]/totalDur) * totalWidth >= cellMinWidths[i]
-      // => totalWidth >= cellMinWidths[i] / (barWidths[i]/totalDur)
-      let neededWidth = 0;
-      for (let i = 0; i < barCount; i++) {
-        const frac = barWidths[i] / totalDur;
-        if (frac > 0) {
-          neededWidth = Math.max(neededWidth, cellMinWidths[i] / frac);
-        }
-      }
-      totalMinWidth = Math.ceil(neededWidth);
-    }
-  } else {
-    totalMinWidth = cellMinWidths.reduce((a, b) => a + b, 0);
-  }
+  const maxTextLen = barLyrics.reduce((mx, t) => Math.max(mx, (t || '').length), 0);
+  const cellW = Math.max(MIN_CELL_W, maxTextLen * PX_PER_CHAR + CELL_PAD);
+  const totalMinWidth = cellW * barCount;
 
   // Build scrollable container for waveform + bars (scroll together)
   const minWStyle = totalMinWidth > 0 ? `min-width:${totalMinWidth}px` : '';
@@ -2954,13 +2917,12 @@ function buildLyricsPartBody(part, partIndex, barCount, barLyrics, hasBuf, absBa
     </div>`;
   }
 
-  // Horizontal bar inputs (absolute bar numbering from song start)
+  // Horizontal bar inputs — all equal width, waveform stretches to match
   html += '<div class="lyrics-bars-row">';
   for (let b = 0; b < barCount; b++) {
     const text = barLyrics[b] || '';
     const absBarNum = absBarOffset + b + 1;
-    const flexStyle = barWidths ? `flex:${barWidths[b].toFixed(4)} 1 0` : '';
-    html += `<div class="lyrics-bar-cell" ${flexStyle ? `style="${flexStyle}"` : ''}>
+    html += `<div class="lyrics-bar-cell" style="flex:1 1 0;min-width:${cellW}px">
       <div class="lyrics-bar-num mono text-t3">${absBarNum}</div>
       <input type="text" class="lyrics-bar-input" data-lyrics-bar-part="${part.id}" data-lyrics-bar-num="${b + 1}" value="${esc(text)}" placeholder="\u2014">
     </div>`;

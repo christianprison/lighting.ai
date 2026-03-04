@@ -747,7 +747,8 @@
         ]
       },
       "audio_ref": "audio/All The Small Things/All The Small Things - Full Song.mp3",
-      "audio_ref_name": "All The Small Things - Full Song.mp3"
+      "audio_ref_name": "All The Small Things - Full Song.mp3",
+      "lyrics_raw": "[Verse 1: Tom DeLonge]\nAll the small things\nTrue care, truth brings\nI'll take one lift\nYour ride, best trip\nAlways, I know\nYou'll be at my show\nWatching, waiting\nCommiserating\n\n[Pre-Chorus: Tom DeLonge]\nSay it ain't so, I will not go\nTurn the lights off, carry me home\n\n[Chorus: Tom DeLonge & Mark Hoppus]\nNa-na, na-na, na-na, na-na, na, na\nNa-na, na-na, na-na, na-na, na, na\nNa-na, na-na, na-na, na-na, na, na\nNa-na, na-na, na-na, na-na, na, na\n\n[Verse 2: Tom DeLonge]\nLate night, come home\nWork sucks, I know\nShe left me roses by the stairs\nSurprises let me know she cares\n\nYou might also like\n\nFamily Matters\nDrake\n\nSo Long, London\nTaylor Swift\n\nBut Daddy I Love Him\nTaylor Swift\n\n[Pre-Chorus: Tom DeLonge]\nJust say it ain't so, I will not go\nTurn the lights off, carry me home\n\n[Chorus: Tom DeLonge & Mark Hoppus]\nNa-na, na-na, na-na, na-na, na, na\nNa-na, na-na, na-na, na-na, na, na\nNa-na, na-na, na-na, na-na, na, na\nNa-na, na-na, na-na, na-na, na, na\n\n[Instrumental Break]\n\n[Bridge: Tom DeLonge & Mark Hoppus]\nSay it ain't so, I will not go\nTurn the lights off, carry me home\nKeep your head still, I'll be your thrill\nThe night will go on, my little windmill\n\n[Outro: Tom DeLonge, Tom DeLonge & Mark Hoppus]\n(Na-na, na-na, na-na, na-na, na, na)\nSay it ain't so, I will not go\n(Na-na, na-na, na-na, na-na, na, na)\nTurn the lights off, carry me home\n(Na-na, na-na, na-na, na-na, na, na)\nKeep your head still, I'll be your thrill\n(Na-na, na-na, na-na, na-na, na, na)\nThe night will go on, the night will go on, my little windmill"
     },
     "tdyEcs": {
       "name": "Along comes Mary",
@@ -10690,112 +10691,112 @@
     "B0067": {
       "part_id": "5iZfKj_P001",
       "bar_num": 9,
-      "lyrics": "All the",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B0068": {
       "part_id": "5iZfKj_P002",
       "bar_num": 2,
-      "lyrics": "small things",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B0069": {
       "part_id": "5iZfKj_P002",
       "bar_num": 3,
-      "lyrics": "true care",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B0070": {
       "part_id": "5iZfKj_P002",
       "bar_num": 4,
-      "lyrics": "truth brings",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B0071": {
       "part_id": "5iZfKj_P002",
       "bar_num": 5,
-      "lyrics": "I'll take",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B0072": {
       "part_id": "5iZfKj_P002",
       "bar_num": 6,
-      "lyrics": "one lift",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B0073": {
       "part_id": "5iZfKj_P002",
       "bar_num": 7,
-      "lyrics": "Your ride,",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B0074": {
       "part_id": "5iZfKj_P002",
       "bar_num": 8,
-      "lyrics": "best trip",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B0075": {
       "part_id": "5iZfKj_P002",
       "bar_num": 9,
-      "lyrics": "Always",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B0076": {
       "part_id": "5iZfKj_P002",
       "bar_num": 10,
-      "lyrics": "I know",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B0077": {
       "part_id": "5iZfKj_P002",
       "bar_num": 11,
-      "lyrics": "You'll be",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B0078": {
       "part_id": "5iZfKj_P002",
       "bar_num": 12,
-      "lyrics": "at my show",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B0079": {
       "part_id": "5iZfKj_P002",
       "bar_num": 13,
-      "lyrics": "Watching",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B0080": {
       "part_id": "5iZfKj_P002",
       "bar_num": 14,
-      "lyrics": "waiting",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B0081": {
       "part_id": "5iZfKj_P002",
       "bar_num": 15,
-      "lyrics": "Commi-",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B0082": {
       "part_id": "5iZfKj_P002",
       "bar_num": 16,
-      "lyrics": "serating",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
@@ -11257,6 +11258,13 @@
     "B0148": {
       "part_id": "5iZfKj_P012",
       "bar_num": 10,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0149": {
+      "part_id": "5iZfKj_P011",
+      "bar_num": 8,
       "lyrics": "",
       "audio": "",
       "has_accents": false

@@ -35483,7 +35483,7 @@
      <Function ID="527"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
-     <Input Universe="1" Channel="15597"/>
+     <Input Universe="1" Channel="15598"/>
     </Button>
     <Button Caption="00 blackout fog off / 116bpm" ID="141" Icon="">
      <WindowState Visible="True" X="105" Y="10" Width="95" Height="95"/>
@@ -35497,7 +35497,7 @@
      <Function ID="528"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
-     <Input Universe="1" Channel="11620"/>
+     <Input Universe="1" Channel="11621"/>
     </Button>
    </Frame>
    <Frame Caption="" ID="143">
@@ -35527,7 +35527,7 @@
      <Function ID="71"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
-     <Input Universe="1" Channel="8191"/>
+     <Input Universe="1" Channel="8192"/>
     </Button>
     <Button Caption="01 statisch bunt 🎉 190bpm/316ms" ID="149" Icon="">
      <WindowState Visible="True" X="105" Y="10" Width="95" Height="95"/>
@@ -35541,6 +35541,7 @@
      <Function ID="493"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="3703"/>
     </Button>
     <Button Caption="01 statisch bunt 🎉 fog off" ID="151" Icon="">
      <WindowState Visible="True" X="205" Y="10" Width="95" Height="95"/>
@@ -35554,6 +35555,7 @@
      <Function ID="521"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="31434"/>
     </Button>
    </Frame>
    <Frame Caption="" ID="164">
@@ -35583,6 +35585,7 @@
      <Function ID="70"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="27457"/>
     </Button>
     <Button Caption="02 slow blue 🔵 fog off" ID="166" Icon="">
      <WindowState Visible="True" X="105" Y="10" Width="95" Height="95"/>
@@ -35596,6 +35599,7 @@
      <Function ID="534"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="23004"/>
     </Button>
     <Button Caption="02 slow blue 🔵 fog on" ID="167" Icon="">
      <WindowState Visible="True" X="205" Y="10" Width="95" Height="95"/>
@@ -35609,6 +35613,7 @@
      <Function ID="520"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="18515"/>
     </Button>
    </Frame>
    <Frame Caption="" ID="168">
@@ -35638,6 +35643,7 @@
      <Function ID="74"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="45222"/>
     </Button>
     <Button Caption="03 walking 🚶 fog off" ID="170" Icon="">
      <WindowState Visible="True" X="105" Y="10" Width="95" Height="95"/>
@@ -35651,6 +35657,7 @@
      <Function ID="537"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="41261"/>
     </Button>
    </Frame>
    <Frame Caption="" ID="171">
@@ -35680,6 +35687,7 @@
      <Function ID="75"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="58613"/>
     </Button>
    </Frame>
    <Frame Caption="" ID="173">
@@ -35709,6 +35717,7 @@
      <Function ID="76"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="62846"/>
     </Button>
    </Frame>
    <Frame Caption="" ID="175">
@@ -35738,6 +35747,7 @@
      <Function ID="77"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="51175"/>
     </Button>
     <Button Caption="06 blinking 🔆 fog off" ID="177" Icon="">
      <WindowState Visible="True" X="105" Y="10" Width="95" Height="95"/>
@@ -35751,6 +35761,7 @@
      <Function ID="524"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="54896"/>
     </Button>
     <Button Caption="06 blinking 🔆 fog on" ID="178" Icon="">
      <WindowState Visible="True" X="200" Y="10" Width="95" Height="95"/>
@@ -35764,6 +35775,7 @@
      <Function ID="525"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="41681"/>
     </Button>
    </Frame>
    <Frame Caption="" ID="179">
@@ -35793,6 +35805,7 @@
      <Function ID="78"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="45914"/>
     </Button>
     <Button Caption="07 round'n'round 🔄 (Yellow)" ID="181" Icon="">
      <WindowState Visible="True" X="105" Y="10" Width="95" Height="95"/>
@@ -35806,6 +35819,7 @@
      <Function ID="249"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="33219"/>
     </Button>
    </Frame>
    <Frame Caption="" ID="182">
@@ -35835,6 +35849,7 @@
      <Function ID="79"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="36940"/>
     </Button>
    </Frame>
    <Frame Caption="" ID="186">
@@ -35864,6 +35879,7 @@
      <Function ID="80"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="26813"/>
     </Button>
     <Button Caption="09 Alarm 🔔 fog on" ID="188" Icon="">
      <WindowState Visible="True" X="105" Y="10" Width="95" Height="95"/>
@@ -35877,6 +35893,7 @@
      <Function ID="523"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="31030"/>
     </Button>
    </Frame>
    <Frame Caption="" ID="189">
@@ -35906,6 +35923,7 @@
      <Function ID="81"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="52893"/>
     </Button>
    </Frame>
    <Frame Caption="" ID="191">
@@ -35935,6 +35953,7 @@
      <Function ID="545"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="57110"/>
     </Button>
     <Button Caption="10 Strobe ✳️ Fog off" ID="193" Icon="">
      <WindowState Visible="True" X="105" Y="10" Width="95" Height="95"/>
@@ -35948,6 +35967,7 @@
      <Function ID="510"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="60815"/>
     </Button>
     <Button Caption="10 Strobe ✳️ Fog on" ID="194" Icon="">
      <WindowState Visible="True" X="205" Y="10" Width="95" Height="95"/>
@@ -35961,6 +35981,7 @@
      <Function ID="509"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="64520"/>
     </Button>
    </Frame>
    <Frame Caption="" ID="220">
@@ -35990,6 +36011,7 @@
      <Function ID="82"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="35001"/>
     </Button>
     <Button Caption="11 Stop 🛑  (Copy)" ID="222" Icon="">
      <WindowState Visible="True" X="105" Y="10" Width="95" Height="95"/>
@@ -36003,6 +36025,7 @@
      <Function ID="19"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="39218"/>
     </Button>
     <Button Caption="11 Stop 🛑 080bpm/750ms" ID="223" Icon="">
      <WindowState Visible="True" X="205" Y="10" Width="95" Height="95"/>
@@ -36016,6 +36039,7 @@
      <Function ID="363"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="43947"/>
     </Button>
     <Button Caption="11 Stop 🛑 082bpm/732ms" ID="224" Icon="">
      <WindowState Visible="True" X="305" Y="10" Width="95" Height="95"/>
@@ -36029,6 +36053,7 @@
      <Function ID="372"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="47652"/>
     </Button>
     <Button Caption="11 Stop 🛑 084bpm/716ms" ID="225" Icon="">
      <WindowState Visible="True" X="405" Y="10" Width="95" Height="95"/>
@@ -36042,6 +36067,7 @@
      <Function ID="481"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="17109"/>
     </Button>
     <Button Caption="11 Stop 🛑 086bpm/698ms" ID="226" Icon="">
      <WindowState Visible="True" X="10" Y="105" Width="95" Height="95"/>
@@ -36055,6 +36081,7 @@
      <Function ID="490"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="21342"/>
     </Button>
     <Button Caption="11 Stop 🛑 088bpm/682ms" ID="227" Icon="">
      <WindowState Visible="True" X="105" Y="105" Width="95" Height="95"/>
@@ -36068,6 +36095,7 @@
      <Function ID="486"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="55109"/>
     </Button>
     <Button Caption="11 Stop 🛑 090bpm/667ms" ID="228" Icon="">
      <WindowState Visible="True" X="205" Y="105" Width="95" Height="95"/>
@@ -36081,6 +36109,7 @@
      <Function ID="519"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="50894"/>
     </Button>
     <Button Caption="11 Stop 🛑 096bpm/625ms" ID="229" Icon="">
      <WindowState Visible="True" X="305" Y="105" Width="95" Height="95"/>
@@ -36094,6 +36123,7 @@
      <Function ID="496"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="62551"/>
     </Button>
     <Button Caption="11 Stop 🛑 100bpm/600ms" ID="230" Icon="">
      <WindowState Visible="True" X="405" Y="105" Width="95" Height="95"/>
@@ -36107,6 +36137,7 @@
      <Function ID="504"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="58848"/>
     </Button>
     <Button Caption="11 Stop 🛑 104bpm/577ms" ID="231" Icon="">
      <WindowState Visible="True" X="10" Y="205" Width="95" Height="95"/>
@@ -36120,6 +36151,7 @@
      <Function ID="488"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="37217"/>
     </Button>
     <Button Caption="11 Stop 🛑 108bpm/556ms" ID="232" Icon="">
      <WindowState Visible="True" X="105" Y="205" Width="95" Height="95"/>
@@ -36133,6 +36165,7 @@
      <Function ID="506"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="33002"/>
     </Button>
     <Button Caption="11 Stop 🛑 112bpm/536ms" ID="233" Icon="">
      <WindowState Visible="True" X="205" Y="205" Width="95" Height="95"/>
@@ -36146,6 +36179,7 @@
      <Function ID="362"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="45683"/>
     </Button>
     <Button Caption="11 Stop 🛑 116bpm/517ms" ID="234" Icon="">
      <WindowState Visible="True" X="305" Y="205" Width="95" Height="95"/>
@@ -36159,6 +36193,7 @@
      <Function ID="471"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="41980"/>
     </Button>
     <Button Caption="11 Stop 🛑 120bpm/500ms" ID="235" Icon="">
      <WindowState Visible="True" X="405" Y="205" Width="95" Height="95"/>
@@ -36172,6 +36207,7 @@
      <Function ID="498"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="23309"/>
     </Button>
     <Button Caption="11 Stop 🛑 128bpm/469ms " ID="236" Icon="">
      <WindowState Visible="True" X="10" Y="305" Width="95" Height="95"/>
@@ -36185,6 +36221,7 @@
      <Function ID="508"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="19078"/>
     </Button>
     <Button Caption="11 Stop 🛑 136bpm/441ms" ID="237" Icon="">
      <WindowState Visible="True" X="105" Y="305" Width="95" Height="95"/>
@@ -36198,6 +36235,7 @@
      <Function ID="514"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="39501"/>
     </Button>
     <Button Caption="11 Stop 🛑 148bpm/405ms" ID="238" Icon="">
      <WindowState Visible="True" X="205" Y="305" Width="95" Height="95"/>
@@ -36211,6 +36249,7 @@
      <Function ID="500"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="35782"/>
     </Button>
     <Button Caption="11 Stop 🛑 152bpm/395ms" ID="239" Icon="">
      <WindowState Visible="True" X="305" Y="305" Width="95" Height="95"/>
@@ -36224,6 +36263,7 @@
      <Function ID="502"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="47455"/>
     </Button>
     <Button Caption="11 Stop 🛑 156bpm/385ms" ID="240" Icon="">
      <WindowState Visible="True" X="405" Y="305" Width="95" Height="95"/>
@@ -36237,6 +36277,7 @@
      <Function ID="511"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="43224"/>
     </Button>
     <Button Caption="11 Stop 🛑 160bpm/375ms" ID="241" Icon="">
      <WindowState Visible="True" X="10" Y="405" Width="95" Height="95"/>
@@ -36250,6 +36291,7 @@
      <Function ID="28"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="56425"/>
     </Button>
     <Button Caption="11 Stop 🛑 170bpm/353ms" ID="242" Icon="">
      <WindowState Visible="True" X="105" Y="405" Width="95" Height="95"/>
@@ -36263,6 +36305,7 @@
      <Function ID="485"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="52706"/>
     </Button>
     <Button Caption="11 Stop 🛑 190bpm/316ms" ID="243" Icon="">
      <WindowState Visible="True" X="205" Y="405" Width="95" Height="95"/>
@@ -36276,6 +36319,7 @@
      <Function ID="491"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="65403"/>
     </Button>
     <Button Caption="11 Stop 🛑 200bpm/300ms" ID="244" Icon="">
      <WindowState Visible="True" X="305" Y="405" Width="95" Height="95"/>
@@ -36289,6 +36333,7 @@
      <Function ID="478"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="61172"/>
     </Button>
     <Button Caption="11 Stop 🛑 206bpm/291ms" ID="245" Icon="">
      <WindowState Visible="True" X="405" Y="405" Width="95" Height="95"/>
@@ -36302,6 +36347,7 @@
      <Function ID="517"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="5637"/>
     </Button>
    </Frame>
    <Frame Caption="" ID="246">
@@ -36331,6 +36377,7 @@
      <Function ID="559"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="1934"/>
     </Button>
     <Button Caption="12 slow red drip" ID="248" Icon="">
      <WindowState Visible="True" X="105" Y="10" Width="95" Height="95"/>
@@ -36344,6 +36391,7 @@
      <Function ID="565"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="33685"/>
     </Button>
    </Frame>
    <Frame Caption="" ID="249">
@@ -36373,6 +36421,7 @@
      <Function ID="83"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="37406"/>
     </Button>
     <Button Caption="16 Searchlight 🔦 cyan" ID="251" Icon="">
      <WindowState Visible="True" X="105" Y="10" Width="95" Height="95"/>
@@ -36386,6 +36435,7 @@
      <Function ID="158"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="41095"/>
     </Button>
     <Button Caption="16 Searchlight 🔦 cyan fog off" ID="252" Icon="">
      <WindowState Visible="True" X="205" Y="10" Width="95" Height="95"/>
@@ -36399,6 +36449,7 @@
      <Function ID="160"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="45328"/>
     </Button>
     <Button Caption="16 Searchlight 🔦 fog off" ID="253" Icon="">
      <WindowState Visible="True" X="305" Y="10" Width="95" Height="95"/>
@@ -36412,6 +36463,7 @@
      <Function ID="529"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="50609"/>
     </Button>
     <Button Caption="16 Searchlight 🔦 fog on" ID="254" Icon="">
      <WindowState Visible="True" X="405" Y="10" Width="95" Height="95"/>
@@ -36425,6 +36477,7 @@
      <Function ID="536"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="54330"/>
     </Button>
    </Frame>
    <Frame Caption="" ID="255">
@@ -36454,6 +36507,7 @@
      <Function ID="181"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="59043"/>
     </Button>
     <Button Caption="21 white fan down" ID="257" Icon="">
      <WindowState Visible="True" X="105" Y="10" Width="95" Height="95"/>
@@ -36467,6 +36521,7 @@
      <Function ID="182"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="63276"/>
     </Button>
    </Frame>
    <Frame Caption="" ID="258">
@@ -36496,6 +36551,7 @@
      <Function ID="212"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="4061"/>
     </Button>
     <Button Caption="22 blind - fog off" ID="260" Icon="">
      <WindowState Visible="True" X="105" Y="10" Width="95" Height="95"/>
@@ -36509,6 +36565,7 @@
      <Function ID="535"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="7766"/>
     </Button>
     <Button Caption="22 blind - fog on" ID="261" Icon="">
      <WindowState Visible="True" X="205" Y="10" Width="95" Height="95"/>
@@ -36522,6 +36579,7 @@
      <Function ID="533"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="43517"/>
     </Button>
    </Frame>
    <Frame Caption="" ID="265">
@@ -36551,6 +36609,7 @@
      <Function ID="581"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="47222"/>
     </Button>
     <Button Caption="O" ID="267" Icon="">
      <WindowState Visible="True" X="105" Y="10" Width="95" Height="95"/>
@@ -36564,6 +36623,7 @@
      <Function ID="579"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="35567"/>
     </Button>
     <Button Caption="R" ID="268" Icon="">
      <WindowState Visible="True" X="205" Y="10" Width="95" Height="95"/>
@@ -36577,6 +36637,7 @@
      <Function ID="580"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="39784"/>
     </Button>
     <Button Caption="up" ID="269" Icon="">
      <WindowState Visible="True" X="305" Y="10" Width="95" Height="95"/>
@@ -36590,6 +36651,7 @@
      <Function ID="582"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="61401"/>
     </Button>
     <Button Caption="W" ID="270" Icon="">
      <WindowState Visible="True" X="405" Y="10" Width="95" Height="95"/>
@@ -36603,6 +36665,7 @@
      <Function ID="578"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="65106"/>
     </Button>
    </Frame>
    <Frame Caption="" ID="271">
@@ -36632,6 +36695,7 @@
      <Function ID="553"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="52427"/>
     </Button>
     <Button Caption="Heads Cross White" ID="273" Icon="">
      <WindowState Visible="True" X="105" Y="10" Width="95" Height="95"/>
@@ -36645,6 +36709,7 @@
      <Function ID="143"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="56644"/>
     </Button>
     <Button Caption="Heads Publikum" ID="274" Icon="">
      <WindowState Visible="True" X="205" Y="10" Width="95" Height="95"/>
@@ -36658,6 +36723,7 @@
      <Function ID="225"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="9653"/>
     </Button>
     <Button Caption="heads white open" ID="275" Icon="">
      <WindowState Visible="True" X="305" Y="10" Width="95" Height="95"/>
@@ -36671,6 +36737,7 @@
      <Function ID="597"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="13374"/>
     </Button>
     <Button Caption="PAR Blue + Fog " ID="276" Icon="">
      <WindowState Visible="True" X="405" Y="10" Width="95" Height="95"/>
@@ -36684,6 +36751,7 @@
      <Function ID="476"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="45093"/>
     </Button>
     <Button Caption="PAR Blue + Fog  off" ID="277" Icon="">
      <WindowState Visible="True" X="505" Y="10" Width="95" Height="95"/>
@@ -36697,6 +36765,7 @@
      <Function ID="477"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="41390"/>
     </Button>
     <Button Caption="PAR Green + Fog" ID="278" Icon="">
      <WindowState Visible="True" X="600" Y="10" Width="95" Height="95"/>
@@ -36710,6 +36779,7 @@
      <Function ID="475"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="37687"/>
     </Button>
     <Button Caption="red and green alternating" ID="279" Icon="">
      <WindowState Visible="True" X="10" Y="105" Width="95" Height="95"/>
@@ -36723,6 +36793,7 @@
      <Function ID="29"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="33472"/>
     </Button>
     <Button Caption="Säulen red drip" ID="280" Icon="">
      <WindowState Visible="True" X="105" Y="105" Width="95" Height="95"/>
@@ -36736,6 +36807,7 @@
      <Function ID="564"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="62977"/>
     </Button>
     <Button Caption="static dark blue" ID="281" Icon="">
      <WindowState Visible="True" X="205" Y="105" Width="95" Height="95"/>
@@ -36749,6 +36821,7 @@
      <Function ID="32"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="59274"/>
     </Button>
     <Button Caption="stripes from center" ID="282" Icon="">
      <WindowState Visible="True" X="305" Y="105" Width="95" Height="95"/>
@@ -36762,6 +36835,7 @@
      <Function ID="33"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="54547"/>
     </Button>
     <Button Caption="strips twinkle" ID="283" Icon="">
      <WindowState Visible="True" X="405" Y="105" Width="95" Height="95"/>
@@ -36775,6 +36849,7 @@
      <Function ID="34"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="50332"/>
     </Button>
     <Button Caption="TMHs center stage yellow" ID="284" Icon="">
      <WindowState Visible="True" X="505" Y="105" Width="95" Height="95"/>
@@ -36788,6 +36863,7 @@
      <Function ID="136"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="15469"/>
     </Button>
     <Button Caption="up'n'down (ohne effects)" ID="285" Icon="">
      <WindowState Visible="True" X="600" Y="105" Width="95" Height="95"/>
@@ -36801,6 +36877,7 @@
      <Function ID="152"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="11750"/>
     </Button>
    </Frame>
    <Frame Caption="" ID="286">
@@ -36830,6 +36907,7 @@
      <Function ID="219"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="13293"/>
     </Button>
     <Button Caption="Valerie Verse 2b (automatisch)" ID="288" Icon="">
      <WindowState Visible="True" X="105" Y="10" Width="95" Height="95"/>
@@ -36843,6 +36921,7 @@
      <Function ID="554"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="8806"/>
     </Button>
     <Button Caption="Valerie Verse 2b (manuell)" ID="289" Icon="">
      <WindowState Visible="True" X="205" Y="10" Width="95" Height="95"/>
@@ -36856,6 +36935,7 @@
      <Function ID="209"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="4351"/>
     </Button>
     <Button Caption="Valerie Verse 3a (a capella automatisch)" ID="290" Icon="">
      <WindowState Visible="True" X="305" Y="10" Width="95" Height="95"/>
@@ -36869,6 +36949,7 @@
      <Function ID="555"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="376"/>
     </Button>
     <Button Caption="Valerie Verse 3a (a capella manuell)" ID="291" Icon="">
      <WindowState Visible="True" X="405" Y="10" Width="95" Height="95"/>
@@ -36882,6 +36963,7 @@
      <Function ID="208"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="30153"/>
     </Button>
    </Frame>
    <Frame Caption="" ID="292">
@@ -36911,6 +36993,7 @@
      <Function ID="22"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="25666"/>
     </Button>
     <Button Caption="Inside Spot auf Axel und Tim" ID="294" Icon="">
      <WindowState Visible="True" X="105" Y="10" Width="95" Height="95"/>
@@ -36924,6 +37007,7 @@
      <Function ID="165"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="22235"/>
     </Button>
     <Button Caption="Spot auf Axel &amp; Bibo" ID="295" Icon="">
      <WindowState Visible="True" X="205" Y="10" Width="95" Height="95"/>
@@ -36937,6 +37021,7 @@
      <Function ID="473"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="18260"/>
     </Button>
     <Button Caption="Spot auf Axel 🟢" ID="296" Icon="">
      <WindowState Visible="True" X="305" Y="10" Width="95" Height="95"/>
@@ -36950,6 +37035,7 @@
      <Function ID="224"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="49061"/>
     </Button>
     <Button Caption="Spot auf Axel 🟢 156bpm/385ms" ID="297" Icon="">
      <WindowState Visible="True" X="405" Y="10" Width="95" Height="95"/>
@@ -36963,6 +37049,7 @@
      <Function ID="522"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="44590"/>
     </Button>
     <Button Caption="Spot auf Axel 🟢 fog off" ID="298" Icon="">
      <WindowState Visible="True" X="505" Y="10" Width="95" Height="95"/>
@@ -36976,6 +37063,7 @@
      <Function ID="526"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="10805"/>
     </Button>
     <Button Caption="Spot auf Axel 🟢 hot" ID="299" Icon="">
      <WindowState Visible="True" X="600" Y="10" Width="95" Height="95"/>
@@ -36989,6 +37077,7 @@
      <Function ID="226"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="15294"/>
     </Button>
     <Button Caption="Spot auf Axel blackout" ID="300" Icon="">
      <WindowState Visible="True" X="700" Y="10" Width="95" Height="95"/>
@@ -37002,6 +37091,7 @@
      <Function ID="231"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="2343"/>
     </Button>
     <Button Caption="Spot auf Bibo 🟡" ID="301" Icon="">
      <WindowState Visible="True" X="800" Y="10" Width="95" Height="95"/>
@@ -37015,6 +37105,7 @@
      <Function ID="227"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="6320"/>
     </Button>
     <Button Caption="Spot auf Bibo 🟡 fog off" ID="302" Icon="">
      <WindowState Visible="True" X="900" Y="10" Width="95" Height="95"/>
@@ -37028,6 +37119,7 @@
      <Function ID="538"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="27665"/>
     </Button>
     <Button Caption="Spot auf PAC " ID="303" Icon="">
      <WindowState Visible="True" X="10" Y="105" Width="95" Height="95"/>
@@ -37041,6 +37133,7 @@
      <Function ID="269"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="32154"/>
     </Button>
     <Button Caption="Spot auf PAC + Blinder" ID="304" Icon="">
      <WindowState Visible="True" X="105" Y="105" Width="95" Height="95"/>
@@ -37054,6 +37147,7 @@
      <Function ID="531"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="20227"/>
     </Button>
     <Button Caption="Spot auf Pete 🔵" ID="305" Icon="">
      <WindowState Visible="True" X="205" Y="105" Width="95" Height="95"/>
@@ -37067,6 +37161,7 @@
      <Function ID="228"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="24204"/>
     </Button>
     <Button Caption="Spot auf Pete 🔵 starfield" ID="306" Icon="">
      <WindowState Visible="True" X="305" Y="105" Width="95" Height="95"/>
@@ -37080,6 +37175,7 @@
      <Function ID="163"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="42621"/>
     </Button>
     <Button Caption="Spot auf Pete, fog off" ID="307" Icon="">
      <WindowState Visible="True" X="405" Y="105" Width="95" Height="95"/>
@@ -37093,6 +37189,7 @@
      <Function ID="282"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="47094"/>
     </Button>
     <Button Caption="Spot auf Pete, Fog on" ID="308" Icon="">
      <WindowState Visible="True" X="505" Y="105" Width="95" Height="95"/>
@@ -37106,6 +37203,7 @@
      <Function ID="281"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="28853"/>
     </Button>
     <Button Caption="Spot auf Tim ⚪️" ID="309" Icon="">
      <WindowState Visible="True" X="600" Y="105" Width="95" Height="95"/>
@@ -37119,6 +37217,7 @@
      <Function ID="229"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="24894"/>
     </Button>
     <Button Caption="Spot auf Tim ⚪️ 156bpm/385ms" ID="310" Icon="">
      <WindowState Visible="True" X="700" Y="105" Width="95" Height="95"/>
@@ -37132,6 +37231,7 @@
      <Function ID="515"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="21415"/>
     </Button>
     <Button Caption="Spot auf Tim ⚪️ hot" ID="311" Icon="">
      <WindowState Visible="True" X="800" Y="105" Width="95" Height="95"/>
@@ -37145,6 +37245,7 @@
      <Function ID="14"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="16944"/>
     </Button>
     <Button Caption="Spot auf Tim ⚪️ hot ohne PAR" ID="312" Icon="">
      <WindowState Visible="True" X="900" Y="105" Width="95" Height="95"/>
@@ -37158,6 +37259,7 @@
      <Function ID="230"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="13969"/>
     </Button>
    </Frame>
   </Frame>

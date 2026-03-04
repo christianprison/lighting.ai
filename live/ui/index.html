@@ -157,16 +157,16 @@ padding:2px 8px;border-radius:3px;border:1px solid var(--border);background:tran
 .tl-sync:active{background:var(--bg4);color:var(--t2)}
 
 /* ═══ MODE TOGGLE ═══ */
-.modes{position:fixed;top:6px;left:8px;display:flex;gap:3px;z-index:10}
+.modes{display:flex;gap:3px;margin-left:auto}
 .mbtn{font-family:'DM Mono',monospace;font-size:9px;font-weight:500;letter-spacing:1px;
 padding:4px 9px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--t4);cursor:pointer;transition:all .1s}
 .mbtn.on{background:var(--green3);border-color:var(--green);color:var(--green)}
 
 /* ═══ SETTINGS BUTTON ═══ */
-.settings-btn{position:fixed;top:6px;right:8px;z-index:10;width:28px;height:28px;border-radius:4px;
-border:1px solid var(--border);background:transparent;color:var(--t4);cursor:pointer;transition:all .1s;
-display:flex;align-items:center;justify-content:center;font-size:14px}
-.settings-btn:hover{border-color:var(--t3);color:var(--t2)}
+.settings-btn{width:28px;height:28px;border-radius:4px;flex-shrink:0;margin-left:auto;
+border:1px solid var(--border2);background:var(--bg3);color:var(--t1);cursor:pointer;transition:all .1s;
+display:flex;align-items:center;justify-content:center;font-size:16px}
+.settings-btn:hover,.settings-btn:active{border-color:var(--green);color:var(--green);background:var(--green3)}
 
 /* ═══ CONFIG MODAL ═══ */
 .cfg-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(8,9,13,.92);
@@ -217,12 +217,6 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
 </head>
 <body>
 
-<div class="modes">
-  <button class="mbtn on" onclick="modeSwitch(this)">LIVE</button>
-  <button class="mbtn" onclick="modeSwitch(this)">EDIT</button>
-</div>
-<button class="settings-btn" onclick="toggleConfig()" title="QLC+ Config">&#x2699;</button>
-
 <!-- CONFIG MODAL -->
 <div class="cfg-overlay" id="cfgOverlay">
 <div class="cfg-modal">
@@ -255,7 +249,12 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
 
 <!-- LEFT: PARTS -->
 <div class="panel">
-  <div class="panel-head"><div class="ind"></div>PARTS</div>
+  <div class="panel-head"><div class="ind"></div>PARTS
+    <div class="modes">
+      <button class="mbtn on" onclick="modeSwitch(this)">LIVE</button>
+      <button class="mbtn" onclick="modeSwitch(this)">EDIT</button>
+    </div>
+  </div>
   <div class="scroll" id="parts"></div>
 </div>
 
@@ -273,7 +272,7 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
     <div class="badges">
       <div class="badge live" id="badgeLive"><div class="pulse"></div>LIVE</div>
       <div class="badge" id="badgeQlc">QLC+ &#x25CF;</div>
-      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.03.04a</div>
+      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.03.04c</div>
     </div>
     <div class="beat-area">
       <div class="beat-row">
@@ -308,7 +307,7 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
 
 <!-- RIGHT: SETLIST -->
 <div class="panel" style="border-right:none">
-  <div class="panel-head">SETLIST</div>
+  <div class="panel-head">SETLIST <button class="settings-btn" onclick="toggleConfig()" title="QLC+ Config">&#x2699;</button></div>
   <div class="scroll" id="setlist"></div>
 </div>
 

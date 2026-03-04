@@ -1282,6 +1282,16 @@ function buildTapButtons(parts, isPlay) {
       <button class="tap-btn tap-undo" id="tap-undo" ${tapHistory.length === 0 ? 'disabled' : ''}>
         <span class="tap-label">UNDO <kbd>Z</kbd></span>
       </button>
+    </div>
+    <div class="tap-row tap-row-delete" id="tap-row-delete">
+      <button class="tap-btn-delete tap-delete-parts" id="tap-delete-parts" ${partMarkers.length === 0 ? 'disabled' : ''}>
+        <span class="tap-label">ALLE PARTS LÖSCHEN</span>
+        <span class="tap-info">${partMarkers.length} Parts</span>
+      </button>
+      <button class="tap-btn-delete tap-delete-bars" id="tap-delete-bars" ${barMarkers.length === 0 ? 'disabled' : ''}>
+        <span class="tap-label">ALLE TAKTE LÖSCHEN</span>
+        <span class="tap-info">${barMarkers.length} Takte</span>
+      </button>
     </div>`;
 }
 
@@ -2429,6 +2439,50 @@ function handleUndoTap() {
   updateTapButtonStates();
 }
 
+async function handleDeleteAllParts() {
+  if (partMarkers.length === 0) return;
+  const ok = await showConfirm(
+    'Alle Parts löschen?',
+    `Alle <strong>${partMarkers.length} Part-Marker</strong> und <strong>${barMarkers.length} Bar-Marker</strong> werden entfernt.`,
+    'Löschen'
+  );
+  if (!ok) return;
+  partMarkers = [];
+  barMarkers = [];
+  tapHistory = [];
+  currentPartIndex = 0;
+  currentBarInPart = 0;
+  saveMarkersToSong();
+  markDirty();
+  drawWaveform();
+  const parts = getSortedParts(selectedSongId);
+  updateTapInfo(parts);
+  updateSplitResultLive(parts);
+  updateAudioSummaryLive(parts);
+  updateTapButtonStates();
+}
+
+async function handleDeleteAllBars() {
+  if (barMarkers.length === 0) return;
+  const ok = await showConfirm(
+    'Alle Takte löschen?',
+    `Alle <strong>${barMarkers.length} Bar-Marker</strong> werden entfernt. Part-Marker bleiben erhalten.`,
+    'Löschen'
+  );
+  if (!ok) return;
+  barMarkers = [];
+  tapHistory = tapHistory.filter(h => h.type !== 'bar');
+  currentBarInPart = 0;
+  saveMarkersToSong();
+  markDirty();
+  drawWaveform();
+  const parts = getSortedParts(selectedSongId);
+  updateTapInfo(parts);
+  updateSplitResultLive(parts);
+  updateAudioSummaryLive(parts);
+  updateTapButtonStates();
+}
+
 /* ── Speed / Zoom / Part-Seek / Marker Edit ─────── */
 
 const SPEED_STEPS = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5];
@@ -2537,6 +2591,19 @@ function updateTapInfo(parts) {
 
   const undoBtn = document.getElementById('tap-undo');
   if (undoBtn) undoBtn.disabled = tapHistory.length === 0;
+
+  const delPartsBtn = document.getElementById('tap-delete-parts');
+  if (delPartsBtn) {
+    delPartsBtn.disabled = partMarkers.length === 0;
+    const info = delPartsBtn.querySelector('.tap-info');
+    if (info) info.textContent = `${partMarkers.length} Parts`;
+  }
+  const delBarsBtn = document.getElementById('tap-delete-bars');
+  if (delBarsBtn) {
+    delBarsBtn.disabled = barMarkers.length === 0;
+    const info = delBarsBtn.querySelector('.tap-info');
+    if (info) info.textContent = `${barMarkers.length} Takte`;
+  }
 
   // Check if all parts done and show export
   if (currentPartIndex >= parts.length && !document.getElementById('export-section')) {
@@ -2745,6 +2812,8 @@ function handleAudioClick(e) {
   if (el.closest('#tap-part') && !el.closest('#tap-part').disabled) { handlePartTap(); return; }
   if (el.closest('#tap-bar') && !el.closest('#tap-bar').disabled) { handleBarTap(); return; }
   if (el.closest('#tap-undo') && !el.closest('#tap-undo').disabled) { handleUndoTap(); return; }
+  if (el.closest('#tap-delete-parts') && !el.closest('#tap-delete-parts').disabled) { handleDeleteAllParts(); return; }
+  if (el.closest('#tap-delete-bars') && !el.closest('#tap-delete-bars').disabled) { handleDeleteAllBars(); return; }
 
   // BPM update
   if (el.closest('#btn-update-bpm')) { handleBpmUpdate(); return; }

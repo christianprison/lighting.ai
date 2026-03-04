@@ -1454,6 +1454,51 @@ label {
   border-color: var(--red);
 }
 
+.tap-row-delete {
+  gap: 8px;
+}
+
+.tap-btn-delete {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 6px 10px;
+  border-radius: var(--radius);
+  border: 1px solid rgba(255, 59, 92, 0.2);
+  background: rgba(255, 59, 92, 0.05);
+  color: var(--red);
+  cursor: pointer;
+  font-family: var(--font-ui);
+  transition: all 0.15s;
+  user-select: none;
+  min-height: 36px;
+}
+
+.tap-btn-delete .tap-label {
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+
+.tap-btn-delete .tap-info {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  opacity: 0.5;
+}
+
+.tap-btn-delete[disabled] {
+  opacity: 0.2;
+  cursor: not-allowed;
+}
+
+.tap-btn-delete:not([disabled]):hover {
+  background: rgba(255, 59, 92, 0.15);
+  border-color: rgba(255, 59, 92, 0.5);
+}
+
 /* ── Split Result List ───────────────────────────── */
 .split-result {
   margin-bottom: 16px;

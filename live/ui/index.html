@@ -162,12 +162,57 @@ padding:2px 8px;border-radius:3px;border:1px solid var(--border);background:tran
 padding:4px 9px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--t4);cursor:pointer;transition:all .1s}
 .mbtn.on{background:var(--green3);border-color:var(--green);color:var(--green)}
 
+/* ═══ SETTINGS BUTTON ═══ */
+.settings-btn{position:fixed;top:6px;right:8px;z-index:10;width:28px;height:28px;border-radius:4px;
+border:1px solid var(--border);background:transparent;color:var(--t4);cursor:pointer;transition:all .1s;
+display:flex;align-items:center;justify-content:center;font-size:14px}
+.settings-btn:hover{border-color:var(--t3);color:var(--t2)}
+
+/* ═══ CONFIG MODAL ═══ */
+.cfg-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(8,9,13,.92);
+display:none;z-index:200;overflow-y:auto}
+.cfg-overlay.show{display:block}
+.cfg-modal{max-width:1200px;margin:0 auto;padding:16px}
+.cfg-header{display:flex;align-items:center;gap:16px;padding:12px 0;border-bottom:1px solid var(--border);margin-bottom:12px}
+.cfg-header h2{font-size:18px;font-weight:600;flex:1}
+.cfg-close{width:32px;height:32px;border-radius:4px;border:1px solid var(--border2);background:var(--bg3);
+color:var(--t2);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center}
+.cfg-close:hover{border-color:var(--red);color:var(--red)}
+.cfg-bar{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:10px 0;border-bottom:1px solid var(--border);margin-bottom:16px}
+.cfg-bar label{font-family:'DM Mono',monospace;font-size:11px;color:var(--t3);display:flex;align-items:center;gap:6px}
+.cfg-bar input{background:var(--bg3);border:1px solid var(--border2);color:var(--t1);padding:5px 10px;border-radius:4px;
+font-family:'DM Mono',monospace;font-size:12px;width:120px}
+.cfg-bar input[type=number]{width:70px}
+.cfg-status{font-family:'DM Mono',monospace;font-size:11px;padding:4px 10px;border-radius:12px;margin-left:auto}
+.cfg-status.ok{background:var(--green3);color:var(--green);border:1px solid var(--green)}
+.cfg-status.err{background:#ff3b5c15;color:var(--red);border:1px solid var(--red)}
+.cfg-info{font-family:'DM Mono',monospace;font-size:11px;color:var(--t3);line-height:1.6;margin-bottom:16px}
+.cfg-group{margin-bottom:20px}
+.cfg-group-title{font-family:'DM Mono',monospace;font-size:10px;font-weight:500;letter-spacing:2px;text-transform:uppercase;
+color:var(--t3);margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--border)}
+.cfg-btns{display:flex;flex-wrap:wrap;gap:6px}
+.cfg-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+width:110px;height:70px;border-radius:var(--r);border:1.5px solid var(--border2);background:var(--bg3);
+cursor:pointer;transition:all .12s;position:relative;overflow:hidden}
+.cfg-btn:hover{border-color:var(--t3);background:var(--bg4)}
+.cfg-btn:active{transform:scale(.95)}
+.cfg-btn.flash{border-color:var(--green);background:var(--green3);box-shadow:0 0 20px #00dc8220}
+.cfg-btn .lbl{font-size:10px;font-weight:500;text-align:center;padding:0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.cfg-btn .ch{font-family:'DM Mono',monospace;font-size:9px;color:var(--t4)}
+.cfg-btn.flash .ch{color:var(--green)}
+
 /* ═══ CONNECTION OVERLAY ═══ */
 .conn-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(8,9,13,.9);
 display:none;align-items:center;justify-content:center;z-index:100;flex-direction:column;gap:12px}
 .conn-overlay.show{display:flex}
 .conn-msg{font-family:'DM Mono',monospace;font-size:14px;color:var(--t2)}
 .conn-dot{width:10px;height:10px;border-radius:50%;background:var(--amber);animation:pulse 1s infinite}
+
+/* ═══ TOAST ═══ */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--bg3);border:1px solid var(--green);
+color:var(--green);padding:8px 20px;border-radius:20px;font-family:'DM Mono',monospace;font-size:12px;
+opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
+.toast.show{opacity:1}
 </style>
 </head>
 <body>
@@ -176,6 +221,29 @@ display:none;align-items:center;justify-content:center;z-index:100;flex-directio
   <button class="mbtn on" onclick="modeSwitch(this)">LIVE</button>
   <button class="mbtn" onclick="modeSwitch(this)">EDIT</button>
 </div>
+<button class="settings-btn" onclick="toggleConfig()" title="QLC+ Config">&#x2699;</button>
+
+<!-- CONFIG MODAL -->
+<div class="cfg-overlay" id="cfgOverlay">
+<div class="cfg-modal">
+  <div class="cfg-header">
+    <h2>QLC+ OSC Config</h2>
+    <button class="cfg-close" onclick="toggleConfig()">&times;</button>
+  </div>
+  <div class="cfg-bar">
+    <label>Host <input type="text" id="oscHost" value="127.0.0.1"></label>
+    <label>Port <input type="number" id="oscPort" value="7700"></label>
+    <label>Universe <input type="number" id="oscUni" value="1"></label>
+    <div class="cfg-status" id="cfgConnStatus">...</div>
+  </div>
+  <div class="cfg-info">
+    QLC+ &rarr; Button &rarr; External Input &rarr; Auto-Detect &rarr; hier klicken.
+  </div>
+  <div id="cfgGroups"></div>
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
 
 <div class="conn-overlay" id="connOverlay">
   <div class="conn-dot"></div>
@@ -606,6 +674,144 @@ function modeSwitch(el) {
   var bs = document.querySelectorAll('.mbtn');
   for (var i = 0; i < bs.length; i++) bs[i].classList.remove('on');
   el.classList.add('on');
+}
+
+// ─── QLC+ Config Modal ────────────────────────
+
+var CFG_BUTTONS = {
+  "00 blackout": [
+    [0,"00 blackout"],[1,"00 blackout fog off / 116bpm"]
+  ],
+  "01 statisch bunt": [
+    [2,"01 statisch bunt \ud83c\udf89"],[3,"01 statisch bunt \ud83c\udf89 190bpm"],[4,"01 statisch bunt \ud83c\udf89 fog off"]
+  ],
+  "02 slow blue": [
+    [5,"02 slow blue \ud83d\udd35"],[6,"02 slow blue \ud83d\udd35 fog off"],[7,"02 slow blue \ud83d\udd35 fog on"]
+  ],
+  "03 walking": [
+    [8,"03 walking \ud83d\udeb6"],[9,"03 walking \ud83d\udeb6 fog off"]
+  ],
+  "04 up'n'down": [[10,"04 up'n'down \u2195"]],
+  "05 left'n'right": [[11,"05 left'n'right \u2194\ufe0f"]],
+  "06 blinking": [
+    [12,"06 blinking \ud83d\udd06"],[13,"06 blinking \ud83d\udd06 fog off"],[14,"06 blinking \ud83d\udd06 fog on"]
+  ],
+  "07 round'n'round": [
+    [15,"07 round'n'round \ud83d\udd04"],[16,"07 round'n'round \ud83d\udd04 (Yellow)"]
+  ],
+  "08 swimming": [[17,"08 swimming \ud83c\udfca\ud83c\udffb\u200d"]],
+  "09 Alarm": [[18,"09 Alarm \ud83d\udd14"],[19,"09 Alarm \ud83d\udd14 fog on"]],
+  "10 Alarm \ud83d\udd14\ud83d\udd14": [[20,"10 Alarm \ud83d\udd14\ud83d\udd14"]],
+  "10 Strobe": [
+    [21,"10 Strobe \u2733\ufe0f"],[22,"10 Strobe \u2733\ufe0f Fog off"],[23,"10 Strobe \u2733\ufe0f Fog on"]
+  ],
+  "11 Stop": [
+    [24,"11 Stop \ud83d\uded1"],[25,"11 Stop (Copy)"],[26,"080bpm"],[27,"082bpm"],[28,"084bpm"],
+    [29,"086bpm"],[30,"088bpm"],[31,"090bpm"],[32,"096bpm"],[33,"100bpm"],
+    [34,"104bpm"],[35,"108bpm"],[36,"112bpm"],[37,"116bpm"],[38,"120bpm"],
+    [39,"128bpm"],[40,"136bpm"],[41,"148bpm"],[42,"152bpm"],[43,"156bpm"],
+    [44,"160bpm"],[45,"170bpm"],[46,"190bpm"],[47,"200bpm"],[48,"206bpm"]
+  ],
+  "12 slow red": [[49,"12 slow red"],[50,"12 slow red drip"]],
+  "16 Searchlight": [
+    [51,"Searchlight \ud83d\udd26"],[52,"Searchlight cyan"],[53,"Searchlight cyan fog off"],
+    [54,"Searchlight fog off"],[55,"Searchlight fog on"]
+  ],
+  "20-22": [
+    [56,"20 white Fan up"],[57,"21 white fan down"],
+    [58,"22 blind"],[59,"22 blind fog off"],[60,"22 blind fog on"]
+  ],
+  "D O R up W": [[61,"D"],[62,"O"],[63,"R"],[64,"up"],[65,"W"]],
+  "Einzelszenen": [
+    [66,"Chor"],[67,"Heads Cross White"],[68,"Heads Publikum"],[69,"heads white open"],
+    [70,"PAR Blue+Fog"],[71,"PAR Blue+Fog off"],[72,"PAR Green+Fog"],
+    [73,"red+green alt."],[74,"S\u00e4ulen red drip"],[75,"static dark blue"],
+    [76,"stripes center"],[77,"strips twinkle"],[78,"TMHs center yellow"],[79,"up'n'down (ohne fx)"]
+  ],
+  "Song-spezifisch": [
+    [80,"The Reason Intro"],[81,"Valerie V2b auto"],[82,"Valerie V2b man"],
+    [83,"Valerie V3a auto"],[84,"Valerie V3a man"]
+  ],
+  "Spots & Combos": [
+    [85,"walking+PARs Pete"],[86,"Inside Axel+Tim"],[87,"Axel & Bibo"],
+    [88,"Spot Axel \ud83d\udfe2"],[89,"Spot Axel 156bpm"],[90,"Spot Axel fog off"],
+    [91,"Spot Axel hot"],[92,"Spot Axel blackout"],
+    [93,"Spot Bibo \ud83d\udfe1"],[94,"Spot Bibo fog off"],
+    [95,"Spot PAC"],[96,"Spot PAC+Blinder"],
+    [97,"Spot Pete \ud83d\udd35"],[98,"Spot Pete starfield"],[99,"Spot Pete fog off"],[100,"Spot Pete fog on"],
+    [101,"Spot Tim \u26aa\ufe0f"],[102,"Spot Tim 156bpm"],[103,"Spot Tim hot"],[104,"Spot Tim hot ohne PAR"]
+  ]
+};
+
+function renderCfgButtons() {
+  var container = document.getElementById('cfgGroups');
+  var html = '';
+  for (var group in CFG_BUTTONS) {
+    html += '<div class="cfg-group"><div class="cfg-group-title">' + escHtml(group) + '</div><div class="cfg-btns">';
+    var btns = CFG_BUTTONS[group];
+    for (var i = 0; i < btns.length; i++) {
+      var b = btns[i];
+      html += '<div class="cfg-btn" data-ch="' + b[0] + '" onclick="cfgTrigger(this,' + b[0] + ')">';
+      html += '<span class="lbl">' + escHtml(b[1]) + '</span>';
+      html += '<span class="ch">CH ' + b[0] + '</span>';
+      html += '</div>';
+    }
+    html += '</div></div>';
+  }
+  container.innerHTML = html;
+}
+
+function toggleConfig() {
+  var el = document.getElementById('cfgOverlay');
+  var show = !el.classList.contains('show');
+  el.classList.toggle('show');
+  if (show) {
+    renderCfgButtons();
+    cfgCheckConn();
+  }
+}
+
+async function cfgTrigger(el, channel) {
+  var host = document.getElementById('oscHost').value;
+  var port = parseInt(document.getElementById('oscPort').value, 10);
+  var uni = parseInt(document.getElementById('oscUni').value, 10);
+  el.classList.add('flash');
+  setTimeout(function() { el.classList.remove('flash'); }, 400);
+  try {
+    var resp = await fetch('/api/osc/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ host: host, port: port, universe: uni, collection_id: channel })
+    });
+    var data = await resp.json();
+    showToast(data.ok ? 'CH ' + channel + ' gesendet' : 'Fehler: ' + (data.error || '?'));
+  } catch (e) { showToast('Server nicht erreichbar'); }
+}
+
+async function cfgCheckConn() {
+  var el = document.getElementById('cfgConnStatus');
+  try {
+    var data = await fetchJSON('/api/qlc/status');
+    if (data.connected) {
+      el.textContent = 'OSC OK';
+      el.className = 'cfg-status ok';
+    } else {
+      el.textContent = 'OSC nicht verbunden';
+      el.className = 'cfg-status err';
+    }
+  } catch (e) {
+    el.textContent = 'Server offline';
+    el.className = 'cfg-status err';
+  }
+}
+
+var toastTimer = null;
+function showToast(msg) {
+  var el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(function() { el.classList.remove('show'); }, 2000);
 }
 
 // ─── Init ─────────────────────────────────────

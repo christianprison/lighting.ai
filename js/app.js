@@ -3066,7 +3066,11 @@ function handleLyricsClick(e) {
     } else {
       nonInstr.forEach(p => _lyricsCollapsed.add(p.id));
     }
+    const scrollEl = document.getElementById('lyrics-scroll');
+    const savedScroll = scrollEl ? scrollEl.scrollTop : 0;
     renderLyricsTab();
+    const scrollEl2 = document.getElementById('lyrics-scroll');
+    if (scrollEl2) scrollEl2.scrollTop = savedScroll;
     return;
   }
 
@@ -3074,12 +3078,29 @@ function handleLyricsClick(e) {
   const collapseBtn = el.closest('[data-lyrics-collapse]');
   if (collapseBtn) {
     const partId = collapseBtn.dataset.lyricsCollapse;
+    const card = collapseBtn.closest('.lyrics-part-card');
+    const scrollEl = document.getElementById('lyrics-scroll');
+    const cardTop = card ? card.getBoundingClientRect().top : 0;
+
     if (_lyricsCollapsed.has(partId)) {
       _lyricsCollapsed.delete(partId);
     } else {
       _lyricsCollapsed.add(partId);
     }
+
+    const savedScroll = scrollEl ? scrollEl.scrollTop : 0;
     renderLyricsTab();
+    const scrollEl2 = document.getElementById('lyrics-scroll');
+    if (scrollEl2) {
+      // Keep the clicked card at the same screen position
+      const newCard = scrollEl2.querySelector(`.lyrics-part-card[data-part-id="${partId}"]`);
+      if (newCard) {
+        const newCardTop = newCard.getBoundingClientRect().top;
+        scrollEl2.scrollTop += newCardTop - cardTop;
+      } else {
+        scrollEl2.scrollTop = savedScroll;
+      }
+    }
     return;
   }
 

@@ -532,6 +532,9 @@ function renderSongFields() {
         <label>Notes</label>
         <textarea data-song-field="notes" rows="2" placeholder="Notizen...">${esc(song.notes || '')}</textarea>
       </div>
+      <div class="sf-full sf-delete">
+        <button class="btn btn-sm btn-danger" data-action="delete-song">SONG LÖSCHEN</button>
+      </div>
     </div>`;
 }
 
@@ -826,6 +829,12 @@ function handleEditorClick(e) {
     return;
   }
 
+  /* ── Delete song ── */
+  if (el.closest('[data-action="delete-song"]')) {
+    handleDeleteSong();
+    return;
+  }
+
   /* ── Part toolbar actions ── */
   const actionBtn = el.closest('[data-action]');
   if (actionBtn && !actionBtn.disabled) {
@@ -873,6 +882,31 @@ function handlePartSelect(partId) {
 function handleBarSelect(barNum) {
   selectedBarNum = (selectedBarNum === barNum) ? null : barNum;
   renderBarSection();
+}
+
+async function handleDeleteSong() {
+  if (!selectedSongId || !db.songs[selectedSongId]) return;
+  const song = db.songs[selectedSongId];
+  const parts = getSortedParts(selectedSongId);
+  const barCount = Object.values(db.bars || {}).filter(b => parts.some(p => p.id === b.part_id)).length;
+  const inSetlist = (db.setlist?.items || []).some(i => i.type === 'song' && i.song_id === selectedSongId);
+
+  let details = `<strong>${esc(song.name)}</strong> (${esc(song.artist)})<br>`;
+  details += `${parts.length} Parts, ${barCount} Takte`;
+  if (inSetlist) details += ', in Setlist referenziert';
+  details += ' — alles wird unwiderruflich gelöscht.';
+
+  const ok = await showConfirm('Song löschen?', details, 'Löschen');
+  if (!ok) return;
+
+  integrity.deleteSong(db, selectedSongId);
+  selectedSongId = null;
+  selectedPartId = null;
+  selectedBarNum = null;
+  markDirty();
+  renderSongList(els.searchBox.value);
+  renderEditorTab();
+  toast(`Song "${song.name}" gelöscht`, 'success');
 }
 
 function handlePartAction(action) {

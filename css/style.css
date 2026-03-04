@@ -629,6 +629,12 @@ label {
   grid-column: 1 / -1;
 }
 
+.song-fields .sf-delete {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
 .song-fields input,
 .song-fields textarea,
 .song-fields select {

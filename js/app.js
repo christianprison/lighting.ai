@@ -1266,7 +1266,8 @@ function buildTransport() {
 function buildTapButtons(parts, isPlay) {
   const nextPartName = currentPartIndex < parts.length ? parts[currentPartIndex].name : '\u2014';
   const allPartsDone = currentPartIndex >= parts.length;
-  const barLabel = currentBarInPart > 0 ? `Bar ${currentBarInPart + 1}` : 'Bar 1';
+  const nextAbsBar = barMarkers.length + 1;
+  const barLabel = `Bar ${nextAbsBar}`;
 
   return `
     <div class="tap-row" id="tap-row">
@@ -1531,10 +1532,11 @@ function drawWaveform() {
     ctx.fillRect(i * barW, mid - barH / 2, Math.max(barW - 0.5, 1), barH || 1);
   }
 
-  // Bar markers (cyan lines — highlight when dragging)
+  // Bar markers (cyan lines — highlight when dragging, with absolute bar number)
   for (let bi = 0; bi < barMarkers.length; bi++) {
     const m = barMarkers[bi];
     const x = (m.time / duration) * w;
+    const absBarNum = bi + 1; // absolute bar number from song start
     const isDragTarget = _isDragging && _dragMarker && _dragMarker.type === 'bar' && _dragMarker.index === bi;
     ctx.strokeStyle = isDragTarget ? 'rgba(56, 189, 248, 0.9)' : 'rgba(56, 189, 248, 0.4)';
     ctx.lineWidth = isDragTarget ? 2 : 1;
@@ -1542,7 +1544,13 @@ function drawWaveform() {
     ctx.moveTo(x, 0);
     ctx.lineTo(x, h);
     ctx.stroke();
-    // Show time label when dragging a bar marker
+    // Bar number label (skip if a part marker sits at same position — part label takes priority)
+    const isPartStart = partMarkers.some(pm => Math.abs(pm.time - m.time) < 0.01);
+    if (!isPartStart) {
+      ctx.font = '9px "DM Mono", monospace';
+      ctx.fillStyle = isDragTarget ? 'rgba(56, 189, 248, 0.95)' : 'rgba(56, 189, 248, 0.6)';
+      ctx.fillText(String(absBarNum), x + 3, 10);
+    }
     if (isDragTarget) {
       ctx.font = '10px "DM Mono", monospace';
       ctx.fillStyle = 'rgba(56, 189, 248, 0.95)';
@@ -1610,7 +1618,9 @@ function drawWaveform() {
     }
 
     // Absolute bar number above bottom (or time during drag)
-    const startBar = partStartBar[m.partIndex];
+    // Use barMarkers (tapped) if available, fallback to DB-based count
+    const firstBarIdx = barMarkers.findIndex(b => b.partIndex === m.partIndex);
+    const startBar = firstBarIdx >= 0 ? firstBarIdx + 1 : partStartBar[m.partIndex];
     if (isDragTarget) {
       ctx.font = '11px "DM Mono", monospace';
       ctx.fillStyle = 'rgba(240, 160, 48, 1.0)';
@@ -2521,7 +2531,7 @@ function updateTapInfo(parts) {
   }
   if (barBtn) {
     const info = barBtn.querySelector('.tap-info');
-    if (info) info.textContent = `Bar ${currentBarInPart + 1}`;
+    if (info) info.textContent = `Bar ${barMarkers.length + 1}`;
     barBtn.disabled = !audio.isPlaying() || currentPartIndex === 0;
   }
 

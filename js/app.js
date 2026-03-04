@@ -52,6 +52,7 @@ let _dragMarker = null;        // { type: 'part'|'bar', index: number, originalT
 let _isDragging = false;       // true while actively dragging (moved > threshold)
 let _dragStartX = 0;           // mouse/touch start X for drag threshold
 let _dragSuppressClick = false; // prevent seek after drag ends
+let _suppressAutoScroll = false; // prevent auto-scroll after drag finalize
 
 const SETTINGS_KEY = 'lightingai_settings';
 
@@ -105,7 +106,6 @@ function cacheDom() {
     tabAudio:      document.getElementById('tab-audio'),
     tabLyrics:     document.getElementById('tab-lyrics'),
     tabSetlist:    document.getElementById('tab-setlist'),
-    tabQlc:        document.getElementById('tab-qlc'),
     btnSettings:   document.getElementById('btn-settings'),
     btnSave:       document.getElementById('btn-save'),
     searchBox:     document.getElementById('search-box'),
@@ -433,6 +433,10 @@ function switchTab(tab) {
   if (activeTab === 'lyrics' && tab !== 'lyrics') {
     stopLyricsPartPlay();
   }
+  // Pre-warm AudioContext for tabs with playback
+  if (tab === 'lyrics' || tab === 'audio' || tab === 'parts' || tab === 'takte') {
+    audio.warmup();
+  }
   activeTab = tab;
   els.tabEditor?.classList.toggle('active', tab === 'editor');
   els.tabParts?.classList.toggle('active', tab === 'parts');
@@ -440,7 +444,6 @@ function switchTab(tab) {
   els.tabAudio?.classList.toggle('active', tab === 'audio');
   els.tabLyrics?.classList.toggle('active', tab === 'lyrics');
   els.tabSetlist?.classList.toggle('active', tab === 'setlist');
-  els.tabQlc?.classList.toggle('active', tab === 'qlc');
   renderContent();
 }
 
@@ -455,7 +458,6 @@ function renderContent() {
   else if (activeTab === 'audio') renderAudioTab();
   else if (activeTab === 'lyrics') renderLyricsTab();
   else if (activeTab === 'setlist') renderSetlistTab();
-  else if (activeTab === 'qlc') renderQlcTab();
 }
 
 /* ══════════════════════════════════════════════════════
@@ -1634,7 +1636,7 @@ function drawWaveform() {
     ctx.shadowBlur = 0;
 
     // Auto-scroll to keep playhead visible when zoomed
-    if (waveformZoom > 1) {
+    if (waveformZoom > 1 && !_suppressAutoScroll) {
       const scrollLeft = wrap.scrollLeft;
       const viewW = wrapRect.width;
       if (px < scrollLeft + 40 || px > scrollLeft + viewW - 40) {
@@ -1865,14 +1867,17 @@ function onWaveformPointerMove(e) {
       if (_dragMarker.type === 'part') {
         const oldTime = partMarkers[_dragMarker.index].time;
         partMarkers[_dragMarker.index].time = newTime;
-        // Move the first bar of this part along with the part marker
-        // Tolerance raised to 0.1s to handle slight drift from import/manual edits
-        const partIdx = partMarkers[_dragMarker.index].partIndex;
-        const barsInPart = barMarkers
-          .filter(bm => bm.partIndex === partIdx)
-          .sort((a, b) => a.time - b.time);
-        if (barsInPart.length > 0 && Math.abs(barsInPart[0].time - oldTime) < 0.1) {
-          barsInPart[0].time = newTime;
+        // Move the nearest bar marker along with the part marker (0.2s tolerance)
+        // Search ALL bar markers regardless of partIndex — a bar just before
+        // the part marker belongs to the previous part but should still follow
+        let nearestBar = null;
+        let nearestDist = Infinity;
+        for (const bm of barMarkers) {
+          const d = Math.abs(bm.time - oldTime);
+          if (d < nearestDist) { nearestBar = bm; nearestDist = d; }
+        }
+        if (nearestBar && nearestDist < 0.2) {
+          nearestBar.time = newTime;
         }
       } else {
         barMarkers[_dragMarker.index].time = newTime;
@@ -1929,11 +1934,27 @@ function onWaveformPointerUp(e) {
     // Re-assign bar markers to correct parts based on time
     reassignBarMarkerParts();
 
-    // Persist and update UI
+    // Persist and update UI — preserve scroll positions across re-render
     saveMarkersToSong();
     markDirty();
-    drawWaveform();
+
+    const scrollEl = document.getElementById('audio-scroll');
+    const savedScrollTop = scrollEl ? scrollEl.scrollTop : 0;
+    const savedWrapScroll = wrap ? wrap.scrollLeft : 0;
+
+    _suppressAutoScroll = true;
     renderAudioTab();
+
+    // Restore scroll after renderAudioTab's requestAnimationFrame has run
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const scrollEl2 = document.getElementById('audio-scroll');
+        if (scrollEl2) scrollEl2.scrollTop = savedScrollTop;
+        const wrap2 = document.getElementById('waveform-wrap');
+        if (wrap2) wrap2.scrollLeft = savedWrapScroll;
+        _suppressAutoScroll = false;
+      });
+    });
 
     _dragSuppressClick = true;
   }
@@ -1963,12 +1984,17 @@ function reassignBarMarkerParts() {
  * Ensure the first bar marker of each part is snapped to its part marker time.
  */
 function snapFirstBarsToPartMarkers() {
+  const SNAP_TOLERANCE = 0.2; // seconds
   for (const pm of partMarkers) {
-    const barsInPart = barMarkers
-      .filter(bm => bm.partIndex === pm.partIndex)
-      .sort((a, b) => a.time - b.time);
-    if (barsInPart.length > 0) {
-      barsInPart[0].time = pm.time;
+    // Find the nearest bar marker across ALL bars (regardless of partIndex)
+    let nearest = null;
+    let nearestDist = Infinity;
+    for (const bm of barMarkers) {
+      const d = Math.abs(bm.time - pm.time);
+      if (d < nearestDist) { nearest = bm; nearestDist = d; }
+    }
+    if (nearest && nearestDist <= SNAP_TOLERANCE) {
+      nearest.time = pm.time;
     }
   }
 }
@@ -2771,6 +2797,17 @@ function renderLyricsTab() {
         </div>` : ''}
       </div>
     </div>`;
+
+  // Draw lyrics waveforms after DOM is ready
+  requestAnimationFrame(() => {
+    drawLyricsPartWaveforms();
+    // Attach drag listeners to lyrics wave canvases
+    const canvases = document.querySelectorAll('canvas[data-lyrics-wave-idx]');
+    for (const c of canvases) {
+      c.addEventListener('mousedown', initLyricsWaveDrag);
+      c.addEventListener('touchstart', initLyricsWaveDrag, { passive: false });
+    }
+  });
 }
 
 function buildLyricsRawImport(song, geniusUrl) {
@@ -2800,6 +2837,7 @@ function buildLyricsPartsList(parts, song, hasBuf) {
   html += '</div>';
   html += '<div class="lyrics-parts-list" id="lyrics-parts-list">';
 
+  let absBarOffset = 0; // cumulative bar count for absolute numbering
   for (let i = 0; i < parts.length; i++) {
     const part = parts[i];
     const barCount = part.bars || 0;
@@ -2838,13 +2876,242 @@ function buildLyricsPartsList(parts, song, hasBuf) {
             ${isPlaying ? '&#9724;' : '&#9654;'}
           </button>` : ''}
         </div>
-        ${!isInstr && !isCollapsed ? `<textarea class="lyrics-part-text" data-lyrics-part="${part.id}" rows="${Math.max(2, barCount)}" placeholder="${barCount > 0 ? barCount + ' Zeilen = ' + barCount + ' Takte (1 Zeile pro Takt)' : 'Keine Takte'}">${esc(lyricsText)}</textarea>
-        <div class="lyrics-part-bar-hint text-t3">${barCount > 0 ? 'Zeile 1 = Takt 1, Zeile 2 = Takt 2, ...' : ''}</div>` : ''}
+        ${!isInstr && !isCollapsed ? buildLyricsPartBody(part, i, barCount, barLyrics, hasBuf, absBarOffset) : ''}
       </div>`;
+    absBarOffset += barCount;
   }
 
   html += '</div>';
   return html;
+}
+
+/**
+ * Build the body of a lyrics part card: waveform + horizontal bar inputs.
+ */
+function buildLyricsPartBody(part, partIndex, barCount, barLyrics, hasBuf, absBarOffset) {
+  if (barCount === 0) {
+    return '<div class="lyrics-part-bar-hint text-t3">Keine Takte definiert</div>';
+  }
+
+  // Waveform canvas for this part (if audio is loaded and part markers exist)
+  const partMarker = partMarkers.find(m => m.partIndex === partIndex);
+  const partEnd = getPartEndTime(partIndex);
+  const showWave = hasBuf && partMarker && partEnd;
+
+  // Calculate proportional bar widths from bar markers (matching waveform)
+  // Bar markers include the first bar at the part start, so boundaries are:
+  // [bar1(=partStart), bar2, bar3, ..., partEnd]
+  const bars = getBarMarkersForPart(partIndex);
+  let barWidths = null; // null = equal width fallback
+  if (showWave && bars.length > 0 && partEnd) {
+    const boundaries = [...bars.map(m => m.time), partEnd];
+    const durations = [];
+    for (let i = 0; i < boundaries.length - 1; i++) {
+      durations.push(Math.max(0, boundaries[i + 1] - boundaries[i]));
+    }
+    if (durations.length === barCount) {
+      barWidths = durations;
+    }
+  }
+
+  // Calculate min-width per cell based on text content (~7px per char for mono 0.72rem + 8px padding)
+  const PX_PER_CHAR = 7;
+  const CELL_PAD = 10;
+  const MIN_CELL_W = 32;
+  const cellMinWidths = barLyrics.map(text => Math.max(MIN_CELL_W, (text || '').length * PX_PER_CHAR + CELL_PAD));
+
+  // If proportional widths are used, check if any cell is too narrow for its text
+  // and scale the total row width up to accommodate
+  let totalMinWidth = 0;
+  if (barWidths) {
+    const totalDur = barWidths.reduce((a, b) => a + b, 0);
+    if (totalDur > 0) {
+      // Find the scale factor needed so every cell is at least cellMinWidths[i] wide
+      // At base: cellWidth[i] = (barWidths[i]/totalDur) * containerWidth
+      // We need: (barWidths[i]/totalDur) * totalWidth >= cellMinWidths[i]
+      // => totalWidth >= cellMinWidths[i] / (barWidths[i]/totalDur)
+      let neededWidth = 0;
+      for (let i = 0; i < barCount; i++) {
+        const frac = barWidths[i] / totalDur;
+        if (frac > 0) {
+          neededWidth = Math.max(neededWidth, cellMinWidths[i] / frac);
+        }
+      }
+      totalMinWidth = Math.ceil(neededWidth);
+    }
+  } else {
+    totalMinWidth = cellMinWidths.reduce((a, b) => a + b, 0);
+  }
+
+  // Build scrollable container for waveform + bars (scroll together)
+  const minWStyle = totalMinWidth > 0 ? `min-width:${totalMinWidth}px` : '';
+  let html = `<div class="lyrics-part-scroll">`;
+  html += `<div class="lyrics-part-scroll-inner" ${minWStyle ? `style="${minWStyle}"` : ''}>`;
+
+  if (showWave) {
+    html += `<div class="lyrics-wave-wrap" data-lyrics-wave-part="${partIndex}">
+      <canvas class="lyrics-wave-canvas" data-lyrics-wave-idx="${partIndex}" data-wave-start="${partMarker.time}" data-wave-end="${partEnd}"></canvas>
+    </div>`;
+  }
+
+  // Horizontal bar inputs (absolute bar numbering from song start)
+  html += '<div class="lyrics-bars-row">';
+  for (let b = 0; b < barCount; b++) {
+    const text = barLyrics[b] || '';
+    const absBarNum = absBarOffset + b + 1;
+    const flexStyle = barWidths ? `flex:${barWidths[b].toFixed(4)} 1 0` : '';
+    html += `<div class="lyrics-bar-cell" ${flexStyle ? `style="${flexStyle}"` : ''}>
+      <div class="lyrics-bar-num mono text-t3">${absBarNum}</div>
+      <input type="text" class="lyrics-bar-input" data-lyrics-bar-part="${part.id}" data-lyrics-bar-num="${b + 1}" value="${esc(text)}" placeholder="\u2014">
+    </div>`;
+  }
+  html += '</div>';
+  html += '</div></div>';
+
+  return html;
+}
+
+/**
+ * Draw waveform with bar markers for a lyrics part canvas.
+ * Called after renderLyricsTab to populate canvases.
+ */
+function drawLyricsPartWaveforms() {
+  if (!audio.getBuffer() || !audioMeta) return;
+  const canvases = document.querySelectorAll('canvas[data-lyrics-wave-idx]');
+  for (const canvas of canvases) {
+    drawLyricsPartWaveform(canvas);
+  }
+}
+
+function drawLyricsPartWaveform(canvas) {
+  if (!audio.getBuffer() || !audioMeta) return;
+  const partIndex = parseInt(canvas.dataset.lyricsWaveIdx, 10);
+  const startSec = parseFloat(canvas.dataset.waveStart);
+  const endSec = parseFloat(canvas.dataset.waveEnd);
+  if (isNaN(startSec) || isNaN(endSec) || endSec <= startSec) return;
+
+  const dpr = window.devicePixelRatio || 1;
+  const w = canvas.clientWidth;
+  const h = canvas.clientHeight;
+  if (w <= 0 || h <= 0) return;
+
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, w, h);
+
+  // Draw waveform
+  const buckets = Math.floor(w);
+  const peaks = audio.getPeaksRange(startSec, endSec, buckets);
+  const mid = h / 2;
+  for (let i = 0; i < buckets; i++) {
+    const amp = peaks[i];
+    const barH = amp * (h * 0.85);
+    const opacity = 0.3 + amp * 0.7;
+    ctx.fillStyle = `rgba(0, 220, 130, ${opacity})`;
+    ctx.fillRect(i, mid - barH / 2, 1, barH || 1);
+  }
+
+  // Draw bar markers
+  const partDur = endSec - startSec;
+  const bars = getBarMarkersForPart(partIndex);
+  for (let bi = 0; bi < bars.length; bi++) {
+    const relTime = bars[bi].time - startSec;
+    const x = (relTime / partDur) * w;
+    const isDrag = _lyricsWaveDrag && _lyricsWaveDrag.partIndex === partIndex && _lyricsWaveDrag.barIdx === bi;
+    ctx.strokeStyle = isDrag ? 'rgba(56, 189, 248, 0.95)' : 'rgba(56, 189, 248, 0.5)';
+    ctx.lineWidth = isDrag ? 2 : 1;
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, h);
+    ctx.stroke();
+
+    // Bar number label
+    ctx.font = '9px "DM Mono", monospace';
+    ctx.fillStyle = isDrag ? 'rgba(56, 189, 248, 0.95)' : 'rgba(56, 189, 248, 0.6)';
+    ctx.fillText(String(bi + 1), x + 2, 10);
+
+    if (isDrag) {
+      ctx.fillStyle = 'rgba(56, 189, 248, 0.95)';
+      ctx.fillText(fmtTime(bars[bi].time), x + 2, h - 3);
+    }
+  }
+}
+
+/* ── Lyrics Waveform Bar Marker Drag ─────────────── */
+
+let _lyricsWaveDrag = null; // { canvas, partIndex, barIdx, startX, startTime, bars }
+
+function initLyricsWaveDrag(e) {
+  const canvas = e.target.closest('canvas[data-lyrics-wave-idx]');
+  if (!canvas || !audioMeta) return;
+  const partIndex = parseInt(canvas.dataset.lyricsWaveIdx, 10);
+  const startSec = parseFloat(canvas.dataset.waveStart);
+  const endSec = parseFloat(canvas.dataset.waveEnd);
+  if (isNaN(startSec) || isNaN(endSec)) return;
+
+  const rect = canvas.getBoundingClientRect();
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const xPx = clientX - rect.left;
+  const w = rect.width;
+  const partDur = endSec - startSec;
+  const clickTime = startSec + (xPx / w) * partDur;
+
+  // Hit test: find nearest bar marker
+  const bars = getBarMarkersForPart(partIndex);
+  let bestIdx = -1, bestDist = Infinity;
+  for (let i = 0; i < bars.length; i++) {
+    const mX = ((bars[i].time - startSec) / partDur) * w;
+    const dist = Math.abs(mX - xPx);
+    if (dist < bestDist) { bestDist = dist; bestIdx = i; }
+  }
+  if (bestIdx < 0 || bestDist > 12) return; // 12px threshold
+
+  e.preventDefault();
+  _lyricsWaveDrag = {
+    canvas, partIndex, barIdx: bestIdx, startSec, endSec,
+    origTime: bars[bestIdx].time
+  };
+  drawLyricsPartWaveform(canvas);
+}
+
+function moveLyricsWaveDrag(e) {
+  if (!_lyricsWaveDrag) return;
+  e.preventDefault();
+  const { canvas, partIndex, barIdx, startSec, endSec } = _lyricsWaveDrag;
+  const rect = canvas.getBoundingClientRect();
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const xPx = clientX - rect.left;
+  const w = rect.width;
+  const partDur = endSec - startSec;
+
+  let newTime = startSec + (xPx / w) * partDur;
+  newTime = Math.max(startSec + 0.01, Math.min(endSec - 0.01, newTime));
+
+  // Update the actual barMarkers array
+  const bars = getBarMarkersForPart(partIndex);
+  if (bars[barIdx]) {
+    // Find in global barMarkers
+    const globalIdx = barMarkers.findIndex(m =>
+      m.partIndex === partIndex && Math.abs(m.time - bars[barIdx].time) < 0.0001);
+    if (globalIdx >= 0) {
+      barMarkers[globalIdx].time = newTime;
+    }
+  }
+
+  drawLyricsPartWaveform(canvas);
+}
+
+function endLyricsWaveDrag() {
+  if (!_lyricsWaveDrag) return;
+  const moved = _lyricsWaveDrag;
+  _lyricsWaveDrag = null;
+
+  // Re-sort global bar markers and save
+  barMarkers.sort((a, b) => a.time - b.time);
+  saveMarkersToSong();
+  drawLyricsPartWaveform(moved.canvas);
 }
 
 /**
@@ -2890,18 +3157,14 @@ function distributeLyricsToparts() {
     const barCount = part.bars || 0;
     if (barCount === 0 || part.instrumental) continue;
 
-    const ta = document.querySelector(`.lyrics-part-text[data-lyrics-part="${part.id}"]`);
-    if (!ta) continue;
-
     const section = sections[sIdx];
     sIdx++;
 
-    // Pad or trim to match bar count
-    const lines = [];
+    // Fill individual bar inputs
     for (let b = 0; b < barCount; b++) {
-      lines.push(b < section.length ? section[b] : '');
+      const inp = document.querySelector(`.lyrics-bar-input[data-lyrics-bar-part="${part.id}"][data-lyrics-bar-num="${b + 1}"]`);
+      if (inp) inp.value = b < section.length ? section[b] : '';
     }
-    ta.value = lines.join('\n');
   }
 
   markDirty();
@@ -2909,7 +3172,7 @@ function distributeLyricsToparts() {
 }
 
 /**
- * Apply lyrics from all part textareas into DB bar records.
+ * Apply lyrics from all part bar inputs into DB bar records.
  */
 function applyLyricsToDB() {
   if (!selectedSongId) return;
@@ -2938,14 +3201,9 @@ function applyLyricsToDB() {
       continue;
     }
 
-    // Find textarea by data attribute (not by index — instrumental parts have none)
-    const ta = document.querySelector(`.lyrics-part-text[data-lyrics-part="${part.id}"]`);
-    if (!ta) continue;
-
-    const lines = ta.value.split('\n');
-
     for (let b = 1; b <= barCount; b++) {
-      const text = (b - 1 < lines.length) ? lines[b - 1].trim() : '';
+      const inp = document.querySelector(`.lyrics-bar-input[data-lyrics-bar-part="${part.id}"][data-lyrics-bar-num="${b}"]`);
+      const text = inp ? inp.value.trim() : '';
       const [, barData] = getOrCreateBar(part.id, b);
       barData.lyrics = text;
       appliedCount++;
@@ -2958,6 +3216,9 @@ function applyLyricsToDB() {
 
 /* ── Lyrics Part Playback ─────────────────────────── */
 
+let _lyricsAnimFrame = null;        // animation frame for lyrics playhead
+let _lyricsPlayPartIndex = null;    // partIndex currently playing
+
 function handleLyricsPartPlay(partId, partIndex) {
   // Toggle off if already playing this part
   if (_lyricsPlayingPart === partId) {
@@ -2965,8 +3226,13 @@ function handleLyricsPartPlay(partId, partIndex) {
     return;
   }
 
-  stopLyricsPartPlay();
+  // Stop previous playback (lightweight — skip redraw if nothing was playing)
+  const wasPlaying = !!_lyricsPlayingPart;
+  if (wasPlaying) stopLyricsPartPlay();
+
   _lyricsPlayingPart = partId;
+  _lyricsPlayPartIndex = partIndex;
+  updateLyricsPlayButtons();
 
   // Try reference audio segment first
   const hasBuf = !!audio.getBuffer();
@@ -2974,25 +3240,24 @@ function handleLyricsPartPlay(partId, partIndex) {
   const endTime = getPartEndTime(partIndex);
 
   if (hasBuf && startTime !== null && endTime !== null) {
-    // Play segment from reference audio
     audio.playSegments([{ startTime, endTime }], () => {
       _lyricsPlayingPart = null;
+      _lyricsPlayPartIndex = null;
+      stopLyricsPlayheadAnimation();
       updateLyricsPlayButtons();
     });
-    updateLyricsPlayButtons();
+    startLyricsPlayheadAnimation();
     return;
   }
 
   // Fallback: play bar MP3 files
   handlePartPlay(partId);
-  _lyricsPlayingPart = partId;
-  updateLyricsPlayButtons();
 
-  // Override the end callback
   const origInterval = setInterval(() => {
     if (!_partPlayActive) {
       clearInterval(origInterval);
       _lyricsPlayingPart = null;
+      _lyricsPlayPartIndex = null;
       updateLyricsPlayButtons();
     }
   }, 200);
@@ -3002,9 +3267,64 @@ function stopLyricsPartPlay() {
   if (_lyricsPlayingPart) {
     audio.stopSegments();
     stopPartPlay();
+    stopLyricsPlayheadAnimation();
     _lyricsPlayingPart = null;
+    _lyricsPlayPartIndex = null;
     updateLyricsPlayButtons();
   }
+}
+
+function startLyricsPlayheadAnimation() {
+  cancelAnimationFrame(_lyricsAnimFrame);
+  function tick() {
+    drawLyricsPlayhead();
+    if (audio.isSegmentPlaying()) {
+      _lyricsAnimFrame = requestAnimationFrame(tick);
+    }
+  }
+  _lyricsAnimFrame = requestAnimationFrame(tick);
+}
+
+function stopLyricsPlayheadAnimation() {
+  cancelAnimationFrame(_lyricsAnimFrame);
+  _lyricsAnimFrame = null;
+  // Redraw without playhead
+  drawLyricsPartWaveforms();
+}
+
+function drawLyricsPlayhead() {
+  if (_lyricsPlayPartIndex === null) return;
+  const canvas = document.querySelector(`canvas[data-lyrics-wave-idx="${_lyricsPlayPartIndex}"]`);
+  if (!canvas) return;
+
+  // Redraw base waveform first
+  drawLyricsPartWaveform(canvas);
+
+  // Draw playhead
+  const curTime = audio.getSegmentCurrentTime();
+  if (curTime <= 0) return;
+
+  const startSec = parseFloat(canvas.dataset.waveStart);
+  const endSec = parseFloat(canvas.dataset.waveEnd);
+  if (isNaN(startSec) || isNaN(endSec) || endSec <= startSec) return;
+
+  const w = canvas.clientWidth;
+  const h = canvas.clientHeight;
+  const relPos = (curTime - startSec) / (endSec - startSec);
+  if (relPos < 0 || relPos > 1) return;
+
+  const px = relPos * w;
+  const ctx = canvas.getContext('2d');
+  // dpr scale is already applied by drawLyricsPartWaveform
+  ctx.shadowColor = '#00dc82';
+  ctx.shadowBlur = 6;
+  ctx.strokeStyle = '#00dc82';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(px, 0);
+  ctx.lineTo(px, h);
+  ctx.stroke();
+  ctx.shadowBlur = 0;
 }
 
 function updateLyricsPlayButtons() {
@@ -3044,7 +3364,11 @@ function handleLyricsClick(e) {
     } else {
       nonInstr.forEach(p => _lyricsCollapsed.add(p.id));
     }
+    const scrollEl = document.getElementById('lyrics-scroll');
+    const savedScroll = scrollEl ? scrollEl.scrollTop : 0;
     renderLyricsTab();
+    const scrollEl2 = document.getElementById('lyrics-scroll');
+    if (scrollEl2) scrollEl2.scrollTop = savedScroll;
     return;
   }
 
@@ -3052,12 +3376,29 @@ function handleLyricsClick(e) {
   const collapseBtn = el.closest('[data-lyrics-collapse]');
   if (collapseBtn) {
     const partId = collapseBtn.dataset.lyricsCollapse;
+    const card = collapseBtn.closest('.lyrics-part-card');
+    const scrollEl = document.getElementById('lyrics-scroll');
+    const cardTop = card ? card.getBoundingClientRect().top : 0;
+
     if (_lyricsCollapsed.has(partId)) {
       _lyricsCollapsed.delete(partId);
     } else {
       _lyricsCollapsed.add(partId);
     }
+
+    const savedScroll = scrollEl ? scrollEl.scrollTop : 0;
     renderLyricsTab();
+    const scrollEl2 = document.getElementById('lyrics-scroll');
+    if (scrollEl2) {
+      // Keep the clicked card at the same screen position
+      const newCard = scrollEl2.querySelector(`.lyrics-part-card[data-part-id="${partId}"]`);
+      if (newCard) {
+        const newCardTop = newCard.getBoundingClientRect().top;
+        scrollEl2.scrollTop += newCardTop - cardTop;
+      } else {
+        scrollEl2.scrollTop = savedScroll;
+      }
+    }
     return;
   }
 
@@ -3099,8 +3440,17 @@ function handleLyricsChange(e) {
     if (!song || !song.parts[partId]) return;
     song.parts[partId].instrumental = el.checked;
     markDirty();
-    // Re-render just this card to show/hide textarea
+    const card = el.closest('.lyrics-part-card');
+    const scrollEl = document.getElementById('lyrics-scroll');
+    const cardTop = card ? card.getBoundingClientRect().top : 0;
     renderLyricsTab();
+    const scrollEl2 = document.getElementById('lyrics-scroll');
+    if (scrollEl2 && card) {
+      const newCard = scrollEl2.querySelector(`.lyrics-part-card[data-part-id="${partId}"]`);
+      if (newCard) {
+        scrollEl2.scrollTop += newCard.getBoundingClientRect().top - cardTop;
+      }
+    }
     return;
   }
 
@@ -4661,7 +5011,6 @@ function wireEvents() {
   els.tabAudio?.addEventListener('click',  () => switchTab('audio'));
   els.tabLyrics?.addEventListener('click', () => switchTab('lyrics'));
   els.tabSetlist?.addEventListener('click', () => switchTab('setlist'));
-  els.tabQlc?.addEventListener('click', () => switchTab('qlc'));
 
   // Settings
   els.syncStatus.addEventListener('click', () => {
@@ -4736,7 +5085,6 @@ function wireEvents() {
     else if (activeTab === 'audio') handleAudioClick(e);
     else if (activeTab === 'lyrics') handleLyricsClick(e);
     else if (activeTab === 'setlist') handleSetlistClick(e);
-    else if (activeTab === 'qlc') handleQlcClick(e);
   });
   els.content.addEventListener('change', (e) => {
     if (activeTab === 'parts') handlePartsTabChange(e);
@@ -4750,6 +5098,12 @@ function wireEvents() {
       saveLyricsRawText();
     }
   });
+
+  // Lyrics waveform bar marker drag (global move/end handlers)
+  document.addEventListener('mousemove', moveLyricsWaveDrag);
+  document.addEventListener('mouseup', endLyricsWaveDrag);
+  document.addEventListener('touchmove', moveLyricsWaveDrag, { passive: false });
+  document.addEventListener('touchend', endLyricsWaveDrag);
 
   // Audio drag & drop on content area
   els.content.addEventListener('dragover', (e) => {
@@ -4778,203 +5132,6 @@ function wireEvents() {
 
     // Lyrics tab: no keyboard shortcuts needed (per-part play via buttons)
   });
-}
-
-/* ══════════════════════════════════════════════════════
-   QLC+ TAB — Collection buttons with OSC test
-   ══════════════════════════════════════════════════════ */
-
-/** QLC+ Collection tree — extracted from ThePact.qxw */
-const QLC_COLLECTION_TREE = [
-  {
-    folder: 'Lichtprogramme',
-    collections: [
-      { id: 71,  name: '01 statisch bunt 🎉' },
-      { id: 70,  name: '02 slow blue 🔵' },
-      { id: 74,  name: '03 walking 🚶' },
-      { id: 75,  name: '04 up\'n\'down ↕' },
-      { id: 76,  name: '05 left\'n\'right ↔️' },
-      { id: 77,  name: '06 blinking 🔆' },
-      { id: 78,  name: '07 round\'n\'round 🔄' },
-      { id: 79,  name: '08 swimming 🏊🏻‍' },
-      { id: 80,  name: '09 Alarm 🔔' },
-      { id: 81,  name: '10 Strobe ✳️' },
-      { id: 82,  name: '11 Stop 🛑' },
-      { id: 83,  name: '16 Searchlight 🔦' },
-      { id: 181, name: '20 white Fan up' },
-      { id: 182, name: '21 white fan down' },
-      { id: 249, name: '07 round\'n\'round 🔄 (Yellow)' },
-    ]
-  },
-  {
-    folder: 'Spot auf...',
-    collections: [
-      { id: 224, name: 'Spot auf Axel 🟢' },
-      { id: 226, name: 'Spot auf Axel 🟢 hot' },
-      { id: 231, name: 'Spot auf Axel blackout' },
-      { id: 227, name: 'Spot auf Bibo 🟡' },
-      { id: 228, name: 'Spot auf Pete 🔵' },
-      { id: 281, name: 'Spot auf Pete, Fog on' },
-      { id: 282, name: 'Spot auf Pete, fog off' },
-      { id: 229, name: 'Spot auf Tim ⚪️' },
-      { id: 261, name: 'Spot auf Tim ⚪️ hot' },
-      { id: 230, name: 'Spot auf Tim ⚪️ hot ohne PAR' },
-      { id: 225, name: 'Heads Publikum' },
-    ]
-  },
-  {
-    folder: 'Accents / FX',
-    collections: [
-      { id: 212, name: 'blind' },
-    ]
-  },
-  {
-    folder: 'Song-spezifisch',
-    collections: [
-      { id: 208, name: 'Valerie Verse 3a (a capella)' },
-      { id: 209, name: 'Valerie Verse 2b' },
-      { id: 219, name: 'The Reason Intro (Collection)' },
-    ]
-  },
-  {
-    folder: 'Sonstige',
-    collections: [
-      { id: 21,  name: 'Blue Starfield !' },
-      { id: 22,  name: 'Backlights Blinking' },
-      { id: 28,  name: 'fast balls color (only strips) !' },
-      { id: 29,  name: 'red and green alternating' },
-      { id: 32,  name: 'static dark blue' },
-      { id: 33,  name: 'stripes from center' },
-      { id: 34,  name: 'strips twinkle' },
-      { id: 143, name: 'Heads Cross White' },
-      { id: 152, name: 'up\'n\'down (ohne effects)' },
-    ]
-  },
-];
-
-/** OSC settings for QLC+ connection */
-const QLC_SETTINGS_KEY = 'lightingai_qlc';
-
-function getQlcSettings() {
-  try {
-    return JSON.parse(localStorage.getItem(QLC_SETTINGS_KEY)) || {};
-  } catch { return {}; }
-}
-
-function saveQlcSettings(settings) {
-  localStorage.setItem(QLC_SETTINGS_KEY, JSON.stringify(settings));
-}
-
-/** Collapsed state for QLC+ folders */
-let _qlcCollapsedFolders = new Set();
-
-function renderQlcTab() {
-  const settings = getQlcSettings();
-  const host = settings.osc_host || '127.0.0.1';
-  const port = settings.osc_port || 7700;
-  const universe = settings.osc_universe || 2;
-
-  const foldersHtml = QLC_COLLECTION_TREE.map((group, gi) => {
-    const collapsed = _qlcCollapsedFolders.has(gi);
-    const arrow = collapsed ? '&#9654;' : '&#9660;';
-    const collectionsHtml = group.collections.map(c => `
-      <button class="qlc-collection-btn" data-qlc-id="${c.id}" data-qlc-name="${c.name.replace(/"/g, '&quot;')}" title="ID ${c.id} — Klick = OSC senden">
-        <span class="qlc-coll-name">${c.name}</span>
-        <span class="qlc-coll-id">#${c.id}</span>
-      </button>
-    `).join('');
-    return `
-      <div class="qlc-folder ${collapsed ? 'collapsed' : ''}">
-        <div class="qlc-folder-header" data-folder-index="${gi}">
-          <span class="qlc-folder-arrow">${arrow}</span>
-          <span class="qlc-folder-name">${group.folder}</span>
-          <span class="qlc-folder-count">${group.collections.length}</span>
-        </div>
-        <div class="qlc-folder-body">
-          ${collectionsHtml}
-        </div>
-      </div>
-    `;
-  }).join('');
-
-  els.content.innerHTML = `
-    <div class="qlc-panel">
-      <div class="qlc-header">
-        <h2>QLC+ Collections</h2>
-        <p class="qlc-desc">Klick auf eine Collection = OSC-Befehl senden. In QLC+ &laquo;Auto Detect&raquo; nutzen zum Anlernen.</p>
-      </div>
-
-      <div class="qlc-settings">
-        <label>Host <input type="text" class="qlc-input" id="qlc-host" value="${host}" placeholder="127.0.0.1"></label>
-        <label>Port <input type="number" class="qlc-input" id="qlc-port" value="${port}" placeholder="7700"></label>
-        <label>Universe <input type="number" class="qlc-input" id="qlc-universe" value="${universe}" placeholder="2"></label>
-        <button class="btn btn-sm" id="qlc-save-settings">Speichern</button>
-        <span class="qlc-status" id="qlc-status"></span>
-      </div>
-
-      <div class="qlc-folders">
-        ${foldersHtml}
-      </div>
-    </div>
-  `;
-}
-
-async function sendQlcOsc(collectionId, collectionName) {
-  const settings = getQlcSettings();
-  const host = settings.osc_host || '127.0.0.1';
-  const port = settings.osc_port || 7700;
-  const universe = settings.osc_universe || 2;
-
-  // Try backend API first (FastAPI at localhost:8000)
-  const backendUrl = `http://${window.location.hostname}:8000`;
-  try {
-    const resp = await fetch(`${backendUrl}/api/osc/send`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ host, port, universe, collection_id: collectionId }),
-      signal: AbortSignal.timeout(2000),
-    });
-    if (resp.ok) {
-      toast(`OSC gesendet: ${collectionName}`, 'success');
-      return;
-    }
-  } catch {
-    // Backend not available — show hint
-  }
-  toast(`Backend nicht erreichbar — starte den Server fuer OSC-Tests`, 'warning', 5000);
-}
-
-function handleQlcClick(e) {
-  // Folder toggle
-  const folderHeader = e.target.closest('.qlc-folder-header');
-  if (folderHeader) {
-    const idx = parseInt(folderHeader.dataset.folderIndex);
-    if (_qlcCollapsedFolders.has(idx)) _qlcCollapsedFolders.delete(idx);
-    else _qlcCollapsedFolders.add(idx);
-    renderQlcTab();
-    return;
-  }
-
-  // Collection button click → send OSC
-  const btn = e.target.closest('.qlc-collection-btn');
-  if (btn) {
-    const id = parseInt(btn.dataset.qlcId);
-    const name = btn.dataset.qlcName;
-    btn.classList.add('qlc-btn-active');
-    setTimeout(() => btn.classList.remove('qlc-btn-active'), 300);
-    sendQlcOsc(id, name);
-    return;
-  }
-
-  // Save settings
-  if (e.target.id === 'qlc-save-settings') {
-    const host = document.getElementById('qlc-host')?.value || '127.0.0.1';
-    const port = parseInt(document.getElementById('qlc-port')?.value) || 7700;
-    const universe = parseInt(document.getElementById('qlc-universe')?.value) || 2;
-    saveQlcSettings({ osc_host: host, osc_port: port, osc_universe: universe });
-    const status = document.getElementById('qlc-status');
-    if (status) { status.textContent = 'Gespeichert!'; setTimeout(() => status.textContent = '', 2000); }
-  }
 }
 
 /* ── Boot ──────────────────────────────────────────── */

@@ -1066,7 +1066,7 @@
         ],
         "barMarkers": [
           {
-            "time": 4.49866666666685,
+            "time": 4.5082946317103625,
             "partIndex": 0,
             "partId": "tdyEcs_P001"
           },
@@ -1101,8 +1101,8 @@
             "partId": "tdyEcs_P001"
           },
           {
-            "time": 15.11200000000008,
-            "partIndex": 0,
+            "time": 15.125333333333337,
+            "partIndex": 1,
             "partId": "tdyEcs_P001"
           },
           {
@@ -1141,8 +1141,8 @@
             "partId": "tdyEcs_P002"
           },
           {
-            "time": 26.79466666666667,
-            "partIndex": 1,
+            "time": 26.848,
+            "partIndex": 2,
             "partId": "tdyEcs_P002"
           },
           {
@@ -1161,7 +1161,7 @@
             "partId": "tdyEcs_P005"
           },
           {
-            "time": 32.74666666666667,
+            "time": 32.65775635876844,
             "partIndex": 3,
             "partId": "tdyEcs_P009"
           },
@@ -1201,8 +1201,8 @@
             "partId": "tdyEcs_P009"
           },
           {
-            "time": 44.55466666666666,
-            "partIndex": 3,
+            "time": 44.567089692101746,
+            "partIndex": 4,
             "partId": "tdyEcs_P009"
           },
           {
@@ -1216,12 +1216,12 @@
             "partId": "tdyEcs_P010"
           },
           {
-            "time": 48.925333333333356,
-            "partIndex": 4,
+            "time": 49.0044230254351,
+            "partIndex": 5,
             "partId": "tdyEcs_P010"
           },
           {
-            "time": 50.49866666666685,
+            "time": 50.48708969210176,
             "partIndex": 6,
             "partId": "tdyEcs_P012"
           },
@@ -1261,7 +1261,7 @@
             "partId": "tdyEcs_P012"
           },
           {
-            "time": 62.52000000000021,
+            "time": 62.51908969210177,
             "partIndex": 7,
             "partId": "tdyEcs_P015"
           },
@@ -1386,7 +1386,7 @@
             "partId": "tdyEcs_P015"
           },
           {
-            "time": 99.43733333333353,
+            "time": 100.83800000000015,
             "partIndex": 7,
             "partId": "tdyEcs_P015"
           },
@@ -1536,7 +1536,7 @@
             "partId": "tdyEcs_P015"
           },
           {
-            "time": 143.50933333333342,
+            "time": 147.25848689138576,
             "partIndex": 7,
             "partId": "tdyEcs_P015"
           }
@@ -3167,7 +3167,8 @@
       },
       "qlc_id": 176,
       "audio_ref": "audio/Creep/Creep - Full Song.mp3",
-      "audio_ref_name": "Creep - Full Song.mp3"
+      "audio_ref_name": "Creep - Full Song.mp3",
+      "lyrics_raw": "[Verse 1]\nWhen you were here before\nCouldn't look you in the eye\nYou're just like an angel\nYour skin makes me cry\nYou float like a feather\nIn a beautiful world\nI wish I was special\nYou're so fuckin' special\n\n[Chorus]\nBut I'm a creep\nI'm a weirdo\nWhat the hell am I doin' here?\nI don't belong here\n\n[Verse 2]\nI don't care if it hurts\nI wanna have control\nI want a perfect body\nI want a perfect soul\nI want you to notice\nWhen I'm not around\nYou're so fuckin' special\nI wish I was special\n\n[Chorus]\nBut I'm a creep\nI'm a weirdo\nWhat the hell am I doin' here?\nI don't belong here\nOh-oh, oh-oh\n\n[Bridge]\nShe's runnin' out the door\nShe's runnin' out\nShe run, run, run, run\nRun\n\n[Verse 3]\nWhatever makes you happy\nWhatever you want\nYou're so fuckin' special\nI wish I was special\n\n[Chorus]\nBut I'm a creep\nI'm a weirdo\nWhat the hell am I doin' here?\nI don't belong here\nI don't belong here\n"
     },
     "pVmkRc": {
       "name": "Dancing with myself",
@@ -10718,356 +10719,6 @@
     }
   },
   "bars": {
-    "B0001": {
-      "part_id": "tdyEcs_P002",
-      "bar_num": 1,
-      "lyrics": "Everytime I think that I'm the only one who's lonely",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0002": {
-      "part_id": "tdyEcs_P002",
-      "bar_num": 2,
-      "lyrics": "someone calls on me.",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0003": {
-      "part_id": "tdyEcs_P002",
-      "bar_num": 3,
-      "lyrics": "And every now and then I spend my time at rhyme and verse",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0004": {
-      "part_id": "tdyEcs_P002",
-      "bar_num": 4,
-      "lyrics": "and curse those faults in me.",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0005": {
-      "part_id": "tdyEcs_P002",
-      "bar_num": 5,
-      "lyrics": "And then along comes Mary (Mary, Mary)",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0006": {
-      "part_id": "tdyEcs_P002",
-      "bar_num": 6,
-      "lyrics": "And along comes Mary (Mary, Mary)",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0007": {
-      "part_id": "tdyEcs_P002",
-      "bar_num": 7,
-      "lyrics": "And does she want to give me",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0008": {
-      "part_id": "tdyEcs_P002",
-      "bar_num": 8,
-      "lyrics": "kicks, and be my steady chick",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0009": {
-      "part_id": "tdyEcs_P002",
-      "bar_num": 9,
-      "lyrics": "and give me pick of mem..or..ies?",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0010": {
-      "part_id": "tdyEcs_P002",
-      "bar_num": 10,
-      "lyrics": "Or maybe",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0011": {
-      "part_id": "tdyEcs_P002",
-      "bar_num": 11,
-      "lyrics": "rather gather tales from all the fails",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0012": {
-      "part_id": "tdyEcs_P002",
-      "bar_num": 12,
-      "lyrics": "and tribulations no one ever sees?",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0013": {
-      "part_id": "tdyEcs_P002",
-      "bar_num": 13,
-      "lyrics": "When we met I was sure out to lunch,",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0014": {
-      "part_id": "tdyEcs_P002",
-      "bar_num": 14,
-      "lyrics": "Now my empty cup tastes as sweet as",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0015": {
-      "part_id": "tdyEcs_P002",
-      "bar_num": 15,
-      "lyrics": "the punch.",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0016": {
-      "part_id": "tdyEcs_P002",
-      "bar_num": 16,
-      "lyrics": "sweet as the punch",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0017": {
-      "part_id": "tdyEcs_P012",
-      "bar_num": 1,
-      "lyrics": "When vague desire is the fire in the eyes of chicks,",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0018": {
-      "part_id": "tdyEcs_P012",
-      "bar_num": 2,
-      "lyrics": "whose sickness is the games they play",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0019": {
-      "part_id": "tdyEcs_P012",
-      "bar_num": 3,
-      "lyrics": "And when the",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0020": {
-      "part_id": "tdyEcs_P012",
-      "bar_num": 4,
-      "lyrics": "masquerade is played and neighbor",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0021": {
-      "part_id": "tdyEcs_P012",
-      "bar_num": 5,
-      "lyrics": "folks make jokes",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0022": {
-      "part_id": "tdyEcs_P012",
-      "bar_num": 6,
-      "lyrics": "at who is most to blame today.",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0023": {
-      "part_id": "tdyEcs_P012",
-      "bar_num": 7,
-      "lyrics": "And then along comes Mary (Mary, Mary)",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0024": {
-      "part_id": "tdyEcs_P012",
-      "bar_num": 8,
-      "lyrics": "And along comes Mary (Mary, Mary)",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0025": {
-      "part_id": "tdyEcs_P012",
-      "bar_num": 9,
-      "lyrics": "And does she want to set them free,",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0026": {
-      "part_id": "tdyEcs_P012",
-      "bar_num": 10,
-      "lyrics": "and let them see reality?",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0027": {
-      "part_id": "tdyEcs_P012",
-      "bar_num": 11,
-      "lyrics": "From where she got her name.",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0028": {
-      "part_id": "tdyEcs_P012",
-      "bar_num": 12,
-      "lyrics": "And will they",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0029": {
-      "part_id": "tdyEcs_P012",
-      "bar_num": 13,
-      "lyrics": "struggle much when told that such a tender",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0030": {
-      "part_id": "tdyEcs_P012",
-      "bar_num": 14,
-      "lyrics": "touch of hers will make them not the same?",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0031": {
-      "part_id": "tdyEcs_P012",
-      "bar_num": 15,
-      "lyrics": "When we met I was sure out to lunch,",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0032": {
-      "part_id": "tdyEcs_P012",
-      "bar_num": 16,
-      "lyrics": "Now my empty cup tastes as sweet as",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0033": {
-      "part_id": "tdyEcs_P012",
-      "bar_num": 17,
-      "lyrics": "the punch.",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0034": {
-      "part_id": "tdyEcs_P012",
-      "bar_num": 18,
-      "lyrics": "sweet as the punch",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0035": {
-      "part_id": "tdyEcs_P022",
-      "bar_num": 1,
-      "lyrics": "And when the morning of the warning's passed,",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0036": {
-      "part_id": "tdyEcs_P022",
-      "bar_num": 2,
-      "lyrics": "the gassed and flaccid kids are flung across the stars.",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0037": {
-      "part_id": "tdyEcs_P022",
-      "bar_num": 3,
-      "lyrics": "The psychodramas and the traumas gone",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0038": {
-      "part_id": "tdyEcs_P022",
-      "bar_num": 4,
-      "lyrics": "the songs are left unsung and hung upon the scars.",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0039": {
-      "part_id": "tdyEcs_P022",
-      "bar_num": 5,
-      "lyrics": "And then along comes Mary. (Mary, Mary)",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0040": {
-      "part_id": "tdyEcs_P022",
-      "bar_num": 6,
-      "lyrics": "And along comes Mary (Mary, Mary)",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0041": {
-      "part_id": "tdyEcs_P022",
-      "bar_num": 7,
-      "lyrics": "And does she want to see the stains,",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0042": {
-      "part_id": "tdyEcs_P022",
-      "bar_num": 8,
-      "lyrics": "the dead remains of",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0043": {
-      "part_id": "tdyEcs_P022",
-      "bar_num": 9,
-      "lyrics": "all the pains she left the night before?",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0044": {
-      "part_id": "tdyEcs_P022",
-      "bar_num": 10,
-      "lyrics": "Or will their waking eyes, reflect the lies,",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0045": {
-      "part_id": "tdyEcs_P022",
-      "bar_num": 11,
-      "lyrics": "and make them realize their urgent cry for",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0046": {
-      "part_id": "tdyEcs_P022",
-      "bar_num": 12,
-      "lyrics": "sight no more?",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0047": {
-      "part_id": "tdyEcs_P022",
-      "bar_num": 13,
-      "lyrics": "When we met I was sure out to lunch,",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0048": {
-      "part_id": "tdyEcs_P022",
-      "bar_num": 14,
-      "lyrics": "Now my empty cup tastes as",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0049": {
-      "part_id": "tdyEcs_P022",
-      "bar_num": 15,
-      "lyrics": "sweet as the punch.",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0050": {
-      "part_id": "tdyEcs_P022",
-      "bar_num": 16,
-      "lyrics": "sweet as the punch",
-      "audio": "",
-      "has_accents": false
-    },
     "B0051": {
       "part_id": "5iZfKj_P001",
       "bar_num": 1,
@@ -13185,433 +12836,6 @@
     "B0353": {
       "part_id": "CEGcgc_P011",
       "bar_num": 6,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0354": {
-      "part_id": "tdyEcs_P001",
-      "bar_num": 1,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0355": {
-      "part_id": "tdyEcs_P001",
-      "bar_num": 2,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0356": {
-      "part_id": "tdyEcs_P001",
-      "bar_num": 3,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0357": {
-      "part_id": "tdyEcs_P001",
-      "bar_num": 4,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0358": {
-      "part_id": "tdyEcs_P001",
-      "bar_num": 5,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0359": {
-      "part_id": "tdyEcs_P001",
-      "bar_num": 6,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0360": {
-      "part_id": "tdyEcs_P001",
-      "bar_num": 7,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0361": {
-      "part_id": "tdyEcs_P001",
-      "bar_num": 8,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0362": {
-      "part_id": "tdyEcs_P005",
-      "bar_num": 1,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0363": {
-      "part_id": "tdyEcs_P005",
-      "bar_num": 2,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0364": {
-      "part_id": "tdyEcs_P009",
-      "bar_num": 1,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0365": {
-      "part_id": "tdyEcs_P009",
-      "bar_num": 2,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0366": {
-      "part_id": "tdyEcs_P009",
-      "bar_num": 3,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0367": {
-      "part_id": "tdyEcs_P010",
-      "bar_num": 1,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0368": {
-      "part_id": "tdyEcs_P011",
-      "bar_num": 1,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0369": {
-      "part_id": "tdyEcs_P011",
-      "bar_num": 2,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0370": {
-      "part_id": "tdyEcs_P011",
-      "bar_num": 3,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0371": {
-      "part_id": "tdyEcs_P011",
-      "bar_num": 4,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0372": {
-      "part_id": "tdyEcs_P011",
-      "bar_num": 5,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0373": {
-      "part_id": "tdyEcs_P011",
-      "bar_num": 6,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0374": {
-      "part_id": "tdyEcs_P011",
-      "bar_num": 7,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0375": {
-      "part_id": "tdyEcs_P011",
-      "bar_num": 8,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0376": {
-      "part_id": "tdyEcs_P015",
-      "bar_num": 1,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0377": {
-      "part_id": "tdyEcs_P015",
-      "bar_num": 2,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0378": {
-      "part_id": "tdyEcs_P019",
-      "bar_num": 1,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0379": {
-      "part_id": "tdyEcs_P019",
-      "bar_num": 2,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0380": {
-      "part_id": "tdyEcs_P020",
-      "bar_num": 1,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0381": {
-      "part_id": "tdyEcs_P021",
-      "bar_num": 1,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0382": {
-      "part_id": "tdyEcs_P021",
-      "bar_num": 2,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0383": {
-      "part_id": "tdyEcs_P021",
-      "bar_num": 3,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0384": {
-      "part_id": "tdyEcs_P021",
-      "bar_num": 4,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0385": {
-      "part_id": "tdyEcs_P021",
-      "bar_num": 5,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0386": {
-      "part_id": "tdyEcs_P021",
-      "bar_num": 6,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0387": {
-      "part_id": "tdyEcs_P021",
-      "bar_num": 7,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0388": {
-      "part_id": "tdyEcs_P021",
-      "bar_num": 8,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0389": {
-      "part_id": "tdyEcs_P025",
-      "bar_num": 1,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0390": {
-      "part_id": "tdyEcs_P025",
-      "bar_num": 2,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0391": {
-      "part_id": "tdyEcs_P026",
-      "bar_num": 1,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0392": {
-      "part_id": "tdyEcs_P026",
-      "bar_num": 2,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0393": {
-      "part_id": "tdyEcs_P027",
-      "bar_num": 1,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0394": {
-      "part_id": "tdyEcs_P027",
-      "bar_num": 2,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0395": {
-      "part_id": "tdyEcs_P028",
-      "bar_num": 1,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0396": {
-      "part_id": "tdyEcs_P028",
-      "bar_num": 2,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0397": {
-      "part_id": "tdyEcs_P029",
-      "bar_num": 1,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0398": {
-      "part_id": "tdyEcs_P029",
-      "bar_num": 2,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0399": {
-      "part_id": "tdyEcs_P030",
-      "bar_num": 1,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0400": {
-      "part_id": "tdyEcs_P031",
-      "bar_num": 1,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0401": {
-      "part_id": "tdyEcs_P031",
-      "bar_num": 2,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0402": {
-      "part_id": "tdyEcs_P031",
-      "bar_num": 3,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0403": {
-      "part_id": "tdyEcs_P031",
-      "bar_num": 4,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0404": {
-      "part_id": "tdyEcs_P031",
-      "bar_num": 5,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0405": {
-      "part_id": "tdyEcs_P031",
-      "bar_num": 6,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0406": {
-      "part_id": "tdyEcs_P031",
-      "bar_num": 7,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0407": {
-      "part_id": "tdyEcs_P031",
-      "bar_num": 8,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0408": {
-      "part_id": "tdyEcs_P032",
-      "bar_num": 1,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0409": {
-      "part_id": "tdyEcs_P032",
-      "bar_num": 2,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0410": {
-      "part_id": "tdyEcs_P033",
-      "bar_num": 1,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0411": {
-      "part_id": "tdyEcs_P033",
-      "bar_num": 2,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0412": {
-      "part_id": "tdyEcs_P034",
-      "bar_num": 1,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0413": {
-      "part_id": "tdyEcs_P034",
-      "bar_num": 2,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0414": {
-      "part_id": "tdyEcs_P035",
-      "bar_num": 1,
       "lyrics": "",
       "audio": "",
       "has_accents": false
@@ -17042,6 +16266,573 @@
     "B0904": {
       "part_id": "HwfJ9X_P013",
       "bar_num": 8,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0905": {
+      "part_id": "Lnql7n_P001",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0906": {
+      "part_id": "Lnql7n_P001",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0907": {
+      "part_id": "Lnql7n_P001",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0908": {
+      "part_id": "Lnql7n_P001",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0909": {
+      "part_id": "Lnql7n_P001",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0910": {
+      "part_id": "Lnql7n_P001",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0911": {
+      "part_id": "Lnql7n_P001",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0912": {
+      "part_id": "Lnql7n_P001",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0913": {
+      "part_id": "Lnql7n_P001",
+      "bar_num": 9,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0914": {
+      "part_id": "Lnql7n_P001",
+      "bar_num": 10,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0915": {
+      "part_id": "Lnql7n_P001",
+      "bar_num": 11,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0916": {
+      "part_id": "Lnql7n_P001",
+      "bar_num": 12,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0917": {
+      "part_id": "Lnql7n_P001",
+      "bar_num": 13,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0918": {
+      "part_id": "Lnql7n_P001",
+      "bar_num": 14,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0919": {
+      "part_id": "Lnql7n_P001",
+      "bar_num": 15,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0920": {
+      "part_id": "Lnql7n_P001",
+      "bar_num": 16,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0921": {
+      "part_id": "Lnql7n_P001",
+      "bar_num": 17,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0922": {
+      "part_id": "Lnql7n_P001",
+      "bar_num": 18,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0923": {
+      "part_id": "Lnql7n_P001",
+      "bar_num": 19,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0924": {
+      "part_id": "Lnql7n_P001",
+      "bar_num": 20,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0925": {
+      "part_id": "Lnql7n_P001",
+      "bar_num": 21,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0926": {
+      "part_id": "Lnql7n_P001",
+      "bar_num": 22,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0927": {
+      "part_id": "Lnql7n_P001",
+      "bar_num": 23,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0928": {
+      "part_id": "Lnql7n_P001",
+      "bar_num": 24,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0929": {
+      "part_id": "Lnql7n_P002",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0930": {
+      "part_id": "Lnql7n_P002",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0931": {
+      "part_id": "Lnql7n_P002",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0932": {
+      "part_id": "Lnql7n_P002",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0933": {
+      "part_id": "Lnql7n_P002",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0934": {
+      "part_id": "Lnql7n_P002",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0935": {
+      "part_id": "Lnql7n_P002",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0936": {
+      "part_id": "Lnql7n_P003",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0937": {
+      "part_id": "Lnql7n_P003",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0938": {
+      "part_id": "Lnql7n_P003",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0939": {
+      "part_id": "Lnql7n_P003",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0940": {
+      "part_id": "Lnql7n_P003",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0941": {
+      "part_id": "Lnql7n_P003",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0942": {
+      "part_id": "Lnql7n_P003",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0943": {
+      "part_id": "Lnql7n_P003",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0944": {
+      "part_id": "Lnql7n_P003",
+      "bar_num": 9,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0945": {
+      "part_id": "Lnql7n_P003",
+      "bar_num": 10,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0946": {
+      "part_id": "Lnql7n_P003",
+      "bar_num": 11,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0947": {
+      "part_id": "Lnql7n_P003",
+      "bar_num": 12,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0948": {
+      "part_id": "Lnql7n_P003",
+      "bar_num": 13,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0949": {
+      "part_id": "Lnql7n_P003",
+      "bar_num": 14,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0950": {
+      "part_id": "Lnql7n_P003",
+      "bar_num": 15,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0951": {
+      "part_id": "Lnql7n_P003",
+      "bar_num": 16,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0952": {
+      "part_id": "Lnql7n_P004",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0953": {
+      "part_id": "Lnql7n_P004",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0954": {
+      "part_id": "Lnql7n_P004",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0955": {
+      "part_id": "Lnql7n_P004",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0956": {
+      "part_id": "Lnql7n_P004",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0957": {
+      "part_id": "Lnql7n_P004",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0958": {
+      "part_id": "Lnql7n_P004",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0959": {
+      "part_id": "Lnql7n_P004",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0960": {
+      "part_id": "Lnql7n_P005",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0961": {
+      "part_id": "Lnql7n_P005",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0962": {
+      "part_id": "Lnql7n_P005",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0963": {
+      "part_id": "Lnql7n_P005",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0964": {
+      "part_id": "Lnql7n_P005",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0965": {
+      "part_id": "Lnql7n_P005",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0966": {
+      "part_id": "Lnql7n_P005",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0967": {
+      "part_id": "Lnql7n_P005",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0968": {
+      "part_id": "Lnql7n_P006",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0969": {
+      "part_id": "Lnql7n_P006",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0970": {
+      "part_id": "Lnql7n_P006",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0971": {
+      "part_id": "Lnql7n_P006",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0972": {
+      "part_id": "Lnql7n_P006",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0973": {
+      "part_id": "Lnql7n_P006",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0974": {
+      "part_id": "Lnql7n_P007",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0975": {
+      "part_id": "Lnql7n_P007",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0976": {
+      "part_id": "Lnql7n_P008",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0977": {
+      "part_id": "Lnql7n_P008",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0978": {
+      "part_id": "Lnql7n_P008",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0979": {
+      "part_id": "Lnql7n_P008",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0980": {
+      "part_id": "Lnql7n_P008",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0981": {
+      "part_id": "Lnql7n_P008",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0982": {
+      "part_id": "Lnql7n_P009",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0983": {
+      "part_id": "Lnql7n_P009",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0984": {
+      "part_id": "Lnql7n_P010",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0985": {
+      "part_id": "Lnql7n_P010",
+      "bar_num": 2,
       "lyrics": "",
       "audio": "",
       "has_accents": false

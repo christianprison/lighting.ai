@@ -433,6 +433,10 @@ function switchTab(tab) {
   if (activeTab === 'lyrics' && tab !== 'lyrics') {
     stopLyricsPartPlay();
   }
+  // Pre-warm AudioContext for tabs with playback
+  if (tab === 'lyrics' || tab === 'audio' || tab === 'parts' || tab === 'takte') {
+    audio.warmup();
+  }
   activeTab = tab;
   els.tabEditor?.classList.toggle('active', tab === 'editor');
   els.tabParts?.classList.toggle('active', tab === 'parts');
@@ -2894,13 +2898,6 @@ function buildLyricsPartBody(part, partIndex, barCount, barLyrics, hasBuf, absBa
   const partEnd = getPartEndTime(partIndex);
   const showWave = hasBuf && partMarker && partEnd;
 
-  let waveHtml = '';
-  if (showWave) {
-    waveHtml = `<div class="lyrics-wave-wrap" data-lyrics-wave-part="${partIndex}">
-      <canvas class="lyrics-wave-canvas" data-lyrics-wave-idx="${partIndex}" data-wave-start="${partMarker.time}" data-wave-end="${partEnd}"></canvas>
-    </div>`;
-  }
-
   // Calculate proportional bar widths from bar markers (matching waveform)
   // Bar markers include the first bar at the part start, so boundaries are:
   // [bar1(=partStart), bar2, bar3, ..., partEnd]
@@ -2912,26 +2909,66 @@ function buildLyricsPartBody(part, partIndex, barCount, barLyrics, hasBuf, absBa
     for (let i = 0; i < boundaries.length - 1; i++) {
       durations.push(Math.max(0, boundaries[i + 1] - boundaries[i]));
     }
-    // Only use proportional widths if segment count matches bar count
     if (durations.length === barCount) {
       barWidths = durations;
     }
   }
 
+  // Calculate min-width per cell based on text content (~7px per char for mono 0.72rem + 8px padding)
+  const PX_PER_CHAR = 7;
+  const CELL_PAD = 10;
+  const MIN_CELL_W = 32;
+  const cellMinWidths = barLyrics.map(text => Math.max(MIN_CELL_W, (text || '').length * PX_PER_CHAR + CELL_PAD));
+
+  // If proportional widths are used, check if any cell is too narrow for its text
+  // and scale the total row width up to accommodate
+  let totalMinWidth = 0;
+  if (barWidths) {
+    const totalDur = barWidths.reduce((a, b) => a + b, 0);
+    if (totalDur > 0) {
+      // Find the scale factor needed so every cell is at least cellMinWidths[i] wide
+      // At base: cellWidth[i] = (barWidths[i]/totalDur) * containerWidth
+      // We need: (barWidths[i]/totalDur) * totalWidth >= cellMinWidths[i]
+      // => totalWidth >= cellMinWidths[i] / (barWidths[i]/totalDur)
+      let neededWidth = 0;
+      for (let i = 0; i < barCount; i++) {
+        const frac = barWidths[i] / totalDur;
+        if (frac > 0) {
+          neededWidth = Math.max(neededWidth, cellMinWidths[i] / frac);
+        }
+      }
+      totalMinWidth = Math.ceil(neededWidth);
+    }
+  } else {
+    totalMinWidth = cellMinWidths.reduce((a, b) => a + b, 0);
+  }
+
+  // Build scrollable container for waveform + bars (scroll together)
+  const minWStyle = totalMinWidth > 0 ? `min-width:${totalMinWidth}px` : '';
+  let html = `<div class="lyrics-part-scroll">`;
+  html += `<div class="lyrics-part-scroll-inner" ${minWStyle ? `style="${minWStyle}"` : ''}>`;
+
+  if (showWave) {
+    html += `<div class="lyrics-wave-wrap" data-lyrics-wave-part="${partIndex}">
+      <canvas class="lyrics-wave-canvas" data-lyrics-wave-idx="${partIndex}" data-wave-start="${partMarker.time}" data-wave-end="${partEnd}"></canvas>
+    </div>`;
+  }
+
   // Horizontal bar inputs (absolute bar numbering from song start)
-  let barsHtml = '<div class="lyrics-bars-row">';
+  html += '<div class="lyrics-bars-row">';
   for (let b = 0; b < barCount; b++) {
     const text = barLyrics[b] || '';
     const absBarNum = absBarOffset + b + 1;
     const flexStyle = barWidths ? `flex:${barWidths[b].toFixed(4)} 1 0` : '';
-    barsHtml += `<div class="lyrics-bar-cell" ${flexStyle ? `style="${flexStyle}"` : ''}>
+    html += `<div class="lyrics-bar-cell" ${flexStyle ? `style="${flexStyle}"` : ''}>
       <div class="lyrics-bar-num mono text-t3">${absBarNum}</div>
       <input type="text" class="lyrics-bar-input" data-lyrics-bar-part="${part.id}" data-lyrics-bar-num="${b + 1}" value="${esc(text)}" placeholder="\u2014">
     </div>`;
   }
-  barsHtml += '</div>';
+  html += '</div>';
+  html += '</div></div>';
 
-  return waveHtml + barsHtml;
+  return html;
 }
 
 /**
@@ -3189,9 +3226,13 @@ function handleLyricsPartPlay(partId, partIndex) {
     return;
   }
 
-  stopLyricsPartPlay();
+  // Stop previous playback (lightweight — skip redraw if nothing was playing)
+  const wasPlaying = !!_lyricsPlayingPart;
+  if (wasPlaying) stopLyricsPartPlay();
+
   _lyricsPlayingPart = partId;
   _lyricsPlayPartIndex = partIndex;
+  updateLyricsPlayButtons();
 
   // Try reference audio segment first
   const hasBuf = !!audio.getBuffer();
@@ -3199,24 +3240,19 @@ function handleLyricsPartPlay(partId, partIndex) {
   const endTime = getPartEndTime(partIndex);
 
   if (hasBuf && startTime !== null && endTime !== null) {
-    // Play segment from reference audio
     audio.playSegments([{ startTime, endTime }], () => {
       _lyricsPlayingPart = null;
       _lyricsPlayPartIndex = null;
       stopLyricsPlayheadAnimation();
       updateLyricsPlayButtons();
     });
-    updateLyricsPlayButtons();
     startLyricsPlayheadAnimation();
     return;
   }
 
   // Fallback: play bar MP3 files
   handlePartPlay(partId);
-  _lyricsPlayingPart = partId;
-  updateLyricsPlayButtons();
 
-  // Override the end callback
   const origInterval = setInterval(() => {
     if (!_partPlayActive) {
       clearInterval(origInterval);

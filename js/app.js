@@ -2872,9 +2872,6 @@ function renderLyricsTab() {
         ${buildSongHeader(song)}
         ${buildLyricsRawImport(song, geniusUrl)}
         ${parts.length > 0 ? buildLyricsPartsList(parts, song, hasBuf) : '<div class="empty-state"><p>Keine Parts vorhanden. Erst Parts im Parts-Tab anlegen.</p></div>'}
-        ${parts.length > 0 ? `<div class="lyrics-actions">
-          <button class="btn btn-primary" id="lyrics-apply">In DB &uuml;bernehmen</button>
-        </div>` : ''}
       </div>
     </div>`;
 
@@ -3242,49 +3239,6 @@ function distributeLyricsToparts() {
   toast(`Text auf ${Math.min(sIdx, parts.length)} Parts verteilt`, 'success');
 }
 
-/**
- * Apply lyrics from all part bar inputs into DB bar records.
- */
-function applyLyricsToDB() {
-  if (!selectedSongId) return;
-  const parts = getSortedParts(selectedSongId);
-  const song = db.songs[selectedSongId];
-
-  ensureCollections();
-
-  // Save raw text
-  const rawEl = document.getElementById('lyrics-raw-text');
-  if (rawEl) song.lyrics_raw = rawEl.value;
-
-  let appliedCount = 0;
-
-  for (let i = 0; i < parts.length; i++) {
-    const part = parts[i];
-    const barCount = part.bars || 0;
-
-    // Instrumental parts: clear lyrics for all bars
-    if (part.instrumental) {
-      for (let b = 1; b <= barCount; b++) {
-        const [, barData] = getOrCreateBar(part.id, b);
-        barData.lyrics = '';
-        appliedCount++;
-      }
-      continue;
-    }
-
-    for (let b = 1; b <= barCount; b++) {
-      const inp = document.querySelector(`.lyrics-bar-input[data-lyrics-bar-part="${part.id}"][data-lyrics-bar-num="${b}"]`);
-      const text = inp ? inp.value.trim() : '';
-      const [, barData] = getOrCreateBar(part.id, b);
-      barData.lyrics = text;
-      appliedCount++;
-    }
-  }
-
-  markDirty();
-  toast(`${appliedCount} Takte mit Lyrics aktualisiert`, 'success');
-}
-
 /* ── Lyrics Part Playback ─────────────────────────── */
 
 let _lyricsAnimFrame = null;        // animation frame for lyrics playhead
@@ -3504,12 +3458,6 @@ function handleLyricsClick(e) {
   // Distribute raw text to parts
   if (el.closest('#lyrics-distribute-btn')) {
     distributeLyricsToparts();
-    return;
-  }
-
-  // Apply to DB
-  if (el.closest('#lyrics-apply')) {
-    applyLyricsToDB();
     return;
   }
 

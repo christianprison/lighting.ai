@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>lighting.ai — QLC+ Config</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg:#08090d;--bg2:#0e1017;--bg3:#151820;--bg4:#1c1f2b;
+--border:#1e2230;--border2:#2a2e40;
+--t1:#eef0f6;--t2:#a0a4b8;--t3:#5c6080;--t4:#363a52;
+--green:#00dc82;--green2:#00dc8230;--green3:#00dc8212;
+--red:#ff3b5c;--amber:#f0a030;--cyan:#38bdf8;
+--r:8px}
+html,body{min-height:100vh;background:var(--bg);color:var(--t1);
+font-family:'Sora',system-ui,sans-serif;font-size:14px}
+
+.header{padding:16px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:16px;background:var(--bg2)}
+.header h1{font-size:18px;font-weight:600}
+.header a{color:var(--t3);text-decoration:none;font-size:12px;font-family:'DM Mono',monospace}
+.header a:hover{color:var(--t1)}
+
+.osc-cfg{padding:16px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:16px;flex-wrap:wrap;background:var(--bg2)}
+.osc-cfg label{font-family:'DM Mono',monospace;font-size:11px;color:var(--t3);display:flex;align-items:center;gap:6px}
+.osc-cfg input{background:var(--bg3);border:1px solid var(--border2);color:var(--t1);padding:5px 10px;border-radius:4px;
+font-family:'DM Mono',monospace;font-size:12px;width:120px}
+.osc-cfg input[type=number]{width:70px}
+.status{font-family:'DM Mono',monospace;font-size:11px;padding:4px 10px;border-radius:12px;margin-left:auto}
+.status.ok{background:var(--green3);color:var(--green);border:1px solid var(--green)}
+.status.err{background:#ff3b5c15;color:var(--red);border:1px solid var(--red)}
+
+.info{padding:12px 24px;font-family:'DM Mono',monospace;font-size:11px;color:var(--t3);border-bottom:1px solid var(--border);line-height:1.6}
+
+.groups{padding:16px 24px}
+.group{margin-bottom:24px}
+.group-title{font-family:'DM Mono',monospace;font-size:11px;font-weight:500;letter-spacing:2px;text-transform:uppercase;
+color:var(--t3);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+
+.btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+width:120px;height:80px;border-radius:var(--r);border:1.5px solid var(--border2);background:var(--bg3);
+cursor:pointer;transition:all .12s;position:relative;overflow:hidden}
+.btn:hover{border-color:var(--t3);background:var(--bg4)}
+.btn:active{transform:scale(.95)}
+.btn.flash{border-color:var(--green);background:var(--green3);box-shadow:0 0 20px #00dc8220}
+.btn-label{font-size:11px;font-weight:500;text-align:center;padding:0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.btn-ch{font-family:'DM Mono',monospace;font-size:9px;color:var(--t4)}
+.btn.flash .btn-ch{color:var(--green)}
+.btn-id{position:absolute;top:3px;right:5px;font-family:'DM Mono',monospace;font-size:8px;color:var(--t4)}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--bg3);border:1px solid var(--green);
+color:var(--green);padding:8px 20px;border-radius:20px;font-family:'DM Mono',monospace;font-size:12px;
+opacity:0;transition:opacity .3s;pointer-events:none;z-index:100}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>QLC+ OSC Config</h1>
+  <a href="/">&#x2190; Live UI</a>
+</div>
+
+<div class="osc-cfg">
+  <label>Host <input type="text" id="oscHost" value="127.0.0.1"></label>
+  <label>Port <input type="number" id="oscPort" value="7700"></label>
+  <label>Universe <input type="number" id="oscUni" value="1"></label>
+  <div class="status" id="connStatus">...</div>
+</div>
+
+<div class="info">
+  Workflow: QLC+ &rarr; Button ausw&auml;hlen &rarr; External Input &rarr; Auto-Detect &rarr; hier den Button klicken.<br>
+  Jeder Button sendet einen OSC-Trigger auf dem angegebenen Channel. QLC+ erkennt ihn automatisch.
+</div>
+
+<div class="groups" id="groups"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════
+// QLC+ Button definitions from lightingAI.qxw
+// Each button: [osc_channel, caption, qlc_button_id, qlc_function_id]
+// ═══════════════════════════════════════════════
+
+var BUTTONS = {
+  "00 blackout": [
+    [0, "00 blackout", 139, 527],
+    [1, "00 blackout fog off / 116bpm", 141, 528],
+  ],
+  "01 statisch bunt": [
+    [2, "01 statisch bunt \ud83c\udf89", 148, 71],
+    [3, "01 statisch bunt \ud83c\udf89 190bpm/316ms", 149, 493],
+    [4, "01 statisch bunt \ud83c\udf89 fog off", 151, 521],
+  ],
+  "02 slow blue": [
+    [5, "02 slow blue \ud83d\udd35", 165, 70],
+    [6, "02 slow blue \ud83d\udd35 fog off", 166, 534],
+    [7, "02 slow blue \ud83d\udd35 fog on", 167, 520],
+  ],
+  "03 walking": [
+    [8, "03 walking \ud83d\udeb6", 169, 74],
+    [9, "03 walking \ud83d\udeb6 fog off", 170, 537],
+  ],
+  "04 up'n'down": [
+    [10, "04 up'n'down \u2195", 172, 75],
+  ],
+  "05 left'n'right": [
+    [11, "05 left'n'right \u2194\ufe0f", 174, 76],
+  ],
+  "06 blinking": [
+    [12, "06 blinking \ud83d\udd06", 176, 77],
+    [13, "06 blinking \ud83d\udd06 fog off", 177, 524],
+    [14, "06 blinking \ud83d\udd06 fog on", 178, 525],
+  ],
+  "07 round'n'round": [
+    [15, "07 round'n'round \ud83d\udd04", 180, 78],
+    [16, "07 round'n'round \ud83d\udd04 (Yellow)", 181, 249],
+  ],
+  "08 swimming": [
+    [17, "08 swimming \ud83c\udfca\ud83c\udffb\u200d", 183, 79],
+  ],
+  "09 Alarm": [
+    [18, "09 Alarm \ud83d\udd14", 187, 80],
+    [19, "09 Alarm \ud83d\udd14 fog on", 188, 523],
+  ],
+  "10 Alarm \ud83d\udd14\ud83d\udd14": [
+    [20, "10 Alarm \ud83d\udd14\ud83d\udd14", 190, 81],
+  ],
+  "10 Strobe": [
+    [21, "10 Strobe \u2733\ufe0f", 192, 545],
+    [22, "10 Strobe \u2733\ufe0f Fog off", 193, 510],
+    [23, "10 Strobe \u2733\ufe0f Fog on", 194, 509],
+  ],
+  "11 Stop": [
+    [24, "11 Stop \ud83d\uded1", 221, 82],
+    [25, "11 Stop \ud83d\uded1 (Copy)", 222, 19],
+    [26, "11 Stop \ud83d\uded1 080bpm/750ms", 223, 363],
+    [27, "11 Stop \ud83d\uded1 082bpm/732ms", 224, 372],
+    [28, "11 Stop \ud83d\uded1 084bpm/716ms", 225, 481],
+    [29, "11 Stop \ud83d\uded1 086bpm/698ms", 226, 490],
+    [30, "11 Stop \ud83d\uded1 088bpm/682ms", 227, 486],
+    [31, "11 Stop \ud83d\uded1 090bpm/667ms", 228, 519],
+    [32, "11 Stop \ud83d\uded1 096bpm/625ms", 229, 496],
+    [33, "11 Stop \ud83d\uded1 100bpm/600ms", 230, 504],
+    [34, "11 Stop \ud83d\uded1 104bpm/577ms", 231, 488],
+    [35, "11 Stop \ud83d\uded1 108bpm/556ms", 232, 506],
+    [36, "11 Stop \ud83d\uded1 112bpm/536ms", 233, 362],
+    [37, "11 Stop \ud83d\uded1 116bpm/517ms", 234, 471],
+    [38, "11 Stop \ud83d\uded1 120bpm/500ms", 235, 498],
+    [39, "11 Stop \ud83d\uded1 128bpm/469ms", 236, 508],
+    [40, "11 Stop \ud83d\uded1 136bpm/441ms", 237, 514],
+    [41, "11 Stop \ud83d\uded1 148bpm/405ms", 238, 500],
+    [42, "11 Stop \ud83d\uded1 152bpm/395ms", 239, 502],
+    [43, "11 Stop \ud83d\uded1 156bpm/385ms", 240, 511],
+    [44, "11 Stop \ud83d\uded1 160bpm/375ms", 241, 28],
+    [45, "11 Stop \ud83d\uded1 170bpm/353ms", 242, 485],
+    [46, "11 Stop \ud83d\uded1 190bpm/316ms", 243, 491],
+    [47, "11 Stop \ud83d\uded1 200bpm/300ms", 244, 478],
+    [48, "11 Stop \ud83d\uded1 206bpm/291ms", 245, 517],
+  ],
+  "12 slow red": [
+    [49, "12 slow red", 247, 559],
+    [50, "12 slow red drip", 248, 565],
+  ],
+  "16 Searchlight": [
+    [51, "16 Searchlight \ud83d\udd26", 250, 83],
+    [52, "16 Searchlight \ud83d\udd26 cyan", 251, 158],
+    [53, "16 Searchlight \ud83d\udd26 cyan fog off", 252, 160],
+    [54, "16 Searchlight \ud83d\udd26 fog off", 253, 529],
+    [55, "16 Searchlight \ud83d\udd26 fog on", 254, 536],
+  ],
+  "20-21 white fan": [
+    [56, "20 white Fan up", 256, 181],
+    [57, "21 white fan down", 257, 182],
+  ],
+  "22 blind": [
+    [58, "22 blind", 259, 212],
+    [59, "22 blind - fog off", 260, 535],
+    [60, "22 blind - fog on", 261, 533],
+  ],
+  "D O R up W": [
+    [61, "D", 266, 581],
+    [62, "O", 267, 579],
+    [63, "R", 268, 580],
+    [64, "up", 269, 582],
+    [65, "W", 270, 578],
+  ],
+  "Einzelszenen": [
+    [66, "Chor (collection)", 272, 553],
+    [67, "Heads Cross White", 273, 143],
+    [68, "Heads Publikum", 274, 225],
+    [69, "heads white open", 275, 597],
+    [70, "PAR Blue + Fog", 276, 476],
+    [71, "PAR Blue + Fog off", 277, 477],
+    [72, "PAR Green + Fog", 278, 475],
+    [73, "red and green alternating", 279, 29],
+    [74, "S\u00e4ulen red drip", 280, 564],
+    [75, "static dark blue", 281, 32],
+    [76, "stripes from center", 282, 33],
+    [77, "strips twinkle", 283, 34],
+    [78, "TMHs center stage yellow", 284, 136],
+    [79, "up'n'down (ohne effects)", 285, 152],
+  ],
+  "Song-spezifisch": [
+    [80, "The Reason Intro (Collection)", 287, 219],
+    [81, "Valerie Verse 2b (automatisch)", 288, 554],
+    [82, "Valerie Verse 2b (manuell)", 289, 209],
+    [83, "Valerie Verse 3a (a capella auto)", 290, 555],
+    [84, "Valerie Verse 3a (a capella manuell)", 291, 208],
+  ],
+  "Spots & Combos": [
+    [85, "03 walking \ud83d\udeb6 + PARs Pete", 293, 22],
+    [86, "Inside Spot auf Axel und Tim", 294, 165],
+    [87, "Spot auf Axel & Bibo", 295, 473],
+    [88, "Spot auf Axel \ud83d\udfe2", 296, 224],
+    [89, "Spot auf Axel \ud83d\udfe2 156bpm/385ms", 297, 522],
+    [90, "Spot auf Axel \ud83d\udfe2 fog off", 298, 526],
+    [91, "Spot auf Axel \ud83d\udfe2 hot", 299, 226],
+    [92, "Spot auf Axel blackout", 300, 231],
+    [93, "Spot auf Bibo \ud83d\udfe1", 301, 227],
+    [94, "Spot auf Bibo \ud83d\udfe1 fog off", 302, 538],
+    [95, "Spot auf PAC", 303, 269],
+    [96, "Spot auf PAC + Blinder", 304, 531],
+    [97, "Spot auf Pete \ud83d\udd35", 305, 228],
+    [98, "Spot auf Pete \ud83d\udd35 starfield", 306, 163],
+    [99, "Spot auf Pete, fog off", 307, 282],
+    [100, "Spot auf Pete, Fog on", 308, 281],
+    [101, "Spot auf Tim \u26aa\ufe0f", 309, 229],
+    [102, "Spot auf Tim \u26aa\ufe0f 156bpm/385ms", 310, 515],
+    [103, "Spot auf Tim \u26aa\ufe0f hot", 311, 14],
+    [104, "Spot auf Tim \u26aa\ufe0f hot ohne PAR", 312, 230],
+  ],
+};
+
+// ─── Render ──────────────────────────────────
+function render() {
+  var container = document.getElementById('groups');
+  var html = '';
+  for (var group in BUTTONS) {
+    html += '<div class="group">';
+    html += '<div class="group-title">' + escHtml(group) + '</div>';
+    html += '<div class="btns">';
+    var btns = BUTTONS[group];
+    for (var i = 0; i < btns.length; i++) {
+      var b = btns[i];
+      html += '<div class="btn" data-ch="' + b[0] + '" onclick="triggerBtn(this,' + b[0] + ',\'' + escAttr(b[1]) + '\')">';
+      html += '<span class="btn-id">B' + b[2] + '</span>';
+      html += '<span class="btn-label">' + escHtml(b[1]) + '</span>';
+      html += '<span class="btn-ch">CH ' + b[0] + '</span>';
+      html += '</div>';
+    }
+    html += '</div></div>';
+  }
+  container.innerHTML = html;
+}
+
+function escHtml(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function escAttr(s) { return s.replace(/'/g, "\\'").replace(/"/g, '&quot;'); }
+
+// ─── OSC Trigger ─────────────────────────────
+async function triggerBtn(el, channel, label) {
+  var host = document.getElementById('oscHost').value;
+  var port = parseInt(document.getElementById('oscPort').value, 10);
+  var uni = parseInt(document.getElementById('oscUni').value, 10);
+
+  el.classList.add('flash');
+  setTimeout(function() { el.classList.remove('flash'); }, 400);
+
+  try {
+    var resp = await fetch('/api/osc/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        host: host,
+        port: port,
+        universe: uni,
+        collection_id: channel,
+      }),
+    });
+    var data = await resp.json();
+    if (data.ok) {
+      showToast('CH ' + channel + ' gesendet: ' + label);
+    } else {
+      showToast('Fehler: ' + (data.error || 'unbekannt'));
+    }
+  } catch (e) {
+    showToast('Server nicht erreichbar');
+  }
+}
+
+// ─── Connection check ────────────────────────
+async function checkConnection() {
+  var el = document.getElementById('connStatus');
+  try {
+    var resp = await fetch('/api/qlc/status');
+    var data = await resp.json();
+    if (data.connected) {
+      el.textContent = 'OSC OK (' + data.host + ':' + data.port + ')';
+      el.className = 'status ok';
+    } else {
+      el.textContent = 'OSC nicht verbunden';
+      el.className = 'status err';
+    }
+  } catch (e) {
+    el.textContent = 'Server offline';
+    el.className = 'status err';
+  }
+}
+
+// ─── Toast ───────────────────────────────────
+var toastTimer = null;
+function showToast(msg) {
+  var el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(function() { el.classList.remove('show'); }, 2000);
+}
+
+// ─── Init ────────────────────────────────────
+render();
+checkConnection();
+setInterval(checkConnection, 10000);
+</script>
+</body>
+</html>

@@ -1863,13 +1863,12 @@ function onWaveformPointerMove(e) {
       if (_dragMarker.type === 'part') {
         const oldTime = partMarkers[_dragMarker.index].time;
         partMarkers[_dragMarker.index].time = newTime;
-        // Move the first bar of this part along with the part marker
-        // Tolerance raised to 0.1s to handle slight drift from import/manual edits
+        // Move the nearest bar marker along with the part marker (0.2s tolerance)
         const partIdx = partMarkers[_dragMarker.index].partIndex;
         const barsInPart = barMarkers
           .filter(bm => bm.partIndex === partIdx)
           .sort((a, b) => a.time - b.time);
-        if (barsInPart.length > 0 && Math.abs(barsInPart[0].time - oldTime) < 0.1) {
+        if (barsInPart.length > 0 && Math.abs(barsInPart[0].time - oldTime) < 0.2) {
           barsInPart[0].time = newTime;
         }
       } else {
@@ -1977,12 +1976,31 @@ function reassignBarMarkerParts() {
  * Ensure the first bar marker of each part is snapped to its part marker time.
  */
 function snapFirstBarsToPartMarkers() {
+  const SNAP_TOLERANCE = 0.2; // seconds
   for (const pm of partMarkers) {
     const barsInPart = barMarkers
       .filter(bm => bm.partIndex === pm.partIndex)
       .sort((a, b) => a.time - b.time);
     if (barsInPart.length > 0) {
-      barsInPart[0].time = pm.time;
+      // If the first bar of this part is within tolerance, snap it
+      if (Math.abs(barsInPart[0].time - pm.time) <= SNAP_TOLERANCE) {
+        barsInPart[0].time = pm.time;
+      }
+    } else {
+      // No bar assigned to this part yet — find nearest bar marker within tolerance
+      let nearest = null;
+      let nearestDist = Infinity;
+      for (const bm of barMarkers) {
+        const d = Math.abs(bm.time - pm.time);
+        if (d <= SNAP_TOLERANCE && d < nearestDist) {
+          nearest = bm;
+          nearestDist = d;
+        }
+      }
+      if (nearest) {
+        nearest.time = pm.time;
+        nearest.partIndex = pm.partIndex;
+      }
     }
   }
 }

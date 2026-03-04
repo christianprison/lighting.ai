@@ -7,6 +7,7 @@
 
 import { loadDB, loadDBLocal, saveDB, testConnection, uploadFile, deleteFile, getSha } from './db.js';
 import * as audio from './audio-engine.js';
+import * as integrity from './integrity.js';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -751,6 +752,8 @@ function handleEditorChange(e) {
     if (field === 'bars') {
       part.bars = parseInt(el.value, 10) || 0;
       part.duration_sec = calcPartDuration(part.bars, song.bpm || 0);
+      // Clean up excess bars when count is reduced
+      integrity.syncBarCount(db, partId, part.bars);
       // Update duration cell
       const row = el.closest('[data-part-id]');
       const durCell = row?.querySelector('.part-duration');
@@ -928,6 +931,7 @@ function handlePartAction(action) {
       const curr = song.parts[parts[idx].id];
       const prev = song.parts[parts[idx - 1].id];
       [curr.pos, prev.pos] = [prev.pos, curr.pos];
+      updateSplitMarkersAfterReorder(song);
       markDirty();
       renderPartsTable();
       break;
@@ -941,6 +945,7 @@ function handlePartAction(action) {
       const curr = song.parts[parts[idx].id];
       const next = song.parts[parts[idx + 1].id];
       [curr.pos, next.pos] = [next.pos, curr.pos];
+      updateSplitMarkersAfterReorder(song);
       markDirty();
       renderPartsTable();
       break;
@@ -948,16 +953,9 @@ function handlePartAction(action) {
 
     case 'dup-part': {
       if (!selectedPartId || !song.parts[selectedPartId]) return;
-      const src = song.parts[selectedPartId];
-      // Shift positions of parts after current
-      for (const p of Object.values(song.parts)) {
-        if (p.pos > src.pos) p.pos += 1;
-      }
-      const newId = nextPartId(selectedSongId);
-      song.parts[newId] = {
-        pos: src.pos + 1, name: src.name + ' (Copy)', bars: src.bars,
-        duration_sec: src.duration_sec, light_template: src.light_template, notes: src.notes || ''
-      };
+      // Use integrity module for cascade duplicate (copies bars + accents too)
+      const newId = integrity.duplicatePart(db, selectedSongId, selectedPartId);
+      if (!newId) return;
       selectedPartId = newId;
       selectedBarNum = null;
       markDirty();
@@ -1431,9 +1429,12 @@ function resetAudioSplit() {
 function saveMarkersToSong() {
   if (!selectedSongId || !db.songs[selectedSongId]) return;
   const song = db.songs[selectedSongId];
+  // Resolve partId from partIndex for each marker
+  const parts = getSortedParts(selectedSongId);
+  const indexToId = (idx) => parts[idx] ? parts[idx].id : undefined;
   song.split_markers = {
-    partMarkers: partMarkers.map(m => ({ time: m.time, partIndex: m.partIndex })),
-    barMarkers: barMarkers.map(m => ({ time: m.time, partIndex: m.partIndex })),
+    partMarkers: partMarkers.map(m => ({ time: m.time, partIndex: m.partIndex, partId: m.partId || indexToId(m.partIndex) })),
+    barMarkers: barMarkers.map(m => ({ time: m.time, partIndex: m.partIndex, partId: m.partId || indexToId(m.partIndex) })),
   };
 }
 
@@ -1447,12 +1448,23 @@ function restoreMarkersFromSong() {
   if (!song.split_markers) return;
 
   const sm = song.split_markers;
+  // Rebuild index from partId if available (survives part reorder)
+  const parts = getSortedParts(selectedSongId);
+  const idToIndex = {};
+  parts.forEach((p, i) => { idToIndex[p.id] = i; });
+
   if (Array.isArray(sm.partMarkers) && sm.partMarkers.length > 0) {
-    partMarkers = sm.partMarkers.map(m => ({ time: m.time, partIndex: m.partIndex }));
+    partMarkers = sm.partMarkers.map(m => {
+      const idx = m.partId && idToIndex[m.partId] !== undefined ? idToIndex[m.partId] : m.partIndex;
+      return { time: m.time, partIndex: idx, partId: m.partId };
+    });
     currentPartIndex = partMarkers.length;
   }
   if (Array.isArray(sm.barMarkers) && sm.barMarkers.length > 0) {
-    barMarkers = sm.barMarkers.map(m => ({ time: m.time, partIndex: m.partIndex }));
+    barMarkers = sm.barMarkers.map(m => {
+      const idx = m.partId && idToIndex[m.partId] !== undefined ? idToIndex[m.partId] : m.partIndex;
+      return { time: m.time, partIndex: idx, partId: m.partId };
+    });
     const lastBar = barMarkers[barMarkers.length - 1];
     currentBarInPart = barMarkers.filter(b => b.partIndex === lastBar.partIndex).length;
   }
@@ -1766,8 +1778,9 @@ function waveformEventX(e) {
 
 function onWaveformPointerDown(e) {
   if (!audioMeta) return;
-  // Only handle primary button (left click) or touch
+  // Only handle primary button (left click) or single touch
   if (e.type === 'mousedown' && e.button !== 0) return;
+  if (e.touches && e.touches.length > 1) return; // Ignore multi-touch
 
   const x = waveformEventX(e);
   const hit = hitTestMarker(x);
@@ -1786,9 +1799,41 @@ function onWaveformPointerDown(e) {
   e.preventDefault();
 }
 
+/**
+ * Compute drag boundaries for a marker so it cannot be dragged past its neighbours.
+ * Returns { min, max } in seconds. Includes a small gap (MIN_MARKER_GAP) to prevent overlap.
+ */
+const MIN_MARKER_GAP = 0.05; // 50ms minimum gap between markers
+function getDragBounds(type, index) {
+  const duration = audioMeta ? audioMeta.duration : Infinity;
+  const markers = type === 'part' ? partMarkers : barMarkers;
+  const sorted = [...markers].sort((a, b) => a.time - b.time);
+  const sortedIdx = sorted.findIndex(m => m === markers[index]);
+  const min = sortedIdx > 0 ? sorted[sortedIdx - 1].time + MIN_MARKER_GAP : 0;
+  const max = sortedIdx < sorted.length - 1 ? sorted[sortedIdx + 1].time - MIN_MARKER_GAP : duration;
+
+  // For bar markers, also constrain to stay within the part boundaries
+  if (type === 'bar') {
+    const bm = markers[index];
+    const partStart = partMarkers.find(pm => pm.partIndex === bm.partIndex);
+    const nextPart = partMarkers.find(pm => pm.partIndex === bm.partIndex + 1);
+    return {
+      min: Math.max(min, partStart ? partStart.time : 0),
+      max: Math.min(max, nextPart ? nextPart.time - MIN_MARKER_GAP : duration),
+    };
+  }
+  return { min, max };
+}
+
 function onWaveformPointerMove(e) {
   const wrap = document.getElementById('waveform-wrap');
   if (!wrap || !audioMeta) return;
+
+  // Ignore multi-touch moves
+  if (e.touches && e.touches.length > 1) {
+    cancelDrag();
+    return;
+  }
 
   if (_dragMarker) {
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -1807,18 +1852,23 @@ function onWaveformPointerMove(e) {
       if (!scroll || !audioMeta) return;
       const totalW = scroll.getBoundingClientRect().width;
       const duration = audioMeta.duration;
-      const newTime = Math.max(0, Math.min(duration, (x / totalW) * duration));
+      const rawTime = (x / totalW) * duration;
+
+      // Clamp to drag bounds so markers cannot cross neighbours
+      const bounds = getDragBounds(_dragMarker.type, _dragMarker.index);
+      const newTime = Math.max(bounds.min, Math.min(bounds.max, rawTime));
 
       // Update marker time
       if (_dragMarker.type === 'part') {
         const oldTime = partMarkers[_dragMarker.index].time;
         partMarkers[_dragMarker.index].time = newTime;
         // Move the first bar of this part along with the part marker
+        // Tolerance raised to 0.1s to handle slight drift from import/manual edits
         const partIdx = partMarkers[_dragMarker.index].partIndex;
         const barsInPart = barMarkers
           .filter(bm => bm.partIndex === partIdx)
           .sort((a, b) => a.time - b.time);
-        if (barsInPart.length > 0 && Math.abs(barsInPart[0].time - oldTime) < 0.01) {
+        if (barsInPart.length > 0 && Math.abs(barsInPart[0].time - oldTime) < 0.1) {
           barsInPart[0].time = newTime;
         }
       } else {
@@ -1833,6 +1883,27 @@ function onWaveformPointerMove(e) {
     const hit = hitTestMarker(x);
     wrap.style.cursor = hit ? 'col-resize' : 'crosshair';
   }
+}
+
+/** Cancel an in-progress drag, reverting the marker to its original position. */
+function cancelDrag() {
+  if (_dragMarker) {
+    if (_isDragging) {
+      // Revert marker to original position
+      const markers = _dragMarker.type === 'part' ? partMarkers : barMarkers;
+      if (markers[_dragMarker.index]) {
+        markers[_dragMarker.index].time = _dragMarker.originalTime;
+      }
+      drawWaveform();
+    }
+  }
+  const wrap = document.getElementById('waveform-wrap');
+  if (wrap) {
+    wrap.classList.remove('dragging');
+    wrap.style.cursor = 'crosshair';
+  }
+  _dragMarker = null;
+  _isDragging = false;
 }
 
 function onWaveformPointerUp(e) {
@@ -1900,6 +1971,42 @@ function snapFirstBarsToPartMarkers() {
 }
 
 /**
+ * After Part-Reorder in the editor, update split_markers partIndex values
+ * to match the new part order. Uses partIndex → partId mapping before reorder
+ * and rebuilds the mapping after.
+ */
+function updateSplitMarkersAfterReorder(song) {
+  if (!song || !song.split_markers) return;
+  const parts = getSortedParts(song === db.songs[selectedSongId] ? selectedSongId : null);
+  if (!parts.length) return;
+
+  // Build new index map: pos (0-based) → partIndex should be sequential
+  // Reassign partIndex on both part and bar markers based on the new part order
+  const pm = song.split_markers.partMarkers || [];
+  const bm = song.split_markers.barMarkers || [];
+
+  // Sort part markers by time (their position doesn't change)
+  pm.sort((a, b) => a.time - b.time);
+  // Re-index sequentially
+  pm.forEach((m, i) => { m.partIndex = i; });
+
+  // Re-assign bar markers to parts by time
+  for (const b of bm) {
+    let assigned = 0;
+    for (const p of pm) {
+      if (p.time <= b.time) assigned = p.partIndex;
+    }
+    b.partIndex = assigned;
+  }
+
+  // Also update in-memory markers if this is the currently selected song
+  if (song === db.songs[selectedSongId]) {
+    partMarkers = pm.map(m => ({ ...m }));
+    barMarkers = bm.map(m => ({ ...m }));
+  }
+}
+
+/**
  * Attach drag event listeners to the waveform wrap element.
  * Called after each renderAudioTab since innerHTML replaces the elements.
  */
@@ -1912,6 +2019,7 @@ function initWaveformDrag() {
   document.removeEventListener('mouseup', onWaveformPointerUp);
   document.removeEventListener('touchmove', onWaveformPointerMove);
   document.removeEventListener('touchend', onWaveformPointerUp);
+  document.removeEventListener('touchcancel', cancelDrag);
 
   // Mouse events
   wrap.addEventListener('mousedown', onWaveformPointerDown);
@@ -1922,6 +2030,7 @@ function initWaveformDrag() {
   wrap.addEventListener('touchstart', onWaveformPointerDown, { passive: false });
   document.addEventListener('touchmove', onWaveformPointerMove, { passive: false });
   document.addEventListener('touchend', onWaveformPointerUp);
+  document.addEventListener('touchcancel', cancelDrag);
 }
 
 /* ── Audio Split Event Handlers ────────────────────── */
@@ -4435,6 +4544,9 @@ async function initDB() {
       readOnly = false;
       setSyncStatus('saved');
       migrateAudioPaths();
+      // Run integrity checks, auto-clean orphans, migrate split markers
+      const check = integrity.checkOnLoad(db, true);
+      if (!check.valid) dirty = true; // auto-cleaned orphans need saving
       toast(`DB geladen (read/write) \u2014 ${Object.keys(db.songs || {}).length} Songs`, 'success');
     } catch (e) {
       setSyncStatus('error');
@@ -4460,6 +4572,7 @@ async function loadLocal() {
     readOnly = true;
     setSyncStatus('readonly');
     migrateAudioPaths();
+    integrity.checkOnLoad(db, false); // validate + migrate markers, no auto-clean in read-only
     const hasToken = !!getSettings().token;
     const hint = hasToken ? ' \u2014 Token pr\u00fcfen!' : '';
     toast(`DB geladen (read-only${hint}) \u2014 ${Object.keys(db.songs || {}).length} Songs`, hasToken ? 'error' : 'info', hasToken ? 5000 : 3000);
@@ -4670,4 +4783,25 @@ document.addEventListener('DOMContentLoaded', () => {
   restoreSidebar();
   switchTab('editor');
   initDB();
+  initViewportFix();
 });
+
+/** Fix iPad Chrome/Safari: dynamic address bar changes visible viewport height.
+ *  Uses visualViewport API to keep #app height in sync with actual visible area. */
+function initViewportFix() {
+  const app = document.getElementById('app');
+  if (!app) return;
+
+  function updateHeight() {
+    const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+    app.style.height = vh + 'px';
+  }
+
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', updateHeight);
+  } else {
+    window.addEventListener('resize', updateHeight);
+  }
+  // Initial call to set correct height
+  updateHeight();
+}

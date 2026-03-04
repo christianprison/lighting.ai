@@ -2376,6 +2376,23 @@ label {
   border-color: var(--red);
 }
 
+/* ── Copy Lyrics Button ─────────────────────────── */
+.btn-lyrics-copy {
+  font-size: 0.7rem;
+  color: var(--cyan);
+  border: 1px solid var(--border2);
+  background: var(--bg3);
+  border-radius: var(--radius);
+  padding: 2px 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s;
+}
+.btn-lyrics-copy:hover {
+  background: var(--bg4);
+  border-color: var(--cyan);
+}
+
 /* ── Lyrics Part Scroll Container ────────────────── */
 .lyrics-part-scroll {
   overflow-x: auto;

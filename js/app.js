@@ -2825,6 +2825,19 @@ function buildLyricsRawImport(song, geniusUrl) {
     </div>`;
 }
 
+/**
+ * Extract base function name from a part name (e.g. "Chorus 2" → "Chorus", "Bridge" → "Bridge").
+ * Returns null for Verse/Strophe parts (those are excluded from lyrics copying).
+ */
+function getLyricsPartBaseName(name) {
+  if (!name) return null;
+  const n = name.trim();
+  // Exclude Verse / Strophe
+  if (/^(verse|strophe)\b/i.test(n)) return null;
+  // Strip trailing number: "Chorus 2" → "Chorus", "Bridge" → "Bridge"
+  return n.replace(/\s*\d+\s*$/, '').trim() || null;
+}
+
 function buildLyricsPartsList(parts, song, hasBuf) {
   // Count non-instrumental parts for the toggle-all button
   const nonInstrParts = parts.filter(p => !p.instrumental);
@@ -2860,6 +2873,20 @@ function buildLyricsPartsList(parts, song, hasBuf) {
     const canPlay = canPlayRef || canPlayBars;
     const isPlaying = _lyricsPlayingPart === part.id;
 
+    // Find previous part with same base name (for "copy lyrics" button)
+    const baseName = getLyricsPartBaseName(part.name);
+    let prevSamePartId = null;
+    let prevSamePartName = null;
+    if (baseName && !isInstr) {
+      for (let j = i - 1; j >= 0; j--) {
+        if (getLyricsPartBaseName(parts[j].name) === baseName && !parts[j].instrumental) {
+          prevSamePartId = parts[j].id;
+          prevSamePartName = parts[j].name;
+          break;
+        }
+      }
+    }
+
     html += `
       <div class="lyrics-part-card${isInstr ? ' instrumental' : ''}${isCollapsed ? ' collapsed' : ''}" data-part-id="${part.id}" data-part-index="${i}">
         <div class="lyrics-part-header">
@@ -2872,8 +2899,9 @@ function buildLyricsPartsList(parts, song, hasBuf) {
             <span>Instrumental</span>
           </label>
           <div style="flex:1"></div>
+          ${prevSamePartId ? `<button class="btn btn-sm btn-lyrics-copy" data-lyrics-copy-from="${prevSamePartId}" data-lyrics-copy-to="${part.id}" title="Text aus ${esc(prevSamePartName)} übernehmen">Text aus ${esc(prevSamePartName)} &#x2192;</button>` : ''}
           ${canPlay ? `<button class="btn btn-sm btn-part-play${isPlaying ? ' playing' : ''}" data-lyrics-play="${part.id}" data-part-index="${i}" title="${isPlaying ? 'Stopp' : 'Part abspielen'}">
-            ${isPlaying ? '&#9724;' : '&#9654;'}
+            ${isPlaying ? '<svg width="10" height="10" viewBox="0 0 10 10"><rect width="10" height="10" rx="1" fill="var(--red)"/></svg>' : '&#9654;'}
           </button>` : ''}
         </div>
         ${!isInstr && !isCollapsed ? buildLyricsPartBody(part, i, barCount, barLyrics, hasBuf, absBarOffset) : ''}
@@ -3293,10 +3321,62 @@ function updateLyricsPlayButtons() {
   document.querySelectorAll('[data-lyrics-play]').forEach(btn => {
     const partId = btn.dataset.lyricsPlay;
     const isPlaying = _lyricsPlayingPart === partId;
-    btn.innerHTML = isPlaying ? '&#9724;' : '&#9654;';
+    btn.innerHTML = isPlaying ? '<svg width="10" height="10" viewBox="0 0 10 10"><rect width="10" height="10" rx="1" fill="var(--red)"/></svg>' : '&#9654;';
     btn.classList.toggle('playing', isPlaying);
     btn.title = isPlaying ? 'Stopp' : 'Part abspielen';
   });
+}
+
+/**
+ * Copy lyrics bar-by-bar from one part to another.
+ */
+function copyLyricsFromPart(fromPartId, toPartId) {
+  const db = getDB();
+  if (!db || !db.songs || !selectedSongId) return;
+  const song = db.songs[selectedSongId];
+  if (!song || !song.parts) return;
+
+  const fromPart = song.parts[fromPartId];
+  const toPart = song.parts[toPartId];
+  if (!fromPart || !toPart) return;
+
+  const fromBars = fromPart.bars || 0;
+  const toBars = toPart.bars || 0;
+  const count = Math.min(fromBars, toBars);
+
+  // Copy lyrics bar by bar
+  for (let b = 1; b <= count; b++) {
+    const srcBar = findBar(fromPartId, b);
+    const srcLyrics = srcBar ? (srcBar[1].lyrics || '') : '';
+
+    // Find or create target bar
+    let tgtBar = findBar(toPartId, b);
+    if (tgtBar) {
+      tgtBar[1].lyrics = srcLyrics;
+    } else {
+      // Create bar entry in DB
+      const barId = 'B' + Date.now().toString(36) + '_' + b;
+      if (!db.bars) db.bars = {};
+      db.bars[barId] = {
+        part_id: toPartId,
+        bar_num: b,
+        lyrics: srcLyrics,
+        audio: '',
+        has_accents: false
+      };
+    }
+  }
+
+  // Update UI inputs directly
+  document.querySelectorAll(`input[data-lyrics-bar-part="${toPartId}"]`).forEach(inp => {
+    const barNum = parseInt(inp.dataset.lyricsBarNum, 10);
+    if (barNum <= count) {
+      const srcBar = findBar(fromPartId, barNum);
+      inp.value = srcBar ? (srcBar[1].lyrics || '') : '';
+    }
+  });
+
+  markDirty();
 }
 
 /* ── Lyrics Tab Event Handlers ────────────────────── */
@@ -3361,6 +3441,15 @@ function handleLyricsClick(e) {
         scrollEl2.scrollTop = savedScroll;
       }
     }
+    return;
+  }
+
+  // Copy lyrics from previous same-name part
+  const copyBtn = el.closest('[data-lyrics-copy-from]');
+  if (copyBtn) {
+    const fromPartId = copyBtn.dataset.lyricsCopyFrom;
+    const toPartId = copyBtn.dataset.lyricsCopyTo;
+    copyLyricsFromPart(fromPartId, toPartId);
     return;
   }
 

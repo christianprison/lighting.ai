@@ -3461,6 +3461,50 @@ function handleLyricsChange(e) {
   }
 }
 
+/* ── Lyrics Input Focus (iPad compact + auto-save) ── */
+
+const _isIPad = /iPad|Macintosh/i.test(navigator.userAgent) && 'ontouchend' in document;
+
+function lyricsInputFocusIn(input) {
+  // iPad: hide waveforms + raw section to save vertical space for on-screen keyboard
+  if (_isIPad) {
+    const panel = document.querySelector('.lyrics-panel');
+    if (panel) panel.classList.add('lyrics-kbd-mode');
+    // Scroll the focused card into view after layout shift
+    const card = input.closest('.lyrics-part-card');
+    if (card) {
+      requestAnimationFrame(() => card.scrollIntoView({ block: 'nearest', behavior: 'smooth' }));
+    }
+  }
+}
+
+function lyricsInputFocusOut(input) {
+  // Save this bar's lyrics into DB immediately
+  const partId = input.dataset.lyricsBarPart;
+  const barNum = parseInt(input.dataset.lyricsBarNum, 10);
+  if (partId && !isNaN(barNum)) {
+    const [, barData] = getOrCreateBar(partId, barNum);
+    const newText = input.value.trim();
+    if (barData.lyrics !== newText) {
+      barData.lyrics = newText;
+      markDirty();
+      handleSave(false); // silent save to GitHub
+    }
+  }
+
+  // iPad: restore full layout (small delay to handle tab between inputs)
+  if (_isIPad) {
+    setTimeout(() => {
+      // Only restore if no other lyrics input has focus
+      const active = document.activeElement;
+      if (!active || !active.classList.contains('lyrics-bar-input')) {
+        const panel = document.querySelector('.lyrics-panel');
+        if (panel) panel.classList.remove('lyrics-kbd-mode');
+      }
+    }, 150);
+  }
+}
+
 /* ══════════════════════════════════════════════════════
    SETLIST TAB — Meilenstein 4
    ══════════════════════════════════════════════════════ */
@@ -5096,6 +5140,18 @@ function wireEvents() {
   els.content.addEventListener('input', (e) => {
     if (activeTab === 'lyrics' && e.target.id === 'lyrics-raw-text') {
       saveLyricsRawText();
+    }
+  });
+
+  // Lyrics bar input: save individual bar on blur + iPad compact layout
+  els.content.addEventListener('focusin', (e) => {
+    if (activeTab === 'lyrics' && e.target.classList.contains('lyrics-bar-input')) {
+      lyricsInputFocusIn(e.target);
+    }
+  });
+  els.content.addEventListener('focusout', (e) => {
+    if (activeTab === 'lyrics' && e.target.classList.contains('lyrics-bar-input')) {
+      lyricsInputFocusOut(e.target);
     }
   });
 

@@ -2457,6 +2457,21 @@ label {
   margin-top: 4px;
 }
 
+/* ── iPad Keyboard Mode (hide non-essential elements) ── */
+.lyrics-kbd-mode .lyrics-raw-section,
+.lyrics-kbd-mode .lyrics-wave-wrap,
+.lyrics-kbd-mode .audio-song-header {
+  display: none !important;
+}
+
+.lyrics-kbd-mode .lyrics-part-header {
+  padding: 4px 8px;
+}
+
+.lyrics-kbd-mode .lyrics-part-card {
+  margin-bottom: 4px;
+}
+
 /* ── Instrumental Checkbox ────────────────────────── */
 .lyrics-instr-label {
   display: flex;

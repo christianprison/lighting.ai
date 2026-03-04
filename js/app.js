@@ -5331,6 +5331,10 @@ function wireEvents() {
     if (activeTab === 'lyrics' && e.target.classList.contains('lyrics-bar-input')) {
       lyricsInputFocusOut(e.target);
     }
+    if (activeTab === 'lyrics' && e.target.id === 'lyrics-raw-text') {
+      saveLyricsRawText();
+      handleSave(false);
+    }
   });
 
   // Lyrics waveform bar marker drag (global move/end handlers)

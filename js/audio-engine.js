@@ -280,6 +280,8 @@ let segmentQueue = [];
 let segmentIndex = 0;
 let segmentPlaying = false;
 let onSegmentDone = null;
+let segmentStartedCtx = 0;  // context.currentTime when current segment started
+let segmentStartOffset = 0; // buffer offset of current segment
 
 /**
  * Play a list of audio segments sequentially without gaps.
@@ -306,7 +308,10 @@ function _playNextSegment() {
   }
 
   const ac = getContext();
-  if (ac.state === 'suspended') ac.resume();
+  if (ac.state === 'suspended') {
+    ac.resume().then(() => _playNextSegment());
+    return;
+  }
 
   const seg = segmentQueue[segmentIndex];
   const duration = seg.endTime - seg.startTime;
@@ -319,6 +324,8 @@ function _playNextSegment() {
     segmentIndex++;
     _playNextSegment();
   };
+  segmentStartOffset = seg.startTime;
+  segmentStartedCtx = ac.currentTime;
   segmentSource.start(0, seg.startTime, duration);
 }
 
@@ -329,6 +336,8 @@ export function stopSegments() {
   segmentPlaying = false;
   segmentQueue = [];
   segmentIndex = 0;
+  segmentStartedCtx = 0;
+  segmentStartOffset = 0;
   if (segmentSource) {
     try { segmentSource.onended = null; segmentSource.stop(); } catch { /* ok */ }
     segmentSource.disconnect();
@@ -342,6 +351,17 @@ export function stopSegments() {
  */
 export function isSegmentPlaying() {
   return segmentPlaying;
+}
+
+/**
+ * Get current absolute time (in the audio buffer) during segment playback.
+ * @returns {number} seconds into the buffer, or 0 if not playing
+ */
+export function getSegmentCurrentTime() {
+  if (!segmentPlaying) return 0;
+  const ac = getContext();
+  const elapsed = ac.currentTime - segmentStartedCtx;
+  return segmentStartOffset + elapsed;
 }
 
 /**

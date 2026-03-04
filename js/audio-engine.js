@@ -13,6 +13,15 @@ function getContext() {
   return ctx;
 }
 
+/**
+ * Pre-warm the AudioContext so playback starts instantly.
+ * Call on user interaction (tab switch, etc.) before actual play.
+ */
+export function warmup() {
+  const ac = getContext();
+  if (ac.state === 'suspended') ac.resume();
+}
+
 /* ── State ─────────────────────────────────────────── */
 let audioBuffer = null;
 let sourceNode = null;

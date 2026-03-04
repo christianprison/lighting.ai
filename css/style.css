@@ -2376,6 +2376,18 @@ label {
   border-color: var(--red);
 }
 
+/* ── Lyrics Part Scroll Container ────────────────── */
+.lyrics-part-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 4px;
+}
+
+.lyrics-part-scroll-inner {
+  width: 100%;
+}
+
 /* ── Lyrics Part Waveform ────────────────────────── */
 .lyrics-wave-wrap {
   width: 100%;
@@ -2397,9 +2409,6 @@ label {
 .lyrics-bars-row {
   display: flex;
   gap: 0;
-  overflow-x: auto;
-  padding-bottom: 4px;
-  -webkit-overflow-scrolling: touch;
 }
 
 .lyrics-bar-cell {

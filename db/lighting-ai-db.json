@@ -184,7 +184,8 @@
           "qlc_scene": "01 statisch bunt",
           "qlc_scene_id": 71,
           "timestamp": "",
-          "notes": ""
+          "notes": "",
+          "instrumental": true
         }
       },
       "qlc_id": 88,
@@ -258,7 +259,7 @@
         ],
         "barMarkers": [
           {
-            "time": 2.799999999999983,
+            "time": 2.725333333333334,
             "partIndex": 0,
             "partId": "5iZfKj_P001"
           },
@@ -298,8 +299,8 @@
             "partId": "5iZfKj_P001"
           },
           {
-            "time": 14.690666666666658,
-            "partIndex": 0,
+            "time": 14.701333333333332,
+            "partIndex": 1,
             "partId": "5iZfKj_P001"
           },
           {
@@ -328,7 +329,7 @@
             "partId": "5iZfKj_P002"
           },
           {
-            "time": 23.70133333333331,
+            "time": 22.282,
             "partIndex": 1,
             "partId": "5iZfKj_P002"
           },
@@ -358,7 +359,7 @@
             "partId": "5iZfKj_P002"
           },
           {
-            "time": 32.68266666666665,
+            "time": 33.23033707865169,
             "partIndex": 1,
             "partId": "5iZfKj_P002"
           },
@@ -378,8 +379,8 @@
             "partId": "5iZfKj_P002"
           },
           {
-            "time": 38.53333333333333,
-            "partIndex": 1,
+            "time": 38.576,
+            "partIndex": 2,
             "partId": "5iZfKj_P002"
           },
           {
@@ -398,8 +399,8 @@
             "partId": "5iZfKj_P003"
           },
           {
-            "time": 44.57599999999999,
-            "partIndex": 2,
+            "time": 44.576,
+            "partIndex": 3,
             "partId": "5iZfKj_P003"
           },
           {
@@ -438,8 +439,8 @@
             "partId": "5iZfKj_P004"
           },
           {
-            "time": 56.47466666666665,
-            "partIndex": 3,
+            "time": 56.51733333333333,
+            "partIndex": 4,
             "partId": "5iZfKj_P004"
           },
           {
@@ -478,8 +479,8 @@
             "partId": "5iZfKj_P005"
           },
           {
-            "time": 68.416,
-            "partIndex": 4,
+            "time": 68.41866666666667,
+            "partIndex": 5,
             "partId": "5iZfKj_P005"
           },
           {
@@ -518,8 +519,8 @@
             "partId": "5iZfKj_P006"
           },
           {
-            "time": 80.208,
-            "partIndex": 5,
+            "time": 80.26933333333334,
+            "partIndex": 6,
             "partId": "5iZfKj_P006"
           },
           {
@@ -538,8 +539,8 @@
             "partId": "5iZfKj_P007"
           },
           {
-            "time": 86.29866666666666,
-            "partIndex": 6,
+            "time": 86.32533333333333,
+            "partIndex": 7,
             "partId": "5iZfKj_P007"
           },
           {
@@ -578,8 +579,8 @@
             "partId": "5iZfKj_P008"
           },
           {
-            "time": 98.13333333333333,
-            "partIndex": 7,
+            "time": 98.16000000000001,
+            "partIndex": 8,
             "partId": "5iZfKj_P008"
           },
           {
@@ -618,8 +619,8 @@
             "partId": "5iZfKj_P009"
           },
           {
-            "time": 110.05866666666668,
-            "partIndex": 8,
+            "time": 110.10133333333334,
+            "partIndex": 9,
             "partId": "5iZfKj_P009"
           },
           {
@@ -658,8 +659,8 @@
             "partId": "5iZfKj_P010"
           },
           {
-            "time": 121.96533333333332,
-            "partIndex": 9,
+            "time": 121.968,
+            "partIndex": 10,
             "partId": "5iZfKj_P010"
           },
           {
@@ -698,7 +699,7 @@
             "partId": "5iZfKj_P011"
           },
           {
-            "time": 133.89066666666668,
+            "time": 133.88533333333334,
             "partIndex": 11,
             "partId": "5iZfKj_P012"
           },
@@ -743,8 +744,8 @@
             "partId": "5iZfKj_P012"
           },
           {
-            "time": 147.176,
-            "partIndex": 11,
+            "time": 147.2853333333333,
+            "partIndex": 12,
             "partId": "5iZfKj_P012"
           }
         ]
@@ -1063,10 +1064,486 @@
             "partId": "tdyEcs_P015"
           }
         ],
-        "barMarkers": []
+        "barMarkers": [
+          {
+            "time": 4.49866666666685,
+            "partIndex": 0,
+            "partId": "tdyEcs_P001"
+          },
+          {
+            "time": 5.992000000000189,
+            "partIndex": 0,
+            "partId": "tdyEcs_P001"
+          },
+          {
+            "time": 7.514666666666699,
+            "partIndex": 0,
+            "partId": "tdyEcs_P001"
+          },
+          {
+            "time": 9.058666666666795,
+            "partIndex": 0,
+            "partId": "tdyEcs_P001"
+          },
+          {
+            "time": 10.560000000000173,
+            "partIndex": 0,
+            "partId": "tdyEcs_P001"
+          },
+          {
+            "time": 12.072000000000116,
+            "partIndex": 0,
+            "partId": "tdyEcs_P001"
+          },
+          {
+            "time": 13.613333333333458,
+            "partIndex": 0,
+            "partId": "tdyEcs_P001"
+          },
+          {
+            "time": 15.11200000000008,
+            "partIndex": 0,
+            "partId": "tdyEcs_P001"
+          },
+          {
+            "time": 16.538666666666813,
+            "partIndex": 1,
+            "partId": "tdyEcs_P002"
+          },
+          {
+            "time": 17.997333333333472,
+            "partIndex": 1,
+            "partId": "tdyEcs_P002"
+          },
+          {
+            "time": 19.46400000000017,
+            "partIndex": 1,
+            "partId": "tdyEcs_P002"
+          },
+          {
+            "time": 20.946666666666715,
+            "partIndex": 1,
+            "partId": "tdyEcs_P002"
+          },
+          {
+            "time": 22.426666666666733,
+            "partIndex": 1,
+            "partId": "tdyEcs_P002"
+          },
+          {
+            "time": 23.83733333333339,
+            "partIndex": 1,
+            "partId": "tdyEcs_P002"
+          },
+          {
+            "time": 25.354666666666844,
+            "partIndex": 1,
+            "partId": "tdyEcs_P002"
+          },
+          {
+            "time": 26.79466666666667,
+            "partIndex": 1,
+            "partId": "tdyEcs_P002"
+          },
+          {
+            "time": 28.26133333333337,
+            "partIndex": 2,
+            "partId": "tdyEcs_P005"
+          },
+          {
+            "time": 29.69600000000014,
+            "partIndex": 2,
+            "partId": "tdyEcs_P005"
+          },
+          {
+            "time": 31.285333333333483,
+            "partIndex": 2,
+            "partId": "tdyEcs_P005"
+          },
+          {
+            "time": 32.74666666666667,
+            "partIndex": 3,
+            "partId": "tdyEcs_P009"
+          },
+          {
+            "time": 34.186666666666724,
+            "partIndex": 3,
+            "partId": "tdyEcs_P009"
+          },
+          {
+            "time": 35.66133333333346,
+            "partIndex": 3,
+            "partId": "tdyEcs_P009"
+          },
+          {
+            "time": 37.18133333333344,
+            "partIndex": 3,
+            "partId": "tdyEcs_P009"
+          },
+          {
+            "time": 38.629333333333534,
+            "partIndex": 3,
+            "partId": "tdyEcs_P009"
+          },
+          {
+            "time": 40.109333333333325,
+            "partIndex": 3,
+            "partId": "tdyEcs_P009"
+          },
+          {
+            "time": 41.64800000000014,
+            "partIndex": 3,
+            "partId": "tdyEcs_P009"
+          },
+          {
+            "time": 43.072000000000116,
+            "partIndex": 3,
+            "partId": "tdyEcs_P009"
+          },
+          {
+            "time": 44.55466666666666,
+            "partIndex": 3,
+            "partId": "tdyEcs_P009"
+          },
+          {
+            "time": 46.01333333333332,
+            "partIndex": 4,
+            "partId": "tdyEcs_P010"
+          },
+          {
+            "time": 47.488000000000056,
+            "partIndex": 4,
+            "partId": "tdyEcs_P010"
+          },
+          {
+            "time": 48.925333333333356,
+            "partIndex": 4,
+            "partId": "tdyEcs_P010"
+          },
+          {
+            "time": 50.49866666666685,
+            "partIndex": 6,
+            "partId": "tdyEcs_P012"
+          },
+          {
+            "time": 51.97600000000011,
+            "partIndex": 6,
+            "partId": "tdyEcs_P012"
+          },
+          {
+            "time": 53.51200000000017,
+            "partIndex": 6,
+            "partId": "tdyEcs_P012"
+          },
+          {
+            "time": 55.0293333333334,
+            "partIndex": 6,
+            "partId": "tdyEcs_P012"
+          },
+          {
+            "time": 56.54666666666685,
+            "partIndex": 6,
+            "partId": "tdyEcs_P012"
+          },
+          {
+            "time": 58.0293333333334,
+            "partIndex": 6,
+            "partId": "tdyEcs_P012"
+          },
+          {
+            "time": 59.54133333333334,
+            "partIndex": 6,
+            "partId": "tdyEcs_P012"
+          },
+          {
+            "time": 61.02133333333336,
+            "partIndex": 6,
+            "partId": "tdyEcs_P012"
+          },
+          {
+            "time": 62.52000000000021,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 63.99200000000019,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 65.42666666666673,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 66.88800000000015,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 68.32533333333345,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 69.78133333333335,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 71.22933333333344,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 72.6880000000001,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 74.20800000000008,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 75.68000000000006,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 77.00533333333351,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 78.59733333333338,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 80.12800000000016,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 81.53066666666678,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 83.07200000000012,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 84.52000000000021,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 85.96266666666679,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 87.48000000000002,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 88.92533333333336,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 90.40533333333337,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 91.87466666666683,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 93.3760000000002,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 94.91200000000003,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 96.42666666666673,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 97.94133333333343,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 99.43733333333353,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 100.88800000000015,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 102.39466666666681,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 103.93866666666668,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 105.41333333333341,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 106.92000000000007,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 108.40800000000013,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 109.93066666666687,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 111.39733333333334,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 112.79466666666667,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 114.26133333333337,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 115.73066666666682,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 117.17066666666688,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 118.61333333333346,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 120.06133333333332,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 121.53066666666678,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 122.99200000000019,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 124.45866666666666,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 125.89600000000019,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 127.39733333333334,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 128.8320000000001,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 130.31466666666665,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 131.82133333333354,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 133.24266666666676,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 134.70400000000018,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 136.19733333333352,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 137.64533333333338,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 139.12000000000012,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 140.54666666666685,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 142.048,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 143.50933333333342,
+            "partIndex": 7,
+            "partId": "tdyEcs_P015"
+          }
+        ]
       },
       "audio_ref": "audio/Along comes Mary/Along comes Mary - Full Song.mp3",
-      "audio_ref_name": "Along comes Mary - Full Song.mp3"
+      "audio_ref_name": "Along Comes Mary (original).mp3"
     },
     "CC9FBm": {
       "name": "Always Where I Need to Be",

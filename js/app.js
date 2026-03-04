@@ -2833,6 +2833,7 @@ function buildLyricsPartsList(parts, song, hasBuf) {
   html += '</div>';
   html += '<div class="lyrics-parts-list" id="lyrics-parts-list">';
 
+  let absBarOffset = 0; // cumulative bar count for absolute numbering
   for (let i = 0; i < parts.length; i++) {
     const part = parts[i];
     const barCount = part.bars || 0;
@@ -2871,8 +2872,9 @@ function buildLyricsPartsList(parts, song, hasBuf) {
             ${isPlaying ? '&#9724;' : '&#9654;'}
           </button>` : ''}
         </div>
-        ${!isInstr && !isCollapsed ? buildLyricsPartBody(part, i, barCount, barLyrics, hasBuf) : ''}
+        ${!isInstr && !isCollapsed ? buildLyricsPartBody(part, i, barCount, barLyrics, hasBuf, absBarOffset) : ''}
       </div>`;
+    absBarOffset += barCount;
   }
 
   html += '</div>';
@@ -2882,7 +2884,7 @@ function buildLyricsPartsList(parts, song, hasBuf) {
 /**
  * Build the body of a lyrics part card: waveform + horizontal bar inputs.
  */
-function buildLyricsPartBody(part, partIndex, barCount, barLyrics, hasBuf) {
+function buildLyricsPartBody(part, partIndex, barCount, barLyrics, hasBuf, absBarOffset) {
   if (barCount === 0) {
     return '<div class="lyrics-part-bar-hint text-t3">Keine Takte definiert</div>';
   }
@@ -2900,33 +2902,30 @@ function buildLyricsPartBody(part, partIndex, barCount, barLyrics, hasBuf) {
   }
 
   // Calculate proportional bar widths from bar markers (matching waveform)
+  // Bar markers include the first bar at the part start, so boundaries are:
+  // [bar1(=partStart), bar2, bar3, ..., partEnd]
   const bars = getBarMarkersForPart(partIndex);
-  const partStart = partMarker ? partMarker.time : null;
   let barWidths = null; // null = equal width fallback
-  if (showWave && bars.length > 0 && partStart !== null && partEnd) {
-    const partDur = partEnd - partStart;
-    if (partDur > 0) {
-      // Build time boundaries: [partStart, bar1, bar2, ..., partEnd]
-      const boundaries = [partStart, ...bars.map(m => m.time), partEnd];
-      // Each bar segment duration
-      const durations = [];
-      for (let i = 0; i < boundaries.length - 1; i++) {
-        durations.push(Math.max(0, boundaries[i + 1] - boundaries[i]));
-      }
-      // Only use proportional widths if we have the right number of segments
-      if (durations.length === barCount) {
-        barWidths = durations;
-      }
+  if (showWave && bars.length > 0 && partEnd) {
+    const boundaries = [...bars.map(m => m.time), partEnd];
+    const durations = [];
+    for (let i = 0; i < boundaries.length - 1; i++) {
+      durations.push(Math.max(0, boundaries[i + 1] - boundaries[i]));
+    }
+    // Only use proportional widths if segment count matches bar count
+    if (durations.length === barCount) {
+      barWidths = durations;
     }
   }
 
-  // Horizontal bar inputs
+  // Horizontal bar inputs (absolute bar numbering from song start)
   let barsHtml = '<div class="lyrics-bars-row">';
   for (let b = 0; b < barCount; b++) {
     const text = barLyrics[b] || '';
+    const absBarNum = absBarOffset + b + 1;
     const flexStyle = barWidths ? `flex:${barWidths[b].toFixed(4)} 1 0` : '';
     barsHtml += `<div class="lyrics-bar-cell" ${flexStyle ? `style="${flexStyle}"` : ''}>
-      <div class="lyrics-bar-num mono text-t3">${b + 1}</div>
+      <div class="lyrics-bar-num mono text-t3">${absBarNum}</div>
       <input type="text" class="lyrics-bar-input" data-lyrics-bar-part="${part.id}" data-lyrics-bar-num="${b + 1}" value="${esc(text)}" placeholder="\u2014">
     </div>`;
   }

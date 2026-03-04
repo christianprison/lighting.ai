@@ -2372,8 +2372,19 @@ label {
 }
 
 .btn-part-play.playing {
-  color: var(--red);
-  border-color: var(--red);
+  color: var(--amber);
+  border-color: var(--amber);
+}
+
+.btn-part-play.paused {
+  color: var(--green);
+  border-color: var(--green);
+  animation: lyrics-paused-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes lyrics-paused-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }
 
 /* ── Copy Lyrics Button ─────────────────────────── */

@@ -288,9 +288,12 @@ let segmentSource = null;
 let segmentQueue = [];
 let segmentIndex = 0;
 let segmentPlaying = false;
+let segmentPaused = false;
+let segmentPausedAt = 0;     // absolute buffer position where we paused
 let onSegmentDone = null;
 let segmentStartedCtx = 0;  // context.currentTime when current segment started
 let segmentStartOffset = 0; // buffer offset of current segment
+let segmentCurrentEnd = 0;  // end time of the current segment
 
 /**
  * Play a list of audio segments sequentially without gaps.
@@ -305,6 +308,8 @@ export function playSegments(segments, onDone) {
   segmentQueue = segments;
   segmentIndex = 0;
   segmentPlaying = true;
+  segmentPaused = false;
+  segmentPausedAt = 0;
   onSegmentDone = onDone || null;
   _playNextSegment();
 }
@@ -335,6 +340,7 @@ function _playNextSegment() {
   };
   segmentStartOffset = seg.startTime;
   segmentStartedCtx = ac.currentTime;
+  segmentCurrentEnd = seg.endTime;
   segmentSource.start(0, seg.startTime, duration);
 }
 
@@ -343,6 +349,9 @@ function _playNextSegment() {
  */
 export function stopSegments() {
   segmentPlaying = false;
+  segmentPaused = false;
+  segmentPausedAt = 0;
+  segmentCurrentEnd = 0;
   segmentQueue = [];
   segmentIndex = 0;
   segmentStartedCtx = 0;
@@ -355,11 +364,74 @@ export function stopSegments() {
 }
 
 /**
- * Is segment playback in progress?
+ * Pause segment playback (remembers position for resume).
+ */
+export function pauseSegments() {
+  if (!segmentPlaying || segmentPaused) return;
+  const ac = getContext();
+  segmentPausedAt = segmentStartOffset + (ac.currentTime - segmentStartedCtx);
+  segmentPaused = true;
+  segmentPlaying = false;
+  if (segmentSource) {
+    try { segmentSource.onended = null; segmentSource.stop(); } catch { /* ok */ }
+    segmentSource.disconnect();
+    segmentSource = null;
+  }
+}
+
+/**
+ * Resume segment playback from paused position.
+ */
+export function resumeSegments() {
+  if (!segmentPaused || !audioBuffer) return;
+  const ac = getContext();
+  if (ac.state === 'suspended') {
+    ac.resume().then(() => resumeSegments());
+    return;
+  }
+
+  const resumeFrom = segmentPausedAt;
+  const resumeEnd = segmentCurrentEnd;
+  const duration = resumeEnd - resumeFrom;
+
+  if (duration <= 0) {
+    // Current segment finished, move to next
+    segmentPaused = false;
+    segmentPlaying = true;
+    segmentIndex++;
+    _playNextSegment();
+    return;
+  }
+
+  segmentSource = ac.createBufferSource();
+  segmentSource.buffer = audioBuffer;
+  segmentSource.connect(ac.destination);
+  segmentSource.onended = () => {
+    segmentIndex++;
+    _playNextSegment();
+  };
+  segmentStartOffset = resumeFrom;
+  segmentStartedCtx = ac.currentTime;
+  segmentSource.start(0, resumeFrom, duration);
+
+  segmentPaused = false;
+  segmentPlaying = true;
+}
+
+/**
+ * Is segment playback in progress (playing or paused)?
  * @returns {boolean}
  */
 export function isSegmentPlaying() {
   return segmentPlaying;
+}
+
+/**
+ * Is segment playback paused?
+ * @returns {boolean}
+ */
+export function isSegmentPaused() {
+  return segmentPaused;
 }
 
 /**

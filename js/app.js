@@ -30,6 +30,7 @@ let takteTabSelectedBar = null;  // {songId, partId, barNum}
 
 /* ── Lyrics Tab State ───────────────────────────── */
 let _lyricsPlayingPart = null;    // partId currently playing in lyrics tab
+let _lyricsPausedPart = null;     // partId currently paused in lyrics tab
 let _lyricsCollapsed = new Set(); // Set of partIds that are collapsed
 
 /* ── Audio Split State ────────────────────────────── */
@@ -2872,6 +2873,7 @@ function buildLyricsPartsList(parts, song, hasBuf) {
     const canPlayBars = getAudioBarsForPart(part.id).length > 0;
     const canPlay = canPlayRef || canPlayBars;
     const isPlaying = _lyricsPlayingPart === part.id;
+    const isPaused = _lyricsPausedPart === part.id;
 
     // Find previous part with same base name (for "copy lyrics" button)
     const baseName = getLyricsPartBaseName(part.name);
@@ -2900,8 +2902,8 @@ function buildLyricsPartsList(parts, song, hasBuf) {
           </label>
           <div style="flex:1"></div>
           ${prevSamePartId ? `<button class="btn btn-sm btn-lyrics-copy" data-lyrics-copy-from="${prevSamePartId}" data-lyrics-copy-to="${part.id}" title="Text aus ${esc(prevSamePartName)} übernehmen">Text aus ${esc(prevSamePartName)} &#x2192;</button>` : ''}
-          ${canPlay ? `<button class="btn btn-sm btn-part-play${isPlaying ? ' playing' : ''}" data-lyrics-play="${part.id}" data-part-index="${i}" title="${isPlaying ? 'Stopp' : 'Part abspielen'}">
-            ${isPlaying ? '<svg width="10" height="10" viewBox="0 0 10 10"><rect width="10" height="10" rx="1" fill="var(--red)"/></svg>' : '&#9654;'}
+          ${canPlay ? `<button class="btn btn-sm btn-part-play${isPlaying ? ' playing' : ''}${isPaused ? ' paused' : ''}" data-lyrics-play="${part.id}" data-part-index="${i}" title="${isPlaying ? 'Pause' : isPaused ? 'Fortsetzen' : 'Part abspielen'}">
+            ${isPlaying ? '&#9646;&#9646;' : '&#9654;'}
           </button>` : ''}
         </div>
         ${!isInstr && !isCollapsed ? buildLyricsPartBody(part, i, barCount, barLyrics, hasBuf, absBarOffset) : ''}
@@ -3210,15 +3212,21 @@ let _lyricsAnimFrame = null;        // animation frame for lyrics playhead
 let _lyricsPlayPartIndex = null;    // partIndex currently playing
 
 function handleLyricsPartPlay(partId, partIndex) {
-  // Toggle off if already playing this part
+  // Pause if currently playing this part
   if (_lyricsPlayingPart === partId) {
-    stopLyricsPartPlay();
+    pauseLyricsPartPlay();
     return;
   }
 
-  // Stop previous playback (lightweight — skip redraw if nothing was playing)
-  const wasPlaying = !!_lyricsPlayingPart;
-  if (wasPlaying) stopLyricsPartPlay();
+  // Resume if this part is paused
+  if (_lyricsPausedPart === partId) {
+    resumeLyricsPartPlay();
+    return;
+  }
+
+  // Stop any previous playback or paused state
+  if (_lyricsPlayingPart) stopLyricsPartPlay();
+  if (_lyricsPausedPart) clearLyricsPausedState();
 
   _lyricsPlayingPart = partId;
   _lyricsPlayPartIndex = partIndex;
@@ -3232,6 +3240,7 @@ function handleLyricsPartPlay(partId, partIndex) {
   if (hasBuf && startTime !== null && endTime !== null) {
     audio.playSegments([{ startTime, endTime }], () => {
       _lyricsPlayingPart = null;
+      _lyricsPausedPart = null;
       _lyricsPlayPartIndex = null;
       stopLyricsPlayheadAnimation();
       updateLyricsPlayButtons();
@@ -3240,7 +3249,7 @@ function handleLyricsPartPlay(partId, partIndex) {
     return;
   }
 
-  // Fallback: play bar MP3 files
+  // Fallback: play bar MP3 files (no pause support for bar-by-bar playback)
   handlePartPlay(partId);
 
   const origInterval = setInterval(() => {
@@ -3253,12 +3262,39 @@ function handleLyricsPartPlay(partId, partIndex) {
   }, 200);
 }
 
+function pauseLyricsPartPlay() {
+  if (!_lyricsPlayingPart) return;
+  audio.pauseSegments();
+  stopLyricsPlayheadAnimation();
+  _lyricsPausedPart = _lyricsPlayingPart;
+  _lyricsPlayingPart = null;
+  updateLyricsPlayButtons();
+}
+
+function resumeLyricsPartPlay() {
+  if (!_lyricsPausedPart) return;
+  _lyricsPlayingPart = _lyricsPausedPart;
+  _lyricsPausedPart = null;
+  audio.resumeSegments();
+  startLyricsPlayheadAnimation();
+  updateLyricsPlayButtons();
+}
+
+function clearLyricsPausedState() {
+  if (_lyricsPausedPart) {
+    audio.stopSegments();
+    _lyricsPausedPart = null;
+    _lyricsPlayPartIndex = null;
+  }
+}
+
 function stopLyricsPartPlay() {
-  if (_lyricsPlayingPart) {
+  if (_lyricsPlayingPart || _lyricsPausedPart) {
     audio.stopSegments();
     stopPartPlay();
     stopLyricsPlayheadAnimation();
     _lyricsPlayingPart = null;
+    _lyricsPausedPart = null;
     _lyricsPlayPartIndex = null;
     updateLyricsPlayButtons();
   }
@@ -3321,9 +3357,11 @@ function updateLyricsPlayButtons() {
   document.querySelectorAll('[data-lyrics-play]').forEach(btn => {
     const partId = btn.dataset.lyricsPlay;
     const isPlaying = _lyricsPlayingPart === partId;
-    btn.innerHTML = isPlaying ? '<svg width="10" height="10" viewBox="0 0 10 10"><rect width="10" height="10" rx="1" fill="var(--red)"/></svg>' : '&#9654;';
+    const isPaused = _lyricsPausedPart === partId;
+    btn.innerHTML = isPlaying ? '&#9646;&#9646;' : '&#9654;';
     btn.classList.toggle('playing', isPlaying);
-    btn.title = isPlaying ? 'Stopp' : 'Part abspielen';
+    btn.classList.toggle('paused', isPaused);
+    btn.title = isPlaying ? 'Pause' : isPaused ? 'Fortsetzen' : 'Part abspielen';
   });
 }
 

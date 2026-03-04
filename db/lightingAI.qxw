@@ -35483,6 +35483,7 @@
      <Function ID="527"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="15597"/>
     </Button>
     <Button Caption="00 blackout fog off / 116bpm" ID="141" Icon="">
      <WindowState Visible="True" X="105" Y="10" Width="95" Height="95"/>
@@ -35496,6 +35497,7 @@
      <Function ID="528"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="11620"/>
     </Button>
    </Frame>
    <Frame Caption="" ID="143">
@@ -35525,6 +35527,7 @@
      <Function ID="71"/>
      <Action>Toggle</Action>
      <Intensity Adjust="False">100</Intensity>
+     <Input Universe="1" Channel="8191"/>
     </Button>
     <Button Caption="01 statisch bunt 🎉 190bpm/316ms" ID="149" Icon="">
      <WindowState Visible="True" X="105" Y="10" Width="95" Height="95"/>

@@ -8236,7 +8236,8 @@
       },
       "qlc_id": 106,
       "audio_ref": "audio/Song 2/Song 2 - Full Song.mp3",
-      "audio_ref_name": "Song 2 - Full Song.mp3"
+      "audio_ref_name": "Song 2 - Full Song.mp3",
+      "lyrics_raw": "[Intro]\nWoo-hoo\nWoo-hoo\nWoo-hoo\nWoo-hoo\n\n[Verse 1]\nI got my head checked\nBy a jumbo jet\nIt wasn't easy\nBut nothing is, no\n[Chorus]\n(Woo-hoo) When I feel heavy metal\n(Woo-hoo) And I'm pins and I'm needles\n(Woo-hoo) Well, I lie and I'm easy\nAll of the time, but I'm never sure why I need you\nPleased to meet you\n\n[Verse 2]\nI got my head done\nWhen I was young\nIt's not my problem\nIt's not my problem\n\n[Chorus]\n(Woo-hoo) When I feel heavy metal\n(Woo-hoo) And I'm pins and I'm needles\n(Woo-hoo) Well, I lie and I'm easy\nAll of the time, but I'm never sure why I need you\nPleased to meet you\n\n[Outro]\nYeah-yeah\nYeah-yeah\nYeah-yeah\nOh, yeah"
     },
     "JHUGOo": {
       "name": "Space Lord",
@@ -32355,6 +32356,559 @@
     "B3199": {
       "part_id": "rNOnoq_P009",
       "bar_num": 8,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3200": {
+      "part_id": "srQxlI_P001",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3201": {
+      "part_id": "srQxlI_P001",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3202": {
+      "part_id": "srQxlI_P001",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3203": {
+      "part_id": "srQxlI_P001",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3204": {
+      "part_id": "srQxlI_P002",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3205": {
+      "part_id": "srQxlI_P002",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3206": {
+      "part_id": "srQxlI_P002",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3207": {
+      "part_id": "srQxlI_P002",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3208": {
+      "part_id": "srQxlI_P002",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3209": {
+      "part_id": "srQxlI_P002",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3210": {
+      "part_id": "srQxlI_P002",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3211": {
+      "part_id": "srQxlI_P003",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3212": {
+      "part_id": "srQxlI_P003",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3213": {
+      "part_id": "srQxlI_P003",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3214": {
+      "part_id": "srQxlI_P003",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3215": {
+      "part_id": "srQxlI_P003",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3216": {
+      "part_id": "srQxlI_P003",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3217": {
+      "part_id": "srQxlI_P003",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3218": {
+      "part_id": "srQxlI_P004",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3219": {
+      "part_id": "srQxlI_P004",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3220": {
+      "part_id": "srQxlI_P004",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3221": {
+      "part_id": "srQxlI_P004",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3222": {
+      "part_id": "srQxlI_P004",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3223": {
+      "part_id": "srQxlI_P005",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3224": {
+      "part_id": "srQxlI_P005",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3225": {
+      "part_id": "srQxlI_P005",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3226": {
+      "part_id": "srQxlI_P005",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3227": {
+      "part_id": "srQxlI_P006",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3228": {
+      "part_id": "srQxlI_P006",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3229": {
+      "part_id": "srQxlI_P006",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3230": {
+      "part_id": "srQxlI_P006",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3231": {
+      "part_id": "srQxlI_P007",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3232": {
+      "part_id": "srQxlI_P007",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3233": {
+      "part_id": "srQxlI_P007",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3234": {
+      "part_id": "srQxlI_P007",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3235": {
+      "part_id": "srQxlI_P007",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3236": {
+      "part_id": "srQxlI_P007",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3237": {
+      "part_id": "srQxlI_P007",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3238": {
+      "part_id": "srQxlI_P008",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3239": {
+      "part_id": "srQxlI_P008",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3240": {
+      "part_id": "srQxlI_P008",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3241": {
+      "part_id": "srQxlI_P008",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3242": {
+      "part_id": "srQxlI_P008",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3243": {
+      "part_id": "srQxlI_P009",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3244": {
+      "part_id": "srQxlI_P009",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3245": {
+      "part_id": "srQxlI_P009",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3246": {
+      "part_id": "srQxlI_P009",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3247": {
+      "part_id": "srQxlI_P010",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3248": {
+      "part_id": "srQxlI_P010",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3249": {
+      "part_id": "srQxlI_P010",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3250": {
+      "part_id": "srQxlI_P010",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3251": {
+      "part_id": "srQxlI_P010",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3252": {
+      "part_id": "srQxlI_P010",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3253": {
+      "part_id": "srQxlI_P010",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3254": {
+      "part_id": "srQxlI_P011",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3255": {
+      "part_id": "srQxlI_P011",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3256": {
+      "part_id": "srQxlI_P011",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3257": {
+      "part_id": "srQxlI_P011",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3258": {
+      "part_id": "srQxlI_P012",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3259": {
+      "part_id": "srQxlI_P012",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3260": {
+      "part_id": "srQxlI_P012",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3261": {
+      "part_id": "srQxlI_P012",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3262": {
+      "part_id": "srQxlI_P012",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3263": {
+      "part_id": "srQxlI_P012",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3264": {
+      "part_id": "srQxlI_P012",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3265": {
+      "part_id": "srQxlI_P013",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3266": {
+      "part_id": "srQxlI_P013",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3267": {
+      "part_id": "srQxlI_P013",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3268": {
+      "part_id": "srQxlI_P013",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3269": {
+      "part_id": "srQxlI_P013",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3270": {
+      "part_id": "srQxlI_P014",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3271": {
+      "part_id": "srQxlI_P014",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3272": {
+      "part_id": "srQxlI_P014",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3273": {
+      "part_id": "srQxlI_P014",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3274": {
+      "part_id": "srQxlI_P015",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3275": {
+      "part_id": "srQxlI_P015",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3276": {
+      "part_id": "srQxlI_P015",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3277": {
+      "part_id": "srQxlI_P015",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3278": {
+      "part_id": "srQxlI_P015",
+      "bar_num": 5,
       "lyrics": "",
       "audio": "",
       "has_accents": false

@@ -110,8 +110,17 @@ h3 { font-size: 0.95rem; }
 /* ── Tabs ──────────────────────────────────────────── */
 .tab-bar {
   display: flex;
+  align-items: center;
   gap: 2px;
   margin-left: 24px;
+}
+
+.app-version {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--t4);
+  margin-left: 10px;
+  user-select: none;
 }
 
 .tab-btn {

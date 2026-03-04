@@ -203,12 +203,14 @@ async def manual_sync():
     return result
 
 
-@app.post("/api/qlc/function/{func_id}/start")
-async def start_function(func_id: int):
-    """Start a QLC+ function via OSC."""
+@app.post("/api/qlc/function/{func_id}/trigger")
+async def trigger_function(func_id: int):
+    """Trigger a QLC+ function's collection via OSC."""
     if osc:
-        osc.start_function(func_id)
-        return {"ok": True, "function_id": func_id}
+        ok = osc.trigger_function(func_id)
+        if ok:
+            return {"ok": True, "function_id": func_id}
+        return JSONResponse({"error": f"No collection mapping for function {func_id}"}, status_code=404)
     return JSONResponse({"error": "OSC not connected"}, status_code=503)
 
 
@@ -283,9 +285,9 @@ async def _handle_ws_action(action: str, msg: dict) -> dict | None:
             is_playing=False,
         )
 
-        # Start the chaser in QLC+ (via CueList play)
-        if osc and chaser:
-            osc.start_cuelist()
+        # Trigger the first step's collection (pre-song Stopp)
+        if osc and chaser and chaser.steps:
+            osc.trigger_function(chaser.steps[0].function_id)
 
         return {"ok": True, "song_id": song_id, "has_chaser": chaser is not None}
 
@@ -303,8 +305,8 @@ async def _handle_ws_action(action: str, msg: dict) -> dict | None:
                 current_function_name=step.function_name,
                 is_playing=True,
             )
-        if osc:
-            osc.next_step()
+            if osc:
+                osc.trigger_function(step.function_id)
         return {"ok": True, "step": new_step}
 
     elif action == "prev":
@@ -320,8 +322,8 @@ async def _handle_ws_action(action: str, msg: dict) -> dict | None:
                 current_part_name=step.note,
                 current_function_name=step.function_name,
             )
-        if osc:
-            osc.previous_step()
+            if osc:
+                osc.trigger_function(step.function_id)
         return {"ok": True, "step": new_step}
 
     elif action == "goto":
@@ -332,15 +334,9 @@ async def _handle_ws_action(action: str, msg: dict) -> dict | None:
 
         if chaser and 0 <= step_index < len(chaser.steps):
             step = chaser.steps[step_index]
-            # Advance from current to target via next_step
-            current = ws_handler.state.current_step
+            # Direct collection trigger — no need to step through
             if osc:
-                if step_index > current:
-                    for _ in range(step_index - current):
-                        osc.next_step()
-                elif step_index < current:
-                    for _ in range(current - step_index):
-                        osc.previous_step()
+                osc.trigger_function(step.function_id)
 
             await ws_handler.update_state(
                 current_step=step_index,

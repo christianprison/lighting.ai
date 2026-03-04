@@ -1,10 +1,11 @@
 """OSC client for QLC+ 4 control.
 
-QLC+ must be configured with an OSC Input universe.
-The OSC path format is: /{universe}/dmx/{channel}  (0-indexed)
-Values are floats 0-255.
+lighting.ai steuert QLC+ direkt per Collection-Trigger (kein CueList).
+Jeder Step in einem Song-Chaser hat eine collection_id die per OSC
+an den entsprechenden QLC+ Button gesendet wird.
 
-To trigger a button (start/stop function): send 255 then 0.
+OSC path format: /{universe}/dmx/{collection_id}
+Values: float 255 → 0 (toggle trigger)
 """
 
 from __future__ import annotations
@@ -19,16 +20,30 @@ from .qlc_parser import ACCENT_FUNCTIONS
 
 log = logging.getLogger("live.qlc_osc")
 
-# Default channel assignments for QLC+ Virtual Console buttons.
-# These must match the External Input assignments in QLC+.
-# Override in config.yaml if your setup differs.
-DEFAULT_CHANNEL_MAP = {
-    # Song chaser CueList controls (main playback widget)
-    "cuelist_play": 1,
-    "cuelist_stop": 2,
-    "cuelist_next": 3,
-    "cuelist_prev": 4,
-    # Accent triggers
+# QLC+ function_id → collection_id (index for OSC path /X/dmx/{collection_id}).
+# Extracted from Virtual Console buttons in lightingAI.qxw.
+FUNCTION_TO_COLLECTION: dict[int, int] = {
+    14: 103, 19: 25, 22: 85, 28: 44, 29: 73, 32: 75, 33: 76, 34: 77,
+    70: 5, 71: 2, 74: 8, 75: 10, 76: 11, 77: 12, 78: 15, 79: 17,
+    80: 18, 81: 20, 82: 24, 83: 51,
+    136: 78, 143: 67, 152: 79, 158: 52, 160: 53, 163: 98, 165: 86,
+    181: 56, 182: 57, 208: 84, 209: 82, 212: 58, 219: 80,
+    224: 88, 225: 68, 226: 91, 227: 93, 228: 97, 229: 101, 230: 104,
+    231: 92, 249: 16, 269: 95, 281: 100, 282: 99,
+    362: 36, 363: 26, 372: 27, 471: 37, 473: 87, 475: 72,
+    476: 70, 477: 71, 478: 47, 481: 28, 485: 45, 486: 30,
+    488: 34, 490: 29, 491: 46, 493: 3, 496: 32, 498: 38,
+    500: 41, 502: 42, 504: 33, 506: 35, 508: 39, 509: 23,
+    510: 22, 511: 43, 514: 40, 515: 102, 517: 48, 519: 31,
+    520: 7, 521: 4, 522: 89, 523: 19, 524: 13, 525: 14,
+    526: 90, 527: 0, 528: 1, 529: 54, 531: 96, 533: 60,
+    534: 6, 535: 59, 536: 55, 537: 9, 538: 94, 545: 21,
+    553: 66, 554: 81, 555: 83, 559: 49, 564: 74, 565: 50,
+    578: 65, 579: 62, 580: 63, 581: 61, 582: 64, 597: 69,
+}
+
+# Accent channel map for direct accent triggers (legacy, separate from collections)
+DEFAULT_ACCENT_MAP = {
     "blind": 10,
     "blackout": 11,
     "strobe": 12,
@@ -37,19 +52,18 @@ DEFAULT_CHANNEL_MAP = {
     "fog_off": 15,
     "fog_5s": 16,
     "fog_10s": 17,
-    # Tap tempo
     "tap_tempo": 20,
 }
 
 
 class QlcOsc:
-    """OSC client for controlling QLC+ 4."""
+    """OSC client for controlling QLC+ 4 via direct collection triggers."""
 
-    def __init__(self, cfg: QlcConfig, channel_map: dict[str, int] | None = None):
+    def __init__(self, cfg: QlcConfig, accent_map: dict[str, int] | None = None):
         self.cfg = cfg
         self.client: SimpleUDPClient | None = None
         self.universe = cfg.osc_universe
-        self.channel_map = channel_map or dict(DEFAULT_CHANNEL_MAP)
+        self.accent_map = accent_map or dict(DEFAULT_ACCENT_MAP)
         self._connected = False
 
     def connect(self) -> bool:
@@ -77,40 +91,40 @@ class QlcOsc:
         self.client.send_message(path, float(value))
 
     def _trigger(self, channel: int) -> None:
-        """Trigger a button: send 255 then 0 (QLC+ needs the 0->255 transition)."""
+        """Trigger a button: send 255 then 0 (QLC+ needs the 0→255 transition)."""
         self._send(channel, 255.0)
         time.sleep(0.05)
         self._send(channel, 0.0)
 
-    # --- High-level controls ---
+    # --- Collection trigger (Hauptsteuerung) ---
 
-    def start_cuelist(self) -> None:
-        """Start/resume the active CueList playback."""
-        ch = self.channel_map.get("cuelist_play", 1)
-        self._trigger(ch)
-        log.info("CueList play triggered (ch %d)", ch)
+    def trigger_collection(self, collection_id: int) -> None:
+        """Trigger a QLC+ collection button by its collection_id.
 
-    def stop_cuelist(self) -> None:
-        """Stop the active CueList."""
-        ch = self.channel_map.get("cuelist_stop", 2)
-        self._trigger(ch)
-        log.info("CueList stop triggered (ch %d)", ch)
+        This is the primary control method — each song step triggers
+        its collection directly, bypassing the CueList.
+        """
+        self._trigger(collection_id)
+        log.info("Collection %d triggered", collection_id)
 
-    def next_step(self) -> None:
-        """Advance to next step in the active CueList."""
-        ch = self.channel_map.get("cuelist_next", 3)
-        self._trigger(ch)
-        log.info("CueList next triggered (ch %d)", ch)
+    def trigger_function(self, function_id: int) -> bool:
+        """Trigger a QLC+ function by looking up its collection_id.
 
-    def previous_step(self) -> None:
-        """Go back to previous step in the active CueList."""
-        ch = self.channel_map.get("cuelist_prev", 4)
-        self._trigger(ch)
-        log.info("CueList prev triggered (ch %d)", ch)
+        Returns True if the function was found and triggered.
+        """
+        collection_id = FUNCTION_TO_COLLECTION.get(function_id)
+        if collection_id is not None:
+            self.trigger_collection(collection_id)
+            log.info("Function %d → Collection %d triggered", function_id, collection_id)
+            return True
+        log.warning("No collection mapping for function %d", function_id)
+        return False
+
+    # --- Accent triggers ---
 
     def trigger_accent(self, accent_type: str) -> None:
         """Trigger an accent function (blind, blackout, strobe, fog, etc.)."""
-        ch = self.channel_map.get(accent_type)
+        ch = self.accent_map.get(accent_type)
         if ch is None:
             log.warning("Unknown accent type: %s", accent_type)
             return
@@ -119,38 +133,5 @@ class QlcOsc:
 
     def tap_tempo(self) -> None:
         """Send a tap tempo pulse."""
-        ch = self.channel_map.get("tap_tempo", 20)
+        ch = self.accent_map.get("tap_tempo", 20)
         self._trigger(ch)
-
-    def select_song_page(self, page: int) -> None:
-        """Select a song page on the QLC+ SoloFrame (if mapped).
-
-        The page switching is typically done via the CueList widget
-        in QLC+, which auto-selects when the chaser starts.
-        This is a convenience method for direct page control.
-        """
-        # Page selection via OSC is not directly supported in QLC+ 4
-        # but we can map specific channels to page buttons
-        ch = self.channel_map.get(f"page_{page}")
-        if ch is not None:
-            self._trigger(ch)
-            log.info("Page %d selected (ch %d)", page, ch)
-        else:
-            log.debug("No channel mapped for page %d", page)
-
-    def start_function(self, func_id: int) -> None:
-        """Start a QLC+ function by triggering its mapped channel.
-
-        Requires a channel mapping entry like: "func_{id}": channel_number
-        """
-        ch = self.channel_map.get(f"func_{func_id}")
-        if ch is not None:
-            self._trigger(ch)
-            log.info("Function %d started (ch %d)", func_id, ch)
-        else:
-            log.warning("No channel mapped for function %d", func_id)
-
-    def stop_function(self, func_id: int) -> None:
-        """Stop a QLC+ function (toggle off)."""
-        # In QLC+ toggle buttons, a second trigger stops the function
-        self.start_function(func_id)

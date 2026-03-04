@@ -330,7 +330,7 @@
             "partId": "5iZfKj_P002"
           },
           {
-            "time": 25.183999999999997,
+            "time": 25.289367021276597,
             "partIndex": 1,
             "partId": "5iZfKj_P002"
           },
@@ -10705,14 +10705,14 @@
     "B0069": {
       "part_id": "5iZfKj_P002",
       "bar_num": 3,
-      "lyrics": "",
+      "lyrics": "True care,",
       "audio": "",
       "has_accents": false
     },
     "B0070": {
       "part_id": "5iZfKj_P002",
       "bar_num": 4,
-      "lyrics": "",
+      "lyrics": "truth brings",
       "audio": "",
       "has_accents": false
     },

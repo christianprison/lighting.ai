@@ -2793,6 +2793,17 @@ function renderLyricsTab() {
         </div>` : ''}
       </div>
     </div>`;
+
+  // Draw lyrics waveforms after DOM is ready
+  requestAnimationFrame(() => {
+    drawLyricsPartWaveforms();
+    // Attach drag listeners to lyrics wave canvases
+    const canvases = document.querySelectorAll('canvas[data-lyrics-wave-idx]');
+    for (const c of canvases) {
+      c.addEventListener('mousedown', initLyricsWaveDrag);
+      c.addEventListener('touchstart', initLyricsWaveDrag, { passive: false });
+    }
+  });
 }
 
 function buildLyricsRawImport(song, geniusUrl) {
@@ -2860,13 +2871,189 @@ function buildLyricsPartsList(parts, song, hasBuf) {
             ${isPlaying ? '&#9724;' : '&#9654;'}
           </button>` : ''}
         </div>
-        ${!isInstr && !isCollapsed ? `<textarea class="lyrics-part-text" data-lyrics-part="${part.id}" rows="${Math.max(2, barCount)}" placeholder="${barCount > 0 ? barCount + ' Zeilen = ' + barCount + ' Takte (1 Zeile pro Takt)' : 'Keine Takte'}">${esc(lyricsText)}</textarea>
-        <div class="lyrics-part-bar-hint text-t3">${barCount > 0 ? 'Zeile 1 = Takt 1, Zeile 2 = Takt 2, ...' : ''}</div>` : ''}
+        ${!isInstr && !isCollapsed ? buildLyricsPartBody(part, i, barCount, barLyrics, hasBuf) : ''}
       </div>`;
   }
 
   html += '</div>';
   return html;
+}
+
+/**
+ * Build the body of a lyrics part card: waveform + horizontal bar inputs.
+ */
+function buildLyricsPartBody(part, partIndex, barCount, barLyrics, hasBuf) {
+  if (barCount === 0) {
+    return '<div class="lyrics-part-bar-hint text-t3">Keine Takte definiert</div>';
+  }
+
+  // Waveform canvas for this part (if audio is loaded and part markers exist)
+  const partMarker = partMarkers.find(m => m.partIndex === partIndex);
+  const partEnd = getPartEndTime(partIndex);
+  const showWave = hasBuf && partMarker && partEnd;
+
+  let waveHtml = '';
+  if (showWave) {
+    waveHtml = `<div class="lyrics-wave-wrap" data-lyrics-wave-part="${partIndex}">
+      <canvas class="lyrics-wave-canvas" data-lyrics-wave-idx="${partIndex}" data-wave-start="${partMarker.time}" data-wave-end="${partEnd}"></canvas>
+    </div>`;
+  }
+
+  // Horizontal bar inputs
+  let barsHtml = '<div class="lyrics-bars-row">';
+  for (let b = 0; b < barCount; b++) {
+    const text = barLyrics[b] || '';
+    barsHtml += `<div class="lyrics-bar-cell">
+      <div class="lyrics-bar-num mono text-t3">${b + 1}</div>
+      <input type="text" class="lyrics-bar-input" data-lyrics-bar-part="${part.id}" data-lyrics-bar-num="${b + 1}" value="${esc(text)}" placeholder="\u2014">
+    </div>`;
+  }
+  barsHtml += '</div>';
+
+  return waveHtml + barsHtml;
+}
+
+/**
+ * Draw waveform with bar markers for a lyrics part canvas.
+ * Called after renderLyricsTab to populate canvases.
+ */
+function drawLyricsPartWaveforms() {
+  if (!audio.getBuffer() || !audioMeta) return;
+  const canvases = document.querySelectorAll('canvas[data-lyrics-wave-idx]');
+  for (const canvas of canvases) {
+    drawLyricsPartWaveform(canvas);
+  }
+}
+
+function drawLyricsPartWaveform(canvas) {
+  if (!audio.getBuffer() || !audioMeta) return;
+  const partIndex = parseInt(canvas.dataset.lyricsWaveIdx, 10);
+  const startSec = parseFloat(canvas.dataset.waveStart);
+  const endSec = parseFloat(canvas.dataset.waveEnd);
+  if (isNaN(startSec) || isNaN(endSec) || endSec <= startSec) return;
+
+  const dpr = window.devicePixelRatio || 1;
+  const w = canvas.clientWidth;
+  const h = canvas.clientHeight;
+  if (w <= 0 || h <= 0) return;
+
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, w, h);
+
+  // Draw waveform
+  const buckets = Math.floor(w);
+  const peaks = audio.getPeaksRange(startSec, endSec, buckets);
+  const mid = h / 2;
+  for (let i = 0; i < buckets; i++) {
+    const amp = peaks[i];
+    const barH = amp * (h * 0.85);
+    const opacity = 0.3 + amp * 0.7;
+    ctx.fillStyle = `rgba(0, 220, 130, ${opacity})`;
+    ctx.fillRect(i, mid - barH / 2, 1, barH || 1);
+  }
+
+  // Draw bar markers
+  const partDur = endSec - startSec;
+  const bars = getBarMarkersForPart(partIndex);
+  for (let bi = 0; bi < bars.length; bi++) {
+    const relTime = bars[bi].time - startSec;
+    const x = (relTime / partDur) * w;
+    const isDrag = _lyricsWaveDrag && _lyricsWaveDrag.partIndex === partIndex && _lyricsWaveDrag.barIdx === bi;
+    ctx.strokeStyle = isDrag ? 'rgba(56, 189, 248, 0.95)' : 'rgba(56, 189, 248, 0.5)';
+    ctx.lineWidth = isDrag ? 2 : 1;
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, h);
+    ctx.stroke();
+
+    // Bar number label
+    ctx.font = '9px "DM Mono", monospace';
+    ctx.fillStyle = isDrag ? 'rgba(56, 189, 248, 0.95)' : 'rgba(56, 189, 248, 0.6)';
+    ctx.fillText(String(bi + 1), x + 2, 10);
+
+    if (isDrag) {
+      ctx.fillStyle = 'rgba(56, 189, 248, 0.95)';
+      ctx.fillText(fmtTime(bars[bi].time), x + 2, h - 3);
+    }
+  }
+}
+
+/* ── Lyrics Waveform Bar Marker Drag ─────────────── */
+
+let _lyricsWaveDrag = null; // { canvas, partIndex, barIdx, startX, startTime, bars }
+
+function initLyricsWaveDrag(e) {
+  const canvas = e.target.closest('canvas[data-lyrics-wave-idx]');
+  if (!canvas || !audioMeta) return;
+  const partIndex = parseInt(canvas.dataset.lyricsWaveIdx, 10);
+  const startSec = parseFloat(canvas.dataset.waveStart);
+  const endSec = parseFloat(canvas.dataset.waveEnd);
+  if (isNaN(startSec) || isNaN(endSec)) return;
+
+  const rect = canvas.getBoundingClientRect();
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const xPx = clientX - rect.left;
+  const w = rect.width;
+  const partDur = endSec - startSec;
+  const clickTime = startSec + (xPx / w) * partDur;
+
+  // Hit test: find nearest bar marker
+  const bars = getBarMarkersForPart(partIndex);
+  let bestIdx = -1, bestDist = Infinity;
+  for (let i = 0; i < bars.length; i++) {
+    const mX = ((bars[i].time - startSec) / partDur) * w;
+    const dist = Math.abs(mX - xPx);
+    if (dist < bestDist) { bestDist = dist; bestIdx = i; }
+  }
+  if (bestIdx < 0 || bestDist > 12) return; // 12px threshold
+
+  e.preventDefault();
+  _lyricsWaveDrag = {
+    canvas, partIndex, barIdx: bestIdx, startSec, endSec,
+    origTime: bars[bestIdx].time
+  };
+  drawLyricsPartWaveform(canvas);
+}
+
+function moveLyricsWaveDrag(e) {
+  if (!_lyricsWaveDrag) return;
+  e.preventDefault();
+  const { canvas, partIndex, barIdx, startSec, endSec } = _lyricsWaveDrag;
+  const rect = canvas.getBoundingClientRect();
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const xPx = clientX - rect.left;
+  const w = rect.width;
+  const partDur = endSec - startSec;
+
+  let newTime = startSec + (xPx / w) * partDur;
+  newTime = Math.max(startSec + 0.01, Math.min(endSec - 0.01, newTime));
+
+  // Update the actual barMarkers array
+  const bars = getBarMarkersForPart(partIndex);
+  if (bars[barIdx]) {
+    // Find in global barMarkers
+    const globalIdx = barMarkers.findIndex(m =>
+      m.partIndex === partIndex && Math.abs(m.time - bars[barIdx].time) < 0.0001);
+    if (globalIdx >= 0) {
+      barMarkers[globalIdx].time = newTime;
+    }
+  }
+
+  drawLyricsPartWaveform(canvas);
+}
+
+function endLyricsWaveDrag() {
+  if (!_lyricsWaveDrag) return;
+  const moved = _lyricsWaveDrag;
+  _lyricsWaveDrag = null;
+
+  // Re-sort global bar markers and save
+  barMarkers.sort((a, b) => a.time - b.time);
+  saveMarkersToSong();
+  drawLyricsPartWaveform(moved.canvas);
 }
 
 /**
@@ -2912,18 +3099,14 @@ function distributeLyricsToparts() {
     const barCount = part.bars || 0;
     if (barCount === 0 || part.instrumental) continue;
 
-    const ta = document.querySelector(`.lyrics-part-text[data-lyrics-part="${part.id}"]`);
-    if (!ta) continue;
-
     const section = sections[sIdx];
     sIdx++;
 
-    // Pad or trim to match bar count
-    const lines = [];
+    // Fill individual bar inputs
     for (let b = 0; b < barCount; b++) {
-      lines.push(b < section.length ? section[b] : '');
+      const inp = document.querySelector(`.lyrics-bar-input[data-lyrics-bar-part="${part.id}"][data-lyrics-bar-num="${b + 1}"]`);
+      if (inp) inp.value = b < section.length ? section[b] : '';
     }
-    ta.value = lines.join('\n');
   }
 
   markDirty();
@@ -2931,7 +3114,7 @@ function distributeLyricsToparts() {
 }
 
 /**
- * Apply lyrics from all part textareas into DB bar records.
+ * Apply lyrics from all part bar inputs into DB bar records.
  */
 function applyLyricsToDB() {
   if (!selectedSongId) return;
@@ -2960,14 +3143,9 @@ function applyLyricsToDB() {
       continue;
     }
 
-    // Find textarea by data attribute (not by index — instrumental parts have none)
-    const ta = document.querySelector(`.lyrics-part-text[data-lyrics-part="${part.id}"]`);
-    if (!ta) continue;
-
-    const lines = ta.value.split('\n');
-
     for (let b = 1; b <= barCount; b++) {
-      const text = (b - 1 < lines.length) ? lines[b - 1].trim() : '';
+      const inp = document.querySelector(`.lyrics-bar-input[data-lyrics-bar-part="${part.id}"][data-lyrics-bar-num="${b}"]`);
+      const text = inp ? inp.value.trim() : '';
       const [, barData] = getOrCreateBar(part.id, b);
       barData.lyrics = text;
       appliedCount++;
@@ -3142,8 +3320,17 @@ function handleLyricsChange(e) {
     if (!song || !song.parts[partId]) return;
     song.parts[partId].instrumental = el.checked;
     markDirty();
-    // Re-render just this card to show/hide textarea
+    const card = el.closest('.lyrics-part-card');
+    const scrollEl = document.getElementById('lyrics-scroll');
+    const cardTop = card ? card.getBoundingClientRect().top : 0;
     renderLyricsTab();
+    const scrollEl2 = document.getElementById('lyrics-scroll');
+    if (scrollEl2 && card) {
+      const newCard = scrollEl2.querySelector(`.lyrics-part-card[data-part-id="${partId}"]`);
+      if (newCard) {
+        scrollEl2.scrollTop += newCard.getBoundingClientRect().top - cardTop;
+      }
+    }
     return;
   }
 
@@ -4791,6 +4978,12 @@ function wireEvents() {
       saveLyricsRawText();
     }
   });
+
+  // Lyrics waveform bar marker drag (global move/end handlers)
+  document.addEventListener('mousemove', moveLyricsWaveDrag);
+  document.addEventListener('mouseup', endLyricsWaveDrag);
+  document.addEventListener('touchmove', moveLyricsWaveDrag, { passive: false });
+  document.addEventListener('touchend', endLyricsWaveDrag);
 
   // Audio drag & drop on content area
   els.content.addEventListener('dragover', (e) => {

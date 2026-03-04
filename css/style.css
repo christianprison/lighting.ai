@@ -2367,23 +2367,68 @@ label {
   border-color: var(--red);
 }
 
-.lyrics-part-text {
+/* ── Lyrics Part Waveform ────────────────────────── */
+.lyrics-wave-wrap {
+  width: 100%;
+  height: 48px;
+  border-radius: var(--radius);
+  background: var(--bg);
+  overflow: hidden;
+  margin-bottom: 6px;
+  cursor: ew-resize;
+}
+
+.lyrics-wave-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* ── Lyrics Bar Input Row ────────────────────────── */
+.lyrics-bars-row {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.lyrics-bar-cell {
+  flex: 1 1 0;
+  min-width: 80px;
+  max-width: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2px;
+}
+
+.lyrics-bar-num {
+  font-size: 0.6rem;
+  text-align: center;
+  line-height: 1;
+}
+
+.lyrics-bar-input {
   width: 100%;
   background: var(--bg3);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   color: var(--t1);
   font-family: var(--font-mono);
-  font-size: 0.8rem;
-  line-height: 1.25;
-  padding: 6px 10px;
-  resize: vertical;
-  min-height: 32px;
+  font-size: 0.72rem;
+  padding: 4px 6px;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.15s;
 }
 
-.lyrics-part-text:focus {
-  outline: none;
+.lyrics-bar-input:focus {
   border-color: var(--green);
+}
+
+.lyrics-bar-input::placeholder {
+  color: var(--t4);
 }
 
 .lyrics-part-bar-hint {

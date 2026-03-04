@@ -2418,3 +2418,172 @@ label {
   justify-content: flex-end;
   margin: 8px 0 16px 0;
 }
+
+/* ══════════════════════════════════════════════════════
+   QLC+ TAB
+   ══════════════════════════════════════════════════════ */
+
+.qlc-panel {
+  padding: 16px 20px;
+  max-width: 900px;
+}
+
+.qlc-header h2 {
+  margin: 0 0 4px 0;
+  font-size: 1.15rem;
+  color: var(--t1);
+}
+
+.qlc-desc {
+  color: var(--t2);
+  font-size: 0.8rem;
+  margin: 0 0 16px 0;
+}
+
+/* OSC Settings bar */
+.qlc-settings {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.qlc-settings label {
+  font-size: 0.78rem;
+  color: var(--t2);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.qlc-input {
+  width: 110px;
+  padding: 4px 8px;
+  font-size: 0.82rem;
+  font-family: var(--font-mono);
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--t1);
+}
+
+.qlc-input[type="number"] {
+  width: 70px;
+}
+
+.qlc-status {
+  font-size: 0.78rem;
+  color: var(--green);
+}
+
+/* Folder sections */
+.qlc-folders {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.qlc-folder {
+  border: 1px solid var(--border);
+  border-radius: var(--radius2);
+  overflow: hidden;
+}
+
+.qlc-folder-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--bg2);
+  cursor: pointer;
+  user-select: none;
+}
+
+.qlc-folder-header:hover {
+  background: var(--bg3);
+}
+
+.qlc-folder-arrow {
+  color: var(--t3);
+  font-size: 0.7rem;
+  width: 14px;
+}
+
+.qlc-folder-name {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--t1);
+}
+
+.qlc-folder-count {
+  font-size: 0.72rem;
+  color: var(--t3);
+  margin-left: auto;
+}
+
+.qlc-folder-body {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px 14px;
+  background: var(--bg);
+}
+
+.qlc-folder.collapsed .qlc-folder-body {
+  display: none;
+}
+
+/* Collection buttons */
+.qlc-collection-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 120px;
+  max-width: 180px;
+  padding: 10px 14px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+}
+
+.qlc-collection-btn:hover {
+  background: var(--bg4);
+  border-color: var(--border2);
+}
+
+.qlc-collection-btn:active,
+.qlc-collection-btn.qlc-btn-active {
+  background: var(--green);
+  border-color: var(--green);
+  transform: scale(0.96);
+}
+
+.qlc-collection-btn:active .qlc-coll-name,
+.qlc-collection-btn.qlc-btn-active .qlc-coll-name,
+.qlc-collection-btn:active .qlc-coll-id,
+.qlc-collection-btn.qlc-btn-active .qlc-coll-id {
+  color: var(--bg);
+}
+
+.qlc-coll-name {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--t1);
+  line-height: 1.3;
+}
+
+.qlc-coll-id {
+  font-size: 0.68rem;
+  font-family: var(--font-mono);
+  color: var(--t3);
+  margin-top: 3px;
+}

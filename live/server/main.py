@@ -6,8 +6,10 @@ import logging
 from pathlib import Path
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
 
 from .config import load_config, Config
 from .db_cache import sync, load_db, load_qxw_path
@@ -30,6 +32,21 @@ osc: QlcOsc | None = None
 ws_handler = WsHandler()
 
 app = FastAPI(title="lighting.ai Live Controller", version="1.0.0")
+
+# CORS — allow the GitHub Pages frontend and local dev to call the API
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+class OscSendRequest(BaseModel):
+    host: str = "127.0.0.1"
+    port: int = 7700
+    universe: int = 2
+    collection_id: int
 
 
 # --- Startup ---
@@ -213,6 +230,29 @@ async def qlc_tap():
         osc.tap_tempo()
         return {"ok": True}
     return JSONResponse({"error": "OSC not connected"}, status_code=503)
+
+
+@app.post("/api/osc/send")
+async def osc_send(req: OscSendRequest):
+    """Send a raw OSC trigger from the QLC+ config tab (collection button test).
+
+    Uses a one-shot UDP client so the host/port/universe from the request are honored
+    (they may differ from the server's own QLC config).
+    """
+    from pythonosc.udp_client import SimpleUDPClient
+    import time as _time
+
+    try:
+        client = SimpleUDPClient(req.host, req.port)
+        path = f"/{req.universe}/dmx/{req.collection_id}"
+        client.send_message(path, 255.0)
+        _time.sleep(0.05)
+        client.send_message(path, 0.0)
+        log.info("OSC sent: %s = 255→0 (%s:%d)", path, req.host, req.port)
+        return {"ok": True, "path": path}
+    except Exception as exc:
+        log.error("OSC send failed: %s", exc)
+        return JSONResponse({"error": str(exc)}, status_code=500)
 
 
 # --- WebSocket ---

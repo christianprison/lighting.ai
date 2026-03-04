@@ -7964,7 +7964,8 @@
       },
       "qlc_id": 171,
       "audio_ref": "audio/She Hates Me/She Hates Me - Full Song.mp3",
-      "audio_ref_name": "She Hates Me - Full Song.mp3"
+      "audio_ref_name": "She Hates Me - Full Song.mp3",
+      "lyrics_raw": "[Verse 1]\nMet a girl, thought she was grand\nFell in love, found out first hand\nWent well for a week or two\nThen it all came unglued\n\n[Pre-Chorus]\nIn a trap, trip I can't grip\nNever thought I'd be the one who'd slip\nThen I started to realize\nI was living one big lie\n\n[Chorus]\nShe fucking hates me\nTrust, she fucking hates me\nLa-la-la-love\nI tried too hard\nAnd she tore my feelings like I had none\nAnd ripped them away\n\n[Verse 2]\nShe was queen for about an hour\nAfter that, shit got sour\nShe took all I ever had\nNo sign of guilt\nNo feeling of bad, no\n\n[Pre-Chorus]\nIn a trap, trip I can't grip\nNever thought I'd be the one who'd slip\nThen I started to realize\nI was living one big lie\n\n[Chorus]\nShe fucking hates me\nTrust, she fucking hates me\nLa-la-la-love\nI tried too hard\nAnd she tore my feelings like I had none\nAnd ripped them away\n\n[Bridge]\nThat's my story, as you see\nLearned my lesson and so did she\nNow it's over and I'm glad\nCause I'm a fool for all I've said\n\n[Chorus]\nShe fucking hates me\nTrust, she fucking hates me\nLa-la-la-love\nI tried too hard\nAnd she tore my feelings like I had none\nAnd ripped them away\n\n[Outro]\nLa-la-la-la-la-la-la-la-la-love\nTrust\nLa-la-la-la-la-la-la-la-la-love\nTrust\nLa-la-la-la-la-la-la-la-la-love\nAnd she tore my feelings like I had none (Trust)\nLa-la-la-la-la-la-la-la-la-love (Trust)\nShe fucking hates me\n\nI never got any action\nHahahahahaha\nShe fucking hates me\nLet's do the, uh, reverse thing\nI never got any action anyway\n\n"
     },
     "rNOnoq": {
       "name": "Should I Stay Or Should I Go",
@@ -31282,6 +31283,601 @@
     "B3046": {
       "part_id": "Wa1bpl_P031",
       "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3047": {
+      "part_id": "RED66i_P001",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3048": {
+      "part_id": "RED66i_P001",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3049": {
+      "part_id": "RED66i_P001",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3050": {
+      "part_id": "RED66i_P001",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3051": {
+      "part_id": "RED66i_P002",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3052": {
+      "part_id": "RED66i_P002",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3053": {
+      "part_id": "RED66i_P002",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3054": {
+      "part_id": "RED66i_P002",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3055": {
+      "part_id": "RED66i_P002",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3056": {
+      "part_id": "RED66i_P002",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3057": {
+      "part_id": "RED66i_P002",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3058": {
+      "part_id": "RED66i_P002",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3059": {
+      "part_id": "RED66i_P002",
+      "bar_num": 9,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3060": {
+      "part_id": "RED66i_P002",
+      "bar_num": 10,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3061": {
+      "part_id": "RED66i_P003",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3062": {
+      "part_id": "RED66i_P003",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3063": {
+      "part_id": "RED66i_P003",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3064": {
+      "part_id": "RED66i_P003",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3065": {
+      "part_id": "RED66i_P003",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3066": {
+      "part_id": "RED66i_P003",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3067": {
+      "part_id": "RED66i_P003",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3068": {
+      "part_id": "RED66i_P003",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3069": {
+      "part_id": "RED66i_P004",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3070": {
+      "part_id": "RED66i_P004",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3071": {
+      "part_id": "RED66i_P004",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3072": {
+      "part_id": "RED66i_P004",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3073": {
+      "part_id": "RED66i_P004",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3074": {
+      "part_id": "RED66i_P004",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3075": {
+      "part_id": "RED66i_P004",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3076": {
+      "part_id": "RED66i_P004",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3077": {
+      "part_id": "RED66i_P005",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3078": {
+      "part_id": "RED66i_P005",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3079": {
+      "part_id": "RED66i_P005",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3080": {
+      "part_id": "RED66i_P005",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3081": {
+      "part_id": "RED66i_P005",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3082": {
+      "part_id": "RED66i_P005",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3083": {
+      "part_id": "RED66i_P005",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3084": {
+      "part_id": "RED66i_P005",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3085": {
+      "part_id": "RED66i_P006",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3086": {
+      "part_id": "RED66i_P006",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3087": {
+      "part_id": "RED66i_P006",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3088": {
+      "part_id": "RED66i_P006",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3089": {
+      "part_id": "RED66i_P006",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3090": {
+      "part_id": "RED66i_P006",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3091": {
+      "part_id": "RED66i_P006",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3092": {
+      "part_id": "RED66i_P006",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3093": {
+      "part_id": "RED66i_P007",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3094": {
+      "part_id": "RED66i_P007",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3095": {
+      "part_id": "RED66i_P007",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3096": {
+      "part_id": "RED66i_P007",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3097": {
+      "part_id": "RED66i_P007",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3098": {
+      "part_id": "RED66i_P007",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3099": {
+      "part_id": "RED66i_P007",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3100": {
+      "part_id": "RED66i_P007",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3101": {
+      "part_id": "RED66i_P008",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3102": {
+      "part_id": "RED66i_P008",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3103": {
+      "part_id": "RED66i_P008",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3104": {
+      "part_id": "RED66i_P008",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3105": {
+      "part_id": "RED66i_P008",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3106": {
+      "part_id": "RED66i_P008",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3107": {
+      "part_id": "RED66i_P008",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3108": {
+      "part_id": "RED66i_P008",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3109": {
+      "part_id": "RED66i_P009",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3110": {
+      "part_id": "RED66i_P009",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3111": {
+      "part_id": "RED66i_P009",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3112": {
+      "part_id": "RED66i_P009",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3113": {
+      "part_id": "RED66i_P009",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3114": {
+      "part_id": "RED66i_P009",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3115": {
+      "part_id": "RED66i_P009",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3116": {
+      "part_id": "RED66i_P010",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3117": {
+      "part_id": "RED66i_P010",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3118": {
+      "part_id": "RED66i_P010",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3119": {
+      "part_id": "RED66i_P010",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3120": {
+      "part_id": "RED66i_P010",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3121": {
+      "part_id": "RED66i_P010",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3122": {
+      "part_id": "RED66i_P010",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3123": {
+      "part_id": "RED66i_P010",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3124": {
+      "part_id": "RED66i_P011",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3125": {
+      "part_id": "RED66i_P011",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3126": {
+      "part_id": "RED66i_P011",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3127": {
+      "part_id": "RED66i_P011",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3128": {
+      "part_id": "RED66i_P011",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3129": {
+      "part_id": "RED66i_P011",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3130": {
+      "part_id": "RED66i_P011",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3131": {
+      "part_id": "RED66i_P012",
+      "bar_num": 1,
       "lyrics": "",
       "audio": "",
       "has_accents": false

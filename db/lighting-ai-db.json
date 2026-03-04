@@ -138,7 +138,8 @@
           "qlc_scene": "Spot auf Tim",
           "qlc_scene_id": 229,
           "timestamp": "",
-          "notes": ""
+          "notes": "",
+          "instrumental": true
         },
         "5iZfKj_P010": {
           "pos": 10,
@@ -149,7 +150,8 @@
           "qlc_scene": "Spot auf Tim  hot",
           "qlc_scene_id": 261,
           "timestamp": "",
-          "notes": ""
+          "notes": "",
+          "instrumental": true
         },
         "5iZfKj_P011": {
           "pos": 11,
@@ -11147,7 +11149,7 @@
     "B0132": {
       "part_id": "5iZfKj_P011",
       "bar_num": 1,
-      "lyrics": "",
+      "lyrics": "Say it ain‘t so,",
       "audio": "",
       "has_accents": false
     },

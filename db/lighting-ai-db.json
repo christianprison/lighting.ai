@@ -8852,7 +8852,8 @@
       },
       "qlc_id": 56,
       "audio_ref": "audio/Tension/Tension - Full Song.mp3",
-      "audio_ref_name": "Tension - Full Song.mp3"
+      "audio_ref_name": "Tension - Full Song.mp3",
+      "lyrics_raw": "What’s that sound ringing in your head?\nThe angels share what she last said\nThey’re so high\nIt’s alright\nRest your head, to sleep on this\nGot a shot on sight, but all have missed \nI’m so high\nIt’s alright\n\nBut I’ll follow where you go\nDown every street you know\nCause you’ve got the tension\nI’m just pulling tight on every thing\nBelieve it when I say\nLeave it for another rainy day \nCause you’ve got the tension\nI’m just pulling tight\n\nRest your eyes, your little weary head \nWith all that’s gone, it’s all been said\nIn good time\nWhat’s that noise running round your bones?\nIt’s all you’ve got when left alone\nIt’s alright \nIn good time\n\nBut I’ll follow where you go\nDown every street you know\nCause you’ve got the tension\nI’m just pulling tight on every thing\nBelieve it when I say\nLeave it for another rainy day \nCause you’ve got the tension\nI’m just pulling tight\n\nGot the message safe and sound\nIt’s noise to my ears all around inside\nTo look inside\nI’ve made my bed on another lie\nTo try again, to look outside this time\nTo look outside\n\nBut I’ll follow where you go\nDown every street you know\nCause you’ve got the tension\nI’m just pulling tight on every thing\nBelieve it when I say\nLeave it for another rainy day \nCause you’ve got the tension\nI’m just pulling tight"
     },
     "Ja3p3E": {
       "name": "The Boys Of Summer",
@@ -34760,6 +34761,979 @@
     "B3542": {
       "part_id": "SQfqPy_P015",
       "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3543": {
+      "part_id": "SlpEnr_P001",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3544": {
+      "part_id": "SlpEnr_P001",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3545": {
+      "part_id": "SlpEnr_P001",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3546": {
+      "part_id": "SlpEnr_P001",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3547": {
+      "part_id": "SlpEnr_P001",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3548": {
+      "part_id": "SlpEnr_P001",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3549": {
+      "part_id": "SlpEnr_P001",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3550": {
+      "part_id": "SlpEnr_P002",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3551": {
+      "part_id": "SlpEnr_P002",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3552": {
+      "part_id": "SlpEnr_P002",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3553": {
+      "part_id": "SlpEnr_P002",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3554": {
+      "part_id": "SlpEnr_P002",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3555": {
+      "part_id": "SlpEnr_P002",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3556": {
+      "part_id": "SlpEnr_P002",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3557": {
+      "part_id": "SlpEnr_P002",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3558": {
+      "part_id": "SlpEnr_P002",
+      "bar_num": 9,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3559": {
+      "part_id": "SlpEnr_P003",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3560": {
+      "part_id": "SlpEnr_P003",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3561": {
+      "part_id": "SlpEnr_P003",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3562": {
+      "part_id": "SlpEnr_P003",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3563": {
+      "part_id": "SlpEnr_P003",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3564": {
+      "part_id": "SlpEnr_P003",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3565": {
+      "part_id": "SlpEnr_P003",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3566": {
+      "part_id": "SlpEnr_P003",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3567": {
+      "part_id": "SlpEnr_P004",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3568": {
+      "part_id": "SlpEnr_P004",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3569": {
+      "part_id": "SlpEnr_P004",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3570": {
+      "part_id": "SlpEnr_P004",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3571": {
+      "part_id": "SlpEnr_P004",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3572": {
+      "part_id": "SlpEnr_P004",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3573": {
+      "part_id": "SlpEnr_P004",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3574": {
+      "part_id": "SlpEnr_P004",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3575": {
+      "part_id": "SlpEnr_P004",
+      "bar_num": 9,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3576": {
+      "part_id": "SlpEnr_P004",
+      "bar_num": 10,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3577": {
+      "part_id": "SlpEnr_P004",
+      "bar_num": 11,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3578": {
+      "part_id": "SlpEnr_P004",
+      "bar_num": 12,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3579": {
+      "part_id": "SlpEnr_P004",
+      "bar_num": 13,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3580": {
+      "part_id": "SlpEnr_P004",
+      "bar_num": 14,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3581": {
+      "part_id": "SlpEnr_P004",
+      "bar_num": 15,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3582": {
+      "part_id": "SlpEnr_P004",
+      "bar_num": 16,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3583": {
+      "part_id": "SlpEnr_P004",
+      "bar_num": 17,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3584": {
+      "part_id": "SlpEnr_P005",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3585": {
+      "part_id": "SlpEnr_P005",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3586": {
+      "part_id": "SlpEnr_P005",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3587": {
+      "part_id": "SlpEnr_P005",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3588": {
+      "part_id": "SlpEnr_P005",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3589": {
+      "part_id": "SlpEnr_P005",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3590": {
+      "part_id": "SlpEnr_P005",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3591": {
+      "part_id": "SlpEnr_P005",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3592": {
+      "part_id": "SlpEnr_P005",
+      "bar_num": 9,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3593": {
+      "part_id": "SlpEnr_P005",
+      "bar_num": 10,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3594": {
+      "part_id": "SlpEnr_P005",
+      "bar_num": 11,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3595": {
+      "part_id": "SlpEnr_P005",
+      "bar_num": 12,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3596": {
+      "part_id": "SlpEnr_P005",
+      "bar_num": 13,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3597": {
+      "part_id": "SlpEnr_P005",
+      "bar_num": 14,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3598": {
+      "part_id": "SlpEnr_P006",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3599": {
+      "part_id": "SlpEnr_P006",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3600": {
+      "part_id": "SlpEnr_P006",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3601": {
+      "part_id": "SlpEnr_P006",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3602": {
+      "part_id": "SlpEnr_P006",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3603": {
+      "part_id": "SlpEnr_P006",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3604": {
+      "part_id": "SlpEnr_P006",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3605": {
+      "part_id": "SlpEnr_P006",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3606": {
+      "part_id": "SlpEnr_P006",
+      "bar_num": 9,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3607": {
+      "part_id": "SlpEnr_P006",
+      "bar_num": 10,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3608": {
+      "part_id": "SlpEnr_P006",
+      "bar_num": 11,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3609": {
+      "part_id": "SlpEnr_P006",
+      "bar_num": 12,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3610": {
+      "part_id": "SlpEnr_P006",
+      "bar_num": 13,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3611": {
+      "part_id": "SlpEnr_P006",
+      "bar_num": 14,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3612": {
+      "part_id": "SlpEnr_P006",
+      "bar_num": 15,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3613": {
+      "part_id": "SlpEnr_P006",
+      "bar_num": 16,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3614": {
+      "part_id": "SlpEnr_P006",
+      "bar_num": 17,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3615": {
+      "part_id": "SlpEnr_P007",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3616": {
+      "part_id": "SlpEnr_P007",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3617": {
+      "part_id": "SlpEnr_P007",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3618": {
+      "part_id": "SlpEnr_P007",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3619": {
+      "part_id": "SlpEnr_P007",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3620": {
+      "part_id": "SlpEnr_P007",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3621": {
+      "part_id": "SlpEnr_P007",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3622": {
+      "part_id": "SlpEnr_P007",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3623": {
+      "part_id": "SlpEnr_P008",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3624": {
+      "part_id": "SlpEnr_P008",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3625": {
+      "part_id": "SlpEnr_P008",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3626": {
+      "part_id": "SlpEnr_P008",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3627": {
+      "part_id": "SlpEnr_P008",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3628": {
+      "part_id": "SlpEnr_P008",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3629": {
+      "part_id": "SlpEnr_P008",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3630": {
+      "part_id": "SlpEnr_P008",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3631": {
+      "part_id": "SlpEnr_P008",
+      "bar_num": 9,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3632": {
+      "part_id": "SlpEnr_P008",
+      "bar_num": 10,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3633": {
+      "part_id": "SlpEnr_P008",
+      "bar_num": 11,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3634": {
+      "part_id": "SlpEnr_P008",
+      "bar_num": 12,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3635": {
+      "part_id": "SlpEnr_P008",
+      "bar_num": 13,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3636": {
+      "part_id": "SlpEnr_P008",
+      "bar_num": 14,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3637": {
+      "part_id": "SlpEnr_P008",
+      "bar_num": 15,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3638": {
+      "part_id": "SlpEnr_P008",
+      "bar_num": 16,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3639": {
+      "part_id": "SlpEnr_P008",
+      "bar_num": 17,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3640": {
+      "part_id": "SlpEnr_P009",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3641": {
+      "part_id": "SlpEnr_P009",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3642": {
+      "part_id": "SlpEnr_P009",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3643": {
+      "part_id": "SlpEnr_P009",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3644": {
+      "part_id": "SlpEnr_P009",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3645": {
+      "part_id": "SlpEnr_P009",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3646": {
+      "part_id": "SlpEnr_P009",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3647": {
+      "part_id": "SlpEnr_P009",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3648": {
+      "part_id": "SlpEnr_P009",
+      "bar_num": 9,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3649": {
+      "part_id": "SlpEnr_P009",
+      "bar_num": 10,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3650": {
+      "part_id": "SlpEnr_P009",
+      "bar_num": 11,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3651": {
+      "part_id": "SlpEnr_P009",
+      "bar_num": 12,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3652": {
+      "part_id": "SlpEnr_P009",
+      "bar_num": 13,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3653": {
+      "part_id": "SlpEnr_P009",
+      "bar_num": 14,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3654": {
+      "part_id": "SlpEnr_P009",
+      "bar_num": 15,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3655": {
+      "part_id": "SlpEnr_P009",
+      "bar_num": 16,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3656": {
+      "part_id": "SlpEnr_P010",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3657": {
+      "part_id": "SlpEnr_P010",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3658": {
+      "part_id": "SlpEnr_P010",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3659": {
+      "part_id": "SlpEnr_P010",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3660": {
+      "part_id": "SlpEnr_P010",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3661": {
+      "part_id": "SlpEnr_P010",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3662": {
+      "part_id": "SlpEnr_P010",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3663": {
+      "part_id": "SlpEnr_P010",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3664": {
+      "part_id": "SlpEnr_P010",
+      "bar_num": 9,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3665": {
+      "part_id": "SlpEnr_P010",
+      "bar_num": 10,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3666": {
+      "part_id": "SlpEnr_P010",
+      "bar_num": 11,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3667": {
+      "part_id": "SlpEnr_P010",
+      "bar_num": 12,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3668": {
+      "part_id": "SlpEnr_P010",
+      "bar_num": 13,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3669": {
+      "part_id": "SlpEnr_P010",
+      "bar_num": 14,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3670": {
+      "part_id": "SlpEnr_P010",
+      "bar_num": 15,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3671": {
+      "part_id": "SlpEnr_P010",
+      "bar_num": 16,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3672": {
+      "part_id": "SlpEnr_P010",
+      "bar_num": 17,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3673": {
+      "part_id": "SlpEnr_P011",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3674": {
+      "part_id": "SlpEnr_P011",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3675": {
+      "part_id": "SlpEnr_P011",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3676": {
+      "part_id": "SlpEnr_P011",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3677": {
+      "part_id": "SlpEnr_P011",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3678": {
+      "part_id": "SlpEnr_P011",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3679": {
+      "part_id": "SlpEnr_P011",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3680": {
+      "part_id": "SlpEnr_P011",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3681": {
+      "part_id": "SlpEnr_P012",
+      "bar_num": 1,
       "lyrics": "",
       "audio": "",
       "has_accents": false

@@ -2899,11 +2899,33 @@ function buildLyricsPartBody(part, partIndex, barCount, barLyrics, hasBuf) {
     </div>`;
   }
 
+  // Calculate proportional bar widths from bar markers (matching waveform)
+  const bars = getBarMarkersForPart(partIndex);
+  const partStart = partMarker ? partMarker.time : null;
+  let barWidths = null; // null = equal width fallback
+  if (showWave && bars.length > 0 && partStart !== null && partEnd) {
+    const partDur = partEnd - partStart;
+    if (partDur > 0) {
+      // Build time boundaries: [partStart, bar1, bar2, ..., partEnd]
+      const boundaries = [partStart, ...bars.map(m => m.time), partEnd];
+      // Each bar segment duration
+      const durations = [];
+      for (let i = 0; i < boundaries.length - 1; i++) {
+        durations.push(Math.max(0, boundaries[i + 1] - boundaries[i]));
+      }
+      // Only use proportional widths if we have the right number of segments
+      if (durations.length === barCount) {
+        barWidths = durations;
+      }
+    }
+  }
+
   // Horizontal bar inputs
   let barsHtml = '<div class="lyrics-bars-row">';
   for (let b = 0; b < barCount; b++) {
     const text = barLyrics[b] || '';
-    barsHtml += `<div class="lyrics-bar-cell">
+    const flexStyle = barWidths ? `flex:${barWidths[b].toFixed(4)} 1 0` : '';
+    barsHtml += `<div class="lyrics-bar-cell" ${flexStyle ? `style="${flexStyle}"` : ''}>
       <div class="lyrics-bar-num mono text-t3">${b + 1}</div>
       <input type="text" class="lyrics-bar-input" data-lyrics-bar-part="${part.id}" data-lyrics-bar-num="${b + 1}" value="${esc(text)}" placeholder="\u2014">
     </div>`;
@@ -3158,6 +3180,9 @@ function applyLyricsToDB() {
 
 /* ── Lyrics Part Playback ─────────────────────────── */
 
+let _lyricsAnimFrame = null;        // animation frame for lyrics playhead
+let _lyricsPlayPartIndex = null;    // partIndex currently playing
+
 function handleLyricsPartPlay(partId, partIndex) {
   // Toggle off if already playing this part
   if (_lyricsPlayingPart === partId) {
@@ -3167,6 +3192,7 @@ function handleLyricsPartPlay(partId, partIndex) {
 
   stopLyricsPartPlay();
   _lyricsPlayingPart = partId;
+  _lyricsPlayPartIndex = partIndex;
 
   // Try reference audio segment first
   const hasBuf = !!audio.getBuffer();
@@ -3177,9 +3203,12 @@ function handleLyricsPartPlay(partId, partIndex) {
     // Play segment from reference audio
     audio.playSegments([{ startTime, endTime }], () => {
       _lyricsPlayingPart = null;
+      _lyricsPlayPartIndex = null;
+      stopLyricsPlayheadAnimation();
       updateLyricsPlayButtons();
     });
     updateLyricsPlayButtons();
+    startLyricsPlayheadAnimation();
     return;
   }
 
@@ -3193,6 +3222,7 @@ function handleLyricsPartPlay(partId, partIndex) {
     if (!_partPlayActive) {
       clearInterval(origInterval);
       _lyricsPlayingPart = null;
+      _lyricsPlayPartIndex = null;
       updateLyricsPlayButtons();
     }
   }, 200);
@@ -3202,9 +3232,64 @@ function stopLyricsPartPlay() {
   if (_lyricsPlayingPart) {
     audio.stopSegments();
     stopPartPlay();
+    stopLyricsPlayheadAnimation();
     _lyricsPlayingPart = null;
+    _lyricsPlayPartIndex = null;
     updateLyricsPlayButtons();
   }
+}
+
+function startLyricsPlayheadAnimation() {
+  cancelAnimationFrame(_lyricsAnimFrame);
+  function tick() {
+    drawLyricsPlayhead();
+    if (audio.isSegmentPlaying()) {
+      _lyricsAnimFrame = requestAnimationFrame(tick);
+    }
+  }
+  _lyricsAnimFrame = requestAnimationFrame(tick);
+}
+
+function stopLyricsPlayheadAnimation() {
+  cancelAnimationFrame(_lyricsAnimFrame);
+  _lyricsAnimFrame = null;
+  // Redraw without playhead
+  drawLyricsPartWaveforms();
+}
+
+function drawLyricsPlayhead() {
+  if (_lyricsPlayPartIndex === null) return;
+  const canvas = document.querySelector(`canvas[data-lyrics-wave-idx="${_lyricsPlayPartIndex}"]`);
+  if (!canvas) return;
+
+  // Redraw base waveform first
+  drawLyricsPartWaveform(canvas);
+
+  // Draw playhead
+  const curTime = audio.getSegmentCurrentTime();
+  if (curTime <= 0) return;
+
+  const startSec = parseFloat(canvas.dataset.waveStart);
+  const endSec = parseFloat(canvas.dataset.waveEnd);
+  if (isNaN(startSec) || isNaN(endSec) || endSec <= startSec) return;
+
+  const w = canvas.clientWidth;
+  const h = canvas.clientHeight;
+  const relPos = (curTime - startSec) / (endSec - startSec);
+  if (relPos < 0 || relPos > 1) return;
+
+  const px = relPos * w;
+  const ctx = canvas.getContext('2d');
+  // dpr scale is already applied by drawLyricsPartWaveform
+  ctx.shadowColor = '#00dc82';
+  ctx.shadowBlur = 6;
+  ctx.strokeStyle = '#00dc82';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(px, 0);
+  ctx.lineTo(px, h);
+  ctx.stroke();
+  ctx.shadowBlur = 0;
 }
 
 function updateLyricsPlayButtons() {

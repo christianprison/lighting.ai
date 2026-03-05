@@ -532,6 +532,9 @@ function renderSongFields() {
         <label>Notes</label>
         <textarea data-song-field="notes" rows="2" placeholder="Notizen...">${esc(song.notes || '')}</textarea>
       </div>
+      <div class="sf-full sf-delete">
+        <button class="btn btn-sm btn-danger" data-action="delete-song">SONG LÖSCHEN</button>
+      </div>
     </div>`;
 }
 
@@ -826,6 +829,12 @@ function handleEditorClick(e) {
     return;
   }
 
+  /* ── Delete song ── */
+  if (el.closest('[data-action="delete-song"]')) {
+    handleDeleteSong();
+    return;
+  }
+
   /* ── Part toolbar actions ── */
   const actionBtn = el.closest('[data-action]');
   if (actionBtn && !actionBtn.disabled) {
@@ -873,6 +882,31 @@ function handlePartSelect(partId) {
 function handleBarSelect(barNum) {
   selectedBarNum = (selectedBarNum === barNum) ? null : barNum;
   renderBarSection();
+}
+
+async function handleDeleteSong() {
+  if (!selectedSongId || !db.songs[selectedSongId]) return;
+  const song = db.songs[selectedSongId];
+  const parts = getSortedParts(selectedSongId);
+  const barCount = Object.values(db.bars || {}).filter(b => parts.some(p => p.id === b.part_id)).length;
+  const inSetlist = (db.setlist?.items || []).some(i => i.type === 'song' && i.song_id === selectedSongId);
+
+  let details = `<strong>${esc(song.name)}</strong> (${esc(song.artist)})<br>`;
+  details += `${parts.length} Parts, ${barCount} Takte`;
+  if (inSetlist) details += ', in Setlist referenziert';
+  details += ' — alles wird unwiderruflich gelöscht.';
+
+  const ok = await showConfirm('Song löschen?', details, 'Löschen');
+  if (!ok) return;
+
+  integrity.deleteSong(db, selectedSongId);
+  selectedSongId = null;
+  selectedPartId = null;
+  selectedBarNum = null;
+  markDirty();
+  renderSongList(els.searchBox.value);
+  renderEditorTab();
+  toast(`Song "${song.name}" gelöscht`, 'success');
 }
 
 function handlePartAction(action) {
@@ -1281,6 +1315,14 @@ function buildTapButtons(parts, isPlay) {
       </button>
       <button class="tap-btn tap-undo" id="tap-undo" ${tapHistory.length === 0 ? 'disabled' : ''}>
         <span class="tap-label">UNDO <kbd>Z</kbd></span>
+      </button>
+      <button class="tap-btn-delete" id="tap-delete-parts" ${partMarkers.length === 0 ? 'disabled' : ''}>
+        <span class="tap-label">DEL PARTS</span>
+        <span class="tap-info">${partMarkers.length}</span>
+      </button>
+      <button class="tap-btn-delete" id="tap-delete-bars" ${barMarkers.length === 0 ? 'disabled' : ''}>
+        <span class="tap-label">DEL BARS</span>
+        <span class="tap-info">${barMarkers.length}</span>
       </button>
     </div>`;
 }
@@ -2429,10 +2471,54 @@ function handleUndoTap() {
   updateTapButtonStates();
 }
 
+async function handleDeleteAllParts() {
+  if (partMarkers.length === 0) return;
+  const ok = await showConfirm(
+    'Alle Parts löschen?',
+    `Alle <strong>${partMarkers.length} Part-Marker</strong> und <strong>${barMarkers.length} Bar-Marker</strong> werden entfernt.`,
+    'Löschen'
+  );
+  if (!ok) return;
+  partMarkers = [];
+  barMarkers = [];
+  tapHistory = [];
+  currentPartIndex = 0;
+  currentBarInPart = 0;
+  saveMarkersToSong();
+  markDirty();
+  drawWaveform();
+  const parts = getSortedParts(selectedSongId);
+  updateTapInfo(parts);
+  updateSplitResultLive(parts);
+  updateAudioSummaryLive(parts);
+  updateTapButtonStates();
+}
+
+async function handleDeleteAllBars() {
+  if (barMarkers.length === 0) return;
+  const ok = await showConfirm(
+    'Alle Takte löschen?',
+    `Alle <strong>${barMarkers.length} Bar-Marker</strong> werden entfernt. Part-Marker bleiben erhalten.`,
+    'Löschen'
+  );
+  if (!ok) return;
+  barMarkers = [];
+  tapHistory = tapHistory.filter(h => h.type !== 'bar');
+  currentBarInPart = 0;
+  saveMarkersToSong();
+  markDirty();
+  drawWaveform();
+  const parts = getSortedParts(selectedSongId);
+  updateTapInfo(parts);
+  updateSplitResultLive(parts);
+  updateAudioSummaryLive(parts);
+  updateTapButtonStates();
+}
+
 /* ── Speed / Zoom / Part-Seek / Marker Edit ─────── */
 
 const SPEED_STEPS = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5];
-const ZOOM_STEPS = [1, 1.5, 2, 3, 4, 6];
+const ZOOM_STEPS = [1, 1.5, 2, 3, 4, 6, 8, 10];
 
 function handleSpeedChange(dir) {
   const curIdx = SPEED_STEPS.indexOf(playbackSpeed);
@@ -2537,6 +2623,19 @@ function updateTapInfo(parts) {
 
   const undoBtn = document.getElementById('tap-undo');
   if (undoBtn) undoBtn.disabled = tapHistory.length === 0;
+
+  const delPartsBtn = document.getElementById('tap-delete-parts');
+  if (delPartsBtn) {
+    delPartsBtn.disabled = partMarkers.length === 0;
+    const info = delPartsBtn.querySelector('.tap-info');
+    if (info) info.textContent = `${partMarkers.length} Parts`;
+  }
+  const delBarsBtn = document.getElementById('tap-delete-bars');
+  if (delBarsBtn) {
+    delBarsBtn.disabled = barMarkers.length === 0;
+    const info = delBarsBtn.querySelector('.tap-info');
+    if (info) info.textContent = `${barMarkers.length} Takte`;
+  }
 
   // Check if all parts done and show export
   if (currentPartIndex >= parts.length && !document.getElementById('export-section')) {
@@ -2745,6 +2844,8 @@ function handleAudioClick(e) {
   if (el.closest('#tap-part') && !el.closest('#tap-part').disabled) { handlePartTap(); return; }
   if (el.closest('#tap-bar') && !el.closest('#tap-bar').disabled) { handleBarTap(); return; }
   if (el.closest('#tap-undo') && !el.closest('#tap-undo').disabled) { handleUndoTap(); return; }
+  if (el.closest('#tap-delete-parts') && !el.closest('#tap-delete-parts').disabled) { handleDeleteAllParts(); return; }
+  if (el.closest('#tap-delete-bars') && !el.closest('#tap-delete-bars').disabled) { handleDeleteAllBars(); return; }
 
   // BPM update
   if (el.closest('#btn-update-bpm')) { handleBpmUpdate(); return; }
@@ -2803,9 +2904,6 @@ function renderLyricsTab() {
         ${buildSongHeader(song)}
         ${buildLyricsRawImport(song, geniusUrl)}
         ${parts.length > 0 ? buildLyricsPartsList(parts, song, hasBuf) : '<div class="empty-state"><p>Keine Parts vorhanden. Erst Parts im Parts-Tab anlegen.</p></div>'}
-        ${parts.length > 0 ? `<div class="lyrics-actions">
-          <button class="btn btn-primary" id="lyrics-apply">In DB &uuml;bernehmen</button>
-        </div>` : ''}
       </div>
     </div>`;
 
@@ -3173,49 +3271,6 @@ function distributeLyricsToparts() {
   toast(`Text auf ${Math.min(sIdx, parts.length)} Parts verteilt`, 'success');
 }
 
-/**
- * Apply lyrics from all part bar inputs into DB bar records.
- */
-function applyLyricsToDB() {
-  if (!selectedSongId) return;
-  const parts = getSortedParts(selectedSongId);
-  const song = db.songs[selectedSongId];
-
-  ensureCollections();
-
-  // Save raw text
-  const rawEl = document.getElementById('lyrics-raw-text');
-  if (rawEl) song.lyrics_raw = rawEl.value;
-
-  let appliedCount = 0;
-
-  for (let i = 0; i < parts.length; i++) {
-    const part = parts[i];
-    const barCount = part.bars || 0;
-
-    // Instrumental parts: clear lyrics for all bars
-    if (part.instrumental) {
-      for (let b = 1; b <= barCount; b++) {
-        const [, barData] = getOrCreateBar(part.id, b);
-        barData.lyrics = '';
-        appliedCount++;
-      }
-      continue;
-    }
-
-    for (let b = 1; b <= barCount; b++) {
-      const inp = document.querySelector(`.lyrics-bar-input[data-lyrics-bar-part="${part.id}"][data-lyrics-bar-num="${b}"]`);
-      const text = inp ? inp.value.trim() : '';
-      const [, barData] = getOrCreateBar(part.id, b);
-      barData.lyrics = text;
-      appliedCount++;
-    }
-  }
-
-  markDirty();
-  toast(`${appliedCount} Takte mit Lyrics aktualisiert`, 'success');
-}
-
 /* ── Lyrics Part Playback ─────────────────────────── */
 
 let _lyricsAnimFrame = null;        // animation frame for lyrics playhead
@@ -3435,12 +3490,6 @@ function handleLyricsClick(e) {
   // Distribute raw text to parts
   if (el.closest('#lyrics-distribute-btn')) {
     distributeLyricsToparts();
-    return;
-  }
-
-  // Apply to DB
-  if (el.closest('#lyrics-apply')) {
-    applyLyricsToDB();
     return;
   }
 
@@ -5279,6 +5328,10 @@ function wireEvents() {
   els.content.addEventListener('focusout', (e) => {
     if (activeTab === 'lyrics' && e.target.classList.contains('lyrics-bar-input')) {
       lyricsInputFocusOut(e.target);
+    }
+    if (activeTab === 'lyrics' && e.target.id === 'lyrics-raw-text') {
+      saveLyricsRawText();
+      handleSave(false);
     }
   });
 

@@ -1316,15 +1316,13 @@ function buildTapButtons(parts, isPlay) {
       <button class="tap-btn tap-undo" id="tap-undo" ${tapHistory.length === 0 ? 'disabled' : ''}>
         <span class="tap-label">UNDO <kbd>Z</kbd></span>
       </button>
-    </div>
-    <div class="tap-row tap-row-delete" id="tap-row-delete">
-      <button class="tap-btn-delete tap-delete-parts" id="tap-delete-parts" ${partMarkers.length === 0 ? 'disabled' : ''}>
-        <span class="tap-label">ALLE PARTS LÖSCHEN</span>
-        <span class="tap-info">${partMarkers.length} Parts</span>
+      <button class="tap-btn-delete" id="tap-delete-parts" ${partMarkers.length === 0 ? 'disabled' : ''}>
+        <span class="tap-label">DEL PARTS</span>
+        <span class="tap-info">${partMarkers.length}</span>
       </button>
-      <button class="tap-btn-delete tap-delete-bars" id="tap-delete-bars" ${barMarkers.length === 0 ? 'disabled' : ''}>
-        <span class="tap-label">ALLE TAKTE LÖSCHEN</span>
-        <span class="tap-info">${barMarkers.length} Takte</span>
+      <button class="tap-btn-delete" id="tap-delete-bars" ${barMarkers.length === 0 ? 'disabled' : ''}>
+        <span class="tap-label">DEL BARS</span>
+        <span class="tap-info">${barMarkers.length}</span>
       </button>
     </div>`;
 }

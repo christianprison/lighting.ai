@@ -1460,51 +1460,15 @@ label {
   border-color: var(--red);
 }
 
-.tap-row-delete {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.tap-btn-delete {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  padding: 6px 10px;
-  border-radius: var(--radius);
-  border: 1px solid rgba(255, 59, 92, 0.2);
+.tap-btn.tap-btn-del {
+  border-color: rgba(255, 59, 92, 0.3);
   background: rgba(255, 59, 92, 0.05);
   color: var(--red);
-  cursor: pointer;
-  font-family: var(--font-ui);
-  transition: all 0.15s;
-  user-select: none;
-  min-height: 36px;
 }
 
-.tap-btn-delete .tap-label {
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-}
-
-.tap-btn-delete .tap-info {
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  opacity: 0.5;
-}
-
-.tap-btn-delete[disabled] {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.tap-btn-delete:not([disabled]):hover {
+.tap-btn.tap-btn-del:not([disabled]):hover {
   background: rgba(255, 59, 92, 0.15);
-  border-color: rgba(255, 59, 92, 0.5);
+  border-color: var(--red);
 }
 
 /* ── Split Result List ───────────────────────────── */

@@ -1209,7 +1209,6 @@ function renderAudioTab() {
         ${hasBuf ? buildTapButtons(parts, isPlay) : ''}
         ${hasBuf ? buildBpmBanner(song) : ''}
         ${hasBuf ? buildSplitResult(parts) : ''}
-        ${hasBuf ? buildExportSection(parts) : ''}
       </div>
       ${hasBuf ? buildAudioSummary(parts) : ''}
     </div>`;
@@ -1316,11 +1315,11 @@ function buildTapButtons(parts, isPlay) {
       <button class="tap-btn tap-undo" id="tap-undo" ${tapHistory.length === 0 ? 'disabled' : ''}>
         <span class="tap-label">UNDO <kbd>Z</kbd></span>
       </button>
-      <button class="tap-btn-delete" id="tap-delete-parts" ${partMarkers.length === 0 ? 'disabled' : ''}>
+      <button class="tap-btn tap-btn-del" id="tap-delete-parts" ${partMarkers.length === 0 ? 'disabled' : ''}>
         <span class="tap-label">DEL PARTS</span>
         <span class="tap-info">${partMarkers.length}</span>
       </button>
-      <button class="tap-btn-delete" id="tap-delete-bars" ${barMarkers.length === 0 ? 'disabled' : ''}>
+      <button class="tap-btn tap-btn-del" id="tap-delete-bars" ${barMarkers.length === 0 ? 'disabled' : ''}>
         <span class="tap-label">DEL BARS</span>
         <span class="tap-info">${barMarkers.length}</span>
       </button>
@@ -2637,10 +2636,6 @@ function updateTapInfo(parts) {
     if (info) info.textContent = `${barMarkers.length} Takte`;
   }
 
-  // Check if all parts done and show export
-  if (currentPartIndex >= parts.length && !document.getElementById('export-section')) {
-    renderAudioTab();
-  }
 }
 
 function updateSplitResultLive(parts) {

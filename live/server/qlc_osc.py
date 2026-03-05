@@ -72,6 +72,7 @@ class QlcOsc:
         self.universe = cfg.osc_universe
         self.accent_map = accent_map or dict(DEFAULT_ACCENT_MAP)
         self._connected = False
+        self._last_collection_id: int | None = None
 
     def connect(self) -> bool:
         """Create the UDP client. Returns True on success."""
@@ -110,8 +111,15 @@ class QlcOsc:
 
         This is the primary control method — each song step triggers
         its collection directly, bypassing the CueList.
+
+        Automatically deactivates the previously active collection first
+        (QLC+ toggle buttons: same OSC pulse = toggle off).
         """
+        if self._last_collection_id is not None and self._last_collection_id != collection_id:
+            self._trigger(self._last_collection_id)
+            log.info("Collection %d deactivated (previous)", self._last_collection_id)
         self._trigger(collection_id)
+        self._last_collection_id = collection_id
         log.info("Collection %d triggered", collection_id)
 
     def trigger_function(self, function_id: int) -> bool:

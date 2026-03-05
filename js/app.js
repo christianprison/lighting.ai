@@ -2493,7 +2493,7 @@ async function handleDeleteAllParts() {
   updateTapButtonStates();
 }
 
-async function handleDeleteAllBars() {
+async function handleDeleteAllBarMarkers() {
   if (barMarkers.length === 0) return;
   const ok = await showConfirm(
     'Alle Takte löschen?',
@@ -2840,7 +2840,7 @@ function handleAudioClick(e) {
   if (el.closest('#tap-bar') && !el.closest('#tap-bar').disabled) { handleBarTap(); return; }
   if (el.closest('#tap-undo') && !el.closest('#tap-undo').disabled) { handleUndoTap(); return; }
   if (el.closest('#tap-delete-parts') && !el.closest('#tap-delete-parts').disabled) { handleDeleteAllParts(); return; }
-  if (el.closest('#tap-delete-bars') && !el.closest('#tap-delete-bars').disabled) { handleDeleteAllBars(); return; }
+  if (el.closest('#tap-delete-bars') && !el.closest('#tap-delete-bars').disabled) { handleDeleteAllBarMarkers(); return; }
 
   // BPM update
   if (el.closest('#btn-update-bpm')) { handleBpmUpdate(); return; }

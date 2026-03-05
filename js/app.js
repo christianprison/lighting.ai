@@ -2357,15 +2357,19 @@ function updatePlayButton() {
 function updateTapButtonStates() {
   const isPlay = audio.isPlaying();
   const parts = getSortedParts(selectedSongId);
-  const allPartsDone = currentPartIndex >= parts.length;
+  const allPartsDone = parts.length > 0 && currentPartIndex >= parts.length;
 
   const partBtn = document.getElementById('tap-part');
   const barBtn = document.getElementById('tap-bar');
   const undoBtn = document.getElementById('tap-undo');
+  const delPartsBtn = document.getElementById('tap-delete-parts');
+  const delBarsBtn = document.getElementById('tap-delete-bars');
 
   if (partBtn) partBtn.disabled = !isPlay || allPartsDone;
   if (barBtn) barBtn.disabled = !isPlay || currentPartIndex === 0;
   if (undoBtn) undoBtn.disabled = tapHistory.length === 0;
+  if (delPartsBtn) delPartsBtn.disabled = partMarkers.length === 0;
+  if (delBarsBtn) delBarsBtn.disabled = barMarkers.length === 0;
 }
 
 function handlePartTap() {
@@ -2485,12 +2489,7 @@ async function handleDeleteAllParts() {
   currentBarInPart = 0;
   saveMarkersToSong();
   markDirty();
-  drawWaveform();
-  const parts = getSortedParts(selectedSongId);
-  updateTapInfo(parts);
-  updateSplitResultLive(parts);
-  updateAudioSummaryLive(parts);
-  updateTapButtonStates();
+  renderAudioTab();
 }
 
 async function handleDeleteAllBarMarkers() {
@@ -2506,12 +2505,7 @@ async function handleDeleteAllBarMarkers() {
   currentBarInPart = 0;
   saveMarkersToSong();
   markDirty();
-  drawWaveform();
-  const parts = getSortedParts(selectedSongId);
-  updateTapInfo(parts);
-  updateSplitResultLive(parts);
-  updateAudioSummaryLive(parts);
-  updateTapButtonStates();
+  renderAudioTab();
 }
 
 /* ── Speed / Zoom / Part-Seek / Marker Edit ─────── */
@@ -2612,7 +2606,7 @@ function updateTapInfo(parts) {
     const info = partBtn.querySelector('.tap-info');
     const nextName = currentPartIndex < parts.length ? parts[currentPartIndex].name : '\u2014';
     if (info) info.textContent = nextName;
-    partBtn.disabled = !audio.isPlaying() || currentPartIndex >= parts.length;
+    partBtn.disabled = !audio.isPlaying() || (parts.length > 0 && currentPartIndex >= parts.length);
   }
   if (barBtn) {
     const info = barBtn.querySelector('.tap-info');

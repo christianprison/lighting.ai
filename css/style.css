@@ -1461,7 +1461,9 @@ label {
 }
 
 .tap-row-delete {
+  display: flex;
   gap: 8px;
+  margin-bottom: 12px;
 }
 
 .tap-btn-delete {
@@ -1484,19 +1486,19 @@ label {
 }
 
 .tap-btn-delete .tap-label {
-  font-size: 0.6rem;
+  font-size: 0.7rem;
   font-weight: 600;
   letter-spacing: 0.06em;
 }
 
 .tap-btn-delete .tap-info {
   font-family: var(--font-mono);
-  font-size: 0.6rem;
+  font-size: 0.65rem;
   opacity: 0.5;
 }
 
 .tap-btn-delete[disabled] {
-  opacity: 0.2;
+  opacity: 0.3;
   cursor: not-allowed;
 }
 

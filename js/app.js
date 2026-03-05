@@ -2520,7 +2520,7 @@ async function handleDeleteAllBars() {
 /* ── Speed / Zoom / Part-Seek / Marker Edit ─────── */
 
 const SPEED_STEPS = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5];
-const ZOOM_STEPS = [1, 1.5, 2, 3, 4, 6];
+const ZOOM_STEPS = [1, 1.5, 2, 3, 4, 6, 8, 10];
 
 function handleSpeedChange(dir) {
   const curIdx = SPEED_STEPS.indexOf(playbackSpeed);

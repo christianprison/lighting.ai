@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.11.2';
+const APP_VERSION = 'v0.11.6';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -371,6 +371,19 @@ function getAccentsForBar(barId) {
     .filter(([, a]) => a.bar_id === barId)
     .map(([id, a]) => ({ id, ...a }))
     .sort((a, b) => a.pos_16th - b.pos_16th);
+}
+
+/** Collect unique part names from all songs for datalist suggestions. */
+function getPartNameSuggestions() {
+  const names = new Set();
+  if (!db.songs) return [];
+  for (const song of Object.values(db.songs)) {
+    if (!song.parts) continue;
+    for (const part of Object.values(song.parts)) {
+      if (part.name) names.add(part.name);
+    }
+  }
+  return [...names].sort((a, b) => a.localeCompare(b, 'de'));
 }
 
 function getOrCreateBar(partId, barNum) {
@@ -848,7 +861,7 @@ function renderSongFields() {
       </div>
       <div>
         <label>Jahr</label>
-        <input type="text" value="${esc(song.year || '')}" data-song-field="year">
+        <input type="text" value="${esc(song.year || '')}" data-song-field="year" inputmode="numeric">
       </div>
       <div>
         <label>Dauer</label>
@@ -1297,9 +1310,12 @@ function handlePartAction(action) {
           delete db.bars[barId];
         }
       }
+      const deletedPartId = selectedPartId;
       delete song.parts[selectedPartId];
       // Renumber
       getSortedParts(selectedSongId).forEach((p, i) => { song.parts[p.id].pos = i + 1; });
+      // Sync: remove split_markers for the deleted part
+      removeSplitMarkersForPart(song, deletedPartId);
       selectedPartId = null;
       selectedBarNum = null;
       markDirty();
@@ -1368,9 +1384,22 @@ let _partPlayActive = false;
 let _barPlayId = null;          // bar ID currently being played (single bar)
 
 function refreshPartPlayUI() {
-  if (activeTab === 'editor') renderPartsTable();
-  else if (activeTab === 'parts') renderPartsTab();
-  else if (activeTab === 'takte') renderTakteTab();
+  // Update play buttons in-place instead of full re-render to preserve scroll position
+  document.querySelectorAll('[data-action="play-part"]').forEach(btn => {
+    const id = btn.dataset.partId;
+    const isPlaying = _partPlayActive && _playingPartId === id;
+    btn.innerHTML = isPlaying ? '&#9632;' : '&#9654;';
+    btn.title = isPlaying ? 'Stop' : 'Part abspielen';
+    btn.classList.toggle('playing', isPlaying);
+  });
+  // Takte tab: bar play buttons
+  document.querySelectorAll('[data-action="play-bar"]').forEach(btn => {
+    const partId = btn.dataset.playPartId;
+    const barNum = parseInt(btn.dataset.playBarNum, 10);
+    const isPlaying = _partPlayActive && _playingPartId === partId;
+    // Bar-level play detection not needed here — just reset all
+    btn.classList.toggle('playing', false);
+  });
 }
 
 async function handlePartPlay(partId) {
@@ -1870,6 +1899,50 @@ function saveMarkersToSong() {
     const count = barMarkers.filter(m => m.partIndex === i).length;
     if (song.parts[parts[i].id]) {
       song.parts[parts[i].id].bars = count;
+    }
+  }
+}
+
+/**
+ * Remove split_markers (part + bar) for a specific partId from a song.
+ * Also updates in-memory markers if the song is currently loaded in Audio tab.
+ */
+function removeSplitMarkersForPart(song, partId) {
+  if (!song || !song.split_markers) return;
+  const sm = song.split_markers;
+  if (Array.isArray(sm.partMarkers)) {
+    sm.partMarkers = sm.partMarkers.filter(m => m.partId !== partId);
+  }
+  if (Array.isArray(sm.barMarkers)) {
+    sm.barMarkers = sm.barMarkers.filter(m => m.partId !== partId);
+  }
+  // Rebuild partIndex values after removal
+  rebuildSplitMarkerIndices(song);
+  // Sync in-memory markers if this song is active in Audio tab
+  if (selectedSongId && db.songs[selectedSongId] === song) {
+    restoreMarkersFromSong();
+  }
+}
+
+/**
+ * Rebuild partIndex values in split_markers based on current part order.
+ * Called after parts are deleted, moved, or reordered.
+ */
+function rebuildSplitMarkerIndices(song) {
+  if (!song || !song.split_markers) return;
+  const sm = song.split_markers;
+  const parts = Object.entries(song.parts || {})
+    .map(([id, p]) => ({ id, pos: p.pos }))
+    .sort((a, b) => a.pos - b.pos);
+  const idToIndex = {};
+  parts.forEach((p, i) => { idToIndex[p.id] = i; });
+
+  for (const markers of [sm.partMarkers, sm.barMarkers]) {
+    if (!Array.isArray(markers)) continue;
+    for (const m of markers) {
+      if (m.partId && idToIndex[m.partId] !== undefined) {
+        m.partIndex = idToIndex[m.partId];
+      }
     }
   }
 }
@@ -3062,6 +3135,20 @@ async function handleDeleteAllParts() {
   currentPartIndex = 0;
   currentBarInPart = 0;
   saveMarkersToSong();
+  // Sync: also delete db.bars and db.accents for this song
+  if (selectedSongId) {
+    ensureCollections();
+    const partsAfter = getSortedParts(selectedSongId);
+    const partIds = new Set(partsAfter.map(p => p.id));
+    for (const [barId, bar] of Object.entries(db.bars)) {
+      if (partIds.has(bar.part_id)) {
+        for (const [accId, acc] of Object.entries(db.accents)) {
+          if (acc.bar_id === barId) delete db.accents[accId];
+        }
+        delete db.bars[barId];
+      }
+    }
+  }
   markDirty();
   renderAudioTab();
 }
@@ -3115,6 +3202,20 @@ async function handleDeleteAllBarMarkers() {
   tapHistory = tapHistory.filter(h => h.type !== 'bar');
   currentBarInPart = 0;
   saveMarkersToSong();
+  // Sync: also delete db.bars and db.accents for this song
+  if (selectedSongId) {
+    ensureCollections();
+    const parts = getSortedParts(selectedSongId);
+    const partIds = new Set(parts.map(p => p.id));
+    for (const [barId, bar] of Object.entries(db.bars)) {
+      if (partIds.has(bar.part_id)) {
+        for (const [accId, acc] of Object.entries(db.accents)) {
+          if (acc.bar_id === barId) delete db.accents[accId];
+        }
+        delete db.bars[barId];
+      }
+    }
+  }
   markDirty();
   renderAudioTab();
 }
@@ -3205,6 +3306,8 @@ function handleMarkerDelete(btn) {
 
   // Clear undo history (no longer reliable)
   tapHistory = [];
+  saveMarkersToSong();
+  markDirty();
   drawWaveform();
   renderAudioTab();
 }
@@ -5447,16 +5550,16 @@ function buildPartsTabTable(parts, filterSong) {
             <td class="ptt-pos mono text-t3">${showSongCol ? idx + 1 : p.pos}</td>
             <td class="ptt-play">${canPlay ? `<button class="btn-part-play${isPlaying ? ' playing' : ''}" data-action="play-part" data-part-id="${p.partId}" title="${isPlaying ? 'Stop' : 'Part abspielen'}">${isPlaying ? '&#9632;' : '&#9654;'}</button>` : ''}</td>
             ${showSongCol ? `<td class="ptt-song"><span class="ptt-song-name">${esc(p.songName)}</span></td>` : ''}
-            <td class="ptt-name"><input type="text" value="${esc(p.name)}" data-ptf="name" class="part-input"></td>
+            <td class="ptt-name"><input type="text" value="${esc(p.name)}" data-ptf="name" class="part-input" list="dl-part-names" autocomplete="off"></td>
             ${hasBuf ? `<td class="ptt-wave">${waveCanvas}</td>` : ''}
             <td class="ptt-start">
               <div class="start-cell">
-                <input type="number" value="${st.startBar}" data-ptf="start_bar" class="part-input-num mono" min="0" step="1" title="Takt-Offset ab Songstart">
+                <input type="number" value="${st.startBar}" data-ptf="start_bar" class="part-input-num mono" min="0" step="1" inputmode="numeric" title="Takt-Offset ab Songstart">
                 <span class="start-time mono text-t3">${fmtDur(Math.round(st.startSec))}</span>
               </div>
             </td>
-            <td class="ptt-bars"><input type="number" value="${p.bars || 0}" data-ptf="bars" class="part-input-num mono" min="0" step="1"></td>
-            <td class="ptt-dur"><input type="number" value="${dur}" data-ptf="duration_sec" class="part-input-num mono" min="0" step="1" title="Dauer in Sekunden"></td>
+            <td class="ptt-bars"><input type="number" value="${p.bars || 0}" data-ptf="bars" class="part-input-num mono" min="0" step="1" inputmode="numeric"></td>
+            <td class="ptt-dur"><input type="number" value="${dur}" data-ptf="duration_sec" class="part-input-num mono" min="0" step="1" inputmode="numeric" title="Dauer in Sekunden"></td>
             <td class="ptt-tmpl">
               <select data-ptf="light_template" class="part-select">
                 <option value="">\u2014</option>
@@ -5468,7 +5571,10 @@ function buildPartsTabTable(parts, filterSong) {
           </tr>`;
         }).join('')}
       </tbody>
-    </table>`;
+    </table>
+    <datalist id="dl-part-names">
+      ${getPartNameSuggestions().map(n => `<option value="${esc(n)}">`).join('')}
+    </datalist>`;
 }
 
 function renderPartsTabBarSection() {
@@ -5751,6 +5857,8 @@ function handlePartsTabAction(action) {
       }
       delete song.parts[sel.partId];
       getSortedParts(sel.songId).forEach((p, i) => { song.parts[p.id].pos = i + 1; });
+      // Sync: remove split_markers for the deleted part
+      removeSplitMarkersForPart(song, sel.partId);
       recalcSongDurationFor(sel.songId);
       partsTabSelectedPart = null;
       partsTabSelectedBar = null;
@@ -5772,6 +5880,10 @@ function handlePartsTabAction(action) {
       const curr = song.parts[parts[idx].id];
       const other = song.parts[parts[swapIdx].id];
       [curr.pos, other.pos] = [other.pos, curr.pos];
+      // Sync: update partIndex in split_markers after reorder
+      rebuildSplitMarkerIndices(song);
+      if (selectedSongId === sel.songId) restoreMarkersFromSong();
+      recalcSongDurationFor(sel.songId);
       markDirty();
       renderPartsTab();
       break;
@@ -6370,6 +6482,38 @@ async function handleDeleteAllBars() {
     delete db.bars[barId];
   }
 
+  // Sync: clear split_markers.barMarkers and reset part.bars count
+  if (filterSong) {
+    const song = db.songs[filterSong];
+    if (song) {
+      // Clear bar markers from split_markers
+      if (song.split_markers && Array.isArray(song.split_markers.barMarkers)) {
+        song.split_markers.barMarkers = [];
+      }
+      // Reset bars count on all parts
+      if (parts) {
+        for (const p of parts) {
+          if (song.parts[p.id]) song.parts[p.id].bars = 0;
+        }
+      }
+      // If this song is currently loaded in the Audio tab, clear in-memory barMarkers
+      if (selectedSongId === filterSong) {
+        barMarkers = [];
+        currentBarInPart = 0;
+      }
+    }
+  } else {
+    // All songs: clear all bar markers
+    for (const [, song] of Object.entries(db.songs)) {
+      if (song.split_markers) song.split_markers.barMarkers = [];
+      if (song.parts) {
+        for (const p of Object.values(song.parts)) p.bars = 0;
+      }
+    }
+    barMarkers = [];
+    currentBarInPart = 0;
+  }
+
   takteTabSelectedBar = null;
   markDirty();
   renderTakteTab();
@@ -6816,11 +6960,18 @@ function wireEvents() {
     else if (activeTab === 'setlist') handleSetlistChange(e);
   });
   // Parts tab: clear placeholder names ("Part 1", "New Part") on focus
+  // + scroll focused input into view after iOS keyboard opens
   els.content.addEventListener('focus', (e) => {
     if (activeTab === 'parts' && e.target.matches('[data-ptf="name"]')) {
       if (/^(Part \d+|New Part)$/i.test(e.target.value.trim())) {
         e.target.value = '';
       }
+    }
+    // iOS keyboard scroll fix: after keyboard animates open, ensure field is visible
+    if (e.target.matches('input, textarea, select')) {
+      setTimeout(() => {
+        e.target.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      }, 350); // wait for iOS keyboard animation
     }
   }, true); // useCapture so focus (non-bubbling) is caught via delegation
 

@@ -36,6 +36,7 @@
 html {
   font-size: 14px;
   -webkit-text-size-adjust: 100%;
+  color-scheme: dark;
 }
 
 body {

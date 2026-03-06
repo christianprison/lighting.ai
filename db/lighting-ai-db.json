@@ -762,17 +762,18 @@
       "year": "1998",
       "pick": "🔻",
       "gema_nr": "1022042-001",
-      "duration": "—",
-      "duration_sec": 0,
+      "duration": "0:31",
+      "duration_sec": 31,
       "notes": "Intro; Verse 1; Bridge 1 (Mary); Bridge 2; Chorus (lunch); Interlude; Verse 2; Bridge 1; Bridge 2; Chorus; Interlude; Verse 3; Bridge 1; Bridge 2; Chorus; Chorus Variation 1; Chorus Variation 2; Chorus Variation 3; End e a capella (punch); ;",
       "parts": {
         "tdyEcs_P001": {
           "pos": 1,
-          "name": "Thema 1",
-          "bars": 1,
-          "duration_sec": 0,
+          "name": "Intro",
+          "bars": 8,
+          "duration_sec": 12,
           "light_template": "generic_bpm",
-          "notes": ""
+          "notes": "",
+          "start_bar": 1
         },
         "tdyEcs_P002": {
           "pos": 2,
@@ -784,7 +785,7 @@
         },
         "tdyEcs_P003": {
           "pos": 3,
-          "name": "Bridge Mary 1",
+          "name": "Part 3",
           "bars": 1,
           "duration_sec": 0,
           "light_template": "generic_bpm",
@@ -800,7 +801,7 @@
         },
         "tdyEcs_P005": {
           "pos": 5,
-          "name": "Chorus 1",
+          "name": "Part 5",
           "bars": 1,
           "duration_sec": 0,
           "light_template": "generic_bpm",
@@ -808,7 +809,7 @@
         },
         "tdyEcs_P006": {
           "pos": 6,
-          "name": "Thema 2",
+          "name": "Part 6",
           "bars": 1,
           "duration_sec": 0,
           "light_template": "generic_bpm",
@@ -936,32 +937,32 @@
             "partId": "tdyEcs_P001"
           },
           {
-            "time": 12.97490936329588,
+            "time": 12.683086142322097,
             "partIndex": 1,
             "partId": "tdyEcs_P002"
           },
           {
-            "time": 25.332500374531833,
+            "time": 27.504000000000005,
             "partIndex": 2,
             "partId": "tdyEcs_P003"
           },
           {
-            "time": 31.516907865168537,
+            "time": 33.66933333333333,
             "partIndex": 3,
             "partId": "tdyEcs_P004"
           },
           {
-            "time": 44.065306367041195,
+            "time": 46.10133333333333,
             "partIndex": 4,
             "partId": "tdyEcs_P005"
           },
           {
-            "time": 50.14869812734083,
+            "time": 52.304,
             "partIndex": 5,
             "partId": "tdyEcs_P006"
           },
           {
-            "time": 62.60730486891385,
+            "time": 64.63733333333333,
             "partIndex": 6,
             "partId": "tdyEcs_P007"
           },
@@ -976,7 +977,7 @@
             "partId": "tdyEcs_P009"
           },
           {
-            "time": 101.77133333333335,
+            "time": 95.68533333333332,
             "partIndex": 9,
             "partId": "tdyEcs_P010"
           },
@@ -1038,32 +1039,32 @@
             "partId": "tdyEcs_P001"
           },
           {
-            "time": 12.97490936329588,
+            "time": 12.683086142322097,
             "partIndex": 1,
             "partId": "tdyEcs_P002"
           },
           {
-            "time": 25.332500374531833,
+            "time": 27.504000000000005,
             "partIndex": 2,
             "partId": "tdyEcs_P003"
           },
           {
-            "time": 31.516907865168537,
+            "time": 33.66933333333333,
             "partIndex": 3,
             "partId": "tdyEcs_P004"
           },
           {
-            "time": 44.065306367041195,
+            "time": 46.10133333333333,
             "partIndex": 4,
             "partId": "tdyEcs_P005"
           },
           {
-            "time": 50.14869812734083,
+            "time": 52.304,
             "partIndex": 5,
             "partId": "tdyEcs_P006"
           },
           {
-            "time": 62.60730486891385,
+            "time": 64.63733333333333,
             "partIndex": 6,
             "partId": "tdyEcs_P007"
           },
@@ -1078,7 +1079,7 @@
             "partId": "tdyEcs_P009"
           },
           {
-            "time": 101.77133333333335,
+            "time": 95.68533333333332,
             "partIndex": 9,
             "partId": "tdyEcs_P010"
           },
@@ -43413,21 +43414,21 @@
       "part_id": "tdyEcs_P001",
       "bar_num": 1,
       "lyrics": "",
-      "audio": "audio/Along comes Mary/01 Thema 1/001 Along comes Mary Thema 1.mp3",
+      "audio": "audio/Along comes Mary/01 Intro/001 Along comes Mary Intro.mp3",
       "has_accents": false
     },
     "B4753": {
       "part_id": "tdyEcs_P002",
       "bar_num": 1,
       "lyrics": "",
-      "audio": "audio/Along comes Mary/02 Verse 1/002 Along comes Mary Verse 1.mp3",
+      "audio": "audio/Along comes Mary/02 Part 2/002 Along comes Mary Part 2.mp3",
       "has_accents": false
     },
     "B4754": {
       "part_id": "tdyEcs_P003",
       "bar_num": 1,
       "lyrics": "",
-      "audio": "audio/Along comes Mary/03 Bridge Mary 1/003 Along comes Mary Bridge Mary 1.mp3",
+      "audio": "audio/Along comes Mary/03 Part 3/003 Along comes Mary Part 3.mp3",
       "has_accents": false
     },
     "B4755": {
@@ -43441,14 +43442,14 @@
       "part_id": "tdyEcs_P005",
       "bar_num": 1,
       "lyrics": "",
-      "audio": "audio/Along comes Mary/05 Chorus 1/005 Along comes Mary Chorus 1.mp3",
+      "audio": "audio/Along comes Mary/05 Part 5/005 Along comes Mary Part 5.mp3",
       "has_accents": false
     },
     "B4757": {
       "part_id": "tdyEcs_P006",
       "bar_num": 1,
       "lyrics": "",
-      "audio": "audio/Along comes Mary/06 Thema 2/006 Along comes Mary Thema 2.mp3",
+      "audio": "audio/Along comes Mary/06 Part 6/006 Along comes Mary Part 6.mp3",
       "has_accents": false
     },
     "B4758": {

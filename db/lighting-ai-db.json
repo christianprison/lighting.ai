@@ -288,7 +288,7 @@
         "tdyEcs_P002": {
           "pos": 2,
           "name": "Verse 1",
-          "bars": 9,
+          "bars": 8,
           "duration_sec": 12,
           "light_template": "generic_bpm",
           "notes": ""

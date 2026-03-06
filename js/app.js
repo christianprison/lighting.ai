@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.12.1';
+const APP_VERSION = 'v0.12.2';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4020,6 +4020,9 @@ function drawLyricsPartWaveform(canvas) {
   ctx.scale(dpr, dpr);
   ctx.clearRect(0, 0, w, h);
 
+  const partDur = endSec - startSec;
+  const timeToX = (t) => ((t - startSec) / partDur) * w;
+
   // Draw waveform
   const buckets = Math.floor(w);
   const peaks = audio.getPeaksRange(startSec, endSec, buckets);
@@ -4032,35 +4035,91 @@ function drawLyricsPartWaveform(canvas) {
     ctx.fillRect(i, mid - barH / 2, 1, barH || 1);
   }
 
-  // Draw bar markers
-  const partDur = endSec - startSec;
+  // Draw bar markers with flag labels (cyan)
   const bars = getBarMarkersForPart(partIndex);
   for (let bi = 0; bi < bars.length; bi++) {
-    const relTime = bars[bi].time - startSec;
-    const x = (relTime / partDur) * w;
-    const isDrag = _lyricsWaveDrag && _lyricsWaveDrag.partIndex === partIndex && _lyricsWaveDrag.barIdx === bi;
-    ctx.strokeStyle = isDrag ? 'rgba(56, 189, 248, 0.95)' : 'rgba(56, 189, 248, 0.5)';
+    const x = timeToX(bars[bi].time);
+    const isDrag = _lyricsWaveDrag && _lyricsWaveDrag.dragType === 'bar' && _lyricsWaveDrag.partIndex === partIndex && _lyricsWaveDrag.barIdx === bi;
+    ctx.strokeStyle = isDrag ? 'rgba(56, 189, 248, 0.95)' : 'rgba(56, 189, 248, 0.4)';
     ctx.lineWidth = isDrag ? 2 : 1;
     ctx.beginPath();
     ctx.moveTo(x, 0);
     ctx.lineTo(x, h);
     ctx.stroke();
 
-    // Bar number label
+    // Flag label (bottom)
+    const label = String(bi + 1);
     ctx.font = '9px "DM Mono", monospace';
-    ctx.fillStyle = isDrag ? 'rgba(56, 189, 248, 0.95)' : 'rgba(56, 189, 248, 0.6)';
-    ctx.fillText(String(bi + 1), x + 2, 10);
+    const tw = ctx.measureText(label).width;
+    const flagW = tw + 6;
+    const flagH = 13;
+    const flagY = h - flagH;
+    ctx.fillStyle = isDrag ? 'rgba(56, 189, 248, 1.0)' : 'rgba(56, 189, 248, 0.7)';
+    ctx.fillRect(x, flagY, flagW, flagH);
+    ctx.fillStyle = '#08090d';
+    ctx.fillText(label, x + 3, flagY + 10);
 
     if (isDrag) {
+      ctx.font = '10px "DM Mono", monospace';
       ctx.fillStyle = 'rgba(56, 189, 248, 0.95)';
-      ctx.fillText(fmtTime(bars[bi].time), x + 2, h - 3);
+      ctx.fillText(fmtTime(bars[bi].time), x + 4, mid);
     }
+  }
+
+  // "Start" flag (amber, top-left) — draggable handle for part start
+  const isDragStart = _lyricsWaveDrag && _lyricsWaveDrag.dragType === 'start' && _lyricsWaveDrag.partIndex === partIndex;
+  const startX = 0;
+  ctx.strokeStyle = isDragStart ? 'rgba(240, 160, 48, 1.0)' : 'rgba(240, 160, 48, 0.8)';
+  ctx.lineWidth = isDragStart ? 3 : 2;
+  ctx.beginPath();
+  ctx.moveTo(startX, 0);
+  ctx.lineTo(startX, h);
+  ctx.stroke();
+  // Flag
+  ctx.font = 'bold 9px Sora, sans-serif';
+  const startLabel = 'Start';
+  const stw = ctx.measureText(startLabel).width;
+  const sFlagW = stw + 8;
+  const sFlagH = 14;
+  ctx.fillStyle = isDragStart ? 'rgba(240, 160, 48, 1.0)' : 'rgba(240, 160, 48, 0.9)';
+  ctx.fillRect(startX, 0, sFlagW, sFlagH);
+  ctx.fillStyle = '#08090d';
+  ctx.fillText(startLabel, startX + 4, 10);
+  if (isDragStart) {
+    ctx.font = '10px "DM Mono", monospace';
+    ctx.fillStyle = 'rgba(240, 160, 48, 1.0)';
+    ctx.fillText(fmtTime(startSec), startX + sFlagW + 4, 10);
+  }
+
+  // "Ende" flag (amber, top-right) — draggable handle for part end
+  const isDragEnd = _lyricsWaveDrag && _lyricsWaveDrag.dragType === 'end' && _lyricsWaveDrag.partIndex === partIndex;
+  const endX = w;
+  ctx.strokeStyle = isDragEnd ? 'rgba(240, 160, 48, 1.0)' : 'rgba(240, 160, 48, 0.8)';
+  ctx.lineWidth = isDragEnd ? 3 : 2;
+  ctx.beginPath();
+  ctx.moveTo(endX, 0);
+  ctx.lineTo(endX, h);
+  ctx.stroke();
+  // Flag (aligned to left of the end line)
+  ctx.font = 'bold 9px Sora, sans-serif';
+  const endLabel = 'Ende';
+  const etw = ctx.measureText(endLabel).width;
+  const eFlagW = etw + 8;
+  const eFlagH = 14;
+  ctx.fillStyle = isDragEnd ? 'rgba(240, 160, 48, 1.0)' : 'rgba(240, 160, 48, 0.9)';
+  ctx.fillRect(endX - eFlagW, 0, eFlagW, eFlagH);
+  ctx.fillStyle = '#08090d';
+  ctx.fillText(endLabel, endX - eFlagW + 4, 10);
+  if (isDragEnd) {
+    ctx.font = '10px "DM Mono", monospace';
+    ctx.fillStyle = 'rgba(240, 160, 48, 1.0)';
+    ctx.fillText(fmtTime(endSec), endX - eFlagW - ctx.measureText(fmtTime(endSec)).width - 6, 10);
   }
 }
 
 /* ── Lyrics Waveform Bar Marker Drag ─────────────── */
 
-let _lyricsWaveDrag = null; // { canvas, partIndex, barIdx, startX, startTime, bars }
+let _lyricsWaveDrag = null; // { canvas, partIndex, dragType:'bar'|'start'|'end', barIdx, origTime, startSec, endSec }
 
 function initLyricsWaveDrag(e) {
   const canvas = e.target.closest('canvas[data-lyrics-wave-idx]');
@@ -4075,7 +4134,23 @@ function initLyricsWaveDrag(e) {
   const xPx = clientX - rect.left;
   const w = rect.width;
   const partDur = endSec - startSec;
-  const clickTime = startSec + (xPx / w) * partDur;
+  const HIT_PX = 14;
+
+  // Hit test: Start flag (left edge)
+  if (xPx <= HIT_PX) {
+    e.preventDefault();
+    _lyricsWaveDrag = { canvas, partIndex, dragType: 'start', barIdx: -1, origTime: startSec, startSec, endSec };
+    drawLyricsPartWaveform(canvas);
+    return;
+  }
+
+  // Hit test: Ende flag (right edge)
+  if (xPx >= w - HIT_PX) {
+    e.preventDefault();
+    _lyricsWaveDrag = { canvas, partIndex, dragType: 'end', barIdx: -1, origTime: endSec, startSec, endSec };
+    drawLyricsPartWaveform(canvas);
+    return;
+  }
 
   // Hit test: find nearest bar marker
   const bars = getBarMarkersForPart(partIndex);
@@ -4085,11 +4160,11 @@ function initLyricsWaveDrag(e) {
     const dist = Math.abs(mX - xPx);
     if (dist < bestDist) { bestDist = dist; bestIdx = i; }
   }
-  if (bestIdx < 0 || bestDist > 12) return; // 12px threshold
+  if (bestIdx < 0 || bestDist > 12) return;
 
   e.preventDefault();
   _lyricsWaveDrag = {
-    canvas, partIndex, barIdx: bestIdx, startSec, endSec,
+    canvas, partIndex, dragType: 'bar', barIdx: bestIdx, startSec, endSec,
     origTime: bars[bestIdx].time
   };
   drawLyricsPartWaveform(canvas);
@@ -4098,20 +4173,51 @@ function initLyricsWaveDrag(e) {
 function moveLyricsWaveDrag(e) {
   if (!_lyricsWaveDrag) return;
   e.preventDefault();
-  const { canvas, partIndex, barIdx, startSec, endSec } = _lyricsWaveDrag;
+  const { canvas, partIndex, dragType, barIdx, startSec, endSec } = _lyricsWaveDrag;
   const rect = canvas.getBoundingClientRect();
   const clientX = e.touches ? e.touches[0].clientX : e.clientX;
   const xPx = clientX - rect.left;
   const w = rect.width;
-  const partDur = endSec - startSec;
+  const duration = audioMeta.duration;
 
-  let newTime = startSec + (xPx / w) * partDur;
-  newTime = Math.max(startSec + 0.01, Math.min(endSec - 0.01, newTime));
+  if (dragType === 'start') {
+    // Drag part start: update partMarker time and canvas data attribute
+    let newTime = startSec + (xPx / w) * (endSec - startSec);
+    newTime = Math.max(0, Math.min(endSec - 0.1, newTime));
+    // Update global partMarker
+    const pm = partMarkers.find(m => m.partIndex === partIndex);
+    if (pm) pm.time = newTime;
+    // Also move first bar marker if it was at the old start
+    const bars = getBarMarkersForPart(partIndex);
+    if (bars.length > 0 && Math.abs(bars[0].time - parseFloat(canvas.dataset.waveStart)) < 0.05) {
+      const gIdx = barMarkers.findIndex(m => m.partIndex === partIndex && Math.abs(m.time - bars[0].time) < 0.0001);
+      if (gIdx >= 0) barMarkers[gIdx].time = newTime;
+    }
+    canvas.dataset.waveStart = String(newTime);
+    drawLyricsPartWaveform(canvas);
+    return;
+  }
 
-  // Update the actual barMarkers array
+  if (dragType === 'end') {
+    // Drag part end: update next partMarker or clip to audio duration
+    let newTime = startSec + (xPx / w) * (endSec - startSec);
+    newTime = Math.max(startSec + 0.1, Math.min(duration, newTime));
+    // Update next part's start marker (if exists)
+    const nextPm = partMarkers.find(m => m.partIndex === partIndex + 1);
+    if (nextPm) nextPm.time = newTime;
+    canvas.dataset.waveEnd = String(newTime);
+    drawLyricsPartWaveform(canvas);
+    return;
+  }
+
+  // Bar marker drag
+  const partDur = parseFloat(canvas.dataset.waveEnd) - parseFloat(canvas.dataset.waveStart);
+  const curStart = parseFloat(canvas.dataset.waveStart);
+  let newTime = curStart + (xPx / w) * partDur;
+  newTime = Math.max(curStart + 0.01, Math.min(curStart + partDur - 0.01, newTime));
+
   const bars = getBarMarkersForPart(partIndex);
   if (bars[barIdx]) {
-    // Find in global barMarkers
     const globalIdx = barMarkers.findIndex(m =>
       m.partIndex === partIndex && Math.abs(m.time - bars[barIdx].time) < 0.0001);
     if (globalIdx >= 0) {
@@ -4127,10 +4233,27 @@ function endLyricsWaveDrag() {
   const moved = _lyricsWaveDrag;
   _lyricsWaveDrag = null;
 
-  // Re-sort global bar markers and save
+  // Re-sort markers and save
   barMarkers.sort((a, b) => a.time - b.time);
+  partMarkers.sort((a, b) => a.time - b.time);
   saveMarkersToSong();
   drawLyricsPartWaveform(moved.canvas);
+
+  // If start/end was dragged, update neighboring part canvases too
+  if (moved.dragType === 'start' || moved.dragType === 'end') {
+    // Redraw adjacent part canvas if it shares the boundary
+    const adjIdx = moved.dragType === 'start' ? moved.partIndex - 1 : moved.partIndex + 1;
+    const adjCanvas = document.querySelector(`canvas[data-lyrics-wave-idx="${adjIdx}"]`);
+    if (adjCanvas) {
+      // Update adjacent canvas boundary
+      if (moved.dragType === 'start') {
+        adjCanvas.dataset.waveEnd = moved.canvas.dataset.waveStart;
+      } else {
+        adjCanvas.dataset.waveStart = moved.canvas.dataset.waveEnd;
+      }
+      drawLyricsPartWaveform(adjCanvas);
+    }
+  }
 }
 
 /** Synonyms for section header → part name matching */

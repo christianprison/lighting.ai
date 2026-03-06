@@ -768,7 +768,7 @@
       "parts": {
         "tdyEcs_P001": {
           "pos": 1,
-          "name": "Intro",
+          "name": "Thema 1",
           "bars": 1,
           "duration_sec": 0,
           "light_template": "generic_bpm",
@@ -784,7 +784,7 @@
         },
         "tdyEcs_P003": {
           "pos": 3,
-          "name": "Part 3",
+          "name": "Bridge Mary 1",
           "bars": 1,
           "duration_sec": 0,
           "light_template": "generic_bpm",
@@ -800,7 +800,7 @@
         },
         "tdyEcs_P005": {
           "pos": 5,
-          "name": "Part 5",
+          "name": "Chorus 1",
           "bars": 1,
           "duration_sec": 0,
           "light_template": "generic_bpm",
@@ -808,7 +808,7 @@
         },
         "tdyEcs_P006": {
           "pos": 6,
-          "name": "Part 6",
+          "name": "Thema 2",
           "bars": 1,
           "duration_sec": 0,
           "light_template": "generic_bpm",
@@ -956,12 +956,12 @@
             "partId": "tdyEcs_P005"
           },
           {
-            "time": 52.304,
+            "time": 50.14869812734083,
             "partIndex": 5,
             "partId": "tdyEcs_P006"
           },
           {
-            "time": 64.63733333333333,
+            "time": 62.60730486891385,
             "partIndex": 6,
             "partId": "tdyEcs_P007"
           },
@@ -1058,12 +1058,12 @@
             "partId": "tdyEcs_P005"
           },
           {
-            "time": 52.304,
+            "time": 50.14869812734083,
             "partIndex": 5,
             "partId": "tdyEcs_P006"
           },
           {
-            "time": 64.63733333333333,
+            "time": 62.60730486891385,
             "partIndex": 6,
             "partId": "tdyEcs_P007"
           },

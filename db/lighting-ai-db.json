@@ -271,8 +271,8 @@
       "year": "1998",
       "pick": "🔻",
       "gema_nr": "1022042-001",
-      "duration": "0:31",
-      "duration_sec": 31,
+      "duration": "3:08",
+      "duration_sec": 188,
       "notes": "Intro; Verse 1; Bridge 1 (Mary); Bridge 2; Chorus (lunch); Interlude; Verse 2; Bridge 1; Bridge 2; Chorus; Interlude; Verse 3; Bridge 1; Bridge 2; Chorus; Chorus Variation 1; Chorus Variation 2; Chorus Variation 3; End e a capella (punch); ;",
       "parts": {
         "tdyEcs_P001": {
@@ -289,7 +289,7 @@
           "pos": 2,
           "name": "Verse 1",
           "bars": 9,
-          "duration_sec": 0,
+          "duration_sec": 12,
           "light_template": "generic_bpm",
           "notes": ""
         },
@@ -445,739 +445,739 @@
       "split_markers": {
         "partMarkers": [
           {
-            "time": 0.5836464419475655,
+            "time": 0.5706458333333333,
             "partIndex": 0,
             "partId": "tdyEcs_P001"
           },
           {
-            "time": 12.683086142322097,
+            "time": 12.758083333333333,
             "partIndex": 1,
             "partId": "tdyEcs_P002"
           },
           {
-            "time": 25.34372434456929,
+            "time": 25.345708333333334,
             "partIndex": 2,
             "partId": "tdyEcs_P003"
           },
           {
-            "time": 31.550579775280898,
+            "time": 31.5165625,
             "partIndex": 3,
             "partId": "tdyEcs_P004"
           },
           {
-            "time": 43.986738576779025,
+            "time": 43.933729166666666,
             "partIndex": 4,
             "partId": "tdyEcs_P005"
           },
           {
-            "time": 50.07013033707865,
+            "time": 50.120125,
             "partIndex": 5,
             "partId": "tdyEcs_P006"
           },
           {
-            "time": 62.67464868913857,
+            "time": 62.599645833333334,
             "partIndex": 6,
             "partId": "tdyEcs_P007"
           },
           {
-            "time": 74.87510411985019,
+            "time": 74.89008333333334,
             "partIndex": 7,
             "partId": "tdyEcs_P008"
           },
           {
-            "time": 81.07073558052434,
+            "time": 81.06572916666667,
             "partIndex": 8,
             "partId": "tdyEcs_P009"
           },
           {
-            "time": 93.63035805243445,
+            "time": 93.66435416666667,
             "partIndex": 9,
             "partId": "tdyEcs_P010"
           },
           {
-            "time": 99.63518202247191,
+            "time": 99.66916666666667,
             "partIndex": 10,
             "partId": "tdyEcs_P011"
           },
           {
-            "time": 112.00399700374531,
+            "time": 112.06597916666666,
             "partIndex": 11,
             "partId": "tdyEcs_P012"
           },
           {
-            "time": 124.4738277153558,
+            "time": 124.4438125,
             "partIndex": 12,
             "partId": "tdyEcs_P013"
           },
           {
-            "time": 130.62456329588017,
+            "time": 130.6145625,
             "partIndex": 13,
             "partId": "tdyEcs_P014"
           },
           {
-            "time": 143.0270501872659,
+            "time": 143.03604166666668,
             "partIndex": 14,
             "partId": "tdyEcs_P015"
           },
           {
-            "time": 149.22268164794005,
+            "time": 149.21766666666667,
             "partIndex": 15,
             "partId": "tdyEcs_P016"
           },
           {
-            "time": 161.6363925093633,
+            "time": 161.614375,
             "partIndex": 16,
             "partId": "tdyEcs_P017"
           },
           {
-            "time": 174.0276554307116,
+            "time": 173.99764583333334,
             "partIndex": 17,
             "partId": "tdyEcs_P018"
           },
           {
-            "time": 186.36279850187265,
+            "time": 186.37979166666668,
             "partIndex": 18,
             "partId": "tdyEcs_P019"
           },
           {
-            "time": 197.37351310861422,
+            "time": 197.3675,
             "partIndex": 19,
             "partId": "tdyEcs_P020"
           }
         ],
         "barMarkers": [
           {
-            "time": 0.5810000000000031,
+            "time": 0.571,
             "partIndex": 0,
             "partId": "tdyEcs_P001"
           },
           {
-            "time": 2.0823333333333522,
+            "time": 2.1193333333333335,
             "partIndex": 0,
             "partId": "tdyEcs_P001"
           },
           {
-            "time": 3.6156666666666837,
+            "time": 3.667666666666667,
             "partIndex": 0,
             "partId": "tdyEcs_P001"
           },
           {
-            "time": 5.170333333333346,
+            "time": 5.216333333333333,
             "partIndex": 0,
             "partId": "tdyEcs_P001"
           },
           {
-            "time": 6.714333333333357,
+            "time": 6.764333333333333,
             "partIndex": 0,
             "partId": "tdyEcs_P001"
           },
           {
-            "time": 8.28233333333334,
+            "time": 8.313333333333333,
             "partIndex": 0,
             "partId": "tdyEcs_P001"
           },
           {
-            "time": 9.839666666666673,
+            "time": 9.861666666666666,
             "partIndex": 0,
             "partId": "tdyEcs_P001"
           },
           {
-            "time": 11.381000000000014,
+            "time": 11.41,
             "partIndex": 0,
             "partId": "tdyEcs_P001"
           },
           {
-            "time": 12.882333333333335,
+            "time": 12.922333333333333,
             "partIndex": 1,
             "partId": "tdyEcs_P002"
           },
           {
-            "time": 14.439666666666668,
+            "time": 14.508666666666667,
             "partIndex": 1,
             "partId": "tdyEcs_P002"
           },
           {
-            "time": 15.981000000000009,
+            "time": 15.945,
             "partIndex": 1,
             "partId": "tdyEcs_P002"
           },
           {
-            "time": 17.49833333333335,
+            "time": 17.485333333333333,
             "partIndex": 1,
             "partId": "tdyEcs_P002"
           },
           {
-            "time": 19.103666666666683,
+            "time": 19.157666666666668,
             "partIndex": 1,
             "partId": "tdyEcs_P002"
           },
           {
-            "time": 20.597000000000023,
+            "time": 20.533,
             "partIndex": 1,
             "partId": "tdyEcs_P002"
           },
           {
-            "time": 22.146333333333345,
+            "time": 22.112333333333332,
             "partIndex": 1,
             "partId": "tdyEcs_P002"
           },
           {
-            "time": 23.663666666666686,
+            "time": 23.628666666666668,
             "partIndex": 1,
             "partId": "tdyEcs_P002"
           },
           {
-            "time": 25.24766666666669,
+            "time": 25.226666666666667,
             "partIndex": 1,
             "partId": "tdyEcs_P002"
           },
           {
-            "time": 26.81944194756555,
+            "time": 26.8894375,
             "partIndex": 2,
             "partId": "tdyEcs_P003"
           },
           {
-            "time": 28.376775280898883,
+            "time": 28.442770833333334,
             "partIndex": 2,
             "partId": "tdyEcs_P003"
           },
           {
-            "time": 29.862108614232213,
+            "time": 29.868104166666665,
             "partIndex": 2,
             "partId": "tdyEcs_P003"
           },
           {
-            "time": 31.494108614232218,
+            "time": 31.521104166666667,
             "partIndex": 2,
             "partId": "tdyEcs_P003"
           },
           {
-            "time": 33.03544194756556,
+            "time": 33.0874375,
             "partIndex": 3,
             "partId": "tdyEcs_P004"
           },
           {
-            "time": 34.56077528089888,
+            "time": 34.63277083333333,
             "partIndex": 3,
             "partId": "tdyEcs_P004"
           },
           {
-            "time": 36.1127752808989,
+            "time": 36.188770833333336,
             "partIndex": 3,
             "partId": "tdyEcs_P004"
           },
           {
-            "time": 37.64610861423223,
+            "time": 37.71510416666667,
             "partIndex": 3,
             "partId": "tdyEcs_P004"
           },
           {
-            "time": 39.176775280898894,
+            "time": 39.24277083333333,
             "partIndex": 3,
             "partId": "tdyEcs_P004"
           },
           {
-            "time": 40.74477528089891,
+            "time": 40.71877083333333,
             "partIndex": 3,
             "partId": "tdyEcs_P004"
           },
           {
-            "time": 42.29410861423223,
+            "time": 42.36810416666667,
             "partIndex": 3,
             "partId": "tdyEcs_P004"
           },
           {
-            "time": 43.84610861423222,
+            "time": 43.806104166666664,
             "partIndex": 3,
             "partId": "tdyEcs_P004"
           },
           {
-            "time": 45.37677528089888,
+            "time": 45.369770833333334,
             "partIndex": 4,
             "partId": "tdyEcs_P005"
           },
           {
-            "time": 46.910108614232215,
+            "time": 46.86510416666667,
             "partIndex": 4,
             "partId": "tdyEcs_P005"
           },
           {
-            "time": 48.48344194756557,
+            "time": 48.4594375,
             "partIndex": 4,
             "partId": "tdyEcs_P005"
           },
           {
-            "time": 50.0647752808989,
+            "time": 50.119770833333334,
             "partIndex": 4,
             "partId": "tdyEcs_P005"
           },
           {
-            "time": 51.62744194756557,
+            "time": 51.6684375,
             "partIndex": 5,
             "partId": "tdyEcs_P006"
           },
           {
-            "time": 53.12877528089889,
+            "time": 53.17477083333333,
             "partIndex": 5,
             "partId": "tdyEcs_P006"
           },
           {
-            "time": 54.678108614232215,
+            "time": 54.736104166666664,
             "partIndex": 5,
             "partId": "tdyEcs_P006"
           },
           {
-            "time": 56.21144194756555,
+            "time": 56.1504375,
             "partIndex": 5,
             "partId": "tdyEcs_P006"
           },
           {
-            "time": 57.7607752808989,
+            "time": 57.802770833333334,
             "partIndex": 5,
             "partId": "tdyEcs_P006"
           },
           {
-            "time": 59.32877528089888,
+            "time": 59.36777083333333,
             "partIndex": 5,
             "partId": "tdyEcs_P006"
           },
           {
-            "time": 60.89410861423222,
+            "time": 60.95910416666667,
             "partIndex": 5,
             "partId": "tdyEcs_P006"
           },
           {
-            "time": 62.443441947565546,
+            "time": 62.5164375,
             "partIndex": 5,
             "partId": "tdyEcs_P006"
           },
           {
-            "time": 63.910108614232215,
+            "time": 63.93510416666667,
             "partIndex": 6,
             "partId": "tdyEcs_P007"
           },
           {
-            "time": 65.46744194756555,
+            "time": 65.4184375,
             "partIndex": 6,
             "partId": "tdyEcs_P007"
           },
           {
-            "time": 67.02744194756555,
+            "time": 67.0824375,
             "partIndex": 6,
             "partId": "tdyEcs_P007"
           },
           {
-            "time": 68.56077528089888,
+            "time": 68.57977083333333,
             "partIndex": 6,
             "partId": "tdyEcs_P007"
           },
           {
-            "time": 70.1607752808989,
+            "time": 70.10877083333334,
             "partIndex": 6,
             "partId": "tdyEcs_P007"
           },
           {
-            "time": 71.75277528089889,
+            "time": 71.80377083333333,
             "partIndex": 6,
             "partId": "tdyEcs_P007"
           },
           {
-            "time": 73.1767752808989,
+            "time": 73.10177083333333,
             "partIndex": 6,
             "partId": "tdyEcs_P007"
           },
           {
-            "time": 74.67810861423222,
+            "time": 74.64610416666666,
             "partIndex": 6,
             "partId": "tdyEcs_P007"
           },
           {
-            "time": 76.29410861423223,
+            "time": 76.32010416666667,
             "partIndex": 7,
             "partId": "tdyEcs_P008"
           },
           {
-            "time": 77.89410861423222,
+            "time": 77.90510416666666,
             "partIndex": 7,
             "partId": "tdyEcs_P008"
           },
           {
-            "time": 79.41144194756556,
+            "time": 79.4174375,
             "partIndex": 7,
             "partId": "tdyEcs_P008"
           },
           {
-            "time": 80.96077528089889,
+            "time": 80.94377083333333,
             "partIndex": 7,
             "partId": "tdyEcs_P008"
           },
           {
-            "time": 82.5527752808989,
+            "time": 82.59877083333333,
             "partIndex": 8,
             "partId": "tdyEcs_P009"
           },
           {
-            "time": 84.07810861423222,
+            "time": 84.00110416666666,
             "partIndex": 8,
             "partId": "tdyEcs_P009"
           },
           {
-            "time": 85.64344194756556,
+            "time": 85.5704375,
             "partIndex": 8,
             "partId": "tdyEcs_P009"
           },
           {
-            "time": 87.21944194756556,
+            "time": 87.2594375,
             "partIndex": 8,
             "partId": "tdyEcs_P009"
           },
           {
-            "time": 88.72610861423222,
+            "time": 88.65910416666667,
             "partIndex": 8,
             "partId": "tdyEcs_P009"
           },
           {
-            "time": 90.22744194756557,
+            "time": 90.1774375,
             "partIndex": 8,
             "partId": "tdyEcs_P009"
           },
           {
-            "time": 91.82744194756556,
+            "time": 91.8244375,
             "partIndex": 8,
             "partId": "tdyEcs_P009"
           },
           {
-            "time": 94.91010861423221,
+            "time": 94.83510416666667,
             "partIndex": 9,
             "partId": "tdyEcs_P010"
           },
           {
-            "time": 96.44344194756555,
+            "time": 96.3774375,
             "partIndex": 9,
             "partId": "tdyEcs_P010"
           },
           {
-            "time": 98.05944194756556,
+            "time": 98.0144375,
             "partIndex": 9,
             "partId": "tdyEcs_P010"
           },
           {
-            "time": 99.59277528089889,
+            "time": 99.66877083333334,
             "partIndex": 9,
             "partId": "tdyEcs_P010"
           },
           {
-            "time": 101.1607752808989,
+            "time": 101.22177083333334,
             "partIndex": 10,
             "partId": "tdyEcs_P011"
           },
           {
-            "time": 102.71010861423223,
+            "time": 102.76610416666666,
             "partIndex": 10,
             "partId": "tdyEcs_P011"
           },
           {
-            "time": 104.25944194756555,
+            "time": 104.3144375,
             "partIndex": 10,
             "partId": "tdyEcs_P011"
           },
           {
-            "time": 105.81144194756557,
+            "time": 105.8624375,
             "partIndex": 10,
             "partId": "tdyEcs_P011"
           },
           {
-            "time": 107.36077528089889,
+            "time": 107.41077083333333,
             "partIndex": 10,
             "partId": "tdyEcs_P011"
           },
           {
-            "time": 108.89410861423225,
+            "time": 108.95910416666666,
             "partIndex": 10,
             "partId": "tdyEcs_P011"
           },
           {
-            "time": 110.44344194756557,
+            "time": 110.5074375,
             "partIndex": 10,
             "partId": "tdyEcs_P011"
           },
           {
-            "time": 111.9447752808989,
+            "time": 111.89277083333333,
             "partIndex": 10,
             "partId": "tdyEcs_P011"
           },
           {
-            "time": 113.4781086142322,
+            "time": 113.44310416666667,
             "partIndex": 11,
             "partId": "tdyEcs_P012"
           },
           {
-            "time": 115.02744194756558,
+            "time": 115.0434375,
             "partIndex": 11,
             "partId": "tdyEcs_P012"
           },
           {
-            "time": 116.54477528089892,
+            "time": 116.48677083333334,
             "partIndex": 11,
             "partId": "tdyEcs_P012"
           },
           {
-            "time": 118.1607752808989,
+            "time": 118.09777083333333,
             "partIndex": 11,
             "partId": "tdyEcs_P012"
           },
           {
-            "time": 119.66744194756556,
+            "time": 119.6584375,
             "partIndex": 11,
             "partId": "tdyEcs_P012"
           },
           {
-            "time": 121.21677528089889,
+            "time": 121.15277083333334,
             "partIndex": 11,
             "partId": "tdyEcs_P012"
           },
           {
-            "time": 122.78477528089887,
+            "time": 122.71577083333334,
             "partIndex": 11,
             "partId": "tdyEcs_P012"
           },
           {
-            "time": 124.31010861423225,
+            "time": 124.33010416666667,
             "partIndex": 11,
             "partId": "tdyEcs_P012"
           },
           {
-            "time": 125.91010861423221,
+            "time": 125.98710416666667,
             "partIndex": 12,
             "partId": "tdyEcs_P013"
           },
           {
-            "time": 127.40344194756555,
+            "time": 127.4534375,
             "partIndex": 12,
             "partId": "tdyEcs_P013"
           },
           {
-            "time": 128.9607752808989,
+            "time": 128.96677083333333,
             "partIndex": 12,
             "partId": "tdyEcs_P013"
           },
           {
-            "time": 130.51277528089886,
+            "time": 130.55077083333333,
             "partIndex": 12,
             "partId": "tdyEcs_P013"
           },
           {
-            "time": 132.1261086142322,
+            "time": 132.18510416666666,
             "partIndex": 13,
             "partId": "tdyEcs_P014"
           },
           {
-            "time": 133.6461086142322,
+            "time": 133.58510416666667,
             "partIndex": 13,
             "partId": "tdyEcs_P014"
           },
           {
-            "time": 135.1981086142322,
+            "time": 135.18110416666667,
             "partIndex": 13,
             "partId": "tdyEcs_P014"
           },
           {
-            "time": 136.72610861423223,
+            "time": 136.67010416666668,
             "partIndex": 13,
             "partId": "tdyEcs_P014"
           },
           {
-            "time": 138.25944194756553,
+            "time": 138.2084375,
             "partIndex": 13,
             "partId": "tdyEcs_P014"
           },
           {
-            "time": 139.7927752808989,
+            "time": 139.72677083333335,
             "partIndex": 13,
             "partId": "tdyEcs_P014"
           },
           {
-            "time": 141.36077528089888,
+            "time": 141.37377083333334,
             "partIndex": 13,
             "partId": "tdyEcs_P014"
           },
           {
-            "time": 142.89410861423224,
+            "time": 142.90410416666666,
             "partIndex": 13,
             "partId": "tdyEcs_P014"
           },
           {
-            "time": 144.46477528089886,
+            "time": 144.46777083333333,
             "partIndex": 14,
             "partId": "tdyEcs_P015"
           },
           {
-            "time": 146.02744194756556,
+            "time": 145.9634375,
             "partIndex": 14,
             "partId": "tdyEcs_P015"
           },
           {
-            "time": 147.60877528089887,
+            "time": 147.56377083333334,
             "partIndex": 14,
             "partId": "tdyEcs_P015"
           },
           {
-            "time": 149.1261086142322,
+            "time": 149.20310416666666,
             "partIndex": 14,
             "partId": "tdyEcs_P015"
           },
           {
-            "time": 150.7101086142322,
+            "time": 150.76610416666668,
             "partIndex": 15,
             "partId": "tdyEcs_P016"
           },
           {
-            "time": 152.1981086142322,
+            "time": 152.12310416666668,
             "partIndex": 15,
             "partId": "tdyEcs_P016"
           },
           {
-            "time": 153.78477528089886,
+            "time": 153.86177083333334,
             "partIndex": 15,
             "partId": "tdyEcs_P016"
           },
           {
-            "time": 155.31010861423223,
+            "time": 155.23410416666667,
             "partIndex": 15,
             "partId": "tdyEcs_P016"
           },
           {
-            "time": 156.84344194756554,
+            "time": 156.7634375,
             "partIndex": 15,
             "partId": "tdyEcs_P016"
           },
           {
-            "time": 158.42744194756554,
+            "time": 158.3654375,
             "partIndex": 15,
             "partId": "tdyEcs_P016"
           },
           {
-            "time": 159.9607752808989,
+            "time": 159.88377083333333,
             "partIndex": 15,
             "partId": "tdyEcs_P016"
           },
           {
-            "time": 161.50210861423218,
+            "time": 161.49510416666666,
             "partIndex": 15,
             "partId": "tdyEcs_P016"
           },
           {
-            "time": 163.05944194756555,
+            "time": 163.1004375,
             "partIndex": 16,
             "partId": "tdyEcs_P017"
           },
           {
-            "time": 164.59544194756555,
+            "time": 164.5164375,
             "partIndex": 16,
             "partId": "tdyEcs_P017"
           },
           {
-            "time": 166.0781086142322,
+            "time": 166.06010416666666,
             "partIndex": 16,
             "partId": "tdyEcs_P017"
           },
           {
-            "time": 167.65144194756553,
+            "time": 167.6084375,
             "partIndex": 16,
             "partId": "tdyEcs_P017"
           },
           {
-            "time": 169.2327752808989,
+            "time": 169.15677083333333,
             "partIndex": 16,
             "partId": "tdyEcs_P017"
           },
           {
-            "time": 170.80877528089886,
+            "time": 170.80277083333334,
             "partIndex": 16,
             "partId": "tdyEcs_P017"
           },
           {
-            "time": 172.3767752808989,
+            "time": 172.44477083333334,
             "partIndex": 16,
             "partId": "tdyEcs_P017"
           },
           {
-            "time": 173.94210861423224,
+            "time": 173.99810416666668,
             "partIndex": 16,
             "partId": "tdyEcs_P017"
           },
           {
-            "time": 175.44344194756556,
+            "time": 175.3854375,
             "partIndex": 17,
             "partId": "tdyEcs_P018"
           },
           {
-            "time": 176.98744194756554,
+            "time": 177.0064375,
             "partIndex": 17,
             "partId": "tdyEcs_P018"
           },
           {
-            "time": 178.56077528089887,
+            "time": 178.63677083333334,
             "partIndex": 17,
             "partId": "tdyEcs_P018"
           },
           {
-            "time": 180.11810861423223,
+            "time": 180.16410416666668,
             "partIndex": 17,
             "partId": "tdyEcs_P018"
           },
           {
-            "time": 181.6247752808989,
+            "time": 181.57877083333332,
             "partIndex": 17,
             "partId": "tdyEcs_P018"
           },
           {
-            "time": 183.19277528089887,
+            "time": 183.19977083333333,
             "partIndex": 17,
             "partId": "tdyEcs_P018"
           },
           {
-            "time": 184.7581086142322,
+            "time": 184.83110416666668,
             "partIndex": 17,
             "partId": "tdyEcs_P018"
           },
           {
-            "time": 186.24344194756557,
+            "time": 186.2814375,
             "partIndex": 17,
             "partId": "tdyEcs_P018"
           },
           {
-            "time": 187.92610861423222,
+            "time": 187.92810416666666,
             "partIndex": 18,
             "partId": "tdyEcs_P019"
           },
           {
-            "time": 189.38210861423224,
+            "time": 189.40710416666667,
             "partIndex": 18,
             "partId": "tdyEcs_P019"
           },
           {
-            "time": 190.94210861423224,
+            "time": 190.92310416666666,
             "partIndex": 18,
             "partId": "tdyEcs_P019"
           },
           {
-            "time": 192.4967752808989,
+            "time": 192.57377083333333,
             "partIndex": 18,
             "partId": "tdyEcs_P019"
           },
           {
-            "time": 194.0087752808989,
+            "time": 193.92977083333332,
             "partIndex": 18,
             "partId": "tdyEcs_P019"
           },
           {
-            "time": 195.5767752808989,
+            "time": 195.61577083333333,
             "partIndex": 18,
             "partId": "tdyEcs_P019"
           },
           {
-            "time": 197.14210861423223,
+            "time": 197.21410416666666,
             "partIndex": 18,
             "partId": "tdyEcs_P019"
           }
@@ -10398,7 +10398,148 @@
       "lyrics_raw": "[Verse 1]I'm gonna fight 'em off\nA seven-nation army couldn't hold me back\nThey're gonna rip it off\nTakin' their time right behind my back\nAnd I'm talkin' to myself at night because I can't forget\nBack and forth through my mind, behind a cigarette\nAnd the message comin' from my eyes says, \"Leave it alone\"\n\n[Instrumental Break]\n[Verse 2]\nDon't wanna hear about it\nEvery single one's got a story to tell\nEveryone knows about it\nFrom the Queen of England to the Hounds of Hell\nAnd if I catch it comin' back my way, I'm gonna serve it to you\nAnd that ain't what you want to hear, but that's what I'll do\nAnd the feelin' comin' from my bones says, \"Find a home\"\n\n[Guitar Solo]\n\n[Verse 3]\nI'm goin' to Wichita\nFar from this opera forevermore\nI'm gonna work the straw\nMake the sweat drip out of every pore\nAnd I'm bleedin' and I'm bleedin' and I'm bleedin' right before the Lord\nAll the words are gonna bleed from me and I will think no more\nAnd the stains comin' from my blood tell me, \"Go back home\"\n\n\n​\n[Chorus]Sweet dreams are made of this\nWho am I to disagree?\nI travel the world and the seven seas\nEverybody's looking for something\n\n[Verse]\nSome of them want to use you\nSome of them want to get used by you\nSome of them want to abuse you\nSome of them want to be abused\n[Chorus]\nSweet dreams are made of this\nWho am I to disagree?\nI travel the world and the seven seas\nEverybody's looking for something\n\n[Bridge]\nHold your head up\nKeep your head up (Movin' on)\nHold your head up (Movin' on)\nKeep your head up (Movin' on)\nHold your head up (Movin' on)\nKeep your head up (Movin' on)\nHold your head up (Movin' on)\nKeep your head up\n\n[Keyboard Solo]\n\n[Verse]\nSome of them want to use you\nSome of them want to get used by you\nSome of them want to abuse you\nSome of them want to be abused\n\n[Chorus]\nSweet dreams are made of this\nWho am I to disagree?\nI travel the world and the seven seas\nEverybody's looking for something\nSweet dreams are made of this\nWho am I to disagree?\nI travel the world and the seven seas\nEverybody's looking for something\nSweet dreams are made of this\nWho am I to disagree?\nI travel the world and the seven seas\nEverybody's looking for something\nSweet dreams are made of this\nWho am I to disagree?\nI travel the world and the seven seas\nEverybody's looking for something\nSweet dreams are made of this\nWho am I to disagree?\nI travel the world and the seven seas\nEverybody's looking for something\nSweet dreams are made of this"
     }
   },
-  "bars": {},
+  "bars": {
+    "B0001": {
+      "part_id": "tdyEcs_P001",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "audio/Along comes Mary/01 Theme 1/001 Along comes Mary Theme 1.mp3",
+      "has_accents": false
+    },
+    "B0002": {
+      "part_id": "tdyEcs_P001",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "audio/Along comes Mary/01 Theme 1/002 Along comes Mary Theme 1.mp3",
+      "has_accents": false
+    },
+    "B0003": {
+      "part_id": "tdyEcs_P001",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "audio/Along comes Mary/01 Theme 1/003 Along comes Mary Theme 1.mp3",
+      "has_accents": false
+    },
+    "B0004": {
+      "part_id": "tdyEcs_P001",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "audio/Along comes Mary/01 Theme 1/004 Along comes Mary Theme 1.mp3",
+      "has_accents": false
+    },
+    "B0005": {
+      "part_id": "tdyEcs_P001",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "audio/Along comes Mary/01 Theme 1/005 Along comes Mary Theme 1.mp3",
+      "has_accents": false
+    },
+    "B0006": {
+      "part_id": "tdyEcs_P001",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "audio/Along comes Mary/01 Theme 1/006 Along comes Mary Theme 1.mp3",
+      "has_accents": false
+    },
+    "B0007": {
+      "part_id": "tdyEcs_P001",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "audio/Along comes Mary/01 Theme 1/007 Along comes Mary Theme 1.mp3",
+      "has_accents": false
+    },
+    "B0008": {
+      "part_id": "tdyEcs_P001",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "audio/Along comes Mary/01 Theme 1/008 Along comes Mary Theme 1.mp3",
+      "has_accents": false
+    },
+    "B0009": {
+      "part_id": "tdyEcs_P002",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "audio/Along comes Mary/02 Verse 1/009 Along comes Mary Verse 1.mp3",
+      "has_accents": false
+    },
+    "B0010": {
+      "part_id": "tdyEcs_P002",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "audio/Along comes Mary/02 Verse 1/010 Along comes Mary Verse 1.mp3",
+      "has_accents": false
+    },
+    "B0011": {
+      "part_id": "tdyEcs_P002",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "audio/Along comes Mary/02 Verse 1/011 Along comes Mary Verse 1.mp3",
+      "has_accents": false
+    },
+    "B0012": {
+      "part_id": "tdyEcs_P002",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "audio/Along comes Mary/02 Verse 1/012 Along comes Mary Verse 1.mp3",
+      "has_accents": false
+    },
+    "B0013": {
+      "part_id": "tdyEcs_P002",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "audio/Along comes Mary/02 Verse 1/013 Along comes Mary Verse 1.mp3",
+      "has_accents": false
+    },
+    "B0014": {
+      "part_id": "tdyEcs_P002",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "audio/Along comes Mary/02 Verse 1/014 Along comes Mary Verse 1.mp3",
+      "has_accents": false
+    },
+    "B0015": {
+      "part_id": "tdyEcs_P002",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "audio/Along comes Mary/02 Verse 1/015 Along comes Mary Verse 1.mp3",
+      "has_accents": false
+    },
+    "B0016": {
+      "part_id": "tdyEcs_P002",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "audio/Along comes Mary/02 Verse 1/016 Along comes Mary Verse 1.mp3",
+      "has_accents": false
+    },
+    "B0017": {
+      "part_id": "tdyEcs_P002",
+      "bar_num": 9,
+      "lyrics": "",
+      "audio": "audio/Along comes Mary/02 Verse 1/017 Along comes Mary Verse 1.mp3",
+      "has_accents": false
+    },
+    "B0018": {
+      "part_id": "tdyEcs_P003",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "audio/Along comes Mary/03 Bridge A 1/018 Along comes Mary Bridge A 1.mp3",
+      "has_accents": false
+    },
+    "B0019": {
+      "part_id": "tdyEcs_P003",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "audio/Along comes Mary/03 Bridge A 1/019 Along comes Mary Bridge A 1.mp3",
+      "has_accents": false
+    },
+    "B0020": {
+      "part_id": "tdyEcs_P003",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "audio/Along comes Mary/03 Bridge A 1/020 Along comes Mary Bridge A 1.mp3",
+      "has_accents": false
+    }
+  },
   "accents": {},
   "meta": {
     "accent_types": {

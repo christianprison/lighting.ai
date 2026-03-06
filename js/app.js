@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.11.5';
+const APP_VERSION = 'v0.11.6';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -1310,9 +1310,12 @@ function handlePartAction(action) {
           delete db.bars[barId];
         }
       }
+      const deletedPartId = selectedPartId;
       delete song.parts[selectedPartId];
       // Renumber
       getSortedParts(selectedSongId).forEach((p, i) => { song.parts[p.id].pos = i + 1; });
+      // Sync: remove split_markers for the deleted part
+      removeSplitMarkersForPart(song, deletedPartId);
       selectedPartId = null;
       selectedBarNum = null;
       markDirty();
@@ -1896,6 +1899,50 @@ function saveMarkersToSong() {
     const count = barMarkers.filter(m => m.partIndex === i).length;
     if (song.parts[parts[i].id]) {
       song.parts[parts[i].id].bars = count;
+    }
+  }
+}
+
+/**
+ * Remove split_markers (part + bar) for a specific partId from a song.
+ * Also updates in-memory markers if the song is currently loaded in Audio tab.
+ */
+function removeSplitMarkersForPart(song, partId) {
+  if (!song || !song.split_markers) return;
+  const sm = song.split_markers;
+  if (Array.isArray(sm.partMarkers)) {
+    sm.partMarkers = sm.partMarkers.filter(m => m.partId !== partId);
+  }
+  if (Array.isArray(sm.barMarkers)) {
+    sm.barMarkers = sm.barMarkers.filter(m => m.partId !== partId);
+  }
+  // Rebuild partIndex values after removal
+  rebuildSplitMarkerIndices(song);
+  // Sync in-memory markers if this song is active in Audio tab
+  if (selectedSongId && db.songs[selectedSongId] === song) {
+    restoreMarkersFromSong();
+  }
+}
+
+/**
+ * Rebuild partIndex values in split_markers based on current part order.
+ * Called after parts are deleted, moved, or reordered.
+ */
+function rebuildSplitMarkerIndices(song) {
+  if (!song || !song.split_markers) return;
+  const sm = song.split_markers;
+  const parts = Object.entries(song.parts || {})
+    .map(([id, p]) => ({ id, pos: p.pos }))
+    .sort((a, b) => a.pos - b.pos);
+  const idToIndex = {};
+  parts.forEach((p, i) => { idToIndex[p.id] = i; });
+
+  for (const markers of [sm.partMarkers, sm.barMarkers]) {
+    if (!Array.isArray(markers)) continue;
+    for (const m of markers) {
+      if (m.partId && idToIndex[m.partId] !== undefined) {
+        m.partIndex = idToIndex[m.partId];
+      }
     }
   }
 }
@@ -3088,6 +3135,20 @@ async function handleDeleteAllParts() {
   currentPartIndex = 0;
   currentBarInPart = 0;
   saveMarkersToSong();
+  // Sync: also delete db.bars and db.accents for this song
+  if (selectedSongId) {
+    ensureCollections();
+    const partsAfter = getSortedParts(selectedSongId);
+    const partIds = new Set(partsAfter.map(p => p.id));
+    for (const [barId, bar] of Object.entries(db.bars)) {
+      if (partIds.has(bar.part_id)) {
+        for (const [accId, acc] of Object.entries(db.accents)) {
+          if (acc.bar_id === barId) delete db.accents[accId];
+        }
+        delete db.bars[barId];
+      }
+    }
+  }
   markDirty();
   renderAudioTab();
 }
@@ -3141,6 +3202,20 @@ async function handleDeleteAllBarMarkers() {
   tapHistory = tapHistory.filter(h => h.type !== 'bar');
   currentBarInPart = 0;
   saveMarkersToSong();
+  // Sync: also delete db.bars and db.accents for this song
+  if (selectedSongId) {
+    ensureCollections();
+    const parts = getSortedParts(selectedSongId);
+    const partIds = new Set(parts.map(p => p.id));
+    for (const [barId, bar] of Object.entries(db.bars)) {
+      if (partIds.has(bar.part_id)) {
+        for (const [accId, acc] of Object.entries(db.accents)) {
+          if (acc.bar_id === barId) delete db.accents[accId];
+        }
+        delete db.bars[barId];
+      }
+    }
+  }
   markDirty();
   renderAudioTab();
 }
@@ -3231,6 +3306,8 @@ function handleMarkerDelete(btn) {
 
   // Clear undo history (no longer reliable)
   tapHistory = [];
+  saveMarkersToSong();
+  markDirty();
   drawWaveform();
   renderAudioTab();
 }
@@ -5780,6 +5857,8 @@ function handlePartsTabAction(action) {
       }
       delete song.parts[sel.partId];
       getSortedParts(sel.songId).forEach((p, i) => { song.parts[p.id].pos = i + 1; });
+      // Sync: remove split_markers for the deleted part
+      removeSplitMarkersForPart(song, sel.partId);
       recalcSongDurationFor(sel.songId);
       partsTabSelectedPart = null;
       partsTabSelectedBar = null;
@@ -5801,6 +5880,10 @@ function handlePartsTabAction(action) {
       const curr = song.parts[parts[idx].id];
       const other = song.parts[parts[swapIdx].id];
       [curr.pos, other.pos] = [other.pos, curr.pos];
+      // Sync: update partIndex in split_markers after reorder
+      rebuildSplitMarkerIndices(song);
+      if (selectedSongId === sel.songId) restoreMarkersFromSong();
+      recalcSongDurationFor(sel.songId);
       markDirty();
       renderPartsTab();
       break;
@@ -6397,6 +6480,38 @@ async function handleDeleteAllBars() {
   // Delete bars
   for (const barId of barIdsToDelete) {
     delete db.bars[barId];
+  }
+
+  // Sync: clear split_markers.barMarkers and reset part.bars count
+  if (filterSong) {
+    const song = db.songs[filterSong];
+    if (song) {
+      // Clear bar markers from split_markers
+      if (song.split_markers && Array.isArray(song.split_markers.barMarkers)) {
+        song.split_markers.barMarkers = [];
+      }
+      // Reset bars count on all parts
+      if (parts) {
+        for (const p of parts) {
+          if (song.parts[p.id]) song.parts[p.id].bars = 0;
+        }
+      }
+      // If this song is currently loaded in the Audio tab, clear in-memory barMarkers
+      if (selectedSongId === filterSong) {
+        barMarkers = [];
+        currentBarInPart = 0;
+      }
+    }
+  } else {
+    // All songs: clear all bar markers
+    for (const [, song] of Object.entries(db.songs)) {
+      if (song.split_markers) song.split_markers.barMarkers = [];
+      if (song.parts) {
+        for (const p of Object.values(song.parts)) p.bars = 0;
+      }
+    }
+    barMarkers = [];
+    currentBarInPart = 0;
   }
 
   takteTabSelectedBar = null;

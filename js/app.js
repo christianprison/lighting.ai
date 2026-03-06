@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.11.3';
+const APP_VERSION = 'v0.11.4';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -1381,9 +1381,22 @@ let _partPlayActive = false;
 let _barPlayId = null;          // bar ID currently being played (single bar)
 
 function refreshPartPlayUI() {
-  if (activeTab === 'editor') renderPartsTable();
-  else if (activeTab === 'parts') renderPartsTab();
-  else if (activeTab === 'takte') renderTakteTab();
+  // Update play buttons in-place instead of full re-render to preserve scroll position
+  document.querySelectorAll('[data-action="play-part"]').forEach(btn => {
+    const id = btn.dataset.partId;
+    const isPlaying = _partPlayActive && _playingPartId === id;
+    btn.innerHTML = isPlaying ? '&#9632;' : '&#9654;';
+    btn.title = isPlaying ? 'Stop' : 'Part abspielen';
+    btn.classList.toggle('playing', isPlaying);
+  });
+  // Takte tab: bar play buttons
+  document.querySelectorAll('[data-action="play-bar"]').forEach(btn => {
+    const partId = btn.dataset.playPartId;
+    const barNum = parseInt(btn.dataset.playBarNum, 10);
+    const isPlaying = _partPlayActive && _playingPartId === partId;
+    // Bar-level play detection not needed here — just reset all
+    btn.classList.toggle('playing', false);
+  });
 }
 
 async function handlePartPlay(partId) {

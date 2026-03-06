@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.11.1';
+const APP_VERSION = 'v0.11.2';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -1969,11 +1969,11 @@ function drawWaveform() {
     ctx.fillRect(i * barW, mid - barH / 2, Math.max(barW - 0.5, 1), barH || 1);
   }
 
-  // Bar markers (cyan lines — highlight when dragging, with absolute bar number)
+  // Bar markers (cyan lines with flag labels as drag handles)
   for (let bi = 0; bi < barMarkers.length; bi++) {
     const m = barMarkers[bi];
     const x = (m.time / duration) * w;
-    const absBarNum = bi + 1; // absolute bar number from song start
+    const absBarNum = bi + 1;
     const isDragTarget = _isDragging && _dragMarker && _dragMarker.type === 'bar' && _dragMarker.index === bi;
     ctx.strokeStyle = isDragTarget ? 'rgba(56, 189, 248, 0.9)' : 'rgba(56, 189, 248, 0.4)';
     ctx.lineWidth = isDragTarget ? 2 : 1;
@@ -1981,12 +1981,22 @@ function drawWaveform() {
     ctx.moveTo(x, 0);
     ctx.lineTo(x, h);
     ctx.stroke();
-    // Bar number label (skip if a part marker sits at same position — part label takes priority)
+    // Flag label (skip if a part marker sits at same position — part flag takes priority)
     const isPartStart = partMarkers.some(pm => Math.abs(pm.time - m.time) < 0.01);
     if (!isPartStart) {
+      const label = String(absBarNum);
       ctx.font = '9px "DM Mono", monospace';
-      ctx.fillStyle = isDragTarget ? 'rgba(56, 189, 248, 0.95)' : 'rgba(56, 189, 248, 0.6)';
-      ctx.fillText(String(absBarNum), x + 3, 10);
+      const tw = ctx.measureText(label).width;
+      const flagW = tw + 6;
+      const flagH = 14;
+      const flagX = x;
+      const flagY = h - flagH; // bottom of waveform
+      // Flag background
+      ctx.fillStyle = isDragTarget ? 'rgba(56, 189, 248, 1.0)' : 'rgba(56, 189, 248, 0.7)';
+      ctx.fillRect(flagX, flagY, flagW, flagH);
+      // Flag text (black on cyan)
+      ctx.fillStyle = '#08090d';
+      ctx.fillText(label, flagX + 3, flagY + 10);
     }
     if (isDragTarget) {
       ctx.font = '10px "DM Mono", monospace';
@@ -2033,7 +2043,7 @@ function drawWaveform() {
     ctx.setLineDash([]);
   }
 
-  // Part markers (amber) with part name + absolute bar number
+  // Part markers (amber) with flag labels as drag handles
   for (let pi2 = 0; pi2 < partMarkers.length; pi2++) {
     const m = partMarkers[pi2];
     const x = (m.time / duration) * w;
@@ -2045,27 +2055,34 @@ function drawWaveform() {
     ctx.lineTo(x, h);
     ctx.stroke();
 
-    // Part name label (top)
+    // Part name flag (top — black text on amber background)
     const partName = m.partIndex < parts.length ? parts[m.partIndex].name : '';
     if (partName) {
-      ctx.font = '10px Sora, sans-serif';
-      ctx.fillStyle = 'rgba(240, 160, 48, 0.9)';
-      const labelX = Math.min(x + 4, w - ctx.measureText(partName).width - 4);
-      ctx.fillText(partName, labelX, 12);
+      ctx.font = 'bold 10px Sora, sans-serif';
+      const tw = ctx.measureText(partName).width;
+      const flagW = tw + 8;
+      const flagH = 16;
+      const flagX = x;
+      const flagY = 0;
+      // Flag background
+      ctx.fillStyle = isDragTarget ? 'rgba(240, 160, 48, 1.0)' : 'rgba(240, 160, 48, 0.9)';
+      ctx.fillRect(flagX, flagY, flagW, flagH);
+      // Flag text (black on amber)
+      ctx.fillStyle = '#08090d';
+      ctx.fillText(partName, flagX + 4, flagY + 12);
     }
 
-    // Absolute bar number above bottom (or time during drag)
-    // Use barMarkers (tapped) if available, fallback to DB-based count
+    // Absolute bar number or time during drag (bottom area, no flag)
     const firstBarIdx = barMarkers.findIndex(b => b.partIndex === m.partIndex);
     const startBar = firstBarIdx >= 0 ? firstBarIdx + 1 : partStartBar[m.partIndex];
     if (isDragTarget) {
       ctx.font = '11px "DM Mono", monospace';
       ctx.fillStyle = 'rgba(240, 160, 48, 1.0)';
-      ctx.fillText(fmtTime(m.time), x + 4, h - 14);
+      ctx.fillText(fmtTime(m.time), x + 4, h / 2);
     } else if (startBar !== undefined) {
-      ctx.font = '11px "DM Mono", monospace';
-      ctx.fillStyle = 'rgba(240, 160, 48, 0.85)';
-      ctx.fillText(String(startBar), x + 4, h - 14);
+      ctx.font = '9px "DM Mono", monospace';
+      ctx.fillStyle = 'rgba(240, 160, 48, 0.7)';
+      ctx.fillText(String(startBar), x + 3, h - 4);
     }
   }
 
@@ -2184,32 +2201,62 @@ const DRAG_MOVE_PX = 3;    // min pixels before drag activates
  * Find the nearest marker to a given x pixel position on the waveform.
  * Returns { type: 'part'|'bar', index, marker, distPx } or null.
  */
-function hitTestMarker(xPx) {
+function hitTestMarker(xPx, yPx) {
   if (!audioMeta) return null;
   const scroll = document.getElementById('waveform-scroll');
   if (!scroll) return null;
   const totalW = scroll.getBoundingClientRect().width;
   const duration = audioMeta.duration;
+  const canvas = document.getElementById('waveform-scroll');
+  const canvasH = canvas ? canvas.height : 100;
   if (duration <= 0 || totalW <= 0) return null;
 
   let best = null;
   let bestDist = DRAG_HIT_PX + 1;
 
-  // Check part markers
+  // Check part markers — flag area is wider hit target (top 16px)
+  const parts = getSortedParts(selectedSongId);
   for (let i = 0; i < partMarkers.length; i++) {
     const mx = (partMarkers[i].time / duration) * totalW;
     const dist = Math.abs(xPx - mx);
-    if (dist < bestDist) {
+    // If click is in flag area (top), use wider hit zone based on flag width
+    let inFlag = false;
+    if (yPx !== undefined && yPx <= 16) {
+      const partName = partMarkers[i].partIndex < parts.length ? parts[partMarkers[i].partIndex].name : '';
+      if (partName) {
+        // Approximate flag width: measure roughly 7px per char + 8px padding
+        const flagW = partName.length * 7 + 8;
+        if (xPx >= mx && xPx <= mx + flagW) inFlag = true;
+      }
+    }
+    if (inFlag) {
+      // Flag hit always wins for part markers
+      best = { type: 'part', index: i, marker: partMarkers[i], distPx: 0 };
+      bestDist = 0;
+    } else if (dist < bestDist) {
       bestDist = dist;
       best = { type: 'part', index: i, marker: partMarkers[i], distPx: dist };
     }
   }
 
-  // Check bar markers
+  // Check bar markers — flag area at bottom (14px height)
   for (let i = 0; i < barMarkers.length; i++) {
     const mx = (barMarkers[i].time / duration) * totalW;
     const dist = Math.abs(xPx - mx);
-    if (dist < bestDist) {
+    // If click is in flag area (bottom), use wider hit zone
+    let inFlag = false;
+    if (yPx !== undefined && yPx >= canvasH - 14) {
+      const isPartStart = partMarkers.some(pm => Math.abs(pm.time - barMarkers[i].time) < 0.01);
+      if (!isPartStart) {
+        const label = String(i + 1);
+        const flagW = label.length * 7 + 6;
+        if (xPx >= mx && xPx <= mx + flagW) inFlag = true;
+      }
+    }
+    if (inFlag && (!best || best.type !== 'part' || best.distPx > 0)) {
+      best = { type: 'bar', index: i, marker: barMarkers[i], distPx: 0 };
+      bestDist = 0;
+    } else if (dist < bestDist) {
       bestDist = dist;
       best = { type: 'bar', index: i, marker: barMarkers[i], distPx: dist };
     }
@@ -2229,6 +2276,15 @@ function waveformEventX(e) {
   return clientX - rect.left + wrap.scrollLeft;
 }
 
+/** Get Y position relative to the waveform canvas. */
+function waveformEventY(e) {
+  const wrap = document.getElementById('waveform-wrap');
+  if (!wrap) return 0;
+  const rect = wrap.getBoundingClientRect();
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  return clientY - rect.top;
+}
+
 function onWaveformPointerDown(e) {
   if (!audioMeta) return;
   // Only handle primary button (left click) or single touch
@@ -2236,7 +2292,8 @@ function onWaveformPointerDown(e) {
   if (e.touches && e.touches.length > 1) return; // Ignore multi-touch
 
   const x = waveformEventX(e);
-  const hit = hitTestMarker(x);
+  const y = waveformEventY(e);
+  const hit = hitTestMarker(x, y);
   if (!hit) return; // No marker hit → let click handler do seek
 
   // Start potential drag
@@ -2334,10 +2391,11 @@ function onWaveformPointerMove(e) {
       drawWaveform();
     }
   } else {
-    // Hover cursor: show col-resize when near a marker
+    // Hover cursor: show grab when near a marker/flag
     const x = waveformEventX(e);
-    const hit = hitTestMarker(x);
-    wrap.style.cursor = hit ? 'col-resize' : 'crosshair';
+    const y = waveformEventY(e);
+    const hit = hitTestMarker(x, y);
+    wrap.style.cursor = hit ? 'grab' : 'crosshair';
   }
 }
 
@@ -2780,8 +2838,9 @@ function handleWaveformClick(e) {
   const x = e.clientX - rect.left + wrap.scrollLeft;
   const totalW = scroll.getBoundingClientRect().width;
 
-  // Don't seek if clicking on a marker — drag handles that
-  const hit = hitTestMarker(x);
+  // Don't seek if clicking on a marker/flag — drag handles that
+  const y = e.clientY - rect.top;
+  const hit = hitTestMarker(x, y);
   if (hit) return;
 
   const pct = x / totalW;
@@ -3063,7 +3122,7 @@ async function handleDeleteAllBarMarkers() {
 /* ── Speed / Zoom / Part-Seek / Marker Edit ─────── */
 
 const SPEED_STEPS = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5];
-const ZOOM_STEPS = [1, 1.5, 2, 3, 4, 6, 8, 10];
+const ZOOM_STEPS = [1, 1.5, 2, 3, 4, 6, 8, 10, 14, 20];
 
 function handleSpeedChange(dir) {
   const curIdx = SPEED_STEPS.indexOf(playbackSpeed);

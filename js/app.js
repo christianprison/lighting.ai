@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.11.9';
+const APP_VERSION = 'v0.12.0';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -3871,7 +3871,9 @@ function buildLyricsPartsList(parts, song, hasBuf) {
     const lyricsPreview = barLyrics.filter(l => l).slice(0, 2).join(' / ');
 
     // Can we play this part?
-    const canPlayRef = hasBuf && partMarkers.some(m => m.partIndex === i);
+    const hasPartMarker = partMarkers.some(m => m.partIndex === i);
+    const hasBpmTimes = (song.bpm || 0) > 0 && barCount > 0;
+    const canPlayRef = hasBuf && (hasPartMarker || hasBpmTimes);
     const canPlayBars = getAudioBarsForPart(part.id).length > 0;
     const canPlay = canPlayRef || canPlayBars;
     const isPlaying = _lyricsPlayingPart === part.id;
@@ -3925,10 +3927,32 @@ function buildLyricsPartBody(part, partIndex, barCount, barLyrics, hasBuf, absBa
     return '<div class="lyrics-part-bar-hint text-t3">Keine Takte definiert</div>';
   }
 
-  // Waveform canvas for this part (if audio is loaded and part markers exist)
+  // Waveform canvas for this part (if audio is loaded)
   const partMarker = partMarkers.find(m => m.partIndex === partIndex);
-  const partEnd = getPartEndTime(partIndex);
-  const showWave = hasBuf && partMarker && partEnd;
+  let waveStart = partMarker ? partMarker.time : null;
+  let waveEnd = getPartEndTime(partIndex);
+
+  // Fallback: compute from BPM + bar counts
+  if (hasBuf && (waveStart === null || waveEnd === null)) {
+    const song = db.songs[selectedSongId];
+    const parts = getSortedParts(selectedSongId);
+    if (song?.bpm > 0 && parts[partIndex]) {
+      const starts = calcPartStarts(selectedSongId);
+      const st = starts.get(parts[partIndex].id);
+      if (st) {
+        if (waveStart === null) waveStart = st.startSec;
+        if (waveEnd === null) {
+          if (partIndex + 1 < parts.length) {
+            const nextSt = starts.get(parts[partIndex + 1].id);
+            waveEnd = nextSt ? nextSt.startSec : (audioMeta?.duration || null);
+          } else {
+            waveEnd = audioMeta?.duration || null;
+          }
+        }
+      }
+    }
+  }
+  const showWave = hasBuf && waveStart !== null && waveEnd !== null && waveEnd > waveStart;
 
   // Uniform cell width: determined by the longest text in any bar of this part
   const PX_PER_CHAR = 7;
@@ -3945,7 +3969,7 @@ function buildLyricsPartBody(part, partIndex, barCount, barLyrics, hasBuf, absBa
 
   if (showWave) {
     html += `<div class="lyrics-wave-wrap" data-lyrics-wave-part="${partIndex}">
-      <canvas class="lyrics-wave-canvas" data-lyrics-wave-idx="${partIndex}" data-wave-start="${partMarker.time}" data-wave-end="${partEnd}"></canvas>
+      <canvas class="lyrics-wave-canvas" data-lyrics-wave-idx="${partIndex}" data-wave-start="${waveStart}" data-wave-end="${waveEnd}"></canvas>
     </div>`;
   }
 
@@ -4312,8 +4336,27 @@ async function handleLyricsPartPlay(partId, partIndex) {
 
   // Try reference audio segment first
   const hasBuf = !!audio.getBuffer();
-  const startTime = getPartStartTime(partIndex);
-  const endTime = getPartEndTime(partIndex);
+  let startTime = getPartStartTime(partIndex);
+  let endTime = getPartEndTime(partIndex);
+
+  // Fallback: compute start/end from BPM + bar counts if no split markers exist
+  if (hasBuf && (startTime === null || endTime === null) && song?.bpm > 0) {
+    const parts = getSortedParts(selectedSongId);
+    const starts = calcPartStarts(selectedSongId);
+    const partData = parts[partIndex];
+    if (partData) {
+      const st = starts.get(partData.id);
+      if (st) {
+        startTime = st.startSec;
+        if (partIndex + 1 < parts.length) {
+          const nextSt = starts.get(parts[partIndex + 1].id);
+          endTime = nextSt ? nextSt.startSec : audioMeta?.duration || null;
+        } else {
+          endTime = audioMeta?.duration || null;
+        }
+      }
+    }
+  }
 
   if (hasBuf && startTime !== null && endTime !== null) {
     audio.playSegments([{ startTime, endTime }], () => {

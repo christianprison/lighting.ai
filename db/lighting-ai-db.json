@@ -773,7 +773,8 @@
           "duration_sec": 12,
           "light_template": "generic_bpm",
           "notes": "",
-          "start_bar": 1
+          "start_bar": 1,
+          "instrumental": true
         },
         "tdyEcs_P002": {
           "pos": 2,
@@ -813,7 +814,8 @@
           "bars": 1,
           "duration_sec": 0,
           "light_template": "generic_bpm",
-          "notes": ""
+          "notes": "",
+          "instrumental": true
         },
         "tdyEcs_P007": {
           "pos": 7,
@@ -853,7 +855,8 @@
           "bars": 1,
           "duration_sec": 0,
           "light_template": "generic_bpm",
-          "notes": ""
+          "notes": "",
+          "instrumental": true
         },
         "tdyEcs_P012": {
           "pos": 12,
@@ -893,7 +896,8 @@
           "bars": 1,
           "duration_sec": 0,
           "light_template": "generic_bpm",
-          "notes": ""
+          "notes": "",
+          "instrumental": true
         },
         "tdyEcs_P017": {
           "pos": 17,

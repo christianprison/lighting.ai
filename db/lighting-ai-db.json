@@ -776,7 +776,7 @@
         },
         "tdyEcs_P002": {
           "pos": 2,
-          "name": "Part 2",
+          "name": "Verse 1",
           "bars": 1,
           "duration_sec": 0,
           "light_template": "generic_bpm",
@@ -941,7 +941,7 @@
             "partId": "tdyEcs_P002"
           },
           {
-            "time": 27.504000000000005,
+            "time": 25.467188014981275,
             "partIndex": 2,
             "partId": "tdyEcs_P003"
           },
@@ -1043,7 +1043,7 @@
             "partId": "tdyEcs_P002"
           },
           {
-            "time": 27.504000000000005,
+            "time": 25.467188014981275,
             "partIndex": 2,
             "partId": "tdyEcs_P003"
           },

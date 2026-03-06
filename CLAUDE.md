@@ -217,14 +217,14 @@ Position: 1   2   3   4   5   6   7   8   9   10  11  12  13  14  15  16
 Zählweise: 1   e   +   e   2   e   +   e   3   e   +   e   4   e   +   e
 ```
 
-### Light Templates
+### Light Templates (= QLC+ Szenen-Gruppen aus live/ui/config.html)
 
 ```
-intro_buildup, intro_hit, verse_minimal, verse_driving, verse_dark,
-prechorus_rise, chorus_half, chorus_full, chorus_anthem,
-bridge_atmospheric, bridge_breakdown, solo_spotlight, solo_intense,
-breakdown_minimal, buildup_8bars, drop_impact,
-outro_fadeout, outro_cut, ballad_warm, generic_bpm
+00 blackout, 01 statisch bunt, 02 slow blue, 03 walking,
+04 up'n'down, 05 left'n'right, 06 blinking, 07 round'n'round,
+08 swimming, 09 Alarm, 10 Alarm 🔔🔔, 10 Strobe, 11 Stop,
+12 slow red, 16 Searchlight, 20 white Fan up, 21 white fan down,
+22 blind
 ```
 
 ### Aufgaben Phase 1 (DB-Pflege-App)

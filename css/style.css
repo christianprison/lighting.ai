@@ -1375,7 +1375,8 @@ label {
   width: 80px;
   height: 22px;
 }
-.ptt-wave { width: 130px; }
+.ptt-wave { width: 160px; }
+.ptt-wave .mini-waveform { width: 150px; height: 32px; }
 .ttt-wave { width: 90px; }
 
 .waveform-wrap canvas {

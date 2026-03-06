@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.10.1';
+const APP_VERSION = 'v0.10.2';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -427,7 +427,7 @@ const SONG_CHECKLIST = [
   { id: 'parts_named',  label: 'Alle Parts benannt',     cat: 'struktur', tab: 'parts',
     check: (s, parts) => parts.length > 0 && parts.every(p => p.name && p.name !== 'New Part') },
   { id: 'bars_set',     label: 'Takte pro Part gesetzt', cat: 'struktur', tab: 'parts',
-    check: (s, parts) => parts.length > 0 && parts.every(p => (p.bars || 0) > 0) },
+    check: (s, parts) => parts.length > 0 && parts.every(p => p.bars != null) },
 
   // ── Audio ──
   { id: 'audio_ref',    label: 'Referenz-Audio geladen', cat: 'audio', tab: 'audio',

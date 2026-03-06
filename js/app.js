@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.11.4';
+const APP_VERSION = 'v0.11.5';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -6845,11 +6845,18 @@ function wireEvents() {
     else if (activeTab === 'setlist') handleSetlistChange(e);
   });
   // Parts tab: clear placeholder names ("Part 1", "New Part") on focus
+  // + scroll focused input into view after iOS keyboard opens
   els.content.addEventListener('focus', (e) => {
     if (activeTab === 'parts' && e.target.matches('[data-ptf="name"]')) {
       if (/^(Part \d+|New Part)$/i.test(e.target.value.trim())) {
         e.target.value = '';
       }
+    }
+    // iOS keyboard scroll fix: after keyboard animates open, ensure field is visible
+    if (e.target.matches('input, textarea, select')) {
+      setTimeout(() => {
+        e.target.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      }, 350); // wait for iOS keyboard animation
     }
   }, true); // useCapture so focus (non-bubbling) is caught via delegation
 

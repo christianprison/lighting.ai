@@ -942,7 +942,7 @@
             "partId": "tdyEcs_P002"
           },
           {
-            "time": 27.504000000000005,
+            "time": 24.804973782771537,
             "partIndex": 2,
             "partId": "tdyEcs_P003"
           },
@@ -1044,7 +1044,7 @@
             "partId": "tdyEcs_P002"
           },
           {
-            "time": 27.504000000000005,
+            "time": 24.804973782771537,
             "partIndex": 2,
             "partId": "tdyEcs_P003"
           },
@@ -43526,28 +43526,28 @@
       "part_id": "tdyEcs_P017",
       "bar_num": 1,
       "lyrics": "",
-      "audio": "audio/Along comes Mary/17 Part 17/017 Along comes Mary Part 17.mp3",
+      "audio": "audio/Along comes Mary/17 Chorus 5/017 Along comes Mary Chorus 5.mp3",
       "has_accents": false
     },
     "B4769": {
       "part_id": "tdyEcs_P018",
       "bar_num": 1,
       "lyrics": "",
-      "audio": "audio/Along comes Mary/18 Part 18/018 Along comes Mary Part 18.mp3",
+      "audio": "audio/Along comes Mary/18 Chorus 6/018 Along comes Mary Chorus 6.mp3",
       "has_accents": false
     },
     "B4770": {
       "part_id": "tdyEcs_P019",
       "bar_num": 1,
       "lyrics": "",
-      "audio": "audio/Along comes Mary/19 Part 19/019 Along comes Mary Part 19.mp3",
+      "audio": "audio/Along comes Mary/19 Chorus 7/019 Along comes Mary Chorus 7.mp3",
       "has_accents": false
     },
     "B4771": {
       "part_id": "tdyEcs_P020",
       "bar_num": 1,
       "lyrics": "",
-      "audio": "audio/Along comes Mary/20 Part 20/020 Along comes Mary Part 20.mp3",
+      "audio": "audio/Along comes Mary/20 Punch/020 Along comes Mary Punch.mp3",
       "has_accents": false
     }
   },

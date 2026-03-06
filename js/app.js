@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.11.2';
+const APP_VERSION = 'v0.11.3';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -371,6 +371,19 @@ function getAccentsForBar(barId) {
     .filter(([, a]) => a.bar_id === barId)
     .map(([id, a]) => ({ id, ...a }))
     .sort((a, b) => a.pos_16th - b.pos_16th);
+}
+
+/** Collect unique part names from all songs for datalist suggestions. */
+function getPartNameSuggestions() {
+  const names = new Set();
+  if (!db.songs) return [];
+  for (const song of Object.values(db.songs)) {
+    if (!song.parts) continue;
+    for (const part of Object.values(song.parts)) {
+      if (part.name) names.add(part.name);
+    }
+  }
+  return [...names].sort((a, b) => a.localeCompare(b, 'de'));
 }
 
 function getOrCreateBar(partId, barNum) {
@@ -848,7 +861,7 @@ function renderSongFields() {
       </div>
       <div>
         <label>Jahr</label>
-        <input type="text" value="${esc(song.year || '')}" data-song-field="year">
+        <input type="text" value="${esc(song.year || '')}" data-song-field="year" inputmode="numeric">
       </div>
       <div>
         <label>Dauer</label>
@@ -5447,16 +5460,16 @@ function buildPartsTabTable(parts, filterSong) {
             <td class="ptt-pos mono text-t3">${showSongCol ? idx + 1 : p.pos}</td>
             <td class="ptt-play">${canPlay ? `<button class="btn-part-play${isPlaying ? ' playing' : ''}" data-action="play-part" data-part-id="${p.partId}" title="${isPlaying ? 'Stop' : 'Part abspielen'}">${isPlaying ? '&#9632;' : '&#9654;'}</button>` : ''}</td>
             ${showSongCol ? `<td class="ptt-song"><span class="ptt-song-name">${esc(p.songName)}</span></td>` : ''}
-            <td class="ptt-name"><input type="text" value="${esc(p.name)}" data-ptf="name" class="part-input"></td>
+            <td class="ptt-name"><input type="text" value="${esc(p.name)}" data-ptf="name" class="part-input" list="dl-part-names" autocomplete="off"></td>
             ${hasBuf ? `<td class="ptt-wave">${waveCanvas}</td>` : ''}
             <td class="ptt-start">
               <div class="start-cell">
-                <input type="number" value="${st.startBar}" data-ptf="start_bar" class="part-input-num mono" min="0" step="1" title="Takt-Offset ab Songstart">
+                <input type="number" value="${st.startBar}" data-ptf="start_bar" class="part-input-num mono" min="0" step="1" inputmode="numeric" title="Takt-Offset ab Songstart">
                 <span class="start-time mono text-t3">${fmtDur(Math.round(st.startSec))}</span>
               </div>
             </td>
-            <td class="ptt-bars"><input type="number" value="${p.bars || 0}" data-ptf="bars" class="part-input-num mono" min="0" step="1"></td>
-            <td class="ptt-dur"><input type="number" value="${dur}" data-ptf="duration_sec" class="part-input-num mono" min="0" step="1" title="Dauer in Sekunden"></td>
+            <td class="ptt-bars"><input type="number" value="${p.bars || 0}" data-ptf="bars" class="part-input-num mono" min="0" step="1" inputmode="numeric"></td>
+            <td class="ptt-dur"><input type="number" value="${dur}" data-ptf="duration_sec" class="part-input-num mono" min="0" step="1" inputmode="numeric" title="Dauer in Sekunden"></td>
             <td class="ptt-tmpl">
               <select data-ptf="light_template" class="part-select">
                 <option value="">\u2014</option>
@@ -5468,7 +5481,10 @@ function buildPartsTabTable(parts, filterSong) {
           </tr>`;
         }).join('')}
       </tbody>
-    </table>`;
+    </table>
+    <datalist id="dl-part-names">
+      ${getPartNameSuggestions().map(n => `<option value="${esc(n)}">`).join('')}
+    </datalist>`;
 }
 
 function renderPartsTabBarSection() {

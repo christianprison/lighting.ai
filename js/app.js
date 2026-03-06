@@ -426,10 +426,21 @@ const SONG_CHECKLIST = [
   // ── Songstruktur ──
   { id: 'has_parts',    label: 'Parts angelegt (min. 1)', cat: 'struktur', tab: 'parts',
     check: (s, parts) => parts.length > 0 },
-  { id: 'parts_named',  label: 'Alle Parts benannt',     cat: 'struktur', tab: 'parts',
-    check: (s, parts) => parts.length > 0 && parts.every(p => p.name && p.name !== 'New Part') },
   { id: 'bars_set',     label: 'Takte pro Part gesetzt', cat: 'struktur', tab: 'parts',
     check: (s, parts) => parts.length > 0 && parts.every(p => p.bars != null) },
+  { id: 'parts_renamed', label: 'Parts benennen',        cat: 'struktur', tab: 'parts',
+    check: (s, parts) => parts.length > 0 && parts.every(p => p.name && p.name !== 'New Part' && !p.name.match(/^Part \d+$/)) },
+  { id: 'instr_set',    label: 'Instrumental-Parts identifizieren', cat: 'struktur', tab: 'parts',
+    check: (s, parts) => {
+      if (parts.length === 0) return false;
+      // At least one part must have instrumental explicitly set (true or false via checkbox interaction)
+      // Heuristic: typical songs have instrumental parts (Intro, Solo, Outro) —
+      // consider done if any part is marked instrumental, OR all parts have lyrics-relevant names
+      const instrNames = /^(intro|outro|solo|instrumental|interlude|bridge|breakdown)/i;
+      const candidateParts = parts.filter(p => instrNames.test(p.name));
+      if (candidateParts.length === 0) return true; // no obvious instrumental parts → OK
+      return candidateParts.some(p => p.instrumental === true);
+    }},
 
   // ── Audio ──
   { id: 'audio_ref',    label: 'Referenz-Audio geladen', cat: 'audio', tab: 'audio',

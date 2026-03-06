@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.10.11';
+const APP_VERSION = 'v0.10.12';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -5590,7 +5590,12 @@ function handlePartsTabChange(e) {
     } else if (field === 'notes') {
       part.notes = el.value;
     } else if (field === 'name') {
-      part.name = el.value;
+      // If user cleared the field (or left it empty), restore old name
+      if (!el.value.trim()) {
+        el.value = part.name;
+        return;
+      }
+      part.name = el.value.trim();
       if (partsTabSelectedPart && partsTabSelectedPart.partId === partId) {
         renderPartsTabBarSection();
       }
@@ -6409,6 +6414,15 @@ function wireEvents() {
     else if (activeTab === 'lyrics') handleLyricsChange(e);
     else if (activeTab === 'setlist') handleSetlistChange(e);
   });
+  // Parts tab: clear placeholder names ("Part 1", "New Part") on focus
+  els.content.addEventListener('focus', (e) => {
+    if (activeTab === 'parts' && e.target.matches('[data-ptf="name"]')) {
+      if (/^(Part \d+|New Part)$/i.test(e.target.value.trim())) {
+        e.target.value = '';
+      }
+    }
+  }, true); // useCapture so focus (non-bubbling) is caught via delegation
+
   // input events for lyrics raw textarea (change fires only on blur)
   els.content.addEventListener('input', (e) => {
     if (activeTab === 'lyrics' && e.target.id === 'lyrics-raw-text') {

@@ -5,7 +5,7 @@
  * waveform peak extraction, and audio segment export.
  */
 
-/* ── AudioContext (shared, lazy-init) ──────────────── */
+/* ── AudioContext (shared, eager-init on first gesture) ── */
 let ctx = null;
 
 function getContext() {
@@ -15,11 +15,35 @@ function getContext() {
 
 /**
  * Pre-warm the AudioContext so playback starts instantly.
- * Call on user interaction (tab switch, etc.) before actual play.
+ * Call on user interaction (tab switch, click, touch) before actual play.
+ * Also installs a global gesture listener to keep the context alive.
  */
 export function warmup() {
   const ac = getContext();
   if (ac.state === 'suspended') ac.resume();
+}
+
+// Auto-resume on any user gesture (critical for iOS/iPad)
+let _gestureListenerInstalled = false;
+export function installGestureListener() {
+  if (_gestureListenerInstalled) return;
+  _gestureListenerInstalled = true;
+  const resume = () => {
+    if (ctx && ctx.state === 'suspended') ctx.resume();
+  };
+  document.addEventListener('touchstart', resume, { passive: true });
+  document.addEventListener('mousedown', resume, { passive: true });
+}
+
+/**
+ * Get the estimated output latency in seconds.
+ * Used for tap compensation: subtract this from tap timestamps.
+ */
+export function getOutputLatency() {
+  if (!ctx) return 0;
+  // outputLatency: time from audio render to speaker (Safari/Chrome)
+  // baseLatency: time from buffer submit to audio render
+  return (ctx.outputLatency || 0) + (ctx.baseLatency || 0);
 }
 
 /* ── State ─────────────────────────────────────────── */
@@ -61,12 +85,16 @@ export function getBuffer() {
 
 /**
  * Start or resume playback from the current position.
+ * Synchronous when AudioContext is already running (which it should be
+ * after installGestureListener). Falls back to async resume if needed.
  * @param {Function} [onEnd] - called when playback reaches end
  */
-export async function play(onEnd) {
+export function play(onEnd) {
   if (!audioBuffer) return;
   const ac = getContext();
-  if (ac.state === 'suspended') await ac.resume();
+
+  // If suspended, resume (fire-and-forget — audio will start as soon as context resumes)
+  if (ac.state === 'suspended') ac.resume();
 
   stop(true); // stop previous source without resetting position
 

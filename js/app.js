@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.10.7';
+const APP_VERSION = 'v0.10.8';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -2460,6 +2460,71 @@ function updateSplitMarkersAfterReorder(song) {
  * Attach drag event listeners to the waveform wrap element.
  * Called after each renderAudioTab since innerHTML replaces the elements.
  */
+/* ── Pinch-to-Zoom state ──────────────────────────── */
+let _pinchActive = false;
+let _pinchStartDist = 0;
+let _pinchStartZoom = 1;
+
+function getTouchDist(t1, t2) {
+  const dx = t1.clientX - t2.clientX;
+  const dy = t1.clientY - t2.clientY;
+  return Math.sqrt(dx * dx + dy * dy);
+}
+
+function onPinchStart(e) {
+  if (e.touches.length !== 2) return;
+  _pinchActive = true;
+  _pinchStartDist = getTouchDist(e.touches[0], e.touches[1]);
+  _pinchStartZoom = waveformZoom;
+  e.preventDefault();
+}
+
+function onPinchMove(e) {
+  if (!_pinchActive || e.touches.length !== 2) return;
+  e.preventDefault();
+  const dist = getTouchDist(e.touches[0], e.touches[1]);
+  const scale = dist / _pinchStartDist;
+  const minZoom = ZOOM_STEPS[0];
+  const maxZoom = ZOOM_STEPS[ZOOM_STEPS.length - 1];
+  const newZoom = Math.max(minZoom, Math.min(maxZoom, _pinchStartZoom * scale));
+
+  // Snap to nearest step for rendering
+  let best = ZOOM_STEPS[0];
+  for (const s of ZOOM_STEPS) {
+    if (Math.abs(s - newZoom) < Math.abs(best - newZoom)) best = s;
+  }
+
+  if (best !== waveformZoom) {
+    const wrap = document.getElementById('waveform-wrap');
+    const oldZoom = waveformZoom;
+    waveformZoom = best;
+
+    // Preserve scroll center
+    if (wrap && oldZoom > 0) {
+      const viewCenter = wrap.scrollLeft + wrap.clientWidth / 2;
+      const oldWidth = wrap.clientWidth * oldZoom;
+      const ratio = oldWidth > 0 ? viewCenter / oldWidth : 0;
+      drawWaveform();
+      const newWidth = wrap.clientWidth * waveformZoom;
+      wrap.scrollLeft = ratio * newWidth - wrap.clientWidth / 2;
+    } else {
+      drawWaveform();
+    }
+
+    const label = document.getElementById('t-zoom-label');
+    if (label) label.textContent = '\uD83D\uDD0D ' + (waveformZoom === 1 ? '1\u00d7' : waveformZoom.toFixed(1) + '\u00d7');
+  }
+}
+
+function onPinchEnd(e) {
+  if (_pinchActive) {
+    _pinchActive = false;
+    // Suppress the next click/tap that fires after pinch
+    _dragSuppressClick = true;
+    setTimeout(() => { _dragSuppressClick = false; }, 300);
+  }
+}
+
 function initWaveformDrag() {
   const wrap = document.getElementById('waveform-wrap');
   if (!wrap) return;
@@ -2476,11 +2541,32 @@ function initWaveformDrag() {
   document.addEventListener('mousemove', onWaveformPointerMove);
   document.addEventListener('mouseup', onWaveformPointerUp);
 
-  // Touch events (iPad support)
-  wrap.addEventListener('touchstart', onWaveformPointerDown, { passive: false });
-  document.addEventListener('touchmove', onWaveformPointerMove, { passive: false });
-  document.addEventListener('touchend', onWaveformPointerUp);
-  document.addEventListener('touchcancel', cancelDrag);
+  // Touch events (iPad support): single-finger drag + two-finger pinch
+  wrap.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 2) {
+      onPinchStart(e);
+    } else if (e.touches.length === 1 && !_pinchActive) {
+      onWaveformPointerDown(e);
+    }
+  }, { passive: false });
+  document.addEventListener('touchmove', (e) => {
+    if (_pinchActive) {
+      onPinchMove(e);
+    } else {
+      onWaveformPointerMove(e);
+    }
+  }, { passive: false });
+  document.addEventListener('touchend', (e) => {
+    if (_pinchActive) {
+      onPinchEnd(e);
+    } else {
+      onWaveformPointerUp(e);
+    }
+  });
+  document.addEventListener('touchcancel', (e) => {
+    if (_pinchActive) onPinchEnd(e);
+    else cancelDrag(e);
+  });
 }
 
 /* ── Audio Split Event Handlers ────────────────────── */
@@ -2758,7 +2844,9 @@ function handlePartTap() {
     parts = getSortedParts(selectedSongId);
   }
 
-  const time = audio.getCurrentTime();
+  // Compensate for audio output latency: user taps when they hear the beat,
+  // but getCurrentTime() is ahead by the output latency
+  const time = Math.max(0, audio.getCurrentTime() - audio.getOutputLatency());
 
   // Add part marker
   partMarkers.push({ time, partIndex: currentPartIndex });
@@ -2787,7 +2875,8 @@ function handleBarTap() {
   if (!audio.isPlaying()) return;
   if (currentPartIndex === 0) return; // No part started yet
 
-  const time = audio.getCurrentTime();
+  // Compensate for audio output latency
+  const time = Math.max(0, audio.getCurrentTime() - audio.getOutputLatency());
 
   // Determine which part this bar belongs to based on playback time
   const activePartIdx = getPartIndexForTime(time);
@@ -5240,6 +5329,7 @@ function buildPartsTabTable(parts, filterSong) {
         <th class="ptt-bars">Takte</th>
         <th class="ptt-dur">Dauer</th>
         <th class="ptt-tmpl">Light Template</th>
+        <th class="ptt-instr" title="Instrumental">&#9835;</th>
         <th class="ptt-notes">Notizen</th>
       </tr></thead>
       <tbody>
@@ -5285,6 +5375,7 @@ function buildPartsTabTable(parts, filterSong) {
                 ${LIGHT_TEMPLATES.map(t => `<option value="${t}"${t === p.light_template ? ' selected' : ''}>${t}</option>`).join('')}
               </select>
             </td>
+            <td class="ptt-instr"><input type="checkbox" data-ptf="instrumental" class="instr-check" ${p.instrumental ? 'checked' : ''}></td>
             <td class="ptt-notes"><input type="text" value="${esc(p.notes || '')}" data-ptf="notes" class="part-input ptt-notes-input" placeholder="\u2014"></td>
           </tr>`;
         }).join('')}
@@ -5481,6 +5572,8 @@ function handlePartsTabChange(e) {
       }
     } else if (field === 'light_template') {
       part.light_template = el.value;
+    } else if (field === 'instrumental') {
+      part.instrumental = el.checked;
     } else if (field === 'notes') {
       part.notes = el.value;
     } else if (field === 'name') {
@@ -6367,6 +6460,7 @@ document.addEventListener('DOMContentLoaded', () => {
   cacheDom();
   wireEvents();
   restoreSidebar();
+  audio.installGestureListener();
   // Set version from JS constant (avoids merge conflicts in index.html)
   const verEl = document.getElementById('app-version');
   if (verEl) verEl.textContent = APP_VERSION;

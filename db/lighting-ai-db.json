@@ -865,7 +865,7 @@
         },
         "tdyEcs_P013": {
           "pos": 13,
-          "name": "Part 13",
+          "name": "Bridge A 3",
           "bars": 1,
           "duration_sec": 0,
           "light_template": "generic_bpm",
@@ -873,7 +873,7 @@
         },
         "tdyEcs_P014": {
           "pos": 14,
-          "name": "Part 14",
+          "name": "Bridge B 3",
           "bars": 1,
           "duration_sec": 0,
           "light_template": "generic_bpm",
@@ -881,7 +881,7 @@
         },
         "tdyEcs_P015": {
           "pos": 15,
-          "name": "Part 15",
+          "name": "Chorus 3",
           "bars": 1,
           "duration_sec": 0,
           "light_template": "generic_bpm",
@@ -889,7 +889,7 @@
         },
         "tdyEcs_P016": {
           "pos": 16,
-          "name": "Part 16",
+          "name": "Thema 4",
           "bars": 1,
           "duration_sec": 0,
           "light_template": "generic_bpm",

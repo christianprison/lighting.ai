@@ -897,7 +897,7 @@
         },
         "tdyEcs_P017": {
           "pos": 17,
-          "name": "Chorus 5",
+          "name": "Chorus 5 (stops)",
           "bars": 1,
           "duration_sec": 0,
           "light_template": "generic_bpm",
@@ -905,7 +905,7 @@
         },
         "tdyEcs_P018": {
           "pos": 18,
-          "name": "Chorus 6",
+          "name": "Chorus 6 (muted)",
           "bars": 1,
           "duration_sec": 0,
           "light_template": "generic_bpm",
@@ -913,7 +913,7 @@
         },
         "tdyEcs_P019": {
           "pos": 19,
-          "name": "Chorus 7",
+          "name": "Chorus 7 (power)",
           "bars": 1,
           "duration_sec": 0,
           "light_template": "generic_bpm",
@@ -921,7 +921,7 @@
         },
         "tdyEcs_P020": {
           "pos": 20,
-          "name": "Punch",
+          "name": "Punch (stop)",
           "bars": 1,
           "duration_sec": 0,
           "light_template": "generic_bpm",
@@ -1017,17 +1017,17 @@
             "partId": "tdyEcs_P017"
           },
           {
-            "time": 176.12,
+            "time": 174.0276554307116,
             "partIndex": 17,
             "partId": "tdyEcs_P018"
           },
           {
-            "time": 188.48533333333333,
+            "time": 186.36279850187265,
             "partIndex": 18,
             "partId": "tdyEcs_P019"
           },
           {
-            "time": 199.46420374531831,
+            "time": 197.37351310861422,
             "partIndex": 19,
             "partId": "tdyEcs_P020"
           }
@@ -1119,17 +1119,17 @@
             "partId": "tdyEcs_P017"
           },
           {
-            "time": 176.12,
+            "time": 174.0276554307116,
             "partIndex": 17,
             "partId": "tdyEcs_P018"
           },
           {
-            "time": 188.48533333333333,
+            "time": 186.36279850187265,
             "partIndex": 18,
             "partId": "tdyEcs_P019"
           },
           {
-            "time": 199.46420374531831,
+            "time": 197.37351310861422,
             "partIndex": 19,
             "partId": "tdyEcs_P020"
           }

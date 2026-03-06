@@ -118,7 +118,7 @@ h3 { font-size: 0.95rem; }
 .app-version {
   font-family: var(--font-mono);
   font-size: 0.6rem;
-  color: var(--t4);
+  color: var(--t3);
   margin-left: 10px;
   user-select: none;
 }

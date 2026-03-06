@@ -2654,18 +2654,74 @@ label {
   margin-top: 2px;
 }
 
+.progress-cats-mini {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.progress-cat-pip {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  color: var(--t3);
+}
+
+.progress-cat-pip.done {
+  border-color: rgba(0, 220, 130, 0.3);
+  color: var(--green);
+}
+
 .progress-checklist {
   border-top: 1px solid var(--border);
   padding: 8px 16px 12px;
+}
+
+.progress-category {
+  margin-bottom: 10px;
+}
+
+.progress-category:last-child {
+  margin-bottom: 0;
+}
+
+.progress-cat-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px 4px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--t2);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.progress-cat-icon {
+  font-size: 0.85rem;
+}
+
+.progress-cat-title { flex: 1; }
+
+.progress-cat-count {
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+.progress-cat-check {
+  font-size: 0.85rem;
 }
 
 .progress-step {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 6px 8px;
+  padding: 5px 8px 5px 28px;
   border-radius: var(--radius);
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   cursor: pointer;
   transition: background 0.15s;
 }
@@ -2676,16 +2732,16 @@ label {
 .progress-step.done .progress-label { color: var(--t3); text-decoration: line-through; }
 
 .progress-check {
-  width: 18px;
+  width: 16px;
   text-align: center;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: var(--t4);
 }
 
 .progress-label { flex: 1; }
 
 .progress-goto {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   font-family: var(--font-mono);
 }
 

@@ -9,6 +9,9 @@ import { loadDB, loadDBLocal, saveDB, testConnection, uploadFile, deleteFile, ge
 import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
+/* ── Version (single source of truth) ──────────────── */
+const APP_VERSION = 'v0.10.1';
+
 /* ── State ─────────────────────────────────────────── */
 let db = null;
 let dbSha = null;
@@ -390,75 +393,141 @@ function recalcSongDuration() {
 
 /* ── Song Progress Checklist ───────────────────────── */
 
+/**
+ * Detailed checklist grouped by category.
+ * Each step has: id, label, category, tab, check(song, parts, barIds, db)
+ */
+const PROGRESS_CATEGORIES = [
+  { id: 'stammdaten', label: 'Stammdaten', icon: '&#9998;' },
+  { id: 'struktur',   label: 'Songstruktur', icon: '&#9881;' },
+  { id: 'audio',      label: 'Audio', icon: '&#9835;' },
+  { id: 'lyrics',     label: 'Lyrics', icon: '&#9998;' },
+  { id: 'licht',      label: 'Licht', icon: '&#9728;' },
+  { id: 'live',       label: 'Live-Ready', icon: '&#9654;' },
+];
+
 const SONG_CHECKLIST = [
-  { id: 'song_created',   label: 'Song anlegen',           tab: 'editor' },
-  { id: 'parts_named',    label: 'Parts benennen',         tab: 'parts' },
-  { id: 'audio_loaded',   label: 'Audio laden',            tab: 'audio' },
-  { id: 'part_splitting', label: 'Part-Splitting',         tab: 'audio' },
-  { id: 'bar_splitting',  label: 'Bar-Splitting',          tab: 'audio' },
-  { id: 'lyrics_import',  label: 'Lyrics importieren',     tab: 'lyrics' },
-  { id: 'accents_set',    label: 'Accents setzen',         tab: 'accents' },
-  { id: 'templates_set',  label: 'Light-Templates zuweisen', tab: 'parts' },
-  { id: 'setlist_added',  label: 'In Setlist aufnehmen',   tab: 'setlist' },
+  // ── Stammdaten ──
+  { id: 'has_name',     label: 'Name gesetzt',          cat: 'stammdaten', tab: 'editor',
+    check: (s) => !!(s.name && s.name.trim()) },
+  { id: 'has_artist',   label: 'Artist gesetzt',        cat: 'stammdaten', tab: 'editor',
+    check: (s) => !!(s.artist && s.artist.trim()) },
+  { id: 'has_bpm',      label: 'BPM gesetzt',           cat: 'stammdaten', tab: 'editor',
+    check: (s) => !!(s.bpm && s.bpm > 0) },
+  { id: 'has_key',      label: 'Key gesetzt',           cat: 'stammdaten', tab: 'editor',
+    check: (s) => !!(s.key && s.key.trim()) },
+  { id: 'has_year',     label: 'Jahr gesetzt',          cat: 'stammdaten', tab: 'editor',
+    check: (s) => !!(s.year && s.year.trim()) },
+  { id: 'has_gema',     label: 'GEMA Nr. gesetzt',      cat: 'stammdaten', tab: 'editor',
+    check: (s) => !!(s.gema_nr && s.gema_nr.trim()) },
+
+  // ── Songstruktur ──
+  { id: 'has_parts',    label: 'Parts angelegt (min. 1)', cat: 'struktur', tab: 'parts',
+    check: (s, parts) => parts.length > 0 },
+  { id: 'parts_named',  label: 'Alle Parts benannt',     cat: 'struktur', tab: 'parts',
+    check: (s, parts) => parts.length > 0 && parts.every(p => p.name && p.name !== 'New Part') },
+  { id: 'bars_set',     label: 'Takte pro Part gesetzt', cat: 'struktur', tab: 'parts',
+    check: (s, parts) => parts.length > 0 && parts.every(p => (p.bars || 0) > 0) },
+
+  // ── Audio ──
+  { id: 'audio_ref',    label: 'Referenz-Audio geladen', cat: 'audio', tab: 'audio',
+    check: (s) => !!s.audio_ref },
+  { id: 'part_markers', label: 'Part-Marker gesetzt (alle Parts)', cat: 'audio', tab: 'audio',
+    check: (s, parts) => {
+      const pm = s.split_markers?.partMarkers;
+      return pm && pm.length >= parts.length && parts.length > 0;
+    }},
+  { id: 'bar_markers',  label: 'Bar-Marker gesetzt (min. 1/Part)', cat: 'audio', tab: 'audio',
+    check: (s, parts) => {
+      const bm = s.split_markers?.barMarkers;
+      if (!bm || bm.length === 0 || parts.length === 0) return false;
+      // Check each part has at least 1 bar marker
+      const partIdxWithBars = new Set(bm.map(m => m.partIndex));
+      return parts.every((_, i) => partIdxWithBars.has(i));
+    }},
+  { id: 'audio_exported', label: 'Audio-Segmente exportiert', cat: 'audio', tab: 'audio',
+    check: (s, parts, barIds, theDb) => {
+      if (parts.length === 0) return false;
+      // At least one bar has an audio path
+      return barIds.some(bId => theDb.bars[bId]?.audio);
+    }},
+
+  // ── Lyrics ──
+  { id: 'lyrics_raw',    label: 'Rohtext eingefuegt',     cat: 'lyrics', tab: 'lyrics',
+    check: (s) => !!(s.lyrics_raw && s.lyrics_raw.trim()) },
+  { id: 'lyrics_bars',   label: 'Lyrics auf Takte verteilt', cat: 'lyrics', tab: 'lyrics',
+    check: (s, parts, barIds, theDb) => {
+      // At least 30% of text-parts' bars should have lyrics
+      const textParts = parts.filter(p => !p.instrumental && (p.bars || 0) > 0);
+      if (textParts.length === 0) return true; // all instrumental = OK
+      let withLyrics = 0, total = 0;
+      for (const p of textParts) {
+        for (const bId of barIds) {
+          if (theDb.bars[bId]?.part_id === p.id) {
+            total++;
+            if (theDb.bars[bId].lyrics) withLyrics++;
+          }
+        }
+      }
+      return total > 0 && (withLyrics / total) >= 0.3;
+    }},
+  { id: 'lyrics_saved',  label: 'Lyrics in DB uebernommen', cat: 'lyrics', tab: 'lyrics',
+    check: (s, parts, barIds, theDb) => {
+      // Same as above but stricter: at least 1 bar has lyrics
+      return barIds.some(bId => theDb.bars[bId]?.lyrics);
+    }},
+
+  // ── Licht ──
+  { id: 'templates_all', label: 'Light-Template fuer alle Parts', cat: 'licht', tab: 'parts',
+    check: (s, parts) => parts.length > 0 && parts.every(p => p.light_template && p.light_template !== '') },
+  { id: 'accents_any',   label: 'Accents gesetzt (min. 1)', cat: 'licht', tab: 'accents',
+    check: (s, parts, barIds, theDb) => {
+      return barIds.some(bId => Object.values(theDb.accents).some(a => a.bar_id === bId));
+    }},
+
+  // ── Live-Ready ──
+  { id: 'in_setlist',    label: 'In Setlist aufgenommen', cat: 'live', tab: 'setlist',
+    check: (s, parts, barIds, theDb) => {
+      return theDb.setlist?.items?.some(i => i.type === 'song' && i.song_id === s._id);
+    }},
 ];
 
 /** Track previously completed steps per song to detect newly completed ones */
 let _prevProgress = {}; // songId → Set of completed step ids
 
 function getSongProgress(songId) {
-  if (!songId || !db?.songs[songId]) return { steps: [], pct: 0, next: null };
-  const song = db.songs[songId];
+  if (!songId || !db?.songs[songId]) return { steps: [], pct: 0, next: null, categories: [] };
+  const song = { ...db.songs[songId], _id: songId };
   const parts = getSortedParts(songId);
   ensureCollections();
 
-  const completed = new Set();
-
-  // 1. Song angelegt
-  completed.add('song_created');
-
-  // 2. Parts benannt (mindestens 1 Part mit nicht-Default-Name)
-  if (parts.length > 0 && parts.some(p => p.name && p.name !== 'New Part'))
-    completed.add('parts_named');
-
-  // 3. Audio geladen (audio_ref vorhanden)
-  if (song.audio_ref) completed.add('audio_loaded');
-
-  // 4. Part-Splitting (split_markers.partMarkers > 0)
-  if (song.split_markers?.partMarkers?.length > 0)
-    completed.add('part_splitting');
-
-  // 5. Bar-Splitting (split_markers.barMarkers > 0)
-  if (song.split_markers?.barMarkers?.length > 0)
-    completed.add('bar_splitting');
-
-  // 6. Lyrics importiert (mindestens 1 Bar hat Lyrics)
-  const songBarIds = [];
+  // Collect bar IDs for this song
+  const barIds = [];
   for (const p of parts) {
     for (const [bId, b] of Object.entries(db.bars)) {
-      if (b.part_id === p.id) songBarIds.push(bId);
+      if (b.part_id === p.id) barIds.push(bId);
     }
   }
-  if (songBarIds.some(bId => db.bars[bId]?.lyrics))
-    completed.add('lyrics_import');
 
-  // 7. Accents gesetzt (mindestens 1 Accent)
-  if (songBarIds.some(bId => Object.values(db.accents).some(a => a.bar_id === bId)))
-    completed.add('accents_set');
+  const completed = new Set();
+  const steps = SONG_CHECKLIST.map(s => {
+    const done = s.check(song, parts, barIds, db);
+    if (done) completed.add(s.id);
+    return { ...s, done };
+  });
 
-  // 8. Light-Templates zugewiesen (alle Parts haben Template != leer)
-  if (parts.length > 0 && parts.every(p => p.light_template && p.light_template !== ''))
-    completed.add('templates_set');
+  // Group by category
+  const categories = PROGRESS_CATEGORIES.map(cat => {
+    const catSteps = steps.filter(s => s.cat === cat.id);
+    const catDone = catSteps.filter(s => s.done).length;
+    return { ...cat, steps: catSteps, done: catDone, total: catSteps.length, allDone: catDone === catSteps.length };
+  });
 
-  // 9. In Setlist
-  if (db.setlist?.items?.some(i => i.type === 'song' && i.song_id === songId))
-    completed.add('setlist_added');
-
-  const steps = SONG_CHECKLIST.map(s => ({ ...s, done: completed.has(s.id) }));
   const doneCount = steps.filter(s => s.done).length;
   const pct = Math.round((doneCount / steps.length) * 100);
   const next = steps.find(s => !s.done) || null;
 
-  return { steps, pct, next, completed };
+  return { steps, pct, next, completed, categories };
 }
 
 /** Check for newly completed steps and fire confetti toast */
@@ -688,8 +757,11 @@ function renderProgressPanel() {
         <div class="progress-info">
           <div class="progress-title">${esc(song.name)}</div>
           ${prog.next
-            ? `<div class="progress-next">Nächster Schritt: <strong>${esc(prog.next.label)}</strong></div>`
+            ? `<div class="progress-next">Naechster Schritt: <strong>${esc(prog.next.label)}</strong></div>`
             : `<div class="progress-next text-green">Alle Schritte erledigt!</div>`}
+          <div class="progress-cats-mini">
+            ${prog.categories.map(c => `<span class="progress-cat-pip ${c.allDone ? 'done' : ''}" title="${c.label}: ${c.done}/${c.total}">${c.done}/${c.total}</span>`).join('')}
+          </div>
         </div>
         <button class="btn btn-sm" id="progress-toggle-btn" title="Checkliste anzeigen">${_progressExpanded ? '&#9650; Zuklappen' : '&#9660; Checkliste'}</button>
       </div>
@@ -700,11 +772,21 @@ function renderProgressPanel() {
 function buildProgressChecklist(prog) {
   return `
     <div class="progress-checklist">
-      ${prog.steps.map(s => `
-        <div class="progress-step ${s.done ? 'done' : ''}" data-progress-tab="${s.tab}">
-          <span class="progress-check">${s.done ? '&#10003;' : '&#9675;'}</span>
-          <span class="progress-label">${esc(s.label)}</span>
-          ${!s.done ? `<span class="progress-goto text-t3">&#8594; ${s.tab.toUpperCase()}</span>` : ''}
+      ${prog.categories.map(cat => `
+        <div class="progress-category">
+          <div class="progress-cat-header">
+            <span class="progress-cat-icon">${cat.icon}</span>
+            <span class="progress-cat-title">${esc(cat.label)}</span>
+            <span class="progress-cat-count mono ${cat.allDone ? 'text-green' : 'text-t3'}">${cat.done}/${cat.total}</span>
+            ${cat.allDone ? '<span class="progress-cat-check text-green">&#10003;</span>' : ''}
+          </div>
+          ${cat.steps.map(s => `
+            <div class="progress-step ${s.done ? 'done' : ''}" data-progress-tab="${s.tab}">
+              <span class="progress-check">${s.done ? '&#10003;' : '&#9675;'}</span>
+              <span class="progress-label">${esc(s.label)}</span>
+              ${!s.done ? `<span class="progress-goto text-t3">&#8594; ${s.tab.toUpperCase()}</span>` : ''}
+            </div>
+          `).join('')}
         </div>
       `).join('')}
     </div>`;
@@ -1273,8 +1355,7 @@ async function handlePartPlay(partId) {
   stopPartPlay();
 
   // Try reference audio segment first (if buffer loaded and part markers exist)
-  const hasBuf = !!audio.getBuffer();
-  if (hasBuf && selectedSongId) {
+  if (audio.getBuffer() && selectedSongId) {
     const parts = getSortedParts(selectedSongId);
     const partIdx = parts.findIndex(p => p.id === partId);
     if (partIdx >= 0) {
@@ -3847,7 +3928,7 @@ function distributeLyricsToparts() {
 let _lyricsAnimFrame = null;        // animation frame for lyrics playhead
 let _lyricsPlayPartIndex = null;    // partIndex currently playing
 
-function handleLyricsPartPlay(partId, partIndex) {
+async function handleLyricsPartPlay(partId, partIndex) {
   // Pause if currently playing this part
   if (_lyricsPlayingPart === partId) {
     pauseLyricsPartPlay();
@@ -3863,6 +3944,18 @@ function handleLyricsPartPlay(partId, partIndex) {
   // Stop any previous playback or paused state
   if (_lyricsPlayingPart) stopLyricsPartPlay();
   if (_lyricsPausedPart) clearLyricsPausedState();
+
+  // If reference audio exists but not yet loaded, auto-load it
+  const song = db.songs[selectedSongId];
+  if (!audio.getBuffer() && song?.audio_ref && _refLoadingFor !== selectedSongId) {
+    toast('Lade Referenz-Audio...', 'info', 2000);
+    _refLoadingFor = selectedSongId;
+    try {
+      await loadReferenceAudio();
+    } finally {
+      _refLoadingFor = null;
+    }
+  }
 
   _lyricsPlayingPart = partId;
   _lyricsPlayPartIndex = partIndex;
@@ -6158,6 +6251,9 @@ document.addEventListener('DOMContentLoaded', () => {
   cacheDom();
   wireEvents();
   restoreSidebar();
+  // Set version from JS constant (avoids merge conflicts in index.html)
+  const verEl = document.getElementById('app-version');
+  if (verEl) verEl.textContent = APP_VERSION;
   switchTab('editor');
   initDB();
   initViewportFix();

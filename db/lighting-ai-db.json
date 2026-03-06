@@ -931,12 +931,12 @@
       "split_markers": {
         "partMarkers": [
           {
-            "time": 2.7546666666666653,
+            "time": 0.5836464419475655,
             "partIndex": 0,
             "partId": "tdyEcs_P001"
           },
           {
-            "time": 15.135999999999996,
+            "time": 13.334076404494382,
             "partIndex": 1,
             "partId": "tdyEcs_P002"
           },
@@ -1033,12 +1033,12 @@
         ],
         "barMarkers": [
           {
-            "time": 2.7546666666666653,
+            "time": 0.5836464419475655,
             "partIndex": 0,
             "partId": "tdyEcs_P001"
           },
           {
-            "time": 15.135999999999996,
+            "time": 13.334076404494382,
             "partIndex": 1,
             "partId": "tdyEcs_P002"
           },

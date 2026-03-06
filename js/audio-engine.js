@@ -214,6 +214,55 @@ export function getPeaksRange(startSec, endSec, buckets) {
 }
 
 /**
+ * Find the nearest energy peak (transient onset) near a given time.
+ * Searches within a window of ±windowMs milliseconds.
+ * Uses an onset detection approach: finds the sample position with
+ * the highest energy increase (derivative of RMS).
+ * @param {number} timeSec - center time in seconds
+ * @param {number} [windowMs=100] - search window in ms
+ * @returns {number} snapped time in seconds
+ */
+export function findPeakNear(timeSec, windowMs = 100) {
+  if (!audioBuffer) return timeSec;
+  const sr = audioBuffer.sampleRate;
+  const chan = audioBuffer.getChannelData(0);
+  const windowSamples = Math.floor((windowMs / 1000) * sr);
+  const center = Math.floor(timeSec * sr);
+  const start = Math.max(0, center - windowSamples);
+  const end = Math.min(chan.length, center + windowSamples);
+
+  // Compute short-term energy in small frames (2ms ~= 88 samples at 44100)
+  const frameSize = Math.max(1, Math.floor(sr * 0.002));
+  let bestEnergy = -Infinity;
+  let bestSample = center;
+
+  for (let i = start; i < end - frameSize; i += Math.floor(frameSize / 2)) {
+    // Current frame energy
+    let energy = 0;
+    for (let j = 0; j < frameSize; j++) {
+      const s = chan[i + j];
+      energy += s * s;
+    }
+    // Previous frame energy (for onset detection)
+    let prevEnergy = 0;
+    if (i >= frameSize) {
+      for (let j = 0; j < frameSize; j++) {
+        const s = chan[i - frameSize + j];
+        prevEnergy += s * s;
+      }
+    }
+    // Onset strength = energy increase
+    const onset = energy - prevEnergy;
+    if (onset > bestEnergy) {
+      bestEnergy = onset;
+      bestSample = i;
+    }
+  }
+
+  return bestSample / sr;
+}
+
+/**
  * Export a segment of the audio buffer as MP3 (Base64 string).
  * Uses lamejs for client-side MP3 encoding.
  * @param {number} startTime - start in seconds

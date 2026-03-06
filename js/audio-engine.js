@@ -89,17 +89,14 @@ export function getBuffer() {
 
 /**
  * Start or resume playback from the current position.
- * Awaits AudioContext resume if needed so playhead and audio are in sync.
+ * Fully synchronous — never awaits, never hangs.
+ * If AudioContext is suspended, starts source immediately (queued) and
+ * corrects startedAt via statechange listener once context actually runs.
  * @param {Function} [onEnd] - called when playback reaches end
- * @returns {Promise<void>}
  */
-export async function play(onEnd) {
+export function play(onEnd) {
   if (!audioBuffer) return;
   const ac = getContext();
-
-  // MUST await resume — otherwise sourceNode.start() queues into a suspended
-  // context and audio lags behind the playhead by the resume delay
-  if (ac.state === 'suspended') await ac.resume();
 
   stop(true); // stop previous source without resetting position
 
@@ -118,8 +115,24 @@ export async function play(onEnd) {
 
   const offset = pausedAt;
   sourceNode.start(0, offset);
-  startedAt = ac.currentTime - offset / _playbackRate;
   playing = true;
+
+  if (ac.state === 'running') {
+    // Context already running — set timing immediately
+    startedAt = ac.currentTime - offset / _playbackRate;
+  } else {
+    // Context suspended — resume it (fire-and-forget, called from gesture stack)
+    // Correct startedAt once context actually starts running
+    startedAt = 0;
+    const onRunning = () => {
+      if (playing) {
+        startedAt = ac.currentTime - offset / _playbackRate;
+      }
+      ac.removeEventListener('statechange', onRunning);
+    };
+    ac.addEventListener('statechange', onRunning);
+    ac.resume(); // don't await — this is called from click/touch handler
+  }
 }
 
 /**

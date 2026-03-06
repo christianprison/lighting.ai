@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.10.9';
+const APP_VERSION = 'v0.10.10';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -2775,16 +2775,16 @@ function handleWaveformClick(e) {
   updateTransportDisplay();
 }
 
-async function handlePlayPause() {
+function handlePlayPause() {
   if (!audio.getBuffer()) return;
   if (audio.isPlaying()) {
     audio.pause();
     stopPlayheadAnimation();
     updateTapButtonStates();
   } else {
-    // Await play() so AudioContext is fully resumed before starting animation
-    // This prevents playhead running ahead of actual audio output
-    await audio.play(() => {
+    // play() is synchronous — starts source immediately.
+    // If AudioContext was suspended, audio + playhead sync via statechange listener.
+    audio.play(() => {
       stopPlayheadAnimation();
       updateTapButtonStates();
       updatePlayButton();

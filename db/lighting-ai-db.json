@@ -897,7 +897,7 @@
         },
         "tdyEcs_P017": {
           "pos": 17,
-          "name": "Part 17",
+          "name": "Chorus 5",
           "bars": 1,
           "duration_sec": 0,
           "light_template": "generic_bpm",
@@ -905,7 +905,7 @@
         },
         "tdyEcs_P018": {
           "pos": 18,
-          "name": "Part 18",
+          "name": "Chorus 6",
           "bars": 1,
           "duration_sec": 0,
           "light_template": "generic_bpm",
@@ -913,7 +913,7 @@
         },
         "tdyEcs_P019": {
           "pos": 19,
-          "name": "Part 19",
+          "name": "Chorus 7",
           "bars": 1,
           "duration_sec": 0,
           "light_template": "generic_bpm",
@@ -921,7 +921,7 @@
         },
         "tdyEcs_P020": {
           "pos": 20,
-          "name": "Part 20",
+          "name": "Punch",
           "bars": 1,
           "duration_sec": 0,
           "light_template": "generic_bpm",

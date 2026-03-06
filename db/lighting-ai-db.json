@@ -43435,143 +43435,17 @@
       "has_accents": false
     },
     "B4752": {
-      "part_id": "tdyEcs_P001",
-      "bar_num": 1,
-      "lyrics": "",
-      "audio": "audio/Along comes Mary/01 Theme 1/001 Along comes Mary Theme 1.mp3",
-      "has_accents": false
-    },
-    "B4753": {
-      "part_id": "tdyEcs_P002",
-      "bar_num": 1,
-      "lyrics": "",
-      "audio": "audio/Along comes Mary/02 Verse 1/002 Along comes Mary Verse 1.mp3",
-      "has_accents": false
-    },
-    "B4754": {
-      "part_id": "tdyEcs_P003",
-      "bar_num": 1,
-      "lyrics": "",
-      "audio": "audio/Along comes Mary/03 Bridge A 1/003 Along comes Mary Bridge A 1.mp3",
-      "has_accents": false
-    },
-    "B4755": {
-      "part_id": "tdyEcs_P004",
-      "bar_num": 1,
-      "lyrics": "",
-      "audio": "audio/Along comes Mary/04 Bridge B 1/004 Along comes Mary Bridge B 1.mp3",
-      "has_accents": false
-    },
-    "B4756": {
-      "part_id": "tdyEcs_P005",
-      "bar_num": 1,
-      "lyrics": "",
-      "audio": "audio/Along comes Mary/05 Chorus 1/005 Along comes Mary Chorus 1.mp3",
-      "has_accents": false
-    },
-    "B4757": {
-      "part_id": "tdyEcs_P006",
-      "bar_num": 1,
-      "lyrics": "",
-      "audio": "audio/Along comes Mary/06 Theme 2/006 Along comes Mary Theme 2.mp3",
-      "has_accents": false
-    },
-    "B4758": {
       "part_id": "tdyEcs_P007",
       "bar_num": 1,
       "lyrics": "",
-      "audio": "audio/Along comes Mary/07 Verse 2/007 Along comes Mary Verse 2.mp3",
+      "audio": "audio/Along comes Mary/07 Verse 2/011 Along comes Mary Verse 2.mp3",
       "has_accents": false
     },
-    "B4759": {
+    "B4753": {
       "part_id": "tdyEcs_P008",
       "bar_num": 1,
       "lyrics": "",
-      "audio": "audio/Along comes Mary/08 Bridge A 2/008 Along comes Mary Bridge A 2.mp3",
-      "has_accents": false
-    },
-    "B4760": {
-      "part_id": "tdyEcs_P009",
-      "bar_num": 1,
-      "lyrics": "",
-      "audio": "audio/Along comes Mary/09 Bridge B 2/009 Along comes Mary Bridge B 2.mp3",
-      "has_accents": false
-    },
-    "B4761": {
-      "part_id": "tdyEcs_P010",
-      "bar_num": 1,
-      "lyrics": "",
-      "audio": "audio/Along comes Mary/10 Chorus 2/010 Along comes Mary Chorus 2.mp3",
-      "has_accents": false
-    },
-    "B4762": {
-      "part_id": "tdyEcs_P011",
-      "bar_num": 1,
-      "lyrics": "",
-      "audio": "audio/Along comes Mary/11 Thema 3/011 Along comes Mary Thema 3.mp3",
-      "has_accents": false
-    },
-    "B4763": {
-      "part_id": "tdyEcs_P012",
-      "bar_num": 1,
-      "lyrics": "",
-      "audio": "audio/Along comes Mary/12 Verse 3/012 Along comes Mary Verse 3.mp3",
-      "has_accents": false
-    },
-    "B4764": {
-      "part_id": "tdyEcs_P013",
-      "bar_num": 1,
-      "lyrics": "",
-      "audio": "audio/Along comes Mary/13 Bridge A 3/013 Along comes Mary Bridge A 3.mp3",
-      "has_accents": false
-    },
-    "B4765": {
-      "part_id": "tdyEcs_P014",
-      "bar_num": 1,
-      "lyrics": "",
-      "audio": "audio/Along comes Mary/14 Bridge B 3/014 Along comes Mary Bridge B 3.mp3",
-      "has_accents": false
-    },
-    "B4766": {
-      "part_id": "tdyEcs_P015",
-      "bar_num": 1,
-      "lyrics": "",
-      "audio": "audio/Along comes Mary/15 Chorus 3/015 Along comes Mary Chorus 3.mp3",
-      "has_accents": false
-    },
-    "B4767": {
-      "part_id": "tdyEcs_P016",
-      "bar_num": 1,
-      "lyrics": "",
-      "audio": "audio/Along comes Mary/16 Thema 4/016 Along comes Mary Thema 4.mp3",
-      "has_accents": false
-    },
-    "B4768": {
-      "part_id": "tdyEcs_P017",
-      "bar_num": 1,
-      "lyrics": "",
-      "audio": "audio/Along comes Mary/17 Chorus 5 (stops)/017 Along comes Mary Chorus 5 (stops).mp3",
-      "has_accents": false
-    },
-    "B4769": {
-      "part_id": "tdyEcs_P018",
-      "bar_num": 1,
-      "lyrics": "",
-      "audio": "audio/Along comes Mary/18 Chorus 6 (muted)/018 Along comes Mary Chorus 6 (muted).mp3",
-      "has_accents": false
-    },
-    "B4770": {
-      "part_id": "tdyEcs_P019",
-      "bar_num": 1,
-      "lyrics": "",
-      "audio": "audio/Along comes Mary/19 Chorus 7 (power)/019 Along comes Mary Chorus 7 (power).mp3",
-      "has_accents": false
-    },
-    "B4771": {
-      "part_id": "tdyEcs_P020",
-      "bar_num": 1,
-      "lyrics": "",
-      "audio": "audio/Along comes Mary/20 Punch (stop)/020 Along comes Mary Punch (stop).mp3",
+      "audio": "audio/Along comes Mary/08 Bridge A 2/012 Along comes Mary Bridge A 2.mp3",
       "has_accents": false
     }
   },

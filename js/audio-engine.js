@@ -89,15 +89,31 @@ export function getBuffer() {
 
 /**
  * Start or resume playback from the current position.
- * Fully synchronous — never awaits, never hangs.
- * If AudioContext is suspended, starts source immediately (queued) and
- * corrects startedAt via statechange listener once context actually runs.
+ * Safari silently discards sourceNode.start() on a suspended context,
+ * so we MUST wait for resume before creating the source node.
+ * Uses .then() instead of await to avoid breaking the gesture chain.
  * @param {Function} [onEnd] - called when playback reaches end
  */
 export function play(onEnd) {
   if (!audioBuffer) return;
   const ac = getContext();
+  const offset = pausedAt;
+  onEndCallback = onEnd || null;
+  playing = true;
 
+  if (ac.state === 'running') {
+    _startSource(ac, offset);
+  } else {
+    // Resume called synchronously in gesture handler — Safari requires this.
+    // Then start source once context is actually running.
+    ac.resume().then(() => {
+      if (playing) _startSource(ac, offset);
+    });
+  }
+}
+
+/** @private Create and start the buffer source node. Context MUST be running. */
+function _startSource(ac, offset) {
   stop(true); // stop previous source without resetting position
 
   sourceNode = ac.createBufferSource();
@@ -111,28 +127,9 @@ export function play(onEnd) {
       if (onEndCallback) onEndCallback();
     }
   };
-  onEndCallback = onEnd || null;
 
-  const offset = pausedAt;
   sourceNode.start(0, offset);
-  playing = true;
-
-  if (ac.state === 'running') {
-    // Context already running — set timing immediately
-    startedAt = ac.currentTime - offset / _playbackRate;
-  } else {
-    // Context suspended — resume it (fire-and-forget, called from gesture stack)
-    // Correct startedAt once context actually starts running
-    startedAt = 0;
-    const onRunning = () => {
-      if (playing) {
-        startedAt = ac.currentTime - offset / _playbackRate;
-      }
-      ac.removeEventListener('statechange', onRunning);
-    };
-    ac.addEventListener('statechange', onRunning);
-    ac.resume(); // don't await — this is called from click/touch handler
-  }
+  startedAt = ac.currentTime - offset / _playbackRate;
 }
 
 /**
@@ -140,8 +137,11 @@ export function play(onEnd) {
  */
 export function pause() {
   if (!playing) return;
-  const ac = getContext();
-  pausedAt = (ac.currentTime - startedAt) * _playbackRate;
+  if (sourceNode) {
+    const ac = getContext();
+    pausedAt = (ac.currentTime - startedAt) * _playbackRate;
+  }
+  // If sourceNode is null, context was still resuming — pausedAt is already correct
   stop(true);
   playing = false;
 }
@@ -186,6 +186,8 @@ export function seek(time) {
 export function getCurrentTime() {
   if (!audioBuffer) return 0;
   if (playing) {
+    // If source hasn't started yet (context still resuming), show paused position
+    if (!sourceNode) return pausedAt;
     const ac = getContext();
     const t = (ac.currentTime - startedAt) * _playbackRate;
     return Math.min(t, audioBuffer.duration);

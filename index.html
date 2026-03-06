@@ -5,6 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>lighting.ai — THE PACT</title>
   <link rel="stylesheet" href="css/style.css">
+  <script>
+    // DEBUG: Error overlay for iOS (no dev tools)
+    (function() {
+      var errors = [];
+      function show() {
+        var d = document.getElementById('__err');
+        if (!d) {
+          d = document.createElement('div');
+          d.id = '__err';
+          d.style.cssText = 'position:fixed;bottom:0;left:0;right:0;max-height:50vh;overflow:auto;background:#1a0000;color:#ff4444;font:12px/1.4 monospace;padding:12px;z-index:99999;border-top:2px solid #ff0000;white-space:pre-wrap;word-break:break-all;';
+          d.addEventListener('click', function() { d.remove(); });
+          document.body.appendChild(d);
+        }
+        d.textContent = errors.join('\n\n');
+      }
+      window.onerror = function(msg, src, line, col, err) {
+        errors.push('[ERROR] ' + msg + '\n  at ' + src + ':' + line + ':' + col + (err && err.stack ? '\n' + err.stack : ''));
+        show();
+      };
+      window.addEventListener('unhandledrejection', function(e) {
+        errors.push('[PROMISE] ' + (e.reason && e.reason.stack || e.reason || 'unknown'));
+        show();
+      });
+    })();
+  </script>
 </head>
 <body>
 

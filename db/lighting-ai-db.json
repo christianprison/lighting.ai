@@ -65,7 +65,7 @@
         "5iZfKj_P003": {
           "pos": 3,
           "name": "Bridge 1",
-          "bars": 4,
+          "bars": 0,
           "duration_sec": 6,
           "light_template": "prechorus_rise",
           "qlc_scene": "02 slow blue",
@@ -76,7 +76,7 @@
         "5iZfKj_P004": {
           "pos": 4,
           "name": "Chorus 1 (nanana)",
-          "bars": 8,
+          "bars": 0,
           "duration_sec": 12,
           "light_template": "chorus_full",
           "qlc_scene": "10 Strobe",
@@ -87,7 +87,7 @@
         "5iZfKj_P005": {
           "pos": 5,
           "name": "Thema 2",
-          "bars": 8,
+          "bars": 0,
           "duration_sec": 6,
           "light_template": "intro_buildup",
           "qlc_scene": "09 Alarm",
@@ -99,7 +99,7 @@
         "5iZfKj_P006": {
           "pos": 6,
           "name": "Verse 2",
-          "bars": 8,
+          "bars": 0,
           "duration_sec": 12,
           "light_template": "verse_driving",
           "qlc_scene": "08 swimming ‍",
@@ -110,7 +110,7 @@
         "5iZfKj_P007": {
           "pos": 7,
           "name": "Bridge 2",
-          "bars": 4,
+          "bars": 0,
           "duration_sec": 6,
           "light_template": "prechorus_rise",
           "qlc_scene": "02 slow blue",
@@ -121,7 +121,7 @@
         "5iZfKj_P008": {
           "pos": 8,
           "name": "Chorus 2 (nanana)",
-          "bars": 8,
+          "bars": 0,
           "duration_sec": 12,
           "light_template": "chorus_full",
           "qlc_scene": "10 Strobe",
@@ -132,7 +132,7 @@
         "5iZfKj_P009": {
           "pos": 9,
           "name": "Stop",
-          "bars": 8,
+          "bars": 0,
           "duration_sec": 12,
           "light_template": "generic_bpm",
           "qlc_scene": "Spot auf Tim",
@@ -144,7 +144,7 @@
         "5iZfKj_P010": {
           "pos": 10,
           "name": "Crescendo",
-          "bars": 8,
+          "bars": 0,
           "duration_sec": 12,
           "light_template": "generic_bpm",
           "qlc_scene": "Spot auf Tim  hot",
@@ -156,7 +156,7 @@
         "5iZfKj_P011": {
           "pos": 11,
           "name": "Bridge 3 (schnell)",
-          "bars": 8,
+          "bars": 0,
           "duration_sec": 12,
           "light_template": "prechorus_rise",
           "qlc_scene": "09 Alarm",
@@ -167,7 +167,7 @@
         "5iZfKj_P012": {
           "pos": 12,
           "name": "Chorus 3 (nanana)",
-          "bars": 9,
+          "bars": 0,
           "duration_sec": 13,
           "light_template": "chorus_full",
           "qlc_scene": "10 Strobe",
@@ -178,7 +178,7 @@
         "5iZfKj_P013": {
           "pos": 13,
           "name": "Ausklang",
-          "bars": 1,
+          "bars": 0,
           "duration_sec": 0,
           "light_template": "generic_bpm",
           "qlc_scene": "01 statisch bunt",
@@ -10766,28 +10766,28 @@
       "part_id": "5iZfKj_P002",
       "bar_num": 13,
       "lyrics": "Watching,",
-      "audio": "",
+      "audio": "audio/All The Small Things/02 Verse 1/021 All The Small Things Verse 1.mp3",
       "has_accents": false
     },
     "B0080": {
       "part_id": "5iZfKj_P002",
       "bar_num": 14,
       "lyrics": "waiting,",
-      "audio": "",
+      "audio": "audio/All The Small Things/02 Verse 1/022 All The Small Things Verse 1.mp3",
       "has_accents": false
     },
     "B0081": {
       "part_id": "5iZfKj_P002",
       "bar_num": 15,
       "lyrics": "commi-",
-      "audio": "",
+      "audio": "audio/All The Small Things/02 Verse 1/023 All The Small Things Verse 1.mp3",
       "has_accents": false
     },
     "B0082": {
       "part_id": "5iZfKj_P002",
       "bar_num": 16,
       "lyrics": "serating",
-      "audio": "",
+      "audio": "audio/All The Small Things/02 Verse 1/024 All The Small Things Verse 1.mp3",
       "has_accents": false
     },
     "B0083": {

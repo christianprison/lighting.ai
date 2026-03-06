@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.10.10';
+const APP_VERSION = 'v0.11.2';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -136,6 +136,22 @@ function cacheDom() {
     confirmMsg:    document.getElementById('confirm-message'),
     confirmOk:     document.getElementById('confirm-ok'),
     confirmCancel: document.getElementById('confirm-cancel'),
+    pwModal:       document.getElementById('part-wave-modal'),
+    pwCanvas:      document.getElementById('pw-canvas'),
+    pwTitle:       document.getElementById('pw-title'),
+    pwClose:       document.getElementById('pw-close'),
+    pwPlay:        document.getElementById('pw-play'),
+    pwSave:        document.getElementById('pw-save'),
+    pwCancel:      document.getElementById('pw-cancel'),
+    pwTimeStart:   document.getElementById('pw-time-start'),
+    pwTimeEnd:     document.getElementById('pw-time-end'),
+    pwTimeDur:     document.getElementById('pw-time-dur'),
+    pwPlayhead:    document.getElementById('pw-playhead'),
+    pwHandleStart: document.getElementById('pw-handle-start'),
+    pwHandleEnd:   document.getElementById('pw-handle-end'),
+    pwDimLeft:     document.getElementById('pw-dim-left'),
+    pwDimRight:    document.getElementById('pw-dim-right'),
+    pwWrap:        document.querySelector('.pw-waveform-wrap'),
   };
 }
 
@@ -1953,11 +1969,11 @@ function drawWaveform() {
     ctx.fillRect(i * barW, mid - barH / 2, Math.max(barW - 0.5, 1), barH || 1);
   }
 
-  // Bar markers (cyan lines — highlight when dragging, with absolute bar number)
+  // Bar markers (cyan lines with flag labels as drag handles)
   for (let bi = 0; bi < barMarkers.length; bi++) {
     const m = barMarkers[bi];
     const x = (m.time / duration) * w;
-    const absBarNum = bi + 1; // absolute bar number from song start
+    const absBarNum = bi + 1;
     const isDragTarget = _isDragging && _dragMarker && _dragMarker.type === 'bar' && _dragMarker.index === bi;
     ctx.strokeStyle = isDragTarget ? 'rgba(56, 189, 248, 0.9)' : 'rgba(56, 189, 248, 0.4)';
     ctx.lineWidth = isDragTarget ? 2 : 1;
@@ -1965,12 +1981,22 @@ function drawWaveform() {
     ctx.moveTo(x, 0);
     ctx.lineTo(x, h);
     ctx.stroke();
-    // Bar number label (skip if a part marker sits at same position — part label takes priority)
+    // Flag label (skip if a part marker sits at same position — part flag takes priority)
     const isPartStart = partMarkers.some(pm => Math.abs(pm.time - m.time) < 0.01);
     if (!isPartStart) {
+      const label = String(absBarNum);
       ctx.font = '9px "DM Mono", monospace';
-      ctx.fillStyle = isDragTarget ? 'rgba(56, 189, 248, 0.95)' : 'rgba(56, 189, 248, 0.6)';
-      ctx.fillText(String(absBarNum), x + 3, 10);
+      const tw = ctx.measureText(label).width;
+      const flagW = tw + 6;
+      const flagH = 14;
+      const flagX = x;
+      const flagY = h - flagH; // bottom of waveform
+      // Flag background
+      ctx.fillStyle = isDragTarget ? 'rgba(56, 189, 248, 1.0)' : 'rgba(56, 189, 248, 0.7)';
+      ctx.fillRect(flagX, flagY, flagW, flagH);
+      // Flag text (black on cyan)
+      ctx.fillStyle = '#08090d';
+      ctx.fillText(label, flagX + 3, flagY + 10);
     }
     if (isDragTarget) {
       ctx.font = '10px "DM Mono", monospace';
@@ -2017,7 +2043,7 @@ function drawWaveform() {
     ctx.setLineDash([]);
   }
 
-  // Part markers (amber) with part name + absolute bar number
+  // Part markers (amber) with flag labels as drag handles
   for (let pi2 = 0; pi2 < partMarkers.length; pi2++) {
     const m = partMarkers[pi2];
     const x = (m.time / duration) * w;
@@ -2029,27 +2055,34 @@ function drawWaveform() {
     ctx.lineTo(x, h);
     ctx.stroke();
 
-    // Part name label (top)
+    // Part name flag (top — black text on amber background)
     const partName = m.partIndex < parts.length ? parts[m.partIndex].name : '';
     if (partName) {
-      ctx.font = '10px Sora, sans-serif';
-      ctx.fillStyle = 'rgba(240, 160, 48, 0.9)';
-      const labelX = Math.min(x + 4, w - ctx.measureText(partName).width - 4);
-      ctx.fillText(partName, labelX, 12);
+      ctx.font = 'bold 10px Sora, sans-serif';
+      const tw = ctx.measureText(partName).width;
+      const flagW = tw + 8;
+      const flagH = 16;
+      const flagX = x;
+      const flagY = 0;
+      // Flag background
+      ctx.fillStyle = isDragTarget ? 'rgba(240, 160, 48, 1.0)' : 'rgba(240, 160, 48, 0.9)';
+      ctx.fillRect(flagX, flagY, flagW, flagH);
+      // Flag text (black on amber)
+      ctx.fillStyle = '#08090d';
+      ctx.fillText(partName, flagX + 4, flagY + 12);
     }
 
-    // Absolute bar number above bottom (or time during drag)
-    // Use barMarkers (tapped) if available, fallback to DB-based count
+    // Absolute bar number or time during drag (bottom area, no flag)
     const firstBarIdx = barMarkers.findIndex(b => b.partIndex === m.partIndex);
     const startBar = firstBarIdx >= 0 ? firstBarIdx + 1 : partStartBar[m.partIndex];
     if (isDragTarget) {
       ctx.font = '11px "DM Mono", monospace';
       ctx.fillStyle = 'rgba(240, 160, 48, 1.0)';
-      ctx.fillText(fmtTime(m.time), x + 4, h - 14);
+      ctx.fillText(fmtTime(m.time), x + 4, h / 2);
     } else if (startBar !== undefined) {
-      ctx.font = '11px "DM Mono", monospace';
-      ctx.fillStyle = 'rgba(240, 160, 48, 0.85)';
-      ctx.fillText(String(startBar), x + 4, h - 14);
+      ctx.font = '9px "DM Mono", monospace';
+      ctx.fillStyle = 'rgba(240, 160, 48, 0.7)';
+      ctx.fillText(String(startBar), x + 3, h - 4);
     }
   }
 
@@ -2168,32 +2201,62 @@ const DRAG_MOVE_PX = 3;    // min pixels before drag activates
  * Find the nearest marker to a given x pixel position on the waveform.
  * Returns { type: 'part'|'bar', index, marker, distPx } or null.
  */
-function hitTestMarker(xPx) {
+function hitTestMarker(xPx, yPx) {
   if (!audioMeta) return null;
   const scroll = document.getElementById('waveform-scroll');
   if (!scroll) return null;
   const totalW = scroll.getBoundingClientRect().width;
   const duration = audioMeta.duration;
+  const canvas = document.getElementById('waveform-scroll');
+  const canvasH = canvas ? canvas.height : 100;
   if (duration <= 0 || totalW <= 0) return null;
 
   let best = null;
   let bestDist = DRAG_HIT_PX + 1;
 
-  // Check part markers
+  // Check part markers — flag area is wider hit target (top 16px)
+  const parts = getSortedParts(selectedSongId);
   for (let i = 0; i < partMarkers.length; i++) {
     const mx = (partMarkers[i].time / duration) * totalW;
     const dist = Math.abs(xPx - mx);
-    if (dist < bestDist) {
+    // If click is in flag area (top), use wider hit zone based on flag width
+    let inFlag = false;
+    if (yPx !== undefined && yPx <= 16) {
+      const partName = partMarkers[i].partIndex < parts.length ? parts[partMarkers[i].partIndex].name : '';
+      if (partName) {
+        // Approximate flag width: measure roughly 7px per char + 8px padding
+        const flagW = partName.length * 7 + 8;
+        if (xPx >= mx && xPx <= mx + flagW) inFlag = true;
+      }
+    }
+    if (inFlag) {
+      // Flag hit always wins for part markers
+      best = { type: 'part', index: i, marker: partMarkers[i], distPx: 0 };
+      bestDist = 0;
+    } else if (dist < bestDist) {
       bestDist = dist;
       best = { type: 'part', index: i, marker: partMarkers[i], distPx: dist };
     }
   }
 
-  // Check bar markers
+  // Check bar markers — flag area at bottom (14px height)
   for (let i = 0; i < barMarkers.length; i++) {
     const mx = (barMarkers[i].time / duration) * totalW;
     const dist = Math.abs(xPx - mx);
-    if (dist < bestDist) {
+    // If click is in flag area (bottom), use wider hit zone
+    let inFlag = false;
+    if (yPx !== undefined && yPx >= canvasH - 14) {
+      const isPartStart = partMarkers.some(pm => Math.abs(pm.time - barMarkers[i].time) < 0.01);
+      if (!isPartStart) {
+        const label = String(i + 1);
+        const flagW = label.length * 7 + 6;
+        if (xPx >= mx && xPx <= mx + flagW) inFlag = true;
+      }
+    }
+    if (inFlag && (!best || best.type !== 'part' || best.distPx > 0)) {
+      best = { type: 'bar', index: i, marker: barMarkers[i], distPx: 0 };
+      bestDist = 0;
+    } else if (dist < bestDist) {
       bestDist = dist;
       best = { type: 'bar', index: i, marker: barMarkers[i], distPx: dist };
     }
@@ -2213,6 +2276,15 @@ function waveformEventX(e) {
   return clientX - rect.left + wrap.scrollLeft;
 }
 
+/** Get Y position relative to the waveform canvas. */
+function waveformEventY(e) {
+  const wrap = document.getElementById('waveform-wrap');
+  if (!wrap) return 0;
+  const rect = wrap.getBoundingClientRect();
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  return clientY - rect.top;
+}
+
 function onWaveformPointerDown(e) {
   if (!audioMeta) return;
   // Only handle primary button (left click) or single touch
@@ -2220,7 +2292,8 @@ function onWaveformPointerDown(e) {
   if (e.touches && e.touches.length > 1) return; // Ignore multi-touch
 
   const x = waveformEventX(e);
-  const hit = hitTestMarker(x);
+  const y = waveformEventY(e);
+  const hit = hitTestMarker(x, y);
   if (!hit) return; // No marker hit → let click handler do seek
 
   // Start potential drag
@@ -2318,10 +2391,11 @@ function onWaveformPointerMove(e) {
       drawWaveform();
     }
   } else {
-    // Hover cursor: show col-resize when near a marker
+    // Hover cursor: show grab when near a marker/flag
     const x = waveformEventX(e);
-    const hit = hitTestMarker(x);
-    wrap.style.cursor = hit ? 'col-resize' : 'crosshair';
+    const y = waveformEventY(e);
+    const hit = hitTestMarker(x, y);
+    wrap.style.cursor = hit ? 'grab' : 'crosshair';
   }
 }
 
@@ -2764,8 +2838,9 @@ function handleWaveformClick(e) {
   const x = e.clientX - rect.left + wrap.scrollLeft;
   const totalW = scroll.getBoundingClientRect().width;
 
-  // Don't seek if clicking on a marker — drag handles that
-  const hit = hitTestMarker(x);
+  // Don't seek if clicking on a marker/flag — drag handles that
+  const y = e.clientY - rect.top;
+  const hit = hitTestMarker(x, y);
   if (hit) return;
 
   const pct = x / totalW;
@@ -3047,7 +3122,7 @@ async function handleDeleteAllBarMarkers() {
 /* ── Speed / Zoom / Part-Seek / Marker Edit ─────── */
 
 const SPEED_STEPS = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5];
-const ZOOM_STEPS = [1, 1.5, 2, 3, 4, 6, 8, 10];
+const ZOOM_STEPS = [1, 1.5, 2, 3, 4, 6, 8, 10, 14, 20];
 
 function handleSpeedChange(dir) {
   const curIdx = SPEED_STEPS.indexOf(playbackSpeed);
@@ -5481,6 +5556,16 @@ function handlePartsTabClick(e) {
     return;
   }
 
+  // Mini-waveform click → open Part Waveform Editor
+  const waveCanvas = el.closest('.mini-waveform');
+  if (waveCanvas) {
+    const row = waveCanvas.closest('.ptt-row');
+    if (row) {
+      openPartWaveEditor(row.dataset.songId, row.dataset.partId);
+      return;
+    }
+  }
+
   // Toolbar actions
   const actionBtn = el.closest('[data-pt-action]');
   if (actionBtn && !actionBtn.disabled) {
@@ -5590,7 +5675,12 @@ function handlePartsTabChange(e) {
     } else if (field === 'notes') {
       part.notes = el.value;
     } else if (field === 'name') {
-      part.name = el.value;
+      // If user cleared the field (or left it empty), restore old name
+      if (!el.value.trim()) {
+        el.value = part.name;
+        return;
+      }
+      part.name = el.value.trim();
       if (partsTabSelectedPart && partsTabSelectedPart.partId === partId) {
         renderPartsTabBarSection();
       }
@@ -5734,6 +5824,322 @@ function handlePartsTabAccentToggle(pos) {
   barData.has_accents = Object.values(db.accents).some(a => a.bar_id === barId);
   markDirty();
   renderPartsTabBarSection();
+}
+
+/* ══════════════════════════════════════════════════════
+   PART WAVEFORM EDITOR MODAL
+   ══════════════════════════════════════════════════════ */
+
+/** State for the Part Waveform Editor modal */
+let _pw = {
+  open: false,
+  songId: null,
+  partId: null,
+  partIndex: -1,
+  /** Full audio range visible in the modal (with context padding) */
+  viewStart: 0,
+  viewEnd: 0,
+  /** Current trim positions (editable) */
+  trimStart: 0,
+  trimEnd: 0,
+  /** Original trim positions (for cancel) */
+  origStart: 0,
+  origEnd: 0,
+  /** Playback animation frame id */
+  animFrame: null,
+  /** Is playing */
+  playing: false,
+};
+
+/**
+ * Open the Part Waveform Editor for a given part.
+ * @param {string} songId
+ * @param {string} partId
+ */
+function openPartWaveEditor(songId, partId) {
+  if (!audio.getBuffer()) return;
+  const parts = getSortedParts(songId);
+  const partIdx = parts.findIndex(p => p.id === partId);
+  if (partIdx < 0) return;
+
+  const startTime = getPartStartTime(partIdx);
+  const endTime = getPartEndTime(partIdx);
+  if (startTime === null || endTime === null) return;
+
+  const part = parts[partIdx];
+  const duration = audioMeta ? audioMeta.duration : audio.getBuffer().duration;
+
+  // Show ~2 seconds of context on each side, clamped to audio bounds
+  const pad = Math.min(2, (endTime - startTime) * 0.3);
+  _pw.songId = songId;
+  _pw.partId = partId;
+  _pw.partIndex = partIdx;
+  _pw.viewStart = Math.max(0, startTime - pad);
+  _pw.viewEnd = Math.min(duration, endTime + pad);
+  _pw.trimStart = startTime;
+  _pw.trimEnd = endTime;
+  _pw.origStart = startTime;
+  _pw.origEnd = endTime;
+  _pw.open = true;
+  _pw.playing = false;
+
+  els.pwTitle.textContent = `${part.name} — ${db.songs[songId]?.name || ''}`;
+  els.pwModal.classList.add('open');
+
+  // Draw after modal is visible (needs layout for canvas size)
+  requestAnimationFrame(() => {
+    _pwDrawWaveform();
+    _pwUpdateUI();
+  });
+}
+
+function closePartWaveEditor(save) {
+  _pwStopPlay();
+  _pw.open = false;
+  els.pwModal.classList.remove('open');
+
+  if (save && (_pw.trimStart !== _pw.origStart || _pw.trimEnd !== _pw.origEnd)) {
+    // Update the part marker
+    const marker = partMarkers.find(m => m.partIndex === _pw.partIndex);
+    if (marker) {
+      marker.time = _pw.trimStart;
+    }
+    // Update next part marker (= end of this part) if it exists
+    const nextMarker = partMarkers.find(m => m.partIndex === _pw.partIndex + 1);
+    if (nextMarker) {
+      nextMarker.time = _pw.trimEnd;
+    }
+    // Persist and re-render
+    saveMarkersToSong();
+    markDirty();
+    if (activeTab === 'parts') renderPartsTab();
+    else if (activeTab === 'audio') { drawWaveform(); }
+    toast('Part-Grenzen aktualisiert', 'success');
+  }
+}
+
+/** Draw the waveform on the modal canvas */
+function _pwDrawWaveform() {
+  const canvas = els.pwCanvas;
+  if (!canvas) return;
+  const wrap = els.pwWrap;
+  const w = wrap.clientWidth;
+  const h = wrap.clientHeight;
+  if (w <= 0 || h <= 0) return;
+
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, w, h);
+
+  const buckets = Math.floor(w);
+  const peaks = audio.getPeaksRange(_pw.viewStart, _pw.viewEnd, buckets);
+  const mid = h / 2;
+
+  // Midline
+  ctx.strokeStyle = 'rgba(92, 96, 128, 0.2)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(0, mid);
+  ctx.lineTo(w, mid);
+  ctx.stroke();
+
+  // Waveform bars
+  for (let i = 0; i < buckets; i++) {
+    const amp = peaks[i];
+    const barH = amp * (h * 0.85);
+    const opacity = 0.3 + amp * 0.7;
+    ctx.fillStyle = `rgba(0, 220, 130, ${opacity})`;
+    ctx.fillRect(i, mid - barH / 2, 1, barH || 1);
+  }
+}
+
+/** Convert time in seconds to X pixel position in the modal waveform */
+function _pwTimeToX(timeSec) {
+  const w = els.pwWrap.clientWidth;
+  const range = _pw.viewEnd - _pw.viewStart;
+  if (range <= 0) return 0;
+  return ((timeSec - _pw.viewStart) / range) * w;
+}
+
+/** Convert X pixel position to time in seconds */
+function _pwXToTime(x) {
+  const w = els.pwWrap.clientWidth;
+  const range = _pw.viewEnd - _pw.viewStart;
+  return _pw.viewStart + (x / w) * range;
+}
+
+/** Update handle positions, dimmed regions, and time labels */
+function _pwUpdateUI() {
+  const w = els.pwWrap.clientWidth;
+  const startX = _pwTimeToX(_pw.trimStart);
+  const endX = _pwTimeToX(_pw.trimEnd);
+
+  els.pwHandleStart.style.left = `${startX}px`;
+  els.pwHandleEnd.style.left = `${endX - 6}px`; // handle width offset
+
+  els.pwDimLeft.style.width = `${startX}px`;
+  els.pwDimRight.style.width = `${w - endX}px`;
+
+  els.pwTimeStart.textContent = fmtTime(_pw.trimStart);
+  els.pwTimeEnd.textContent = fmtTime(_pw.trimEnd);
+  els.pwTimeDur.textContent = fmtTime(_pw.trimEnd - _pw.trimStart);
+}
+
+/** Format seconds as M:SS.d */
+function fmtTime(sec) {
+  if (sec < 0) sec = 0;
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  return `${m}:${s < 10 ? '0' : ''}${s.toFixed(1)}`;
+}
+
+/* ── Part Wave Editor: Handle Drag ── */
+
+let _pwDrag = null; // { which: 'start'|'end', startX }
+
+function _pwStartDrag(which, e) {
+  e.preventDefault();
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  _pwDrag = { which, startX: clientX };
+
+  const onMove = (ev) => {
+    if (!_pwDrag) return;
+    const cx = ev.touches ? ev.touches[0].clientX : ev.clientX;
+    const rect = els.pwWrap.getBoundingClientRect();
+    const x = Math.max(0, Math.min(cx - rect.left, rect.width));
+    const time = _pwXToTime(x);
+
+    if (_pwDrag.which === 'start') {
+      _pw.trimStart = Math.max(_pw.viewStart, Math.min(time, _pw.trimEnd - 0.1));
+    } else {
+      _pw.trimEnd = Math.min(_pw.viewEnd, Math.max(time, _pw.trimStart + 0.1));
+    }
+    _pwUpdateUI();
+  };
+  const onEnd = () => {
+    _pwDrag = null;
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onEnd);
+    document.removeEventListener('touchmove', onMove);
+    document.removeEventListener('touchend', onEnd);
+  };
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onEnd);
+  document.addEventListener('touchmove', onMove, { passive: false });
+  document.addEventListener('touchend', onEnd);
+}
+
+/* ── Part Wave Editor: Playback ── */
+
+function _pwTogglePlay() {
+  if (_pw.playing) {
+    _pwStopPlay();
+  } else {
+    _pw.playing = true;
+    els.pwPlay.innerHTML = '&#9632; Stop';
+    els.pwPlayhead.style.display = 'block';
+    audio.playSegments([{ startTime: _pw.trimStart, endTime: _pw.trimEnd }], () => {
+      _pwStopPlay();
+    });
+    _pwAnimatePlayhead();
+  }
+}
+
+function _pwStopPlay() {
+  _pw.playing = false;
+  audio.stopSegments();
+  if (_pw.animFrame) {
+    cancelAnimationFrame(_pw.animFrame);
+    _pw.animFrame = null;
+  }
+  els.pwPlay.innerHTML = '&#9654; Play';
+  els.pwPlayhead.style.display = 'none';
+}
+
+function _pwAnimatePlayhead() {
+  if (!_pw.playing) return;
+  const t = audio.getSegmentCurrentTime();
+  if (t > 0) {
+    const x = _pwTimeToX(t);
+    els.pwPlayhead.style.left = `${x}px`;
+  }
+  _pw.animFrame = requestAnimationFrame(_pwAnimatePlayhead);
+}
+
+/* ── Part Wave Editor: Nudge ── */
+
+const PW_NUDGE_MS = 50;
+
+function _pwNudge(which, dir) {
+  const delta = (dir * PW_NUDGE_MS) / 1000;
+  if (which === 'start') {
+    _pw.trimStart = Math.max(_pw.viewStart, Math.min(_pw.trimStart + delta, _pw.trimEnd - 0.05));
+  } else {
+    _pw.trimEnd = Math.min(_pw.viewEnd, Math.max(_pw.trimEnd + delta, _pw.trimStart + 0.05));
+  }
+  _pwUpdateUI();
+}
+
+/* ── Part Wave Editor: Click on waveform to seek ── */
+
+function _pwWaveformClick(e) {
+  if (_pwDrag) return; // was a drag, not a click
+  const rect = els.pwWrap.getBoundingClientRect();
+  const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+  const time = _pwXToTime(x);
+
+  // If playing, seek to that position (restart segment from there)
+  if (_pw.playing) {
+    _pwStopPlay();
+    _pw.playing = true;
+    els.pwPlay.innerHTML = '&#9632; Stop';
+    els.pwPlayhead.style.display = 'block';
+    const seekTime = Math.max(_pw.trimStart, Math.min(time, _pw.trimEnd));
+    audio.playSegments([{ startTime: seekTime, endTime: _pw.trimEnd }], () => {
+      _pwStopPlay();
+    });
+    _pwAnimatePlayhead();
+  }
+}
+
+/* ── Part Wave Editor: Init Event Listeners ── */
+
+function initPartWaveEditor() {
+  // Handle drag
+  els.pwHandleStart.addEventListener('mousedown', (e) => _pwStartDrag('start', e));
+  els.pwHandleStart.addEventListener('touchstart', (e) => _pwStartDrag('start', e), { passive: false });
+  els.pwHandleEnd.addEventListener('mousedown', (e) => _pwStartDrag('end', e));
+  els.pwHandleEnd.addEventListener('touchstart', (e) => _pwStartDrag('end', e), { passive: false });
+
+  // Waveform click to seek
+  els.pwWrap.addEventListener('click', _pwWaveformClick);
+
+  // Play button
+  els.pwPlay.addEventListener('click', _pwTogglePlay);
+
+  // Nudge buttons
+  els.pwModal.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-pw]');
+    if (!btn) return;
+    const action = btn.dataset.pw;
+    if (action === 'nudge-start-left')  _pwNudge('start', -1);
+    if (action === 'nudge-start-right') _pwNudge('start', 1);
+    if (action === 'nudge-end-left')    _pwNudge('end', -1);
+    if (action === 'nudge-end-right')   _pwNudge('end', 1);
+  });
+
+  // Save / Cancel / Close
+  els.pwSave.addEventListener('click', () => closePartWaveEditor(true));
+  els.pwCancel.addEventListener('click', () => closePartWaveEditor(false));
+  els.pwClose.addEventListener('click', () => closePartWaveEditor(false));
+
+  // Background click closes
+  els.pwModal.addEventListener('click', (e) => {
+    if (e.target === els.pwModal) closePartWaveEditor(false);
+  });
 }
 
 /* ══════════════════════════════════════════════════════
@@ -6409,6 +6815,15 @@ function wireEvents() {
     else if (activeTab === 'lyrics') handleLyricsChange(e);
     else if (activeTab === 'setlist') handleSetlistChange(e);
   });
+  // Parts tab: clear placeholder names ("Part 1", "New Part") on focus
+  els.content.addEventListener('focus', (e) => {
+    if (activeTab === 'parts' && e.target.matches('[data-ptf="name"]')) {
+      if (/^(Part \d+|New Part)$/i.test(e.target.value.trim())) {
+        e.target.value = '';
+      }
+    }
+  }, true); // useCapture so focus (non-bubbling) is caught via delegation
+
   // input events for lyrics raw textarea (change fires only on blur)
   els.content.addEventListener('input', (e) => {
     if (activeTab === 'lyrics' && e.target.id === 'lyrics-raw-text') {
@@ -6472,6 +6887,7 @@ function wireEvents() {
 document.addEventListener('DOMContentLoaded', () => {
   cacheDom();
   wireEvents();
+  initPartWaveEditor();
   restoreSidebar();
   audio.installGestureListener();
   // Set version from JS constant (avoids merge conflicts in index.html)

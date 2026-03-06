@@ -64,7 +64,7 @@
 
     <div class="form-group">
       <label for="set-token">GitHub Token (PAT)</label>
-      <input type="password" id="set-token" placeholder="github_pat_...">
+      <input type="password" id="set-token" placeholder="github_pat_..." autocomplete="new-password" data-1p-ignore data-lpignore="true">
     </div>
 
     <div class="form-group">
@@ -269,7 +269,7 @@
         <div class="help-row"><span class="help-key">Play / Pause</span><span>Play-Button oder <kbd>Space</kbd></span></div>
         <div class="help-row"><span class="help-key">Seek</span><span>Klick auf Waveform oder Progress-Bar</span></div>
         <div class="help-row"><span class="help-key">Speed &minus;/+</span><span>Wiedergabegeschwindigkeit stufenweise aendern (0.25&times; bis 1.5&times;). Bei langsamerer Wiedergabe lassen sich Takte praeziser tappen.</span></div>
-        <div class="help-row"><span class="help-key">Zoom &minus;/+</span><span>Waveform-Darstellung strecken/stauchen. Bei hoeherem Zoom wird die Waveform breiter und scrollbar &mdash; Marker sind besser sichtbar.</span></div>
+        <div class="help-row"><span class="help-key">Zoom &minus;/+</span><span>Waveform-Darstellung strecken/stauchen (bis 20&times;). Bei hoeherem Zoom wird die Waveform breiter und scrollbar &mdash; Faehnchengriffe und Marker sind besser greifbar. Auch per Pinch-Geste (iPad).</span></div>
       </div>
 
       <h3>Tap-Buttons</h3>
@@ -281,7 +281,8 @@
 
       <h3>Marker bearbeiten</h3>
       <div class="help-table">
-        <div class="help-row"><span class="help-key">Drag &amp; Drop</span><span><strong>Part- und Bar-Marker</strong> koennen direkt auf der Waveform per Maus oder Touch verschoben werden. Den Cursor ueber einen Marker halten &mdash; er wechselt zu einem Resize-Cursor. Dann ziehen. Beim Verschieben eines Part-Markers wandert der erste Bar-Marker automatisch mit. Besonders nuetzlich bei hoeherer Zoomstufe (z.B. 6&times;).</span></div>
+        <div class="help-row"><span class="help-key">Faehnchengriff</span><span>Jeder Marker hat ein <strong>Faehnchengriff</strong>: <span class="text-amber">Part-Namen oben</span> (schwarz auf amber), <span class="text-cyan">Taktnummern unten</span> (schwarz auf cyan). Fasse das Faehnchengriff an und ziehe es, um den Marker zu verschieben. Funktioniert mit Maus und Touch (iPad).</span></div>
+        <div class="help-row"><span class="help-key">Linie ziehen</span><span>Alternativ kannst du auch die Marker-Linie selbst greifen (schmaler Bereich). Beim Verschieben eines Part-Markers wandert der erste Bar-Marker automatisch mit.</span></div>
         <div class="help-row"><span class="help-key">Part-Zeile klicken</span><span>Springt den Abspielcursor zum Startpunkt dieses Parts (in der Split-Ergebnis-Tabelle).</span></div>
         <div class="help-row"><span class="help-key text-red">&times; Button</span><span>Loescht einen gesetzten Part-Marker samt aller zugehoerigen Bar-Marker. Erscheint in der rechten Spalte der Split-Ergebnis-Tabelle.</span></div>
       </div>
@@ -290,7 +291,7 @@
       <p>Aus den Bar-Tap-Intervallen wird automatisch das BPM berechnet. Weicht es mehr als 3 vom Song-BPM ab, erscheint ein Banner zum Aktualisieren.</p>
 
       <h3>Waveform</h3>
-      <p>Klick auf die Waveform = Seek. <span class="text-amber">Amber-Linien</span> = Part-Marker, <span class="text-cyan">Cyan-Linien</span> = Bar-Marker, <span class="text-green">Gruene Linie</span> = Playhead. Marker werden beim Drag hervorgehoben und zeigen die aktuelle Zeitposition an. Bei gezoomter Ansicht scrollt die Waveform automatisch mit dem Playhead mit.</p>
+      <p>Klick auf die Waveform = Seek. <span class="text-amber">Amber-Faehnchengriffe (oben)</span> = Part-Marker mit Name, <span class="text-cyan">Cyan-Faehnchengriffe (unten)</span> = Bar-Marker mit Taktnummer, <span class="text-green">Gruene Linie</span> = Playhead. Marker zeigen beim Drag die aktuelle Zeitposition an. Zoom bis 20&times; moeglich fuer praezises Editing bei schnellen Songs.</p>
     </div>
 
     <!-- Lyrics -->
@@ -364,6 +365,45 @@
     <div class="modal-actions">
       <button class="btn" id="confirm-cancel">Abbrechen</button>
       <button class="btn btn-danger" id="confirm-ok">Ersetzen</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Part Waveform Editor Modal ─────────────────── -->
+<div class="modal-overlay" id="part-wave-modal">
+  <div class="modal part-wave-modal">
+    <div class="pw-header">
+      <h2 id="pw-title">Part bearbeiten</h2>
+      <button class="btn btn-sm" id="pw-close" title="Schliessen">&times;</button>
+    </div>
+    <div class="pw-waveform-wrap">
+      <canvas id="pw-canvas"></canvas>
+      <div class="pw-handle pw-handle-start" id="pw-handle-start"></div>
+      <div class="pw-handle pw-handle-end" id="pw-handle-end"></div>
+      <div class="pw-playhead" id="pw-playhead"></div>
+      <div class="pw-dim pw-dim-left" id="pw-dim-left"></div>
+      <div class="pw-dim pw-dim-right" id="pw-dim-right"></div>
+    </div>
+    <div class="pw-times">
+      <span class="pw-time-label">Start <span class="mono" id="pw-time-start">0:00.0</span></span>
+      <span class="pw-time-label">Ende <span class="mono" id="pw-time-end">0:00.0</span></span>
+      <span class="pw-time-label">Dauer <span class="mono" id="pw-time-dur">0:00.0</span></span>
+    </div>
+    <div class="pw-controls">
+      <div class="pw-nudge-group">
+        <button class="btn btn-sm" data-pw="nudge-start-left" title="Start -50ms">&larr; S</button>
+        <button class="btn btn-sm" data-pw="nudge-start-right" title="Start +50ms">S &rarr;</button>
+        <span class="pw-sep"></span>
+        <button class="btn btn-sm" data-pw="nudge-end-left" title="Ende -50ms">&larr; E</button>
+        <button class="btn btn-sm" data-pw="nudge-end-right" title="Ende +50ms">E &rarr;</button>
+      </div>
+      <div class="pw-play-group">
+        <button class="btn btn-sm btn-primary" id="pw-play" title="Play/Pause">&#9654; Play</button>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" id="pw-cancel">Abbrechen</button>
+      <button class="btn btn-primary" id="pw-save">Speichern</button>
     </div>
   </div>
 </div>

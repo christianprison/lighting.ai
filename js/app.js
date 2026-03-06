@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.10.4';
+const APP_VERSION = 'v0.10.5';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -1875,6 +1875,14 @@ function restoreMarkersFromSong() {
     });
     const lastBar = barMarkers[barMarkers.length - 1];
     currentBarInPart = barMarkers.filter(b => b.partIndex === lastBar.partIndex).length;
+
+    // Sync bars count from markers (split_markers is source of truth)
+    for (let i = 0; i < parts.length; i++) {
+      const count = barMarkers.filter(m => m.partIndex === i).length;
+      if (count > 0 && song.parts[parts[i].id] && song.parts[parts[i].id].bars !== count) {
+        song.parts[parts[i].id].bars = count;
+      }
+    }
   }
 }
 
@@ -2675,16 +2683,37 @@ function handlePlayPause() {
     audio.pause();
     stopPlayheadAnimation();
     updateTapButtonStates();
+    triggerAutoExport();
   } else {
     audio.play(() => {
       stopPlayheadAnimation();
       updateTapButtonStates();
       updatePlayButton();
+      triggerAutoExport();
     });
     startPlayheadAnimation();
     updateTapButtonStates();
   }
   updatePlayButton();
+}
+
+/**
+ * Trigger auto-export if conditions are met:
+ * - Song selected with audio loaded
+ * - All parts tapped
+ * - Bar markers exist
+ * - GitHub token available
+ * - No export already in progress
+ */
+function triggerAutoExport() {
+  if (!selectedSongId || !audioMeta || exportInProgress) return;
+  if (barMarkers.length === 0) return;
+  const parts = getSortedParts(selectedSongId);
+  if (currentPartIndex < parts.length) return;
+  const s = getSettings();
+  if (!s.token || !s.repo) return;
+  // Auto-export
+  handleAudioExport();
 }
 
 function handleSkipToStart() {

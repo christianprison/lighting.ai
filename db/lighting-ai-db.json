@@ -156,7 +156,7 @@
         "5iZfKj_P011": {
           "pos": 11,
           "name": "Bridge 3 (schnell)",
-          "bars": 8,
+          "bars": 7,
           "duration_sec": 12,
           "light_template": "prechorus_rise",
           "qlc_scene": "09 Alarm",
@@ -167,7 +167,7 @@
         "5iZfKj_P012": {
           "pos": 12,
           "name": "Chorus 3 (nanana)",
-          "bars": 9,
+          "bars": 10,
           "duration_sec": 13,
           "light_template": "chorus_full",
           "qlc_scene": "10 Strobe",
@@ -790,7 +790,7 @@
         "CC9FBm_P001": {
           "pos": 1,
           "name": "Intro (nur Axel)",
-          "bars": 0,
+          "bars": 5,
           "duration_sec": 6,
           "light_template": "intro_buildup",
           "qlc_scene": "Spot auf Axel",
@@ -802,7 +802,7 @@
         "CC9FBm_P002": {
           "pos": 2,
           "name": "Intro (alle)",
-          "bars": 0,
+          "bars": 8,
           "duration_sec": 11,
           "light_template": "intro_buildup",
           "qlc_scene": "09 Alarm",
@@ -814,7 +814,7 @@
         "CC9FBm_P003": {
           "pos": 3,
           "name": "Verse 1",
-          "bars": 0,
+          "bars": 12,
           "duration_sec": 17,
           "light_template": "verse_driving",
           "qlc_scene": "03 walking",
@@ -825,7 +825,7 @@
         "CC9FBm_P004": {
           "pos": 4,
           "name": "Chorus 1",
-          "bars": 0,
+          "bars": 8,
           "duration_sec": 12,
           "light_template": "chorus_full",
           "qlc_scene": "06 blinking",
@@ -836,7 +836,7 @@
         "CC9FBm_P005": {
           "pos": 5,
           "name": "Dudup 1",
-          "bars": 0,
+          "bars": 8,
           "duration_sec": 11,
           "light_template": "generic_bpm",
           "qlc_scene": "09 Alarm",
@@ -847,7 +847,7 @@
         "CC9FBm_P006": {
           "pos": 6,
           "name": "Verse 2",
-          "bars": 0,
+          "bars": 11,
           "duration_sec": 17,
           "light_template": "verse_driving",
           "qlc_scene": "03 walking",
@@ -858,7 +858,7 @@
         "CC9FBm_P007": {
           "pos": 7,
           "name": "Chorus 2",
-          "bars": 0,
+          "bars": 9,
           "duration_sec": 11,
           "light_template": "chorus_full",
           "qlc_scene": "06 blinking",
@@ -869,7 +869,7 @@
         "CC9FBm_P008": {
           "pos": 8,
           "name": "Dudup 2",
-          "bars": 0,
+          "bars": 8,
           "duration_sec": 11,
           "light_template": "generic_bpm",
           "qlc_scene": "09 Alarm",
@@ -880,7 +880,7 @@
         "CC9FBm_P009": {
           "pos": 9,
           "name": "Solo Axel",
-          "bars": 0,
+          "bars": 16,
           "duration_sec": 23,
           "light_template": "solo_spotlight",
           "qlc_scene": "Spot auf Axel",
@@ -892,7 +892,7 @@
         "CC9FBm_P010": {
           "pos": 10,
           "name": "Interlude 1",
-          "bars": 0,
+          "bars": 8,
           "duration_sec": 11,
           "light_template": "bridge_atmospheric",
           "qlc_scene": "06 blinking",
@@ -903,7 +903,7 @@
         "CC9FBm_P011": {
           "pos": 11,
           "name": "Interlude 2 (stop)",
-          "bars": 0,
+          "bars": 7,
           "duration_sec": 3,
           "light_template": "bridge_atmospheric",
           "qlc_scene": "01 statisch bunt",
@@ -914,7 +914,7 @@
         "CC9FBm_P012": {
           "pos": 12,
           "name": "\"eventually\"",
-          "bars": 0,
+          "bars": 1,
           "duration_sec": 2,
           "light_template": "generic_bpm",
           "qlc_scene": "10 Strobe",
@@ -925,7 +925,7 @@
         "CC9FBm_P013": {
           "pos": 13,
           "name": "Dudup 3",
-          "bars": 0,
+          "bars": 8,
           "duration_sec": 11,
           "light_template": "generic_bpm",
           "qlc_scene": "09 Alarm",
@@ -936,7 +936,7 @@
         "CC9FBm_P014": {
           "pos": 14,
           "name": "Dudup 4",
-          "bars": 0,
+          "bars": 8,
           "duration_sec": 11,
           "light_template": "generic_bpm",
           "qlc_scene": "10 Strobe",

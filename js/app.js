@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.10.6';
+const APP_VERSION = 'v0.10.7';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -2684,34 +2684,16 @@ function handlePlayPause() {
     audio.pause();
     stopPlayheadAnimation();
     updateTapButtonStates();
-    triggerAutoExport();
   } else {
     audio.play(() => {
       stopPlayheadAnimation();
       updateTapButtonStates();
       updatePlayButton();
-      triggerAutoExport();
     });
     startPlayheadAnimation();
     updateTapButtonStates();
   }
   updatePlayButton();
-}
-
-/**
- * Trigger auto-export if conditions are met:
- * - Song selected with audio loaded
- * - All parts tapped
- * - Bar markers exist
- * - GitHub token available
- * - No export already in progress
- */
-function triggerAutoExport() {
-  if (!selectedSongId || !audioMeta || exportInProgress) return;
-  if (partMarkers.length === 0 || barMarkers.length === 0) return;
-  const s = getSettings();
-  if (!s.token || !s.repo) return;
-  handleAudioExport();
 }
 
 function handleSkipToStart() {
@@ -3154,14 +3136,11 @@ async function handleAudioExport() {
   if (partMarkers.length === 0) return;
 
   exportInProgress = true;
-  renderAudioTab();
-
-  const fillEl = () => document.getElementById('export-fill');
-  const textEl = () => document.getElementById('export-text');
 
   // Count total bars across all parts
   const totalBars = barMarkers.length;
   let done = 0;
+  toast(`Audio-Export: 0/${totalBars} Takte...`, 'info');
 
   ensureCollections();
 
@@ -3192,7 +3171,6 @@ async function handleAudioExport() {
           // Delete orphaned audio file from GitHub
           if (oldBar.audio) {
             try {
-              if (textEl()) textEl().textContent = `L\u00f6sche alten Bar ${oldBar.bar_num}...`;
               await deleteFile(s.repo, oldBar.audio, s.token,
                 `Cleanup: ${part.name} Bar ${oldBar.bar_num} (${songName})`);
             } catch { /* ok if file doesn't exist */ }
@@ -3211,8 +3189,6 @@ async function handleAudioExport() {
         const barNum = b + 1;
         const globalBarNum = globalBarOffset + barNum;
 
-        if (textEl()) textEl().textContent = `Exportiere ${part.name} Bar ${barNum}... (${done + 1}/${totalBars})`;
-
         const base64mp3 = await audio.exportSegmentMp3(barStart, barEnd);
         const path = buildBarAudioPath(song, part, barNum, globalBarNum);
 
@@ -3223,9 +3199,9 @@ async function handleAudioExport() {
         barData.audio = path;
 
         done++;
-        const pct = (done / totalBars * 100).toFixed(0);
-        if (fillEl()) fillEl().style.width = pct + '%';
-        if (textEl()) textEl().textContent = `${done}/${totalBars} hochgeladen`;
+        if (done % 10 === 0 || done === totalBars) {
+          toast(`Audio-Export: ${done}/${totalBars} Takte...`, 'info');
+        }
       }
 
       globalBarOffset += bars.length;
@@ -3238,7 +3214,15 @@ async function handleAudioExport() {
     toast(`Export-Fehler: ${err.message}`, 'error', 5000);
   } finally {
     exportInProgress = false;
-    renderAudioTab();
+    // Save DB again to persist audio paths
+    if (done > 0 && dirty) {
+      try {
+        const newSha = await saveDB(s.repo, s.path, s.token, db, dbSha);
+        dbSha = newSha;
+        dirty = false;
+        setSyncStatus('saved');
+      } catch { /* DB save after export is best-effort */ }
+    }
   }
 }
 
@@ -6183,6 +6167,13 @@ async function handleSave(showToast = true) {
     dirty = false;
     setSyncStatus('saved');
     if (showToast) toast('Gespeichert', 'success');
+
+    // Auto-export audio segments if conditions are met
+    if (selectedSongId && audioMeta && !exportInProgress
+        && partMarkers.length > 0 && barMarkers.length > 0) {
+      handleAudioExport();
+    }
+
     return true;
   } catch (e) {
     setSyncStatus('error');

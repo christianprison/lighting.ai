@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.11.6';
+const APP_VERSION = 'v0.11.7';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -6100,13 +6100,7 @@ function _pwUpdateUI() {
   els.pwTimeDur.textContent = fmtTime(_pw.trimEnd - _pw.trimStart);
 }
 
-/** Format seconds as M:SS.d */
-function fmtTime(sec) {
-  if (sec < 0) sec = 0;
-  const m = Math.floor(sec / 60);
-  const s = sec % 60;
-  return `${m}:${s < 10 ? '0' : ''}${s.toFixed(1)}`;
-}
+/* fmtTime — siehe Zeile 1835 (einzige Definition) */
 
 /* ── Part Wave Editor: Handle Drag ── */
 

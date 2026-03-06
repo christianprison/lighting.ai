@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.12.3';
+const APP_VERSION = 'v0.12.4';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -478,7 +478,7 @@ const SONG_CHECKLIST = [
       const instrNames = /^(intro|outro|solo|instrumental|interlude|bridge|breakdown)/i;
       const candidateParts = parts.filter(p => instrNames.test(p.name));
       if (candidateParts.length === 0) return true; // no obvious instrumental parts → OK
-      return candidateParts.some(p => p.instrumental === true);
+      return candidateParts.every(p => typeof p.instrumental === 'boolean');
     }},
 
   // ── Audio ──
@@ -863,7 +863,7 @@ function renderSongFields() {
       </div>
       <div>
         <label>BPM</label>
-        <input type="number" value="${song.bpm || ''}" data-song-field="bpm" class="mono" min="0">
+        <input type="number" value="${song.bpm || ''}" data-song-field="bpm" class="mono" min="0" inputmode="numeric">
       </div>
       <div>
         <label>Key</label>

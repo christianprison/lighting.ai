@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.11.8';
+const APP_VERSION = 'v0.11.9';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -2009,30 +2009,43 @@ function drawWaveform() {
   const dpr = window.devicePixelRatio || 1;
   const wrapRect = wrap.getBoundingClientRect();
   const baseW = wrapRect.width;
-  const w = baseW * waveformZoom;
+  const totalW = baseW * waveformZoom;  // virtual total width
   const h = 120;
 
-  // Size the scrollable inner container
-  scroll.style.width = w + 'px';
-  canvas.width = w * dpr;
+  // Viewport-based rendering: canvas is always viewport-sized,
+  // only the scroll container spans the full virtual width.
+  // This avoids hitting browser canvas size limits at high zoom.
+  const viewW = baseW;
+  const scrollLeft = wrap.scrollLeft;
+
+  scroll.style.width = totalW + 'px';
+  canvas.width = viewW * dpr;
   canvas.height = h * dpr;
-  canvas.style.width = w + 'px';
+  canvas.style.width = viewW + 'px';
   canvas.style.height = h + 'px';
+  // Pin canvas to viewport via CSS left offset inside scroll container
+  canvas.style.position = 'sticky';
+  canvas.style.left = '0px';
 
   const ctx = canvas.getContext('2d');
   ctx.scale(dpr, dpr);
-
-  // Clear
-  ctx.clearRect(0, 0, w, h);
+  ctx.clearRect(0, 0, viewW, h);
 
   const buf = audio.getBuffer();
   if (!buf) return;
   const duration = buf.duration;
 
-  // Draw waveform bars (1px per bar for high resolution at all zoom levels)
-  const buckets = Math.floor(w);
-  const peaks = audio.getPeaks(buckets);
-  const barW = 1;
+  // Map from virtual total coordinate to canvas coordinate
+  const vToC = (vx) => vx - scrollLeft;
+  // Visible time range
+  const tStart = (scrollLeft / totalW) * duration;
+  const tEnd = ((scrollLeft + viewW) / totalW) * duration;
+  // Pixels per second at current zoom
+  const pxPerSec = totalW / duration;
+
+  // Draw waveform using getPeaksRange for the visible window only
+  const buckets = Math.floor(viewW);
+  const peaks = audio.getPeaksRange(tStart, tEnd, buckets);
   const mid = h / 2;
 
   // Midline
@@ -2040,7 +2053,7 @@ function drawWaveform() {
   ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.moveTo(0, mid);
-  ctx.lineTo(w, mid);
+  ctx.lineTo(viewW, mid);
   ctx.stroke();
 
   // Waveform bars
@@ -2049,13 +2062,19 @@ function drawWaveform() {
     const barH = amp * (h * 0.9);
     const opacity = 0.3 + amp * 0.7;
     ctx.fillStyle = `rgba(0, 220, 130, ${opacity})`;
-    ctx.fillRect(i * barW, mid - barH / 2, Math.max(barW - 0.5, 1), barH || 1);
+    ctx.fillRect(i, mid - barH / 2, Math.max(0.5, 1), barH || 1);
   }
+
+  // Helper: is a virtual x in the visible range (with margin for labels)?
+  const margin = 80;
+  const inView = (vx) => vx >= scrollLeft - margin && vx <= scrollLeft + viewW + margin;
 
   // Bar markers (cyan lines with flag labels as drag handles)
   for (let bi = 0; bi < barMarkers.length; bi++) {
     const m = barMarkers[bi];
-    const x = (m.time / duration) * w;
+    const vx = (m.time / duration) * totalW;
+    if (!inView(vx)) continue;
+    const x = vToC(vx);
     const absBarNum = bi + 1;
     const isDragTarget = _isDragging && _dragMarker && _dragMarker.type === 'bar' && _dragMarker.index === bi;
     ctx.strokeStyle = isDragTarget ? 'rgba(56, 189, 248, 0.9)' : 'rgba(56, 189, 248, 0.4)';
@@ -2073,11 +2092,9 @@ function drawWaveform() {
       const flagW = tw + 6;
       const flagH = 14;
       const flagX = x;
-      const flagY = h - flagH; // bottom of waveform
-      // Flag background
+      const flagY = h - flagH;
       ctx.fillStyle = isDragTarget ? 'rgba(56, 189, 248, 1.0)' : 'rgba(56, 189, 248, 0.7)';
       ctx.fillRect(flagX, flagY, flagW, flagH);
-      // Flag text (black on cyan)
       ctx.fillStyle = '#08090d';
       ctx.fillText(label, flagX + 3, flagY + 10);
     }
@@ -2090,7 +2107,7 @@ function drawWaveform() {
 
   // Compute absolute bar offset per part from DB bar counts
   const parts = getSortedParts(selectedSongId);
-  const partStartBar = {}; // partIndex → first absolute bar number
+  const partStartBar = {};
   let absCounter = 1;
   for (let pi = 0; pi < parts.length; pi++) {
     partStartBar[pi] = absCounter;
@@ -2105,22 +2122,21 @@ function drawWaveform() {
     for (let pi = 0; pi < parts.length; pi++) {
       const st = starts.get(parts[pi].id);
       if (!st || st.startSec <= 0) continue;
-      const x = (st.startSec / duration) * w;
-      // Ghost line
+      const vx = (st.startSec / duration) * totalW;
+      if (!inView(vx)) continue;
+      const x = vToC(vx);
       ctx.strokeStyle = 'rgba(240, 160, 48, 0.25)';
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(x, 0);
       ctx.lineTo(x, h);
       ctx.stroke();
-      // Ghost label (only if no tapped marker near this position)
       const hasTapped = partMarkers.some(m => m.partIndex === pi);
       if (!hasTapped) {
         ctx.font = '9px Sora, sans-serif';
         ctx.fillStyle = 'rgba(240, 160, 48, 0.35)';
         const label = parts[pi].name;
-        const labelX = Math.min(x + 3, w - ctx.measureText(label).width - 3);
-        ctx.fillText(label, labelX, 11);
+        ctx.fillText(label, x + 3, 11);
       }
     }
     ctx.setLineDash([]);
@@ -2129,7 +2145,9 @@ function drawWaveform() {
   // Part markers (amber) with flag labels as drag handles
   for (let pi2 = 0; pi2 < partMarkers.length; pi2++) {
     const m = partMarkers[pi2];
-    const x = (m.time / duration) * w;
+    const vx = (m.time / duration) * totalW;
+    if (!inView(vx)) continue;
+    const x = vToC(vx);
     const isDragTarget = _isDragging && _dragMarker && _dragMarker.type === 'part' && _dragMarker.index === pi2;
     ctx.strokeStyle = isDragTarget ? 'rgba(240, 160, 48, 1.0)' : 'rgba(240, 160, 48, 0.8)';
     ctx.lineWidth = isDragTarget ? 3 : 2;
@@ -2138,24 +2156,18 @@ function drawWaveform() {
     ctx.lineTo(x, h);
     ctx.stroke();
 
-    // Part name flag (top — black text on amber background)
     const partName = m.partIndex < parts.length ? parts[m.partIndex].name : '';
     if (partName) {
       ctx.font = 'bold 10px Sora, sans-serif';
       const tw = ctx.measureText(partName).width;
       const flagW = tw + 8;
       const flagH = 16;
-      const flagX = x;
-      const flagY = 0;
-      // Flag background
       ctx.fillStyle = isDragTarget ? 'rgba(240, 160, 48, 1.0)' : 'rgba(240, 160, 48, 0.9)';
-      ctx.fillRect(flagX, flagY, flagW, flagH);
-      // Flag text (black on amber)
+      ctx.fillRect(x, 0, flagW, flagH);
       ctx.fillStyle = '#08090d';
-      ctx.fillText(partName, flagX + 4, flagY + 12);
+      ctx.fillText(partName, x + 4, 12);
     }
 
-    // Absolute bar number or time during drag (bottom area, no flag)
     const firstBarIdx = barMarkers.findIndex(b => b.partIndex === m.partIndex);
     const startBar = firstBarIdx >= 0 ? firstBarIdx + 1 : partStartBar[m.partIndex];
     if (isDragTarget) {
@@ -2172,23 +2184,24 @@ function drawWaveform() {
   // Playhead (green with glow)
   const cur = audio.getCurrentTime();
   if (cur > 0 || audio.isPlaying()) {
-    const px = (cur / duration) * w;
-    ctx.shadowColor = '#00dc82';
-    ctx.shadowBlur = 6;
-    ctx.strokeStyle = '#00dc82';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(px, 0);
-    ctx.lineTo(px, h);
-    ctx.stroke();
-    ctx.shadowBlur = 0;
+    const vpx = (cur / duration) * totalW;
+    const px = vToC(vpx);
+    if (px >= -5 && px <= viewW + 5) {
+      ctx.shadowColor = '#00dc82';
+      ctx.shadowBlur = 6;
+      ctx.strokeStyle = '#00dc82';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(px, 0);
+      ctx.lineTo(px, h);
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+    }
 
     // Auto-scroll to keep playhead visible when zoomed
     if (waveformZoom > 1 && !_suppressAutoScroll) {
-      const scrollLeft = wrap.scrollLeft;
-      const viewW = wrapRect.width;
-      if (px < scrollLeft + 40 || px > scrollLeft + viewW - 40) {
-        wrap.scrollLeft = px - viewW * 0.3;
+      if (vpx < scrollLeft + 40 || vpx > scrollLeft + viewW - 40) {
+        wrap.scrollLeft = vpx - viewW * 0.3;
       }
     }
   }
@@ -2735,6 +2748,9 @@ function initWaveformDrag() {
     if (_pinchActive) onPinchEnd(e);
     else cancelDrag(e);
   });
+
+  // Redraw on scroll so viewport-rendered waveform stays in sync
+  wrap.addEventListener('scroll', () => drawWaveform(), { passive: true });
 }
 
 /* ── Audio Split Event Handlers ────────────────────── */

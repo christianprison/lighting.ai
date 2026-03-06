@@ -10494,7 +10494,7 @@
     "B0014": {
       "part_id": "tdyEcs_P002",
       "bar_num": 6,
-      "lyrics": "time and rhyme and verse and curse the",
+      "lyrics": "time and rhyme and verse and curse those",
       "audio": "audio/Along comes Mary/02 Verse 1/014 Along comes Mary Verse 1.mp3",
       "has_accents": false
     },
@@ -10523,21 +10523,21 @@
       "part_id": "tdyEcs_P003",
       "bar_num": 1,
       "lyrics": "",
-      "audio": "audio/Along comes Mary/03 Bridge A 1/017 Along comes Mary Bridge A 1.mp3",
+      "audio": "audio/Along comes Mary/03 Bridge A 1/018 Along comes Mary Bridge A 1.mp3",
       "has_accents": false
     },
     "B0019": {
       "part_id": "tdyEcs_P003",
       "bar_num": 2,
       "lyrics": "",
-      "audio": "audio/Along comes Mary/03 Bridge A 1/018 Along comes Mary Bridge A 1.mp3",
+      "audio": "audio/Along comes Mary/03 Bridge A 1/019 Along comes Mary Bridge A 1.mp3",
       "has_accents": false
     },
     "B0020": {
       "part_id": "tdyEcs_P003",
       "bar_num": 3,
       "lyrics": "",
-      "audio": "audio/Along comes Mary/03 Bridge A 1/019 Along comes Mary Bridge A 1.mp3",
+      "audio": "audio/Along comes Mary/03 Bridge A 1/020 Along comes Mary Bridge A 1.mp3",
       "has_accents": false
     }
   },

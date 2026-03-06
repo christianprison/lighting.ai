@@ -1889,6 +1889,8 @@ label {
 .parts-tab-table .ptt-bars { width: 72px; }
 .parts-tab-table .ptt-dur { width: 72px; }
 .parts-tab-table .ptt-tmpl { min-width: 160px; }
+.parts-tab-table .ptt-instr { width: 36px; text-align: center; }
+.parts-tab-table .ptt-instr .instr-check { width: 18px; height: 18px; accent-color: var(--green); cursor: pointer; }
 .parts-tab-table .ptt-notes { min-width: 120px; }
 
 .ptt-song-name {

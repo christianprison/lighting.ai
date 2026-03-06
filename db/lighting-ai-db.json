@@ -769,7 +769,7 @@
         "tdyEcs_P001": {
           "pos": 1,
           "name": "Theme 1",
-          "bars": 1,
+          "bars": 5,
           "duration_sec": 12,
           "light_template": "generic_bpm",
           "notes": "",
@@ -1132,6 +1132,26 @@
             "time": 197.37351310861422,
             "partIndex": 19,
             "partId": "tdyEcs_P020"
+          },
+          {
+            "time": 0.5943333333333243,
+            "partIndex": 0,
+            "partId": "tdyEcs_P001"
+          },
+          {
+            "time": 2.0876666666666637,
+            "partIndex": 0,
+            "partId": "tdyEcs_P001"
+          },
+          {
+            "time": 3.655666666666761,
+            "partIndex": 0,
+            "partId": "tdyEcs_P001"
+          },
+          {
+            "time": 5.194333333333347,
+            "partIndex": 0,
+            "partId": "tdyEcs_P001"
           }
         ]
       },
@@ -43526,28 +43546,28 @@
       "part_id": "tdyEcs_P017",
       "bar_num": 1,
       "lyrics": "",
-      "audio": "audio/Along comes Mary/17 Chorus 5/017 Along comes Mary Chorus 5.mp3",
+      "audio": "audio/Along comes Mary/17 Chorus 5 (stops)/017 Along comes Mary Chorus 5 (stops).mp3",
       "has_accents": false
     },
     "B4769": {
       "part_id": "tdyEcs_P018",
       "bar_num": 1,
       "lyrics": "",
-      "audio": "audio/Along comes Mary/18 Chorus 6/018 Along comes Mary Chorus 6.mp3",
+      "audio": "audio/Along comes Mary/18 Chorus 6 (muted)/018 Along comes Mary Chorus 6 (muted).mp3",
       "has_accents": false
     },
     "B4770": {
       "part_id": "tdyEcs_P019",
       "bar_num": 1,
       "lyrics": "",
-      "audio": "audio/Along comes Mary/19 Chorus 7/019 Along comes Mary Chorus 7.mp3",
+      "audio": "audio/Along comes Mary/19 Chorus 7 (power)/019 Along comes Mary Chorus 7 (power).mp3",
       "has_accents": false
     },
     "B4771": {
       "part_id": "tdyEcs_P020",
       "bar_num": 1,
       "lyrics": "",
-      "audio": "audio/Along comes Mary/20 Punch/020 Along comes Mary Punch.mp3",
+      "audio": "audio/Along comes Mary/20 Punch (stop)/020 Along comes Mary Punch (stop).mp3",
       "has_accents": false
     }
   },

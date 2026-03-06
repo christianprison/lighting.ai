@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.12.2';
+const APP_VERSION = 'v0.12.3';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -2275,6 +2275,7 @@ function drawMiniWaveform(canvas, startSec, endSec, color = '#00dc82') {
 /**
  * After rendering a tab with mini waveform canvases, call this to draw them.
  * Each canvas should have: data-wave-start, data-wave-end, and optionally data-wave-color.
+ * If data-part-idx is set, Start/Ende flags and bar markers are drawn.
  */
 function renderMiniWaveforms(container) {
   if (!audio.getBuffer()) return;
@@ -2285,8 +2286,79 @@ function renderMiniWaveforms(container) {
     const color = c.dataset.waveColor || 'rgb(0, 220, 130)';
     if (!isNaN(start) && !isNaN(end) && end > start) {
       drawMiniWaveform(c, start, end, color);
+      // Draw markers overlay for Parts tab waveforms
+      if (c.dataset.partIdx !== undefined && c.dataset.partIdx !== '') {
+        drawMiniWaveformMarkers(c, start, end, parseInt(c.dataset.partIdx, 10));
+      }
     }
   }
+}
+
+/**
+ * Draw Start/Ende flags and bar markers on a mini waveform canvas.
+ * Uses the same inverse label style as the Audio Split Tab markers.
+ */
+function drawMiniWaveformMarkers(canvas, startSec, endSec, partIndex) {
+  const dpr = window.devicePixelRatio || 1;
+  const w = canvas.clientWidth;
+  const h = canvas.clientHeight;
+  if (w <= 0 || h <= 0) return;
+
+  const ctx = canvas.getContext('2d');
+  ctx.save();
+  ctx.scale(dpr, dpr);
+
+  const partDur = endSec - startSec;
+  if (partDur <= 0) { ctx.restore(); return; }
+
+  // Bar markers (cyan vertical lines with number labels)
+  const bars = getBarMarkersForPart(partIndex);
+  if (bars.length > 0) {
+    ctx.font = '7px "DM Mono", monospace';
+    for (let i = 0; i < bars.length; i++) {
+      const x = ((bars[i].time - startSec) / partDur) * w;
+      if (x < 1 || x > w - 1) continue;
+      // Vertical line
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, h);
+      ctx.stroke();
+      // Flag at bottom
+      const label = String(i + 1);
+      const tw = ctx.measureText(label).width;
+      const flagW = tw + 4;
+      const flagH = 9;
+      const flagY = h - flagH;
+      ctx.fillStyle = 'rgba(56, 189, 248, 0.7)';
+      ctx.fillRect(x, flagY, flagW, flagH);
+      ctx.fillStyle = '#08090d';
+      ctx.fillText(label, x + 2, flagY + 7);
+    }
+  }
+
+  // "Start" flag (amber, top-left)
+  ctx.font = 'bold 7px Sora, sans-serif';
+  const startLabel = 'Start';
+  const stw = ctx.measureText(startLabel).width;
+  const sFlagW = stw + 6;
+  const sFlagH = 10;
+  ctx.fillStyle = 'rgba(240, 160, 48, 0.9)';
+  ctx.fillRect(0, 0, sFlagW, sFlagH);
+  ctx.fillStyle = '#08090d';
+  ctx.fillText(startLabel, 3, 8);
+
+  // "Ende" flag (amber, top-right)
+  const endLabel = 'Ende';
+  const etw = ctx.measureText(endLabel).width;
+  const eFlagW = etw + 6;
+  ctx.fillStyle = 'rgba(240, 160, 48, 0.9)';
+  ctx.fillRect(w - eFlagW, 0, eFlagW, sFlagH);
+  ctx.fillStyle = '#08090d';
+  ctx.fillText(endLabel, w - eFlagW + 3, 8);
+
+  ctx.restore();
 }
 
 /* ── Waveform Marker Drag System ──────────────────── */
@@ -5740,7 +5812,7 @@ function buildPartsTabTable(parts, filterSong) {
             const wStart = getPartStartTime(partIdx);
             const wEnd = getPartEndTime(partIdx);
             if (wStart !== null && wEnd !== null) {
-              waveCanvas = `<canvas class="mini-waveform" data-wave-start="${wStart}" data-wave-end="${wEnd}" data-wave-color="rgb(0, 220, 130)"></canvas>`;
+              waveCanvas = `<canvas class="mini-waveform" data-wave-start="${wStart}" data-wave-end="${wEnd}" data-wave-color="rgb(0, 220, 130)" data-part-idx="${partIdx}"></canvas>`;
               hasRefSegment = true;
             }
           }

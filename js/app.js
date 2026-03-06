@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.10.5';
+const APP_VERSION = 'v0.10.6';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -1645,8 +1645,10 @@ function buildTransport() {
 }
 
 function buildTapButtons(parts, isPlay) {
-  const nextPartName = currentPartIndex < parts.length ? parts[currentPartIndex].name : '\u2014';
-  const allPartsDone = currentPartIndex >= parts.length;
+  const nextPartName = currentPartIndex < parts.length
+    ? parts[currentPartIndex].name
+    : `Part ${currentPartIndex + 1}`;
+  const allPartsDone = false; // Parts can always be added dynamically
   const nextAbsBar = barMarkers.length + 1;
   const barLabel = `Bar ${nextAbsBar}`;
 
@@ -1733,8 +1735,7 @@ function buildSplitResult(parts) {
 }
 
 function buildExportSection(parts) {
-  if (currentPartIndex < parts.length) return '';
-  if (parts.length === 0) return '';
+  if (partMarkers.length === 0) return '';
 
   if (exportInProgress) {
     return `
@@ -2707,12 +2708,9 @@ function handlePlayPause() {
  */
 function triggerAutoExport() {
   if (!selectedSongId || !audioMeta || exportInProgress) return;
-  if (barMarkers.length === 0) return;
-  const parts = getSortedParts(selectedSongId);
-  if (currentPartIndex < parts.length) return;
+  if (partMarkers.length === 0 || barMarkers.length === 0) return;
   const s = getSettings();
   if (!s.token || !s.repo) return;
-  // Auto-export
   handleAudioExport();
 }
 
@@ -2746,15 +2744,13 @@ function updatePlayButton() {
 function updateTapButtonStates() {
   const isPlay = audio.isPlaying();
   const parts = getSortedParts(selectedSongId);
-  const allPartsDone = parts.length > 0 && currentPartIndex >= parts.length;
-
   const partBtn = document.getElementById('tap-part');
   const barBtn = document.getElementById('tap-bar');
   const undoBtn = document.getElementById('tap-undo');
   const delPartsBtn = document.getElementById('tap-delete-parts');
   const delBarsBtn = document.getElementById('tap-delete-bars');
 
-  if (partBtn) partBtn.disabled = !isPlay || allPartsDone;
+  if (partBtn) partBtn.disabled = !isPlay;
   if (barBtn) barBtn.disabled = !isPlay || currentPartIndex === 0;
   if (undoBtn) undoBtn.disabled = tapHistory.length === 0;
   if (delPartsBtn) delPartsBtn.disabled = partMarkers.length === 0;
@@ -2763,8 +2759,22 @@ function updateTapButtonStates() {
 
 function handlePartTap() {
   if (!audio.isPlaying()) return;
-  const parts = getSortedParts(selectedSongId);
-  if (currentPartIndex >= parts.length) return;
+  let parts = getSortedParts(selectedSongId);
+
+  // Auto-create a new part if no parts exist or all are already tapped
+  let autoCreatedPartId = null;
+  if (currentPartIndex >= parts.length) {
+    const song = db.songs[selectedSongId];
+    if (!song) return;
+    const newPos = parts.length > 0 ? Math.max(...parts.map(p => p.pos)) + 1 : 1;
+    const newId = nextPartId(selectedSongId);
+    song.parts[newId] = {
+      pos: newPos, name: `Part ${newPos}`, bars: 0, duration_sec: 0,
+      light_template: 'generic_bpm', notes: ''
+    };
+    autoCreatedPartId = newId;
+    parts = getSortedParts(selectedSongId);
+  }
 
   const time = audio.getCurrentTime();
 
@@ -2775,7 +2785,7 @@ function handlePartTap() {
   barMarkers.push({ time, partIndex: currentPartIndex });
 
   // Record for undo (both part + auto-bar)
-  tapHistory.push({ type: 'part', time, partIndex: currentPartIndex, autoBar: true });
+  tapHistory.push({ type: 'part', time, partIndex: currentPartIndex, autoBar: true, autoCreatedPartId });
 
   currentPartIndex++;
   currentBarInPart = 1; // first bar already added
@@ -2838,6 +2848,13 @@ function handleUndoTap() {
       barMarkers = barMarkers.filter(m => !(Math.abs(m.time - last.time) < 0.001 && m.partIndex === last.partIndex));
     }
     currentPartIndex--;
+    // Remove dynamically created part if it was auto-created during tapping
+    if (last.autoCreatedPartId) {
+      const song = db.songs[selectedSongId];
+      if (song && song.parts[last.autoCreatedPartId]) {
+        delete song.parts[last.autoCreatedPartId];
+      }
+    }
     // Recalculate currentBarInPart for previous part
     if (currentPartIndex > 0) {
       const prevPartIdx = currentPartIndex - 1;
@@ -2871,6 +2888,15 @@ async function handleDeleteAllParts() {
     'Löschen'
   );
   if (!ok) return;
+  // Remove dynamically created parts from DB
+  const song = db.songs[selectedSongId];
+  if (song) {
+    for (const entry of tapHistory) {
+      if (entry.autoCreatedPartId && song.parts[entry.autoCreatedPartId]) {
+        delete song.parts[entry.autoCreatedPartId];
+      }
+    }
+  }
   partMarkers = [];
   barMarkers = [];
   tapHistory = [];
@@ -3030,9 +3056,11 @@ function updateTapInfo(parts) {
 
   if (partBtn) {
     const info = partBtn.querySelector('.tap-info');
-    const nextName = currentPartIndex < parts.length ? parts[currentPartIndex].name : '\u2014';
+    const nextName = currentPartIndex < parts.length
+      ? parts[currentPartIndex].name
+      : `Part ${currentPartIndex + 1}`;
     if (info) info.textContent = nextName;
-    partBtn.disabled = !audio.isPlaying() || (parts.length > 0 && currentPartIndex >= parts.length);
+    partBtn.disabled = !audio.isPlaying();
   }
   if (barBtn) {
     const info = barBtn.querySelector('.tap-info');
@@ -3123,7 +3151,7 @@ async function handleAudioExport() {
   }
 
   const parts = getSortedParts(selectedSongId);
-  if (currentPartIndex < parts.length) return;
+  if (partMarkers.length === 0) return;
 
   exportInProgress = true;
   renderAudioTab();

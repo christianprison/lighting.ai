@@ -23,16 +23,20 @@ export function warmup() {
   if (ac.state === 'suspended') ac.resume();
 }
 
-// Auto-resume on any user gesture (critical for iOS/iPad)
+// Auto-resume on any user gesture (critical for iOS/iPad).
+// Creates the AudioContext eagerly on first gesture so it's already
+// running when play() is called later.
 let _gestureListenerInstalled = false;
 export function installGestureListener() {
   if (_gestureListenerInstalled) return;
   _gestureListenerInstalled = true;
-  const resume = () => {
-    if (ctx && ctx.state === 'suspended') ctx.resume();
+  const ensureRunning = () => {
+    const ac = getContext(); // creates ctx if null
+    if (ac.state === 'suspended') ac.resume();
   };
-  document.addEventListener('touchstart', resume, { passive: true });
-  document.addEventListener('mousedown', resume, { passive: true });
+  document.addEventListener('touchstart', ensureRunning, { passive: true });
+  document.addEventListener('mousedown', ensureRunning, { passive: true });
+  document.addEventListener('keydown', ensureRunning, { passive: true, once: true });
 }
 
 /**
@@ -85,16 +89,17 @@ export function getBuffer() {
 
 /**
  * Start or resume playback from the current position.
- * Synchronous when AudioContext is already running (which it should be
- * after installGestureListener). Falls back to async resume if needed.
+ * Awaits AudioContext resume if needed so playhead and audio are in sync.
  * @param {Function} [onEnd] - called when playback reaches end
+ * @returns {Promise<void>}
  */
-export function play(onEnd) {
+export async function play(onEnd) {
   if (!audioBuffer) return;
   const ac = getContext();
 
-  // If suspended, resume (fire-and-forget — audio will start as soon as context resumes)
-  if (ac.state === 'suspended') ac.resume();
+  // MUST await resume — otherwise sourceNode.start() queues into a suspended
+  // context and audio lags behind the playhead by the resume delay
+  if (ac.state === 'suspended') await ac.resume();
 
   stop(true); // stop previous source without resetting position
 

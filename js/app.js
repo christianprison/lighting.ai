@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.11.7';
+const APP_VERSION = 'v0.11.8';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -62,16 +62,26 @@ const SETTINGS_KEY = 'lightingai_settings';
 
 /* ── Constants ─────────────────────────────────────── */
 
+// Light templates — identisch zu den Gruppen in live/ui/config.html (QLC+ Szenen)
 const LIGHT_TEMPLATES = [
-  'intro_buildup', 'intro_hit',
-  'verse_minimal', 'verse_driving', 'verse_dark',
-  'prechorus_rise',
-  'chorus_half', 'chorus_full', 'chorus_anthem',
-  'bridge_atmospheric', 'bridge_breakdown',
-  'solo_spotlight', 'solo_intense',
-  'breakdown_minimal', 'buildup_8bars', 'drop_impact',
-  'outro_fadeout', 'outro_cut',
-  'ballad_warm', 'generic_bpm'
+  '00 blackout',
+  '01 statisch bunt',
+  '02 slow blue',
+  '03 walking',
+  '04 up\'n\'down',
+  '05 left\'n\'right',
+  '06 blinking',
+  '07 round\'n\'round',
+  '08 swimming',
+  '09 Alarm',
+  '10 Alarm \uD83D\uDD14\uD83D\uDD14',
+  '10 Strobe',
+  '11 Stop',
+  '12 slow red',
+  '16 Searchlight',
+  '20 white Fan up',
+  '21 white fan down',
+  '22 blind',
 ];
 
 const ACCENT_TYPES = ['bl', 'bo', 'hl', 'st', 'fg'];
@@ -1283,7 +1293,7 @@ function handlePartAction(action) {
       const newId = nextPartId(selectedSongId);
       song.parts[newId] = {
         pos: newPos, name: 'New Part', bars: 0, duration_sec: 0,
-        light_template: 'generic_bpm', notes: ''
+        light_template: '', notes: ''
       };
       selectedPartId = newId;
       selectedBarNum = null;
@@ -2999,7 +3009,7 @@ function handlePartTap() {
     const newId = nextPartId(selectedSongId);
     song.parts[newId] = {
       pos: newPos, name: `Part ${newPos}`, bars: 0, duration_sec: 0,
-      light_template: 'generic_bpm', notes: ''
+      light_template: '', notes: ''
     };
     autoCreatedPartId = newId;
     parts = getSortedParts(selectedSongId);
@@ -5830,7 +5840,7 @@ function handlePartsTabAction(action) {
       const parts = getSortedParts(filterSong);
       const newPos = parts.length > 0 ? Math.max(...parts.map(p => p.pos)) + 1 : 1;
       const newId = nextPartId(filterSong);
-      song.parts[newId] = { pos: newPos, name: 'New Part', bars: 0, duration_sec: 0, light_template: 'generic_bpm', notes: '' };
+      song.parts[newId] = { pos: newPos, name: 'New Part', bars: 0, duration_sec: 0, light_template: '', notes: '' };
       partsTabSelectedPart = { songId: filterSong, partId: newId };
       partsTabSelectedBar = null;
       markDirty();

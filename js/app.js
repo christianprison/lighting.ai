@@ -9,6 +9,9 @@ import { loadDB, loadDBLocal, saveDB, testConnection, uploadFile, deleteFile, ge
 import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
+/* ── Version (single source of truth) ──────────────── */
+const APP_VERSION = 'v0.10.1';
+
 /* ── State ─────────────────────────────────────────── */
 let db = null;
 let dbSha = null;
@@ -6236,6 +6239,9 @@ document.addEventListener('DOMContentLoaded', () => {
   cacheDom();
   wireEvents();
   restoreSidebar();
+  // Set version from JS constant (avoids merge conflicts in index.html)
+  const verEl = document.getElementById('app-version');
+  if (verEl) verEl.textContent = APP_VERSION;
   switchTab('editor');
   initDB();
   initViewportFix();

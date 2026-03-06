@@ -42,7 +42,7 @@
         "5iZfKj_P001": {
           "pos": 1,
           "name": "Thema 1",
-          "bars": 8,
+          "bars": 9,
           "duration_sec": 12,
           "light_template": "intro_buildup",
           "qlc_scene": "09 Alarm",
@@ -65,7 +65,7 @@
         "5iZfKj_P003": {
           "pos": 3,
           "name": "Bridge 1",
-          "bars": 0,
+          "bars": 4,
           "duration_sec": 6,
           "light_template": "prechorus_rise",
           "qlc_scene": "02 slow blue",
@@ -76,7 +76,7 @@
         "5iZfKj_P004": {
           "pos": 4,
           "name": "Chorus 1 (nanana)",
-          "bars": 0,
+          "bars": 8,
           "duration_sec": 12,
           "light_template": "chorus_full",
           "qlc_scene": "10 Strobe",
@@ -87,7 +87,7 @@
         "5iZfKj_P005": {
           "pos": 5,
           "name": "Thema 2",
-          "bars": 0,
+          "bars": 8,
           "duration_sec": 6,
           "light_template": "intro_buildup",
           "qlc_scene": "09 Alarm",
@@ -99,7 +99,7 @@
         "5iZfKj_P006": {
           "pos": 6,
           "name": "Verse 2",
-          "bars": 0,
+          "bars": 8,
           "duration_sec": 12,
           "light_template": "verse_driving",
           "qlc_scene": "08 swimming ‍",
@@ -110,7 +110,7 @@
         "5iZfKj_P007": {
           "pos": 7,
           "name": "Bridge 2",
-          "bars": 0,
+          "bars": 4,
           "duration_sec": 6,
           "light_template": "prechorus_rise",
           "qlc_scene": "02 slow blue",
@@ -121,7 +121,7 @@
         "5iZfKj_P008": {
           "pos": 8,
           "name": "Chorus 2 (nanana)",
-          "bars": 0,
+          "bars": 8,
           "duration_sec": 12,
           "light_template": "chorus_full",
           "qlc_scene": "10 Strobe",
@@ -132,7 +132,7 @@
         "5iZfKj_P009": {
           "pos": 9,
           "name": "Stop",
-          "bars": 0,
+          "bars": 8,
           "duration_sec": 12,
           "light_template": "generic_bpm",
           "qlc_scene": "Spot auf Tim",
@@ -144,7 +144,7 @@
         "5iZfKj_P010": {
           "pos": 10,
           "name": "Crescendo",
-          "bars": 0,
+          "bars": 8,
           "duration_sec": 12,
           "light_template": "generic_bpm",
           "qlc_scene": "Spot auf Tim  hot",
@@ -156,7 +156,7 @@
         "5iZfKj_P011": {
           "pos": 11,
           "name": "Bridge 3 (schnell)",
-          "bars": 0,
+          "bars": 7,
           "duration_sec": 12,
           "light_template": "prechorus_rise",
           "qlc_scene": "09 Alarm",
@@ -167,7 +167,7 @@
         "5iZfKj_P012": {
           "pos": 12,
           "name": "Chorus 3 (nanana)",
-          "bars": 0,
+          "bars": 10,
           "duration_sec": 13,
           "light_template": "chorus_full",
           "qlc_scene": "10 Strobe",
@@ -765,11 +765,374 @@
       "duration": "—",
       "duration_sec": 0,
       "notes": "Intro; Verse 1; Bridge 1 (Mary); Bridge 2; Chorus (lunch); Interlude; Verse 2; Bridge 1; Bridge 2; Chorus; Interlude; Verse 3; Bridge 1; Bridge 2; Chorus; Chorus Variation 1; Chorus Variation 2; Chorus Variation 3; End e a capella (punch); ;",
-      "parts": {},
+      "parts": {
+        "tdyEcs_P001": {
+          "pos": 1,
+          "name": "Part 1",
+          "bars": 1,
+          "duration_sec": 0,
+          "light_template": "generic_bpm",
+          "notes": ""
+        },
+        "tdyEcs_P002": {
+          "pos": 2,
+          "name": "Part 2",
+          "bars": 1,
+          "duration_sec": 0,
+          "light_template": "generic_bpm",
+          "notes": ""
+        },
+        "tdyEcs_P003": {
+          "pos": 3,
+          "name": "Part 3",
+          "bars": 1,
+          "duration_sec": 0,
+          "light_template": "generic_bpm",
+          "notes": ""
+        },
+        "tdyEcs_P004": {
+          "pos": 4,
+          "name": "Part 4",
+          "bars": 1,
+          "duration_sec": 0,
+          "light_template": "generic_bpm",
+          "notes": ""
+        },
+        "tdyEcs_P005": {
+          "pos": 5,
+          "name": "Part 5",
+          "bars": 1,
+          "duration_sec": 0,
+          "light_template": "generic_bpm",
+          "notes": ""
+        },
+        "tdyEcs_P006": {
+          "pos": 6,
+          "name": "Part 6",
+          "bars": 1,
+          "duration_sec": 0,
+          "light_template": "generic_bpm",
+          "notes": ""
+        },
+        "tdyEcs_P007": {
+          "pos": 7,
+          "name": "Part 7",
+          "bars": 1,
+          "duration_sec": 0,
+          "light_template": "generic_bpm",
+          "notes": ""
+        },
+        "tdyEcs_P008": {
+          "pos": 8,
+          "name": "Part 8",
+          "bars": 1,
+          "duration_sec": 0,
+          "light_template": "generic_bpm",
+          "notes": ""
+        },
+        "tdyEcs_P009": {
+          "pos": 9,
+          "name": "Part 9",
+          "bars": 1,
+          "duration_sec": 0,
+          "light_template": "generic_bpm",
+          "notes": ""
+        },
+        "tdyEcs_P010": {
+          "pos": 10,
+          "name": "Part 10",
+          "bars": 1,
+          "duration_sec": 0,
+          "light_template": "generic_bpm",
+          "notes": ""
+        },
+        "tdyEcs_P011": {
+          "pos": 11,
+          "name": "Part 11",
+          "bars": 1,
+          "duration_sec": 0,
+          "light_template": "generic_bpm",
+          "notes": ""
+        },
+        "tdyEcs_P012": {
+          "pos": 12,
+          "name": "Part 12",
+          "bars": 1,
+          "duration_sec": 0,
+          "light_template": "generic_bpm",
+          "notes": ""
+        },
+        "tdyEcs_P013": {
+          "pos": 13,
+          "name": "Part 13",
+          "bars": 1,
+          "duration_sec": 0,
+          "light_template": "generic_bpm",
+          "notes": ""
+        },
+        "tdyEcs_P014": {
+          "pos": 14,
+          "name": "Part 14",
+          "bars": 1,
+          "duration_sec": 0,
+          "light_template": "generic_bpm",
+          "notes": ""
+        },
+        "tdyEcs_P015": {
+          "pos": 15,
+          "name": "Part 15",
+          "bars": 1,
+          "duration_sec": 0,
+          "light_template": "generic_bpm",
+          "notes": ""
+        },
+        "tdyEcs_P016": {
+          "pos": 16,
+          "name": "Part 16",
+          "bars": 1,
+          "duration_sec": 0,
+          "light_template": "generic_bpm",
+          "notes": ""
+        },
+        "tdyEcs_P017": {
+          "pos": 17,
+          "name": "Part 17",
+          "bars": 1,
+          "duration_sec": 0,
+          "light_template": "generic_bpm",
+          "notes": ""
+        },
+        "tdyEcs_P018": {
+          "pos": 18,
+          "name": "Part 18",
+          "bars": 1,
+          "duration_sec": 0,
+          "light_template": "generic_bpm",
+          "notes": ""
+        },
+        "tdyEcs_P019": {
+          "pos": 19,
+          "name": "Part 19",
+          "bars": 1,
+          "duration_sec": 0,
+          "light_template": "generic_bpm",
+          "notes": ""
+        },
+        "tdyEcs_P020": {
+          "pos": 20,
+          "name": "Part 20",
+          "bars": 1,
+          "duration_sec": 0,
+          "light_template": "generic_bpm",
+          "notes": ""
+        }
+      },
       "qlc_id": 89,
       "split_markers": {
-        "partMarkers": [],
-        "barMarkers": []
+        "partMarkers": [
+          {
+            "time": 2.7546666666666653,
+            "partIndex": 0,
+            "partId": "tdyEcs_P001"
+          },
+          {
+            "time": 15.135999999999996,
+            "partIndex": 1,
+            "partId": "tdyEcs_P002"
+          },
+          {
+            "time": 27.504000000000005,
+            "partIndex": 2,
+            "partId": "tdyEcs_P003"
+          },
+          {
+            "time": 33.66933333333333,
+            "partIndex": 3,
+            "partId": "tdyEcs_P004"
+          },
+          {
+            "time": 46.10133333333333,
+            "partIndex": 4,
+            "partId": "tdyEcs_P005"
+          },
+          {
+            "time": 52.304,
+            "partIndex": 5,
+            "partId": "tdyEcs_P006"
+          },
+          {
+            "time": 64.63733333333333,
+            "partIndex": 6,
+            "partId": "tdyEcs_P007"
+          },
+          {
+            "time": 77.01866666666666,
+            "partIndex": 7,
+            "partId": "tdyEcs_P008"
+          },
+          {
+            "time": 83.18666666666667,
+            "partIndex": 8,
+            "partId": "tdyEcs_P009"
+          },
+          {
+            "time": 95.68533333333332,
+            "partIndex": 9,
+            "partId": "tdyEcs_P010"
+          },
+          {
+            "time": 101.82133333333334,
+            "partIndex": 10,
+            "partId": "tdyEcs_P011"
+          },
+          {
+            "time": 114.18666666666667,
+            "partIndex": 11,
+            "partId": "tdyEcs_P012"
+          },
+          {
+            "time": 126.50133333333332,
+            "partIndex": 12,
+            "partId": "tdyEcs_P013"
+          },
+          {
+            "time": 132.704,
+            "partIndex": 13,
+            "partId": "tdyEcs_P014"
+          },
+          {
+            "time": 145.20266666666666,
+            "partIndex": 14,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 151.33866666666665,
+            "partIndex": 15,
+            "partId": "tdyEcs_P016"
+          },
+          {
+            "time": 163.752,
+            "partIndex": 16,
+            "partId": "tdyEcs_P017"
+          },
+          {
+            "time": 176.12,
+            "partIndex": 17,
+            "partId": "tdyEcs_P018"
+          },
+          {
+            "time": 188.48533333333333,
+            "partIndex": 18,
+            "partId": "tdyEcs_P019"
+          },
+          {
+            "time": 199.46420374531831,
+            "partIndex": 19,
+            "partId": "tdyEcs_P020"
+          }
+        ],
+        "barMarkers": [
+          {
+            "time": 2.7546666666666653,
+            "partIndex": 0,
+            "partId": "tdyEcs_P001"
+          },
+          {
+            "time": 15.135999999999996,
+            "partIndex": 1,
+            "partId": "tdyEcs_P002"
+          },
+          {
+            "time": 27.504000000000005,
+            "partIndex": 2,
+            "partId": "tdyEcs_P003"
+          },
+          {
+            "time": 33.66933333333333,
+            "partIndex": 3,
+            "partId": "tdyEcs_P004"
+          },
+          {
+            "time": 46.10133333333333,
+            "partIndex": 4,
+            "partId": "tdyEcs_P005"
+          },
+          {
+            "time": 52.304,
+            "partIndex": 5,
+            "partId": "tdyEcs_P006"
+          },
+          {
+            "time": 64.63733333333333,
+            "partIndex": 6,
+            "partId": "tdyEcs_P007"
+          },
+          {
+            "time": 77.01866666666666,
+            "partIndex": 7,
+            "partId": "tdyEcs_P008"
+          },
+          {
+            "time": 83.18666666666667,
+            "partIndex": 8,
+            "partId": "tdyEcs_P009"
+          },
+          {
+            "time": 95.68533333333332,
+            "partIndex": 9,
+            "partId": "tdyEcs_P010"
+          },
+          {
+            "time": 101.82133333333334,
+            "partIndex": 10,
+            "partId": "tdyEcs_P011"
+          },
+          {
+            "time": 114.18666666666667,
+            "partIndex": 11,
+            "partId": "tdyEcs_P012"
+          },
+          {
+            "time": 126.50133333333332,
+            "partIndex": 12,
+            "partId": "tdyEcs_P013"
+          },
+          {
+            "time": 132.704,
+            "partIndex": 13,
+            "partId": "tdyEcs_P014"
+          },
+          {
+            "time": 145.20266666666666,
+            "partIndex": 14,
+            "partId": "tdyEcs_P015"
+          },
+          {
+            "time": 151.33866666666665,
+            "partIndex": 15,
+            "partId": "tdyEcs_P016"
+          },
+          {
+            "time": 163.752,
+            "partIndex": 16,
+            "partId": "tdyEcs_P017"
+          },
+          {
+            "time": 176.12,
+            "partIndex": 17,
+            "partId": "tdyEcs_P018"
+          },
+          {
+            "time": 188.48533333333333,
+            "partIndex": 18,
+            "partId": "tdyEcs_P019"
+          },
+          {
+            "time": 199.46420374531831,
+            "partIndex": 19,
+            "partId": "tdyEcs_P020"
+          }
+        ]
       },
       "audio_ref": "audio/Along comes Mary/Along comes Mary - Full Song.mp3",
       "audio_ref_name": "Along Comes Mary (original).mp3",

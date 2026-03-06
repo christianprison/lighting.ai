@@ -368,6 +368,45 @@
   </div>
 </div>
 
+<!-- ── Part Waveform Editor Modal ─────────────────── -->
+<div class="modal-overlay" id="part-wave-modal">
+  <div class="modal part-wave-modal">
+    <div class="pw-header">
+      <h2 id="pw-title">Part bearbeiten</h2>
+      <button class="btn btn-sm" id="pw-close" title="Schliessen">&times;</button>
+    </div>
+    <div class="pw-waveform-wrap">
+      <canvas id="pw-canvas"></canvas>
+      <div class="pw-handle pw-handle-start" id="pw-handle-start"></div>
+      <div class="pw-handle pw-handle-end" id="pw-handle-end"></div>
+      <div class="pw-playhead" id="pw-playhead"></div>
+      <div class="pw-dim pw-dim-left" id="pw-dim-left"></div>
+      <div class="pw-dim pw-dim-right" id="pw-dim-right"></div>
+    </div>
+    <div class="pw-times">
+      <span class="pw-time-label">Start <span class="mono" id="pw-time-start">0:00.0</span></span>
+      <span class="pw-time-label">Ende <span class="mono" id="pw-time-end">0:00.0</span></span>
+      <span class="pw-time-label">Dauer <span class="mono" id="pw-time-dur">0:00.0</span></span>
+    </div>
+    <div class="pw-controls">
+      <div class="pw-nudge-group">
+        <button class="btn btn-sm" data-pw="nudge-start-left" title="Start -50ms">&larr; S</button>
+        <button class="btn btn-sm" data-pw="nudge-start-right" title="Start +50ms">S &rarr;</button>
+        <span class="pw-sep"></span>
+        <button class="btn btn-sm" data-pw="nudge-end-left" title="Ende -50ms">&larr; E</button>
+        <button class="btn btn-sm" data-pw="nudge-end-right" title="Ende +50ms">E &rarr;</button>
+      </div>
+      <div class="pw-play-group">
+        <button class="btn btn-sm btn-primary" id="pw-play" title="Play/Pause">&#9654; Play</button>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" id="pw-cancel">Abbrechen</button>
+      <button class="btn btn-primary" id="pw-save">Speichern</button>
+    </div>
+  </div>
+</div>
+
 <!-- ── Toast Container ─────────────────────────────── -->
 <div class="toast-container" id="toast-container"></div>
 

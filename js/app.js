@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.10.12';
+const APP_VERSION = 'v0.11.0';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -136,6 +136,22 @@ function cacheDom() {
     confirmMsg:    document.getElementById('confirm-message'),
     confirmOk:     document.getElementById('confirm-ok'),
     confirmCancel: document.getElementById('confirm-cancel'),
+    pwModal:       document.getElementById('part-wave-modal'),
+    pwCanvas:      document.getElementById('pw-canvas'),
+    pwTitle:       document.getElementById('pw-title'),
+    pwClose:       document.getElementById('pw-close'),
+    pwPlay:        document.getElementById('pw-play'),
+    pwSave:        document.getElementById('pw-save'),
+    pwCancel:      document.getElementById('pw-cancel'),
+    pwTimeStart:   document.getElementById('pw-time-start'),
+    pwTimeEnd:     document.getElementById('pw-time-end'),
+    pwTimeDur:     document.getElementById('pw-time-dur'),
+    pwPlayhead:    document.getElementById('pw-playhead'),
+    pwHandleStart: document.getElementById('pw-handle-start'),
+    pwHandleEnd:   document.getElementById('pw-handle-end'),
+    pwDimLeft:     document.getElementById('pw-dim-left'),
+    pwDimRight:    document.getElementById('pw-dim-right'),
+    pwWrap:        document.querySelector('.pw-waveform-wrap'),
   };
 }
 
@@ -5481,6 +5497,16 @@ function handlePartsTabClick(e) {
     return;
   }
 
+  // Mini-waveform click → open Part Waveform Editor
+  const waveCanvas = el.closest('.mini-waveform');
+  if (waveCanvas) {
+    const row = waveCanvas.closest('.ptt-row');
+    if (row) {
+      openPartWaveEditor(row.dataset.songId, row.dataset.partId);
+      return;
+    }
+  }
+
   // Toolbar actions
   const actionBtn = el.closest('[data-pt-action]');
   if (actionBtn && !actionBtn.disabled) {
@@ -5739,6 +5765,322 @@ function handlePartsTabAccentToggle(pos) {
   barData.has_accents = Object.values(db.accents).some(a => a.bar_id === barId);
   markDirty();
   renderPartsTabBarSection();
+}
+
+/* ══════════════════════════════════════════════════════
+   PART WAVEFORM EDITOR MODAL
+   ══════════════════════════════════════════════════════ */
+
+/** State for the Part Waveform Editor modal */
+let _pw = {
+  open: false,
+  songId: null,
+  partId: null,
+  partIndex: -1,
+  /** Full audio range visible in the modal (with context padding) */
+  viewStart: 0,
+  viewEnd: 0,
+  /** Current trim positions (editable) */
+  trimStart: 0,
+  trimEnd: 0,
+  /** Original trim positions (for cancel) */
+  origStart: 0,
+  origEnd: 0,
+  /** Playback animation frame id */
+  animFrame: null,
+  /** Is playing */
+  playing: false,
+};
+
+/**
+ * Open the Part Waveform Editor for a given part.
+ * @param {string} songId
+ * @param {string} partId
+ */
+function openPartWaveEditor(songId, partId) {
+  if (!audio.getBuffer()) return;
+  const parts = getSortedParts(songId);
+  const partIdx = parts.findIndex(p => p.id === partId);
+  if (partIdx < 0) return;
+
+  const startTime = getPartStartTime(partIdx);
+  const endTime = getPartEndTime(partIdx);
+  if (startTime === null || endTime === null) return;
+
+  const part = parts[partIdx];
+  const duration = audioMeta ? audioMeta.duration : audio.getBuffer().duration;
+
+  // Show ~2 seconds of context on each side, clamped to audio bounds
+  const pad = Math.min(2, (endTime - startTime) * 0.3);
+  _pw.songId = songId;
+  _pw.partId = partId;
+  _pw.partIndex = partIdx;
+  _pw.viewStart = Math.max(0, startTime - pad);
+  _pw.viewEnd = Math.min(duration, endTime + pad);
+  _pw.trimStart = startTime;
+  _pw.trimEnd = endTime;
+  _pw.origStart = startTime;
+  _pw.origEnd = endTime;
+  _pw.open = true;
+  _pw.playing = false;
+
+  els.pwTitle.textContent = `${part.name} — ${db.songs[songId]?.name || ''}`;
+  els.pwModal.classList.add('open');
+
+  // Draw after modal is visible (needs layout for canvas size)
+  requestAnimationFrame(() => {
+    _pwDrawWaveform();
+    _pwUpdateUI();
+  });
+}
+
+function closePartWaveEditor(save) {
+  _pwStopPlay();
+  _pw.open = false;
+  els.pwModal.classList.remove('open');
+
+  if (save && (_pw.trimStart !== _pw.origStart || _pw.trimEnd !== _pw.origEnd)) {
+    // Update the part marker
+    const marker = partMarkers.find(m => m.partIndex === _pw.partIndex);
+    if (marker) {
+      marker.time = _pw.trimStart;
+    }
+    // Update next part marker (= end of this part) if it exists
+    const nextMarker = partMarkers.find(m => m.partIndex === _pw.partIndex + 1);
+    if (nextMarker) {
+      nextMarker.time = _pw.trimEnd;
+    }
+    // Persist and re-render
+    saveMarkersToSong();
+    markDirty();
+    if (activeTab === 'parts') renderPartsTab();
+    else if (activeTab === 'audio') { drawWaveform(); }
+    toast('Part-Grenzen aktualisiert', 'success');
+  }
+}
+
+/** Draw the waveform on the modal canvas */
+function _pwDrawWaveform() {
+  const canvas = els.pwCanvas;
+  if (!canvas) return;
+  const wrap = els.pwWrap;
+  const w = wrap.clientWidth;
+  const h = wrap.clientHeight;
+  if (w <= 0 || h <= 0) return;
+
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, w, h);
+
+  const buckets = Math.floor(w);
+  const peaks = audio.getPeaksRange(_pw.viewStart, _pw.viewEnd, buckets);
+  const mid = h / 2;
+
+  // Midline
+  ctx.strokeStyle = 'rgba(92, 96, 128, 0.2)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(0, mid);
+  ctx.lineTo(w, mid);
+  ctx.stroke();
+
+  // Waveform bars
+  for (let i = 0; i < buckets; i++) {
+    const amp = peaks[i];
+    const barH = amp * (h * 0.85);
+    const opacity = 0.3 + amp * 0.7;
+    ctx.fillStyle = `rgba(0, 220, 130, ${opacity})`;
+    ctx.fillRect(i, mid - barH / 2, 1, barH || 1);
+  }
+}
+
+/** Convert time in seconds to X pixel position in the modal waveform */
+function _pwTimeToX(timeSec) {
+  const w = els.pwWrap.clientWidth;
+  const range = _pw.viewEnd - _pw.viewStart;
+  if (range <= 0) return 0;
+  return ((timeSec - _pw.viewStart) / range) * w;
+}
+
+/** Convert X pixel position to time in seconds */
+function _pwXToTime(x) {
+  const w = els.pwWrap.clientWidth;
+  const range = _pw.viewEnd - _pw.viewStart;
+  return _pw.viewStart + (x / w) * range;
+}
+
+/** Update handle positions, dimmed regions, and time labels */
+function _pwUpdateUI() {
+  const w = els.pwWrap.clientWidth;
+  const startX = _pwTimeToX(_pw.trimStart);
+  const endX = _pwTimeToX(_pw.trimEnd);
+
+  els.pwHandleStart.style.left = `${startX}px`;
+  els.pwHandleEnd.style.left = `${endX - 6}px`; // handle width offset
+
+  els.pwDimLeft.style.width = `${startX}px`;
+  els.pwDimRight.style.width = `${w - endX}px`;
+
+  els.pwTimeStart.textContent = fmtTime(_pw.trimStart);
+  els.pwTimeEnd.textContent = fmtTime(_pw.trimEnd);
+  els.pwTimeDur.textContent = fmtTime(_pw.trimEnd - _pw.trimStart);
+}
+
+/** Format seconds as M:SS.d */
+function fmtTime(sec) {
+  if (sec < 0) sec = 0;
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  return `${m}:${s < 10 ? '0' : ''}${s.toFixed(1)}`;
+}
+
+/* ── Part Wave Editor: Handle Drag ── */
+
+let _pwDrag = null; // { which: 'start'|'end', startX }
+
+function _pwStartDrag(which, e) {
+  e.preventDefault();
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  _pwDrag = { which, startX: clientX };
+
+  const onMove = (ev) => {
+    if (!_pwDrag) return;
+    const cx = ev.touches ? ev.touches[0].clientX : ev.clientX;
+    const rect = els.pwWrap.getBoundingClientRect();
+    const x = Math.max(0, Math.min(cx - rect.left, rect.width));
+    const time = _pwXToTime(x);
+
+    if (_pwDrag.which === 'start') {
+      _pw.trimStart = Math.max(_pw.viewStart, Math.min(time, _pw.trimEnd - 0.1));
+    } else {
+      _pw.trimEnd = Math.min(_pw.viewEnd, Math.max(time, _pw.trimStart + 0.1));
+    }
+    _pwUpdateUI();
+  };
+  const onEnd = () => {
+    _pwDrag = null;
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onEnd);
+    document.removeEventListener('touchmove', onMove);
+    document.removeEventListener('touchend', onEnd);
+  };
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onEnd);
+  document.addEventListener('touchmove', onMove, { passive: false });
+  document.addEventListener('touchend', onEnd);
+}
+
+/* ── Part Wave Editor: Playback ── */
+
+function _pwTogglePlay() {
+  if (_pw.playing) {
+    _pwStopPlay();
+  } else {
+    _pw.playing = true;
+    els.pwPlay.innerHTML = '&#9632; Stop';
+    els.pwPlayhead.style.display = 'block';
+    audio.playSegments([{ startTime: _pw.trimStart, endTime: _pw.trimEnd }], () => {
+      _pwStopPlay();
+    });
+    _pwAnimatePlayhead();
+  }
+}
+
+function _pwStopPlay() {
+  _pw.playing = false;
+  audio.stopSegments();
+  if (_pw.animFrame) {
+    cancelAnimationFrame(_pw.animFrame);
+    _pw.animFrame = null;
+  }
+  els.pwPlay.innerHTML = '&#9654; Play';
+  els.pwPlayhead.style.display = 'none';
+}
+
+function _pwAnimatePlayhead() {
+  if (!_pw.playing) return;
+  const t = audio.getSegmentCurrentTime();
+  if (t > 0) {
+    const x = _pwTimeToX(t);
+    els.pwPlayhead.style.left = `${x}px`;
+  }
+  _pw.animFrame = requestAnimationFrame(_pwAnimatePlayhead);
+}
+
+/* ── Part Wave Editor: Nudge ── */
+
+const PW_NUDGE_MS = 50;
+
+function _pwNudge(which, dir) {
+  const delta = (dir * PW_NUDGE_MS) / 1000;
+  if (which === 'start') {
+    _pw.trimStart = Math.max(_pw.viewStart, Math.min(_pw.trimStart + delta, _pw.trimEnd - 0.05));
+  } else {
+    _pw.trimEnd = Math.min(_pw.viewEnd, Math.max(_pw.trimEnd + delta, _pw.trimStart + 0.05));
+  }
+  _pwUpdateUI();
+}
+
+/* ── Part Wave Editor: Click on waveform to seek ── */
+
+function _pwWaveformClick(e) {
+  if (_pwDrag) return; // was a drag, not a click
+  const rect = els.pwWrap.getBoundingClientRect();
+  const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+  const time = _pwXToTime(x);
+
+  // If playing, seek to that position (restart segment from there)
+  if (_pw.playing) {
+    _pwStopPlay();
+    _pw.playing = true;
+    els.pwPlay.innerHTML = '&#9632; Stop';
+    els.pwPlayhead.style.display = 'block';
+    const seekTime = Math.max(_pw.trimStart, Math.min(time, _pw.trimEnd));
+    audio.playSegments([{ startTime: seekTime, endTime: _pw.trimEnd }], () => {
+      _pwStopPlay();
+    });
+    _pwAnimatePlayhead();
+  }
+}
+
+/* ── Part Wave Editor: Init Event Listeners ── */
+
+function initPartWaveEditor() {
+  // Handle drag
+  els.pwHandleStart.addEventListener('mousedown', (e) => _pwStartDrag('start', e));
+  els.pwHandleStart.addEventListener('touchstart', (e) => _pwStartDrag('start', e), { passive: false });
+  els.pwHandleEnd.addEventListener('mousedown', (e) => _pwStartDrag('end', e));
+  els.pwHandleEnd.addEventListener('touchstart', (e) => _pwStartDrag('end', e), { passive: false });
+
+  // Waveform click to seek
+  els.pwWrap.addEventListener('click', _pwWaveformClick);
+
+  // Play button
+  els.pwPlay.addEventListener('click', _pwTogglePlay);
+
+  // Nudge buttons
+  els.pwModal.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-pw]');
+    if (!btn) return;
+    const action = btn.dataset.pw;
+    if (action === 'nudge-start-left')  _pwNudge('start', -1);
+    if (action === 'nudge-start-right') _pwNudge('start', 1);
+    if (action === 'nudge-end-left')    _pwNudge('end', -1);
+    if (action === 'nudge-end-right')   _pwNudge('end', 1);
+  });
+
+  // Save / Cancel / Close
+  els.pwSave.addEventListener('click', () => closePartWaveEditor(true));
+  els.pwCancel.addEventListener('click', () => closePartWaveEditor(false));
+  els.pwClose.addEventListener('click', () => closePartWaveEditor(false));
+
+  // Background click closes
+  els.pwModal.addEventListener('click', (e) => {
+    if (e.target === els.pwModal) closePartWaveEditor(false);
+  });
 }
 
 /* ══════════════════════════════════════════════════════
@@ -6486,6 +6828,7 @@ function wireEvents() {
 document.addEventListener('DOMContentLoaded', () => {
   cacheDom();
   wireEvents();
+  initPartWaveEditor();
   restoreSidebar();
   audio.installGestureListener();
   // Set version from JS constant (avoids merge conflicts in index.html)

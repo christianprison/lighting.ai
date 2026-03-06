@@ -542,6 +542,121 @@ label {
   margin-bottom: 0;
 }
 
+/* ── Part Waveform Editor Modal ────────────────────── */
+.part-wave-modal {
+  max-width: 700px;
+  width: 95%;
+  padding: 20px;
+}
+.pw-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.pw-header h2 { margin: 0; font-size: 1.1rem; }
+.pw-header #pw-close {
+  font-size: 1.3rem;
+  line-height: 1;
+  padding: 4px 10px;
+  color: var(--t3);
+}
+.pw-waveform-wrap {
+  position: relative;
+  height: 140px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  touch-action: none;
+  cursor: pointer;
+}
+#pw-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+/* Dimmed areas outside trim range */
+.pw-dim {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.55);
+  pointer-events: none;
+}
+.pw-dim-left { left: 0; }
+.pw-dim-right { right: 0; }
+/* Trim handles */
+.pw-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  cursor: ew-resize;
+  z-index: 2;
+  touch-action: none;
+}
+.pw-handle::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 2px;
+  height: 36px;
+  border-radius: 1px;
+}
+.pw-handle-start { border-left: 3px solid var(--green); }
+.pw-handle-start::after { background: var(--green); }
+.pw-handle-end { border-right: 3px solid var(--red); }
+.pw-handle-end::after { background: var(--red); }
+/* Expand touch target on mobile */
+@media (pointer: coarse) {
+  .pw-handle { width: 20px; }
+}
+/* Playhead */
+.pw-playhead {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--t1);
+  pointer-events: none;
+  z-index: 3;
+  display: none;
+}
+/* Time display */
+.pw-times {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+}
+.pw-time-label {
+  color: var(--t3);
+  font-size: 0.8rem;
+}
+.pw-time-label .mono {
+  color: var(--t1);
+  margin-left: 4px;
+}
+/* Controls */
+.pw-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 12px;
+}
+.pw-nudge-group {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+.pw-sep {
+  width: 12px;
+}
+.pw-play-group { display: flex; gap: 6px; }
+
 /* ── Toast / Notifications ─────────────────────────── */
 .toast-container {
   position: fixed;
@@ -1253,6 +1368,7 @@ label {
   border-radius: 3px;
   background: var(--bg);
   display: block;
+  cursor: pointer;
 }
 .mini-waveform-sm {
   width: 80px;

@@ -1471,6 +1471,17 @@ label {
   border-color: var(--red);
 }
 
+.tap-btn.tap-btn-snap {
+  border-color: rgba(0, 220, 130, 0.3);
+  background: rgba(0, 220, 130, 0.05);
+  color: var(--green);
+}
+
+.tap-btn.tap-btn-snap:not([disabled]):hover {
+  background: rgba(0, 220, 130, 0.15);
+  border-color: var(--green);
+}
+
 /* ── Split Result List ───────────────────────────── */
 .split-result {
   margin-bottom: 16px;
@@ -2260,6 +2271,12 @@ label {
   color: var(--t1);
 }
 
+.lyrics-source-btns {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
 .lyrics-genius-link {
   background: var(--bg3);
   border: 1px solid var(--border2);
@@ -2274,6 +2291,14 @@ label {
 .lyrics-genius-link:hover {
   background: var(--bg4);
   border-color: var(--amber);
+}
+
+#lyrics-lrclib-btn {
+  color: var(--cyan);
+  border-color: var(--border2);
+}
+#lyrics-lrclib-btn:hover {
+  border-color: var(--cyan);
 }
 
 .lyrics-paste {
@@ -2570,5 +2595,250 @@ label {
   display: flex;
   justify-content: flex-end;
   margin: 8px 0 16px 0;
+}
+
+/* ══════════════════════════════════════════════════════
+   Song Progress Panel
+   ══════════════════════════════════════════════════════ */
+
+.progress-panel {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius2);
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.progress-summary {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  cursor: default;
+}
+
+.progress-ring-wrap {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+}
+
+.progress-ring-pct {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--t2);
+}
+
+.progress-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.progress-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.progress-next {
+  font-size: 0.78rem;
+  color: var(--t2);
+  margin-top: 2px;
+}
+
+.progress-checklist {
+  border-top: 1px solid var(--border);
+  padding: 8px 16px 12px;
+}
+
+.progress-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  border-radius: var(--radius);
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.progress-step:hover { background: var(--bg4); }
+
+.progress-step.done .progress-check { color: var(--green); }
+.progress-step.done .progress-label { color: var(--t3); text-decoration: line-through; }
+
+.progress-check {
+  width: 18px;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--t4);
+}
+
+.progress-label { flex: 1; }
+
+.progress-goto {
+  font-size: 0.7rem;
+  font-family: var(--font-mono);
+}
+
+/* Song list progress mini ring */
+.song-progress-mini {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.song-pct {
+  font-size: 0.65rem;
+  color: var(--t3);
+  min-width: 22px;
+  text-align: right;
+}
+
+/* ══════════════════════════════════════════════════════
+   Confetti Toast
+   ══════════════════════════════════════════════════════ */
+
+.toast-confetti {
+  position: relative;
+  overflow: hidden;
+  border-color: rgba(0, 220, 130, 0.6) !important;
+  padding: 0 !important;
+}
+
+.toast-confetti-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  font-weight: 500;
+  z-index: 1;
+  position: relative;
+}
+
+.toast-confetti-icon {
+  font-size: 1.3rem;
+}
+
+.toast-pct {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--green);
+  font-weight: 600;
+}
+
+.toast-confetti-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* ══════════════════════════════════════════════════════
+   Accents Tab
+   ══════════════════════════════════════════════════════ */
+
+.accents-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.accents-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.accents-legend {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+  padding: 8px 12px;
+  background: var(--bg2);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+
+.accents-part-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius2);
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+
+.accents-part-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.accents-part-header:hover { background: var(--bg4); }
+
+.accents-part-arrow {
+  font-size: 0.7rem;
+  color: var(--t3);
+  width: 14px;
+}
+
+.accents-part-name { font-weight: 500; }
+.accents-part-info { font-size: 0.78rem; }
+.accents-part-count { font-size: 0.78rem; }
+
+.accents-bars-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 0 14px 10px;
+}
+
+.accents-bar-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.accents-bar-block:hover { background: var(--bg4); }
+.accents-bar-block.active { border-color: var(--cyan); background: var(--bg4); }
+.accents-bar-block.has-accents { border-color: var(--amber); }
+
+.accents-bar-num { font-size: 0.7rem; }
+.accents-bar-dots { font-size: 0.6rem; color: var(--amber); line-height: 1; }
+
+.accents-bar-editor {
+  padding: 10px 14px 14px;
+  border-top: 1px solid var(--border);
+}
+
+.accents-bar-editor-header {
+  margin-bottom: 10px;
+}
+
+.accents-bar-editor-header h4 {
+  font-size: 0.85rem;
+  font-weight: 500;
 }
 

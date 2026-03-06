@@ -106,6 +106,7 @@ function cacheDom() {
     tabTakte:      document.getElementById('tab-takte'),
     tabAudio:      document.getElementById('tab-audio'),
     tabLyrics:     document.getElementById('tab-lyrics'),
+    tabAccents:    document.getElementById('tab-accents'),
     tabSetlist:    document.getElementById('tab-setlist'),
     btnSettings:   document.getElementById('btn-settings'),
     btnSave:       document.getElementById('btn-save'),
@@ -387,6 +388,160 @@ function recalcSongDuration() {
   song.duration = fmtDur(totalSec);
 }
 
+/* ── Song Progress Checklist ───────────────────────── */
+
+const SONG_CHECKLIST = [
+  { id: 'song_created',   label: 'Song anlegen',           tab: 'editor' },
+  { id: 'parts_named',    label: 'Parts benennen',         tab: 'parts' },
+  { id: 'audio_loaded',   label: 'Audio laden',            tab: 'audio' },
+  { id: 'part_splitting', label: 'Part-Splitting',         tab: 'audio' },
+  { id: 'bar_splitting',  label: 'Bar-Splitting',          tab: 'audio' },
+  { id: 'lyrics_import',  label: 'Lyrics importieren',     tab: 'lyrics' },
+  { id: 'accents_set',    label: 'Accents setzen',         tab: 'accents' },
+  { id: 'templates_set',  label: 'Light-Templates zuweisen', tab: 'parts' },
+  { id: 'setlist_added',  label: 'In Setlist aufnehmen',   tab: 'setlist' },
+];
+
+/** Track previously completed steps per song to detect newly completed ones */
+let _prevProgress = {}; // songId → Set of completed step ids
+
+function getSongProgress(songId) {
+  if (!songId || !db?.songs[songId]) return { steps: [], pct: 0, next: null };
+  const song = db.songs[songId];
+  const parts = getSortedParts(songId);
+  ensureCollections();
+
+  const completed = new Set();
+
+  // 1. Song angelegt
+  completed.add('song_created');
+
+  // 2. Parts benannt (mindestens 1 Part mit nicht-Default-Name)
+  if (parts.length > 0 && parts.some(p => p.name && p.name !== 'New Part'))
+    completed.add('parts_named');
+
+  // 3. Audio geladen (audio_ref vorhanden)
+  if (song.audio_ref) completed.add('audio_loaded');
+
+  // 4. Part-Splitting (split_markers.partMarkers > 0)
+  if (song.split_markers?.partMarkers?.length > 0)
+    completed.add('part_splitting');
+
+  // 5. Bar-Splitting (split_markers.barMarkers > 0)
+  if (song.split_markers?.barMarkers?.length > 0)
+    completed.add('bar_splitting');
+
+  // 6. Lyrics importiert (mindestens 1 Bar hat Lyrics)
+  const songBarIds = [];
+  for (const p of parts) {
+    for (const [bId, b] of Object.entries(db.bars)) {
+      if (b.part_id === p.id) songBarIds.push(bId);
+    }
+  }
+  if (songBarIds.some(bId => db.bars[bId]?.lyrics))
+    completed.add('lyrics_import');
+
+  // 7. Accents gesetzt (mindestens 1 Accent)
+  if (songBarIds.some(bId => Object.values(db.accents).some(a => a.bar_id === bId)))
+    completed.add('accents_set');
+
+  // 8. Light-Templates zugewiesen (alle Parts haben Template != leer)
+  if (parts.length > 0 && parts.every(p => p.light_template && p.light_template !== ''))
+    completed.add('templates_set');
+
+  // 9. In Setlist
+  if (db.setlist?.items?.some(i => i.type === 'song' && i.song_id === songId))
+    completed.add('setlist_added');
+
+  const steps = SONG_CHECKLIST.map(s => ({ ...s, done: completed.has(s.id) }));
+  const doneCount = steps.filter(s => s.done).length;
+  const pct = Math.round((doneCount / steps.length) * 100);
+  const next = steps.find(s => !s.done) || null;
+
+  return { steps, pct, next, completed };
+}
+
+/** Check for newly completed steps and fire confetti toast */
+function checkProgressAndCelebrate(songId) {
+  if (!songId) return;
+  const { completed, pct } = getSongProgress(songId);
+  const prev = _prevProgress[songId];
+  if (!prev) { _prevProgress[songId] = completed; return; }
+
+  for (const stepId of completed) {
+    if (!prev.has(stepId)) {
+      const step = SONG_CHECKLIST.find(s => s.id === stepId);
+      if (step) {
+        toastConfetti(`${step.label} erledigt!`, pct);
+      }
+    }
+  }
+  _prevProgress[songId] = completed;
+}
+
+/* ── Confetti Toast ───────────────────────────────── */
+
+function toastConfetti(msg, pct) {
+  const el = document.createElement('div');
+  el.className = 'toast success toast-confetti';
+  el.innerHTML = `
+    <div class="toast-confetti-content">
+      <span class="toast-confetti-icon">&#127881;</span>
+      <span>${esc(msg)}</span>
+      ${pct !== undefined ? `<span class="toast-pct">${pct}%</span>` : ''}
+    </div>
+    <canvas class="toast-confetti-canvas" width="300" height="60"></canvas>`;
+  els.toastContainer.appendChild(el);
+
+  // Animate confetti particles
+  const canvas = el.querySelector('.toast-confetti-canvas');
+  if (canvas) animateConfetti(canvas);
+
+  setTimeout(() => el.remove(), 4000);
+}
+
+function animateConfetti(canvas) {
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width, h = canvas.height;
+  const colors = ['#00dc82', '#f0a030', '#38bdf8', '#ff3b5c', '#eef0f6', '#a855f7'];
+  const particles = Array.from({ length: 40 }, () => ({
+    x: w / 2 + (Math.random() - 0.5) * 60,
+    y: h,
+    vx: (Math.random() - 0.5) * 8,
+    vy: -Math.random() * 5 - 3,
+    size: Math.random() * 4 + 2,
+    color: colors[Math.floor(Math.random() * colors.length)],
+    rot: Math.random() * Math.PI * 2,
+    rotV: (Math.random() - 0.5) * 0.3,
+    life: 1,
+  }));
+
+  let frame = 0;
+  function tick() {
+    ctx.clearRect(0, 0, w, h);
+    let alive = false;
+    for (const p of particles) {
+      if (p.life <= 0) continue;
+      alive = true;
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.15; // gravity
+      p.rot += p.rotV;
+      p.life -= 0.02;
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.globalAlpha = Math.max(0, p.life);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+      ctx.restore();
+    }
+    frame++;
+    if (alive && frame < 120) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
 /* ── Song List ─────────────────────────────────────── */
 
 function getSortedSongs() {
@@ -412,15 +567,25 @@ function renderSongList(filter = '') {
         <div class="song-artist">${songs.length} Songs</div>
       </div>
     </div>` : '') +
-    filtered.map(s => `
+    filtered.map(s => {
+      const prog = getSongProgress(s.id);
+      return `
     <div class="song-item${s.id === selectedSongId ? ' active' : ''}" data-id="${s.id}">
       <div style="flex:1;min-width:0">
         <div class="song-name">${esc(s.name)}</div>
         <div class="song-artist">${esc(s.artist)}</div>
       </div>
-      <div class="song-bpm">${s.bpm || ''}</div>
-    </div>
-  `).join('');
+      <div class="song-progress-mini" title="${prog.pct}% — ${prog.next ? prog.next.label : 'Komplett'}">
+        <svg viewBox="0 0 24 24" width="20" height="20">
+          <circle cx="12" cy="12" r="10" fill="none" stroke="var(--border2)" stroke-width="2"/>
+          <circle cx="12" cy="12" r="10" fill="none" stroke="${prog.pct === 100 ? 'var(--green)' : 'var(--amber)'}" stroke-width="2"
+            stroke-dasharray="${Math.PI * 20}" stroke-dashoffset="${Math.PI * 20 * (1 - prog.pct / 100)}"
+            transform="rotate(-90 12 12)" stroke-linecap="round"/>
+        </svg>
+        <span class="song-pct mono">${prog.pct}</span>
+      </div>
+    </div>`;
+    }).join('');
 }
 
 /* ── Tab Routing ───────────────────────────────────── */
@@ -435,7 +600,7 @@ function switchTab(tab) {
     stopLyricsPartPlay();
   }
   // Pre-warm AudioContext for tabs with playback
-  if (tab === 'lyrics' || tab === 'audio' || tab === 'parts' || tab === 'takte') {
+  if (tab === 'lyrics' || tab === 'audio' || tab === 'parts' || tab === 'takte' || tab === 'accents') {
     audio.warmup();
   }
   activeTab = tab;
@@ -444,6 +609,7 @@ function switchTab(tab) {
   els.tabTakte?.classList.toggle('active', tab === 'takte');
   els.tabAudio?.classList.toggle('active', tab === 'audio');
   els.tabLyrics?.classList.toggle('active', tab === 'lyrics');
+  els.tabAccents?.classList.toggle('active', tab === 'accents');
   els.tabSetlist?.classList.toggle('active', tab === 'setlist');
   renderContent();
 }
@@ -458,6 +624,7 @@ function renderContent() {
   else if (activeTab === 'takte') renderTakteTab();
   else if (activeTab === 'audio') renderAudioTab();
   else if (activeTab === 'lyrics') renderLyricsTab();
+  else if (activeTab === 'accents') renderAccentsTab();
   else if (activeTab === 'setlist') renderSetlistTab();
 }
 
@@ -474,6 +641,7 @@ function renderEditorTab() {
   els.content.innerHTML = `
     <div class="editor-panel">
       <div class="editor-scroll" id="editor-scroll">
+        <div id="progress-area"></div>
         <div id="song-fields-area"></div>
         <div id="parts-area"></div>
         <div id="bar-area"></div>
@@ -481,10 +649,65 @@ function renderEditorTab() {
       <div id="summary-area"></div>
     </div>`;
 
+  renderProgressPanel();
   renderSongFields();
   renderPartsTable();
   renderBarSection();
   renderSummary();
+
+  // Initialize progress tracking for this song
+  if (selectedSongId && !_prevProgress[selectedSongId]) {
+    _prevProgress[selectedSongId] = getSongProgress(selectedSongId).completed;
+  }
+}
+
+/* ── Song Progress Panel ──────────────────────────── */
+
+let _progressExpanded = false; // whether checklist detail is shown
+
+function renderProgressPanel() {
+  const area = document.getElementById('progress-area');
+  if (!area || !selectedSongId) return;
+
+  const prog = getSongProgress(selectedSongId);
+  const song = db.songs[selectedSongId];
+  const pctColor = prog.pct === 100 ? 'var(--green)' : prog.pct >= 50 ? 'var(--amber)' : 'var(--red)';
+
+  area.innerHTML = `
+    <div class="progress-panel">
+      <div class="progress-summary" id="progress-summary">
+        <div class="progress-ring-wrap">
+          <svg viewBox="0 0 48 48" width="44" height="44">
+            <circle cx="24" cy="24" r="20" fill="none" stroke="var(--border2)" stroke-width="3"/>
+            <circle cx="24" cy="24" r="20" fill="none" stroke="${pctColor}" stroke-width="3"
+              stroke-dasharray="${Math.PI * 40}" stroke-dashoffset="${Math.PI * 40 * (1 - prog.pct / 100)}"
+              transform="rotate(-90 24 24)" stroke-linecap="round"/>
+          </svg>
+          <span class="progress-ring-pct mono">${prog.pct}%</span>
+        </div>
+        <div class="progress-info">
+          <div class="progress-title">${esc(song.name)}</div>
+          ${prog.next
+            ? `<div class="progress-next">Nächster Schritt: <strong>${esc(prog.next.label)}</strong></div>`
+            : `<div class="progress-next text-green">Alle Schritte erledigt!</div>`}
+        </div>
+        <button class="btn btn-sm" id="progress-toggle-btn" title="Checkliste anzeigen">${_progressExpanded ? '&#9650; Zuklappen' : '&#9660; Checkliste'}</button>
+      </div>
+      ${_progressExpanded ? buildProgressChecklist(prog) : ''}
+    </div>`;
+}
+
+function buildProgressChecklist(prog) {
+  return `
+    <div class="progress-checklist">
+      ${prog.steps.map(s => `
+        <div class="progress-step ${s.done ? 'done' : ''}" data-progress-tab="${s.tab}">
+          <span class="progress-check">${s.done ? '&#10003;' : '&#9675;'}</span>
+          <span class="progress-label">${esc(s.label)}</span>
+          ${!s.done ? `<span class="progress-goto text-t3">&#8594; ${s.tab.toUpperCase()}</span>` : ''}
+        </div>
+      `).join('')}
+    </div>`;
 }
 
 /* ── Song Fields ───────────────────────────────────── */
@@ -824,6 +1047,18 @@ function handleEditorChange(e) {
 
 function handleEditorClick(e) {
   const el = e.target;
+
+  /* ── Progress panel ── */
+  if (el.closest('#progress-toggle-btn')) {
+    _progressExpanded = !_progressExpanded;
+    renderProgressPanel();
+    return;
+  }
+  const progressStep = el.closest('[data-progress-tab]');
+  if (progressStep) {
+    switchTab(progressStep.dataset.progressTab);
+    return;
+  }
 
   /* ── Play part button ── */
   const playBtn = el.closest('[data-action="play-part"]');
@@ -1344,6 +1579,10 @@ function buildTapButtons(parts, isPlay) {
       </button>
       <button class="tap-btn tap-undo" id="tap-undo" ${tapHistory.length === 0 ? 'disabled' : ''}>
         <span class="tap-label">UNDO <kbd>Z</kbd></span>
+      </button>
+      <button class="tap-btn tap-btn-snap" id="tap-snap-peaks" ${(partMarkers.length + barMarkers.length) === 0 ? 'disabled' : ''} title="Alle Marker auf naechsten Audio-Peak verschieben">
+        <span class="tap-label">SNAP</span>
+        <span class="tap-info">&#8614; Peak</span>
       </button>
       <button class="tap-btn tap-btn-del" id="tap-delete-parts" ${partMarkers.length === 0 ? 'disabled' : ''}>
         <span class="tap-label">DEL PARTS</span>
@@ -2530,6 +2769,43 @@ async function handleDeleteAllParts() {
   renderAudioTab();
 }
 
+function handleSnapToPeaks() {
+  if (!audio.getBuffer()) return;
+  const totalMarkers = partMarkers.length + barMarkers.length;
+  if (totalMarkers === 0) return;
+
+  let snapped = 0;
+  // Snap part markers
+  for (const m of partMarkers) {
+    const newTime = audio.findPeakNear(m.time, 80);
+    if (Math.abs(newTime - m.time) > 0.001) { m.time = newTime; snapped++; }
+  }
+  // Snap bar markers, skip first bar of each part (it should follow its part marker)
+  for (const m of barMarkers) {
+    // Check if this is a first bar (same time as its part marker)
+    const isFirstBar = partMarkers.some(pm => pm.partIndex === m.partIndex && Math.abs(pm.time - m.time) < 0.01);
+    if (isFirstBar) {
+      // Sync first bar to its part marker
+      const pm = partMarkers.find(p => p.partIndex === m.partIndex);
+      if (pm && Math.abs(m.time - pm.time) > 0.001) { m.time = pm.time; snapped++; }
+      continue;
+    }
+    const newTime = audio.findPeakNear(m.time, 80);
+    if (Math.abs(newTime - m.time) > 0.001) { m.time = newTime; snapped++; }
+  }
+
+  // Re-sort
+  partMarkers.sort((a, b) => a.time - b.time);
+  barMarkers.sort((a, b) => a.time - b.time);
+  saveMarkersToSong();
+  markDirty();
+  drawWaveform();
+  const parts = getSortedParts(selectedSongId);
+  updateSplitResultLive(parts);
+  updateAudioSummaryLive(parts);
+  toast(`${snapped} Marker auf Peaks verschoben`, 'success');
+}
+
 async function handleDeleteAllBarMarkers() {
   if (barMarkers.length === 0) return;
   const ok = await showConfirm(
@@ -2871,6 +3147,7 @@ function handleAudioClick(e) {
   if (el.closest('#tap-part') && !el.closest('#tap-part').disabled) { handlePartTap(); return; }
   if (el.closest('#tap-bar') && !el.closest('#tap-bar').disabled) { handleBarTap(); return; }
   if (el.closest('#tap-undo') && !el.closest('#tap-undo').disabled) { handleUndoTap(); return; }
+  if (el.closest('#tap-snap-peaks') && !el.closest('#tap-snap-peaks').disabled) { handleSnapToPeaks(); return; }
   if (el.closest('#tap-delete-parts') && !el.closest('#tap-delete-parts').disabled) { handleDeleteAllParts(); return; }
   if (el.closest('#tap-delete-bars') && !el.closest('#tap-delete-bars').disabled) { handleDeleteAllBarMarkers(); return; }
 
@@ -2948,17 +3225,177 @@ function renderLyricsTab() {
 
 function buildLyricsRawImport(song, geniusUrl) {
   const raw = song.lyrics_raw || '';
+  const hasSyncedLyrics = !!song._lrclib_synced;
   return `
     <div class="lyrics-raw-section" id="lyrics-raw-section">
       <div class="lyrics-raw-header">
         <h3>Rohtext</h3>
-        <a href="${geniusUrl}" target="_blank" rel="noopener" class="btn btn-sm lyrics-genius-link" title="Auf Genius.com suchen">&#127925; Genius.com</a>
+        <div class="lyrics-source-btns">
+          <a href="${geniusUrl}" target="_blank" rel="noopener" class="btn btn-sm lyrics-genius-link" title="Auf Genius.com suchen">&#127925; Genius.com</a>
+          <button class="btn btn-sm" id="lyrics-lrclib-btn" title="Zeitgestempelte Lyrics von LRCLIB abrufen">&#9201; LRCLIB</button>
+        </div>
       </div>
-      <textarea id="lyrics-raw-text" class="lyrics-paste" rows="8" placeholder="Songtext hier einfuegen...&#10;Tipp: Auf Genius.com den Songtext kopieren und hier einfuegen.&#10;Dann auf VERTEILEN klicken, um den Text auf die Parts aufzuteilen.">${esc(raw)}</textarea>
+      <textarea id="lyrics-raw-text" class="lyrics-paste" rows="8" placeholder="Songtext hier einfuegen...&#10;Tipp: Auf Genius.com den Songtext kopieren und hier einfuegen.&#10;Oder LRCLIB-Button fuer zeitgestempelte Lyrics nutzen.&#10;Dann auf VERTEILEN klicken.">${esc(raw)}</textarea>
       <div class="lyrics-import-actions">
         <button class="btn btn-sm" id="lyrics-distribute-btn" title="Rohtext automatisch auf Parts verteilen">VERTEILEN</button>
+        ${hasSyncedLyrics ? '<button class="btn btn-sm btn-primary" id="lyrics-sync-distribute-btn" title="Zeitgestempelte Lyrics praezise auf Takte verteilen">SYNC-VERTEILEN</button>' : ''}
       </div>
     </div>`;
+}
+
+/* ── LRCLIB Integration ──────────────────────────── */
+
+/**
+ * Fetch synced lyrics from LRCLIB.net API.
+ * Returns { syncedLyrics, plainLyrics } or null.
+ */
+async function fetchLrclib(artist, title) {
+  const url = `https://lrclib.net/api/get?artist_name=${encodeURIComponent(artist)}&track_name=${encodeURIComponent(title)}`;
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const data = await res.json();
+    return {
+      syncedLyrics: data.syncedLyrics || null,
+      plainLyrics: data.plainLyrics || null,
+    };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Parse LRC format timestamps into [{time, text}] array.
+ * Format: [mm:ss.xx] text
+ */
+function parseLrc(lrc) {
+  if (!lrc) return [];
+  const lines = [];
+  for (const line of lrc.split('\n')) {
+    const m = line.match(/^\[(\d+):(\d+)\.(\d+)\]\s*(.*)$/);
+    if (!m) continue;
+    const min = parseInt(m[1], 10);
+    const sec = parseInt(m[2], 10);
+    const ms = parseInt(m[3].padEnd(3, '0').slice(0, 3), 10);
+    const time = min * 60 + sec + ms / 1000;
+    const text = m[4].trim();
+    if (text) lines.push({ time, text });
+  }
+  return lines;
+}
+
+/**
+ * Distribute synced (timestamped) lyrics to bars using bar marker times.
+ * Each LRC line gets assigned to the bar whose time range contains the line's timestamp.
+ */
+function distributeSyncedLyrics() {
+  if (!selectedSongId) return;
+  const song = db.songs[selectedSongId];
+  if (!song?._lrclib_synced) {
+    toast('Keine zeitgestempelten Lyrics vorhanden. Erst LRCLIB abrufen.', 'error');
+    return;
+  }
+
+  const lrcLines = parseLrc(song._lrclib_synced);
+  if (lrcLines.length === 0) {
+    toast('Keine verwertbaren Zeilen in den Sync-Lyrics', 'error');
+    return;
+  }
+
+  const parts = getSortedParts(selectedSongId);
+  if (parts.length === 0) return;
+
+  // Build a flat list of bars with their time ranges from split markers
+  const barTimings = []; // [{partId, barNum, startTime, endTime}]
+  for (let i = 0; i < parts.length; i++) {
+    const partBars = getBarMarkersForPart(i);
+    const partEnd = getPartEndTime(i);
+    for (let b = 0; b < partBars.length; b++) {
+      const start = partBars[b].time;
+      const end = b + 1 < partBars.length ? partBars[b + 1].time : (partEnd || start + 10);
+      barTimings.push({ partId: parts[i].id, barNum: b + 1, startTime: start, endTime: end });
+    }
+  }
+
+  if (barTimings.length === 0) {
+    toast('Keine Bar-Marker vorhanden. Erst Audio splitten.', 'error');
+    return;
+  }
+
+  // Assign each LRC line to the matching bar
+  const barTexts = {}; // key: `${partId}_${barNum}` → [texts]
+  for (const line of lrcLines) {
+    // Find the bar whose time range contains this line
+    let bestBar = null;
+    for (const bt of barTimings) {
+      if (line.time >= bt.startTime && line.time < bt.endTime) {
+        bestBar = bt;
+        break;
+      }
+    }
+    // Fallback: assign to nearest bar
+    if (!bestBar) {
+      let minDist = Infinity;
+      for (const bt of barTimings) {
+        const dist = Math.abs(line.time - bt.startTime);
+        if (dist < minDist) { minDist = dist; bestBar = bt; }
+      }
+    }
+    if (bestBar) {
+      const key = `${bestBar.partId}_${bestBar.barNum}`;
+      if (!barTexts[key]) barTexts[key] = [];
+      barTexts[key].push(line.text);
+    }
+  }
+
+  // Write lyrics into bar inputs
+  let filled = 0;
+  for (const [key, texts] of Object.entries(barTexts)) {
+    const [partId, barNumStr] = key.split(/_(\d+)$/).filter(Boolean);
+    const barNum = parseInt(barNumStr, 10);
+    const inp = document.querySelector(`.lyrics-bar-input[data-lyrics-bar-part="${partId}"][data-lyrics-bar-num="${barNum}"]`);
+    if (inp) {
+      inp.value = texts.join(' / ');
+      filled++;
+    }
+  }
+
+  markDirty();
+  toast(`Sync-Lyrics auf ${filled} Takte verteilt`, 'success');
+}
+
+async function handleLrclibFetch() {
+  if (!selectedSongId) return;
+  const song = db.songs[selectedSongId];
+  if (!song) return;
+
+  toast('LRCLIB wird abgefragt...', 'info', 2000);
+
+  const result = await fetchLrclib(song.artist || '', song.name || '');
+  if (!result) {
+    toast('Keine Lyrics bei LRCLIB gefunden', 'error');
+    return;
+  }
+
+  // Store synced lyrics for later precision distribution
+  if (result.syncedLyrics) {
+    song._lrclib_synced = result.syncedLyrics;
+    toast('Zeitgestempelte Lyrics geladen! Nutze SYNC-VERTEILEN.', 'success');
+  }
+
+  // Put plain lyrics into the raw text field
+  const rawText = result.plainLyrics || result.syncedLyrics?.replace(/\[\d+:\d+\.\d+\]\s*/g, '') || '';
+  if (rawText) {
+    const rawEl = document.getElementById('lyrics-raw-text');
+    if (rawEl) rawEl.value = rawText;
+    song.lyrics_raw = rawText;
+    markDirty();
+  }
+
+  // Re-render to show SYNC-VERTEILEN button if synced lyrics available
+  if (result.syncedLyrics) {
+    renderLyricsTab();
+  }
 }
 
 /**
@@ -3241,9 +3678,49 @@ function endLyricsWaveDrag() {
   drawLyricsPartWaveform(moved.canvas);
 }
 
+/** Synonyms for section header → part name matching */
+const SECTION_SYNONYMS = {
+  'verse': ['verse', 'strophe', 'stanza'],
+  'chorus': ['chorus', 'refrain', 'hook'],
+  'pre-chorus': ['pre-chorus', 'prechorus', 'pre chorus'],
+  'bridge': ['bridge', 'bruecke', 'brücke', 'middle 8'],
+  'outro': ['outro', 'ending', 'coda'],
+  'intro': ['intro', 'opening'],
+  'solo': ['solo', 'guitar solo', 'instrumental'],
+  'breakdown': ['breakdown', 'break'],
+  'interlude': ['interlude', 'zwischenspiel'],
+  'post-chorus': ['post-chorus', 'postchorus', 'post chorus'],
+};
+
 /**
- * Distribute raw text across parts based on blank-line separation.
- * Section headers like [Verse 1] are matched to part names if possible.
+ * Match a section header like "[Verse 1]" to a part name.
+ * Returns the normalized base name or null.
+ */
+function matchSectionToPartName(header) {
+  // Strip brackets and number: "[Verse 1]" → "verse"
+  const clean = header.replace(/[\[\]]/g, '').replace(/\s*\d+\s*$/, '').trim().toLowerCase();
+  for (const [base, syns] of Object.entries(SECTION_SYNONYMS)) {
+    if (syns.some(s => clean === s || clean.startsWith(s))) return base;
+  }
+  return clean; // fallback: use as-is
+}
+
+/**
+ * Normalize a part name for matching: "Chorus 2" → "chorus"
+ */
+function normalizePartName(name) {
+  const clean = (name || '').replace(/\s*\d+\s*$/, '').trim().toLowerCase();
+  for (const [base, syns] of Object.entries(SECTION_SYNONYMS)) {
+    if (syns.some(s => clean === s || clean.startsWith(s))) return base;
+  }
+  return clean;
+}
+
+/**
+ * Distribute raw text across parts with improved heuristics:
+ * 1. Parse section headers and match to part names
+ * 2. Repeated sections (e.g. Chorus) copy text from first occurrence
+ * 3. Lines are distributed evenly across bars within each part
  */
 function distributeLyricsToparts() {
   if (!selectedSongId) return;
@@ -3254,48 +3731,115 @@ function distributeLyricsToparts() {
   const rawText = rawEl.value.trim();
   if (!rawText) { toast('Kein Rohtext vorhanden', 'error'); return; }
 
-  // Save raw text
   song.lyrics_raw = rawEl.value;
 
   const parts = getSortedParts(selectedSongId);
   if (parts.length === 0) { toast('Keine Parts vorhanden', 'error'); return; }
 
-  // Split into sections by blank lines
-  const sections = [];
-  let currentSection = [];
+  // Parse raw text into sections with optional headers
+  const sections = []; // [{header, lines}]
+  let currentHeader = null;
+  let currentLines = [];
   for (const line of rawText.split('\n')) {
-    if (line.trim() === '' && currentSection.length > 0) {
-      sections.push(currentSection);
-      currentSection = [];
-    } else if (line.trim() !== '') {
-      // Skip section headers like [Verse 1]
-      if (/^\[.*\]$/.test(line.trim())) continue;
-      currentSection.push(line);
+    const trimmed = line.trim();
+    if (trimmed === '') {
+      if (currentLines.length > 0) {
+        sections.push({ header: currentHeader, lines: currentLines });
+        currentHeader = null;
+        currentLines = [];
+      }
+      continue;
     }
+    // Detect section header
+    if (/^\[.*\]$/.test(trimmed)) {
+      if (currentLines.length > 0) {
+        sections.push({ header: currentHeader, lines: currentLines });
+        currentLines = [];
+      }
+      currentHeader = trimmed;
+      continue;
+    }
+    currentLines.push(line);
   }
-  if (currentSection.length > 0) sections.push(currentSection);
+  if (currentLines.length > 0) sections.push({ header: currentHeader, lines: currentLines });
 
   if (sections.length === 0) { toast('Kein verteilbarer Text gefunden', 'error'); return; }
 
-  // Distribute sections to parts (skip instrumental parts)
-  let sIdx = 0;
-  for (let i = 0; i < parts.length && sIdx < sections.length; i++) {
-    const part = parts[i];
+  // Build part list with normalized names (skip instrumental/no-bar parts)
+  const textParts = parts.filter(p => (p.bars || 0) > 0 && !p.instrumental);
+
+  // Try header-based matching first
+  const sectionUsed = new Array(sections.length).fill(false);
+  const partAssigned = new Map(); // partId → lines[]
+  const firstTextByBase = {}; // normalized base → lines (for chorus repetition)
+
+  // Pass 1: Match sections with headers to parts
+  for (const part of textParts) {
+    if (partAssigned.has(part.id)) continue;
+    const partBase = normalizePartName(part.name);
+    for (let s = 0; s < sections.length; s++) {
+      if (sectionUsed[s] || !sections[s].header) continue;
+      const secBase = matchSectionToPartName(sections[s].header);
+      if (secBase === partBase) {
+        partAssigned.set(part.id, sections[s].lines);
+        sectionUsed[s] = true;
+        if (!firstTextByBase[partBase]) firstTextByBase[partBase] = sections[s].lines;
+        break;
+      }
+    }
+  }
+
+  // Pass 2: Unmatched parts — try to copy from first occurrence of same base name
+  for (const part of textParts) {
+    if (partAssigned.has(part.id)) continue;
+    const partBase = normalizePartName(part.name);
+    if (firstTextByBase[partBase]) {
+      partAssigned.set(part.id, firstTextByBase[partBase]);
+      continue;
+    }
+  }
+
+  // Pass 3: Remaining unmatched parts get remaining unmatched sections (sequential)
+  let nextSection = 0;
+  for (const part of textParts) {
+    if (partAssigned.has(part.id)) continue;
+    while (nextSection < sections.length && sectionUsed[nextSection]) nextSection++;
+    if (nextSection >= sections.length) break;
+    partAssigned.set(part.id, sections[nextSection].lines);
+    const partBase = normalizePartName(part.name);
+    if (!firstTextByBase[partBase]) firstTextByBase[partBase] = sections[nextSection].lines;
+    sectionUsed[nextSection] = true;
+    nextSection++;
+  }
+
+  // Fill bar inputs with distributed lines
+  let filledParts = 0;
+  for (const part of textParts) {
+    const lines = partAssigned.get(part.id);
+    if (!lines) continue;
     const barCount = part.bars || 0;
-    if (barCount === 0 || part.instrumental) continue;
+    filledParts++;
 
-    const section = sections[sIdx];
-    sIdx++;
-
-    // Fill individual bar inputs
+    // Distribute lines to bars
     for (let b = 0; b < barCount; b++) {
       const inp = document.querySelector(`.lyrics-bar-input[data-lyrics-bar-part="${part.id}"][data-lyrics-bar-num="${b + 1}"]`);
-      if (inp) inp.value = b < section.length ? section[b] : '';
+      if (!inp) continue;
+      if (lines.length <= barCount) {
+        // Fewer/equal lines than bars: 1 line per bar, evenly spaced
+        const lineIdx = Math.floor(b * lines.length / barCount);
+        const isTarget = b === Math.floor(lineIdx * barCount / lines.length);
+        inp.value = (isTarget && lineIdx < lines.length) ? lines[lineIdx] : '';
+      } else {
+        // More lines than bars: combine lines
+        const startLine = Math.floor(b * lines.length / barCount);
+        const endLine = Math.floor((b + 1) * lines.length / barCount);
+        inp.value = lines.slice(startLine, endLine).join(' / ');
+      }
     }
   }
 
   markDirty();
-  toast(`Text auf ${Math.min(sIdx, parts.length)} Parts verteilt`, 'success');
+  toast(`Text auf ${filledParts} Parts verteilt`, 'success');
 }
 
 /* ── Lyrics Part Playback ─────────────────────────── */
@@ -3514,6 +4058,18 @@ function copyLyricsFromPart(fromPartId, toPartId) {
 function handleLyricsClick(e) {
   const el = e.target;
 
+  // LRCLIB fetch
+  if (el.closest('#lyrics-lrclib-btn')) {
+    handleLrclibFetch();
+    return;
+  }
+
+  // Sync distribute (timestamped lyrics)
+  if (el.closest('#lyrics-sync-distribute-btn')) {
+    distributeSyncedLyrics();
+    return;
+  }
+
   // Distribute raw text to parts
   if (el.closest('#lyrics-distribute-btn')) {
     distributeLyricsToparts();
@@ -3706,6 +4262,196 @@ function lyricsInputFocusOut(input) {
       }
     }, 150);
   }
+}
+
+/* ══════════════════════════════════════════════════════
+   ACCENTS TAB
+   ══════════════════════════════════════════════════════ */
+
+let _accentsSelectedPart = null;  // partId
+let _accentsSelectedBar = null;   // barNum
+
+function renderAccentsTab() {
+  if (!selectedSongId || !db.songs[selectedSongId]) {
+    els.content.innerHTML = `<div class="empty-state"><div class="icon">&#9835;</div><p>Song aus der Liste links ausw&auml;hlen.</p></div>`;
+    return;
+  }
+
+  const song = db.songs[selectedSongId];
+  const parts = getSortedParts(selectedSongId);
+  ensureCollections();
+
+  // Count total accents for this song
+  const allBarIds = new Set();
+  for (const p of parts) {
+    for (const [bId, b] of Object.entries(db.bars)) {
+      if (b.part_id === p.id) allBarIds.add(bId);
+    }
+  }
+  const totalAccents = Object.values(db.accents).filter(a => allBarIds.has(a.bar_id)).length;
+
+  els.content.innerHTML = `
+    <div class="accents-panel">
+      <div class="accents-scroll" id="accents-scroll">
+        ${buildSongHeader(song)}
+        <div class="accents-legend">
+          ${Object.entries(ACCENT_INFO).map(([k, v]) => `<span class="legend-item ${k}">${v}</span>`).join('')}
+        </div>
+        <div class="accents-parts-list" id="accents-parts-list">
+          ${parts.length === 0 ? '<div class="empty-state"><p>Keine Parts vorhanden.</p></div>' : buildAccentsPartsList(parts, song)}
+        </div>
+      </div>
+      <div class="summary-bar">
+        <span class="summary-item"><span class="summary-label">Parts</span><span class="mono">${parts.length}</span></span>
+        <span class="summary-item"><span class="summary-label">Accents</span><span class="mono">${totalAccents}</span></span>
+      </div>
+    </div>`;
+}
+
+function buildAccentsPartsList(parts, song) {
+  let html = '';
+  let absBarOffset = 0;
+  for (const part of parts) {
+    const barCount = part.bars || 0;
+    const isSelected = _accentsSelectedPart === part.id;
+    const partAccentCount = countPartAccents(part.id);
+
+    html += `<div class="accents-part-card${isSelected ? ' expanded' : ''}" data-accent-part="${part.id}">
+      <div class="accents-part-header" data-accent-toggle="${part.id}">
+        <span class="accents-part-arrow">${isSelected ? '&#9660;' : '&#9654;'}</span>
+        <span class="accents-part-name text-amber">${esc(part.name)}</span>
+        <span class="accents-part-info text-t3 mono">${barCount} Takte</span>
+        ${partAccentCount > 0 ? `<span class="accents-part-count text-cyan mono">${partAccentCount} Acc.</span>` : ''}
+      </div>`;
+
+    if (isSelected && barCount > 0) {
+      html += '<div class="accents-bars-grid">';
+      for (let b = 1; b <= barCount; b++) {
+        const absBar = absBarOffset + b;
+        const isBarSel = _accentsSelectedBar === b;
+        const found = findBar(part.id, b);
+        const accCount = found ? getAccentsForBar(found[0]).length : 0;
+
+        html += `<div class="accents-bar-block${isBarSel ? ' active' : ''}${accCount > 0 ? ' has-accents' : ''}" data-accent-bar="${b}">
+          <span class="accents-bar-num mono">${absBar}</span>
+          ${accCount > 0 ? `<span class="accents-bar-dots">${'&#8226;'.repeat(Math.min(accCount, 4))}</span>` : ''}
+        </div>`;
+      }
+      html += '</div>';
+
+      // Show the 16th-note grid for the selected bar
+      if (_accentsSelectedBar && _accentsSelectedBar <= barCount) {
+        html += buildAccentsBarEditor(part.id, _accentsSelectedBar);
+      }
+    }
+
+    html += '</div>';
+    absBarOffset += barCount;
+  }
+  return html;
+}
+
+function countPartAccents(partId) {
+  ensureCollections();
+  let count = 0;
+  for (const [bId, b] of Object.entries(db.bars)) {
+    if (b.part_id !== partId) continue;
+    count += Object.values(db.accents).filter(a => a.bar_id === bId).length;
+  }
+  return count;
+}
+
+function buildAccentsBarEditor(partId, barNum) {
+  const [barId, barData] = getOrCreateBar(partId, barNum);
+  const accents = getAccentsForBar(barId);
+
+  const cells = Array.from({ length: 16 }, (_, i) => {
+    const pos = i + 1;
+    const accent = accents.find(a => a.pos_16th === pos);
+    const isBeat = (pos - 1) % 4 === 0;
+    const cls = ['accent-cell', isBeat ? 'beat' : '', accent ? accent.type : ''].filter(Boolean).join(' ');
+    return `<div class="${cls}" data-accent-pos16="${pos}">
+      <span class="accent-num">${BEAT_LABELS[i]}</span>
+      ${accent ? `<span class="accent-tag">${accent.type}</span>` : ''}
+    </div>`;
+  }).join('');
+
+  return `
+    <div class="accents-bar-editor">
+      <div class="accents-bar-editor-header">
+        <h4>Takt ${barNum}${barData.lyrics ? ` — <span class="text-t3">${esc(barData.lyrics)}</span>` : ''}</h4>
+      </div>
+      <div class="accent-grid">${cells}</div>
+    </div>`;
+}
+
+function handleAccentsTabClick(e) {
+  const el = e.target;
+
+  // Toggle part expand/collapse
+  const toggle = el.closest('[data-accent-toggle]');
+  if (toggle) {
+    const partId = toggle.dataset.accentToggle;
+    if (_accentsSelectedPart === partId) {
+      _accentsSelectedPart = null;
+      _accentsSelectedBar = null;
+    } else {
+      _accentsSelectedPart = partId;
+      _accentsSelectedBar = null;
+    }
+    renderAccentsTab();
+    return;
+  }
+
+  // Select bar
+  const barBlock = el.closest('[data-accent-bar]');
+  if (barBlock) {
+    const barNum = parseInt(barBlock.dataset.accentBar, 10);
+    _accentsSelectedBar = (_accentsSelectedBar === barNum) ? null : barNum;
+    renderAccentsTab();
+    return;
+  }
+
+  // Accent cell click
+  const accentCell = el.closest('[data-accent-pos16]');
+  if (accentCell && _accentsSelectedPart && _accentsSelectedBar) {
+    const pos = parseInt(accentCell.dataset.accentPos16, 10);
+    handleAccentsTabToggle(_accentsSelectedPart, _accentsSelectedBar, pos);
+    return;
+  }
+}
+
+function handleAccentsTabToggle(partId, barNum, pos16) {
+  const [barId] = getOrCreateBar(partId, barNum);
+  ensureCollections();
+
+  // Find existing accent
+  const existingId = Object.keys(db.accents).find(
+    id => db.accents[id].bar_id === barId && db.accents[id].pos_16th === pos16
+  );
+
+  if (existingId) {
+    const current = db.accents[existingId];
+    const typeIdx = ACCENT_TYPES.indexOf(current.type);
+    if (typeIdx < ACCENT_TYPES.length - 1) {
+      // Cycle to next type
+      current.type = ACCENT_TYPES[typeIdx + 1];
+    } else {
+      // Remove accent
+      delete db.accents[existingId];
+    }
+  } else {
+    // Create new accent
+    const newId = nextId('A', db.accents);
+    db.accents[newId] = { bar_id: barId, pos_16th: pos16, type: ACCENT_TYPES[0], notes: '' };
+  }
+
+  // Update has_accents flag
+  const [, barData] = getOrCreateBar(partId, barNum);
+  barData.has_accents = getAccentsForBar(barId).length > 0;
+
+  markDirty();
+  renderAccentsTab();
 }
 
 /* ══════════════════════════════════════════════════════
@@ -5232,6 +5978,10 @@ function markDirty() {
     dirty = true;
     setSyncStatus('unsaved');
   }
+  // Check if any progress step was newly completed → confetti
+  if (selectedSongId) {
+    checkProgressAndCelebrate(selectedSongId);
+  }
 }
 
 /* ── Sidebar Toggle ────────────────────────────────── */
@@ -5260,6 +6010,7 @@ function wireEvents() {
   els.tabTakte?.addEventListener('click',  () => switchTab('takte'));
   els.tabAudio?.addEventListener('click',  () => switchTab('audio'));
   els.tabLyrics?.addEventListener('click', () => switchTab('lyrics'));
+  els.tabAccents?.addEventListener('click', () => switchTab('accents'));
   els.tabSetlist?.addEventListener('click', () => switchTab('setlist'));
 
   // Settings
@@ -5334,6 +6085,7 @@ function wireEvents() {
     else if (activeTab === 'takte') handleTakteTabClick(e);
     else if (activeTab === 'audio') handleAudioClick(e);
     else if (activeTab === 'lyrics') handleLyricsClick(e);
+    else if (activeTab === 'accents') handleAccentsTabClick(e);
     else if (activeTab === 'setlist') handleSetlistClick(e);
   });
   els.content.addEventListener('change', (e) => {

@@ -19,8 +19,10 @@
       <button class="tab-btn" id="tab-parts">PARTS</button>
       <button class="tab-btn" id="tab-lyrics">LYRICS</button>
       <button class="tab-btn" id="tab-takte">TAKTE</button>
+      <button class="tab-btn" id="tab-accents">ACCENTS</button>
       <button class="tab-btn" id="tab-audio">AUDIO SPLIT</button>
-      <span class="app-version">v0.9.10</span>
+      <span class="app-version">v0.10.0</span>
+
     </nav>
 
     <div class="header-right">
@@ -97,6 +99,7 @@
       <button class="help-tab" data-help="parts">Parts</button>
       <button class="help-tab" data-help="takte">Takte</button>
       <button class="help-tab" data-help="lyrics">Lyrics</button>
+      <button class="help-tab" data-help="accents">Accents</button>
       <button class="help-tab" data-help="audio">Audio Split</button>
       <button class="help-tab" data-help="keys">Shortcuts</button>
     </nav>
@@ -204,6 +207,27 @@
 
       <h3>Accent-Editor</h3>
       <p>Klicke auf eine Taktzeile, um den Accent-Editor zu oeffnen. Das 16tel-Raster zeigt die Positionen innerhalb des Takts. Klick auf eine Position setzt oder wechselt den Accent-Typ.</p>
+    </div>
+
+    <!-- Accents -->
+    <div class="help-page" id="help-accents">
+      <h3>Accents setzen</h3>
+      <p>Der Accents-Tab zeigt alle Parts des aktuell ausgewaehlten Songs. Klicke auf einen Part, um die Takte zu sehen. Waehle einen Takt, um das 16tel-Raster zu oeffnen.</p>
+
+      <h3>Accent-Typen</h3>
+      <div class="help-table">
+        <div class="help-row"><span class="help-key">BL</span><span>Blinder &mdash; kurzer heller Blitz</span></div>
+        <div class="help-row"><span class="help-key">BO</span><span>Blackout &mdash; alles aus</span></div>
+        <div class="help-row"><span class="help-key">HL</span><span>Highlight &mdash; helle Akzentuierung</span></div>
+        <div class="help-row"><span class="help-key">ST</span><span>Strobe &mdash; Stroboskop-Effekt</span></div>
+        <div class="help-row"><span class="help-key">FG</span><span>Fog &mdash; Nebelstoss</span></div>
+      </div>
+
+      <h3>Bedienung</h3>
+      <div class="help-table">
+        <div class="help-row"><span class="help-key">Klick auf Zelle</span><span>Setzt ersten Accent-Typ (Blinder). Erneuter Klick wechselt den Typ (BL &rarr; BO &rarr; HL &rarr; ST &rarr; FG &rarr; entfernt).</span></div>
+        <div class="help-row"><span class="help-key">16tel-Raster</span><span>Jeder Takt hat 16 Positionen: 1 e + e 2 e + e 3 e + e 4 e + e</span></div>
+      </div>
     </div>
 
     <!-- Audio Split -->

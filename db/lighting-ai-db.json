@@ -769,7 +769,7 @@
         "tdyEcs_P001": {
           "pos": 1,
           "name": "Intro",
-          "bars": 8,
+          "bars": 1,
           "duration_sec": 12,
           "light_template": "generic_bpm",
           "notes": "",
@@ -967,52 +967,52 @@
             "partId": "tdyEcs_P007"
           },
           {
-            "time": 77.01866666666666,
+            "time": 74.87510411985019,
             "partIndex": 7,
             "partId": "tdyEcs_P008"
           },
           {
-            "time": 83.18666666666667,
+            "time": 81.07073558052434,
             "partIndex": 8,
             "partId": "tdyEcs_P009"
           },
           {
-            "time": 95.68533333333332,
+            "time": 93.63035805243445,
             "partIndex": 9,
             "partId": "tdyEcs_P010"
           },
           {
-            "time": 101.82133333333334,
+            "time": 99.63518202247191,
             "partIndex": 10,
             "partId": "tdyEcs_P011"
           },
           {
-            "time": 114.18666666666667,
+            "time": 112.00399700374531,
             "partIndex": 11,
             "partId": "tdyEcs_P012"
           },
           {
-            "time": 126.50133333333332,
+            "time": 124.4738277153558,
             "partIndex": 12,
             "partId": "tdyEcs_P013"
           },
           {
-            "time": 132.704,
+            "time": 130.62456329588017,
             "partIndex": 13,
             "partId": "tdyEcs_P014"
           },
           {
-            "time": 145.20266666666666,
+            "time": 143.0270501872659,
             "partIndex": 14,
             "partId": "tdyEcs_P015"
           },
           {
-            "time": 151.33866666666665,
+            "time": 149.22268164794005,
             "partIndex": 15,
             "partId": "tdyEcs_P016"
           },
           {
-            "time": 163.752,
+            "time": 161.6363925093633,
             "partIndex": 16,
             "partId": "tdyEcs_P017"
           },
@@ -1069,52 +1069,52 @@
             "partId": "tdyEcs_P007"
           },
           {
-            "time": 77.01866666666666,
+            "time": 74.87510411985019,
             "partIndex": 7,
             "partId": "tdyEcs_P008"
           },
           {
-            "time": 83.18666666666667,
+            "time": 81.07073558052434,
             "partIndex": 8,
             "partId": "tdyEcs_P009"
           },
           {
-            "time": 95.68533333333332,
+            "time": 93.63035805243445,
             "partIndex": 9,
             "partId": "tdyEcs_P010"
           },
           {
-            "time": 101.82133333333334,
+            "time": 99.63518202247191,
             "partIndex": 10,
             "partId": "tdyEcs_P011"
           },
           {
-            "time": 114.18666666666667,
+            "time": 112.00399700374531,
             "partIndex": 11,
             "partId": "tdyEcs_P012"
           },
           {
-            "time": 126.50133333333332,
+            "time": 124.4738277153558,
             "partIndex": 12,
             "partId": "tdyEcs_P013"
           },
           {
-            "time": 132.704,
+            "time": 130.62456329588017,
             "partIndex": 13,
             "partId": "tdyEcs_P014"
           },
           {
-            "time": 145.20266666666666,
+            "time": 143.0270501872659,
             "partIndex": 14,
             "partId": "tdyEcs_P015"
           },
           {
-            "time": 151.33866666666665,
+            "time": 149.22268164794005,
             "partIndex": 15,
             "partId": "tdyEcs_P016"
           },
           {
-            "time": 163.752,
+            "time": 161.6363925093633,
             "partIndex": 16,
             "partId": "tdyEcs_P017"
           },
@@ -43421,133 +43421,133 @@
       "part_id": "tdyEcs_P002",
       "bar_num": 1,
       "lyrics": "",
-      "audio": "audio/Along comes Mary/02 Part 2/002 Along comes Mary Part 2.mp3",
+      "audio": "audio/Along comes Mary/02 Verse 1/009 Along comes Mary Verse 1.mp3",
       "has_accents": false
     },
     "B4754": {
       "part_id": "tdyEcs_P003",
       "bar_num": 1,
       "lyrics": "",
-      "audio": "audio/Along comes Mary/03 Part 3/003 Along comes Mary Part 3.mp3",
+      "audio": "audio/Along comes Mary/03 Part 3/010 Along comes Mary Part 3.mp3",
       "has_accents": false
     },
     "B4755": {
       "part_id": "tdyEcs_P004",
       "bar_num": 1,
       "lyrics": "",
-      "audio": "audio/Along comes Mary/04 Part 4/004 Along comes Mary Part 4.mp3",
+      "audio": "audio/Along comes Mary/04 Part 4/011 Along comes Mary Part 4.mp3",
       "has_accents": false
     },
     "B4756": {
       "part_id": "tdyEcs_P005",
       "bar_num": 1,
       "lyrics": "",
-      "audio": "audio/Along comes Mary/05 Part 5/005 Along comes Mary Part 5.mp3",
+      "audio": "audio/Along comes Mary/05 Part 5/012 Along comes Mary Part 5.mp3",
       "has_accents": false
     },
     "B4757": {
       "part_id": "tdyEcs_P006",
       "bar_num": 1,
       "lyrics": "",
-      "audio": "audio/Along comes Mary/06 Part 6/006 Along comes Mary Part 6.mp3",
+      "audio": "audio/Along comes Mary/06 Part 6/013 Along comes Mary Part 6.mp3",
       "has_accents": false
     },
     "B4758": {
       "part_id": "tdyEcs_P007",
       "bar_num": 1,
       "lyrics": "",
-      "audio": "audio/Along comes Mary/07 Part 7/007 Along comes Mary Part 7.mp3",
+      "audio": "audio/Along comes Mary/07 Part 7/014 Along comes Mary Part 7.mp3",
       "has_accents": false
     },
     "B4759": {
       "part_id": "tdyEcs_P008",
       "bar_num": 1,
       "lyrics": "",
-      "audio": "audio/Along comes Mary/08 Part 8/008 Along comes Mary Part 8.mp3",
+      "audio": "audio/Along comes Mary/08 Part 8/015 Along comes Mary Part 8.mp3",
       "has_accents": false
     },
     "B4760": {
       "part_id": "tdyEcs_P009",
       "bar_num": 1,
       "lyrics": "",
-      "audio": "audio/Along comes Mary/09 Part 9/009 Along comes Mary Part 9.mp3",
+      "audio": "audio/Along comes Mary/09 Part 9/016 Along comes Mary Part 9.mp3",
       "has_accents": false
     },
     "B4761": {
       "part_id": "tdyEcs_P010",
       "bar_num": 1,
       "lyrics": "",
-      "audio": "audio/Along comes Mary/10 Part 10/010 Along comes Mary Part 10.mp3",
+      "audio": "audio/Along comes Mary/10 Part 10/017 Along comes Mary Part 10.mp3",
       "has_accents": false
     },
     "B4762": {
       "part_id": "tdyEcs_P011",
       "bar_num": 1,
       "lyrics": "",
-      "audio": "audio/Along comes Mary/11 Part 11/011 Along comes Mary Part 11.mp3",
+      "audio": "audio/Along comes Mary/11 Part 11/018 Along comes Mary Part 11.mp3",
       "has_accents": false
     },
     "B4763": {
       "part_id": "tdyEcs_P012",
       "bar_num": 1,
       "lyrics": "",
-      "audio": "audio/Along comes Mary/12 Part 12/012 Along comes Mary Part 12.mp3",
+      "audio": "audio/Along comes Mary/12 Part 12/019 Along comes Mary Part 12.mp3",
       "has_accents": false
     },
     "B4764": {
       "part_id": "tdyEcs_P013",
       "bar_num": 1,
       "lyrics": "",
-      "audio": "audio/Along comes Mary/13 Part 13/013 Along comes Mary Part 13.mp3",
+      "audio": "audio/Along comes Mary/13 Part 13/020 Along comes Mary Part 13.mp3",
       "has_accents": false
     },
     "B4765": {
       "part_id": "tdyEcs_P014",
       "bar_num": 1,
       "lyrics": "",
-      "audio": "audio/Along comes Mary/14 Part 14/014 Along comes Mary Part 14.mp3",
+      "audio": "audio/Along comes Mary/14 Part 14/021 Along comes Mary Part 14.mp3",
       "has_accents": false
     },
     "B4766": {
       "part_id": "tdyEcs_P015",
       "bar_num": 1,
       "lyrics": "",
-      "audio": "audio/Along comes Mary/15 Part 15/015 Along comes Mary Part 15.mp3",
+      "audio": "audio/Along comes Mary/15 Part 15/022 Along comes Mary Part 15.mp3",
       "has_accents": false
     },
     "B4767": {
       "part_id": "tdyEcs_P016",
       "bar_num": 1,
       "lyrics": "",
-      "audio": "audio/Along comes Mary/16 Part 16/016 Along comes Mary Part 16.mp3",
+      "audio": "audio/Along comes Mary/16 Part 16/023 Along comes Mary Part 16.mp3",
       "has_accents": false
     },
     "B4768": {
       "part_id": "tdyEcs_P017",
       "bar_num": 1,
       "lyrics": "",
-      "audio": "audio/Along comes Mary/17 Part 17/017 Along comes Mary Part 17.mp3",
+      "audio": "audio/Along comes Mary/17 Part 17/024 Along comes Mary Part 17.mp3",
       "has_accents": false
     },
     "B4769": {
       "part_id": "tdyEcs_P018",
       "bar_num": 1,
       "lyrics": "",
-      "audio": "audio/Along comes Mary/18 Part 18/018 Along comes Mary Part 18.mp3",
+      "audio": "audio/Along comes Mary/18 Part 18/025 Along comes Mary Part 18.mp3",
       "has_accents": false
     },
     "B4770": {
       "part_id": "tdyEcs_P019",
       "bar_num": 1,
       "lyrics": "",
-      "audio": "audio/Along comes Mary/19 Part 19/019 Along comes Mary Part 19.mp3",
+      "audio": "audio/Along comes Mary/19 Part 19/026 Along comes Mary Part 19.mp3",
       "has_accents": false
     },
     "B4771": {
       "part_id": "tdyEcs_P020",
       "bar_num": 1,
       "lyrics": "",
-      "audio": "audio/Along comes Mary/20 Part 20/020 Along comes Mary Part 20.mp3",
+      "audio": "audio/Along comes Mary/20 Part 20/027 Along comes Mary Part 20.mp3",
       "has_accents": false
     }
   },

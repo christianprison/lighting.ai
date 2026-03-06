@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.10.1';
+const APP_VERSION = 'v0.10.3';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -226,7 +226,8 @@ async function fetchAudioUrl(url) {
 
   // 1. Direct fetch (works on GitHub Pages / local dev)
   try {
-    const res = await fetch(url);
+    const encodedUrl = url.split('/').map(encodeURIComponent).join('/');
+    const res = await fetch(encodedUrl);
     if (res.ok) {
       const ct = res.headers.get('content-type') || '';
       if (!ct.includes('text/html')) return await res.arrayBuffer();
@@ -236,7 +237,8 @@ async function fetchAudioUrl(url) {
   // 2. GitHub API fetch
   if (s.token && s.repo) {
     try {
-      const apiUrl = `https://api.github.com/repos/${s.repo}/contents/${url}`;
+      const encodedPath = url.split('/').map(encodeURIComponent).join('/');
+      const apiUrl = `https://api.github.com/repos/${s.repo}/contents/${encodedPath}`;
       const res = await fetch(apiUrl, {
         headers: { 'Authorization': `token ${s.token}`, 'Accept': 'application/vnd.github.v3.raw' },
       });
@@ -427,7 +429,7 @@ const SONG_CHECKLIST = [
   { id: 'parts_named',  label: 'Alle Parts benannt',     cat: 'struktur', tab: 'parts',
     check: (s, parts) => parts.length > 0 && parts.every(p => p.name && p.name !== 'New Part') },
   { id: 'bars_set',     label: 'Takte pro Part gesetzt', cat: 'struktur', tab: 'parts',
-    check: (s, parts) => parts.length > 0 && parts.every(p => (p.bars || 0) > 0) },
+    check: (s, parts) => parts.length > 0 && parts.every(p => p.bars != null) },
 
   // ── Audio ──
   { id: 'audio_ref',    label: 'Referenz-Audio geladen', cat: 'audio', tab: 'audio',

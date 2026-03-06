@@ -271,8 +271,8 @@
       "year": "1998",
       "pick": "🔻",
       "gema_nr": "1022042-001",
-      "duration": "3:08",
-      "duration_sec": 188,
+      "duration": "3:16",
+      "duration_sec": 196,
       "notes": "Intro; Verse 1; Bridge 1 (Mary); Bridge 2; Chorus (lunch); Interlude; Verse 2; Bridge 1; Bridge 2; Chorus; Interlude; Verse 3; Bridge 1; Bridge 2; Chorus; Chorus Variation 1; Chorus Variation 2; Chorus Variation 3; End e a capella (punch); ;",
       "parts": {
         "tdyEcs_P001": {
@@ -288,7 +288,7 @@
         "tdyEcs_P002": {
           "pos": 2,
           "name": "Verse 1",
-          "bars": 8,
+          "bars": 9,
           "duration_sec": 12,
           "light_template": "generic_bpm",
           "notes": ""
@@ -345,8 +345,8 @@
         "tdyEcs_P009": {
           "pos": 9,
           "name": "Bridge B 2",
-          "bars": 7,
-          "duration_sec": 0,
+          "bars": 8,
+          "duration_sec": 12,
           "light_template": "generic_bpm",
           "notes": ""
         },
@@ -427,16 +427,16 @@
         "tdyEcs_P019": {
           "pos": 19,
           "name": "Chorus 7 (power)",
-          "bars": 7,
-          "duration_sec": 0,
+          "bars": 8,
+          "duration_sec": 12,
           "light_template": "generic_bpm",
           "notes": ""
         },
         "tdyEcs_P020": {
           "pos": 20,
           "name": "Punch (stop)",
-          "bars": 0,
-          "duration_sec": 0,
+          "bars": 2,
+          "duration_sec": 3,
           "light_template": "generic_bpm",
           "notes": ""
         }
@@ -10459,42 +10459,42 @@
     "B0009": {
       "part_id": "tdyEcs_P002",
       "bar_num": 1,
-      "lyrics": "Every time I think that I'm / The only one who's lonely someone calls on me",
+      "lyrics": "Every time I think that I'm the e calls",
       "audio": "audio/Along comes Mary/02 Verse 1/009 Along comes Mary Verse 1.mp3",
       "has_accents": false
     },
     "B0010": {
       "part_id": "tdyEcs_P002",
       "bar_num": 2,
-      "lyrics": "",
+      "lyrics": "only one who's lonely someone",
       "audio": "audio/Along comes Mary/02 Verse 1/010 Along comes Mary Verse 1.mp3",
       "has_accents": false
     },
     "B0011": {
       "part_id": "tdyEcs_P002",
       "bar_num": 3,
-      "lyrics": "",
+      "lyrics": "calls - - on",
       "audio": "audio/Along comes Mary/02 Verse 1/011 Along comes Mary Verse 1.mp3",
       "has_accents": false
     },
     "B0012": {
       "part_id": "tdyEcs_P002",
       "bar_num": 4,
-      "lyrics": "",
+      "lyrics": "me - - and",
       "audio": "audio/Along comes Mary/02 Verse 1/012 Along comes Mary Verse 1.mp3",
       "has_accents": false
     },
     "B0013": {
       "part_id": "tdyEcs_P002",
       "bar_num": 5,
-      "lyrics": "",
+      "lyrics": "every now and then I spend my",
       "audio": "audio/Along comes Mary/02 Verse 1/013 Along comes Mary Verse 1.mp3",
       "has_accents": false
     },
     "B0014": {
       "part_id": "tdyEcs_P002",
       "bar_num": 6,
-      "lyrics": "",
+      "lyrics": "time and rhyme and verse and curse the",
       "audio": "audio/Along comes Mary/02 Verse 1/014 Along comes Mary Verse 1.mp3",
       "has_accents": false
     },
@@ -10523,21 +10523,21 @@
       "part_id": "tdyEcs_P003",
       "bar_num": 1,
       "lyrics": "",
-      "audio": "audio/Along comes Mary/03 Bridge A 1/018 Along comes Mary Bridge A 1.mp3",
+      "audio": "audio/Along comes Mary/03 Bridge A 1/017 Along comes Mary Bridge A 1.mp3",
       "has_accents": false
     },
     "B0019": {
       "part_id": "tdyEcs_P003",
       "bar_num": 2,
       "lyrics": "",
-      "audio": "audio/Along comes Mary/03 Bridge A 1/019 Along comes Mary Bridge A 1.mp3",
+      "audio": "audio/Along comes Mary/03 Bridge A 1/018 Along comes Mary Bridge A 1.mp3",
       "has_accents": false
     },
     "B0020": {
       "part_id": "tdyEcs_P003",
       "bar_num": 3,
       "lyrics": "",
-      "audio": "audio/Along comes Mary/03 Bridge A 1/020 Along comes Mary Bridge A 1.mp3",
+      "audio": "audio/Along comes Mary/03 Bridge A 1/019 Along comes Mary Bridge A 1.mp3",
       "has_accents": false
     }
   },

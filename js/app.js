@@ -812,14 +812,17 @@ function renderPartsTable() {
       <tbody>
         ${parts.map(p => {
           const audioBars = getAudioBarsForPart(p.id);
-          const hasAudio = audioBars.length > 0;
+          const hasAudioBars = audioBars.length > 0;
           const isPlaying = _partPlayActive && _playingPartId === p.id;
           const st = starts.get(p.id) || { startBar: 0, startSec: 0 };
           const dur = calcPartDuration(p.bars, song.bpm);
+          const partIdx = parts.indexOf(p);
+          const hasRefSeg = !!audio.getBuffer() && getPartStartTime(partIdx) !== null && getPartEndTime(partIdx) !== null;
+          const canPlay = hasAudioBars || hasRefSeg;
           return `
           <tr class="part-row${p.id === selectedPartId ? ' active' : ''}" data-part-id="${p.id}">
             <td class="pt-pos mono text-t3">${p.pos}</td>
-            <td class="pt-play">${hasAudio ? `<button class="btn-part-play${isPlaying ? ' playing' : ''}" data-action="play-part" data-part-id="${p.id}" title="${isPlaying ? 'Stop' : 'Part abspielen'}">${isPlaying ? '&#9632;' : '&#9654;'}</button>` : ''}</td>
+            <td class="pt-play">${canPlay ? `<button class="btn-part-play${isPlaying ? ' playing' : ''}" data-action="play-part" data-part-id="${p.id}" title="${isPlaying ? 'Stop' : 'Part abspielen'}">${isPlaying ? '&#9632;' : '&#9654;'}</button>` : ''}</td>
             <td class="pt-name">${esc(p.name)}</td>
             <td class="pt-start mono text-t3">${st.startBar} <span class="text-t4">${fmtDur(Math.round(st.startSec))}</span></td>
             <td class="pt-bars mono">${p.bars || 0}</td>
@@ -1269,6 +1272,31 @@ async function handlePartPlay(partId) {
   // Stop any current playback
   stopPartPlay();
 
+  // Try reference audio segment first (if buffer loaded and part markers exist)
+  const hasBuf = !!audio.getBuffer();
+  if (hasBuf && selectedSongId) {
+    const parts = getSortedParts(selectedSongId);
+    const partIdx = parts.findIndex(p => p.id === partId);
+    if (partIdx >= 0) {
+      const startTime = getPartStartTime(partIdx);
+      const endTime = getPartEndTime(partIdx);
+      if (startTime !== null && endTime !== null) {
+        _playingPartId = partId;
+        _partPlayActive = true;
+        refreshPartPlayUI();
+        audio.playSegments([{ startTime, endTime }], () => {
+          if (_playingPartId === partId) {
+            _playingPartId = null;
+            _partPlayActive = false;
+            refreshPartPlayUI();
+          }
+        });
+        return;
+      }
+    }
+  }
+
+  // Fallback: play exported bar MP3 files
   const audioBars = getAudioBarsForPart(partId);
   if (audioBars.length === 0) return;
 
@@ -1320,6 +1348,8 @@ async function handlePartPlay(partId) {
 }
 
 function stopPartPlay() {
+  // Stop reference audio segment playback
+  audio.stopSegments();
   for (const src of _partPlaySources) {
     try { src.onended = null; src.stop(); } catch { /* ok */ }
     try { src.disconnect(); } catch { /* ok */ }
@@ -1723,6 +1753,14 @@ function saveMarkersToSong() {
     partMarkers: partMarkers.map(m => ({ time: m.time, partIndex: m.partIndex, partId: m.partId || indexToId(m.partIndex) })),
     barMarkers: barMarkers.map(m => ({ time: m.time, partIndex: m.partIndex, partId: m.partId || indexToId(m.partIndex) })),
   };
+
+  // Update bars count per part from bar markers
+  for (let i = 0; i < parts.length; i++) {
+    const count = barMarkers.filter(m => m.partIndex === i).length;
+    if (song.parts[parts[i].id]) {
+      song.parts[parts[i].id].bars = count;
+    }
+  }
 }
 
 /**
@@ -2596,15 +2634,19 @@ function updatePlayButton() {
 function updateTapButtonStates() {
   const isPlay = audio.isPlaying();
   const parts = getSortedParts(selectedSongId);
-  const allPartsDone = currentPartIndex >= parts.length;
+  const allPartsDone = parts.length > 0 && currentPartIndex >= parts.length;
 
   const partBtn = document.getElementById('tap-part');
   const barBtn = document.getElementById('tap-bar');
   const undoBtn = document.getElementById('tap-undo');
+  const delPartsBtn = document.getElementById('tap-delete-parts');
+  const delBarsBtn = document.getElementById('tap-delete-bars');
 
   if (partBtn) partBtn.disabled = !isPlay || allPartsDone;
   if (barBtn) barBtn.disabled = !isPlay || currentPartIndex === 0;
   if (undoBtn) undoBtn.disabled = tapHistory.length === 0;
+  if (delPartsBtn) delPartsBtn.disabled = partMarkers.length === 0;
+  if (delBarsBtn) delBarsBtn.disabled = barMarkers.length === 0;
 }
 
 function handlePartTap() {
@@ -2724,12 +2766,7 @@ async function handleDeleteAllParts() {
   currentBarInPart = 0;
   saveMarkersToSong();
   markDirty();
-  drawWaveform();
-  const parts = getSortedParts(selectedSongId);
-  updateTapInfo(parts);
-  updateSplitResultLive(parts);
-  updateAudioSummaryLive(parts);
-  updateTapButtonStates();
+  renderAudioTab();
 }
 
 function handleSnapToPeaks() {
@@ -2782,12 +2819,7 @@ async function handleDeleteAllBarMarkers() {
   currentBarInPart = 0;
   saveMarkersToSong();
   markDirty();
-  drawWaveform();
-  const parts = getSortedParts(selectedSongId);
-  updateTapInfo(parts);
-  updateSplitResultLive(parts);
-  updateAudioSummaryLive(parts);
-  updateTapButtonStates();
+  renderAudioTab();
 }
 
 /* ── Speed / Zoom / Part-Seek / Marker Edit ─────── */
@@ -2888,7 +2920,7 @@ function updateTapInfo(parts) {
     const info = partBtn.querySelector('.tap-info');
     const nextName = currentPartIndex < parts.length ? parts[currentPartIndex].name : '\u2014';
     if (info) info.textContent = nextName;
-    partBtn.disabled = !audio.isPlaying() || currentPartIndex >= parts.length;
+    partBtn.disabled = !audio.isPlaying() || (parts.length > 0 && currentPartIndex >= parts.length);
   }
   if (barBtn) {
     const info = barBtn.querySelector('.tap-info');
@@ -5014,23 +5046,26 @@ function buildPartsTabTable(parts, filterSong) {
           const dur = calcPartDuration(p.bars || 0, p.bpm);
           const st = allStarts[p.songId]?.get(p.partId) || { startBar: 0, startSec: 0 };
           const audioBars = getAudioBarsForPart(p.partId);
-          const hasAudio = audioBars.length > 0;
+          const hasAudioBars = audioBars.length > 0;
           const isPlaying = _partPlayActive && _playingPartId === p.partId;
 
           // Compute waveform time range from part markers (if available for this song)
           let waveCanvas = '';
+          let hasRefSegment = false;
           if (hasBuf && p.songId === selectedSongId) {
             const partIdx = getSortedParts(p.songId).findIndex(sp => sp.id === p.partId);
             const wStart = getPartStartTime(partIdx);
             const wEnd = getPartEndTime(partIdx);
             if (wStart !== null && wEnd !== null) {
               waveCanvas = `<canvas class="mini-waveform" data-wave-start="${wStart}" data-wave-end="${wEnd}" data-wave-color="rgb(0, 220, 130)"></canvas>`;
+              hasRefSegment = true;
             }
           }
+          const canPlay = hasAudioBars || hasRefSegment;
 
           return `<tr class="ptt-row${isActive ? ' active' : ''}" data-song-id="${p.songId}" data-part-id="${p.partId}">
             <td class="ptt-pos mono text-t3">${showSongCol ? idx + 1 : p.pos}</td>
-            <td class="ptt-play">${hasAudio ? `<button class="btn-part-play${isPlaying ? ' playing' : ''}" data-action="play-part" data-part-id="${p.partId}" title="${isPlaying ? 'Stop' : 'Part abspielen'}">${isPlaying ? '&#9632;' : '&#9654;'}</button>` : ''}</td>
+            <td class="ptt-play">${canPlay ? `<button class="btn-part-play${isPlaying ? ' playing' : ''}" data-action="play-part" data-part-id="${p.partId}" title="${isPlaying ? 'Stop' : 'Part abspielen'}">${isPlaying ? '&#9632;' : '&#9654;'}</button>` : ''}</td>
             ${showSongCol ? `<td class="ptt-song"><span class="ptt-song-name">${esc(p.songName)}</span></td>` : ''}
             <td class="ptt-name"><input type="text" value="${esc(p.name)}" data-ptf="name" class="part-input"></td>
             ${hasBuf ? `<td class="ptt-wave">${waveCanvas}</td>` : ''}

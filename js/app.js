@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.12.0';
+const APP_VERSION = 'v0.12.1';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -1595,6 +1595,7 @@ function handleAccentToggle(pos16) {
    ══════════════════════════════════════════════════════ */
 
 let _refLoadingFor = null; // songId currently loading reference for
+let _refLoadingPromise = null; // pending loadReferenceAudio promise
 
 function renderAudioTab() {
   if (!selectedSongId || !db.songs[selectedSongId]) {
@@ -1610,7 +1611,7 @@ function renderAudioTab() {
   // Auto-load reference audio if available and not yet loaded
   if (!hasBuf && song.audio_ref && _refLoadingFor !== selectedSongId) {
     _refLoadingFor = selectedSongId;
-    loadReferenceAudio().finally(() => { _refLoadingFor = null; });
+    _refLoadingPromise = loadReferenceAudio().finally(() => { _refLoadingFor = null; _refLoadingPromise = null; });
   }
 
   els.content.innerHTML = `
@@ -3624,7 +3625,7 @@ function renderLyricsTab() {
   // Auto-load reference audio
   if (!hasBuf && song.audio_ref && _refLoadingFor !== selectedSongId) {
     _refLoadingFor = selectedSongId;
-    loadReferenceAudio().finally(() => { _refLoadingFor = null; });
+    _refLoadingPromise = loadReferenceAudio().finally(() => { _refLoadingFor = null; _refLoadingPromise = null; });
   }
 
   const geniusUrl = `https://genius.com/search?q=${encodeURIComponent(song.name + ' ' + song.artist)}`;
@@ -4318,15 +4319,22 @@ async function handleLyricsPartPlay(partId, partIndex) {
   if (_lyricsPlayingPart) stopLyricsPartPlay();
   if (_lyricsPausedPart) clearLyricsPausedState();
 
-  // If reference audio exists but not yet loaded, auto-load it
+  // If reference audio exists but not yet loaded, load or wait for pending load
   const song = db.songs[selectedSongId];
-  if (!audio.getBuffer() && song?.audio_ref && _refLoadingFor !== selectedSongId) {
-    toast('Lade Referenz-Audio...', 'info', 2000);
-    _refLoadingFor = selectedSongId;
-    try {
-      await loadReferenceAudio();
-    } finally {
-      _refLoadingFor = null;
+  if (!audio.getBuffer() && song?.audio_ref) {
+    if (_refLoadingPromise) {
+      // Another load is already in progress — wait for it
+      toast('Lade Referenz-Audio...', 'info', 2000);
+      await _refLoadingPromise;
+    } else if (_refLoadingFor !== selectedSongId) {
+      toast('Lade Referenz-Audio...', 'info', 2000);
+      _refLoadingFor = selectedSongId;
+      try {
+        await loadReferenceAudio();
+      } finally {
+        _refLoadingFor = null;
+        _refLoadingPromise = null;
+      }
     }
   }
 

@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.10.3';
+const APP_VERSION = 'v0.10.5';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -1875,6 +1875,14 @@ function restoreMarkersFromSong() {
     });
     const lastBar = barMarkers[barMarkers.length - 1];
     currentBarInPart = barMarkers.filter(b => b.partIndex === lastBar.partIndex).length;
+
+    // Sync bars count from markers (split_markers is source of truth)
+    for (let i = 0; i < parts.length; i++) {
+      const count = barMarkers.filter(m => m.partIndex === i).length;
+      if (count > 0 && song.parts[parts[i].id] && song.parts[parts[i].id].bars !== count) {
+        song.parts[parts[i].id].bars = count;
+      }
+    }
   }
 }
 
@@ -2675,16 +2683,37 @@ function handlePlayPause() {
     audio.pause();
     stopPlayheadAnimation();
     updateTapButtonStates();
+    triggerAutoExport();
   } else {
     audio.play(() => {
       stopPlayheadAnimation();
       updateTapButtonStates();
       updatePlayButton();
+      triggerAutoExport();
     });
     startPlayheadAnimation();
     updateTapButtonStates();
   }
   updatePlayButton();
+}
+
+/**
+ * Trigger auto-export if conditions are met:
+ * - Song selected with audio loaded
+ * - All parts tapped
+ * - Bar markers exist
+ * - GitHub token available
+ * - No export already in progress
+ */
+function triggerAutoExport() {
+  if (!selectedSongId || !audioMeta || exportInProgress) return;
+  if (barMarkers.length === 0) return;
+  const parts = getSortedParts(selectedSongId);
+  if (currentPartIndex < parts.length) return;
+  const s = getSettings();
+  if (!s.token || !s.repo) return;
+  // Auto-export
+  handleAudioExport();
 }
 
 function handleSkipToStart() {
@@ -4420,16 +4449,22 @@ function buildAccentsPartsList(parts, song) {
       </div>`;
 
     if (isSelected && barCount > 0) {
-      html += '<div class="accents-bars-grid">';
+      html += '<div class="accents-bars-list">';
       for (let b = 1; b <= barCount; b++) {
         const absBar = absBarOffset + b;
         const isBarSel = _accentsSelectedBar === b;
         const found = findBar(part.id, b);
         const accCount = found ? getAccentsForBar(found[0]).length : 0;
+        const barData = found ? db.bars[found[0]] : null;
+        const lyrics = barData?.lyrics || '';
+        const hasAudio = barData?.audio ? true : false;
+        const isBarPlaying = barData && _barPlayId === found[0] && _partPlayActive;
 
-        html += `<div class="accents-bar-block${isBarSel ? ' active' : ''}${accCount > 0 ? ' has-accents' : ''}" data-accent-bar="${b}">
+        html += `<div class="accents-bar-row${isBarSel ? ' active' : ''}${accCount > 0 ? ' has-accents' : ''}" data-accent-bar="${b}">
           <span class="accents-bar-num mono">${absBar}</span>
-          ${accCount > 0 ? `<span class="accents-bar-dots">${'&#8226;'.repeat(Math.min(accCount, 4))}</span>` : ''}
+          <span class="accents-bar-lyrics text-t2">${lyrics ? esc(lyrics) : '<span class="text-t4">—</span>'}</span>
+          ${accCount > 0 ? `<span class="accents-bar-dots mono text-amber">${accCount}</span>` : ''}
+          ${hasAudio ? `<button class="btn-bar-play${isBarPlaying ? ' playing' : ''}" data-action="accent-play-bar" data-play-part-id="${part.id}" data-play-bar-num="${b}" title="${isBarPlaying ? 'Stop' : 'Takt abspielen'}">${isBarPlaying ? '&#9632;' : '&#9654;'}</button>` : ''}
         </div>`;
       }
       html += '</div>';
@@ -4474,7 +4509,8 @@ function buildAccentsBarEditor(partId, barNum) {
   return `
     <div class="accents-bar-editor">
       <div class="accents-bar-editor-header">
-        <h4>Takt ${barNum}${barData.lyrics ? ` — <span class="text-t3">${esc(barData.lyrics)}</span>` : ''}</h4>
+        <h4>Takt ${barNum}</h4>
+        ${barData.lyrics ? `<div class="accents-bar-editor-lyrics text-t2">${esc(barData.lyrics)}</div>` : ''}
       </div>
       <div class="accent-grid">${cells}</div>
     </div>`;
@@ -4507,12 +4543,71 @@ function handleAccentsTabClick(e) {
     return;
   }
 
+  // Play bar button
+  const playBtn = el.closest('[data-action="accent-play-bar"]');
+  if (playBtn) {
+    handleAccentBarPlay(playBtn.dataset.playPartId, parseInt(playBtn.dataset.playBarNum, 10));
+    return;
+  }
+
   // Accent cell click
   const accentCell = el.closest('[data-accent-pos16]');
   if (accentCell && _accentsSelectedPart && _accentsSelectedBar) {
     const pos = parseInt(accentCell.dataset.accentPos16, 10);
     handleAccentsTabToggle(_accentsSelectedPart, _accentsSelectedBar, pos);
     return;
+  }
+}
+
+async function handleAccentBarPlay(partId, barNum) {
+  ensureCollections();
+  const found = findBar(partId, barNum);
+  if (!found) return;
+  const [barId, barData] = found;
+  if (!barData.audio) return;
+
+  // If already playing this bar → stop
+  if (_barPlayId === barId && _partPlayActive) {
+    stopPartPlay();
+    _barPlayId = null;
+    renderAccentsTab();
+    return;
+  }
+
+  stopPartPlay();
+  _barPlayId = barId;
+  _partPlayActive = true;
+  renderAccentsTab();
+
+  try {
+    if (!_partPlayCtx) {
+      _partPlayCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (_partPlayCtx.state === 'suspended') await _partPlayCtx.resume();
+
+    const arrBuf = await fetchAudioUrl(barData.audio);
+    if (!arrBuf) throw new Error(`Audio nicht gefunden: ${barData.audio}`);
+    const decoded = await _partPlayCtx.decodeAudioData(arrBuf);
+
+    const src = _partPlayCtx.createBufferSource();
+    src.buffer = decoded;
+    src.connect(_partPlayCtx.destination);
+    src.onended = () => {
+      if (_barPlayId === barId) {
+        _barPlayId = null;
+        _partPlayActive = false;
+        renderAccentsTab();
+      }
+    };
+    src.start(0);
+    _partPlaySources = [src];
+    _partPlayBuffers = [decoded];
+  } catch (err) {
+    console.error('Bar playback error (accents):', err);
+    toast(`Wiedergabe-Fehler: ${err.message}`, 'error');
+    stopPartPlay();
+    _barPlayId = null;
+    renderAccentsTab();
   }
 }
 

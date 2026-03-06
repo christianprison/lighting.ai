@@ -336,6 +336,47 @@ export function rebuildPartIndexFromId(song) {
   }
 }
 
+/* ── Sync bars count from split_markers ───────────── */
+
+/**
+ * Ensure part.bars matches the number of barMarkers for that part.
+ * split_markers.barMarkers is the source of truth when present.
+ * Returns the number of parts that were fixed.
+ */
+export function syncBarsFromMarkers(db) {
+  let fixed = 0;
+  for (const [, song] of Object.entries(db.songs || {})) {
+    const sm = song.split_markers;
+    if (!sm || !Array.isArray(sm.barMarkers) || sm.barMarkers.length === 0) continue;
+
+    const parts = sortedParts(song);
+    const idToIndex = {};
+    parts.forEach((p, i) => { idToIndex[p.id] = i; });
+
+    // Count bars per partIndex from markers
+    const barsByIdx = {};
+    for (const m of sm.barMarkers) {
+      const idx = (m.partId && idToIndex[m.partId] !== undefined)
+        ? idToIndex[m.partId]
+        : m.partIndex;
+      barsByIdx[idx] = (barsByIdx[idx] || 0) + 1;
+    }
+
+    for (let i = 0; i < parts.length; i++) {
+      const markerCount = barsByIdx[i] || 0;
+      if (markerCount > 0 && song.parts[parts[i].id]) {
+        const part = song.parts[parts[i].id];
+        if (part.bars !== markerCount) {
+          console.log(`[integrity] Fixed bars: ${song.name} / ${part.name}: ${part.bars} → ${markerCount}`);
+          part.bars = markerCount;
+          fixed++;
+        }
+      }
+    }
+  }
+  return fixed;
+}
+
 /* ── Run All Checks on Load ───────────────────────── */
 
 /**
@@ -357,6 +398,13 @@ export function checkOnLoad(db, autoClean = false) {
   const migration = migrateSplitMarkers(db);
   if (migration.migrated > 0) {
     console.log(`[integrity] Migrated ${migration.migrated} split markers to partId-based`);
+  }
+
+  // Sync bars count from split_markers (source of truth)
+  const barsFixed = syncBarsFromMarkers(db);
+  if (barsFixed > 0) {
+    console.log(`[integrity] Fixed bars count for ${barsFixed} part(s) from split_markers`);
+    result.valid = false; // trigger dirty flag so changes get saved
   }
 
   return result;

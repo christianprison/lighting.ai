@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.15.9';
+const APP_VERSION = 'v0.15.11';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4102,7 +4102,7 @@ function normalizePartName(name) {
  */
 function leGuessPartMarkers(words, parts) {
   const markers = [];
-  const textParts = parts.filter(p => !p.instrumental && (p.bars || 0) > 0);
+  const textParts = parts.filter(p => !p.instrumental);
   if (textParts.length === 0) return markers;
 
   // Find section headers in words
@@ -4832,20 +4832,30 @@ function leMoveDrag(e) {
       }
     }
     if (bestLineTop !== null) {
-      // Collect words on this line, sorted left-to-right
-      const lineWords = _leDrag.wordPositions
-        .filter(p => Math.abs(p.top - bestLineTop) < bestLineHeight)
-        .sort((a, b) => a.left - b.left);
-      if (lineWords.length > 0) {
-        // Default: line start (first word) — edge case when finger is far left
-        let target = lineWords[0];
-        // Find the last word whose left edge is to the left of the finger
-        for (const w of lineWords) {
-          if (w.left < clientX) {
-            target = w;
+      // Check if the nearest line is a virtual empty line (gap between content)
+      const bestLine = _leDrag.linePositions.find(lp =>
+        Math.abs(lp.top - bestLineTop) < 2 && lp.isEmptyLine
+      );
+      if (bestLine) {
+        // Empty line: snap to first word of next content line
+        bestOffset = bestLine.charOffset;
+      } else {
+        // Collect words on this line, sorted left-to-right
+        const lineWords = _leDrag.wordPositions
+          .filter(p => Math.abs(p.top - bestLineTop) < bestLineHeight)
+          .sort((a, b) => a.left - b.left);
+        if (lineWords.length > 0) {
+          // Default: line start (first word) — edge case when finger is far left
+          let target = lineWords[0];
+          // Find the last word whose left edge is >= 50px left of finger
+          // (keeps cursor well clear of the finger on touch devices)
+          for (const w of lineWords) {
+            if (w.left < clientX - 50) {
+              target = w;
+            }
           }
+          bestOffset = target.charOffset;
         }
-        bestOffset = target.charOffset;
       }
     }
   }

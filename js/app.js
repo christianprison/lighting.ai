@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.15.19';
+const APP_VERSION = 'v0.15.20';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -1758,14 +1758,15 @@ function stopPartPlay() {
 async function handleBarPlay(partId, barNum) {
   ensureCollections();
   const found = findBar(partId, barNum);
-  if (!found) return;
+  if (!found) { console.warn('handleBarPlay: bar not found', partId, barNum); return; }
   const [barId, barData] = found;
-  if (!barData.audio) return;
+  if (!barData.audio) { console.warn('handleBarPlay: no audio path', barId); return; }
 
   // If already playing this bar → stop
   if (_barPlayId === barId && _partPlayActive) {
     stopPartPlay();
     _barPlayId = null;
+    renderTakteTab();
     return;
   }
 
@@ -1799,7 +1800,7 @@ async function handleBarPlay(partId, barNum) {
 
     renderTakteTab();
   } catch (err) {
-    console.error('Bar playback error:', err);
+    console.error('Bar playback error:', err, 'path:', barData.audio);
     toast(`Wiedergabe-Fehler: ${err.message}`, 'error');
     stopPartPlay();
     _barPlayId = null;

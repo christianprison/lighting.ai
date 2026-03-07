@@ -2539,6 +2539,15 @@ label {
   color: var(--t2);
 }
 
+.le-btn-distribute {
+  color: var(--t2);
+  border-color: var(--border2) !important;
+}
+.le-btn-distribute:hover {
+  color: var(--t1);
+  border-color: var(--cyan) !important;
+}
+
 /* ── Graphical Text Editor ───────────────────── */
 .le-editor {
   flex: 1;
@@ -2548,6 +2557,12 @@ label {
   background: var(--bg2);
   padding: 16px 20px;
   min-height: 200px;
+  cursor: crosshair;
+}
+
+.le-editor.le-dragging,
+.le-editor.le-dragging * {
+  cursor: grabbing !important;
 }
 
 .le-text {

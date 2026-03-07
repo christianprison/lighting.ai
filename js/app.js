@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.15.23';
+const APP_VERSION = 'v0.15.24';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4517,23 +4517,39 @@ function buildLyricsEditorContent(rawText) {
   for (let wi = 0; wi < _leWords.length; wi++) {
     const word = _leWords[wi];
 
+    // Determine line break for this word (needed before bar markers)
+    let lineBreak = '';
+    if (word.emptyLineBefore) lineBreak = '<br><br>';
+    else if (word.newlineBefore) lineBreak = '<br>';
+    else if (wi > 0) lineBreak = ' ';
+
     // Insert any markers that belong before this word
     lastWasPartMarker = false;
+    let barMarkersHtml = '';
     while (markerIdx < allMarkers.length && allMarkers[markerIdx].charOffset <= word.offset) {
       if (allMarkers[markerIdx].type === 'part') {
-        // Empty line before part marker (unless at very start of text)
+        // Part marker: emit any pending bar markers first, then line break
+        if (barMarkersHtml) { html += barMarkersHtml; barMarkersHtml = ''; }
         if (wi > 0 || markerIdx > 0) html += '<br><br>';
+        html += leRenderMarker(allMarkers[markerIdx]);
         lastWasPartMarker = true;
+        lineBreak = ''; // part marker already handles line breaks
+      } else {
+        // Bar marker: collect, will be emitted after line break
+        barMarkersHtml += leRenderMarker(allMarkers[markerIdx]);
       }
-      html += leRenderMarker(allMarkers[markerIdx]);
       markerIdx++;
     }
 
-    // Line breaks (skip if part marker already added a <br>)
-    if (lastWasPartMarker) { /* br already emitted after part marker */ }
-    else if (word.emptyLineBefore) html += '<br><br>';
-    else if (word.newlineBefore) html += '<br>';
-    else if (wi > 0) html += ' ';
+    // Emit line break BEFORE bar markers (so they appear at start of new line)
+    if (lastWasPartMarker) { /* br already emitted by part marker */ }
+    else if (barMarkersHtml) { html += lineBreak; lineBreak = ''; }
+
+    // Emit collected bar markers
+    if (barMarkersHtml) html += barMarkersHtml;
+
+    // Emit line break if not yet emitted (no markers case)
+    if (lineBreak && !lastWasPartMarker) html += lineBreak;
 
     // Render word
     if (word.isHeader) {

@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.15.13';
+const APP_VERSION = 'v0.15.14';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -5943,7 +5943,11 @@ async function loadQxwFile() {
       const res = await fetch(url, { headers: { Authorization: `token ${s.token}`, Accept: 'application/vnd.github.v3+json' } });
       if (!res.ok) continue;
       const json = await res.json();
-      const xmlStr = atob(json.content.replace(/\n/g, ''));
+      // Proper UTF-8 decode (atob produces Latin-1, breaks multi-byte chars like emojis)
+      const binary = atob(json.content.replace(/\n/g, ''));
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+      const xmlStr = new TextDecoder('utf-8').decode(bytes);
       const chasers = parseQxwChasers(xmlStr);
       _qxwCache = { xml: xmlStr, chasers };
       return chasers;
@@ -5968,7 +5972,8 @@ async function openChaserModal(songId) {
 
   const match = findChaserForSong(chasers, song.name);
   if (!match) {
-    toast(`Kein Chaser fuer "${song.name}" in der QXW gefunden`, 'error', 4000);
+    console.warn(`Kein Chaser fuer "${song.name}". Verfuegbare Chaser:`, [...chasers.keys()].sort());
+    toast(`Kein Chaser fuer "${song.name}" in der QXW gefunden (${chasers.size} Chaser geladen)`, 'error', 4000);
     return;
   }
 

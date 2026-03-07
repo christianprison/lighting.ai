@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.12.5';
+const APP_VERSION = 'v0.12.6';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -481,12 +481,17 @@ const SONG_CHECKLIST = [
       return pm && pm.length >= parts.length && parts.length > 0;
     }},
   { id: 'bar_markers',  label: 'Bar-Marker gesetzt (min. 1/Part)', cat: 'audio', tab: 'audio',
-    check: (s, parts) => {
+    check: (s, parts, barIds, theDb) => {
+      if (parts.length === 0) return false;
+      // Check via split_markers OR via db.bars entries
       const bm = s.split_markers?.barMarkers;
-      if (!bm || bm.length === 0 || parts.length === 0) return false;
-      // Check each part has at least 1 bar marker
-      const partIdxWithBars = new Set(bm.map(m => m.partIndex));
-      return parts.every((_, i) => partIdxWithBars.has(i));
+      if (bm && bm.length > 0) {
+        const partIdxWithBars = new Set(bm.map(m => m.partIndex));
+        if (parts.every((_, i) => partIdxWithBars.has(i))) return true;
+      }
+      // Fallback: check if every part has at least one bar in db.bars
+      const partsWithBars = new Set(barIds.map(bId => theDb.bars[bId]?.part_id));
+      return parts.every(p => partsWithBars.has(p.id));
     }},
   { id: 'audio_exported', label: 'Audio-Segmente exportiert', cat: 'audio', tab: 'audio',
     check: (s, parts, barIds, theDb) => {

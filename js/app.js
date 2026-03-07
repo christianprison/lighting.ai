@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.15.17';
+const APP_VERSION = 'v0.15.18';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4533,11 +4533,11 @@ function leRenderMarker(marker) {
                   data-char-offset="${marker.charOffset}"
                   title="${esc(name)}${marker.confirmed ? '' : ' (prognostiziert)'}">${esc(name)}</span><br>`;
   } else {
-    // Bar markers: thin cyan vertical stripe with bar number
+    // Bar markers: cyan badge with bar number (same style as part markers)
     return `<span class="le-marker le-bar-marker"
                   data-le-type="bar" data-le-idx="${marker.idx}"
                   data-char-offset="${marker.charOffset}"
-                  title="Takt ${marker.barNum}"><span class="le-bar-num">${marker.barNum}</span></span>`;
+                  title="Takt ${marker.barNum}">${marker.barNum}</span>`;
   }
 }
 

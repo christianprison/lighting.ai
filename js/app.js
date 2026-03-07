@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.15.4';
+const APP_VERSION = 'v0.15.5';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -2605,8 +2605,8 @@ function showDragBalloon(label, time, color, clientX, clientY) {
     _dragBalloon.className = 'drag-balloon';
     document.body.appendChild(_dragBalloon);
   }
-  const timeStr = fmtTime(time);
-  _dragBalloon.innerHTML = `<span class="db-label">${esc(label)}</span><span class="db-time">${timeStr}</span>`;
+  const timeHtml = time ? `<span class="db-time">${fmtTime(time)}</span>` : '';
+  _dragBalloon.innerHTML = `<span class="db-label">${esc(label)}</span>${timeHtml}`;
   _dragBalloon.style.setProperty('--db-color', color);
   _dragBalloon.classList.add('visible');
   // Position: centered on X, 70px above touch point
@@ -4812,6 +4812,18 @@ function leMoveDrag(e) {
     guide.style.height = edRect.height + 'px';
     guide.style.display = '';
   }
+
+  // Floating balloon above finger/cursor
+  let label = '';
+  let color = '#f0a030';
+  if (_leDrag.type === 'part' && _lePartMarkers[_leDrag.idx]) {
+    label = _lePartMarkers[_leDrag.idx].name || 'Part';
+    color = '#f0a030';
+  } else if (_leDrag.type === 'bar' && _leBarMarkers[_leDrag.idx]) {
+    label = 'Takt ' + _leBarMarkers[_leDrag.idx].barNum;
+    color = '#38bdf8';
+  }
+  showDragBalloon(label, 0, color, clientX, clientY);
 }
 
 function leEndDrag() {
@@ -4828,6 +4840,7 @@ function leEndDrag() {
   document.removeEventListener('touchend', leEndDrag);
 
   // Remove visual feedback
+  hideDragBalloon();
   document.querySelectorAll('.le-word.le-drop-target').forEach(w => w.classList.remove('le-drop-target'));
   const guide = document.getElementById('le-drag-guide');
   if (guide) guide.remove();

@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.13.5';
+const APP_VERSION = 'v0.13.6';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4149,13 +4149,21 @@ function buildLyricsPartBody(part, partIndex, barCount, barLyrics, hasBuf, absBa
     </div>`;
   }
 
+  // Quick Insert suggestions from raw text
+  const qiMap = getQuickInsertMap();
+  const qiSuggestions = qiMap.get(part.id) || [];
+
   // Horizontal bar inputs — all equal width, waveform stretches to match
   html += '<div class="lyrics-bars-row">';
   for (let b = 0; b < barCount; b++) {
     const text = barLyrics[b] || '';
     const absBarNum = absBarOffset + b + 1;
+    const suggestion = qiSuggestions[b] || '';
+    // Show chip only if there's a suggestion and bar is empty or different from suggestion
+    const showChip = suggestion && suggestion !== text;
     html += `<div class="lyrics-bar-cell" style="flex:1 1 0;min-width:${cellW}px">
       <div class="lyrics-bar-num mono text-t3">${absBarNum}</div>
+      ${showChip ? `<button class="lyrics-qi-chip" data-qi-part="${part.id}" data-qi-bar="${b + 1}" data-qi-text="${esc(suggestion)}" title="Einfügen: ${esc(suggestion)}">${esc(suggestion)}</button>` : '<div class="lyrics-qi-chip-spacer"></div>'}
       <input type="text" class="lyrics-bar-input" data-lyrics-bar-part="${part.id}" data-lyrics-bar-num="${b + 1}" value="${esc(text)}" placeholder="\u2014">
     </div>`;
   }
@@ -4618,7 +4626,175 @@ function distributeLyricsToparts() {
   }
 
   markDirty();
+  // Hide Quick Insert chips that now match the filled bars
+  document.querySelectorAll('.lyrics-qi-chip').forEach(chip => {
+    const partId = chip.dataset.qiPart;
+    const barNum = chip.dataset.qiBar;
+    const inp = document.querySelector(`.lyrics-bar-input[data-lyrics-bar-part="${partId}"][data-lyrics-bar-num="${barNum}"]`);
+    if (inp && inp.value === chip.dataset.qiText) {
+      chip.replaceWith(Object.assign(document.createElement('div'), { className: 'lyrics-qi-chip-spacer' }));
+    }
+  });
   toast(`Text auf ${filledParts} Parts verteilt`, 'success');
+}
+
+/* ── Quick Insert: per-bar suggestions from raw text ── */
+
+/**
+ * Parse lyrics_raw and return a Map<partId, string[]> where each string[]
+ * has one suggestion per bar (line-based, preserving meaningful phrases).
+ */
+function buildQuickInsertMap() {
+  if (!selectedSongId) return new Map();
+  const song = db.songs[selectedSongId];
+  if (!song || !song.lyrics_raw) return new Map();
+
+  const rawText = song.lyrics_raw.trim();
+  if (!rawText) return new Map();
+
+  const parts = getSortedParts(selectedSongId);
+  const textParts = parts.filter(p => (p.bars || 0) > 0 && !p.instrumental);
+  if (textParts.length === 0) return new Map();
+
+  // Parse raw text into sections (reusing distribute logic)
+  const sections = [];
+  let currentHeader = null;
+  let currentLines = [];
+  for (const line of rawText.split('\n')) {
+    const trimmed = line.trim();
+    if (trimmed === '') {
+      if (currentLines.length > 0) {
+        sections.push({ header: currentHeader, lines: currentLines });
+        currentHeader = null;
+        currentLines = [];
+      }
+      continue;
+    }
+    if (/^\[.*\]$/.test(trimmed)) {
+      if (currentLines.length > 0) {
+        sections.push({ header: currentHeader, lines: currentLines });
+        currentLines = [];
+      }
+      currentHeader = trimmed;
+      continue;
+    }
+    currentLines.push(trimmed);
+  }
+  if (currentLines.length > 0) sections.push({ header: currentHeader, lines: currentLines });
+  if (sections.length === 0) return new Map();
+
+  // Match sections to parts (same logic as distributeLyricsToparts)
+  const sectionUsed = new Array(sections.length).fill(false);
+  const partAssigned = new Map();
+  const firstTextByBase = {};
+
+  function getSectionNum(header) {
+    if (!header) return null;
+    const m = header.replace(/[\[\]]/g, '').match(/\s+(\d+)\s*$/);
+    return m ? parseInt(m[1], 10) : null;
+  }
+
+  const partOccurrence = new Map();
+  const baseCount = {};
+  for (const part of textParts) {
+    const base = normalizePartName(part.name);
+    baseCount[base] = (baseCount[base] || 0) + 1;
+    partOccurrence.set(part.id, baseCount[base]);
+  }
+
+  // Pass 1: match by headers
+  for (const part of textParts) {
+    if (partAssigned.has(part.id)) continue;
+    const partBase = normalizePartName(part.name);
+    const partOcc = partOccurrence.get(part.id);
+    for (let s = 0; s < sections.length; s++) {
+      if (sectionUsed[s] || !sections[s].header) continue;
+      const secBase = matchSectionToPartName(sections[s].header);
+      if (secBase !== partBase) continue;
+      const secNum = getSectionNum(sections[s].header);
+      if (secNum !== null) {
+        if (secNum === partOcc) {
+          partAssigned.set(part.id, sections[s].lines);
+          sectionUsed[s] = true;
+          if (!firstTextByBase[partBase]) firstTextByBase[partBase] = sections[s].lines;
+          break;
+        }
+      } else {
+        partAssigned.set(part.id, sections[s].lines);
+        sectionUsed[s] = true;
+        if (!firstTextByBase[partBase]) firstTextByBase[partBase] = sections[s].lines;
+        break;
+      }
+    }
+  }
+
+  // Pass 2: repeating parts copy from first occurrence
+  for (const part of textParts) {
+    if (partAssigned.has(part.id)) continue;
+    const partBase = normalizePartName(part.name);
+    if (firstTextByBase[partBase]) {
+      partAssigned.set(part.id, firstTextByBase[partBase]);
+    }
+  }
+
+  // Pass 3: remaining sequential
+  let nextSection = 0;
+  for (const part of textParts) {
+    if (partAssigned.has(part.id)) continue;
+    while (nextSection < sections.length && sectionUsed[nextSection]) nextSection++;
+    if (nextSection >= sections.length) break;
+    partAssigned.set(part.id, sections[nextSection].lines);
+    const partBase = normalizePartName(part.name);
+    if (!firstTextByBase[partBase]) firstTextByBase[partBase] = sections[nextSection].lines;
+    sectionUsed[nextSection] = true;
+    nextSection++;
+  }
+
+  // Build per-bar suggestions: distribute lines across bars
+  const result = new Map();
+  for (const part of textParts) {
+    const lines = partAssigned.get(part.id);
+    if (!lines || lines.length === 0) continue;
+    const barCount = part.bars || 0;
+    if (barCount === 0) continue;
+
+    const suggestions = [];
+    if (lines.length <= barCount) {
+      // Fewer lines than bars: map lines 1:1, leave remaining empty
+      for (let b = 0; b < barCount; b++) {
+        suggestions.push(b < lines.length ? lines[b] : '');
+      }
+    } else {
+      // More lines than bars: combine lines evenly
+      for (let b = 0; b < barCount; b++) {
+        const startLine = Math.round(b * lines.length / barCount);
+        const endLine = Math.round((b + 1) * lines.length / barCount);
+        suggestions.push(lines.slice(startLine, endLine).join(' / '));
+      }
+    }
+    result.set(part.id, suggestions);
+  }
+
+  return result;
+}
+
+// Cache for quick inserts (invalidated on raw text change or song switch)
+let _quickInsertCache = null;
+let _quickInsertSongId = null;
+
+function getQuickInsertMap() {
+  const song = db?.songs?.[selectedSongId];
+  const rawText = song?.lyrics_raw || '';
+  // Invalidate cache on song or text change
+  if (_quickInsertSongId !== selectedSongId || _quickInsertCache === null) {
+    _quickInsertCache = buildQuickInsertMap();
+    _quickInsertSongId = selectedSongId;
+  }
+  return _quickInsertCache;
+}
+
+function invalidateQuickInsertCache() {
+  _quickInsertCache = null;
 }
 
 /* ── Lyrics Part Playback ─────────────────────────── */
@@ -4887,6 +5063,25 @@ function copyLyricsFromPart(fromPartId, toPartId) {
 function handleLyricsClick(e) {
   const el = e.target;
 
+  // Quick Insert chip: fill bar input with suggested text
+  const qiChip = el.closest('.lyrics-qi-chip');
+  if (qiChip) {
+    const partId = qiChip.dataset.qiPart;
+    const barNum = parseInt(qiChip.dataset.qiBar, 10);
+    const text = qiChip.dataset.qiText;
+    const inp = document.querySelector(`.lyrics-bar-input[data-lyrics-bar-part="${partId}"][data-lyrics-bar-num="${barNum}"]`);
+    if (inp) {
+      inp.value = text;
+      // Save to DB
+      const [, barData] = getOrCreateBar(partId, barNum);
+      barData.lyrics = text;
+      markDirty();
+      // Hide the chip (already filled)
+      qiChip.replaceWith(Object.assign(document.createElement('div'), { className: 'lyrics-qi-chip-spacer' }));
+    }
+    return;
+  }
+
   // Distribute raw text to parts
   if (el.closest('#lyrics-distribute-btn')) {
     distributeLyricsToparts();
@@ -5005,6 +5200,7 @@ function handleLyricsChange(e) {
   // Auto-save raw lyrics text on any change in the raw textarea
   if (el.id === 'lyrics-raw-text') {
     saveLyricsRawText();
+    invalidateQuickInsertCache();
     return;
   }
 }
@@ -5053,13 +5249,26 @@ function lyricsInputFocusIn(input) {
     _savedLyricsScrollTop = scrollEl ? scrollEl.scrollTop : 0;
     _startVisualViewportTracking();
     if (panel) panel.classList.add('lyrics-kbd-mode');
-    // Restore scroll position inside the now-fixed panel, then
-    // scroll the focused input into view within the scroll container
+    // Wait for layout recalc (position:fixed), restore scroll, then scroll input into view.
+    // Use setTimeout to ensure the keyboard animation has started and layout is stable.
     requestAnimationFrame(() => {
       if (panel) panel.scrollTop = _savedLyricsScrollTop;
-      requestAnimationFrame(() => {
-        input.scrollIntoView({ block: 'center', behavior: 'smooth' });
-      });
+      setTimeout(() => {
+        // Find the bar cell (parent of input) to scroll into view — includes the QI chip
+        const cell = input.closest('.lyrics-bar-cell') || input;
+        cell.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        // Ensure the input is not obscured by scrolling the panel
+        const panelRect = panel ? panel.getBoundingClientRect() : null;
+        const inputRect = input.getBoundingClientRect();
+        if (panel && panelRect) {
+          const viewBottom = panelRect.top + panelRect.height;
+          if (inputRect.bottom > viewBottom - 20) {
+            panel.scrollTop += inputRect.bottom - viewBottom + 60;
+          } else if (inputRect.top < panelRect.top + 40) {
+            panel.scrollTop -= panelRect.top + 40 - inputRect.top;
+          }
+        }
+      }, 120);
     });
   }
 }

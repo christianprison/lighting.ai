@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.15.16';
+const APP_VERSION = 'v0.15.21';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -129,6 +129,7 @@ const LIGHT_TEMPLATE_GROUPS = [
     'Spot auf PAC + Blinder',
     'Spot auf Pete',
     'Spot auf Tim',
+    'Spot auf Tim hot',
   ]},
   { label: 'Accent / Utility', items: [
     'blind (accent)',
@@ -173,7 +174,8 @@ const QXW_BASE_COLLECTIONS = {
   81: '10 Strobe', 82: '11 Stop', 83: '16 Searchlight',
   181: '20 white Fan up', 182: '21 white fan down',
   224: 'Spot auf Axel', 226: 'Spot auf Axel hot', 227: 'Spot auf Bibo',
-  228: 'Spot auf Pete', 229: 'Spot auf Tim', 212: 'blind (accent)',
+  228: 'Spot auf Pete', 229: 'Spot auf Tim', 14: 'Spot auf Tim hot',
+  212: 'blind (accent)',
   36: 'blackout (scene)',
 };
 
@@ -1756,14 +1758,15 @@ function stopPartPlay() {
 async function handleBarPlay(partId, barNum) {
   ensureCollections();
   const found = findBar(partId, barNum);
-  if (!found) return;
+  if (!found) { console.warn('handleBarPlay: bar not found', partId, barNum); return; }
   const [barId, barData] = found;
-  if (!barData.audio) return;
+  if (!barData.audio) { console.warn('handleBarPlay: no audio path', barId); return; }
 
   // If already playing this bar → stop
   if (_barPlayId === barId && _partPlayActive) {
     stopPartPlay();
     _barPlayId = null;
+    renderTakteTab();
     return;
   }
 
@@ -1797,7 +1800,7 @@ async function handleBarPlay(partId, barNum) {
 
     renderTakteTab();
   } catch (err) {
-    console.error('Bar playback error:', err);
+    console.error('Bar playback error:', err, 'path:', barData.audio);
     toast(`Wiedergabe-Fehler: ${err.message}`, 'error');
     stopPartPlay();
     _barPlayId = null;
@@ -3266,12 +3269,12 @@ async function loadReferenceAudio() {
     // Restore part/bar markers from DB if available
     restoreMarkersFromSong();
 
-    // Re-render the active tab that uses audio
+    // Re-render the active tab that uses audio (but don't interrupt bar playback)
     if (selectedSongId === songId) {
       if (activeTab === 'audio') renderAudioTab();
       else if (activeTab === 'lyrics') renderLyricsTab();
       else if (activeTab === 'parts') renderPartsTab();
-      else if (activeTab === 'takte') renderTakteTab();
+      else if (activeTab === 'takte' && !_partPlayActive) renderTakteTab();
     }
     toast(`Referenz-Audio geladen: ${fmtTime(meta.duration)}`, 'success');
   } catch (err) {
@@ -4531,11 +4534,11 @@ function leRenderMarker(marker) {
                   data-char-offset="${marker.charOffset}"
                   title="${esc(name)}${marker.confirmed ? '' : ' (prognostiziert)'}">${esc(name)}</span><br>`;
   } else {
-    // Bar markers: thin cyan vertical stripe with bar number
+    // Bar markers: cyan badge with bar number (same style as part markers)
     return `<span class="le-marker le-bar-marker"
                   data-le-type="bar" data-le-idx="${marker.idx}"
                   data-char-offset="${marker.charOffset}"
-                  title="Takt ${marker.barNum}"><span class="le-bar-num">${marker.barNum}</span></span>`;
+                  title="Takt ${marker.barNum}">${marker.barNum}</span>`;
   }
 }
 
@@ -7154,8 +7157,8 @@ function renderTakteTab() {
   const filterSong = selectedSongId;
   ensureCollections();
 
-  // Auto-load reference audio if available and not yet loaded
-  if (filterSong) {
+  // Auto-load reference audio if available and not yet loaded (skip during bar playback)
+  if (filterSong && !_partPlayActive) {
     const s = db.songs[filterSong];
     if (s && !audio.getBuffer() && s.audio_ref && _refLoadingFor !== filterSong) {
       _refLoadingFor = filterSong;

@@ -48,11 +48,7 @@ body {
   height: 100vh;
   height: 100dvh;
   width: 100vw;
-  /* iOS safe areas for notch/rounded corners */
-  padding-top: env(safe-area-inset-top);
-  padding-left: env(safe-area-inset-left);
-  padding-right: env(safe-area-inset-right);
-  padding-bottom: env(safe-area-inset-bottom);
+  margin: 0;
 }
 
 /* ── Typography ────────────────────────────────────── */
@@ -76,6 +72,11 @@ h3 { font-size: 0.95rem; }
   width: 100vw;
   overflow: hidden;
   position: relative;
+  /* iOS safe areas for notch/rounded corners */
+  padding-top: env(safe-area-inset-top);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 /* ── Header ────────────────────────────────────────── */
@@ -2646,43 +2647,36 @@ label {
 /* ── Bar Markers: Cyan vertical stripe ─────── */
 .le-bar-marker {
   display: inline-block;
-  width: 2px;
-  height: 1.6em;
   background: var(--cyan);
-  vertical-align: middle;
+  color: var(--bg) !important;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
   margin: 0 3px;
-  position: relative;
   cursor: grab;
   user-select: none;
-  border-radius: 1px;
-  opacity: 0.6;
-  transition: opacity 0.15s, width 0.1s;
+  vertical-align: baseline;
+  white-space: nowrap;
+  transition: transform 0.1s, box-shadow 0.15s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  line-height: 1.4;
+  opacity: 0.7;
 }
 
 .le-bar-marker:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(56, 189, 248, 0.4);
   opacity: 1;
-  width: 3px;
 }
 
 .le-bar-marker:active,
 .le-bar-marker.le-dragging {
   cursor: grabbing;
+  transform: scale(1.08);
+  box-shadow: 0 3px 12px rgba(56, 189, 248, 0.5);
   opacity: 1;
-  width: 3px;
-  background: var(--cyan);
-}
-
-.le-bar-num {
-  position: absolute;
-  top: -1.2em;
-  left: 50%;
-  transform: translateX(-50%);
-  font-family: var(--font-mono);
-  font-size: 0.55rem;
-  color: var(--cyan);
-  white-space: nowrap;
-  pointer-events: none;
-  font-weight: 600;
 }
 
 /* ── Legend ────────────────────────────────────── */

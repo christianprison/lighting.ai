@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.15.24';
+const APP_VERSION = 'v0.15.25';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4458,7 +4458,8 @@ function renderLyricsTab() {
     }
 
     // Graphical editor
-    html += `<div class="le-editor" id="le-editor">
+    const barsZoomCls = _lePhase === 'bars' ? ' le-bars-zoom' : '';
+    html += `<div class="le-editor${barsZoomCls}" id="le-editor">
       <div class="le-text" id="le-text">${buildLyricsEditorContent(rawText)}</div>
     </div>`;
 

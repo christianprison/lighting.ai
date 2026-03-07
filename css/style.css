@@ -2707,6 +2707,34 @@ label {
   border-radius: 1px;
 }
 
+/* ── Bars Phase: Enlarged text for easier tapping ── */
+.le-bars-zoom {
+  padding: 10px 12px;
+}
+
+.le-bars-zoom .le-text {
+  font-size: 1.6rem;
+  line-height: 2.2;
+}
+
+.le-bars-zoom .le-header {
+  font-size: 1.4rem;
+}
+
+.le-bars-zoom .le-part-marker {
+  font-size: 1.3rem;
+  padding: 4px 14px;
+  border-radius: 6px;
+  margin: 0 6px;
+}
+
+.le-bars-zoom .le-bar-marker {
+  font-size: 1.1rem;
+  padding: 3px 9px;
+  border-radius: 5px;
+  margin: 0 5px;
+}
+
 
 /* ══════════════════════════════════════════════════════
    Song Progress Panel

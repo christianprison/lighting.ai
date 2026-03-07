@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.15.21';
+const APP_VERSION = 'v0.15.24';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4253,11 +4253,18 @@ function leReconstructMarkers(rawText, parts) {
     if (barCount === 0) continue;
 
     let partOffset = -1;
+    let lastFoundOffset = -1; // track position of last bar with lyrics
 
+    // First pass: place bars that have lyrics
+    const barOffsets = []; // [barNum] → charOffset or null
+    const savedSearchOffset = searchOffset;
     for (let b = 1; b <= barCount; b++) {
       const found = findBar(part.id, b);
       const lyrics = found ? (found[1].lyrics || '').trim() : '';
-      if (!lyrics) continue;
+      if (!lyrics) {
+        barOffsets.push(null);
+        continue;
+      }
 
       // Find this lyrics text in the raw text (progressive search)
       const idx = rawText.indexOf(lyrics, searchOffset);
@@ -4270,13 +4277,39 @@ function leReconstructMarkers(rawText, parts) {
             confirmed: part.lyrics_confirmed || false
           });
         }
-        barMarkers.push({
-          partId: part.id,
-          barNum: b,
-          charOffset: idx
-        });
+        barOffsets.push(idx);
+        lastFoundOffset = idx;
         searchOffset = idx + lyrics.length;
+      } else {
+        barOffsets.push(null);
       }
+    }
+
+    // Second pass: fill in bars without lyrics at the position of the next bar that has lyrics
+    // (or the previous bar if no next bar exists)
+    for (let b = 0; b < barOffsets.length; b++) {
+      if (barOffsets[b] !== null) continue;
+      // Look forward for next bar with an offset
+      let nextOffset = null;
+      for (let j = b + 1; j < barOffsets.length; j++) {
+        if (barOffsets[j] !== null) { nextOffset = barOffsets[j]; break; }
+      }
+      // Look backward for previous bar with an offset
+      let prevOffset = null;
+      for (let j = b - 1; j >= 0; j--) {
+        if (barOffsets[j] !== null) { prevOffset = barOffsets[j]; break; }
+      }
+      // Use next offset (bar appears before that word), or previous, or part start
+      barOffsets[b] = nextOffset ?? prevOffset ?? partOffset ?? searchOffset;
+    }
+
+    // Emit all bar markers
+    for (let b = 0; b < barOffsets.length; b++) {
+      barMarkers.push({
+        partId: part.id,
+        barNum: b + 1,
+        charOffset: barOffsets[b]
+      });
     }
 
     // If no bar lyrics found, still place a part marker
@@ -4484,23 +4517,39 @@ function buildLyricsEditorContent(rawText) {
   for (let wi = 0; wi < _leWords.length; wi++) {
     const word = _leWords[wi];
 
+    // Determine line break for this word (needed before bar markers)
+    let lineBreak = '';
+    if (word.emptyLineBefore) lineBreak = '<br><br>';
+    else if (word.newlineBefore) lineBreak = '<br>';
+    else if (wi > 0) lineBreak = ' ';
+
     // Insert any markers that belong before this word
     lastWasPartMarker = false;
+    let barMarkersHtml = '';
     while (markerIdx < allMarkers.length && allMarkers[markerIdx].charOffset <= word.offset) {
       if (allMarkers[markerIdx].type === 'part') {
-        // Empty line before part marker (unless at very start of text)
+        // Part marker: emit any pending bar markers first, then line break
+        if (barMarkersHtml) { html += barMarkersHtml; barMarkersHtml = ''; }
         if (wi > 0 || markerIdx > 0) html += '<br><br>';
+        html += leRenderMarker(allMarkers[markerIdx]);
         lastWasPartMarker = true;
+        lineBreak = ''; // part marker already handles line breaks
+      } else {
+        // Bar marker: collect, will be emitted after line break
+        barMarkersHtml += leRenderMarker(allMarkers[markerIdx]);
       }
-      html += leRenderMarker(allMarkers[markerIdx]);
       markerIdx++;
     }
 
-    // Line breaks (skip if part marker already added a <br>)
-    if (lastWasPartMarker) { /* br already emitted after part marker */ }
-    else if (word.emptyLineBefore) html += '<br><br>';
-    else if (word.newlineBefore) html += '<br>';
-    else if (wi > 0) html += ' ';
+    // Emit line break BEFORE bar markers (so they appear at start of new line)
+    if (lastWasPartMarker) { /* br already emitted by part marker */ }
+    else if (barMarkersHtml) { html += lineBreak; lineBreak = ''; }
+
+    // Emit collected bar markers
+    if (barMarkersHtml) html += barMarkersHtml;
+
+    // Emit line break if not yet emitted (no markers case)
+    if (lineBreak && !lastWasPartMarker) html += lineBreak;
 
     // Render word
     if (word.isHeader) {

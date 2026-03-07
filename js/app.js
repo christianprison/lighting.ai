@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.12.8';
+const APP_VERSION = 'v0.12.9';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -63,26 +63,91 @@ const SETTINGS_KEY = 'lightingai_settings';
 /* ── Constants ─────────────────────────────────────── */
 
 // Light templates — identisch zu den Gruppen in live/ui/config.html (QLC+ Szenen)
-const LIGHT_TEMPLATES = [
-  '00 blackout',
-  '01 statisch bunt',
-  '02 slow blue',
-  '03 walking',
-  '04 up\'n\'down',
-  '05 left\'n\'right',
-  '06 blinking',
-  '07 round\'n\'round',
-  '08 swimming',
-  '09 Alarm',
-  '10 Alarm \uD83D\uDD14\uD83D\uDD14',
-  '10 Strobe',
-  '11 Stop',
-  '12 slow red',
-  '16 Searchlight',
-  '20 white Fan up',
-  '21 white fan down',
-  '22 blind',
+// Gruppiert als Baumstruktur: { label: string, items: string[] }[]
+const LIGHT_TEMPLATE_GROUPS = [
+  { label: 'Basis-Szenen', items: [
+    '00 blackout',
+    '01 statisch bunt',
+    '02 slow blue',
+    '03 walking',
+    '04 up\'n\'down',
+    '05 left\'n\'right',
+    '06 blinking',
+    '07 round\'n\'round',
+    '08 swimming',
+  ]},
+  { label: 'Alarm / Strobe / Stop', items: [
+    '09 Alarm',
+    '10 Alarm \uD83D\uDD14\uD83D\uDD14',
+    '10 Strobe',
+    '11 Stop',
+  ]},
+  { label: 'Farb-Szenen', items: [
+    '12 slow red',
+    '16 Searchlight',
+  ]},
+  { label: 'White Fan / Blind', items: [
+    '20 white Fan up',
+    '21 white fan down',
+    '22 blind',
+  ]},
+  { label: 'D O R up W', items: [
+    'D O R up W',
+  ]},
+  { label: 'Einzelszenen', items: [
+    'Chor (collection)',
+    'Heads Cross White',
+    'Heads Publikum',
+    'heads white open',
+    'PAR Blue + Fog',
+    'PAR Green + Fog',
+    'red and green alternating',
+    'S\u00e4ulen red drip',
+    'static dark blue',
+    'stripes from center',
+    'strips twinkle',
+    'TMHs center stage yellow',
+    'up\'n\'down (ohne effects)',
+  ]},
+  { label: 'Song-spezifisch', items: [
+    'The Reason Intro',
+    'Valerie Verse 2b',
+    'Valerie Verse 3a (a capella)',
+  ]},
+  { label: 'Spots & Combos', items: [
+    '03 walking + PARs Pete',
+    'Inside Spot auf Axel und Tim',
+    'Spot auf Axel & Bibo',
+    'Spot auf Axel',
+    'Spot auf Axel blackout',
+    'Spot auf Bibo',
+    'Spot auf PAC',
+    'Spot auf PAC + Blinder',
+    'Spot auf Pete',
+    'Spot auf Tim',
+  ]},
+  { label: 'Accent / Utility', items: [
+    'blind (accent)',
+    'blackout (scene)',
+    'Fog 10s',
+    'Fog on',
+    'Fog off',
+    'Alarm neu (rot/gr\u00fcn)',
+  ]},
 ];
+
+/** Build <option> + <optgroup> HTML for the light template select */
+function buildTemplateOptions(selected) {
+  let html = '';
+  for (const grp of LIGHT_TEMPLATE_GROUPS) {
+    html += `<optgroup label="${grp.label}">`;
+    for (const t of grp.items) {
+      html += `<option value="${t}"${t === selected ? ' selected' : ''}>${t}</option>`;
+    }
+    html += '</optgroup>';
+  }
+  return html;
+}
 
 const ACCENT_TYPES = ['bl', 'bo', 'hl', 'st', 'fg'];
 
@@ -480,18 +545,29 @@ const SONG_CHECKLIST = [
       const pm = s.split_markers?.partMarkers;
       return pm && pm.length >= parts.length && parts.length > 0;
     }},
-  { id: 'bar_markers',  label: 'Bar-Marker gesetzt (min. 1/Part)', cat: 'audio', tab: 'audio',
+  { id: 'bar_markers',  label: 'Bar-Marker gesetzt (erwartet aus BPM/Bars)', cat: 'audio', tab: 'audio',
     check: (s, parts, barIds, theDb) => {
       if (parts.length === 0) return false;
-      // Check via split_markers OR via db.bars entries
+      // First and last parts don't need bar markers
+      if (parts.length <= 2) return true;
       const bm = s.split_markers?.barMarkers;
-      if (bm && bm.length > 0) {
-        const partIdxWithBars = new Set(bm.map(m => m.partIndex));
-        if (parts.every((_, i) => partIdxWithBars.has(i))) return true;
+      const markersByPart = new Map();
+      if (bm) for (const m of bm) markersByPart.set(m.partIndex, (markersByPart.get(m.partIndex) || 0) + 1);
+      const dbBarsByPart = new Map();
+      for (const bId of barIds) {
+        const pid = theDb.bars[bId]?.part_id;
+        if (pid) dbBarsByPart.set(pid, (dbBarsByPart.get(pid) || 0) + 1);
       }
-      // Fallback: check if every part has at least one bar in db.bars
-      const partsWithBars = new Set(barIds.map(bId => theDb.bars[bId]?.part_id));
-      return parts.every(p => partsWithBars.has(p.id));
+      // Check inner parts (skip first and last)
+      for (let i = 1; i < parts.length - 1; i++) {
+        const p = parts[i];
+        const expected = p.bars || 0;
+        if (expected <= 0) continue;
+        const fromMarkers = markersByPart.get(i) || 0;
+        const fromDb = dbBarsByPart.get(p.id) || 0;
+        if (fromMarkers < expected && fromDb < expected) return false;
+      }
+      return true;
     }},
   { id: 'audio_exported', label: 'Audio-Segmente exportiert', cat: 'audio', tab: 'audio',
     check: (s, parts, barIds, theDb) => {
@@ -934,7 +1010,6 @@ function renderPartsTable() {
           <th class="pt-name">Name</th>
           <th class="pt-start">Start</th>
           <th class="pt-bars">Takte</th>
-          <th class="pt-dur">Dauer</th>
           <th class="pt-tmpl">Template</th>
           <th class="pt-grip"></th>
         </tr>
@@ -956,7 +1031,6 @@ function renderPartsTable() {
             <td class="pt-name">${esc(p.name)}</td>
             <td class="pt-start mono text-t3">${st.startBar} <span class="text-t4">${fmtDur(Math.round(st.startSec))}</span></td>
             <td class="pt-bars mono">${p.bars || 0}</td>
-            <td class="pt-dur mono text-t3">${fmtDur(dur)}</td>
             <td class="pt-tmpl text-t3">${p.light_template || '\u2014'}</td>
             <td class="pt-grip text-t4">\u2807</td>
           </tr>`;
@@ -5782,9 +5856,9 @@ function buildPartsTabTable(parts, filterSong) {
         ${hasBuf ? '<th class="ptt-wave">Waveform</th>' : ''}
         <th class="ptt-start">Start</th>
         <th class="ptt-bars">Takte</th>
-        <th class="ptt-dur">Dauer</th>
         <th class="ptt-tmpl">Light Template</th>
-        <th class="ptt-instr" title="Instrumental">&#9835;</th>
+        <th class="ptt-dur">Sek</th>
+        <th class="ptt-instr" title="Instrumental">instr.</th>
         <th class="ptt-notes">Notizen</th>
       </tr></thead>
       <tbody>
@@ -5823,13 +5897,13 @@ function buildPartsTabTable(parts, filterSong) {
               </div>
             </td>
             <td class="ptt-bars"><input type="number" value="${p.bars || 0}" data-ptf="bars" class="part-input-num mono" min="0" step="1" inputmode="numeric"></td>
-            <td class="ptt-dur"><input type="number" value="${dur}" data-ptf="duration_sec" class="part-input-num mono" min="0" step="1" inputmode="numeric" title="Dauer in Sekunden"></td>
             <td class="ptt-tmpl">
               <select data-ptf="light_template" class="part-select">
                 <option value="">\u2014</option>
-                ${LIGHT_TEMPLATES.map(t => `<option value="${t}"${t === p.light_template ? ' selected' : ''}>${t}</option>`).join('')}
+                ${buildTemplateOptions(p.light_template)}
               </select>
             </td>
+            <td class="ptt-dur"><input type="number" value="${dur}" data-ptf="duration_sec" class="part-input-num mono" min="0" step="1" inputmode="numeric" title="Dauer in Sekunden"></td>
             <td class="ptt-instr"><input type="checkbox" data-ptf="instrumental" class="instr-check" ${p.instrumental ? 'checked' : ''}></td>
             <td class="ptt-notes"><input type="text" value="${esc(p.notes || '')}" data-ptf="notes" class="part-input ptt-notes-input" placeholder="\u2014"></td>
           </tr>`;
@@ -6356,14 +6430,14 @@ function _pwDrawWaveform() {
       ctx.moveTo(x, 0);
       ctx.lineTo(x, h);
       ctx.stroke();
-      // Flag label
+      // Flag label (bottom, like Audio-Split-Tab)
       const label = `${bars[i].barNum || i + 1}`;
       ctx.font = '9px DM Mono, monospace';
       const tw = ctx.measureText(label).width + 4;
       ctx.fillStyle = 'rgba(56, 189, 248, 0.85)';
-      ctx.fillRect(x, 0, tw, 13);
+      ctx.fillRect(x, h - 13, tw, 13);
       ctx.fillStyle = '#08090d';
-      ctx.fillText(label, x + 2, 10);
+      ctx.fillText(label, x + 2, h - 3);
     }
   }
 
@@ -6380,9 +6454,9 @@ function _pwDrawWaveform() {
     ctx.font = '9px Sora, sans-serif';
     const tw = ctx.measureText(label).width + 4;
     ctx.fillStyle = 'rgba(240, 160, 48, 0.9)';
-    ctx.fillRect(x, h - 13, tw, 13);
+    ctx.fillRect(x, 0, tw, 13);
     ctx.fillStyle = '#08090d';
-    ctx.fillText(label, x + 2, h - 3);
+    ctx.fillText(label, x + 2, 10);
   }
 
   // Draw Ende flag (amber)
@@ -6398,9 +6472,9 @@ function _pwDrawWaveform() {
     ctx.font = '9px Sora, sans-serif';
     const tw = ctx.measureText(label).width + 4;
     ctx.fillStyle = 'rgba(240, 160, 48, 0.9)';
-    ctx.fillRect(x - tw, h - 13, tw, 13);
+    ctx.fillRect(x - tw, 0, tw, 13);
     ctx.fillStyle = '#08090d';
-    ctx.fillText(label, x - tw + 2, h - 3);
+    ctx.fillText(label, x - tw + 2, 10);
   }
 }
 

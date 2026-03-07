@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.13.6';
+const APP_VERSION = 'v0.13.7';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4149,21 +4149,13 @@ function buildLyricsPartBody(part, partIndex, barCount, barLyrics, hasBuf, absBa
     </div>`;
   }
 
-  // Quick Insert suggestions from raw text
-  const qiMap = getQuickInsertMap();
-  const qiSuggestions = qiMap.get(part.id) || [];
-
   // Horizontal bar inputs — all equal width, waveform stretches to match
   html += '<div class="lyrics-bars-row">';
   for (let b = 0; b < barCount; b++) {
     const text = barLyrics[b] || '';
     const absBarNum = absBarOffset + b + 1;
-    const suggestion = qiSuggestions[b] || '';
-    // Show chip only if there's a suggestion and bar is empty or different from suggestion
-    const showChip = suggestion && suggestion !== text;
     html += `<div class="lyrics-bar-cell" style="flex:1 1 0;min-width:${cellW}px">
       <div class="lyrics-bar-num mono text-t3">${absBarNum}</div>
-      ${showChip ? `<button class="lyrics-qi-chip" data-qi-part="${part.id}" data-qi-bar="${b + 1}" data-qi-text="${esc(suggestion)}" title="Einfügen: ${esc(suggestion)}">${esc(suggestion)}</button>` : '<div class="lyrics-qi-chip-spacer"></div>'}
       <input type="text" class="lyrics-bar-input" data-lyrics-bar-part="${part.id}" data-lyrics-bar-num="${b + 1}" value="${esc(text)}" placeholder="\u2014">
     </div>`;
   }
@@ -4626,15 +4618,8 @@ function distributeLyricsToparts() {
   }
 
   markDirty();
-  // Hide Quick Insert chips that now match the filled bars
-  document.querySelectorAll('.lyrics-qi-chip').forEach(chip => {
-    const partId = chip.dataset.qiPart;
-    const barNum = chip.dataset.qiBar;
-    const inp = document.querySelector(`.lyrics-bar-input[data-lyrics-bar-part="${partId}"][data-lyrics-bar-num="${barNum}"]`);
-    if (inp && inp.value === chip.dataset.qiText) {
-      chip.replaceWith(Object.assign(document.createElement('div'), { className: 'lyrics-qi-chip-spacer' }));
-    }
-  });
+  // Update keyboard bar if visible
+  _updateQiKeyboardBar();
   toast(`Text auf ${filledParts} Parts verteilt`, 'success');
 }
 
@@ -5063,22 +5048,10 @@ function copyLyricsFromPart(fromPartId, toPartId) {
 function handleLyricsClick(e) {
   const el = e.target;
 
-  // Quick Insert chip: fill bar input with suggested text
+  // Quick Insert keyboard bar chip tap
   const qiChip = el.closest('.lyrics-qi-chip');
   if (qiChip) {
-    const partId = qiChip.dataset.qiPart;
-    const barNum = parseInt(qiChip.dataset.qiBar, 10);
-    const text = qiChip.dataset.qiText;
-    const inp = document.querySelector(`.lyrics-bar-input[data-lyrics-bar-part="${partId}"][data-lyrics-bar-num="${barNum}"]`);
-    if (inp) {
-      inp.value = text;
-      // Save to DB
-      const [, barData] = getOrCreateBar(partId, barNum);
-      barData.lyrics = text;
-      markDirty();
-      // Hide the chip (already filled)
-      qiChip.replaceWith(Object.assign(document.createElement('div'), { className: 'lyrics-qi-chip-spacer' }));
-    }
+    _applyQiSuggestion();
     return;
   }
 
@@ -5217,6 +5190,7 @@ function _startVisualViewportTracking() {
   if (_vvCleanup || !window.visualViewport) return;
   const update = () => {
     document.documentElement.style.setProperty('--vv-h', `${window.visualViewport.height}px`);
+    _positionQiBar();
     // If viewport height is close to window height → keyboard closed, exit kbd mode
     if (window.visualViewport.height > window.innerHeight * 0.85) {
       const active = document.activeElement;
@@ -5254,7 +5228,6 @@ function lyricsInputFocusIn(input) {
     requestAnimationFrame(() => {
       if (panel) panel.scrollTop = _savedLyricsScrollTop;
       setTimeout(() => {
-        // Find the bar cell (parent of input) to scroll into view — includes the QI chip
         const cell = input.closest('.lyrics-bar-cell') || input;
         cell.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
         // Ensure the input is not obscured by scrolling the panel
@@ -5262,8 +5235,9 @@ function lyricsInputFocusIn(input) {
         const inputRect = input.getBoundingClientRect();
         if (panel && panelRect) {
           const viewBottom = panelRect.top + panelRect.height;
-          if (inputRect.bottom > viewBottom - 20) {
-            panel.scrollTop += inputRect.bottom - viewBottom + 60;
+          const qiBarH = (_qiBar && _qiBar.style.display !== 'none') ? _qiBar.offsetHeight + 8 : 0;
+          if (inputRect.bottom > viewBottom - 20 - qiBarH) {
+            panel.scrollTop += inputRect.bottom - viewBottom + 60 + qiBarH;
           } else if (inputRect.top < panelRect.top + 40) {
             panel.scrollTop -= panelRect.top + 40 - inputRect.top;
           }
@@ -5271,6 +5245,8 @@ function lyricsInputFocusIn(input) {
       }, 120);
     });
   }
+  // Show Quick Insert suggestion for this bar
+  _updateQiKeyboardBar();
 }
 
 function lyricsInputFocusOut(input) {
@@ -5286,6 +5262,13 @@ function lyricsInputFocusOut(input) {
       handleSave(false); // silent save to GitHub
     }
   }
+
+  // Hide QI bar (with small delay so it can survive tab-to-next-input)
+  setTimeout(() => {
+    const active = document.activeElement;
+    if (active && active.classList.contains('lyrics-bar-input')) return; // moved to next input
+    _hideQiKeyboardBar();
+  }, 200);
 
   // iPad: restore full layout (small delay to handle tab between inputs)
   if (_isIPad) {
@@ -5303,9 +5286,101 @@ function _exitLyricsKbdMode() {
     const panel = document.querySelector('.lyrics-panel');
     if (panel) panel.classList.remove('lyrics-kbd-mode');
     if (_vvCleanup) _vvCleanup();
+    _hideQiKeyboardBar();
     // Restore original scroll position
     window.scrollTo(0, _savedScrollY);
   }, 250);
+}
+
+/* ── Quick Insert Keyboard Accessory Bar ──────────── */
+// Shows a suggestion chip above the keyboard for the currently focused bar input.
+
+let _qiBar = null; // DOM element for the keyboard accessory bar
+
+function _getOrCreateQiBar() {
+  if (_qiBar) return _qiBar;
+  _qiBar = document.createElement('div');
+  _qiBar.className = 'lyrics-qi-kbd-bar';
+  _qiBar.innerHTML = '<button class="lyrics-qi-chip" aria-label="Vorschlag einfügen"></button>';
+  _qiBar.style.display = 'none';
+  document.body.appendChild(_qiBar);
+  return _qiBar;
+}
+
+function _truncate(text, maxLen) {
+  if (text.length <= maxLen) return text;
+  // Cut at last space before maxLen
+  const cut = text.lastIndexOf(' ', maxLen);
+  return (cut > maxLen * 0.4 ? text.slice(0, cut) : text.slice(0, maxLen)) + '\u2026';
+}
+
+function _updateQiKeyboardBar() {
+  const active = document.activeElement;
+  if (!active || !active.classList.contains('lyrics-bar-input')) {
+    _hideQiKeyboardBar();
+    return;
+  }
+  const partId = active.dataset.lyricsBarPart;
+  const barNum = parseInt(active.dataset.lyricsBarNum, 10);
+  if (!partId || isNaN(barNum)) { _hideQiKeyboardBar(); return; }
+
+  const qiMap = getQuickInsertMap();
+  const suggestions = qiMap.get(partId) || [];
+  const suggestion = suggestions[barNum - 1] || '';
+  const currentText = active.value.trim();
+
+  // Only show if there's a suggestion and it differs from current text
+  if (!suggestion || suggestion === currentText) {
+    _hideQiKeyboardBar();
+    return;
+  }
+
+  const bar = _getOrCreateQiBar();
+  const chip = bar.querySelector('.lyrics-qi-chip');
+  chip.textContent = _truncate(suggestion, 30);
+  chip.dataset.qiText = suggestion;
+  chip.dataset.qiPart = partId;
+  chip.dataset.qiBar = barNum;
+  bar.style.display = '';
+
+  // Position: fixed at bottom of visual viewport (just above keyboard)
+  _positionQiBar();
+}
+
+function _positionQiBar() {
+  if (!_qiBar || _qiBar.style.display === 'none') return;
+  const vvh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+  const vvTop = window.visualViewport ? window.visualViewport.offsetTop : 0;
+  _qiBar.style.top = (vvTop + vvh - _qiBar.offsetHeight) + 'px';
+}
+
+function _hideQiKeyboardBar() {
+  if (_qiBar) _qiBar.style.display = 'none';
+}
+
+function _applyQiSuggestion() {
+  if (!_qiBar) return;
+  const chip = _qiBar.querySelector('.lyrics-qi-chip');
+  if (!chip) return;
+  const partId = chip.dataset.qiPart;
+  const barNum = parseInt(chip.dataset.qiBar, 10);
+  const text = chip.dataset.qiText;
+  if (!partId || isNaN(barNum) || !text) return;
+
+  const inp = document.querySelector(`.lyrics-bar-input[data-lyrics-bar-part="${partId}"][data-lyrics-bar-num="${barNum}"]`);
+  if (inp) {
+    inp.value = text;
+    const [, barData] = getOrCreateBar(partId, barNum);
+    barData.lyrics = text;
+    markDirty();
+    _hideQiKeyboardBar();
+    // Move focus to next bar input
+    const allInputs = [...document.querySelectorAll('.lyrics-bar-input')];
+    const idx = allInputs.indexOf(inp);
+    if (idx >= 0 && idx < allInputs.length - 1) {
+      allInputs[idx + 1].focus();
+    }
+  }
 }
 
 /* ══════════════════════════════════════════════════════
@@ -8082,6 +8157,10 @@ function wireEvents() {
   els.content.addEventListener('input', (e) => {
     if (activeTab === 'lyrics' && e.target.id === 'lyrics-raw-text') {
       saveLyricsRawText();
+    }
+    // Update QI keyboard bar when user types in a bar input
+    if (activeTab === 'lyrics' && e.target.classList.contains('lyrics-bar-input')) {
+      _updateQiKeyboardBar();
     }
   });
 

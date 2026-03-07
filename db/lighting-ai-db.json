@@ -11731,7 +11731,7 @@
     "B0067": {
       "part_id": "5iZfKj_P002",
       "bar_num": 1,
-      "lyrics": "Verse 1",
+      "lyrics": "",
       "audio": "audio/All The Small Things/02 Verse 1/009 All The Small Things Verse 1.mp3",
       "has_accents": false
     },
@@ -11836,7 +11836,7 @@
     "B0082": {
       "part_id": "5iZfKj_P002",
       "bar_num": 16,
-      "lyrics": "commiserating Bridge",
+      "lyrics": "commiserating ",
       "audio": "audio/All The Small Things/02 Verse 1/024 All The Small Things Verse 1.mp3",
       "has_accents": false
     },
@@ -11990,7 +11990,7 @@
     "B0104": {
       "part_id": "5iZfKj_P006",
       "bar_num": 1,
-      "lyrics": "Verse 2 Late",
+      "lyrics": "Late",
       "audio": "audio/All The Small Things/06 Verse 2/046 All The Small Things Verse 2.mp3",
       "has_accents": false
     },
@@ -12046,7 +12046,7 @@
     "B0112": {
       "part_id": "5iZfKj_P007",
       "bar_num": 1,
-      "lyrics": "Bridge Say it ain't",
+      "lyrics": "Say it ain't",
       "audio": "audio/All The Small Things/07 Bridge 2/054 All The Small Things Bridge 2.mp3",
       "has_accents": false
     },

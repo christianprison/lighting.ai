@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.15.12';
+const APP_VERSION = 'v0.15.13';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -2233,6 +2233,10 @@ function restoreMarkersFromSong() {
     const lastBar = barMarkers[barMarkers.length - 1];
     currentBarInPart = barMarkers.filter(b => b.partIndex === lastBar.partIndex).length;
 
+    // Auto-correct: snap bars near part boundaries + reassign
+    snapFirstBarsToPartMarkers();
+    reassignBarMarkerParts();
+
     // Sync bars count from markers (split_markers is source of truth)
     for (let i = 0; i < parts.length; i++) {
       const count = barMarkers.filter(m => m.partIndex === i).length;
@@ -2903,12 +2907,27 @@ function onWaveformPointerUp(e) {
 
 /**
  * After dragging, re-assign each bar marker to the correct part based on time.
+ * Uses proximity logic at part boundaries: if a bar is within BOUNDARY_TOLERANCE
+ * of a part marker, it gets assigned to whichever part it's closer to the start of.
  */
+const BOUNDARY_TOLERANCE = 0.35; // seconds — bars within this range of a part boundary get smart-assigned
 function reassignBarMarkerParts() {
+  const sortedParts = [...partMarkers].sort((a, b) => a.time - b.time);
   for (const bm of barMarkers) {
+    // Default: assign to the last part whose start is <= bar time
     let assignedPart = 0;
-    for (const pm of partMarkers) {
+    for (const pm of sortedParts) {
       if (pm.time <= bm.time) assignedPart = pm.partIndex;
+    }
+    // Proximity check: if bar is very close to the NEXT part boundary,
+    // assign it to the next part (it likely belongs there as bar 1)
+    const nextPart = sortedParts.find(pm => pm.time > bm.time);
+    if (nextPart) {
+      const distToNext = nextPart.time - bm.time;
+      if (distToNext <= BOUNDARY_TOLERANCE) {
+        // Bar is just before next part — assign to next part
+        assignedPart = nextPart.partIndex;
+      }
     }
     bm.partIndex = assignedPart;
   }
@@ -2920,9 +2939,9 @@ function reassignBarMarkerParts() {
 
 /**
  * Ensure the first bar marker of each part is snapped to its part marker time.
+ * Uses BOUNDARY_TOLERANCE for consistency with reassignBarMarkerParts().
  */
 function snapFirstBarsToPartMarkers() {
-  const SNAP_TOLERANCE = 0.2; // seconds
   for (const pm of partMarkers) {
     // Find the nearest bar marker across ALL bars (regardless of partIndex)
     let nearest = null;
@@ -2931,7 +2950,7 @@ function snapFirstBarsToPartMarkers() {
       const d = Math.abs(bm.time - pm.time);
       if (d < nearestDist) { nearest = bm; nearestDist = d; }
     }
-    if (nearest && nearestDist <= SNAP_TOLERANCE) {
+    if (nearest && nearestDist <= BOUNDARY_TOLERANCE) {
       nearest.time = pm.time;
     }
   }

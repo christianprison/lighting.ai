@@ -345,7 +345,7 @@
         "tdyEcs_P009": {
           "pos": 9,
           "name": "Bridge B 2",
-          "bars": 8,
+          "bars": 7,
           "duration_sec": 12,
           "light_template": "generic_bpm",
           "notes": ""
@@ -427,7 +427,7 @@
         "tdyEcs_P019": {
           "pos": 19,
           "name": "Chorus 7 (power)",
-          "bars": 8,
+          "bars": 7,
           "duration_sec": 12,
           "light_template": "generic_bpm",
           "notes": ""
@@ -10810,7 +10810,7 @@
     "B0051": {
       "part_id": "tdyEcs_P012",
       "bar_num": 2,
-      "lyrics": "gassed and flaccid kids are flung a",
+      "lyrics": "gassed and flaccid kids are flung a-",
       "audio": "",
       "has_accents": false
     },

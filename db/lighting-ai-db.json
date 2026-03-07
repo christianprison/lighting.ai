@@ -435,7 +435,7 @@
         "tdyEcs_P020": {
           "pos": 20,
           "name": "Punch (stop)",
-          "bars": 2,
+          "bars": 0,
           "duration_sec": 3,
           "light_template": "generic_bpm",
           "notes": ""
@@ -987,7 +987,7 @@
             "partId": "tdyEcs_P014"
           },
           {
-            "time": 138.2084375,
+            "time": 138.4858123191551,
             "partIndex": 13,
             "partId": "tdyEcs_P014"
           },
@@ -10853,6 +10853,83 @@
       "part_id": "tdyEcs_P012",
       "bar_num": 8,
       "lyrics": "scars - - And then a-",
+      "audio": "",
+      "has_accents": false
+    },
+    "Bmmg4jnbl_1": {
+      "part_id": "tdyEcs_P014",
+      "bar_num": 1,
+      "lyrics": "wanna set them free And let them",
+      "audio": "",
+      "has_accents": false
+    },
+    "Bmmg4jnbl_2": {
+      "part_id": "tdyEcs_P014",
+      "bar_num": 2,
+      "lyrics": "see reality from where she",
+      "audio": "",
+      "has_accents": false
+    },
+    "Bmmg4jnbm_3": {
+      "part_id": "tdyEcs_P014",
+      "bar_num": 3,
+      "lyrics": "got her name",
+      "audio": "",
+      "has_accents": false
+    },
+    "Bmmg4jnbm_4": {
+      "part_id": "tdyEcs_P014",
+      "bar_num": 4,
+      "lyrics": "And will she",
+      "audio": "",
+      "has_accents": false
+    },
+    "Bmmg4jnbm_5": {
+      "part_id": "tdyEcs_P014",
+      "bar_num": 5,
+      "lyrics": "struggle much when told that such a",
+      "audio": "",
+      "has_accents": false
+    },
+    "Bmmg4jnbm_6": {
+      "part_id": "tdyEcs_P014",
+      "bar_num": 6,
+      "lyrics": "tender touch of hers will make them",
+      "audio": "",
+      "has_accents": false
+    },
+    "Bmmg4jnbm_7": {
+      "part_id": "tdyEcs_P014",
+      "bar_num": 7,
+      "lyrics": "not the same",
+      "audio": "",
+      "has_accents": false
+    },
+    "Bmmg4jtyx_1": {
+      "part_id": "tdyEcs_P013",
+      "bar_num": 1,
+      "lyrics": "long comes Mary",
+      "audio": "",
+      "has_accents": false
+    },
+    "Bmmg4jtyx_2": {
+      "part_id": "tdyEcs_P013",
+      "bar_num": 2,
+      "lyrics": "(Mary, Mary) And then a-",
+      "audio": "",
+      "has_accents": false
+    },
+    "Bmmg4jtyx_3": {
+      "part_id": "tdyEcs_P013",
+      "bar_num": 3,
+      "lyrics": "long comes Mary",
+      "audio": "",
+      "has_accents": false
+    },
+    "Bmmg4jtyx_4": {
+      "part_id": "tdyEcs_P013",
+      "bar_num": 4,
+      "lyrics": "(Mary, Mary) And does she",
       "audio": "",
       "has_accents": false
     }

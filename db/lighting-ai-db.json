@@ -10565,7 +10565,7 @@
     "B0024": {
       "part_id": "tdyEcs_P004",
       "bar_num": 4,
-      "lyrics": "",
+      "lyrics": "- - - rather gather tales from all the Fails and",
       "audio": "",
       "has_accents": false
     },
@@ -10573,6 +10573,13 @@
       "part_id": "tdyEcs_P004",
       "bar_num": 2,
       "lyrics": "steady chick and give me pick of",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0026": {
+      "part_id": "tdyEcs_P004",
+      "bar_num": 5,
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     }

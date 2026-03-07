@@ -330,34 +330,33 @@
         </div>
         <div class="help-step">
           <span class="help-step-nr">2</span>
-          <div><strong>Rohtext einfuegen</strong> &mdash; Klick auf den Genius-Link, Songtext kopieren und in das Rohtext-Feld einfuegen.</div>
+          <div><strong>Text einfuegen</strong> &mdash; Genius-Link nutzen, Songtext kopieren, dann &laquo;Einfuegen&raquo;-Button oder direkt ins Textfeld pasten.</div>
         </div>
         <div class="help-step">
           <span class="help-step-nr">3</span>
-          <div><strong>Verteilen</strong> &mdash; Klick auf VERTEILEN verteilt den Rohtext automatisch auf die Parts (getrennt durch Leerzeilen). Section-Header wie [Verse 1] werden uebersprungen.</div>
+          <div><strong>Part-Marker positionieren</strong> &mdash; Orange Boxen (Part-Namen) werden automatisch platziert. Per Drag an die richtige Stelle im Text ziehen, dann &laquo;Parts bestaetigen&raquo;.</div>
         </div>
         <div class="help-step">
           <span class="help-step-nr">4</span>
-          <div><strong>Anpassen</strong> &mdash; Text direkt in den Part-Textfeldern bearbeiten. Jede Zeile entspricht einem Takt. Play-Button neben jedem Part fuer Hoerprobe.</div>
+          <div><strong>Takt-Marker anpassen</strong> &mdash; Cyan-farbene Striche markieren die Taktgrenzen. Werden automatisch verteilt (Anzahl Takte pro Part ist bekannt). Per Drag verschieben.</div>
         </div>
         <div class="help-step">
           <span class="help-step-nr">5</span>
-          <div><strong>Uebernehmen</strong> &mdash; Klick auf <em>In DB uebernehmen</em> schreibt den Text in die Takt-Eintraege der Datenbank.</div>
+          <div><strong>Speichern</strong> &mdash; Text wird an den Markern aufgeteilt und pro Takt in der DB gespeichert.</div>
         </div>
       </div>
 
-      <h3>Parts ein-/ausklappen</h3>
+      <h3>Marker-Typen</h3>
       <div class="help-table">
-        <div class="help-row"><span class="help-key">&#9654; / &#9660;</span><span>Klick auf das Dreieck links neben dem Part-Namen klappt den Part zu oder auf. Zugeklappte Parts zeigen eine kursive Textvorschau.</span></div>
-        <div class="help-row"><span class="help-key">Alle zuklappen</span><span>Button oben rechts ueber der Parts-Liste klappt alle nicht-instrumentalen Parts auf einmal zu oder auf. Praktisch fuer schnelles Scrollen bei vielen Parts.</span></div>
+        <div class="help-row"><span class="help-key" style="background:var(--amber);color:var(--bg);padding:2px 8px;border-radius:4px;font-weight:700">Verse 1</span><span>Part-Marker: Orange Box mit Part-Name. Per Drag verschieben. Gestrichelt = prognostiziert, durchgezogen = bestaetigt.</span></div>
+        <div class="help-row"><span class="help-key" style="background:var(--cyan);width:3px;height:16px;display:inline-block;border-radius:1px"></span><span>Takt-Marker: Cyan-Strich mit Taktnummer. Per Drag verschieben. Doppelklick spielt den Takt ab.</span></div>
       </div>
 
       <h3>Hinweise</h3>
       <div class="help-table">
-        <div class="help-row"><span class="help-key">1 Zeile = 1 Takt</span><span>Pro Textfeld: Zeile 1 geht in Takt 1, Zeile 2 in Takt 2 usw.</span></div>
-        <div class="help-row"><span class="help-key">Leerzeile</span><span>Leere Zeilen ergeben instrumentale Takte (kein Text).</span></div>
-        <div class="help-row"><span class="help-key">Instrumental</span><span>Checkbox <em>Instrumental</em> markiert einen Part als rein instrumental &mdash; das Textfeld wird ausgeblendet.</span></div>
-        <div class="help-row"><span class="help-key">Play</span><span>Spielt den Part ueber die Referenz-Audio ab (wenn vorhanden), sonst ueber gespeicherte Bar-MP3s.</span></div>
+        <div class="help-row"><span class="help-key">Section-Header</span><span>[Verse 1], [Chorus] etc. werden erkannt und fuer die automatische Part-Zuordnung genutzt.</span></div>
+        <div class="help-row"><span class="help-key">Part-Marker verschieben</span><span>Wird ein Part-Marker verschoben, werden die Takt-Marker fuer diesen Part automatisch neu verteilt.</span></div>
+        <div class="help-row"><span class="help-key">Rekonstruktion</span><span>Wenn bereits Lyrics pro Takt gespeichert sind, werden die Marker beim Oeffnen automatisch rekonstruiert.</span></div>
       </div>
     </div>
 

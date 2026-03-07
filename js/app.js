@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.13.8';
+const APP_VERSION = 'v0.13.9';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4156,7 +4156,11 @@ function buildLyricsPartBody(part, partIndex, barCount, barLyrics, hasBuf, absBa
     const absBarNum = absBarOffset + b + 1;
     html += `<div class="lyrics-bar-cell" style="flex:1 1 0;min-width:${cellW}px">
       <div class="lyrics-bar-num mono text-t3">${absBarNum}</div>
-      <input type="text" class="lyrics-bar-input" data-lyrics-bar-part="${part.id}" data-lyrics-bar-num="${b + 1}" value="${esc(text)}" placeholder="\u2014">
+      <div class="lyrics-bar-input-row">
+        <button class="lyrics-word-shift" data-ws-dir="left" data-ws-part="${part.id}" data-ws-bar="${b + 1}" title="Erstes Wort nach links">\u25C0</button>
+        <input type="text" class="lyrics-bar-input" data-lyrics-bar-part="${part.id}" data-lyrics-bar-num="${b + 1}" value="${esc(text)}" placeholder="\u2014" autocomplete="off">
+        <button class="lyrics-word-shift" data-ws-dir="right" data-ws-part="${part.id}" data-ws-bar="${b + 1}" title="Letztes Wort nach rechts">\u25B6</button>
+      </div>
     </div>`;
   }
   html += '</div>';
@@ -4594,7 +4598,7 @@ function distributeLyricsToparts() {
     nextSection++;
   }
 
-  // Fill bar inputs — distribute words evenly across bars
+  // Fill bar inputs — distribute lines across bars (1 line per bar where possible)
   let filledParts = 0;
   for (const part of textParts) {
     const lines = partAssigned.get(part.id);
@@ -4603,17 +4607,23 @@ function distributeLyricsToparts() {
     if (barCount === 0) continue;
     filledParts++;
 
-    // Collect all words from the section
-    const allWords = lines.flatMap(l => l.split(/\s+/).filter(w => w));
-    if (allWords.length === 0) continue;
-
-    // Distribute words evenly across bars
+    // Map lines to bars: if fewer lines than bars, spread lines across bars;
+    // if more lines than bars, combine adjacent lines.
     for (let b = 0; b < barCount; b++) {
       const inp = document.querySelector(`.lyrics-bar-input[data-lyrics-bar-part="${part.id}"][data-lyrics-bar-num="${b + 1}"]`);
       if (!inp) continue;
-      const startWord = Math.round(b * allWords.length / barCount);
-      const endWord = Math.round((b + 1) * allWords.length / barCount);
-      inp.value = allWords.slice(startWord, endWord).join(' ');
+      let text;
+      if (lines.length <= barCount) {
+        text = b < lines.length ? lines[b] : '';
+      } else {
+        const startLine = Math.round(b * lines.length / barCount);
+        const endLine = Math.round((b + 1) * lines.length / barCount);
+        text = lines.slice(startLine, endLine).join(' / ');
+      }
+      inp.value = text;
+      // Also save to DB
+      const [, barData] = getOrCreateBar(part.id, b + 1);
+      barData.lyrics = text;
     }
   }
 
@@ -5055,6 +5065,13 @@ function handleLyricsClick(e) {
     return;
   }
 
+  // Word-shift buttons: move first/last word to neighbour bar
+  const wsBtn = el.closest('.lyrics-word-shift');
+  if (wsBtn) {
+    _shiftWord(wsBtn.dataset.wsPart, parseInt(wsBtn.dataset.wsBar, 10), wsBtn.dataset.wsDir);
+    return;
+  }
+
   // Distribute raw text to parts
   if (el.closest('#lyrics-distribute-btn')) {
     distributeLyricsToparts();
@@ -5396,6 +5413,48 @@ function _applyQiSuggestion(chip) {
       allInputs[idx + 1].focus();
     }
   }
+}
+
+/* ── Word Shift: move first/last word between adjacent bars ── */
+
+function _shiftWord(partId, barNum, dir) {
+  const getInp = (n) => document.querySelector(`.lyrics-bar-input[data-lyrics-bar-part="${partId}"][data-lyrics-bar-num="${n}"]`);
+  const src = getInp(barNum);
+  if (!src) return;
+
+  const words = src.value.trim().split(/\s+/).filter(w => w);
+  if (words.length === 0) return;
+
+  if (dir === 'left') {
+    // Move first word to previous bar
+    const prev = getInp(barNum - 1);
+    if (!prev) return;
+    const word = words.shift();
+    const prevWords = prev.value.trim();
+    prev.value = prevWords ? prevWords + ' ' + word : word;
+    src.value = words.join(' ');
+    _saveBarInput(prev);
+    _saveBarInput(src);
+  } else {
+    // Move last word to next bar
+    const next = getInp(barNum + 1);
+    if (!next) return;
+    const word = words.pop();
+    const nextWords = next.value.trim();
+    next.value = nextWords ? word + ' ' + nextWords : word;
+    src.value = words.join(' ');
+    _saveBarInput(next);
+    _saveBarInput(src);
+  }
+}
+
+function _saveBarInput(inp) {
+  const partId = inp.dataset.lyricsBarPart;
+  const barNum = parseInt(inp.dataset.lyricsBarNum, 10);
+  if (!partId || isNaN(barNum)) return;
+  const [, barData] = getOrCreateBar(partId, barNum);
+  barData.lyrics = inp.value.trim();
+  markDirty();
 }
 
 /* ══════════════════════════════════════════════════════

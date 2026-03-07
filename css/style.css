@@ -2687,8 +2687,42 @@ label {
   line-height: 1;
 }
 
+.lyrics-bar-input-row {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+}
+
+.lyrics-word-shift {
+  flex: 0 0 auto;
+  background: none;
+  border: none;
+  color: var(--t3);
+  font-size: 0.5rem;
+  padding: 2px 1px;
+  cursor: pointer;
+  line-height: 1;
+  -webkit-tap-highlight-color: transparent;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.lyrics-bar-cell:hover .lyrics-word-shift,
+.lyrics-bar-cell:focus-within .lyrics-word-shift {
+  opacity: 1;
+}
+
+.lyrics-word-shift:active {
+  color: var(--cyan);
+}
+
+@media (pointer: coarse) {
+  .lyrics-word-shift { opacity: 1; }
+}
+
 .lyrics-bar-input {
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   background: var(--bg3);
   border: 1px solid var(--border);
   border-radius: var(--radius);

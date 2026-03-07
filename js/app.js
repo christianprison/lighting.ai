@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.12.7';
+const APP_VERSION = 'v0.12.8';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -2968,6 +2968,8 @@ async function loadReferenceAudio() {
     if (selectedSongId === songId) {
       if (activeTab === 'audio') renderAudioTab();
       else if (activeTab === 'lyrics') renderLyricsTab();
+      else if (activeTab === 'parts') renderPartsTab();
+      else if (activeTab === 'takte') renderTakteTab();
     }
     toast(`Referenz-Audio geladen: ${fmtTime(meta.duration)}`, 'success');
   } catch (err) {
@@ -5695,6 +5697,15 @@ function getAllPartsFlat() {
 function renderPartsTab() {
   const filterSong = selectedSongId;
 
+  // Auto-load reference audio if available and not yet loaded
+  if (filterSong) {
+    const s = db.songs[filterSong];
+    if (s && !audio.getBuffer() && s.audio_ref && _refLoadingFor !== filterSong) {
+      _refLoadingFor = filterSong;
+      _refLoadingPromise = loadReferenceAudio().finally(() => { _refLoadingFor = null; _refLoadingPromise = null; });
+    }
+  }
+
   // Get parts based on selected song
   let allParts;
   if (filterSong) {
@@ -6330,6 +6341,67 @@ function _pwDrawWaveform() {
     ctx.fillStyle = `rgba(0, 220, 130, ${opacity})`;
     ctx.fillRect(i, mid - barH / 2, 1, barH || 1);
   }
+
+  // Draw bar markers with flags
+  const bars = getBarMarkersForPart(_pw.partIndex);
+  if (bars.length > 0) {
+    const viewRange = _pw.viewEnd - _pw.viewStart;
+    for (let i = 0; i < bars.length; i++) {
+      const x = ((bars[i].time - _pw.viewStart) / viewRange) * w;
+      if (x < 0 || x > w) continue;
+      // Cyan vertical line
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.6)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, h);
+      ctx.stroke();
+      // Flag label
+      const label = `${bars[i].barNum || i + 1}`;
+      ctx.font = '9px DM Mono, monospace';
+      const tw = ctx.measureText(label).width + 4;
+      ctx.fillStyle = 'rgba(56, 189, 248, 0.85)';
+      ctx.fillRect(x, 0, tw, 13);
+      ctx.fillStyle = '#08090d';
+      ctx.fillText(label, x + 2, 10);
+    }
+  }
+
+  // Draw Start flag (amber)
+  {
+    const x = ((_pw.trimStart - _pw.viewStart) / (_pw.viewEnd - _pw.viewStart)) * w;
+    ctx.strokeStyle = 'rgba(240, 160, 48, 0.9)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, h);
+    ctx.stroke();
+    const label = 'Start';
+    ctx.font = '9px Sora, sans-serif';
+    const tw = ctx.measureText(label).width + 4;
+    ctx.fillStyle = 'rgba(240, 160, 48, 0.9)';
+    ctx.fillRect(x, h - 13, tw, 13);
+    ctx.fillStyle = '#08090d';
+    ctx.fillText(label, x + 2, h - 3);
+  }
+
+  // Draw Ende flag (amber)
+  {
+    const x = ((_pw.trimEnd - _pw.viewStart) / (_pw.viewEnd - _pw.viewStart)) * w;
+    ctx.strokeStyle = 'rgba(240, 160, 48, 0.9)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, h);
+    ctx.stroke();
+    const label = 'Ende';
+    ctx.font = '9px Sora, sans-serif';
+    const tw = ctx.measureText(label).width + 4;
+    ctx.fillStyle = 'rgba(240, 160, 48, 0.9)';
+    ctx.fillRect(x - tw, h - 13, tw, 13);
+    ctx.fillStyle = '#08090d';
+    ctx.fillText(label, x - tw + 2, h - 3);
+  }
 }
 
 /** Convert time in seconds to X pixel position in the modal waveform */
@@ -6550,6 +6622,15 @@ function getAllBarsFlat() {
 function renderTakteTab() {
   const filterSong = selectedSongId;
   ensureCollections();
+
+  // Auto-load reference audio if available and not yet loaded
+  if (filterSong) {
+    const s = db.songs[filterSong];
+    if (s && !audio.getBuffer() && s.audio_ref && _refLoadingFor !== filterSong) {
+      _refLoadingFor = filterSong;
+      _refLoadingPromise = loadReferenceAudio().finally(() => { _refLoadingFor = null; _refLoadingPromise = null; });
+    }
+  }
 
   let allBars;
   if (filterSong) {

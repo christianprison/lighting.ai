@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.12.11';
+const APP_VERSION = 'v0.12.12';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -35,6 +35,7 @@ let takteTabSelectedBar = null;  // {songId, partId, barNum}
 let _lyricsPlayingPart = null;    // partId currently playing in lyrics tab
 let _lyricsPausedPart = null;     // partId currently paused in lyrics tab
 let _lyricsCollapsed = new Set(); // Set of partIds that are collapsed
+let _lyricsSplitPct = 20;         // raw text column width in percent
 
 /* ── Audio Split State ────────────────────────────── */
 let audioMeta = null;          // {duration, sampleRate, channels}
@@ -3762,13 +3763,19 @@ function renderLyricsTab() {
   ensureCollections();
 
   els.content.innerHTML = `
-    <div class="lyrics-panel">
-      <div class="lyrics-scroll" id="lyrics-scroll">
+    <div class="lyrics-panel lyrics-split-layout">
+      <div class="lyrics-raw-col" id="lyrics-raw-col" style="flex: 0 0 ${_lyricsSplitPct}%">
         ${buildSongHeader(song)}
         ${buildLyricsRawImport(song, geniusUrl)}
+      </div>
+      <div class="lyrics-splitter" id="lyrics-splitter" title="Ziehen zum Anpassen"></div>
+      <div class="lyrics-parts-col" id="lyrics-parts-col">
         ${parts.length > 0 ? buildLyricsPartsList(parts, song, hasBuf) : '<div class="empty-state"><p>Keine Parts vorhanden. Erst Parts im Parts-Tab anlegen.</p></div>'}
       </div>
     </div>`;
+
+  // Init splitter drag
+  _initLyricsSplitter();
 
   // Draw lyrics waveforms after DOM is ready
   requestAnimationFrame(() => {
@@ -3780,6 +3787,36 @@ function renderLyricsTab() {
       c.addEventListener('touchstart', initLyricsWaveDrag, { passive: false });
     }
   });
+}
+
+function _initLyricsSplitter() {
+  const splitter = document.getElementById('lyrics-splitter');
+  const rawCol = document.getElementById('lyrics-raw-col');
+  const panel = splitter?.closest('.lyrics-split-layout');
+  if (!splitter || !rawCol || !panel) return;
+
+  const onMove = (clientX) => {
+    const rect = panel.getBoundingClientRect();
+    const pct = Math.max(10, Math.min(60, ((clientX - rect.left) / rect.width) * 100));
+    _lyricsSplitPct = pct;
+    rawCol.style.flex = `0 0 ${pct}%`;
+  };
+
+  splitter.addEventListener('mousedown', (e) => {
+    e.preventDefault();
+    const move = (ev) => onMove(ev.clientX);
+    const up = () => { document.removeEventListener('mousemove', move); document.removeEventListener('mouseup', up); };
+    document.addEventListener('mousemove', move);
+    document.addEventListener('mouseup', up);
+  });
+
+  splitter.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    const move = (ev) => onMove(ev.touches[0].clientX);
+    const end = () => { document.removeEventListener('touchmove', move); document.removeEventListener('touchend', end); };
+    document.addEventListener('touchmove', move, { passive: false });
+    document.addEventListener('touchend', end);
+  }, { passive: false });
 }
 
 function buildLyricsRawImport(song, geniusUrl) {
@@ -3794,7 +3831,7 @@ function buildLyricsRawImport(song, geniusUrl) {
           <button class="btn btn-sm" id="lyrics-lrclib-btn" title="Zeitgestempelte Lyrics von LRCLIB abrufen">&#9201; LRCLIB</button>
         </div>
       </div>
-      <div id="lyrics-raw-text" class="lyrics-paste" contenteditable="true" data-placeholder="Songtext hier einfuegen...\nTipp: Auf Genius.com den Songtext kopieren und hier einfuegen.\nOder LRCLIB-Button fuer zeitgestempelte Lyrics nutzen.\nDann auf VERTEILEN klicken.">${raw ? esc(raw).replace(/\n/g, '<br>') : ''}</div>
+      <div id="lyrics-raw-text" class="lyrics-paste lyrics-paste-single" contenteditable="true" data-placeholder="Songtext hier einfuegen...\nTipp: Auf Genius.com den Songtext kopieren und hier einfuegen.\nOder LRCLIB-Button fuer zeitgestempelte Lyrics nutzen.\nDann auf VERTEILEN klicken.">${raw ? esc(raw).replace(/\n/g, '<br>') : ''}</div>
       <div class="lyrics-import-actions">
         <button class="btn btn-sm" id="lyrics-distribute-btn" title="Rohtext automatisch auf Parts verteilen">VERTEILEN</button>
         ${hasSyncedLyrics ? '<button class="btn btn-sm btn-primary" id="lyrics-sync-distribute-btn" title="Zeitgestempelte Lyrics praezise auf Takte verteilen">SYNC-VERTEILEN</button>' : ''}
@@ -4731,6 +4768,19 @@ function drawLyricsPlayhead() {
   ctx.lineTo(px, h);
   ctx.stroke();
   ctx.shadowBlur = 0;
+
+  // Autoscroll: keep the playing canvas (and its lyrics inputs) visible
+  const scrollEl = document.getElementById('lyrics-scroll') || document.querySelector('.lyrics-parts-col');
+  if (scrollEl) {
+    const card = canvas.closest('.lyrics-part-card');
+    const target = card || canvas;
+    const containerRect = scrollEl.getBoundingClientRect();
+    const targetRect = target.getBoundingClientRect();
+    // Scroll if the card is not fully visible
+    if (targetRect.bottom > containerRect.bottom || targetRect.top < containerRect.top) {
+      target.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }
+  }
 }
 
 function updateLyricsPlayButtons() {
@@ -4829,10 +4879,10 @@ function handleLyricsClick(e) {
     } else {
       nonInstr.forEach(p => _lyricsCollapsed.add(p.id));
     }
-    const scrollEl = document.getElementById('lyrics-scroll');
+    const scrollEl = document.getElementById('lyrics-parts-col') || document.getElementById('lyrics-scroll');
     const savedScroll = scrollEl ? scrollEl.scrollTop : 0;
     renderLyricsTab();
-    const scrollEl2 = document.getElementById('lyrics-scroll');
+    const scrollEl2 = document.getElementById('lyrics-parts-col') || document.getElementById('lyrics-scroll');
     if (scrollEl2) scrollEl2.scrollTop = savedScroll;
     return;
   }
@@ -4842,7 +4892,7 @@ function handleLyricsClick(e) {
   if (collapseBtn) {
     const partId = collapseBtn.dataset.lyricsCollapse;
     const card = collapseBtn.closest('.lyrics-part-card');
-    const scrollEl = document.getElementById('lyrics-scroll');
+    const scrollEl = document.getElementById('lyrics-parts-col') || document.getElementById('lyrics-scroll');
     const cardTop = card ? card.getBoundingClientRect().top : 0;
 
     if (_lyricsCollapsed.has(partId)) {
@@ -4853,7 +4903,7 @@ function handleLyricsClick(e) {
 
     const savedScroll = scrollEl ? scrollEl.scrollTop : 0;
     renderLyricsTab();
-    const scrollEl2 = document.getElementById('lyrics-scroll');
+    const scrollEl2 = document.getElementById('lyrics-parts-col') || document.getElementById('lyrics-scroll');
     if (scrollEl2) {
       // Keep the clicked card at the same screen position
       const newCard = scrollEl2.querySelector(`.lyrics-part-card[data-part-id="${partId}"]`);
@@ -4915,10 +4965,10 @@ function handleLyricsChange(e) {
     song.parts[partId].instrumental = el.checked;
     markDirty();
     const card = el.closest('.lyrics-part-card');
-    const scrollEl = document.getElementById('lyrics-scroll');
+    const scrollEl = document.getElementById('lyrics-parts-col') || document.getElementById('lyrics-scroll');
     const cardTop = card ? card.getBoundingClientRect().top : 0;
     renderLyricsTab();
-    const scrollEl2 = document.getElementById('lyrics-scroll');
+    const scrollEl2 = document.getElementById('lyrics-parts-col') || document.getElementById('lyrics-scroll');
     if (scrollEl2 && card) {
       const newCard = scrollEl2.querySelector(`.lyrics-part-card[data-part-id="${partId}"]`);
       if (newCard) {
@@ -4973,15 +5023,15 @@ let _savedLyricsScrollTop = 0;
 function lyricsInputFocusIn(input) {
   if (_isIPad) {
     _savedScrollY = window.scrollY;
-    const scrollEl = document.getElementById('lyrics-scroll');
+    const scrollEl = document.getElementById('lyrics-parts-col') || document.getElementById('lyrics-scroll');
     _savedLyricsScrollTop = scrollEl ? scrollEl.scrollTop : 0;
     _startVisualViewportTracking();
     const panel = document.querySelector('.lyrics-panel');
     if (panel) panel.classList.add('lyrics-kbd-mode');
-    // Restore lyrics-scroll position inside the now-fixed panel, then
+    // Restore scroll position inside the now-fixed panel, then
     // scroll the focused input into view within the scroll container
     requestAnimationFrame(() => {
-      const scrollEl2 = document.getElementById('lyrics-scroll');
+      const scrollEl2 = document.getElementById('lyrics-parts-col') || document.getElementById('lyrics-scroll');
       if (scrollEl2) scrollEl2.scrollTop = _savedLyricsScrollTop;
       requestAnimationFrame(() => {
         input.scrollIntoView({ block: 'center', behavior: 'smooth' });
@@ -6017,32 +6067,12 @@ function handlePartsTabClick(e) {
     return;
   }
 
-  // Mini-waveform click → seek to position and play from there
+  // Mini-waveform click → open Part Wave Editor (Finetuning)
   const waveCanvas = el.closest('.mini-waveform');
   if (waveCanvas) {
     const row = waveCanvas.closest('.ptt-row');
     if (row) {
-      const wStart = parseFloat(waveCanvas.dataset.waveStart);
-      const wEnd = parseFloat(waveCanvas.dataset.waveEnd);
-      if (!isNaN(wStart) && !isNaN(wEnd) && wEnd > wStart) {
-        const rect = waveCanvas.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const ratio = Math.max(0, Math.min(1, x / rect.width));
-        const seekTime = wStart + ratio * (wEnd - wStart);
-        const partId = row.dataset.partId;
-        // Stop current playback
-        stopPartPlay();
-        _playingPartId = partId;
-        _partPlayActive = true;
-        refreshPartPlayUI();
-        audio.playSegments([{ startTime: seekTime, endTime: wEnd }], () => {
-          if (_playingPartId === partId) {
-            _playingPartId = null;
-            _partPlayActive = false;
-            refreshPartPlayUI();
-          }
-        });
-      }
+      openPartWaveEditor(row.dataset.songId, row.dataset.partId);
       return;
     }
   }
@@ -7253,8 +7283,10 @@ function updateSaveButton() {
 
 /* ── Save DB ───────────────────────────────────────── */
 
+let _saveInProgress = false;
 async function handleSave(showToast = true) {
   if (!db || !dirty) return true;
+  if (_saveInProgress) return true; // prevent concurrent saves → 409
   if (readOnly) {
     const hasToken = !!getSettings().token;
     const msg = hasToken
@@ -7265,6 +7297,7 @@ async function handleSave(showToast = true) {
   }
   const s = getSettings();
   setSyncStatus('saving');
+  _saveInProgress = true;
   try {
     const newSha = await saveDB(s.repo, s.path, s.token, db, dbSha);
     dbSha = newSha;
@@ -7272,8 +7305,8 @@ async function handleSave(showToast = true) {
     setSyncStatus('saved');
     if (showToast) toast('Gespeichert', 'success');
 
-    // Auto-export audio segments if conditions are met
-    if (selectedSongId && audioMeta && !exportInProgress
+    // Auto-export audio segments only from the audio tab (not during lyrics/parts editing)
+    if (activeTab === 'audio' && selectedSongId && audioMeta && !exportInProgress
         && partMarkers.length > 0 && barMarkers.length > 0) {
       handleAudioExport();
     }
@@ -7283,6 +7316,8 @@ async function handleSave(showToast = true) {
     setSyncStatus('error');
     toast(`Speichern fehlgeschlagen: ${e.message}`, 'error', 5000);
     return false;
+  } finally {
+    _saveInProgress = false;
   }
 }
 
@@ -7401,15 +7436,7 @@ function wireEvents() {
     else if (activeTab === 'accents') handleAccentsTabClick(e);
     else if (activeTab === 'setlist') handleSetlistClick(e);
   });
-  // Parts tab: double-click mini-waveform → open Part Wave Editor (Finetuning)
-  els.content.addEventListener('dblclick', (e) => {
-    if (activeTab !== 'parts') return;
-    const waveCanvas = e.target.closest('.mini-waveform');
-    if (waveCanvas) {
-      const row = waveCanvas.closest('.ptt-row');
-      if (row) openPartWaveEditor(row.dataset.songId, row.dataset.partId);
-    }
-  });
+  // (Finetuning modal is now triggered by single click on mini-waveform in handlePartsTabClick)
   els.content.addEventListener('change', (e) => {
     if (activeTab === 'parts') handlePartsTabChange(e);
     else if (activeTab === 'takte') handleTakteTabChange(e);

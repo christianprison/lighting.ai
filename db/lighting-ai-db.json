@@ -345,7 +345,7 @@
         "tdyEcs_P009": {
           "pos": 9,
           "name": "Bridge B 2",
-          "bars": 7,
+          "bars": 8,
           "duration_sec": 12,
           "light_template": "generic_bpm",
           "notes": ""
@@ -427,7 +427,7 @@
         "tdyEcs_P019": {
           "pos": 19,
           "name": "Chorus 7 (power)",
-          "bars": 7,
+          "bars": 8,
           "duration_sec": 12,
           "light_template": "generic_bpm",
           "notes": ""
@@ -435,7 +435,7 @@
         "tdyEcs_P020": {
           "pos": 20,
           "name": "Punch (stop)",
-          "bars": 0,
+          "bars": 2,
           "duration_sec": 3,
           "light_template": "generic_bpm",
           "notes": ""

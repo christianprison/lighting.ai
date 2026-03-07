@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.15.3';
+const APP_VERSION = 'v0.15.4';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4402,16 +4402,15 @@ function renderLyricsTab() {
     // Phase info bar
     if (_lePhase === 'parts') {
       html += `<div class="le-phase-bar le-phase-parts">
-        <span class="le-phase-icon">&#9654;</span>
-        <span class="le-phase-text">Part-Marker per Drag positionieren, dann best&auml;tigen</span>
-        <button class="btn btn-sm le-btn-confirm" id="le-confirm-parts">&#10003; Parts best&auml;tigen</button>
+        <span class="le-phase-text">Part-Marker an die richtige Stelle ziehen</span>
+        <button class="btn btn-sm le-btn-distribute" id="le-distribute-parts" title="Parts gleichm&auml;&szlig;ig im Text verteilen">&#8646; Verteilen</button>
+        <button class="btn btn-sm le-btn-confirm" id="le-confirm-parts">Fertig</button>
       </div>`;
     } else if (_lePhase === 'bars') {
       html += `<div class="le-phase-bar le-phase-bars">
-        <span class="le-phase-icon">&#9654;</span>
-        <span class="le-phase-text">Takt-Marker anpassen und speichern</span>
+        <span class="le-phase-text">Takt-Marker pr&uuml;fen &amp; anpassen</span>
         <button class="btn btn-sm le-btn-back" id="le-back-to-parts" title="Zur&uuml;ck zu Part-Markern">&#9664; Parts</button>
-        <button class="btn btn-sm le-btn-save" id="le-save-lyrics">&#10003; Speichern</button>
+        <button class="btn btn-sm le-btn-save" id="le-save-lyrics">Fertig</button>
       </div>`;
     }
 
@@ -4571,6 +4570,29 @@ function leAcceptRawText(text) {
 
 /* ── Lyrics Editor: Phase Transitions ────────────── */
 
+/**
+ * Distribute part markers evenly across the lyrics text.
+ */
+function leDistributeParts() {
+  if (_lePartMarkers.length < 2 || _leWords.length === 0) return;
+  const totalChars = _leWords[_leWords.length - 1].end;
+  const count = _lePartMarkers.length;
+  const gap = totalChars / count;
+  for (let i = 0; i < count; i++) {
+    const targetOffset = Math.round(i * gap);
+    // Snap to nearest word boundary
+    let bestWord = _leWords[0];
+    let bestDist = Math.abs(bestWord.start - targetOffset);
+    for (const w of _leWords) {
+      const d = Math.abs(w.start - targetOffset);
+      if (d < bestDist) { bestDist = d; bestWord = w; }
+    }
+    _lePartMarkers[i].charOffset = bestWord.start;
+  }
+  renderLyricsTab();
+  toast('Parts gleichm\u00e4\u00dfig verteilt', 'success');
+}
+
 function leConfirmParts() {
   // Mark all part markers as confirmed
   for (const m of _lePartMarkers) m.confirmed = true;
@@ -4724,6 +4746,10 @@ function leStartDrag(e) {
     moved: false
   };
 
+  // Visual feedback: dragging cursor
+  const editorEl = document.getElementById('le-editor');
+  if (editorEl) editorEl.classList.add('le-dragging');
+
   // Add global move/end listeners
   document.addEventListener('mousemove', leMoveDrag);
   document.addEventListener('mouseup', leEndDrag);
@@ -4790,6 +4816,10 @@ function leMoveDrag(e) {
 
 function leEndDrag() {
   if (!_leDrag) return;
+
+  // Remove dragging cursor
+  const editorEl = document.getElementById('le-editor');
+  if (editorEl) editorEl.classList.remove('le-dragging');
 
   // Clean up global listeners
   document.removeEventListener('mousemove', leMoveDrag);
@@ -4910,6 +4940,12 @@ function handleLyricsClick(e) {
   // Clear button
   if (el.closest('#le-clear-btn')) {
     leClearLyrics();
+    return;
+  }
+
+  // Distribute parts
+  if (el.closest('#le-distribute-parts')) {
+    leDistributeParts();
     return;
   }
 

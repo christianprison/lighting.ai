@@ -435,7 +435,7 @@
         "tdyEcs_P020": {
           "pos": 20,
           "name": "Punch (stop)",
-          "bars": 2,
+          "bars": 0,
           "duration_sec": 3,
           "light_template": "generic_bpm",
           "notes": ""
@@ -827,7 +827,7 @@
             "partId": "tdyEcs_P009"
           },
           {
-            "time": 87.2594375,
+            "time": 87.64938563368055,
             "partIndex": 8,
             "partId": "tdyEcs_P009"
           },
@@ -10720,6 +10720,13 @@
       "part_id": "tdyEcs_P009",
       "bar_num": 1,
       "lyrics": "wanna set them free And let them",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0043": {
+      "part_id": "tdyEcs_P009",
+      "bar_num": 2,
+      "lyrics": "see reality from where she",
       "audio": "",
       "has_accents": false
     }

@@ -10687,6 +10687,41 @@
       "lyrics": "- - and then a-",
       "audio": "",
       "has_accents": false
+    },
+    "Bmmg3yasl_1": {
+      "part_id": "tdyEcs_P008",
+      "bar_num": 1,
+      "lyrics": "long comes Mary",
+      "audio": "",
+      "has_accents": false
+    },
+    "Bmmg3yasl_2": {
+      "part_id": "tdyEcs_P008",
+      "bar_num": 2,
+      "lyrics": "(Mary, Mary) And then a-",
+      "audio": "",
+      "has_accents": false
+    },
+    "Bmmg3yasl_3": {
+      "part_id": "tdyEcs_P008",
+      "bar_num": 3,
+      "lyrics": "long comes Mary",
+      "audio": "",
+      "has_accents": false
+    },
+    "Bmmg3yasl_4": {
+      "part_id": "tdyEcs_P008",
+      "bar_num": 4,
+      "lyrics": "(Mary, Mary) And does she",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0042": {
+      "part_id": "tdyEcs_P009",
+      "bar_num": 1,
+      "lyrics": "wanna set them free And let them",
+      "audio": "",
+      "has_accents": false
     }
   },
   "accents": {},

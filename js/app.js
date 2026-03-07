@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.14.0';
+const APP_VERSION = 'v0.15.0';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -31,10 +31,13 @@ let partsTabSelectedBar = null;   // bar number or null
 let takteTabFilterSong = '';
 let takteTabSelectedBar = null;  // {songId, partId, barNum}
 
-/* ── Lyrics Tab State ───────────────────────────── */
-let _lyricsPlayingPart = null;    // partId currently playing in lyrics tab
-let _lyricsPausedPart = null;     // partId currently paused in lyrics tab
-let _lyricsCollapsed = new Set(); // Set of partIds that are collapsed
+/* ── Lyrics Editor State ────────────────────────── */
+let _lePhase = 'empty';        // 'empty' | 'parts' | 'bars'
+let _leWords = [];              // [{text, offset, newlineBefore, emptyLineBefore, isHeader}]
+let _lePartMarkers = [];        // [{partId, charOffset, confirmed}] sorted by charOffset
+let _leBarMarkers = [];         // [{partId, barNum, charOffset}] sorted by charOffset
+let _leDrag = null;             // {type:'part'|'bar', idx, currentOffset, wordPositions}
+let _leInitSongId = null;       // songId for which markers were initialized
 
 /* ── Audio Split State ────────────────────────────── */
 let audioMeta = null;          // {duration, sampleRate, channels}
@@ -3904,500 +3907,81 @@ function handleAudioDrop(e) {
 }
 
 /* ══════════════════════════════════════════════════════
-   LYRICS TAB — Part-basierter Songtext-Editor
+   LYRICS EDITOR — Grafischer Marker-Editor
+   Phasen: empty → parts (Part-Marker setzen) → bars (Takt-Marker setzen)
    ══════════════════════════════════════════════════════ */
 
-function renderLyricsTab() {
-  if (!selectedSongId || !db.songs[selectedSongId]) {
-    els.content.innerHTML = `<div class="empty-state"><div class="icon">&#9835;</div><p>Song aus der Liste links ausw&auml;hlen.</p></div>`;
-    return;
+/* ── Lyrics Editor: Parse raw text into word tokens ── */
+
+/**
+ * Parse raw lyrics text into word tokens.
+ * Each token: {text, offset, newlineBefore, emptyLineBefore, isHeader}
+ * Section headers like [Verse 1] are tagged as isHeader.
+ */
+function leParseRawText(rawText) {
+  const words = [];
+  if (!rawText) return words;
+  const lines = rawText.split('\n');
+  let absOffset = 0;
+  let prevLineEmpty = false;
+
+  for (let li = 0; li < lines.length; li++) {
+    const line = lines[li];
+    const trimmed = line.trim();
+
+    if (trimmed === '') {
+      prevLineEmpty = true;
+      absOffset += line.length + 1;
+      continue;
+    }
+
+    const isHeader = /^\[.*\]$/.test(trimmed);
+
+    if (isHeader) {
+      const headerOffset = absOffset + line.indexOf(trimmed);
+      words.push({
+        text: trimmed,
+        offset: headerOffset,
+        newlineBefore: li > 0 && !prevLineEmpty,
+        emptyLineBefore: prevLineEmpty,
+        isHeader: true
+      });
+    } else {
+      const lineWords = trimmed.split(/\s+/);
+      let localOffset = line.indexOf(trimmed);
+      for (let wi = 0; wi < lineWords.length; wi++) {
+        const w = lineWords[wi];
+        const wOffset = line.indexOf(w, localOffset);
+        words.push({
+          text: w,
+          offset: absOffset + wOffset,
+          newlineBefore: wi === 0 && li > 0 && !prevLineEmpty,
+          emptyLineBefore: wi === 0 && prevLineEmpty,
+          isHeader: false
+        });
+        localOffset = wOffset + w.length;
+      }
+    }
+    prevLineEmpty = false;
+    absOffset += line.length + 1;
   }
+  return words;
+}
 
-  const song = db.songs[selectedSongId];
-  const parts = getSortedParts(selectedSongId);
-  const hasBuf = !!audio.getBuffer();
-
-  // Auto-load reference audio
-  if (!hasBuf && song.audio_ref && _refLoadingFor !== selectedSongId) {
-    _refLoadingFor = selectedSongId;
-    _refLoadingPromise = loadReferenceAudio().finally(() => { _refLoadingFor = null; _refLoadingPromise = null; });
-  }
-
-  const geniusUrl = `https://genius.com/search?q=${encodeURIComponent(song.name + ' ' + song.artist)}`;
-
-  // Check if any part has lyrics in DB bars
+/**
+ * Check if any bars for the given parts have lyrics.
+ */
+function leHasAnyBarLyrics(parts) {
   ensureCollections();
-
-  els.content.innerHTML = `
-    <div class="lyrics-panel lyrics-stacked-layout">
-      ${buildSongHeader(song)}
-      ${buildLyricsRawImport(song, geniusUrl)}
-      <div class="lyrics-parts-col" id="lyrics-parts-col">
-        ${parts.length > 0 ? buildLyricsPartsList(parts, song, hasBuf) : '<div class="empty-state"><p>Keine Parts vorhanden. Erst Parts im Parts-Tab anlegen.</p></div>'}
-      </div>
-    </div>`;
-
-  // Draw lyrics waveforms after DOM is ready
-  requestAnimationFrame(() => {
-    drawLyricsPartWaveforms();
-    // Attach drag listeners to lyrics wave canvases
-    const canvases = document.querySelectorAll('canvas[data-lyrics-wave-idx]');
-    for (const c of canvases) {
-      c.addEventListener('mousedown', initLyricsWaveDrag);
-      c.addEventListener('touchstart', initLyricsWaveDrag, { passive: false });
-    }
-  });
-}
-
-
-function buildLyricsRawImport(song, geniusUrl) {
-  const raw = song.lyrics_raw || '';
-  return `
-    <div class="lyrics-raw-section" id="lyrics-raw-section">
-      <div class="lyrics-raw-header">
-        <h3>Rohtext</h3>
-        <div class="lyrics-source-btns">
-          <a href="${geniusUrl}" target="_blank" rel="noopener" class="btn btn-sm lyrics-genius-link" title="Auf Genius.com suchen">&#127925; Genius.com</a>
-        </div>
-      </div>
-      <div id="lyrics-raw-text" class="lyrics-paste lyrics-paste-single" contenteditable="true" data-placeholder="Songtext hier einfuegen...\nTipp: Auf Genius.com den Songtext kopieren und hier einfuegen.\nPartbezeichner in [eckigen Klammern] werden erkannt.\nDann auf VERTEILEN klicken.">${raw ? esc(raw).replace(/\n/g, '<br>') : ''}</div>
-      <div class="lyrics-import-actions">
-        <button class="btn btn-sm" id="lyrics-distribute-btn" title="Rohtext automatisch auf Parts und Takte verteilen">VERTEILEN</button>
-      </div>
-    </div>`;
-}
-
-
-/**
- * Extract base function name from a part name (e.g. "Chorus 2" → "Chorus", "Bridge" → "Bridge").
- * Returns null for Verse/Strophe parts (those are excluded from lyrics copying).
- */
-function getLyricsPartBaseName(name) {
-  if (!name) return null;
-  const n = name.trim();
-  // Exclude Verse / Strophe
-  if (/^(verse|strophe)\b/i.test(n)) return null;
-  // Strip trailing parenthetical and/or number: "Chorus 5 (stops)" → "Chorus", "Chorus 2" → "Chorus"
-  return n.replace(/\s*(\(.*?\)\s*|\d+\s*)*$/, '').trim() || null;
-}
-
-function buildLyricsPartsList(parts, song, hasBuf) {
-  // Count non-instrumental parts for the toggle-all button
-  const nonInstrParts = parts.filter(p => !p.instrumental);
-  const allCollapsed = nonInstrParts.length > 0 && nonInstrParts.every(p => _lyricsCollapsed.has(p.id));
-
-  let html = '<div class="lyrics-parts-toolbar">';
-  if (nonInstrParts.length > 1) {
-    html += `<button class="btn btn-sm" id="lyrics-toggle-all" title="${allCollapsed ? 'Alle aufklappen' : 'Alle zuklappen'}">${allCollapsed ? '&#9660; Alle aufklappen' : '&#9650; Alle zuklappen'}</button>`;
-  }
-  html += '</div>';
-  html += '<div class="lyrics-parts-list" id="lyrics-parts-list">';
-
-  let absBarOffset = 0; // cumulative bar count for absolute numbering
-  for (let i = 0; i < parts.length; i++) {
-    const part = parts[i];
-    const barCount = part.bars || 0;
-    const dur = calcPartDuration(barCount, song.bpm || 0);
-    const isInstr = !!part.instrumental;
-    const isCollapsed = !isInstr && _lyricsCollapsed.has(part.id);
-
-    // Collect existing lyrics from DB bars
-    const barLyrics = [];
-    for (let b = 1; b <= barCount; b++) {
-      const found = findBar(part.id, b);
-      barLyrics.push(found ? (found[1].lyrics || '') : '');
-    }
-    const lyricsText = barLyrics.join('\n');
-    const lyricsPreview = barLyrics.filter(l => l).slice(0, 2).join(' / ');
-
-    // Can we play this part?
-    const hasPartMarker = partMarkers.some(m => m.partIndex === i);
-    const hasBpmTimes = (song.bpm || 0) > 0 && barCount > 0;
-    const canPlayRef = hasBuf && (hasPartMarker || hasBpmTimes);
-    const canPlayBars = getAudioBarsForPart(part.id).length > 0;
-    const canPlay = canPlayRef || canPlayBars;
-    const isPlaying = _lyricsPlayingPart === part.id;
-    const isPaused = _lyricsPausedPart === part.id;
-
-    // Find previous part with same base name (for "copy lyrics" button)
-    const baseName = getLyricsPartBaseName(part.name);
-    let prevSamePartId = null;
-    let prevSamePartName = null;
-    if (baseName && !isInstr) {
-      for (let j = i - 1; j >= 0; j--) {
-        if (getLyricsPartBaseName(parts[j].name) === baseName && !parts[j].instrumental) {
-          prevSamePartId = parts[j].id;
-          prevSamePartName = parts[j].name;
-          break;
-        }
-      }
-    }
-
-    html += `
-      <div class="lyrics-part-card${isInstr ? ' instrumental' : ''}${isCollapsed ? ' collapsed' : ''}" data-part-id="${part.id}" data-part-index="${i}">
-        <div class="lyrics-part-header">
-          ${!isInstr ? `<button class="lyrics-collapse-btn" data-lyrics-collapse="${part.id}" title="${isCollapsed ? 'Aufklappen' : 'Zuklappen'}">${isCollapsed ? '&#9654;' : '&#9660;'}</button>` : ''}
-          <span class="lyrics-part-name text-amber">${esc(part.name)}</span>
-          <span class="lyrics-part-info text-t3 mono">${barCount} Takte${dur ? ' \u00b7 ' + fmtTime(dur) : ''}</span>
-          ${isCollapsed && lyricsPreview ? `<span class="lyrics-preview text-t3">${esc(lyricsPreview)}</span>` : ''}
-          <label class="lyrics-instr-label" title="Instrumental (kein Text)">
-            <input type="checkbox" class="lyrics-instr-check" data-instr-part="${part.id}" ${isInstr ? 'checked' : ''}>
-            <span>Instrumental</span>
-          </label>
-          <div style="flex:1"></div>
-          ${prevSamePartId ? `<button class="btn btn-sm btn-lyrics-copy" data-lyrics-copy-from="${prevSamePartId}" data-lyrics-copy-to="${part.id}" title="Text aus ${esc(prevSamePartName)} übernehmen">Text aus ${esc(prevSamePartName)} &#x2192;</button>` : ''}
-          ${canPlay ? `<button class="btn btn-sm btn-part-play${isPlaying ? ' playing' : ''}${isPaused ? ' paused' : ''}" data-lyrics-play="${part.id}" data-part-index="${i}" title="${isPlaying ? 'Pause' : isPaused ? 'Fortsetzen' : 'Part abspielen'}">
-            ${isPlaying ? '&#9646;&#9646;' : '&#9654;'}
-          </button>` : ''}
-        </div>
-        ${!isInstr && !isCollapsed ? buildLyricsPartBody(part, i, barCount, barLyrics, hasBuf, absBarOffset) : ''}
-      </div>`;
-    absBarOffset += barCount;
-  }
-
-  html += '</div>';
-  return html;
-}
-
-/**
- * Build the body of a lyrics part card: waveform + horizontal bar inputs.
- */
-function buildLyricsPartBody(part, partIndex, barCount, barLyrics, hasBuf, absBarOffset) {
-  if (barCount === 0) {
-    return '<div class="lyrics-part-bar-hint text-t3">Keine Takte definiert</div>';
-  }
-
-  // Waveform canvas for this part (if audio is loaded)
-  const partMarker = partMarkers.find(m => m.partIndex === partIndex);
-  let waveStart = partMarker ? partMarker.time : null;
-  let waveEnd = getPartEndTime(partIndex);
-
-  // Fallback: compute from BPM + bar counts
-  if (hasBuf && (waveStart === null || waveEnd === null)) {
-    const song = db.songs[selectedSongId];
-    const parts = getSortedParts(selectedSongId);
-    if (song?.bpm > 0 && parts[partIndex]) {
-      const starts = calcPartStarts(selectedSongId);
-      const st = starts.get(parts[partIndex].id);
-      if (st) {
-        if (waveStart === null) waveStart = st.startSec;
-        if (waveEnd === null) {
-          if (partIndex + 1 < parts.length) {
-            const nextSt = starts.get(parts[partIndex + 1].id);
-            waveEnd = nextSt ? nextSt.startSec : (audioMeta?.duration || null);
-          } else {
-            waveEnd = audioMeta?.duration || null;
-          }
-        }
-      }
+  for (const p of parts) {
+    for (const [, b] of Object.entries(db.bars)) {
+      if (b.part_id === p.id && b.lyrics) return true;
     }
   }
-  const showWave = hasBuf && waveStart !== null && waveEnd !== null && waveEnd > waveStart;
-
-  // Uniform cell width: determined by the longest text in any bar of this part
-  const PX_PER_CHAR = 7;
-  const CELL_PAD = 10;
-  const MIN_CELL_W = 32;
-  const maxTextLen = barLyrics.reduce((mx, t) => Math.max(mx, (t || '').length), 0);
-  const cellW = Math.max(MIN_CELL_W, maxTextLen * PX_PER_CHAR + CELL_PAD);
-  const totalMinWidth = cellW * barCount;
-
-  // Build scrollable container for waveform + bars (scroll together)
-  const minWStyle = totalMinWidth > 0 ? `min-width:${totalMinWidth}px` : '';
-  let html = `<div class="lyrics-part-scroll">`;
-  html += `<div class="lyrics-part-scroll-inner" ${minWStyle ? `style="${minWStyle}"` : ''}>`;
-
-  if (showWave) {
-    html += `<div class="lyrics-wave-wrap" data-lyrics-wave-part="${partIndex}">
-      <canvas class="lyrics-wave-canvas" data-lyrics-wave-idx="${partIndex}" data-wave-start="${waveStart}" data-wave-end="${waveEnd}"></canvas>
-    </div>`;
-  }
-
-  // Horizontal bar inputs — all equal width, waveform stretches to match
-  html += '<div class="lyrics-bars-row">';
-  for (let b = 0; b < barCount; b++) {
-    const text = barLyrics[b] || '';
-    const absBarNum = absBarOffset + b + 1;
-    html += `<div class="lyrics-bar-cell" style="flex:1 1 0;min-width:${cellW}px">
-      <div class="lyrics-bar-num mono text-t3">${absBarNum}</div>
-      <input type="text" class="lyrics-bar-input" data-lyrics-bar-part="${part.id}" data-lyrics-bar-num="${b + 1}" value="${esc(text)}" placeholder="\u2014" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-form-type="other" data-lpignore="true" data-1p-ignore="true" readonly onfocus="this.removeAttribute('readonly')">
-      <div class="lyrics-bar-shift-row">
-        <button class="lyrics-word-shift" data-ws-dir="left" data-ws-part="${part.id}" data-ws-bar="${b + 1}" title="Erstes Wort nach links">\u25C0</button>
-        <button class="lyrics-word-shift" data-ws-dir="right" data-ws-part="${part.id}" data-ws-bar="${b + 1}" title="Letztes Wort nach rechts">\u25B6</button>
-      </div>
-    </div>`;
-  }
-  html += '</div>';
-  html += '</div></div>';
-
-  return html;
+  return false;
 }
 
-/**
- * Draw waveform with bar markers for a lyrics part canvas.
- * Called after renderLyricsTab to populate canvases.
- */
-function drawLyricsPartWaveforms() {
-  if (!audio.getBuffer() || !audioMeta) return;
-  const canvases = document.querySelectorAll('canvas[data-lyrics-wave-idx]');
-  for (const canvas of canvases) {
-    drawLyricsPartWaveform(canvas);
-  }
-}
-
-function drawLyricsPartWaveform(canvas) {
-  if (!audio.getBuffer() || !audioMeta) return;
-  const partIndex = parseInt(canvas.dataset.lyricsWaveIdx, 10);
-  const startSec = parseFloat(canvas.dataset.waveStart);
-  const endSec = parseFloat(canvas.dataset.waveEnd);
-  if (isNaN(startSec) || isNaN(endSec) || endSec <= startSec) return;
-
-  const dpr = window.devicePixelRatio || 1;
-  const w = canvas.clientWidth;
-  const h = canvas.clientHeight;
-  if (w <= 0 || h <= 0) return;
-
-  canvas.width = w * dpr;
-  canvas.height = h * dpr;
-  const ctx = canvas.getContext('2d');
-  ctx.scale(dpr, dpr);
-  ctx.clearRect(0, 0, w, h);
-
-  const partDur = endSec - startSec;
-  const timeToX = (t) => ((t - startSec) / partDur) * w;
-
-  // Draw waveform
-  const buckets = Math.floor(w);
-  const peaks = audio.getPeaksRange(startSec, endSec, buckets);
-  const mid = h / 2;
-  for (let i = 0; i < buckets; i++) {
-    const amp = peaks[i];
-    const barH = amp * (h * 0.85);
-    const opacity = 0.3 + amp * 0.7;
-    ctx.fillStyle = `rgba(0, 220, 130, ${opacity})`;
-    ctx.fillRect(i, mid - barH / 2, 1, barH || 1);
-  }
-
-  // Draw bar markers with flag labels (cyan)
-  const bars = getBarMarkersForPart(partIndex);
-  for (let bi = 0; bi < bars.length; bi++) {
-    const x = timeToX(bars[bi].time);
-    const isDrag = _lyricsWaveDrag && _lyricsWaveDrag.dragType === 'bar' && _lyricsWaveDrag.partIndex === partIndex && _lyricsWaveDrag.barIdx === bi;
-    ctx.strokeStyle = isDrag ? 'rgba(56, 189, 248, 0.95)' : 'rgba(56, 189, 248, 0.4)';
-    ctx.lineWidth = isDrag ? 2 : 1;
-    ctx.beginPath();
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, h);
-    ctx.stroke();
-
-    // Flag label (bottom)
-    const label = String(bi + 1);
-    ctx.font = '9px "DM Mono", monospace';
-    const tw = ctx.measureText(label).width;
-    const flagW = tw + 6;
-    const flagH = 13;
-    const flagY = h - flagH;
-    ctx.fillStyle = isDrag ? 'rgba(56, 189, 248, 1.0)' : 'rgba(56, 189, 248, 0.7)';
-    ctx.fillRect(x, flagY, flagW, flagH);
-    ctx.fillStyle = '#08090d';
-    ctx.fillText(label, x + 3, flagY + 10);
-
-    if (isDrag) {
-      ctx.font = '10px "DM Mono", monospace';
-      ctx.fillStyle = 'rgba(56, 189, 248, 0.95)';
-      ctx.fillText(fmtTime(bars[bi].time), x + 4, mid);
-    }
-  }
-
-  // "Start" flag (amber, top-left) — draggable handle for part start
-  const isDragStart = _lyricsWaveDrag && _lyricsWaveDrag.dragType === 'start' && _lyricsWaveDrag.partIndex === partIndex;
-  const startX = 0;
-  ctx.strokeStyle = isDragStart ? 'rgba(240, 160, 48, 1.0)' : 'rgba(240, 160, 48, 0.8)';
-  ctx.lineWidth = isDragStart ? 3 : 2;
-  ctx.beginPath();
-  ctx.moveTo(startX, 0);
-  ctx.lineTo(startX, h);
-  ctx.stroke();
-  // Flag
-  ctx.font = 'bold 9px Sora, sans-serif';
-  const startLabel = 'Start';
-  const stw = ctx.measureText(startLabel).width;
-  const sFlagW = stw + 8;
-  const sFlagH = 14;
-  ctx.fillStyle = isDragStart ? 'rgba(240, 160, 48, 1.0)' : 'rgba(240, 160, 48, 0.9)';
-  ctx.fillRect(startX, 0, sFlagW, sFlagH);
-  ctx.fillStyle = '#08090d';
-  ctx.fillText(startLabel, startX + 4, 10);
-  if (isDragStart) {
-    ctx.font = '10px "DM Mono", monospace';
-    ctx.fillStyle = 'rgba(240, 160, 48, 1.0)';
-    ctx.fillText(fmtTime(startSec), startX + sFlagW + 4, 10);
-  }
-
-  // "Ende" flag (amber, top-right) — draggable handle for part end
-  const isDragEnd = _lyricsWaveDrag && _lyricsWaveDrag.dragType === 'end' && _lyricsWaveDrag.partIndex === partIndex;
-  const endX = w;
-  ctx.strokeStyle = isDragEnd ? 'rgba(240, 160, 48, 1.0)' : 'rgba(240, 160, 48, 0.8)';
-  ctx.lineWidth = isDragEnd ? 3 : 2;
-  ctx.beginPath();
-  ctx.moveTo(endX, 0);
-  ctx.lineTo(endX, h);
-  ctx.stroke();
-  // Flag (aligned to left of the end line)
-  ctx.font = 'bold 9px Sora, sans-serif';
-  const endLabel = 'Ende';
-  const etw = ctx.measureText(endLabel).width;
-  const eFlagW = etw + 8;
-  const eFlagH = 14;
-  ctx.fillStyle = isDragEnd ? 'rgba(240, 160, 48, 1.0)' : 'rgba(240, 160, 48, 0.9)';
-  ctx.fillRect(endX - eFlagW, 0, eFlagW, eFlagH);
-  ctx.fillStyle = '#08090d';
-  ctx.fillText(endLabel, endX - eFlagW + 4, 10);
-  if (isDragEnd) {
-    ctx.font = '10px "DM Mono", monospace';
-    ctx.fillStyle = 'rgba(240, 160, 48, 1.0)';
-    ctx.fillText(fmtTime(endSec), endX - eFlagW - ctx.measureText(fmtTime(endSec)).width - 6, 10);
-  }
-}
-
-/* ── Lyrics Waveform Bar Marker Drag ─────────────── */
-
-let _lyricsWaveDrag = null; // { canvas, partIndex, dragType:'bar'|'start'|'end', barIdx, origTime, startSec, endSec }
-
-function initLyricsWaveDrag(e) {
-  const canvas = e.target.closest('canvas[data-lyrics-wave-idx]');
-  if (!canvas || !audioMeta) return;
-  const partIndex = parseInt(canvas.dataset.lyricsWaveIdx, 10);
-  const startSec = parseFloat(canvas.dataset.waveStart);
-  const endSec = parseFloat(canvas.dataset.waveEnd);
-  if (isNaN(startSec) || isNaN(endSec)) return;
-
-  const rect = canvas.getBoundingClientRect();
-  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-  const xPx = clientX - rect.left;
-  const w = rect.width;
-  const partDur = endSec - startSec;
-  const HIT_PX = 14;
-
-  // Hit test: Start flag (left edge)
-  if (xPx <= HIT_PX) {
-    e.preventDefault();
-    _lyricsWaveDrag = { canvas, partIndex, dragType: 'start', barIdx: -1, origTime: startSec, startSec, endSec };
-    drawLyricsPartWaveform(canvas);
-    return;
-  }
-
-  // Hit test: Ende flag (right edge)
-  if (xPx >= w - HIT_PX) {
-    e.preventDefault();
-    _lyricsWaveDrag = { canvas, partIndex, dragType: 'end', barIdx: -1, origTime: endSec, startSec, endSec };
-    drawLyricsPartWaveform(canvas);
-    return;
-  }
-
-  // Hit test: find nearest bar marker
-  const bars = getBarMarkersForPart(partIndex);
-  let bestIdx = -1, bestDist = Infinity;
-  for (let i = 0; i < bars.length; i++) {
-    const mX = ((bars[i].time - startSec) / partDur) * w;
-    const dist = Math.abs(mX - xPx);
-    if (dist < bestDist) { bestDist = dist; bestIdx = i; }
-  }
-  if (bestIdx < 0 || bestDist > 12) return;
-
-  e.preventDefault();
-  _lyricsWaveDrag = {
-    canvas, partIndex, dragType: 'bar', barIdx: bestIdx, startSec, endSec,
-    origTime: bars[bestIdx].time
-  };
-  drawLyricsPartWaveform(canvas);
-}
-
-function moveLyricsWaveDrag(e) {
-  if (!_lyricsWaveDrag) return;
-  e.preventDefault();
-  const { canvas, partIndex, dragType, barIdx, startSec, endSec } = _lyricsWaveDrag;
-  const rect = canvas.getBoundingClientRect();
-  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-  const xPx = clientX - rect.left;
-  const w = rect.width;
-  const duration = audioMeta.duration;
-
-  if (dragType === 'start') {
-    // Drag part start: update partMarker time and canvas data attribute
-    let newTime = startSec + (xPx / w) * (endSec - startSec);
-    newTime = Math.max(0, Math.min(endSec - 0.1, newTime));
-    // Update global partMarker
-    const pm = partMarkers.find(m => m.partIndex === partIndex);
-    if (pm) pm.time = newTime;
-    // Also move first bar marker if it was at the old start
-    const bars = getBarMarkersForPart(partIndex);
-    if (bars.length > 0 && Math.abs(bars[0].time - parseFloat(canvas.dataset.waveStart)) < 0.05) {
-      const gIdx = barMarkers.findIndex(m => m.partIndex === partIndex && Math.abs(m.time - bars[0].time) < 0.0001);
-      if (gIdx >= 0) barMarkers[gIdx].time = newTime;
-    }
-    canvas.dataset.waveStart = String(newTime);
-    drawLyricsPartWaveform(canvas);
-    return;
-  }
-
-  if (dragType === 'end') {
-    // Drag part end: update next partMarker or clip to audio duration
-    let newTime = startSec + (xPx / w) * (endSec - startSec);
-    newTime = Math.max(startSec + 0.1, Math.min(duration, newTime));
-    // Update next part's start marker (if exists)
-    const nextPm = partMarkers.find(m => m.partIndex === partIndex + 1);
-    if (nextPm) nextPm.time = newTime;
-    canvas.dataset.waveEnd = String(newTime);
-    drawLyricsPartWaveform(canvas);
-    return;
-  }
-
-  // Bar marker drag
-  const partDur = parseFloat(canvas.dataset.waveEnd) - parseFloat(canvas.dataset.waveStart);
-  const curStart = parseFloat(canvas.dataset.waveStart);
-  let newTime = curStart + (xPx / w) * partDur;
-  newTime = Math.max(curStart + 0.01, Math.min(curStart + partDur - 0.01, newTime));
-
-  const bars = getBarMarkersForPart(partIndex);
-  if (bars[barIdx]) {
-    const globalIdx = barMarkers.findIndex(m =>
-      m.partIndex === partIndex && Math.abs(m.time - bars[barIdx].time) < 0.0001);
-    if (globalIdx >= 0) {
-      barMarkers[globalIdx].time = newTime;
-    }
-  }
-
-  drawLyricsPartWaveform(canvas);
-}
-
-function endLyricsWaveDrag() {
-  if (!_lyricsWaveDrag) return;
-  const moved = _lyricsWaveDrag;
-  _lyricsWaveDrag = null;
-
-  // Re-sort markers and save
-  barMarkers.sort((a, b) => a.time - b.time);
-  partMarkers.sort((a, b) => a.time - b.time);
-  saveMarkersToSong();
-  drawLyricsPartWaveform(moved.canvas);
-
-  // If start/end was dragged, update neighboring part canvases too
-  if (moved.dragType === 'start' || moved.dragType === 'end') {
-    // Redraw adjacent part canvas if it shares the boundary
-    const adjIdx = moved.dragType === 'start' ? moved.partIndex - 1 : moved.partIndex + 1;
-    const adjCanvas = document.querySelector(`canvas[data-lyrics-wave-idx="${adjIdx}"]`);
-    if (adjCanvas) {
-      // Update adjacent canvas boundary
-      if (moved.dragType === 'start') {
-        adjCanvas.dataset.waveEnd = moved.canvas.dataset.waveStart;
-      } else {
-        adjCanvas.dataset.waveStart = moved.canvas.dataset.waveEnd;
-      }
-      drawLyricsPartWaveform(adjCanvas);
-    }
-  }
-}
+/* ── Lyrics Editor: Marker Prediction ────────────── */
 
 /** Synonyms for section header → part name matching */
 const SECTION_SYNONYMS = {
@@ -4413,22 +3997,14 @@ const SECTION_SYNONYMS = {
   'post-chorus': ['post-chorus', 'postchorus', 'post chorus'],
 };
 
-/**
- * Match a section header like "[Verse 1]" to a part name.
- * Returns the normalized base name or null.
- */
 function matchSectionToPartName(header) {
-  // Strip brackets and number: "[Verse 1]" → "verse"
   const clean = header.replace(/[\[\]]/g, '').replace(/\s*\d+\s*$/, '').trim().toLowerCase();
   for (const [base, syns] of Object.entries(SECTION_SYNONYMS)) {
     if (syns.some(s => clean === s || clean.startsWith(s))) return base;
   }
-  return clean; // fallback: use as-is
+  return clean;
 }
 
-/**
- * Normalize a part name for matching: "Chorus 2" → "chorus"
- */
 function normalizePartName(name) {
   const clean = (name || '').replace(/\s*\d+\s*$/, '').trim().toLowerCase();
   for (const [base, syns] of Object.entries(SECTION_SYNONYMS)) {
@@ -4438,226 +4014,25 @@ function normalizePartName(name) {
 }
 
 /**
- * Distribute raw text across parts and bars:
- * 1. Parse section headers [in brackets] and match to part names
- * 2. Match numbered sections (e.g. [Chorus 2]) to the Nth occurrence of that part type
- * 3. Repeating sections (e.g. Chorus) copy text from first occurrence
- * 4. Words are distributed evenly across bars within each part
+ * Auto-predict part marker positions in the raw text.
+ * Uses section headers [Verse 1] etc. to match parts.
  */
-function distributeLyricsToparts() {
-  if (!selectedSongId) return;
-  const song = db.songs[selectedSongId];
-  const rawEl = document.getElementById('lyrics-raw-text');
-  if (!rawEl) return;
+function leGuessPartMarkers(words, parts) {
+  const markers = [];
+  const textParts = parts.filter(p => !p.instrumental && (p.bars || 0) > 0);
+  if (textParts.length === 0) return markers;
 
-  const rawText = rawEl.innerText.trim();
-  if (!rawText) { toast('Kein Rohtext vorhanden', 'error'); return; }
-
-  song.lyrics_raw = rawEl.innerText;
-
-  const parts = getSortedParts(selectedSongId);
-  if (parts.length === 0) { toast('Keine Parts vorhanden', 'error'); return; }
-
-  // Parse raw text into sections with optional headers
-  const sections = []; // [{header, lines}]
-  let currentHeader = null;
-  let currentLines = [];
-  for (const line of rawText.split('\n')) {
-    const trimmed = line.trim();
-    if (trimmed === '') {
-      if (currentLines.length > 0) {
-        sections.push({ header: currentHeader, lines: currentLines });
-        currentHeader = null;
-        currentLines = [];
-      }
-      continue;
-    }
-    // Detect section header: [Verse 1], [Chorus], etc.
-    if (/^\[.*\]$/.test(trimmed)) {
-      if (currentLines.length > 0) {
-        sections.push({ header: currentHeader, lines: currentLines });
-        currentLines = [];
-      }
-      currentHeader = trimmed;
-      continue;
-    }
-    currentLines.push(trimmed);
-  }
-  if (currentLines.length > 0) sections.push({ header: currentHeader, lines: currentLines });
-
-  if (sections.length === 0) { toast('Kein verteilbarer Text gefunden', 'error'); return; }
-
-  // Build part list with normalized names (skip instrumental/no-bar parts)
-  const textParts = parts.filter(p => (p.bars || 0) > 0 && !p.instrumental);
-
-  const sectionUsed = new Array(sections.length).fill(false);
-  const partAssigned = new Map(); // partId → lines[]
-  const firstTextByBase = {}; // normalized base → lines (for repetition)
-
-  // Extract section number from header: "[Chorus 2]" → 2, "[Verse]" → null
-  function getSectionNum(header) {
-    if (!header) return null;
-    const m = header.replace(/[\[\]]/g, '').match(/\s+(\d+)\s*$/);
-    return m ? parseInt(m[1], 10) : null;
-  }
-
-  // Count how many times each base name appears in textParts, and build occurrence index
-  const partOccurrence = new Map(); // partId → occurrence number (1-based)
-  const baseCount = {};
-  for (const part of textParts) {
-    const base = normalizePartName(part.name);
-    baseCount[base] = (baseCount[base] || 0) + 1;
-    partOccurrence.set(part.id, baseCount[base]);
-  }
-
-  // Pass 1: Match sections with headers to parts (respecting occurrence numbers)
-  for (const part of textParts) {
-    if (partAssigned.has(part.id)) continue;
-    const partBase = normalizePartName(part.name);
-    const partOcc = partOccurrence.get(part.id);
-
-    for (let s = 0; s < sections.length; s++) {
-      if (sectionUsed[s] || !sections[s].header) continue;
-      const secBase = matchSectionToPartName(sections[s].header);
-      if (secBase !== partBase) continue;
-
-      const secNum = getSectionNum(sections[s].header);
-      // If section has a number, match to Nth occurrence of that part type
-      if (secNum !== null) {
-        if (secNum === partOcc) {
-          partAssigned.set(part.id, sections[s].lines);
-          sectionUsed[s] = true;
-          if (!firstTextByBase[partBase]) firstTextByBase[partBase] = sections[s].lines;
-          break;
-        }
-      } else {
-        // No number: match to first unmatched occurrence
-        partAssigned.set(part.id, sections[s].lines);
-        sectionUsed[s] = true;
-        if (!firstTextByBase[partBase]) firstTextByBase[partBase] = sections[s].lines;
-        break;
-      }
+  // Find section headers in words
+  const headers = []; // [{wordIdx, header, base, num}]
+  for (let i = 0; i < words.length; i++) {
+    if (words[i].isHeader) {
+      const base = matchSectionToPartName(words[i].text);
+      const numMatch = words[i].text.replace(/[\[\]]/g, '').match(/\s+(\d+)\s*$/);
+      headers.push({ wordIdx: i, header: words[i].text, base, num: numMatch ? parseInt(numMatch[1], 10) : null });
     }
   }
 
-  // Pass 2: Unmatched parts — copy from first occurrence of same base name (repeating parts)
-  for (const part of textParts) {
-    if (partAssigned.has(part.id)) continue;
-    const partBase = normalizePartName(part.name);
-    if (firstTextByBase[partBase]) {
-      partAssigned.set(part.id, firstTextByBase[partBase]);
-    }
-  }
-
-  // Pass 3: Remaining unmatched parts get remaining unmatched sections (sequential)
-  let nextSection = 0;
-  for (const part of textParts) {
-    if (partAssigned.has(part.id)) continue;
-    while (nextSection < sections.length && sectionUsed[nextSection]) nextSection++;
-    if (nextSection >= sections.length) break;
-    partAssigned.set(part.id, sections[nextSection].lines);
-    const partBase = normalizePartName(part.name);
-    if (!firstTextByBase[partBase]) firstTextByBase[partBase] = sections[nextSection].lines;
-    sectionUsed[nextSection] = true;
-    nextSection++;
-  }
-
-  // Fill bar inputs — distribute lines across bars (1 line per bar where possible)
-  let filledParts = 0;
-  for (const part of textParts) {
-    const lines = partAssigned.get(part.id);
-    if (!lines) continue;
-    const barCount = part.bars || 0;
-    if (barCount === 0) continue;
-    filledParts++;
-
-    // Distribute lines across bars so NO bar remains empty.
-    // Split lines into words and distribute evenly across bars.
-    const allWords = lines.join(' ').split(/\s+/).filter(w => w);
-    for (let b = 0; b < barCount; b++) {
-      const inp = document.querySelector(`.lyrics-bar-input[data-lyrics-bar-part="${part.id}"][data-lyrics-bar-num="${b + 1}"]`);
-      if (!inp) continue;
-      let text;
-      if (allWords.length <= barCount) {
-        // Fewer words than bars: each bar gets at most one word, spread evenly
-        const idx = Math.round(b * allWords.length / barCount);
-        const idxEnd = Math.round((b + 1) * allWords.length / barCount);
-        text = allWords.slice(idx, idxEnd).join(' ');
-      } else {
-        // More words than bars: distribute words evenly across bars
-        const startW = Math.round(b * allWords.length / barCount);
-        const endW = Math.round((b + 1) * allWords.length / barCount);
-        text = allWords.slice(startW, endW).join(' ');
-      }
-      inp.value = text;
-      // Also save to DB
-      const [, barData] = getOrCreateBar(part.id, b + 1);
-      barData.lyrics = text;
-    }
-  }
-
-  markDirty();
-  // Update keyboard bar if visible
-  _updateQiKeyboardBar();
-  toast(`Text auf ${filledParts} Parts verteilt`, 'success');
-}
-
-/* ── Quick Insert: per-bar suggestions from raw text ── */
-
-/**
- * Parse lyrics_raw and return a Map<partId, string[]> where each string[]
- * has one suggestion per bar (line-based, preserving meaningful phrases).
- */
-function buildQuickInsertMap() {
-  if (!selectedSongId) return new Map();
-  const song = db.songs[selectedSongId];
-  if (!song || !song.lyrics_raw) return new Map();
-
-  const rawText = song.lyrics_raw.trim();
-  if (!rawText) return new Map();
-
-  const parts = getSortedParts(selectedSongId);
-  const textParts = parts.filter(p => (p.bars || 0) > 0 && !p.instrumental);
-  if (textParts.length === 0) return new Map();
-
-  // Parse raw text into sections (reusing distribute logic)
-  const sections = [];
-  let currentHeader = null;
-  let currentLines = [];
-  for (const line of rawText.split('\n')) {
-    const trimmed = line.trim();
-    if (trimmed === '') {
-      if (currentLines.length > 0) {
-        sections.push({ header: currentHeader, lines: currentLines });
-        currentHeader = null;
-        currentLines = [];
-      }
-      continue;
-    }
-    if (/^\[.*\]$/.test(trimmed)) {
-      if (currentLines.length > 0) {
-        sections.push({ header: currentHeader, lines: currentLines });
-        currentLines = [];
-      }
-      currentHeader = trimmed;
-      continue;
-    }
-    currentLines.push(trimmed);
-  }
-  if (currentLines.length > 0) sections.push({ header: currentHeader, lines: currentLines });
-  if (sections.length === 0) return new Map();
-
-  // Match sections to parts (same logic as distributeLyricsToparts)
-  const sectionUsed = new Array(sections.length).fill(false);
-  const partAssigned = new Map();
-  const firstTextByBase = {};
-
-  function getSectionNum(header) {
-    if (!header) return null;
-    const m = header.replace(/[\[\]]/g, '').match(/\s+(\d+)\s*$/);
-    return m ? parseInt(m[1], 10) : null;
-  }
-
+  // Count part occurrences for matching numbered headers
   const partOccurrence = new Map();
   const baseCount = {};
   for (const part of textParts) {
@@ -4666,759 +4041,820 @@ function buildQuickInsertMap() {
     partOccurrence.set(part.id, baseCount[base]);
   }
 
-  // Pass 1: match by headers
+  // Match headers to parts
+  const usedHeaders = new Set();
   for (const part of textParts) {
-    if (partAssigned.has(part.id)) continue;
     const partBase = normalizePartName(part.name);
     const partOcc = partOccurrence.get(part.id);
-    for (let s = 0; s < sections.length; s++) {
-      if (sectionUsed[s] || !sections[s].header) continue;
-      const secBase = matchSectionToPartName(sections[s].header);
-      if (secBase !== partBase) continue;
-      const secNum = getSectionNum(sections[s].header);
-      if (secNum !== null) {
-        if (secNum === partOcc) {
-          partAssigned.set(part.id, sections[s].lines);
-          sectionUsed[s] = true;
-          if (!firstTextByBase[partBase]) firstTextByBase[partBase] = sections[s].lines;
-          break;
-        }
-      } else {
-        partAssigned.set(part.id, sections[s].lines);
-        sectionUsed[s] = true;
-        if (!firstTextByBase[partBase]) firstTextByBase[partBase] = sections[s].lines;
-        break;
+
+    for (const h of headers) {
+      if (usedHeaders.has(h.wordIdx)) continue;
+      if (h.base !== partBase) continue;
+      if (h.num !== null && h.num !== partOcc) continue;
+
+      // Found match: marker goes right after the header (next non-header word)
+      let targetIdx = h.wordIdx + 1;
+      while (targetIdx < words.length && words[targetIdx].isHeader) targetIdx++;
+      if (targetIdx >= words.length) targetIdx = h.wordIdx;
+
+      markers.push({
+        partId: part.id,
+        charOffset: words[targetIdx] ? words[targetIdx].offset : words[h.wordIdx].offset,
+        confirmed: false
+      });
+      usedHeaders.add(h.wordIdx);
+      break;
+    }
+  }
+
+  // Parts without matched headers: distribute remaining text evenly
+  const unmatchedParts = textParts.filter(p => !markers.some(m => m.partId === p.id));
+  if (unmatchedParts.length > 0) {
+    // Get the non-header words
+    const lyricsWords = words.filter(w => !w.isHeader);
+    const matchedOffsets = new Set(markers.map(m => m.charOffset));
+    // Distribute unmatched parts across the remaining text
+    const totalWords = lyricsWords.length;
+    let usedWords = 0;
+    // Count words already claimed by matched parts
+    const sortedMarkers = [...markers].sort((a, b) => a.charOffset - b.charOffset);
+
+    for (const part of unmatchedParts) {
+      // Place marker at proportional position
+      const proportion = textParts.indexOf(part) / textParts.length;
+      const targetWordIdx = Math.floor(proportion * totalWords);
+      const wordAtPos = lyricsWords[Math.min(targetWordIdx, lyricsWords.length - 1)];
+      if (wordAtPos) {
+        markers.push({
+          partId: part.id,
+          charOffset: wordAtPos.offset,
+          confirmed: false
+        });
       }
     }
   }
 
-  // Pass 2: repeating parts copy from first occurrence
-  for (const part of textParts) {
-    if (partAssigned.has(part.id)) continue;
-    const partBase = normalizePartName(part.name);
-    if (firstTextByBase[partBase]) {
-      partAssigned.set(part.id, firstTextByBase[partBase]);
-    }
-  }
-
-  // Pass 3: remaining sequential
-  let nextSection = 0;
-  for (const part of textParts) {
-    if (partAssigned.has(part.id)) continue;
-    while (nextSection < sections.length && sectionUsed[nextSection]) nextSection++;
-    if (nextSection >= sections.length) break;
-    partAssigned.set(part.id, sections[nextSection].lines);
-    const partBase = normalizePartName(part.name);
-    if (!firstTextByBase[partBase]) firstTextByBase[partBase] = sections[nextSection].lines;
-    sectionUsed[nextSection] = true;
-    nextSection++;
-  }
-
-  // Build per-bar suggestions: distribute lines across bars
-  const result = new Map();
-  for (const part of textParts) {
-    const lines = partAssigned.get(part.id);
-    if (!lines || lines.length === 0) continue;
-    const barCount = part.bars || 0;
-    if (barCount === 0) continue;
-
-    // Distribute words evenly so no bar stays empty
-    const allWords = lines.join(' ').split(/\s+/).filter(w => w);
-    const suggestions = [];
-    for (let b = 0; b < barCount; b++) {
-      const startW = Math.round(b * allWords.length / barCount);
-      const endW = Math.round((b + 1) * allWords.length / barCount);
-      suggestions.push(allWords.slice(startW, endW).join(' '));
-    }
-    result.set(part.id, suggestions);
-  }
-
-  return result;
-}
-
-// Cache for quick inserts (invalidated on raw text change or song switch)
-let _quickInsertCache = null;
-let _quickInsertSongId = null;
-
-function getQuickInsertMap() {
-  const song = db?.songs?.[selectedSongId];
-  const rawText = song?.lyrics_raw || '';
-  // Invalidate cache on song or text change
-  if (_quickInsertSongId !== selectedSongId || _quickInsertCache === null) {
-    _quickInsertCache = buildQuickInsertMap();
-    _quickInsertSongId = selectedSongId;
-  }
-  return _quickInsertCache;
-}
-
-function invalidateQuickInsertCache() {
-  _quickInsertCache = null;
-}
-
-/* ── Lyrics Part Playback ─────────────────────────── */
-
-let _lyricsAnimFrame = null;        // animation frame for lyrics playhead
-let _lyricsPlayPartIndex = null;    // partIndex currently playing
-
-async function handleLyricsPartPlay(partId, partIndex) {
-  // Pause if currently playing this part
-  if (_lyricsPlayingPart === partId) {
-    pauseLyricsPartPlay();
-    return;
-  }
-
-  // Resume if this part is paused
-  if (_lyricsPausedPart === partId) {
-    resumeLyricsPartPlay();
-    return;
-  }
-
-  // Stop any previous playback or paused state
-  if (_lyricsPlayingPart) stopLyricsPartPlay();
-  if (_lyricsPausedPart) clearLyricsPausedState();
-
-  // If reference audio exists but not yet loaded, load or wait for pending load
-  const song = db.songs[selectedSongId];
-  if (!audio.getBuffer() && song?.audio_ref) {
-    if (_refLoadingPromise) {
-      // Another load is already in progress — wait for it
-      toast('Lade Referenz-Audio...', 'info', 2000);
-      await _refLoadingPromise;
-    } else if (_refLoadingFor !== selectedSongId) {
-      toast('Lade Referenz-Audio...', 'info', 2000);
-      _refLoadingFor = selectedSongId;
-      try {
-        await loadReferenceAudio();
-      } finally {
-        _refLoadingFor = null;
-        _refLoadingPromise = null;
-      }
-    }
-  }
-
-  _lyricsPlayingPart = partId;
-  _lyricsPlayPartIndex = partIndex;
-  updateLyricsPlayButtons();
-
-  // Try reference audio segment first
-  const hasBuf = !!audio.getBuffer();
-  let startTime = getPartStartTime(partIndex);
-  let endTime = getPartEndTime(partIndex);
-
-  // Fallback: compute start/end from BPM + bar counts if no split markers exist
-  if (hasBuf && (startTime === null || endTime === null) && song?.bpm > 0) {
-    const parts = getSortedParts(selectedSongId);
-    const starts = calcPartStarts(selectedSongId);
-    const partData = parts[partIndex];
-    if (partData) {
-      const st = starts.get(partData.id);
-      if (st) {
-        startTime = st.startSec;
-        if (partIndex + 1 < parts.length) {
-          const nextSt = starts.get(parts[partIndex + 1].id);
-          endTime = nextSt ? nextSt.startSec : audioMeta?.duration || null;
-        } else {
-          endTime = audioMeta?.duration || null;
-        }
-      }
-    }
-  }
-
-  if (hasBuf && startTime !== null && endTime !== null) {
-    audio.playSegments([{ startTime, endTime }], () => {
-      _lyricsPlayingPart = null;
-      _lyricsPausedPart = null;
-      _lyricsPlayPartIndex = null;
-      stopLyricsPlayheadAnimation();
-      updateLyricsPlayButtons();
-    });
-    startLyricsPlayheadAnimation();
-    return;
-  }
-
-  // Fallback: play bar MP3 files (no pause support for bar-by-bar playback)
-  handlePartPlay(partId);
-
-  const origInterval = setInterval(() => {
-    if (!_partPlayActive) {
-      clearInterval(origInterval);
-      _lyricsPlayingPart = null;
-      _lyricsPlayPartIndex = null;
-      updateLyricsPlayButtons();
-    }
-  }, 200);
-}
-
-function pauseLyricsPartPlay() {
-  if (!_lyricsPlayingPart) return;
-  audio.pauseSegments();
-  stopLyricsPlayheadAnimation();
-  _lyricsPausedPart = _lyricsPlayingPart;
-  _lyricsPlayingPart = null;
-  updateLyricsPlayButtons();
-}
-
-function resumeLyricsPartPlay() {
-  if (!_lyricsPausedPart) return;
-  _lyricsPlayingPart = _lyricsPausedPart;
-  _lyricsPausedPart = null;
-  audio.resumeSegments();
-  startLyricsPlayheadAnimation();
-  updateLyricsPlayButtons();
-}
-
-function clearLyricsPausedState() {
-  if (_lyricsPausedPart) {
-    audio.stopSegments();
-    _lyricsPausedPart = null;
-    _lyricsPlayPartIndex = null;
-  }
-}
-
-function stopLyricsPartPlay() {
-  if (_lyricsPlayingPart || _lyricsPausedPart) {
-    audio.stopSegments();
-    stopPartPlay();
-    stopLyricsPlayheadAnimation();
-    _lyricsPlayingPart = null;
-    _lyricsPausedPart = null;
-    _lyricsPlayPartIndex = null;
-    updateLyricsPlayButtons();
-  }
-}
-
-function startLyricsPlayheadAnimation() {
-  cancelAnimationFrame(_lyricsAnimFrame);
-  function tick() {
-    drawLyricsPlayhead();
-    if (audio.isSegmentPlaying()) {
-      _lyricsAnimFrame = requestAnimationFrame(tick);
-    }
-  }
-  _lyricsAnimFrame = requestAnimationFrame(tick);
-}
-
-function stopLyricsPlayheadAnimation() {
-  cancelAnimationFrame(_lyricsAnimFrame);
-  _lyricsAnimFrame = null;
-  // Redraw without playhead
-  drawLyricsPartWaveforms();
-}
-
-function drawLyricsPlayhead() {
-  if (_lyricsPlayPartIndex === null) return;
-  const canvas = document.querySelector(`canvas[data-lyrics-wave-idx="${_lyricsPlayPartIndex}"]`);
-  if (!canvas) return;
-
-  // Redraw base waveform first
-  drawLyricsPartWaveform(canvas);
-
-  // Draw playhead
-  const curTime = audio.getSegmentCurrentTime();
-  if (curTime <= 0) return;
-
-  const startSec = parseFloat(canvas.dataset.waveStart);
-  const endSec = parseFloat(canvas.dataset.waveEnd);
-  if (isNaN(startSec) || isNaN(endSec) || endSec <= startSec) return;
-
-  const w = canvas.clientWidth;
-  const h = canvas.clientHeight;
-  const relPos = (curTime - startSec) / (endSec - startSec);
-  if (relPos < 0 || relPos > 1) return;
-
-  const px = relPos * w;
-  const ctx = canvas.getContext('2d');
-  // dpr scale is already applied by drawLyricsPartWaveform
-  ctx.shadowColor = '#00dc82';
-  ctx.shadowBlur = 6;
-  ctx.strokeStyle = '#00dc82';
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(px, 0);
-  ctx.lineTo(px, h);
-  ctx.stroke();
-  ctx.shadowBlur = 0;
-
-  // Autoscroll: keep the playing canvas (and its lyrics inputs) visible
-  const scrollEl = document.getElementById('lyrics-scroll') || document.querySelector('.lyrics-parts-col');
-  if (scrollEl) {
-    const card = canvas.closest('.lyrics-part-card');
-    const target = card || canvas;
-    const containerRect = scrollEl.getBoundingClientRect();
-    const targetRect = target.getBoundingClientRect();
-    // Scroll if the card is not fully visible
-    if (targetRect.bottom > containerRect.bottom || targetRect.top < containerRect.top) {
-      target.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-    }
-  }
-}
-
-function updateLyricsPlayButtons() {
-  document.querySelectorAll('[data-lyrics-play]').forEach(btn => {
-    const partId = btn.dataset.lyricsPlay;
-    const isPlaying = _lyricsPlayingPart === partId;
-    const isPaused = _lyricsPausedPart === partId;
-    btn.innerHTML = isPlaying ? '&#9646;&#9646;' : '&#9654;';
-    btn.classList.toggle('playing', isPlaying);
-    btn.classList.toggle('paused', isPaused);
-    btn.title = isPlaying ? 'Pause' : isPaused ? 'Fortsetzen' : 'Part abspielen';
-  });
+  // Sort by charOffset
+  markers.sort((a, b) => a.charOffset - b.charOffset);
+  return markers;
 }
 
 /**
- * Copy lyrics bar-by-bar from one part to another.
+ * Predict bar marker positions within parts.
+ * Distributes bars evenly across the words of each part.
  */
-function copyLyricsFromPart(fromPartId, toPartId) {
-  if (!db || !db.songs || !selectedSongId) return;
-  const song = db.songs[selectedSongId];
-  if (!song || !song.parts) return;
+function leGuessBarMarkers(words, parts, partMarkers) {
+  const barMarkers = [];
+  const lyricsWords = words.filter(w => !w.isHeader);
+  if (lyricsWords.length === 0) return barMarkers;
 
-  const fromPart = song.parts[fromPartId];
-  const toPart = song.parts[toPartId];
-  if (!fromPart || !toPart) return;
+  const sortedPM = [...partMarkers].sort((a, b) => a.charOffset - b.charOffset);
 
-  const fromBars = fromPart.bars || 0;
-  const toBars = toPart.bars || 0;
-  const count = Math.min(fromBars, toBars);
+  for (let pi = 0; pi < sortedPM.length; pi++) {
+    const pm = sortedPM[pi];
+    const part = db.songs[selectedSongId]?.parts?.[pm.partId];
+    if (!part) continue;
+    const barCount = part.bars || 0;
+    if (barCount === 0) continue;
 
-  // Copy lyrics bar by bar
-  for (let b = 1; b <= count; b++) {
-    const srcBar = findBar(fromPartId, b);
-    const srcLyrics = srcBar ? (srcBar[1].lyrics || '') : '';
+    // Find the word range for this part
+    const startOffset = pm.charOffset;
+    const endOffset = (pi + 1 < sortedPM.length) ? sortedPM[pi + 1].charOffset : Infinity;
 
-    // Find or create target bar
-    let tgtBar = findBar(toPartId, b);
-    if (tgtBar) {
-      tgtBar[1].lyrics = srcLyrics;
-    } else {
-      // Create bar entry in DB
-      const barId = 'B' + Date.now().toString(36) + '_' + b;
-      if (!db.bars) db.bars = {};
-      db.bars[barId] = {
-        part_id: toPartId,
-        bar_num: b,
-        lyrics: srcLyrics,
-        audio: '',
-        has_accents: false
-      };
+    const partWords = lyricsWords.filter(w => w.offset >= startOffset && w.offset < endOffset);
+    if (partWords.length === 0) {
+      // No words in this part segment, place all bar markers at part start
+      for (let b = 1; b <= barCount; b++) {
+        barMarkers.push({ partId: pm.partId, barNum: b, charOffset: startOffset });
+      }
+      continue;
+    }
+
+    // Distribute bars evenly across words
+    for (let b = 0; b < barCount; b++) {
+      const wordIdx = Math.round(b * partWords.length / barCount);
+      const word = partWords[Math.min(wordIdx, partWords.length - 1)];
+      barMarkers.push({
+        partId: pm.partId,
+        barNum: b + 1,
+        charOffset: word.offset
+      });
     }
   }
 
-  // Update UI inputs directly
-  document.querySelectorAll(`input[data-lyrics-bar-part="${toPartId}"]`).forEach(inp => {
-    const barNum = parseInt(inp.dataset.lyricsBarNum, 10);
-    if (barNum <= count) {
-      const srcBar = findBar(fromPartId, barNum);
-      inp.value = srcBar ? (srcBar[1].lyrics || '') : '';
-    }
-  });
-
-  markDirty();
+  barMarkers.sort((a, b) => a.charOffset - b.charOffset || a.barNum - b.barNum);
+  return barMarkers;
 }
 
-/* ── Lyrics Tab Event Handlers ────────────────────── */
+/**
+ * Reconstruct markers from existing per-bar lyrics stored in DB.
+ */
+function leReconstructMarkers(rawText, parts) {
+  const partMarkers = [];
+  const barMarkers = [];
+  let searchOffset = 0;
+
+  for (const part of parts) {
+    if (part.instrumental) continue;
+    const barCount = part.bars || 0;
+    if (barCount === 0) continue;
+
+    let partOffset = -1;
+
+    for (let b = 1; b <= barCount; b++) {
+      const found = findBar(part.id, b);
+      const lyrics = found ? (found[1].lyrics || '').trim() : '';
+      if (!lyrics) continue;
+
+      // Find this lyrics text in the raw text (progressive search)
+      const idx = rawText.indexOf(lyrics, searchOffset);
+      if (idx >= 0) {
+        if (partOffset < 0) {
+          partOffset = idx;
+          partMarkers.push({
+            partId: part.id,
+            charOffset: idx,
+            confirmed: part.lyrics_confirmed || false
+          });
+        }
+        barMarkers.push({
+          partId: part.id,
+          barNum: b,
+          charOffset: idx
+        });
+        searchOffset = idx + lyrics.length;
+      }
+    }
+
+    // If no bar lyrics found, still place a part marker
+    if (partOffset < 0) {
+      partMarkers.push({
+        partId: part.id,
+        charOffset: searchOffset,
+        confirmed: part.lyrics_confirmed || false
+      });
+    }
+  }
+
+  return { partMarkers, barMarkers };
+}
+
+/**
+ * Re-predict bar markers for a specific part after its part marker was moved.
+ */
+function leRepredictBarsForPart(partId) {
+  // Remove old bar markers for this part
+  _leBarMarkers = _leBarMarkers.filter(m => m.partId !== partId);
+  // Re-predict using current part markers
+  const parts = getSortedParts(selectedSongId);
+  const lyricsWords = _leWords.filter(w => !w.isHeader);
+  const sortedPM = [..._lePartMarkers].sort((a, b) => a.charOffset - b.charOffset);
+  const pmIdx = sortedPM.findIndex(m => m.partId === partId);
+  if (pmIdx < 0) return;
+
+  const pm = sortedPM[pmIdx];
+  const part = db.songs[selectedSongId]?.parts?.[partId];
+  if (!part) return;
+  const barCount = part.bars || 0;
+  if (barCount === 0) return;
+
+  const startOffset = pm.charOffset;
+  const endOffset = (pmIdx + 1 < sortedPM.length) ? sortedPM[pmIdx + 1].charOffset : Infinity;
+  const partWords = lyricsWords.filter(w => w.offset >= startOffset && w.offset < endOffset);
+
+  for (let b = 0; b < barCount; b++) {
+    const wordIdx = Math.round(b * partWords.length / barCount);
+    const word = partWords[Math.min(wordIdx, Math.max(0, partWords.length - 1))];
+    _leBarMarkers.push({
+      partId: partId,
+      barNum: b + 1,
+      charOffset: word ? word.offset : startOffset
+    });
+  }
+
+  _leBarMarkers.sort((a, b) => a.charOffset - b.charOffset || a.barNum - b.barNum);
+}
+
+/* ── Lyrics Editor: Init from song data ─────────── */
+
+function leInitFromSong(song, parts) {
+  const rawText = song.lyrics_raw || '';
+  _leWords = leParseRawText(rawText);
+  _leInitSongId = selectedSongId;
+
+  // Try to reconstruct from existing bar lyrics
+  const hasBarLyrics = leHasAnyBarLyrics(parts);
+  if (hasBarLyrics && rawText) {
+    const result = leReconstructMarkers(rawText, parts);
+    _lePartMarkers = result.partMarkers;
+    _leBarMarkers = result.barMarkers;
+    // If we have bar markers, go straight to bars phase
+    _lePhase = _leBarMarkers.length > 0 ? 'bars' : 'parts';
+  } else if (rawText) {
+    // Fresh text: predict part markers
+    _lePartMarkers = leGuessPartMarkers(_leWords, parts);
+    _leBarMarkers = [];
+    _lePhase = 'parts';
+  } else {
+    _lePhase = 'empty';
+    _lePartMarkers = [];
+    _leBarMarkers = [];
+  }
+}
+
+/* ── Lyrics Editor: Rendering ────────────────────── */
+
+function renderLyricsTab() {
+  if (!selectedSongId || !db.songs[selectedSongId]) {
+    els.content.innerHTML = `<div class="empty-state"><div class="icon">&#9835;</div><p>Song aus der Liste links ausw&auml;hlen.</p></div>`;
+    return;
+  }
+
+  const song = db.songs[selectedSongId];
+  const parts = getSortedParts(selectedSongId);
+  const rawText = song.lyrics_raw || '';
+  ensureCollections();
+
+  // Auto-load reference audio
+  if (!audio.getBuffer() && song.audio_ref && _refLoadingFor !== selectedSongId) {
+    _refLoadingFor = selectedSongId;
+    _refLoadingPromise = loadReferenceAudio().finally(() => { _refLoadingFor = null; _refLoadingPromise = null; });
+  }
+
+  // Initialize markers if needed (new song or first load)
+  if (_leInitSongId !== selectedSongId) {
+    if (rawText || leHasAnyBarLyrics(parts)) {
+      leInitFromSong(song, parts);
+    } else {
+      _lePhase = 'empty';
+      _lePartMarkers = [];
+      _leBarMarkers = [];
+      _leWords = [];
+      _leInitSongId = selectedSongId;
+    }
+  }
+
+  const geniusUrl = `https://genius.com/search?q=${encodeURIComponent(song.name + ' ' + song.artist)}`;
+
+  let html = `<div class="lyrics-panel le-panel">
+    ${buildSongHeader(song)}
+    <div class="le-toolbar">
+      <a href="${geniusUrl}" target="_blank" rel="noopener" class="btn btn-sm lyrics-genius-link" title="Auf Genius.com suchen">&#127925; Genius</a>
+      <div style="flex:1"></div>`;
+
+  if (_lePhase === 'empty') {
+    html += `<button class="btn btn-sm" id="le-paste-btn" title="Text aus Zwischenablage einfügen">&#128203; Einfügen</button>`;
+  } else {
+    html += `<button class="btn btn-sm le-btn-danger" id="le-clear-btn" title="Text und Marker löschen">L&ouml;schen</button>`;
+  }
+
+  html += '</div>';
+
+  if (_lePhase === 'empty') {
+    html += `<div class="le-empty-wrap">
+      <div id="le-paste-area" class="le-paste-area" contenteditable="true"
+           data-placeholder="Songtext hier einf&uuml;gen...\nTipp: Text von Genius.com kopieren und hier einf&uuml;gen.\nOder den Knopf 'Einf&uuml;gen' oben dr&uuml;cken."></div>
+    </div>`;
+  } else {
+    // Phase info bar
+    if (_lePhase === 'parts') {
+      html += `<div class="le-phase-bar le-phase-parts">
+        <span class="le-phase-icon">&#9654;</span>
+        <span class="le-phase-text">Part-Marker per Drag positionieren, dann best&auml;tigen</span>
+        <button class="btn btn-sm le-btn-confirm" id="le-confirm-parts">&#10003; Parts best&auml;tigen</button>
+      </div>`;
+    } else if (_lePhase === 'bars') {
+      html += `<div class="le-phase-bar le-phase-bars">
+        <span class="le-phase-icon">&#9654;</span>
+        <span class="le-phase-text">Takt-Marker anpassen und speichern</span>
+        <button class="btn btn-sm le-btn-back" id="le-back-to-parts" title="Zur&uuml;ck zu Part-Markern">&#9664; Parts</button>
+        <button class="btn btn-sm le-btn-save" id="le-save-lyrics">&#10003; Speichern</button>
+      </div>`;
+    }
+
+    // Graphical editor
+    html += `<div class="le-editor" id="le-editor">
+      <div class="le-text" id="le-text">${buildLyricsEditorContent(rawText)}</div>
+    </div>`;
+
+    // Legend
+    html += `<div class="le-legend">
+      <span class="le-legend-item"><span class="le-legend-swatch le-swatch-part"></span> Part-Marker</span>
+      ${_lePhase === 'bars' ? '<span class="le-legend-item"><span class="le-legend-swatch le-swatch-bar"></span> Takt-Marker</span>' : ''}
+    </div>`;
+  }
+
+  html += '</div>';
+  els.content.innerHTML = html;
+
+  // Wire paste area events
+  const pasteArea = document.getElementById('le-paste-area');
+  if (pasteArea) {
+    pasteArea.addEventListener('paste', handleLePaste);
+    pasteArea.addEventListener('input', () => {
+      const text = pasteArea.innerText.trim();
+      if (text.length > 10) leAcceptRawText(text);
+    });
+  }
+
+  // Wire marker drag events
+  leWireMarkerDrag();
+}
+
+/**
+ * Build the inner HTML of the graphical text editor: words + markers.
+ */
+function buildLyricsEditorContent(rawText) {
+  if (!rawText || _leWords.length === 0) return '';
+
+  // Combine all markers, sorted by charOffset
+  const allMarkers = [];
+  for (let i = 0; i < _lePartMarkers.length; i++) {
+    allMarkers.push({ ..._lePartMarkers[i], type: 'part', idx: i });
+  }
+  if (_lePhase === 'bars') {
+    for (let i = 0; i < _leBarMarkers.length; i++) {
+      allMarkers.push({ ..._leBarMarkers[i], type: 'bar', idx: i });
+    }
+  }
+  allMarkers.sort((a, b) => {
+    if (a.charOffset !== b.charOffset) return a.charOffset - b.charOffset;
+    // Part markers come before bar markers at same position
+    if (a.type !== b.type) return a.type === 'part' ? -1 : 1;
+    return 0;
+  });
+
+  // Build HTML by iterating through words and inserting markers
+  let html = '';
+  let markerIdx = 0;
+
+  for (let wi = 0; wi < _leWords.length; wi++) {
+    const word = _leWords[wi];
+
+    // Insert any markers that belong before this word
+    while (markerIdx < allMarkers.length && allMarkers[markerIdx].charOffset <= word.offset) {
+      html += leRenderMarker(allMarkers[markerIdx]);
+      markerIdx++;
+    }
+
+    // Line breaks
+    if (word.emptyLineBefore) html += '<br><br>';
+    else if (word.newlineBefore) html += '<br>';
+    else if (wi > 0) html += ' ';
+
+    // Render word
+    if (word.isHeader) {
+      html += `<span class="le-header" data-char-offset="${word.offset}">${esc(word.text)}</span>`;
+    } else {
+      html += `<span class="le-word" data-char-offset="${word.offset}">${esc(word.text)}</span>`;
+    }
+  }
+
+  // Any remaining markers after all words
+  while (markerIdx < allMarkers.length) {
+    html += leRenderMarker(allMarkers[markerIdx]);
+    markerIdx++;
+  }
+
+  return html;
+}
+
+/**
+ * Render a single marker element (part or bar).
+ */
+function leRenderMarker(marker) {
+  if (marker.type === 'part') {
+    const part = db.songs[selectedSongId]?.parts?.[marker.partId];
+    const name = part ? part.name : '?';
+    const confirmedClass = marker.confirmed ? ' le-confirmed' : ' le-predicted';
+    // Part markers: orange box with black part name, draggable inline in text
+    return `<span class="le-marker le-part-marker${confirmedClass}"
+                  data-le-type="part" data-le-idx="${marker.idx}"
+                  data-char-offset="${marker.charOffset}"
+                  title="${esc(name)}${marker.confirmed ? '' : ' (prognostiziert)'}">${esc(name)}</span>`;
+  } else {
+    // Bar markers: thin cyan vertical stripe with bar number
+    return `<span class="le-marker le-bar-marker"
+                  data-le-type="bar" data-le-idx="${marker.idx}"
+                  data-char-offset="${marker.charOffset}"
+                  title="Takt ${marker.barNum}"><span class="le-bar-num">${marker.barNum}</span></span>`;
+  }
+}
+
+/* ── Lyrics Editor: Text Paste Handling ─────────── */
+
+function handleLePaste(e) {
+  e.preventDefault();
+  const text = (e.clipboardData || window.clipboardData).getData('text');
+  if (text && text.trim()) {
+    leAcceptRawText(text.trim());
+  }
+}
+
+async function handleLePasteButton() {
+  try {
+    const text = await navigator.clipboard.readText();
+    if (text && text.trim()) {
+      leAcceptRawText(text.trim());
+    } else {
+      toast('Zwischenablage ist leer', 'error');
+    }
+  } catch {
+    toast('Kein Zugriff auf Zwischenablage. Text manuell einf\u00fcgen.', 'error');
+  }
+}
+
+function leAcceptRawText(text) {
+  const song = db.songs[selectedSongId];
+  if (!song) return;
+
+  song.lyrics_raw = text;
+  markDirty();
+
+  const parts = getSortedParts(selectedSongId);
+  _leWords = leParseRawText(text);
+  _lePartMarkers = leGuessPartMarkers(_leWords, parts);
+  _leBarMarkers = [];
+  _lePhase = 'parts';
+  _leInitSongId = selectedSongId;
+
+  renderLyricsTab();
+  toast('Text eingef\u00fcgt \u2013 Part-Marker pr\u00fcfen und best\u00e4tigen', 'success');
+}
+
+/* ── Lyrics Editor: Phase Transitions ────────────── */
+
+function leConfirmParts() {
+  // Mark all part markers as confirmed
+  for (const m of _lePartMarkers) m.confirmed = true;
+
+  // Save confirmed status to song parts
+  const song = db.songs[selectedSongId];
+  if (song) {
+    for (const m of _lePartMarkers) {
+      if (song.parts[m.partId]) {
+        song.parts[m.partId].lyrics_confirmed = true;
+      }
+    }
+  }
+
+  // Predict bar markers
+  _leBarMarkers = leGuessBarMarkers(_leWords, getSortedParts(selectedSongId), _lePartMarkers);
+  _lePhase = 'bars';
+  markDirty();
+  renderLyricsTab();
+  toast('Parts best\u00e4tigt \u2013 Takt-Marker anpassen', 'success');
+}
+
+function leBackToParts() {
+  _lePhase = 'parts';
+  _leBarMarkers = [];
+  renderLyricsTab();
+}
+
+function leClearLyrics() {
+  const song = db.songs[selectedSongId];
+  if (!song) return;
+
+  song.lyrics_raw = '';
+  _lePhase = 'empty';
+  _lePartMarkers = [];
+  _leBarMarkers = [];
+  _leWords = [];
+  _leInitSongId = selectedSongId;
+  markDirty();
+  renderLyricsTab();
+  toast('Lyrics gel\u00f6scht', 'info');
+}
+
+/* ── Lyrics Editor: Save Logic ───────────────────── */
+
+/**
+ * Save lyrics by splitting text at marker positions.
+ * Text between consecutive markers becomes the lyrics for each bar.
+ */
+function leSaveLyrics() {
+  if (!selectedSongId) return;
+  const song = db.songs[selectedSongId];
+  if (!song) return;
+  const rawText = song.lyrics_raw || '';
+  if (!rawText) return;
+
+  const parts = getSortedParts(selectedSongId);
+  ensureCollections();
+
+  // Sort bar markers by charOffset
+  const sortedBars = [..._leBarMarkers].sort((a, b) => a.charOffset - b.charOffset || a.barNum - b.barNum);
+
+  // Group bar markers by partId
+  const barsByPart = new Map();
+  for (const bm of sortedBars) {
+    if (!barsByPart.has(bm.partId)) barsByPart.set(bm.partId, []);
+    barsByPart.get(bm.partId).push(bm);
+  }
+
+  // Sort part markers
+  const sortedParts = [..._lePartMarkers].sort((a, b) => a.charOffset - b.charOffset);
+
+  let filledBars = 0;
+
+  for (let pi = 0; pi < sortedParts.length; pi++) {
+    const pm = sortedParts[pi];
+    const partBars = barsByPart.get(pm.partId) || [];
+    const part = song.parts[pm.partId];
+    if (!part) continue;
+
+    // Determine text range for this part
+    const partEnd = (pi + 1 < sortedParts.length) ? sortedParts[pi + 1].charOffset : rawText.length;
+
+    for (let bi = 0; bi < partBars.length; bi++) {
+      const bm = partBars[bi];
+      const barStart = bm.charOffset;
+      const barEnd = (bi + 1 < partBars.length) ? partBars[bi + 1].charOffset : partEnd;
+
+      // Extract text, strip section headers, clean up
+      let barText = rawText.slice(barStart, barEnd).trim();
+      barText = barText.replace(/\[.*?\]/g, '').trim();
+      barText = barText.replace(/\n+/g, ' ').replace(/\s+/g, ' ').trim();
+
+      // Save to DB
+      const [, barData] = getOrCreateBar(pm.partId, bm.barNum);
+      barData.lyrics = barText;
+      filledBars++;
+    }
+  }
+
+  markDirty();
+  handleSave(false);
+  toast(`Lyrics f\u00fcr ${filledBars} Takte gespeichert`, 'success');
+}
+
+/* ── Lyrics Editor: Drag Handling ────────────────── */
+
+/**
+ * Wire drag event listeners for markers in the editor.
+ */
+function leWireMarkerDrag() {
+  const editor = document.getElementById('le-editor');
+  if (!editor) return;
+
+  editor.addEventListener('mousedown', leStartDrag);
+  editor.addEventListener('touchstart', leStartDrag, { passive: false });
+}
+
+function leStartDrag(e) {
+  const markerEl = e.target.closest('.le-marker');
+  if (!markerEl) return;
+
+  e.preventDefault();
+  const type = markerEl.dataset.leType;
+  const idx = parseInt(markerEl.dataset.leIdx, 10);
+
+  // Build word positions for snap targets
+  const wordEls = document.querySelectorAll('#le-text .le-word');
+  const wordPositions = [];
+  for (const w of wordEls) {
+    const rect = w.getBoundingClientRect();
+    wordPositions.push({
+      charOffset: parseInt(w.dataset.charOffset, 10),
+      left: rect.left,
+      top: rect.top,
+      centerY: rect.top + rect.height / 2,
+      height: rect.height
+    });
+  }
+
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+  _leDrag = {
+    type,
+    idx,
+    startX: clientX,
+    startY: clientY,
+    currentOffset: parseInt(markerEl.dataset.charOffset, 10),
+    wordPositions,
+    moved: false
+  };
+
+  // Add global move/end listeners
+  document.addEventListener('mousemove', leMoveDrag);
+  document.addEventListener('mouseup', leEndDrag);
+  document.addEventListener('touchmove', leMoveDrag, { passive: false });
+  document.addEventListener('touchend', leEndDrag);
+}
+
+function leMoveDrag(e) {
+  if (!_leDrag) return;
+  e.preventDefault();
+
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+  // Check if we've moved enough to count as drag
+  if (!_leDrag.moved) {
+    const dx = clientX - _leDrag.startX;
+    const dy = clientY - _leDrag.startY;
+    if (Math.hypot(dx, dy) < 5) return;
+    _leDrag.moved = true;
+  }
+
+  // Find nearest word boundary
+  const positions = _leDrag.wordPositions;
+  let bestDist = Infinity;
+  let bestOffset = _leDrag.currentOffset;
+
+  for (const p of positions) {
+    const dist = Math.hypot(clientX - p.left, clientY - p.centerY);
+    if (dist < bestDist) {
+      bestDist = dist;
+      bestOffset = p.charOffset;
+    }
+  }
+
+  _leDrag.currentOffset = bestOffset;
+
+  // Visual feedback: highlight drop target
+  document.querySelectorAll('.le-word.le-drop-target').forEach(w => w.classList.remove('le-drop-target'));
+  const target = document.querySelector(`.le-word[data-char-offset="${bestOffset}"]`);
+  if (target) target.classList.add('le-drop-target');
+
+  // Move the marker element visually (opacity change)
+  const marker = document.querySelector(`.le-marker[data-le-type="${_leDrag.type}"][data-le-idx="${_leDrag.idx}"]`);
+  if (marker) marker.classList.add('le-dragging');
+}
+
+function leEndDrag() {
+  if (!_leDrag) return;
+
+  // Clean up global listeners
+  document.removeEventListener('mousemove', leMoveDrag);
+  document.removeEventListener('mouseup', leEndDrag);
+  document.removeEventListener('touchmove', leMoveDrag);
+  document.removeEventListener('touchend', leEndDrag);
+
+  // Remove visual feedback
+  document.querySelectorAll('.le-word.le-drop-target').forEach(w => w.classList.remove('le-drop-target'));
+
+  if (_leDrag.moved) {
+    // Update marker position
+    if (_leDrag.type === 'part') {
+      if (_lePartMarkers[_leDrag.idx]) {
+        _lePartMarkers[_leDrag.idx].charOffset = _leDrag.currentOffset;
+        _lePartMarkers[_leDrag.idx].confirmed = true;
+        // Re-sort
+        _lePartMarkers.sort((a, b) => a.charOffset - b.charOffset);
+        // If in bars phase, re-predict bar markers for this part
+        if (_lePhase === 'bars') {
+          const partId = _lePartMarkers[_leDrag.idx]?.partId;
+          // Re-predict ALL bar markers since part order may have changed
+          _leBarMarkers = leGuessBarMarkers(_leWords, getSortedParts(selectedSongId), _lePartMarkers);
+        }
+      }
+    } else if (_leDrag.type === 'bar') {
+      if (_leBarMarkers[_leDrag.idx]) {
+        _leBarMarkers[_leDrag.idx].charOffset = _leDrag.currentOffset;
+        _leBarMarkers.sort((a, b) => a.charOffset - b.charOffset || a.barNum - b.barNum);
+      }
+    }
+
+    // Re-render the text with updated markers
+    const textEl = document.getElementById('le-text');
+    if (textEl) {
+      const rawText = db.songs[selectedSongId]?.lyrics_raw || '';
+      textEl.innerHTML = buildLyricsEditorContent(rawText);
+      // Re-wire drag events for the new marker elements
+      leWireMarkerDrag();
+    }
+  }
+
+  _leDrag = null;
+}
+
+/* ── Lyrics Editor: Audio Playback ───────────────── */
+
+let _leAudioTimeout = null;
+
+async function lePlayBar(partId, barNum) {
+  // Stop any current playback
+  leStopPlayback();
+
+  // Try bar audio snippet first
+  const found = findBar(partId, barNum);
+  if (found) {
+    const [barId, barData] = found;
+    if (barData.audio) {
+      const buf = await fetchAudioUrl(barData.audio);
+      if (buf) {
+        await audio.loadBuffer(buf);
+        audio.play();
+        _lePlayingBarId = barId;
+        // Auto-stop when bar finishes
+        const duration = audio.getBuffer()?.duration || 5;
+        _leAudioTimeout = setTimeout(() => leStopPlayback(), duration * 1000 + 200);
+        return;
+      }
+    }
+  }
+
+  // Fallback: play reference audio from calculated bar position
+  const hasBuf = !!audio.getBuffer();
+  if (!hasBuf) {
+    toast('Kein Audio verf\u00fcgbar', 'info');
+    return;
+  }
+
+  const song = db.songs[selectedSongId];
+  if (!song || !song.bpm) return;
+  const parts = getSortedParts(selectedSongId);
+  const part = parts.find(p => p.id === partId);
+  if (!part) return;
+
+  const starts = calcPartStarts(selectedSongId);
+  const partStart = starts.get(partId);
+  if (!partStart) return;
+
+  const barDuration = 4 * 60 / song.bpm;
+  const startTime = partStart.startSec + (barNum - 1) * barDuration;
+
+  audio.play(startTime);
+  _lePlayingBarId = `${partId}_${barNum}`;
+  _leAudioTimeout = setTimeout(() => leStopPlayback(), barDuration * 1000 + 200);
+}
+
+function leStopPlayback() {
+  audio.pause();
+  if (_leAudioTimeout) clearTimeout(_leAudioTimeout);
+  _leAudioTimeout = null;
+  _lePlayingBarId = null;
+}
+
+/* ── Lyrics Editor: Event Handlers ───────────────── */
 
 function handleLyricsClick(e) {
   const el = e.target;
 
-  // Quick Insert keyboard bar chip tap
-  const qiChip = el.closest('.lyrics-qi-chip');
-  if (qiChip) {
-    _applyQiSuggestion(qiChip);
+  // Paste button
+  if (el.closest('#le-paste-btn')) {
+    handleLePasteButton();
     return;
   }
 
-  // Word-shift buttons: move first/last word to neighbour bar
-  const wsBtn = el.closest('.lyrics-word-shift');
-  if (wsBtn) {
-    _shiftWord(wsBtn.dataset.wsPart, parseInt(wsBtn.dataset.wsBar, 10), wsBtn.dataset.wsDir);
+  // Clear button
+  if (el.closest('#le-clear-btn')) {
+    leClearLyrics();
     return;
   }
 
-  // Distribute raw text to parts
-  if (el.closest('#lyrics-distribute-btn')) {
-    distributeLyricsToparts();
+  // Confirm parts
+  if (el.closest('#le-confirm-parts')) {
+    leConfirmParts();
     return;
   }
 
-  // Toggle-all collapse/expand
-  if (el.closest('#lyrics-toggle-all')) {
-    const parts = getSortedParts(selectedSongId);
-    const nonInstr = parts.filter(p => !p.instrumental);
-    const allCollapsed = nonInstr.every(p => _lyricsCollapsed.has(p.id));
-    if (allCollapsed) {
-      nonInstr.forEach(p => _lyricsCollapsed.delete(p.id));
-    } else {
-      nonInstr.forEach(p => _lyricsCollapsed.add(p.id));
-    }
-    const scrollEl = document.getElementById('lyrics-parts-col') || document.getElementById('lyrics-scroll');
-    const savedScroll = scrollEl ? scrollEl.scrollTop : 0;
-    renderLyricsTab();
-    const scrollEl2 = document.getElementById('lyrics-parts-col') || document.getElementById('lyrics-scroll');
-    if (scrollEl2) scrollEl2.scrollTop = savedScroll;
+  // Back to parts
+  if (el.closest('#le-back-to-parts')) {
+    leBackToParts();
     return;
   }
 
-  // Collapse/expand single part
-  const collapseBtn = el.closest('[data-lyrics-collapse]');
-  if (collapseBtn) {
-    const partId = collapseBtn.dataset.lyricsCollapse;
-    const card = collapseBtn.closest('.lyrics-part-card');
-    const scrollEl = document.getElementById('lyrics-parts-col') || document.getElementById('lyrics-scroll');
-    const cardTop = card ? card.getBoundingClientRect().top : 0;
+  // Save lyrics
+  if (el.closest('#le-save-lyrics')) {
+    leSaveLyrics();
+    return;
+  }
 
-    if (_lyricsCollapsed.has(partId)) {
-      _lyricsCollapsed.delete(partId);
-    } else {
-      _lyricsCollapsed.add(partId);
-    }
-
-    const savedScroll = scrollEl ? scrollEl.scrollTop : 0;
-    renderLyricsTab();
-    const scrollEl2 = document.getElementById('lyrics-parts-col') || document.getElementById('lyrics-scroll');
-    if (scrollEl2) {
-      // Keep the clicked card at the same screen position
-      const newCard = scrollEl2.querySelector(`.lyrics-part-card[data-part-id="${partId}"]`);
-      if (newCard) {
-        const newCardTop = newCard.getBoundingClientRect().top;
-        scrollEl2.scrollTop += newCardTop - cardTop;
-      } else {
-        scrollEl2.scrollTop = savedScroll;
-      }
+  // Play bar audio (if clicking a bar marker with audio)
+  const barMarker = el.closest('.le-bar-marker');
+  if (barMarker && e.detail === 2) { // double-click to play
+    const idx = parseInt(barMarker.dataset.leIdx, 10);
+    const bm = _leBarMarkers[idx];
+    if (bm) {
+      lePlayBar(bm.partId, bm.barNum);
     }
     return;
-  }
-
-  // Copy lyrics from previous same-name part
-  const copyBtn = el.closest('[data-lyrics-copy-from]');
-  if (copyBtn) {
-    const fromPartId = copyBtn.dataset.lyricsCopyFrom;
-    const toPartId = copyBtn.dataset.lyricsCopyTo;
-    copyLyricsFromPart(fromPartId, toPartId);
-    return;
-  }
-
-  // Part play button
-  const playBtn = el.closest('[data-lyrics-play]');
-  if (playBtn) {
-    const partId = playBtn.dataset.lyricsPlay;
-    const partIndex = parseInt(playBtn.dataset.partIndex, 10);
-    handleLyricsPartPlay(partId, partIndex);
-    return;
-  }
-}
-
-/**
- * Save the raw lyrics textarea value into the current song object.
- * Called on song switch, tab switch, and periodically via change events.
- */
-function saveLyricsRawText() {
-  if (!selectedSongId) return;
-  const song = db.songs[selectedSongId];
-  if (!song) return;
-  const rawEl = document.getElementById('lyrics-raw-text');
-  if (!rawEl) return;
-  const val = rawEl.innerText;
-  if (val !== (song.lyrics_raw || '')) {
-    song.lyrics_raw = val;
-    markDirty();
   }
 }
 
 function handleLyricsChange(e) {
-  const el = e.target;
-
-  // Instrumental checkbox
-  if (el.classList.contains('lyrics-instr-check')) {
-    const partId = el.dataset.instrPart;
-    if (!partId || !selectedSongId) return;
-    const song = db.songs[selectedSongId];
-    if (!song || !song.parts[partId]) return;
-    song.parts[partId].instrumental = el.checked;
-    markDirty();
-    const card = el.closest('.lyrics-part-card');
-    const scrollEl = document.getElementById('lyrics-parts-col') || document.getElementById('lyrics-scroll');
-    const cardTop = card ? card.getBoundingClientRect().top : 0;
-    renderLyricsTab();
-    const scrollEl2 = document.getElementById('lyrics-parts-col') || document.getElementById('lyrics-scroll');
-    if (scrollEl2 && card) {
-      const newCard = scrollEl2.querySelector(`.lyrics-part-card[data-part-id="${partId}"]`);
-      if (newCard) {
-        scrollEl2.scrollTop += newCard.getBoundingClientRect().top - cardTop;
-      }
-    }
-    return;
-  }
-
-  // Auto-save raw lyrics text on any change in the raw textarea
-  if (el.id === 'lyrics-raw-text') {
-    saveLyricsRawText();
-    invalidateQuickInsertCache();
-    return;
-  }
+  // No special change handling needed in the new editor
 }
 
-/* ── Lyrics Input Focus (iPad compact + auto-save) ── */
-
-const _isIPad = /iPad|Macintosh/i.test(navigator.userAgent) && 'ontouchend' in document;
-
-// Track visual viewport height via CSS custom property (iPad keyboard fix).
-// When the keyboard opens, visualViewport.height shrinks. The panel uses
-// height: var(--vv-h) so it never extends behind the keyboard → no black band.
-let _vvCleanup = null;
-function _startVisualViewportTracking() {
-  if (_vvCleanup || !window.visualViewport) return;
-  const update = () => {
-    document.documentElement.style.setProperty('--vv-h', `${window.visualViewport.height}px`);
-    _positionQiBar();
-    // If viewport height is close to window height → keyboard closed, exit kbd mode
-    if (window.visualViewport.height > window.innerHeight * 0.85) {
-      const active = document.activeElement;
-      if (!active || !active.classList.contains('lyrics-bar-input')) {
-        _exitLyricsKbdMode();
-      }
-    }
-  };
-  update();
-  window.visualViewport.addEventListener('resize', update);
-  window.visualViewport.addEventListener('scroll', update);
-  _vvCleanup = () => {
-    window.visualViewport.removeEventListener('resize', update);
-    window.visualViewport.removeEventListener('scroll', update);
-    document.documentElement.style.removeProperty('--vv-h');
-    _vvCleanup = null;
-  };
+/**
+ * Save raw lyrics text. Called on song switch.
+ */
+function saveLyricsRawText() {
+  // In the new editor, raw text is saved when accepted via paste
+  // This function is kept for compatibility with song-switch logic
 }
 
-// Remember scroll position so we can restore it when leaving kbd mode
-let _savedScrollY = 0;
-let _savedLyricsScrollTop = 0;
-
-function lyricsInputFocusIn(input) {
-  if (_isIPad) {
-    _savedScrollY = window.scrollY;
-    const panel = document.querySelector('.lyrics-panel');
-    // In split layout, save scroll position of the panel (kbd mode scroll container)
-    const scrollEl = panel || document.getElementById('lyrics-parts-col') || document.getElementById('lyrics-scroll');
-    _savedLyricsScrollTop = scrollEl ? scrollEl.scrollTop : 0;
-    _startVisualViewportTracking();
-    if (panel) panel.classList.add('lyrics-kbd-mode');
-    // Wait for layout recalc (position:fixed), restore scroll, then scroll input into view.
-    // Use setTimeout to ensure the keyboard animation has started and layout is stable.
-    requestAnimationFrame(() => {
-      if (panel) panel.scrollTop = _savedLyricsScrollTop;
-      setTimeout(() => {
-        const cell = input.closest('.lyrics-bar-cell') || input;
-        cell.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-        // Ensure the input is not obscured by scrolling the panel
-        const panelRect = panel ? panel.getBoundingClientRect() : null;
-        const inputRect = input.getBoundingClientRect();
-        if (panel && panelRect) {
-          const viewBottom = panelRect.top + panelRect.height;
-          const qiBarH = (_qiBar && _qiBar.style.display !== 'none') ? _qiBar.offsetHeight + 8 : 0;
-          if (inputRect.bottom > viewBottom - 20 - qiBarH) {
-            panel.scrollTop += inputRect.bottom - viewBottom + 60 + qiBarH;
-          } else if (inputRect.top < panelRect.top + 40) {
-            panel.scrollTop -= panelRect.top + 40 - inputRect.top;
-          }
-        }
-      }, 120);
-    });
-  }
-  // Show Quick Insert suggestion for this bar
-  _updateQiKeyboardBar();
+/**
+ * Stop lyrics playback. Called on tab switch / song switch.
+ */
+function stopLyricsPartPlay() {
+  leStopPlayback();
 }
 
-function lyricsInputFocusOut(input) {
-  // Save this bar's lyrics into DB immediately
-  const partId = input.dataset.lyricsBarPart;
-  const barNum = parseInt(input.dataset.lyricsBarNum, 10);
-  if (partId && !isNaN(barNum)) {
-    const [, barData] = getOrCreateBar(partId, barNum);
-    const newText = input.value.trim();
-    if (barData.lyrics !== newText) {
-      barData.lyrics = newText;
-      markDirty();
-      handleSave(false); // silent save to GitHub
-    }
-  }
-
-  // Hide QI bar (with small delay so it can survive tab-to-next-input)
-  setTimeout(() => {
-    const active = document.activeElement;
-    if (active && active.classList.contains('lyrics-bar-input')) return; // moved to next input
-    _hideQiKeyboardBar();
-  }, 200);
-
-  // iPad: restore full layout (small delay to handle tab between inputs)
-  if (_isIPad) {
-    _exitLyricsKbdMode();
-  }
-}
-
-/** Remove lyrics-kbd-mode after a small delay (unless another bar input got focus). */
-function _exitLyricsKbdMode() {
-  setTimeout(() => {
-    const active = document.activeElement;
-    if (active && active.classList.contains('lyrics-bar-input')) return;
-    // Also check contenteditable raw text
-    if (active && active.id === 'lyrics-raw-text') return;
-    const panel = document.querySelector('.lyrics-panel');
-    if (panel) panel.classList.remove('lyrics-kbd-mode');
-    if (_vvCleanup) _vvCleanup();
-    _hideQiKeyboardBar();
-    // Restore original scroll position
-    window.scrollTo(0, _savedScrollY);
-  }, 250);
-}
-
-/* ── Quick Insert Keyboard Accessory Bar ──────────── */
-// Shows short suggestion chips in the iOS keyboard toolbar area (left side,
-// next to the autofill icons). Position: fixed at the bottom of the visual
-// viewport, overlaying the native toolbar row.
-
-let _qiBar = null;
-
-function _getOrCreateQiBar() {
-  if (_qiBar) return _qiBar;
-  _qiBar = document.createElement('div');
-  _qiBar.className = 'lyrics-qi-kbd-bar';
-  _qiBar.style.display = 'none';
-  document.body.appendChild(_qiBar);
-  return _qiBar;
-}
-
-/** Shorten text: max 15 chars, cut at word boundary. */
-function _truncQi(text, max) {
-  if (!max) max = 15;
-  if (text.length <= max) return text;
-  const cut = text.lastIndexOf(' ', max);
-  return (cut > 4 ? text.slice(0, cut) : text.slice(0, max)) + '\u2026';
-}
-
-function _updateQiKeyboardBar() {
-  const active = document.activeElement;
-  if (!active || !active.classList.contains('lyrics-bar-input')) {
-    _hideQiKeyboardBar();
-    return;
-  }
-  const partId = active.dataset.lyricsBarPart;
-  const barNum = parseInt(active.dataset.lyricsBarNum, 10);
-  if (!partId || isNaN(barNum)) { _hideQiKeyboardBar(); return; }
-
-  const qiMap = getQuickInsertMap();
-  const suggestions = qiMap.get(partId) || [];
-
-  // Gather chips: current bar + a few neighbours for quick navigation
-  const barCount = suggestions.length;
-  if (barCount === 0) { _hideQiKeyboardBar(); return; }
-
-  const currentText = active.value.trim();
-  const currentSugg = suggestions[barNum - 1] || '';
-
-  // Build chip data: show current + next 2 bars that still need text
-  const chips = [];
-  for (let i = barNum - 1; i < barCount && chips.length < 3; i++) {
-    const s = suggestions[i] || '';
-    if (!s) continue;
-    // Check if bar already has this text
-    const inp = document.querySelector(`.lyrics-bar-input[data-lyrics-bar-part="${partId}"][data-lyrics-bar-num="${i + 1}"]`);
-    const existing = inp ? inp.value.trim() : '';
-    if (s === existing) continue;
-    chips.push({ partId, barNum: i + 1, text: s, isCurrent: i === barNum - 1 });
-  }
-
-  if (chips.length === 0) { _hideQiKeyboardBar(); return; }
-
-  const bar = _getOrCreateQiBar();
-  bar.innerHTML = chips.map(c =>
-    `<button class="lyrics-qi-chip${c.isCurrent ? ' qi-current' : ''}" data-qi-part="${c.partId}" data-qi-bar="${c.barNum}" data-qi-text="${c.text.replace(/"/g, '&quot;')}">${_truncQi(c.text)}</button>`
-  ).join('');
-  bar.style.display = '';
-
-  _positionQiBar();
-}
-
-function _positionQiBar() {
-  if (!_qiBar || _qiBar.style.display === 'none') return;
-  // Position at the bottom edge of the visual viewport → overlays the iOS toolbar row
-  const vv = window.visualViewport;
-  const vvh = vv ? vv.height : window.innerHeight;
-  const vvTop = vv ? vv.offsetTop : 0;
-  _qiBar.style.top = (vvTop + vvh - _qiBar.offsetHeight) + 'px';
-}
-
-function _hideQiKeyboardBar() {
-  if (_qiBar) _qiBar.style.display = 'none';
-}
-
-function _applyQiSuggestion(chip) {
-  if (!chip) return;
-  const partId = chip.dataset.qiPart;
-  const barNum = parseInt(chip.dataset.qiBar, 10);
-  const text = chip.dataset.qiText;
-  if (!partId || isNaN(barNum) || !text) return;
-
-  const inp = document.querySelector(`.lyrics-bar-input[data-lyrics-bar-part="${partId}"][data-lyrics-bar-num="${barNum}"]`);
-  if (inp) {
-    inp.value = text;
-    const [, barData] = getOrCreateBar(partId, barNum);
-    barData.lyrics = text;
-    markDirty();
-    // Move focus to next empty bar input
-    const allInputs = [...document.querySelectorAll('.lyrics-bar-input')];
-    const idx = allInputs.indexOf(inp);
-    for (let i = idx + 1; i < allInputs.length; i++) {
-      if (!allInputs[i].value.trim()) { allInputs[i].focus(); return; }
-    }
-    // If no empty input found, just move to next
-    if (idx >= 0 && idx < allInputs.length - 1) {
-      allInputs[idx + 1].focus();
-    }
-  }
-}
-
-/* ── Word Shift: move first/last word between adjacent bars ── */
-
-function _shiftWord(partId, barNum, dir) {
-  const getInp = (n) => document.querySelector(`.lyrics-bar-input[data-lyrics-bar-part="${partId}"][data-lyrics-bar-num="${n}"]`);
-  const src = getInp(barNum);
-  if (!src) return;
-
-  const words = src.value.trim().split(/\s+/).filter(w => w);
-  if (words.length === 0) return;
-
-  if (dir === 'left') {
-    // Move first word to previous bar
-    const prev = getInp(barNum - 1);
-    if (!prev) return;
-    const word = words.shift();
-    const prevWords = prev.value.trim();
-    prev.value = prevWords ? prevWords + ' ' + word : word;
-    src.value = words.join(' ');
-    _saveBarInput(prev);
-    _saveBarInput(src);
-  } else {
-    // Move last word to next bar
-    const next = getInp(barNum + 1);
-    if (!next) return;
-    const word = words.pop();
-    const nextWords = next.value.trim();
-    next.value = nextWords ? word + ' ' + nextWords : word;
-    src.value = words.join(' ');
-    _saveBarInput(next);
-    _saveBarInput(src);
-  }
-}
-
-function _saveBarInput(inp) {
-  const partId = inp.dataset.lyricsBarPart;
-  const barNum = parseInt(inp.dataset.lyricsBarNum, 10);
-  if (!partId || isNaN(barNum)) return;
-  const [, barData] = getOrCreateBar(partId, barNum);
-  barData.lyrics = inp.value.trim();
-  markDirty();
-}
 
 /* ══════════════════════════════════════════════════════
    ACCENTS TAB
@@ -8190,38 +7626,7 @@ function wireEvents() {
     }
   }, true); // useCapture so focus (non-bubbling) is caught via delegation
 
-  // input events for lyrics raw textarea (change fires only on blur)
-  els.content.addEventListener('input', (e) => {
-    if (activeTab === 'lyrics' && e.target.id === 'lyrics-raw-text') {
-      saveLyricsRawText();
-    }
-    // Update QI keyboard bar when user types in a bar input
-    if (activeTab === 'lyrics' && e.target.classList.contains('lyrics-bar-input')) {
-      _updateQiKeyboardBar();
-    }
-  });
-
-  // Lyrics bar input: save individual bar on blur + iPad compact layout
-  els.content.addEventListener('focusin', (e) => {
-    if (activeTab === 'lyrics' && e.target.classList.contains('lyrics-bar-input')) {
-      lyricsInputFocusIn(e.target);
-    }
-  });
-  els.content.addEventListener('focusout', (e) => {
-    if (activeTab === 'lyrics' && e.target.classList.contains('lyrics-bar-input')) {
-      lyricsInputFocusOut(e.target);
-    }
-    if (activeTab === 'lyrics' && e.target.id === 'lyrics-raw-text') {
-      saveLyricsRawText();
-      handleSave(false);
-    }
-  });
-
-  // Lyrics waveform bar marker drag (global move/end handlers)
-  document.addEventListener('mousemove', moveLyricsWaveDrag);
-  document.addEventListener('mouseup', endLyricsWaveDrag);
-  document.addEventListener('touchmove', moveLyricsWaveDrag, { passive: false });
-  document.addEventListener('touchend', endLyricsWaveDrag);
+  // Lyrics editor: no special input/focus handling needed (drag is wired in renderLyricsTab)
 
   // Audio drag & drop on content area
   els.content.addEventListener('dragover', (e) => {

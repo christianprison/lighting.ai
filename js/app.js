@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.12.12';
+const APP_VERSION = 'v0.13.1';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -157,6 +157,25 @@ const ACCENT_INFO = {
 };
 
 const BEAT_LABELS = ['1','e','+','e','2','e','+','e','3','e','+','e','4','e','+','e'];
+
+/* ── QLC+ QXW Constants ──────────────────────────── */
+
+const QXW_INFINITE_HOLD = 4294967294;  // 0xFFFFFFFE — manual advance
+const QXW_STOP_ID = 82;               // "11 Stop" — title/end marker
+
+const QXW_BASE_COLLECTIONS = {
+  70: '02 slow blue', 71: '01 statisch bunt', 74: '03 walking',
+  75: "04 up'n'down", 76: "05 left'n'right", 77: '06 blinking',
+  78: "07 round'n'round", 79: '08 swimming', 80: '09 Alarm',
+  81: '10 Strobe', 82: '11 Stop', 83: '16 Searchlight',
+  181: '20 white Fan up', 182: '21 white fan down',
+  224: 'Spot auf Axel', 226: 'Spot auf Axel hot', 227: 'Spot auf Bibo',
+  228: 'Spot auf Pete', 229: 'Spot auf Tim', 212: 'blind (accent)',
+  36: 'blackout (scene)',
+};
+
+/** QXW file content cache */
+let _qxwCache = null; // { xml: string, chasers: Map<songName, steps[]> }
 
 /* ── Settings ──────────────────────────────────────── */
 
@@ -620,8 +639,23 @@ const SONG_CHECKLIST = [
 /** Track previously completed steps per song to detect newly completed ones */
 let _prevProgress = {}; // songId → Set of completed step ids
 
+/**
+ * Get or initialize the TMS data for a song.
+ * Stored in db.songs[songId].tms = { manual_done: [], user_tasks: [] }
+ * manual_done: array of default step IDs manually marked as done
+ * user_tasks: array of { id, cat, label, done }
+ */
+function getSongTms(songId) {
+  if (!songId || !db?.songs[songId]) return { manual_done: [], user_tasks: [] };
+  const song = db.songs[songId];
+  if (!song.tms) song.tms = { manual_done: [], user_tasks: [] };
+  if (!song.tms.manual_done) song.tms.manual_done = [];
+  if (!song.tms.user_tasks) song.tms.user_tasks = [];
+  return song.tms;
+}
+
 function getSongProgress(songId) {
-  if (!songId || !db?.songs[songId]) return { steps: [], pct: 0, next: null, categories: [] };
+  if (!songId || !db?.songs[songId]) return { steps: [], pct: 0, next: null, categories: [], hasOpenUserTasks: false };
   const song = { ...db.songs[songId], _id: songId };
   const parts = getSortedParts(songId);
   ensureCollections();
@@ -634,12 +668,23 @@ function getSongProgress(songId) {
     }
   }
 
+  const tms = getSongTms(songId);
+
   const completed = new Set();
   const steps = SONG_CHECKLIST.map(s => {
-    const done = s.check(song, parts, barIds, db);
+    const autoCheck = s.check(song, parts, barIds, db);
+    const manualDone = tms.manual_done.includes(s.id);
+    const done = autoCheck || manualDone;
     if (done) completed.add(s.id);
-    return { ...s, done };
+    return { ...s, done, autoCheck, manualDone, isUser: false };
   });
+
+  // Add user-created tasks
+  for (const ut of tms.user_tasks) {
+    const step = { id: ut.id, label: ut.label, cat: ut.cat, tab: '', done: !!ut.done, autoCheck: false, manualDone: !!ut.done, isUser: true };
+    steps.push(step);
+    if (step.done) completed.add(step.id);
+  }
 
   // Group by category
   const categories = PROGRESS_CATEGORIES.map(cat => {
@@ -652,7 +697,10 @@ function getSongProgress(songId) {
   const pct = Math.round((doneCount / steps.length) * 100);
   const next = steps.find(s => !s.done) || null;
 
-  return { steps, pct, next, completed, categories };
+  // Check if any user-created tasks are still open
+  const hasOpenUserTasks = tms.user_tasks.some(ut => !ut.done);
+
+  return { steps, pct, next, completed, categories, hasOpenUserTasks };
 }
 
 /** Check for newly completed steps and fire confetti toast */
@@ -671,6 +719,173 @@ function checkProgressAndCelebrate(songId) {
     }
   }
   _prevProgress[songId] = completed;
+}
+
+/* ── TMS Modal ──────────────────────────────────────── */
+
+function openTmsModal(songId) {
+  if (!songId || !db?.songs[songId]) return;
+  closeTmsModal();
+  const overlay = document.createElement('div');
+  overlay.className = 'tms-modal-overlay';
+  overlay.id = 'tms-modal-overlay';
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) closeTmsModal(); });
+  document.body.appendChild(overlay);
+
+  const modal = document.createElement('div');
+  modal.className = 'tms-modal';
+  modal.id = 'tms-modal';
+  document.body.appendChild(modal);
+
+  renderTmsModalContent(songId);
+
+  // Event delegation for modal
+  modal.addEventListener('click', (e) => {
+    const el = e.target;
+
+    // Close button
+    if (el.closest('.tms-close-btn')) { closeTmsModal(); return; }
+
+    // Toggle manual completion of default task
+    const manualToggle = el.closest('[data-tms-toggle]');
+    if (manualToggle) {
+      const stepId = manualToggle.dataset.tmsToggle;
+      const tms = getSongTms(songId);
+      const idx = tms.manual_done.indexOf(stepId);
+      if (idx >= 0) tms.manual_done.splice(idx, 1);
+      else tms.manual_done.push(stepId);
+      markDirty();
+      renderTmsModalContent(songId);
+      renderSongList(els.searchBox.value);
+      return;
+    }
+
+    // Toggle user task
+    const userToggle = el.closest('[data-tms-user-toggle]');
+    if (userToggle) {
+      const taskId = userToggle.dataset.tmsUserToggle;
+      const tms = getSongTms(songId);
+      const task = tms.user_tasks.find(t => t.id === taskId);
+      if (task) { task.done = !task.done; markDirty(); }
+      renderTmsModalContent(songId);
+      renderSongList(els.searchBox.value);
+      return;
+    }
+
+    // Delete user task
+    const delBtn = el.closest('[data-tms-user-delete]');
+    if (delBtn) {
+      const taskId = delBtn.dataset.tmsUserDelete;
+      const tms = getSongTms(songId);
+      tms.user_tasks = tms.user_tasks.filter(t => t.id !== taskId);
+      markDirty();
+      renderTmsModalContent(songId);
+      renderSongList(els.searchBox.value);
+      return;
+    }
+
+    // Add user task button
+    const addBtn = el.closest('[data-tms-add-task]');
+    if (addBtn) {
+      const catId = addBtn.dataset.tmsAddTask;
+      const input = modal.querySelector(`input[data-tms-new-task="${catId}"]`);
+      if (input && input.value.trim()) {
+        const tms = getSongTms(songId);
+        tms.user_tasks.push({
+          id: 'ut_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+          cat: catId,
+          label: input.value.trim(),
+          done: false
+        });
+        markDirty();
+        renderTmsModalContent(songId);
+        renderSongList(els.searchBox.value);
+      }
+      return;
+    }
+
+    // Navigate to tab
+    const gotoBtn = el.closest('[data-tms-goto]');
+    if (gotoBtn) {
+      const tab = gotoBtn.dataset.tmsGoto;
+      closeTmsModal();
+      switchTab(tab);
+      return;
+    }
+  });
+
+  // Enter key in new-task inputs
+  modal.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      const input = e.target.closest('input[data-tms-new-task]');
+      if (input) {
+        const catId = input.dataset.tmsNewTask;
+        const addBtn = modal.querySelector(`[data-tms-add-task="${catId}"]`);
+        if (addBtn) addBtn.click();
+      }
+    }
+  });
+}
+
+function closeTmsModal() {
+  document.getElementById('tms-modal')?.remove();
+  document.getElementById('tms-modal-overlay')?.remove();
+}
+
+function renderTmsModalContent(songId) {
+  const modal = document.getElementById('tms-modal');
+  if (!modal) return;
+
+  const prog = getSongProgress(songId);
+  const song = db.songs[songId];
+  const pctColor = prog.pct === 100 ? 'var(--green)' : prog.pct >= 50 ? 'var(--amber)' : 'var(--red)';
+
+  modal.innerHTML = `
+    <div class="tms-header">
+      <div class="tms-ring-wrap">
+        <svg viewBox="0 0 48 48" width="44" height="44">
+          <circle cx="24" cy="24" r="20" fill="none" stroke="var(--border2)" stroke-width="3"/>
+          <circle cx="24" cy="24" r="20" fill="none" stroke="${pctColor}" stroke-width="3"
+            stroke-dasharray="${Math.PI * 40}" stroke-dashoffset="${Math.PI * 40 * (1 - prog.pct / 100)}"
+            transform="rotate(-90 24 24)" stroke-linecap="round"/>
+        </svg>
+        <span class="tms-ring-pct mono">${prog.pct}%</span>
+      </div>
+      <div class="tms-header-info">
+        <div class="tms-title">${esc(song.name)}</div>
+        ${prog.next
+          ? `<div class="tms-next text-t2">Naechster Schritt: <strong>${esc(prog.next.label)}</strong></div>`
+          : `<div class="tms-next text-green">Alle Schritte erledigt!</div>`}
+      </div>
+      <button class="btn btn-sm tms-close-btn" title="Schliessen">&times;</button>
+    </div>
+    <div class="tms-body">
+      ${prog.categories.map(cat => `
+        <div class="tms-category">
+          <div class="tms-cat-header">
+            <span class="tms-cat-icon">${cat.icon}</span>
+            <span class="tms-cat-title">${esc(cat.label)}</span>
+            <span class="tms-cat-count mono ${cat.allDone ? 'text-green' : 'text-t3'}">${cat.done}/${cat.total}</span>
+            ${cat.allDone ? '<span class="tms-cat-check text-green">&#10003;</span>' : ''}
+          </div>
+          ${cat.steps.map(s => `
+            <div class="tms-step ${s.done ? 'done' : ''}">
+              <button class="tms-check-btn" ${s.isUser ? `data-tms-user-toggle="${s.id}"` : `data-tms-toggle="${s.id}"`}
+                title="${s.done ? (s.autoCheck && !s.isUser ? 'Automatisch erkannt' : 'Als offen markieren') : 'Als erledigt markieren'}">
+                ${s.done ? (s.autoCheck && !s.isUser ? '&#10003;' : '&#10004;') : '&#9675;'}
+              </button>
+              <span class="tms-step-label">${esc(s.label)}</span>
+              ${s.isUser ? `<button class="tms-delete-btn" data-tms-user-delete="${s.id}" title="Task loeschen">&times;</button>` : ''}
+              ${!s.done && s.tab ? `<button class="btn btn-xs tms-goto-btn" data-tms-goto="${s.tab}">&#8594; ${s.tab.toUpperCase()}</button>` : ''}
+            </div>
+          `).join('')}
+          <div class="tms-add-row">
+            <input type="text" class="tms-add-input" data-tms-new-task="${cat.id}" placeholder="Neuer Task...">
+            <button class="btn btn-xs tms-add-btn" data-tms-add-task="${cat.id}">+</button>
+          </div>
+        </div>
+      `).join('')}
+    </div>`;
 }
 
 /* ── Confetti Toast ───────────────────────────────── */
@@ -769,7 +984,7 @@ function renderSongList(filter = '') {
         <div class="song-name">${esc(s.name)}</div>
         <div class="song-artist">${esc(s.artist)}</div>
       </div>
-      <div class="song-progress-mini" title="${prog.pct}% — ${prog.next ? prog.next.label : 'Komplett'}">
+      <div class="song-progress-mini" data-tms-open="${s.id}" title="${prog.pct}% — ${prog.next ? prog.next.label : 'Komplett'}">
         <svg viewBox="0 0 24 24" width="20" height="20">
           <circle cx="12" cy="12" r="10" fill="none" stroke="var(--border2)" stroke-width="2"/>
           <circle cx="12" cy="12" r="10" fill="none" stroke="${prog.pct === 100 ? 'var(--green)' : 'var(--amber)'}" stroke-width="2"
@@ -777,6 +992,7 @@ function renderSongList(filter = '') {
             transform="rotate(-90 12 12)" stroke-linecap="round"/>
         </svg>
         <span class="song-pct mono">${prog.pct}</span>
+        ${prog.hasOpenUserTasks ? '<span class="song-tms-dot"></span>' : ''}
       </div>
     </div>`;
     }).join('');
@@ -835,7 +1051,6 @@ function renderEditorTab() {
   els.content.innerHTML = `
     <div class="editor-panel">
       <div class="editor-scroll" id="editor-scroll">
-        <div id="progress-area"></div>
         <div id="song-fields-area"></div>
         <div id="parts-area"></div>
         <div id="bar-area"></div>
@@ -843,7 +1058,6 @@ function renderEditorTab() {
       <div id="summary-area"></div>
     </div>`;
 
-  renderProgressPanel();
   renderSongFields();
   renderPartsTable();
   renderBarSection();
@@ -855,67 +1069,7 @@ function renderEditorTab() {
   }
 }
 
-/* ── Song Progress Panel ──────────────────────────── */
-
-let _progressExpanded = false; // whether checklist detail is shown
-
-function renderProgressPanel() {
-  const area = document.getElementById('progress-area');
-  if (!area || !selectedSongId) return;
-
-  const prog = getSongProgress(selectedSongId);
-  const song = db.songs[selectedSongId];
-  const pctColor = prog.pct === 100 ? 'var(--green)' : prog.pct >= 50 ? 'var(--amber)' : 'var(--red)';
-
-  area.innerHTML = `
-    <div class="progress-panel">
-      <div class="progress-summary" id="progress-summary">
-        <div class="progress-ring-wrap">
-          <svg viewBox="0 0 48 48" width="44" height="44">
-            <circle cx="24" cy="24" r="20" fill="none" stroke="var(--border2)" stroke-width="3"/>
-            <circle cx="24" cy="24" r="20" fill="none" stroke="${pctColor}" stroke-width="3"
-              stroke-dasharray="${Math.PI * 40}" stroke-dashoffset="${Math.PI * 40 * (1 - prog.pct / 100)}"
-              transform="rotate(-90 24 24)" stroke-linecap="round"/>
-          </svg>
-          <span class="progress-ring-pct mono">${prog.pct}%</span>
-        </div>
-        <div class="progress-info">
-          <div class="progress-title">${esc(song.name)}</div>
-          ${prog.next
-            ? `<div class="progress-next">Naechster Schritt: <strong>${esc(prog.next.label)}</strong></div>`
-            : `<div class="progress-next text-green">Alle Schritte erledigt!</div>`}
-          <div class="progress-cats-mini">
-            ${prog.categories.map(c => `<span class="progress-cat-pip ${c.allDone ? 'done' : ''}" title="${c.label}: ${c.done}/${c.total}">${c.done}/${c.total}</span>`).join('')}
-          </div>
-        </div>
-        <button class="btn btn-sm" id="progress-toggle-btn" title="Checkliste anzeigen">${_progressExpanded ? '&#9650; Zuklappen' : '&#9660; Checkliste'}</button>
-      </div>
-      ${_progressExpanded ? buildProgressChecklist(prog) : ''}
-    </div>`;
-}
-
-function buildProgressChecklist(prog) {
-  return `
-    <div class="progress-checklist">
-      ${prog.categories.map(cat => `
-        <div class="progress-category">
-          <div class="progress-cat-header">
-            <span class="progress-cat-icon">${cat.icon}</span>
-            <span class="progress-cat-title">${esc(cat.label)}</span>
-            <span class="progress-cat-count mono ${cat.allDone ? 'text-green' : 'text-t3'}">${cat.done}/${cat.total}</span>
-            ${cat.allDone ? '<span class="progress-cat-check text-green">&#10003;</span>' : ''}
-          </div>
-          ${cat.steps.map(s => `
-            <div class="progress-step ${s.done ? 'done' : ''}" data-progress-tab="${s.tab}">
-              <span class="progress-check">${s.done ? '&#10003;' : '&#9675;'}</span>
-              <span class="progress-label">${esc(s.label)}</span>
-              ${!s.done ? `<span class="progress-goto text-t3">&#8594; ${s.tab.toUpperCase()}</span>` : ''}
-            </div>
-          `).join('')}
-        </div>
-      `).join('')}
-    </div>`;
-}
+/* ── Song Progress Panel (moved to TMS Modal) ────── */
 
 /* ── Song Fields ───────────────────────────────────── */
 
@@ -1252,18 +1406,6 @@ function handleEditorChange(e) {
 
 function handleEditorClick(e) {
   const el = e.target;
-
-  /* ── Progress panel ── */
-  if (el.closest('#progress-toggle-btn')) {
-    _progressExpanded = !_progressExpanded;
-    renderProgressPanel();
-    return;
-  }
-  const progressStep = el.closest('[data-progress-tab]');
-  if (progressStep) {
-    switchTab(progressStep.dataset.progressTab);
-    return;
-  }
 
   /* ── Play part button ── */
   const playBtn = el.closest('[data-action="play-part"]');
@@ -4003,8 +4145,8 @@ function getLyricsPartBaseName(name) {
   const n = name.trim();
   // Exclude Verse / Strophe
   if (/^(verse|strophe)\b/i.test(n)) return null;
-  // Strip trailing number: "Chorus 2" → "Chorus", "Bridge" → "Bridge"
-  return n.replace(/\s*\d+\s*$/, '').trim() || null;
+  // Strip trailing parenthetical and/or number: "Chorus 5 (stops)" → "Chorus", "Chorus 2" → "Chorus"
+  return n.replace(/\s*(\(.*?\)\s*|\d+\s*)*$/, '').trim() || null;
 }
 
 function buildLyricsPartsList(parts, song, hasBuf) {
@@ -5023,16 +5165,16 @@ let _savedLyricsScrollTop = 0;
 function lyricsInputFocusIn(input) {
   if (_isIPad) {
     _savedScrollY = window.scrollY;
-    const scrollEl = document.getElementById('lyrics-parts-col') || document.getElementById('lyrics-scroll');
+    const panel = document.querySelector('.lyrics-panel');
+    // In split layout, save scroll position of the panel (kbd mode scroll container)
+    const scrollEl = panel || document.getElementById('lyrics-parts-col') || document.getElementById('lyrics-scroll');
     _savedLyricsScrollTop = scrollEl ? scrollEl.scrollTop : 0;
     _startVisualViewportTracking();
-    const panel = document.querySelector('.lyrics-panel');
     if (panel) panel.classList.add('lyrics-kbd-mode');
     // Restore scroll position inside the now-fixed panel, then
     // scroll the focused input into view within the scroll container
     requestAnimationFrame(() => {
-      const scrollEl2 = document.getElementById('lyrics-parts-col') || document.getElementById('lyrics-scroll');
-      if (scrollEl2) scrollEl2.scrollTop = _savedLyricsScrollTop;
+      if (panel) panel.scrollTop = _savedLyricsScrollTop;
       requestAnimationFrame(() => {
         input.scrollIntoView({ block: 'center', behavior: 'smooth' });
       });
@@ -5820,6 +5962,346 @@ function exportSetlist() {
 }
 
 /* ══════════════════════════════════════════════════════
+   QLC+ QXW CHASER IMPORT
+   ══════════════════════════════════════════════════════ */
+
+/**
+ * Parse a QLC+ QXW XML string and extract song chasers.
+ * Returns Map<chaserName, steps[]> where each step = { note, functionId, functionName, holdMs, isTitle }
+ */
+function parseQxwChasers(xmlStr) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(xmlStr, 'text/xml');
+  const engine = doc.querySelector('Engine');
+  if (!engine) return new Map();
+
+  // Pass 1: collect all function names by ID
+  const funcNames = {};
+  for (const fn of engine.querySelectorAll('Function')) {
+    const id = parseInt(fn.getAttribute('ID') || '-1');
+    funcNames[id] = fn.getAttribute('Name') || '';
+  }
+
+  // Pass 2: extract song chasers (Path="Pact Songs", Type="Chaser")
+  const chasers = new Map();
+  for (const fn of engine.querySelectorAll('Function')) {
+    if (fn.getAttribute('Type') !== 'Chaser') continue;
+    if (fn.getAttribute('Path') !== 'Pact Songs') continue;
+    const name = fn.getAttribute('Name') || '';
+    const steps = [];
+    for (const step of fn.querySelectorAll('Step')) {
+      const funcId = parseInt((step.textContent || '').trim()) || 0;
+      const hold = parseInt(step.getAttribute('Hold') || '0');
+      const note = step.getAttribute('Note') || '';
+      const isTitle = funcId === QXW_STOP_ID && hold === QXW_INFINITE_HOLD;
+      // Resolve function name: prefer BASE_COLLECTIONS mapping, then funcNames
+      const functionName = QXW_BASE_COLLECTIONS[funcId] || funcNames[funcId] || `ID ${funcId}`;
+      steps.push({ note, functionId: funcId, functionName, holdMs: hold, isTitle, isManual: hold === QXW_INFINITE_HOLD });
+    }
+    if (steps.length > 0) chasers.set(name, steps);
+  }
+  return chasers;
+}
+
+/** Normalize a string for fuzzy matching */
+function _qxwNormalize(text) {
+  return text.toLowerCase().replace(/[\u2018\u2019\u201A\u201B`\u00B4]/g, "'").replace(/\s+/g, ' ').trim();
+}
+
+/** Find the chaser for a given song in the QXW data */
+function findChaserForSong(chasers, songName) {
+  if (!songName) return null;
+  const norm = _qxwNormalize(songName);
+  // Direct match
+  for (const [name, steps] of chasers) {
+    if (_qxwNormalize(name) === norm) return { chaserName: name, steps };
+  }
+  // Substring match
+  let best = null, bestLen = 0;
+  for (const [name, steps] of chasers) {
+    const nName = _qxwNormalize(name);
+    if (nName.includes(norm) || norm.includes(nName)) {
+      if (nName.length > bestLen) { best = { chaserName: name, steps }; bestLen = nName.length; }
+    }
+  }
+  return best;
+}
+
+/** Try to match a chaser step note to a part name */
+function matchStepToPart(stepNote, parts) {
+  if (!stepNote) return null;
+  const normNote = _qxwNormalize(stepNote);
+  // Exact match
+  for (const p of parts) {
+    if (_qxwNormalize(p.name) === normNote) return p;
+  }
+  // Base name match (strip trailing numbers and parenthetical)
+  const noteBase = normNote.replace(/\s*(\(.*?\)\s*|\d+\s*)*$/, '').trim();
+  if (!noteBase) return null;
+  for (const p of parts) {
+    const partBase = _qxwNormalize(p.name).replace(/\s*(\(.*?\)\s*|\d+\s*)*$/, '').trim();
+    if (partBase === noteBase) return p;
+  }
+  return null;
+}
+
+/** Load QXW from GitHub and cache it */
+async function loadQxwFile() {
+  if (_qxwCache) return _qxwCache.chasers;
+  const s = getSettings();
+  if (!s.repo || !s.token) {
+    toast('GitHub nicht konfiguriert', 'error');
+    return null;
+  }
+  // Try both QXW files, prefer lightingAI.qxw
+  for (const path of ['db/lightingAI.qxw', 'db/ThePact.qxw']) {
+    try {
+      const url = `https://api.github.com/repos/${s.repo}/contents/${path}`;
+      const res = await fetch(url, { headers: { Authorization: `token ${s.token}`, Accept: 'application/vnd.github.v3+json' } });
+      if (!res.ok) continue;
+      const json = await res.json();
+      const xmlStr = atob(json.content.replace(/\n/g, ''));
+      const chasers = parseQxwChasers(xmlStr);
+      _qxwCache = { xml: xmlStr, chasers };
+      return chasers;
+    } catch (e) {
+      console.warn(`Failed to load ${path}:`, e);
+    }
+  }
+  toast('Keine QXW-Datei gefunden im Repo (db/lightingAI.qxw)', 'error');
+  return null;
+}
+
+/** Open the QLC+ Chaser Import modal for the current song */
+async function openChaserModal(songId) {
+  if (!songId || !db?.songs[songId]) return;
+  const song = db.songs[songId];
+  const parts = getSortedParts(songId);
+  if (parts.length === 0) { toast('Keine Parts vorhanden', 'error'); return; }
+
+  toast('QXW wird geladen...', 'info', 2000);
+  const chasers = await loadQxwFile();
+  if (!chasers) return;
+
+  const match = findChaserForSong(chasers, song.name);
+  if (!match) {
+    toast(`Kein Chaser fuer "${song.name}" in der QXW gefunden`, 'error', 4000);
+    return;
+  }
+
+  // Filter out title/end steps and pure "11 Stop" transitions without a note
+  const chaserSteps = match.steps.filter(s => !s.isTitle && !(s.functionId === QXW_STOP_ID && !s.note));
+
+  closeChaserModal();
+  const overlay = document.createElement('div');
+  overlay.className = 'tms-modal-overlay';
+  overlay.id = 'chaser-modal-overlay';
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) closeChaserModal(); });
+  document.body.appendChild(overlay);
+
+  const modal = document.createElement('div');
+  modal.className = 'tms-modal chaser-modal';
+  modal.id = 'chaser-modal';
+  document.body.appendChild(modal);
+
+  renderChaserModalContent(modal, songId, match.chaserName, chaserSteps, parts);
+}
+
+function closeChaserModal() {
+  document.getElementById('chaser-modal')?.remove();
+  document.getElementById('chaser-modal-overlay')?.remove();
+  document.getElementById('chaser-assign-modal')?.remove();
+  document.getElementById('chaser-assign-overlay')?.remove();
+}
+
+function renderChaserModalContent(modal, songId, chaserName, steps, parts) {
+  // Pre-match each step
+  const stepMatches = steps.map(s => {
+    const matched = matchStepToPart(s.note, parts);
+    return { ...s, matchedPart: matched, assigned: false };
+  });
+
+  const fmtHold = (ms) => {
+    if (ms === QXW_INFINITE_HOLD) return 'MANUAL';
+    if (ms >= 60000) return `${(ms / 60000).toFixed(1)}m`;
+    if (ms >= 1000) return `${(ms / 1000).toFixed(1)}s`;
+    return `${ms}ms`;
+  };
+
+  modal.innerHTML = `
+    <div class="tms-header">
+      <div class="tms-header-info" style="flex:1">
+        <div class="tms-title">QLC+ Chaser: ${esc(chaserName)}</div>
+        <div class="tms-next text-t2">${steps.length} Cues &mdash; Tippe auf einen Cue zum Uebernehmen</div>
+      </div>
+      <button class="btn btn-sm btn-primary" id="chaser-batch-btn" title="Alle matchenden Cues auf einmal uebernehmen">BATCH</button>
+      <button class="btn btn-sm tms-close-btn" title="Schliessen">&times;</button>
+    </div>
+    <div class="tms-body">
+      <div class="chaser-step-list">
+        ${stepMatches.map((s, idx) => {
+          const matchInfo = s.matchedPart
+            ? `<span class="chaser-match text-green" title="Matched: ${esc(s.matchedPart.name)}">&#10003; ${esc(s.matchedPart.name)}</span>`
+            : (s.note ? `<span class="chaser-match text-amber" title="Kein Part-Match">&#63; kein Match</span>` : `<span class="chaser-match text-t4">kein Part</span>`);
+          return `
+          <div class="chaser-step-item" data-chaser-idx="${idx}">
+            <span class="chaser-step-num mono text-t3">${idx + 1}</span>
+            <div class="chaser-step-info">
+              <div class="chaser-step-note">${s.note ? esc(s.note) : '<span class="text-t4">(kein Name)</span>'}</div>
+              <div class="chaser-step-func text-t2">${esc(s.functionName)}</div>
+            </div>
+            <span class="chaser-step-hold mono text-t3">${fmtHold(s.holdMs)}</span>
+            ${matchInfo}
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+
+  // Store step data on the modal for access
+  modal._chaserData = { songId, steps: stepMatches, parts, chaserName };
+
+  // Event handlers
+  modal.addEventListener('click', (e) => {
+    if (e.target.closest('.tms-close-btn')) { closeChaserModal(); return; }
+
+    // Batch button
+    if (e.target.closest('#chaser-batch-btn')) {
+      handleChaserBatch(modal);
+      return;
+    }
+
+    // Single step click
+    const stepEl = e.target.closest('[data-chaser-idx]');
+    if (stepEl) {
+      const idx = parseInt(stepEl.dataset.chaserIdx);
+      handleChaserStepClick(modal, idx);
+    }
+  });
+}
+
+function handleChaserStepClick(modal, idx) {
+  const data = modal._chaserData;
+  if (!data) return;
+  const step = data.steps[idx];
+  if (!step) return;
+
+  if (step.matchedPart) {
+    // Auto-assign
+    applyChaserTemplate(data.songId, step.matchedPart.id, step.functionName);
+    step.assigned = true;
+    renderChaserModalContent(modal, data.songId, data.chaserName, data.steps, data.parts);
+    renderPartsTab();
+    toast(`"${step.functionName}" &#8594; ${step.matchedPart.name}`, 'success', 2000);
+  } else if (step.note) {
+    // Open part picker
+    openPartAssignDialog(modal, idx);
+  }
+}
+
+function handleChaserBatch(modal) {
+  const data = modal._chaserData;
+  if (!data) return;
+  let assigned = 0;
+  const unmatched = [];
+  for (const step of data.steps) {
+    if (step.matchedPart && !step.assigned) {
+      applyChaserTemplate(data.songId, step.matchedPart.id, step.functionName);
+      step.assigned = true;
+      assigned++;
+    } else if (step.note && !step.matchedPart) {
+      unmatched.push(step);
+    }
+  }
+
+  if (assigned > 0) {
+    renderChaserModalContent(modal, data.songId, data.chaserName, data.steps, data.parts);
+    renderPartsTab();
+    toast(`${assigned} Templates uebernommen`, 'success', 2000);
+  }
+
+  if (unmatched.length > 0) {
+    // Open assignment dialog for unmatched steps
+    openBatchAssignDialog(modal, unmatched);
+  } else if (assigned === 0) {
+    toast('Keine neuen Zuordnungen moeglich', 'info', 2000);
+  }
+}
+
+function applyChaserTemplate(songId, partId, templateName) {
+  const song = db.songs[songId];
+  if (!song?.parts?.[partId]) return;
+  song.parts[partId].light_template = templateName;
+  markDirty();
+}
+
+/** Open a dialog to manually assign a chaser step to a part */
+function openPartAssignDialog(chaserModal, stepIdx) {
+  const data = chaserModal._chaserData;
+  const step = data.steps[stepIdx];
+
+  document.getElementById('chaser-assign-modal')?.remove();
+  document.getElementById('chaser-assign-overlay')?.remove();
+
+  const overlay = document.createElement('div');
+  overlay.className = 'tms-modal-overlay';
+  overlay.id = 'chaser-assign-overlay';
+  overlay.style.zIndex = '9010';
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) { overlay.remove(); assignModal.remove(); } });
+  document.body.appendChild(overlay);
+
+  const assignModal = document.createElement('div');
+  assignModal.className = 'tms-modal chaser-assign-modal';
+  assignModal.id = 'chaser-assign-modal';
+  assignModal.style.zIndex = '9011';
+  assignModal.innerHTML = `
+    <div class="tms-header">
+      <div class="tms-header-info" style="flex:1">
+        <div class="tms-title">Part zuordnen</div>
+        <div class="tms-next text-t2">"${esc(step.note)}" &#8594; ${esc(step.functionName)}</div>
+      </div>
+      <button class="btn btn-sm tms-close-btn" title="Abbrechen">&times;</button>
+    </div>
+    <div class="tms-body">
+      ${data.parts.map(p => `
+        <div class="chaser-assign-part" data-assign-part="${p.id}">
+          <span class="chaser-step-num mono text-t3">${p.pos}</span>
+          <span>${esc(p.name)}</span>
+          <span class="text-t3 mono" style="margin-left:auto">${p.light_template || '\u2014'}</span>
+        </div>
+      `).join('')}
+    </div>`;
+  document.body.appendChild(assignModal);
+
+  assignModal.addEventListener('click', (e) => {
+    if (e.target.closest('.tms-close-btn')) { overlay.remove(); assignModal.remove(); return; }
+    const partEl = e.target.closest('[data-assign-part]');
+    if (partEl) {
+      const partId = partEl.dataset.assignPart;
+      const part = data.parts.find(p => p.id === partId);
+      if (part) {
+        applyChaserTemplate(data.songId, partId, step.functionName);
+        step.matchedPart = part;
+        step.assigned = true;
+        overlay.remove();
+        assignModal.remove();
+        renderChaserModalContent(chaserModal, data.songId, data.chaserName, data.steps, data.parts);
+        renderPartsTab();
+        toast(`"${step.functionName}" &#8594; ${part.name}`, 'success', 2000);
+      }
+    }
+  });
+}
+
+/** Open a batch assignment dialog for all unmatched steps */
+function openBatchAssignDialog(chaserModal, unmatchedSteps) {
+  if (unmatchedSteps.length === 0) return;
+  // Process one at a time — open dialog for first unmatched
+  const step = unmatchedSteps[0];
+  const idx = chaserModal._chaserData.steps.indexOf(step);
+  if (idx >= 0) openPartAssignDialog(chaserModal, idx);
+}
+
+/* ══════════════════════════════════════════════════════
    PARTS TAB
    ══════════════════════════════════════════════════════ */
 
@@ -5882,6 +6364,7 @@ function renderPartsTab() {
             <button class="btn btn-sm" data-pt-action="dup" ${hasSel ? '' : 'disabled'}>DUP</button>
             <button class="btn btn-sm btn-danger" data-pt-action="del" ${hasSel ? '' : 'disabled'}>DEL</button>
             ${filterSong ? `<button class="btn btn-sm${db.songs[filterSong]?.instr_done ? ' btn-success' : ''}" data-pt-action="instr-done" title="Alle Instrumental-Parts identifiziert">${db.songs[filterSong]?.instr_done ? '&#9835; &#10003;' : '&#9835; Instr. gepr\u00fcft'}</button>` : ''}
+            ${filterSong ? `<button class="btn btn-sm" data-pt-action="qlc-import" title="Light Templates aus QLC+ QXW importieren">&#9728; QLC+</button>` : ''}
           </div>
         </div>
         ${allParts.length === 0
@@ -6323,6 +6806,12 @@ function handlePartsTabAction(action) {
       markDirty();
       renderPartsTab();
       checkProgressAndCelebrate(filterSong);
+      break;
+    }
+
+    case 'qlc-import': {
+      if (!filterSong) return;
+      openChaserModal(filterSong);
       break;
     }
   }
@@ -7397,6 +7886,13 @@ function wireEvents() {
 
   // Song selection
   els.songList.addEventListener('click', (e) => {
+    // TMS modal open via progress ring click
+    const tmsOpen = e.target.closest('[data-tms-open]');
+    if (tmsOpen) {
+      e.stopPropagation();
+      openTmsModal(tmsOpen.dataset.tmsOpen);
+      return;
+    }
     const item = e.target.closest('.song-item');
     if (!item) return;
     const rawId = item.dataset.id;

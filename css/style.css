@@ -2372,6 +2372,37 @@ label {
   height: 100%;
 }
 
+.lyrics-split-layout {
+  flex-direction: row;
+}
+
+.lyrics-raw-col {
+  flex: 0 0 20%;
+  overflow-y: auto;
+  padding: 12px;
+  border-right: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.lyrics-splitter {
+  flex: 0 0 6px;
+  background: var(--border);
+  cursor: col-resize;
+  transition: background 0.15s;
+  position: relative;
+}
+.lyrics-splitter:hover,
+.lyrics-splitter:active {
+  background: var(--green);
+}
+
+.lyrics-parts-col {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 16px;
+}
+
 .lyrics-scroll {
   flex: 1;
   overflow-y: auto;
@@ -2385,6 +2416,14 @@ label {
   border-radius: var(--radius);
   background: var(--bg2);
   padding: 12px;
+}
+
+.lyrics-raw-col .lyrics-raw-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  min-height: 0;
 }
 
 .lyrics-raw-header {
@@ -2448,6 +2487,14 @@ label {
   column-rule: 1px solid var(--border);
   white-space: pre-wrap;
   word-break: break-word;
+}
+
+/* Single-column mode for the split layout */
+.lyrics-paste-single {
+  column-count: 1;
+  max-height: none;
+  flex: 1;
+  min-height: 0;
 }
 .lyrics-paste:empty::before {
   content: attr(data-placeholder);

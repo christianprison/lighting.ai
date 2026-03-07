@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.15.14';
+const APP_VERSION = 'v0.15.15';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -5972,8 +5972,11 @@ async function openChaserModal(songId) {
 
   const match = findChaserForSong(chasers, song.name);
   if (!match) {
-    console.warn(`Kein Chaser fuer "${song.name}". Verfuegbare Chaser:`, [...chasers.keys()].sort());
-    toast(`Kein Chaser fuer "${song.name}" in der QXW gefunden (${chasers.size} Chaser geladen)`, 'error', 4000);
+    const available = [...chasers.keys()].sort().join(', ');
+    console.warn(`Kein Chaser fuer "${song.name}". Verfuegbare Chaser:`, available);
+    toast(`Kein Chaser fuer "${song.name}" in der QXW gefunden (${chasers.size} Chaser geladen)`, 'error', 6000);
+    // Debug: show available chasers in a second toast
+    setTimeout(() => toast(`Verfuegbar: ${available.substring(0, 300)}`, 'info', 10000), 500);
     return;
   }
 

@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.15.10';
+const APP_VERSION = 'v0.15.11';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4102,7 +4102,7 @@ function normalizePartName(name) {
  */
 function leGuessPartMarkers(words, parts) {
   const markers = [];
-  const textParts = parts.filter(p => !p.instrumental && (p.bars || 0) > 0);
+  const textParts = parts.filter(p => !p.instrumental);
   if (textParts.length === 0) return markers;
 
   // Find section headers in words

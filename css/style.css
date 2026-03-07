@@ -1371,6 +1371,48 @@ label {
   cursor: grabbing !important;
 }
 
+/* ── Floating Touch Drag Balloon ─────────────────── */
+.drag-balloon {
+  position: fixed;
+  z-index: 9999;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  background: var(--db-color, #f0a030);
+  color: #08090d;
+  font-family: Sora, sans-serif;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.08s;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.5));
+}
+.drag-balloon::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid var(--db-color, #f0a030);
+}
+.drag-balloon.visible { opacity: 1; }
+.drag-balloon .db-label {
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1.2;
+}
+.drag-balloon .db-time {
+  font-family: "DM Mono", monospace;
+  font-size: 11px;
+  line-height: 1.2;
+  opacity: 0.8;
+}
+
 /* ── Mini Waveforms (Parts + Takte table) ────────── */
 .mini-waveform {
   width: 120px;
@@ -1596,6 +1638,17 @@ label {
 .tap-btn.tap-btn-del:not([disabled]):hover {
   background: rgba(255, 59, 92, 0.15);
   border-color: var(--red);
+}
+
+.tap-btn.tap-btn-dist {
+  border-color: rgba(240, 160, 48, 0.3);
+  background: rgba(240, 160, 48, 0.05);
+  color: var(--amber);
+}
+
+.tap-btn.tap-btn-dist:not([disabled]):hover {
+  background: rgba(240, 160, 48, 0.15);
+  border-color: var(--amber);
 }
 
 .tap-btn.tap-btn-snap {

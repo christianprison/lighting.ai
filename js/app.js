@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.15.2';
+const APP_VERSION = 'v0.15.3';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -60,6 +60,7 @@ let _isDragging = false;       // true while actively dragging (moved > threshol
 let _dragStartX = 0;           // mouse/touch start X for drag threshold
 let _dragSuppressClick = false; // prevent seek after drag ends
 let _suppressAutoScroll = false; // prevent auto-scroll after drag finalize
+let _isTouchDrag = false;       // true when drag was initiated by touch (not mouse)
 
 const SETTINGS_KEY = 'lightingai_settings';
 
@@ -1972,6 +1973,10 @@ function buildTapButtons(parts, isPlay) {
       <button class="tap-btn tap-undo" id="tap-undo" ${tapHistory.length === 0 ? 'disabled' : ''}>
         <span class="tap-label">UNDO <kbd>Z</kbd></span>
       </button>
+      <button class="tap-btn tap-btn-dist" id="tap-distribute-parts" ${parts.length < 2 ? 'disabled' : ''} title="Part-Marker gleichmaessig ueber die Audiodauer verteilen">
+        <span class="tap-label">PARTS</span>
+        <span class="tap-info">verteilen</span>
+      </button>
       <button class="tap-btn tap-btn-snap" id="tap-snap-peaks" ${(partMarkers.length + barMarkers.length) === 0 ? 'disabled' : ''} title="Alle Marker auf naechsten Audio-Peak verschieben">
         <span class="tap-label">SNAP</span>
         <span class="tap-info">&#8614; Peak</span>
@@ -2590,6 +2595,33 @@ function drawMiniWaveformMarkers(canvas, startSec, endSec, partIndex) {
 const DRAG_HIT_PX = 10;    // pixel threshold to grab a marker
 const DRAG_MOVE_PX = 3;    // min pixels before drag activates
 
+/* ── Floating Touch Drag Balloon ──────────────────── */
+
+let _dragBalloon = null;
+
+function showDragBalloon(label, time, color, clientX, clientY) {
+  if (!_dragBalloon) {
+    _dragBalloon = document.createElement('div');
+    _dragBalloon.className = 'drag-balloon';
+    document.body.appendChild(_dragBalloon);
+  }
+  const timeStr = fmtTime(time);
+  _dragBalloon.innerHTML = `<span class="db-label">${esc(label)}</span><span class="db-time">${timeStr}</span>`;
+  _dragBalloon.style.setProperty('--db-color', color);
+  _dragBalloon.classList.add('visible');
+  // Position: centered on X, 70px above touch point
+  const bw = _dragBalloon.offsetWidth || 100;
+  const left = Math.max(4, Math.min(window.innerWidth - bw - 4, clientX - bw / 2));
+  _dragBalloon.style.left = left + 'px';
+  _dragBalloon.style.top = (clientY - 76) + 'px';
+}
+
+function hideDragBalloon() {
+  if (_dragBalloon) {
+    _dragBalloon.classList.remove('visible');
+  }
+}
+
 /**
  * Find the nearest marker to a given x pixel position on the waveform.
  * Returns { type: 'part'|'bar', index, marker, distPx } or null.
@@ -2696,6 +2728,7 @@ function onWaveformPointerDown(e) {
     originalTime: hit.marker.time,
   };
   _isDragging = false;
+  _isTouchDrag = !!e.touches;
   _dragStartX = e.touches ? e.touches[0].clientX : e.clientX;
 
   // Prevent text selection during drag
@@ -2782,6 +2815,22 @@ function onWaveformPointerMove(e) {
       }
 
       drawWaveform();
+
+      // Show floating balloon above finger during touch drag
+      if (_isTouchDrag) {
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        const parts = getSortedParts(selectedSongId);
+        let label, color;
+        if (_dragMarker.type === 'part') {
+          const pi = partMarkers[_dragMarker.index].partIndex;
+          label = pi < parts.length ? parts[pi].name : `Part ${pi + 1}`;
+          color = '#f0a030';
+        } else {
+          label = `Bar ${_dragMarker.index + 1}`;
+          color = '#38bdf8';
+        }
+        showDragBalloon(label, newTime, color, clientX, clientY);
+      }
     }
   } else {
     // Hover cursor: show grab when near a marker/flag
@@ -2804,6 +2853,7 @@ function cancelDrag() {
       drawWaveform();
     }
   }
+  hideDragBalloon();
   const wrap = document.getElementById('waveform-wrap');
   if (wrap) {
     wrap.classList.remove('dragging');
@@ -2814,6 +2864,7 @@ function cancelDrag() {
 }
 
 function onWaveformPointerUp(e) {
+  hideDragBalloon();
   const wrap = document.getElementById('waveform-wrap');
   if (wrap) {
     wrap.classList.remove('dragging');
@@ -3437,6 +3488,37 @@ function handleUndoTap() {
   updateTapButtonStates();
 }
 
+function handleDistributeParts() {
+  if (!audioMeta) return;
+  const parts = getSortedParts(selectedSongId);
+  if (parts.length < 2) return;
+  const duration = audioMeta.duration;
+
+  // Create part markers if they don't exist yet
+  if (partMarkers.length === 0) {
+    for (let i = 0; i < parts.length; i++) {
+      partMarkers.push({ time: 0, partIndex: i });
+    }
+    currentPartIndex = parts.length;
+  }
+
+  // Distribute evenly: first part at 0, rest equally spaced
+  const count = partMarkers.length;
+  const gap = duration / count;
+  partMarkers.sort((a, b) => a.partIndex - b.partIndex);
+  for (let i = 0; i < count; i++) {
+    partMarkers[i].time = i * gap;
+  }
+
+  partMarkers.sort((a, b) => a.time - b.time);
+  snapFirstBarsToPartMarkers();
+  reassignBarMarkerParts();
+  saveMarkersToSong();
+  markDirty();
+  renderAudioTab();
+  toast(`${count} Parts gleichmäßig verteilt`);
+}
+
 async function handleDeleteAllParts() {
   if (partMarkers.length === 0) return;
   const ok = await showConfirm(
@@ -3876,6 +3958,7 @@ function handleAudioClick(e) {
   if (el.closest('#tap-part') && !el.closest('#tap-part').disabled) { handlePartTap(); return; }
   if (el.closest('#tap-bar') && !el.closest('#tap-bar').disabled) { handleBarTap(); return; }
   if (el.closest('#tap-undo') && !el.closest('#tap-undo').disabled) { handleUndoTap(); return; }
+  if (el.closest('#tap-distribute-parts') && !el.closest('#tap-distribute-parts').disabled) { handleDistributeParts(); return; }
   if (el.closest('#tap-snap-peaks') && !el.closest('#tap-snap-peaks').disabled) { handleSnapToPeaks(); return; }
   if (el.closest('#tap-delete-parts') && !el.closest('#tap-delete-parts').disabled) { handleDeleteAllParts(); return; }
   if (el.closest('#tap-delete-bars') && !el.closest('#tap-delete-bars').disabled) { handleDeleteAllBarMarkers(); return; }

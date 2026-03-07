@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.12.3';
+const APP_VERSION = 'v0.12.5';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -469,17 +469,8 @@ const SONG_CHECKLIST = [
     check: (s, parts) => parts.length > 0 && parts.every(p => p.bars != null) },
   { id: 'parts_renamed', label: 'Parts benennen',        cat: 'struktur', tab: 'parts',
     check: (s, parts) => parts.length > 0 && parts.every(p => p.name && p.name !== 'New Part' && !p.name.match(/^Part \d+$/)) },
-  { id: 'instr_set',    label: 'Instrumental-Parts identifizieren', cat: 'struktur', tab: 'parts',
-    check: (s, parts) => {
-      if (parts.length === 0) return false;
-      // At least one part must have instrumental explicitly set (true or false via checkbox interaction)
-      // Heuristic: typical songs have instrumental parts (Intro, Solo, Outro) —
-      // consider done if any part is marked instrumental, OR all parts have lyrics-relevant names
-      const instrNames = /^(intro|outro|solo|instrumental|interlude|bridge|breakdown)/i;
-      const candidateParts = parts.filter(p => instrNames.test(p.name));
-      if (candidateParts.length === 0) return true; // no obvious instrumental parts → OK
-      return candidateParts.some(p => p.instrumental === true);
-    }},
+  { id: 'instr_set',    label: 'Instrumental-Parts identifiziert', cat: 'struktur', tab: 'parts',
+    check: (s) => !!s.instr_done },
 
   // ── Audio ──
   { id: 'audio_ref',    label: 'Referenz-Audio geladen', cat: 'audio', tab: 'audio',
@@ -863,7 +854,7 @@ function renderSongFields() {
       </div>
       <div>
         <label>BPM</label>
-        <input type="number" value="${song.bpm || ''}" data-song-field="bpm" class="mono" min="0">
+        <input type="number" value="${song.bpm || ''}" data-song-field="bpm" class="mono" min="0" inputmode="numeric">
       </div>
       <div>
         <label>Key</label>
@@ -5749,6 +5740,7 @@ function renderPartsTab() {
             <button class="btn btn-sm" data-pt-action="move-down" ${hasSel ? '' : 'disabled'}>&#9660;</button>
             <button class="btn btn-sm" data-pt-action="dup" ${hasSel ? '' : 'disabled'}>DUP</button>
             <button class="btn btn-sm btn-danger" data-pt-action="del" ${hasSel ? '' : 'disabled'}>DEL</button>
+            ${filterSong ? `<button class="btn btn-sm${db.songs[filterSong]?.instr_done ? ' btn-success' : ''}" data-pt-action="instr-done" title="Alle Instrumental-Parts identifiziert">${db.songs[filterSong]?.instr_done ? '&#9835; &#10003;' : '&#9835; Instr. gepr\u00fcft'}</button>` : ''}
           </div>
         </div>
         ${allParts.length === 0
@@ -6179,6 +6171,17 @@ function handlePartsTabAction(action) {
       markDirty();
       recalcSongDurationFor(sel.songId);
       renderPartsTab();
+      break;
+    }
+
+    case 'instr-done': {
+      if (!filterSong) return;
+      const song = db.songs[filterSong];
+      if (!song) return;
+      song.instr_done = !song.instr_done;
+      markDirty();
+      renderPartsTab();
+      checkProgressAndCelebrate(filterSong);
       break;
     }
   }

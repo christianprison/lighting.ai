@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.13.9';
+const APP_VERSION = 'v0.14.0';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -35,7 +35,6 @@ let takteTabSelectedBar = null;  // {songId, partId, barNum}
 let _lyricsPlayingPart = null;    // partId currently playing in lyrics tab
 let _lyricsPausedPart = null;     // partId currently paused in lyrics tab
 let _lyricsCollapsed = new Set(); // Set of partIds that are collapsed
-let _lyricsSplitPct = 20;         // raw text column width in percent
 
 /* ── Audio Split State ────────────────────────────── */
 let audioMeta = null;          // {duration, sampleRate, channels}
@@ -3930,19 +3929,13 @@ function renderLyricsTab() {
   ensureCollections();
 
   els.content.innerHTML = `
-    <div class="lyrics-panel lyrics-split-layout">
-      <div class="lyrics-raw-col" id="lyrics-raw-col" style="flex: 0 0 ${_lyricsSplitPct}%">
-        ${buildSongHeader(song)}
-        ${buildLyricsRawImport(song, geniusUrl)}
-      </div>
-      <div class="lyrics-splitter" id="lyrics-splitter" title="Ziehen zum Anpassen"></div>
+    <div class="lyrics-panel lyrics-stacked-layout">
+      ${buildSongHeader(song)}
+      ${buildLyricsRawImport(song, geniusUrl)}
       <div class="lyrics-parts-col" id="lyrics-parts-col">
         ${parts.length > 0 ? buildLyricsPartsList(parts, song, hasBuf) : '<div class="empty-state"><p>Keine Parts vorhanden. Erst Parts im Parts-Tab anlegen.</p></div>'}
       </div>
     </div>`;
-
-  // Init splitter drag
-  _initLyricsSplitter();
 
   // Draw lyrics waveforms after DOM is ready
   requestAnimationFrame(() => {
@@ -3956,35 +3949,6 @@ function renderLyricsTab() {
   });
 }
 
-function _initLyricsSplitter() {
-  const splitter = document.getElementById('lyrics-splitter');
-  const rawCol = document.getElementById('lyrics-raw-col');
-  const panel = splitter?.closest('.lyrics-split-layout');
-  if (!splitter || !rawCol || !panel) return;
-
-  const onMove = (clientX) => {
-    const rect = panel.getBoundingClientRect();
-    const pct = Math.max(10, Math.min(60, ((clientX - rect.left) / rect.width) * 100));
-    _lyricsSplitPct = pct;
-    rawCol.style.flex = `0 0 ${pct}%`;
-  };
-
-  splitter.addEventListener('mousedown', (e) => {
-    e.preventDefault();
-    const move = (ev) => onMove(ev.clientX);
-    const up = () => { document.removeEventListener('mousemove', move); document.removeEventListener('mouseup', up); };
-    document.addEventListener('mousemove', move);
-    document.addEventListener('mouseup', up);
-  });
-
-  splitter.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    const move = (ev) => onMove(ev.touches[0].clientX);
-    const end = () => { document.removeEventListener('touchmove', move); document.removeEventListener('touchend', end); };
-    document.addEventListener('touchmove', move, { passive: false });
-    document.addEventListener('touchend', end);
-  }, { passive: false });
-}
 
 function buildLyricsRawImport(song, geniusUrl) {
   const raw = song.lyrics_raw || '';
@@ -4156,9 +4120,9 @@ function buildLyricsPartBody(part, partIndex, barCount, barLyrics, hasBuf, absBa
     const absBarNum = absBarOffset + b + 1;
     html += `<div class="lyrics-bar-cell" style="flex:1 1 0;min-width:${cellW}px">
       <div class="lyrics-bar-num mono text-t3">${absBarNum}</div>
-      <div class="lyrics-bar-input-row">
+      <input type="text" class="lyrics-bar-input" data-lyrics-bar-part="${part.id}" data-lyrics-bar-num="${b + 1}" value="${esc(text)}" placeholder="\u2014" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-form-type="other" data-lpignore="true" data-1p-ignore="true" readonly onfocus="this.removeAttribute('readonly')">
+      <div class="lyrics-bar-shift-row">
         <button class="lyrics-word-shift" data-ws-dir="left" data-ws-part="${part.id}" data-ws-bar="${b + 1}" title="Erstes Wort nach links">\u25C0</button>
-        <input type="text" class="lyrics-bar-input" data-lyrics-bar-part="${part.id}" data-lyrics-bar-num="${b + 1}" value="${esc(text)}" placeholder="\u2014" autocomplete="off">
         <button class="lyrics-word-shift" data-ws-dir="right" data-ws-part="${part.id}" data-ws-bar="${b + 1}" title="Letztes Wort nach rechts">\u25B6</button>
       </div>
     </div>`;
@@ -4607,18 +4571,23 @@ function distributeLyricsToparts() {
     if (barCount === 0) continue;
     filledParts++;
 
-    // Map lines to bars: if fewer lines than bars, spread lines across bars;
-    // if more lines than bars, combine adjacent lines.
+    // Distribute lines across bars so NO bar remains empty.
+    // Split lines into words and distribute evenly across bars.
+    const allWords = lines.join(' ').split(/\s+/).filter(w => w);
     for (let b = 0; b < barCount; b++) {
       const inp = document.querySelector(`.lyrics-bar-input[data-lyrics-bar-part="${part.id}"][data-lyrics-bar-num="${b + 1}"]`);
       if (!inp) continue;
       let text;
-      if (lines.length <= barCount) {
-        text = b < lines.length ? lines[b] : '';
+      if (allWords.length <= barCount) {
+        // Fewer words than bars: each bar gets at most one word, spread evenly
+        const idx = Math.round(b * allWords.length / barCount);
+        const idxEnd = Math.round((b + 1) * allWords.length / barCount);
+        text = allWords.slice(idx, idxEnd).join(' ');
       } else {
-        const startLine = Math.round(b * lines.length / barCount);
-        const endLine = Math.round((b + 1) * lines.length / barCount);
-        text = lines.slice(startLine, endLine).join(' / ');
+        // More words than bars: distribute words evenly across bars
+        const startW = Math.round(b * allWords.length / barCount);
+        const endW = Math.round((b + 1) * allWords.length / barCount);
+        text = allWords.slice(startW, endW).join(' ');
       }
       inp.value = text;
       // Also save to DB
@@ -4753,19 +4722,13 @@ function buildQuickInsertMap() {
     const barCount = part.bars || 0;
     if (barCount === 0) continue;
 
+    // Distribute words evenly so no bar stays empty
+    const allWords = lines.join(' ').split(/\s+/).filter(w => w);
     const suggestions = [];
-    if (lines.length <= barCount) {
-      // Fewer lines than bars: map lines 1:1, leave remaining empty
-      for (let b = 0; b < barCount; b++) {
-        suggestions.push(b < lines.length ? lines[b] : '');
-      }
-    } else {
-      // More lines than bars: combine lines evenly
-      for (let b = 0; b < barCount; b++) {
-        const startLine = Math.round(b * lines.length / barCount);
-        const endLine = Math.round((b + 1) * lines.length / barCount);
-        suggestions.push(lines.slice(startLine, endLine).join(' / '));
-      }
+    for (let b = 0; b < barCount; b++) {
+      const startW = Math.round(b * allWords.length / barCount);
+      const endW = Math.round((b + 1) * allWords.length / barCount);
+      suggestions.push(allWords.slice(startW, endW).join(' '));
     }
     result.set(part.id, suggestions);
   }

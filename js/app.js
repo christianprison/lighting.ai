@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.15.8';
+const APP_VERSION = 'v0.15.9';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4816,18 +4816,10 @@ function leMoveDrag(e) {
 
   let bestOffset = _leDrag.currentOffset;
 
-  if (_leDrag.type === 'part') {
-    // Part markers: snap to line starts only (nearest line by Y)
-    let bestDist = Infinity;
-    for (const lp of _leDrag.linePositions) {
-      const dist = Math.abs(clientY - lp.centerY);
-      if (dist < bestDist) {
-        bestDist = dist;
-        bestOffset = lp.charOffset;
-      }
-    }
-  } else {
-    // Bar markers: find nearest line by Y first, then nearest word on that line by X
+  // Both part and bar markers: word-snap with cursor always LEFT of finger.
+  // Find nearest line by Y, then snap to the last word whose left edge
+  // is to the left of the finger (visible, not hidden under finger).
+  {
     let bestLineDist = Infinity;
     let bestLineTop = null;
     let bestLineHeight = 0;
@@ -4840,15 +4832,20 @@ function leMoveDrag(e) {
       }
     }
     if (bestLineTop !== null) {
-      let bestWordDist = Infinity;
-      for (const p of _leDrag.wordPositions) {
-        if (Math.abs(p.top - bestLineTop) < bestLineHeight) {
-          const dist = Math.abs(clientX - p.left);
-          if (dist < bestWordDist) {
-            bestWordDist = dist;
-            bestOffset = p.charOffset;
+      // Collect words on this line, sorted left-to-right
+      const lineWords = _leDrag.wordPositions
+        .filter(p => Math.abs(p.top - bestLineTop) < bestLineHeight)
+        .sort((a, b) => a.left - b.left);
+      if (lineWords.length > 0) {
+        // Default: line start (first word) — edge case when finger is far left
+        let target = lineWords[0];
+        // Find the last word whose left edge is to the left of the finger
+        for (const w of lineWords) {
+          if (w.left < clientX) {
+            target = w;
           }
         }
+        bestOffset = target.charOffset;
       }
     }
   }
@@ -4870,18 +4867,16 @@ function leMoveDrag(e) {
     guide.className = 'le-drag-guide';
     document.body.appendChild(guide);
   }
-  // Position guide at the LEFT EDGE of text container (always left of finger, never underneath)
+  // Position guide at the LEFT EDGE of the snapped word (always left of finger)
   const nearestWordEl = document.querySelector(`.le-word[data-char-offset="${bestOffset}"]`);
-  const textContainer = document.getElementById('le-text');
-  const textLeft = textContainer ? textContainer.getBoundingClientRect().left : 0;
   if (nearestWordEl) {
     const wordRect = nearestWordEl.getBoundingClientRect();
-    guide.style.left = textLeft + 'px';
+    guide.style.left = wordRect.left + 'px';
     guide.style.top = wordRect.top + 'px';
     guide.style.height = wordRect.height + 'px';
     guide.style.display = '';
   } else {
-    guide.style.left = textLeft + 'px';
+    guide.style.left = (clientX - 20) + 'px';
     guide.style.top = (clientY - 8) + 'px';
     guide.style.height = '16px';
     guide.style.display = '';

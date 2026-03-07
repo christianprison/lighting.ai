@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.13.7';
+const APP_VERSION = 'v0.13.8';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -5051,7 +5051,7 @@ function handleLyricsClick(e) {
   // Quick Insert keyboard bar chip tap
   const qiChip = el.closest('.lyrics-qi-chip');
   if (qiChip) {
-    _applyQiSuggestion();
+    _applyQiSuggestion(qiChip);
     return;
   }
 
@@ -5293,25 +5293,27 @@ function _exitLyricsKbdMode() {
 }
 
 /* ── Quick Insert Keyboard Accessory Bar ──────────── */
-// Shows a suggestion chip above the keyboard for the currently focused bar input.
+// Shows short suggestion chips in the iOS keyboard toolbar area (left side,
+// next to the autofill icons). Position: fixed at the bottom of the visual
+// viewport, overlaying the native toolbar row.
 
-let _qiBar = null; // DOM element for the keyboard accessory bar
+let _qiBar = null;
 
 function _getOrCreateQiBar() {
   if (_qiBar) return _qiBar;
   _qiBar = document.createElement('div');
   _qiBar.className = 'lyrics-qi-kbd-bar';
-  _qiBar.innerHTML = '<button class="lyrics-qi-chip" aria-label="Vorschlag einfügen"></button>';
   _qiBar.style.display = 'none';
   document.body.appendChild(_qiBar);
   return _qiBar;
 }
 
-function _truncate(text, maxLen) {
-  if (text.length <= maxLen) return text;
-  // Cut at last space before maxLen
-  const cut = text.lastIndexOf(' ', maxLen);
-  return (cut > maxLen * 0.4 ? text.slice(0, cut) : text.slice(0, maxLen)) + '\u2026';
+/** Shorten text: max 15 chars, cut at word boundary. */
+function _truncQi(text, max) {
+  if (!max) max = 15;
+  if (text.length <= max) return text;
+  const cut = text.lastIndexOf(' ', max);
+  return (cut > 4 ? text.slice(0, cut) : text.slice(0, max)) + '\u2026';
 }
 
 function _updateQiKeyboardBar() {
@@ -5326,31 +5328,43 @@ function _updateQiKeyboardBar() {
 
   const qiMap = getQuickInsertMap();
   const suggestions = qiMap.get(partId) || [];
-  const suggestion = suggestions[barNum - 1] || '';
-  const currentText = active.value.trim();
 
-  // Only show if there's a suggestion and it differs from current text
-  if (!suggestion || suggestion === currentText) {
-    _hideQiKeyboardBar();
-    return;
+  // Gather chips: current bar + a few neighbours for quick navigation
+  const barCount = suggestions.length;
+  if (barCount === 0) { _hideQiKeyboardBar(); return; }
+
+  const currentText = active.value.trim();
+  const currentSugg = suggestions[barNum - 1] || '';
+
+  // Build chip data: show current + next 2 bars that still need text
+  const chips = [];
+  for (let i = barNum - 1; i < barCount && chips.length < 3; i++) {
+    const s = suggestions[i] || '';
+    if (!s) continue;
+    // Check if bar already has this text
+    const inp = document.querySelector(`.lyrics-bar-input[data-lyrics-bar-part="${partId}"][data-lyrics-bar-num="${i + 1}"]`);
+    const existing = inp ? inp.value.trim() : '';
+    if (s === existing) continue;
+    chips.push({ partId, barNum: i + 1, text: s, isCurrent: i === barNum - 1 });
   }
 
+  if (chips.length === 0) { _hideQiKeyboardBar(); return; }
+
   const bar = _getOrCreateQiBar();
-  const chip = bar.querySelector('.lyrics-qi-chip');
-  chip.textContent = _truncate(suggestion, 30);
-  chip.dataset.qiText = suggestion;
-  chip.dataset.qiPart = partId;
-  chip.dataset.qiBar = barNum;
+  bar.innerHTML = chips.map(c =>
+    `<button class="lyrics-qi-chip${c.isCurrent ? ' qi-current' : ''}" data-qi-part="${c.partId}" data-qi-bar="${c.barNum}" data-qi-text="${c.text.replace(/"/g, '&quot;')}">${_truncQi(c.text)}</button>`
+  ).join('');
   bar.style.display = '';
 
-  // Position: fixed at bottom of visual viewport (just above keyboard)
   _positionQiBar();
 }
 
 function _positionQiBar() {
   if (!_qiBar || _qiBar.style.display === 'none') return;
-  const vvh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-  const vvTop = window.visualViewport ? window.visualViewport.offsetTop : 0;
+  // Position at the bottom edge of the visual viewport → overlays the iOS toolbar row
+  const vv = window.visualViewport;
+  const vvh = vv ? vv.height : window.innerHeight;
+  const vvTop = vv ? vv.offsetTop : 0;
   _qiBar.style.top = (vvTop + vvh - _qiBar.offsetHeight) + 'px';
 }
 
@@ -5358,9 +5372,7 @@ function _hideQiKeyboardBar() {
   if (_qiBar) _qiBar.style.display = 'none';
 }
 
-function _applyQiSuggestion() {
-  if (!_qiBar) return;
-  const chip = _qiBar.querySelector('.lyrics-qi-chip');
+function _applyQiSuggestion(chip) {
   if (!chip) return;
   const partId = chip.dataset.qiPart;
   const barNum = parseInt(chip.dataset.qiBar, 10);
@@ -5373,10 +5385,13 @@ function _applyQiSuggestion() {
     const [, barData] = getOrCreateBar(partId, barNum);
     barData.lyrics = text;
     markDirty();
-    _hideQiKeyboardBar();
-    // Move focus to next bar input
+    // Move focus to next empty bar input
     const allInputs = [...document.querySelectorAll('.lyrics-bar-input')];
     const idx = allInputs.indexOf(inp);
+    for (let i = idx + 1; i < allInputs.length; i++) {
+      if (!allInputs[i].value.trim()) { allInputs[i].focus(); return; }
+    }
+    // If no empty input found, just move to next
     if (idx >= 0 && idx < allInputs.length - 1) {
       allInputs[idx + 1].focus();
     }

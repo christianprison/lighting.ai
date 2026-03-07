@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.12.9';
+const APP_VERSION = 'v0.12.10';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -6000,12 +6000,32 @@ function handlePartsTabClick(e) {
     return;
   }
 
-  // Mini-waveform click → open Part Waveform Editor
+  // Mini-waveform click → seek to position and play from there
   const waveCanvas = el.closest('.mini-waveform');
   if (waveCanvas) {
     const row = waveCanvas.closest('.ptt-row');
     if (row) {
-      openPartWaveEditor(row.dataset.songId, row.dataset.partId);
+      const wStart = parseFloat(waveCanvas.dataset.waveStart);
+      const wEnd = parseFloat(waveCanvas.dataset.waveEnd);
+      if (!isNaN(wStart) && !isNaN(wEnd) && wEnd > wStart) {
+        const rect = waveCanvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const ratio = Math.max(0, Math.min(1, x / rect.width));
+        const seekTime = wStart + ratio * (wEnd - wStart);
+        const partId = row.dataset.partId;
+        // Stop current playback
+        stopPartPlay();
+        _playingPartId = partId;
+        _partPlayActive = true;
+        refreshPartPlayUI();
+        audio.playSegments([{ startTime: seekTime, endTime: wEnd }], () => {
+          if (_playingPartId === partId) {
+            _playingPartId = null;
+            _partPlayActive = false;
+            refreshPartPlayUI();
+          }
+        });
+      }
       return;
     }
   }
@@ -6607,18 +6627,16 @@ function _pwWaveformClick(e) {
   const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
   const time = _pwXToTime(x);
 
-  // If playing, seek to that position (restart segment from there)
-  if (_pw.playing) {
+  // Seek to clicked position and start playback (works whether playing or stopped)
+  if (_pw.playing) _pwStopPlay();
+  _pw.playing = true;
+  els.pwPlay.innerHTML = '&#9632; Stop';
+  els.pwPlayhead.style.display = 'block';
+  const seekTime = Math.max(_pw.trimStart, Math.min(time, _pw.trimEnd));
+  audio.playSegments([{ startTime: seekTime, endTime: _pw.trimEnd }], () => {
     _pwStopPlay();
-    _pw.playing = true;
-    els.pwPlay.innerHTML = '&#9632; Stop';
-    els.pwPlayhead.style.display = 'block';
-    const seekTime = Math.max(_pw.trimStart, Math.min(time, _pw.trimEnd));
-    audio.playSegments([{ startTime: seekTime, endTime: _pw.trimEnd }], () => {
-      _pwStopPlay();
-    });
-    _pwAnimatePlayhead();
-  }
+  });
+  _pwAnimatePlayhead();
 }
 
 /* ── Part Wave Editor: Init Event Listeners ── */
@@ -7365,6 +7383,15 @@ function wireEvents() {
     else if (activeTab === 'lyrics') handleLyricsClick(e);
     else if (activeTab === 'accents') handleAccentsTabClick(e);
     else if (activeTab === 'setlist') handleSetlistClick(e);
+  });
+  // Parts tab: double-click mini-waveform → open Part Wave Editor (Finetuning)
+  els.content.addEventListener('dblclick', (e) => {
+    if (activeTab !== 'parts') return;
+    const waveCanvas = e.target.closest('.mini-waveform');
+    if (waveCanvas) {
+      const row = waveCanvas.closest('.ptt-row');
+      if (row) openPartWaveEditor(row.dataset.songId, row.dataset.partId);
+    }
   });
   els.content.addEventListener('change', (e) => {
     if (activeTab === 'parts') handlePartsTabChange(e);

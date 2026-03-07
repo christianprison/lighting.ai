@@ -2583,10 +2583,7 @@ label {
 }
 
 .le-word.le-drop-target {
-  background: rgba(240, 160, 48, 0.25);
-  outline: 2px solid var(--amber);
-  outline-offset: 1px;
-  border-radius: 3px;
+  /* no highlight during drag */
 }
 
 .le-header {

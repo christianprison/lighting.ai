@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.15.5';
+const APP_VERSION = 'v0.15.6';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4409,7 +4409,6 @@ function renderLyricsTab() {
     } else if (_lePhase === 'bars') {
       html += `<div class="le-phase-bar le-phase-bars">
         <span class="le-phase-text">Takt-Marker pr&uuml;fen &amp; anpassen</span>
-        <button class="btn btn-sm le-btn-back" id="le-back-to-parts" title="Zur&uuml;ck zu Part-Markern">&#9664; Parts</button>
         <button class="btn btn-sm le-btn-save" id="le-save-lyrics">Fertig</button>
       </div>`;
     }
@@ -4575,19 +4574,22 @@ function leAcceptRawText(text) {
  */
 function leDistributeParts() {
   if (_lePartMarkers.length < 2 || _leWords.length === 0) return;
-  const totalChars = _leWords[_leWords.length - 1].end;
+  const lyricsWords = _leWords.filter(w => !w.isHeader);
+  if (lyricsWords.length === 0) return;
+  const lastWord = lyricsWords[lyricsWords.length - 1];
+  const totalChars = lastWord.offset + lastWord.text.length;
   const count = _lePartMarkers.length;
   const gap = totalChars / count;
   for (let i = 0; i < count; i++) {
     const targetOffset = Math.round(i * gap);
     // Snap to nearest word boundary
-    let bestWord = _leWords[0];
-    let bestDist = Math.abs(bestWord.start - targetOffset);
-    for (const w of _leWords) {
-      const d = Math.abs(w.start - targetOffset);
+    let bestWord = lyricsWords[0];
+    let bestDist = Math.abs(bestWord.offset - targetOffset);
+    for (const w of lyricsWords) {
+      const d = Math.abs(w.offset - targetOffset);
       if (d < bestDist) { bestDist = d; bestWord = w; }
     }
-    _lePartMarkers[i].charOffset = bestWord.start;
+    _lePartMarkers[i].charOffset = bestWord.offset;
   }
   renderLyricsTab();
   toast('Parts gleichm\u00e4\u00dfig verteilt', 'success');
@@ -4787,16 +4789,14 @@ function leMoveDrag(e) {
 
   _leDrag.currentOffset = bestOffset;
 
-  // Visual feedback: highlight drop target
+  // Remove any previous drop-target highlight (no colored background needed)
   document.querySelectorAll('.le-word.le-drop-target').forEach(w => w.classList.remove('le-drop-target'));
-  const target = document.querySelector(`.le-word[data-char-offset="${bestOffset}"]`);
-  if (target) target.classList.add('le-drop-target');
 
   // Move the marker element visually (opacity change)
   const marker = document.querySelector(`.le-marker[data-le-type="${_leDrag.type}"][data-le-idx="${_leDrag.idx}"]`);
   if (marker) marker.classList.add('le-dragging');
 
-  // Show orange guide line at cursor position
+  // Show short cursor-like guide line at drag position
   let guide = document.getElementById('le-drag-guide');
   if (!guide) {
     guide = document.createElement('div');
@@ -4804,12 +4804,18 @@ function leMoveDrag(e) {
     guide.className = 'le-drag-guide';
     document.body.appendChild(guide);
   }
-  const editorEl = document.getElementById('le-editor');
-  if (editorEl) {
-    const edRect = editorEl.getBoundingClientRect();
-    guide.style.left = (clientX - 20) + 'px';
-    guide.style.top = edRect.top + 'px';
-    guide.style.height = edRect.height + 'px';
+  // Find the nearest word element to position the guide at text height
+  const nearestWordEl = document.querySelector(`.le-word[data-char-offset="${bestOffset}"]`);
+  if (nearestWordEl) {
+    const wordRect = nearestWordEl.getBoundingClientRect();
+    guide.style.left = (wordRect.left - 2) + 'px';
+    guide.style.top = wordRect.top + 'px';
+    guide.style.height = wordRect.height + 'px';
+    guide.style.display = '';
+  } else {
+    guide.style.left = clientX + 'px';
+    guide.style.top = (clientY - 8) + 'px';
+    guide.style.height = '16px';
     guide.style.display = '';
   }
 
@@ -4817,7 +4823,9 @@ function leMoveDrag(e) {
   let label = '';
   let color = '#f0a030';
   if (_leDrag.type === 'part' && _lePartMarkers[_leDrag.idx]) {
-    label = _lePartMarkers[_leDrag.idx].name || 'Part';
+    const partId = _lePartMarkers[_leDrag.idx].partId;
+    const song = db?.songs?.[selectedSongId];
+    label = (song?.parts?.[partId]?.name) || 'Part';
     color = '#f0a030';
   } else if (_leDrag.type === 'bar' && _leBarMarkers[_leDrag.idx]) {
     label = 'Takt ' + _leBarMarkers[_leDrag.idx].barNum;

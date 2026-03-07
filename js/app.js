@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.15.6';
+const APP_VERSION = 'v0.15.7';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4409,6 +4409,7 @@ function renderLyricsTab() {
     } else if (_lePhase === 'bars') {
       html += `<div class="le-phase-bar le-phase-bars">
         <span class="le-phase-text">Takt-Marker pr&uuml;fen &amp; anpassen</span>
+        <button class="btn btn-sm le-btn-back" id="le-back-to-parts" title="Zur&uuml;ck zu Part-Markern">Zur&uuml;ck</button>
         <button class="btn btn-sm le-btn-save" id="le-save-lyrics">Fertig</button>
       </div>`;
     }

@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.15.0';
+const APP_VERSION = 'v0.15.2';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4387,18 +4387,22 @@ function buildLyricsEditorContent(rawText) {
   // Build HTML by iterating through words and inserting markers
   let html = '';
   let markerIdx = 0;
+  let lastWasPartMarker = false;
 
   for (let wi = 0; wi < _leWords.length; wi++) {
     const word = _leWords[wi];
 
     // Insert any markers that belong before this word
+    lastWasPartMarker = false;
     while (markerIdx < allMarkers.length && allMarkers[markerIdx].charOffset <= word.offset) {
       html += leRenderMarker(allMarkers[markerIdx]);
+      if (allMarkers[markerIdx].type === 'part') lastWasPartMarker = true;
       markerIdx++;
     }
 
-    // Line breaks
-    if (word.emptyLineBefore) html += '<br><br>';
+    // Line breaks (skip if part marker already added a <br>)
+    if (lastWasPartMarker) { /* br already emitted after part marker */ }
+    else if (word.emptyLineBefore) html += '<br><br>';
     else if (word.newlineBefore) html += '<br>';
     else if (wi > 0) html += ' ';
 
@@ -4427,11 +4431,11 @@ function leRenderMarker(marker) {
     const part = db.songs[selectedSongId]?.parts?.[marker.partId];
     const name = part ? part.name : '?';
     const confirmedClass = marker.confirmed ? ' le-confirmed' : ' le-predicted';
-    // Part markers: orange box with black part name, draggable inline in text
+    // Part markers: orange box with black part name, draggable inline in text, line break after
     return `<span class="le-marker le-part-marker${confirmedClass}"
                   data-le-type="part" data-le-idx="${marker.idx}"
                   data-char-offset="${marker.charOffset}"
-                  title="${esc(name)}${marker.confirmed ? '' : ' (prognostiziert)'}">${esc(name)}</span>`;
+                  title="${esc(name)}${marker.confirmed ? '' : ' (prognostiziert)'}">${esc(name)}</span><br>`;
   } else {
     // Bar markers: thin cyan vertical stripe with bar number
     return `<span class="le-marker le-bar-marker"
@@ -4682,6 +4686,23 @@ function leMoveDrag(e) {
   // Move the marker element visually (opacity change)
   const marker = document.querySelector(`.le-marker[data-le-type="${_leDrag.type}"][data-le-idx="${_leDrag.idx}"]`);
   if (marker) marker.classList.add('le-dragging');
+
+  // Show orange guide line at cursor position
+  let guide = document.getElementById('le-drag-guide');
+  if (!guide) {
+    guide = document.createElement('div');
+    guide.id = 'le-drag-guide';
+    guide.className = 'le-drag-guide';
+    document.body.appendChild(guide);
+  }
+  const editorEl = document.getElementById('le-editor');
+  if (editorEl) {
+    const edRect = editorEl.getBoundingClientRect();
+    guide.style.left = (clientX - 20) + 'px';
+    guide.style.top = edRect.top + 'px';
+    guide.style.height = edRect.height + 'px';
+    guide.style.display = '';
+  }
 }
 
 function leEndDrag() {
@@ -4695,6 +4716,8 @@ function leEndDrag() {
 
   // Remove visual feedback
   document.querySelectorAll('.le-word.le-drop-target').forEach(w => w.classList.remove('le-drop-target'));
+  const guide = document.getElementById('le-drag-guide');
+  if (guide) guide.remove();
 
   if (_leDrag.moved) {
     // Update marker position
@@ -4734,6 +4757,7 @@ function leEndDrag() {
 /* ── Lyrics Editor: Audio Playback ───────────────── */
 
 let _leAudioTimeout = null;
+let _lePlayingBarId = null;
 
 async function lePlayBar(partId, barNum) {
   // Stop any current playback

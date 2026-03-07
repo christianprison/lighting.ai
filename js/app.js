@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.12.6';
+const APP_VERSION = 'v0.12.7';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -2307,52 +2307,36 @@ function drawMiniWaveformMarkers(canvas, startSec, endSec, partIndex) {
   const partDur = endSec - startSec;
   if (partDur <= 0) { ctx.restore(); return; }
 
-  // Bar markers (cyan vertical lines with number labels)
+  // Bar markers (cyan vertical lines — no flags in overview, flags only in finetuning)
   const bars = getBarMarkersForPart(partIndex);
   if (bars.length > 0) {
-    ctx.font = '7px "DM Mono", monospace';
     for (let i = 0; i < bars.length; i++) {
       const x = ((bars[i].time - startSec) / partDur) * w;
       if (x < 1 || x > w - 1) continue;
-      // Vertical line
       ctx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(x, 0);
       ctx.lineTo(x, h);
       ctx.stroke();
-      // Flag at bottom
-      const label = String(i + 1);
-      const tw = ctx.measureText(label).width;
-      const flagW = tw + 4;
-      const flagH = 9;
-      const flagY = h - flagH;
-      ctx.fillStyle = 'rgba(56, 189, 248, 0.7)';
-      ctx.fillRect(x, flagY, flagW, flagH);
-      ctx.fillStyle = '#08090d';
-      ctx.fillText(label, x + 2, flagY + 7);
     }
   }
 
-  // "Start" flag (amber, top-left)
-  ctx.font = 'bold 7px Sora, sans-serif';
-  const startLabel = 'Start';
-  const stw = ctx.measureText(startLabel).width;
-  const sFlagW = stw + 6;
-  const sFlagH = 10;
-  ctx.fillStyle = 'rgba(240, 160, 48, 0.9)';
-  ctx.fillRect(0, 0, sFlagW, sFlagH);
-  ctx.fillStyle = '#08090d';
-  ctx.fillText(startLabel, 3, 8);
+  // Start marker (amber, left edge — line only, no flag)
+  ctx.strokeStyle = 'rgba(240, 160, 48, 0.8)';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.lineTo(0, h);
+  ctx.stroke();
 
-  // "Ende" flag (amber, top-right)
-  const endLabel = 'Ende';
-  const etw = ctx.measureText(endLabel).width;
-  const eFlagW = etw + 6;
-  ctx.fillStyle = 'rgba(240, 160, 48, 0.9)';
-  ctx.fillRect(w - eFlagW, 0, eFlagW, sFlagH);
-  ctx.fillStyle = '#08090d';
-  ctx.fillText(endLabel, w - eFlagW + 3, 8);
+  // Ende marker (amber, right edge — line only, no flag)
+  ctx.strokeStyle = 'rgba(240, 160, 48, 0.8)';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(w, 0);
+  ctx.lineTo(w, h);
+  ctx.stroke();
 
   ctx.restore();
 }

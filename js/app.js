@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.13.4';
+const APP_VERSION = 'v0.13.5';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -3988,178 +3988,21 @@ function _initLyricsSplitter() {
 
 function buildLyricsRawImport(song, geniusUrl) {
   const raw = song.lyrics_raw || '';
-  const hasSyncedLyrics = !!song._lrclib_synced;
   return `
     <div class="lyrics-raw-section" id="lyrics-raw-section">
       <div class="lyrics-raw-header">
         <h3>Rohtext</h3>
         <div class="lyrics-source-btns">
           <a href="${geniusUrl}" target="_blank" rel="noopener" class="btn btn-sm lyrics-genius-link" title="Auf Genius.com suchen">&#127925; Genius.com</a>
-          <button class="btn btn-sm" id="lyrics-lrclib-btn" title="Zeitgestempelte Lyrics von LRCLIB abrufen">&#9201; LRCLIB</button>
         </div>
       </div>
-      <div id="lyrics-raw-text" class="lyrics-paste lyrics-paste-single" contenteditable="true" data-placeholder="Songtext hier einfuegen...\nTipp: Auf Genius.com den Songtext kopieren und hier einfuegen.\nOder LRCLIB-Button fuer zeitgestempelte Lyrics nutzen.\nDann auf VERTEILEN klicken.">${raw ? esc(raw).replace(/\n/g, '<br>') : ''}</div>
+      <div id="lyrics-raw-text" class="lyrics-paste lyrics-paste-single" contenteditable="true" data-placeholder="Songtext hier einfuegen...\nTipp: Auf Genius.com den Songtext kopieren und hier einfuegen.\nPartbezeichner in [eckigen Klammern] werden erkannt.\nDann auf VERTEILEN klicken.">${raw ? esc(raw).replace(/\n/g, '<br>') : ''}</div>
       <div class="lyrics-import-actions">
-        <button class="btn btn-sm" id="lyrics-distribute-btn" title="Rohtext automatisch auf Parts verteilen">VERTEILEN</button>
-        ${hasSyncedLyrics ? '<button class="btn btn-sm btn-primary" id="lyrics-sync-distribute-btn" title="Zeitgestempelte Lyrics praezise auf Takte verteilen">SYNC-VERTEILEN</button>' : ''}
+        <button class="btn btn-sm" id="lyrics-distribute-btn" title="Rohtext automatisch auf Parts und Takte verteilen">VERTEILEN</button>
       </div>
     </div>`;
 }
 
-/* ── LRCLIB Integration ──────────────────────────── */
-
-/**
- * Fetch synced lyrics from LRCLIB.net API.
- * Returns { syncedLyrics, plainLyrics } or null.
- */
-async function fetchLrclib(artist, title) {
-  const url = `https://lrclib.net/api/get?artist_name=${encodeURIComponent(artist)}&track_name=${encodeURIComponent(title)}`;
-  try {
-    const res = await fetch(url);
-    if (!res.ok) return null;
-    const data = await res.json();
-    return {
-      syncedLyrics: data.syncedLyrics || null,
-      plainLyrics: data.plainLyrics || null,
-    };
-  } catch {
-    return null;
-  }
-}
-
-/**
- * Parse LRC format timestamps into [{time, text}] array.
- * Format: [mm:ss.xx] text
- */
-function parseLrc(lrc) {
-  if (!lrc) return [];
-  const lines = [];
-  for (const line of lrc.split('\n')) {
-    const m = line.match(/^\[(\d+):(\d+)\.(\d+)\]\s*(.*)$/);
-    if (!m) continue;
-    const min = parseInt(m[1], 10);
-    const sec = parseInt(m[2], 10);
-    const ms = parseInt(m[3].padEnd(3, '0').slice(0, 3), 10);
-    const time = min * 60 + sec + ms / 1000;
-    const text = m[4].trim();
-    if (text) lines.push({ time, text });
-  }
-  return lines;
-}
-
-/**
- * Distribute synced (timestamped) lyrics to bars using bar marker times.
- * Each LRC line gets assigned to the bar whose time range contains the line's timestamp.
- */
-function distributeSyncedLyrics() {
-  if (!selectedSongId) return;
-  const song = db.songs[selectedSongId];
-  if (!song?._lrclib_synced) {
-    toast('Keine zeitgestempelten Lyrics vorhanden. Erst LRCLIB abrufen.', 'error');
-    return;
-  }
-
-  const lrcLines = parseLrc(song._lrclib_synced);
-  if (lrcLines.length === 0) {
-    toast('Keine verwertbaren Zeilen in den Sync-Lyrics', 'error');
-    return;
-  }
-
-  const parts = getSortedParts(selectedSongId);
-  if (parts.length === 0) return;
-
-  // Build a flat list of bars with their time ranges from split markers
-  const barTimings = []; // [{partId, barNum, startTime, endTime}]
-  for (let i = 0; i < parts.length; i++) {
-    const partBars = getBarMarkersForPart(i);
-    const partEnd = getPartEndTime(i);
-    for (let b = 0; b < partBars.length; b++) {
-      const start = partBars[b].time;
-      const end = b + 1 < partBars.length ? partBars[b + 1].time : (partEnd || start + 10);
-      barTimings.push({ partId: parts[i].id, barNum: b + 1, startTime: start, endTime: end });
-    }
-  }
-
-  if (barTimings.length === 0) {
-    toast('Keine Bar-Marker vorhanden. Erst Audio splitten.', 'error');
-    return;
-  }
-
-  // Assign each LRC line to the matching bar
-  const barTexts = {}; // key: `${partId}_${barNum}` → [texts]
-  for (const line of lrcLines) {
-    // Find the bar whose time range contains this line
-    let bestBar = null;
-    for (const bt of barTimings) {
-      if (line.time >= bt.startTime && line.time < bt.endTime) {
-        bestBar = bt;
-        break;
-      }
-    }
-    // Fallback: assign to nearest bar
-    if (!bestBar) {
-      let minDist = Infinity;
-      for (const bt of barTimings) {
-        const dist = Math.abs(line.time - bt.startTime);
-        if (dist < minDist) { minDist = dist; bestBar = bt; }
-      }
-    }
-    if (bestBar) {
-      const key = `${bestBar.partId}_${bestBar.barNum}`;
-      if (!barTexts[key]) barTexts[key] = [];
-      barTexts[key].push(line.text);
-    }
-  }
-
-  // Write lyrics into bar inputs
-  let filled = 0;
-  for (const [key, texts] of Object.entries(barTexts)) {
-    const [partId, barNumStr] = key.split(/_(\d+)$/).filter(Boolean);
-    const barNum = parseInt(barNumStr, 10);
-    const inp = document.querySelector(`.lyrics-bar-input[data-lyrics-bar-part="${partId}"][data-lyrics-bar-num="${barNum}"]`);
-    if (inp) {
-      inp.value = texts.join(' / ');
-      filled++;
-    }
-  }
-
-  markDirty();
-  toast(`Sync-Lyrics auf ${filled} Takte verteilt`, 'success');
-}
-
-async function handleLrclibFetch() {
-  if (!selectedSongId) return;
-  const song = db.songs[selectedSongId];
-  if (!song) return;
-
-  toast('LRCLIB wird abgefragt...', 'info', 2000);
-
-  const result = await fetchLrclib(song.artist || '', song.name || '');
-  if (!result) {
-    toast('Keine Lyrics bei LRCLIB gefunden', 'error');
-    return;
-  }
-
-  // Store synced lyrics for later precision distribution
-  if (result.syncedLyrics) {
-    song._lrclib_synced = result.syncedLyrics;
-    toast('Zeitgestempelte Lyrics geladen! Nutze SYNC-VERTEILEN.', 'success');
-  }
-
-  // Put plain lyrics into the raw text field
-  const rawText = result.plainLyrics || result.syncedLyrics?.replace(/\[\d+:\d+\.\d+\]\s*/g, '') || '';
-  if (rawText) {
-    const rawEl = document.getElementById('lyrics-raw-text');
-    if (rawEl) rawEl.innerText = rawText;
-    song.lyrics_raw = rawText;
-    markDirty();
-  }
-
-  // Re-render to show SYNC-VERTEILEN button if synced lyrics available
-  if (result.syncedLyrics) {
-    renderLyricsTab();
-  }
-}
 
 /**
  * Extract base function name from a part name (e.g. "Chorus 2" → "Chorus", "Bridge" → "Bridge").
@@ -4627,10 +4470,11 @@ function normalizePartName(name) {
 }
 
 /**
- * Distribute raw text across parts with improved heuristics:
- * 1. Parse section headers and match to part names
- * 2. Repeated sections (e.g. Chorus) copy text from first occurrence
- * 3. Lines are distributed evenly across bars within each part
+ * Distribute raw text across parts and bars:
+ * 1. Parse section headers [in brackets] and match to part names
+ * 2. Match numbered sections (e.g. [Chorus 2]) to the Nth occurrence of that part type
+ * 3. Repeating sections (e.g. Chorus) copy text from first occurrence
+ * 4. Words are distributed evenly across bars within each part
  */
 function distributeLyricsToparts() {
   if (!selectedSongId) return;
@@ -4660,7 +4504,7 @@ function distributeLyricsToparts() {
       }
       continue;
     }
-    // Detect section header
+    // Detect section header: [Verse 1], [Chorus], etc.
     if (/^\[.*\]$/.test(trimmed)) {
       if (currentLines.length > 0) {
         sections.push({ header: currentHeader, lines: currentLines });
@@ -4669,7 +4513,7 @@ function distributeLyricsToparts() {
       currentHeader = trimmed;
       continue;
     }
-    currentLines.push(line);
+    currentLines.push(trimmed);
   }
   if (currentLines.length > 0) sections.push({ header: currentHeader, lines: currentLines });
 
@@ -4678,19 +4522,48 @@ function distributeLyricsToparts() {
   // Build part list with normalized names (skip instrumental/no-bar parts)
   const textParts = parts.filter(p => (p.bars || 0) > 0 && !p.instrumental);
 
-  // Try header-based matching first
   const sectionUsed = new Array(sections.length).fill(false);
   const partAssigned = new Map(); // partId → lines[]
-  const firstTextByBase = {}; // normalized base → lines (for chorus repetition)
+  const firstTextByBase = {}; // normalized base → lines (for repetition)
 
-  // Pass 1: Match sections with headers to parts
+  // Extract section number from header: "[Chorus 2]" → 2, "[Verse]" → null
+  function getSectionNum(header) {
+    if (!header) return null;
+    const m = header.replace(/[\[\]]/g, '').match(/\s+(\d+)\s*$/);
+    return m ? parseInt(m[1], 10) : null;
+  }
+
+  // Count how many times each base name appears in textParts, and build occurrence index
+  const partOccurrence = new Map(); // partId → occurrence number (1-based)
+  const baseCount = {};
+  for (const part of textParts) {
+    const base = normalizePartName(part.name);
+    baseCount[base] = (baseCount[base] || 0) + 1;
+    partOccurrence.set(part.id, baseCount[base]);
+  }
+
+  // Pass 1: Match sections with headers to parts (respecting occurrence numbers)
   for (const part of textParts) {
     if (partAssigned.has(part.id)) continue;
     const partBase = normalizePartName(part.name);
+    const partOcc = partOccurrence.get(part.id);
+
     for (let s = 0; s < sections.length; s++) {
       if (sectionUsed[s] || !sections[s].header) continue;
       const secBase = matchSectionToPartName(sections[s].header);
-      if (secBase === partBase) {
+      if (secBase !== partBase) continue;
+
+      const secNum = getSectionNum(sections[s].header);
+      // If section has a number, match to Nth occurrence of that part type
+      if (secNum !== null) {
+        if (secNum === partOcc) {
+          partAssigned.set(part.id, sections[s].lines);
+          sectionUsed[s] = true;
+          if (!firstTextByBase[partBase]) firstTextByBase[partBase] = sections[s].lines;
+          break;
+        }
+      } else {
+        // No number: match to first unmatched occurrence
         partAssigned.set(part.id, sections[s].lines);
         sectionUsed[s] = true;
         if (!firstTextByBase[partBase]) firstTextByBase[partBase] = sections[s].lines;
@@ -4699,13 +4572,12 @@ function distributeLyricsToparts() {
     }
   }
 
-  // Pass 2: Unmatched parts — try to copy from first occurrence of same base name
+  // Pass 2: Unmatched parts — copy from first occurrence of same base name (repeating parts)
   for (const part of textParts) {
     if (partAssigned.has(part.id)) continue;
     const partBase = normalizePartName(part.name);
     if (firstTextByBase[partBase]) {
       partAssigned.set(part.id, firstTextByBase[partBase]);
-      continue;
     }
   }
 
@@ -4722,29 +4594,26 @@ function distributeLyricsToparts() {
     nextSection++;
   }
 
-  // Fill bar inputs with distributed lines
+  // Fill bar inputs — distribute words evenly across bars
   let filledParts = 0;
   for (const part of textParts) {
     const lines = partAssigned.get(part.id);
     if (!lines) continue;
     const barCount = part.bars || 0;
+    if (barCount === 0) continue;
     filledParts++;
 
-    // Distribute lines to bars
+    // Collect all words from the section
+    const allWords = lines.flatMap(l => l.split(/\s+/).filter(w => w));
+    if (allWords.length === 0) continue;
+
+    // Distribute words evenly across bars
     for (let b = 0; b < barCount; b++) {
       const inp = document.querySelector(`.lyrics-bar-input[data-lyrics-bar-part="${part.id}"][data-lyrics-bar-num="${b + 1}"]`);
       if (!inp) continue;
-      if (lines.length <= barCount) {
-        // Fewer/equal lines than bars: 1 line per bar, evenly spaced
-        const lineIdx = Math.floor(b * lines.length / barCount);
-        const isTarget = b === Math.floor(lineIdx * barCount / lines.length);
-        inp.value = (isTarget && lineIdx < lines.length) ? lines[lineIdx] : '';
-      } else {
-        // More lines than bars: combine lines
-        const startLine = Math.floor(b * lines.length / barCount);
-        const endLine = Math.floor((b + 1) * lines.length / barCount);
-        inp.value = lines.slice(startLine, endLine).join(' / ');
-      }
+      const startWord = Math.round(b * allWords.length / barCount);
+      const endWord = Math.round((b + 1) * allWords.length / barCount);
+      inp.value = allWords.slice(startWord, endWord).join(' ');
     }
   }
 
@@ -5017,18 +4886,6 @@ function copyLyricsFromPart(fromPartId, toPartId) {
 
 function handleLyricsClick(e) {
   const el = e.target;
-
-  // LRCLIB fetch
-  if (el.closest('#lyrics-lrclib-btn')) {
-    handleLrclibFetch();
-    return;
-  }
-
-  // Sync distribute (timestamped lyrics)
-  if (el.closest('#lyrics-sync-distribute-btn')) {
-    distributeSyncedLyrics();
-    return;
-  }
 
   // Distribute raw text to parts
   if (el.closest('#lyrics-distribute-btn')) {

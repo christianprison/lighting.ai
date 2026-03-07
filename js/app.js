@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.15.20';
+const APP_VERSION = 'v0.15.21';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -3269,12 +3269,12 @@ async function loadReferenceAudio() {
     // Restore part/bar markers from DB if available
     restoreMarkersFromSong();
 
-    // Re-render the active tab that uses audio
+    // Re-render the active tab that uses audio (but don't interrupt bar playback)
     if (selectedSongId === songId) {
       if (activeTab === 'audio') renderAudioTab();
       else if (activeTab === 'lyrics') renderLyricsTab();
       else if (activeTab === 'parts') renderPartsTab();
-      else if (activeTab === 'takte') renderTakteTab();
+      else if (activeTab === 'takte' && !_partPlayActive) renderTakteTab();
     }
     toast(`Referenz-Audio geladen: ${fmtTime(meta.duration)}`, 'success');
   } catch (err) {
@@ -7157,8 +7157,8 @@ function renderTakteTab() {
   const filterSong = selectedSongId;
   ensureCollections();
 
-  // Auto-load reference audio if available and not yet loaded
-  if (filterSong) {
+  // Auto-load reference audio if available and not yet loaded (skip during bar playback)
+  if (filterSong && !_partPlayActive) {
     const s = db.songs[filterSong];
     if (s && !audio.getBuffer() && s.audio_ref && _refLoadingFor !== filterSong) {
       _refLoadingFor = filterSong;

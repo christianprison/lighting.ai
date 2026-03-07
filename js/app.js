@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.15.15';
+const APP_VERSION = 'v0.15.16';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -5943,16 +5943,28 @@ async function loadQxwFile() {
       const res = await fetch(url, { headers: { Authorization: `token ${s.token}`, Accept: 'application/vnd.github.v3+json' } });
       if (!res.ok) continue;
       const json = await res.json();
-      // Proper UTF-8 decode (atob produces Latin-1, breaks multi-byte chars like emojis)
-      const binary = atob(json.content.replace(/\n/g, ''));
-      const bytes = new Uint8Array(binary.length);
-      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-      const xmlStr = new TextDecoder('utf-8').decode(bytes);
+      let xmlStr;
+      if (json.content) {
+        // Small file: decode Base64 content with proper UTF-8 handling
+        const binary = atob(json.content.replace(/\n/g, ''));
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+        xmlStr = new TextDecoder('utf-8').decode(bytes);
+      } else if (json.download_url) {
+        // Large file (>1MB): GitHub returns content:null, use download_url instead
+        const dlRes = await fetch(json.download_url);
+        if (!dlRes.ok) { console.warn(`Download failed for ${path}: ${dlRes.status}`); continue; }
+        xmlStr = await dlRes.text();
+      } else {
+        console.warn(`No content or download_url for ${path}`);
+        continue;
+      }
       const chasers = parseQxwChasers(xmlStr);
       _qxwCache = { xml: xmlStr, chasers };
       return chasers;
     } catch (e) {
       console.warn(`Failed to load ${path}:`, e);
+      toast(`QXW Ladefehler (${path}): ${e.message}`, 'error', 5000);
     }
   }
   toast('Keine QXW-Datei gefunden im Repo (db/lightingAI.qxw)', 'error');

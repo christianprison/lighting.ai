@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.13.3';
+const APP_VERSION = 'v0.13.4';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -208,6 +208,7 @@ function cacheDom() {
     tabSetlist:    document.getElementById('tab-setlist'),
     btnSettings:   document.getElementById('btn-settings'),
     btnSave:       document.getElementById('btn-save'),
+    btnUndo:       document.getElementById('btn-undo'),
     searchBox:     document.getElementById('search-box'),
     songCount:     document.getElementById('song-count'),
     songList:      document.getElementById('song-list'),
@@ -630,7 +631,7 @@ const SONG_CHECKLIST = [
     }},
 
   // ── Live-Ready ──
-  { id: 'in_setlist',    label: 'In Setlist aufgenommen', cat: 'live', tab: 'setlist',
+  { id: 'in_setlist',    label: 'fertig f\u00fcr Playlist', cat: 'live', tab: 'setlist',
     check: (s, parts, barIds, theDb) => {
       return theDb.setlist?.items?.some(i => i.type === 'song' && i.song_id === s._id);
     }},
@@ -7834,6 +7835,35 @@ async function handleSave(showToast = true) {
   }
 }
 
+async function handleUndo() {
+  if (readOnly) {
+    toast('Read-only Modus \u2014 Undo nicht verf\u00fcgbar', 'error');
+    return;
+  }
+  if (!dirty) {
+    toast('Keine ungespeicherten \u00c4nderungen vorhanden', 'info');
+    return;
+  }
+  if (!confirm('\u00c4nderungen verwerfen und letzte gespeicherte Version von GitHub laden?')) return;
+  const s = getSettings();
+  setSyncStatus('loading');
+  try {
+    const result = await loadDB(s.repo, s.path, s.token);
+    db = result.data;
+    dbSha = result.sha;
+    dirty = false;
+    setSyncStatus('saved');
+    migrateAudioPaths();
+    integrity.checkOnLoad(db, true);
+    renderSongList(els.searchBox.value);
+    renderContent();
+    toast('Letzte gespeicherte Version wiederhergestellt', 'success');
+  } catch (e) {
+    setSyncStatus('error');
+    toast(`Undo fehlgeschlagen: ${e.message}`, 'error', 5000);
+  }
+}
+
 function markDirty() {
   if (!dirty) {
     dirty = true;
@@ -7893,6 +7923,9 @@ function wireEvents() {
     const tab = e.target.closest('.help-tab');
     if (tab) switchHelpTab(tab.dataset.help);
   });
+
+  // Undo (revert to last saved GitHub version)
+  els.btnUndo.addEventListener('click', handleUndo);
 
   // Save
   els.btnSave.addEventListener('click', handleSave);

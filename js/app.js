@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.15.0';
+const APP_VERSION = 'v0.15.1';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4734,6 +4734,7 @@ function leEndDrag() {
 /* ── Lyrics Editor: Audio Playback ───────────────── */
 
 let _leAudioTimeout = null;
+let _lePlayingBarId = null;
 
 async function lePlayBar(partId, barNum) {
   // Stop any current playback

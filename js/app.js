@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.15.7';
+const APP_VERSION = 'v0.15.9';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4477,8 +4477,12 @@ function buildLyricsEditorContent(rawText) {
     // Insert any markers that belong before this word
     lastWasPartMarker = false;
     while (markerIdx < allMarkers.length && allMarkers[markerIdx].charOffset <= word.offset) {
+      if (allMarkers[markerIdx].type === 'part') {
+        // Empty line before part marker (unless at very start of text)
+        if (wi > 0 || markerIdx > 0) html += '<br><br>';
+        lastWasPartMarker = true;
+      }
       html += leRenderMarker(allMarkers[markerIdx]);
-      if (allMarkers[markerIdx].type === 'part') lastWasPartMarker = true;
       markerIdx++;
     }
 
@@ -4498,6 +4502,7 @@ function buildLyricsEditorContent(rawText) {
 
   // Any remaining markers after all words
   while (markerIdx < allMarkers.length) {
+    if (allMarkers[markerIdx].type === 'part' && _leWords.length > 0) html += '<br><br>';
     html += leRenderMarker(allMarkers[markerIdx]);
     markerIdx++;
   }
@@ -4736,6 +4741,39 @@ function leStartDrag(e) {
     });
   }
 
+  // Build line positions (group words by visual line)
+  const lineMap = new Map();
+  for (const p of wordPositions) {
+    const lineKey = Math.round(p.top / 3) * 3; // group within 3px tolerance
+    if (!lineMap.has(lineKey)) {
+      lineMap.set(lineKey, { ...p });
+    } else if (p.left < lineMap.get(lineKey).left) {
+      lineMap.set(lineKey, { ...p }); // keep leftmost word as line start
+    }
+  }
+  const linePositions = Array.from(lineMap.values()).sort((a, b) => a.top - b.top);
+
+  // Add virtual targets for empty lines (visual gaps between content lines)
+  const enrichedLines = [];
+  for (let li = 0; li < linePositions.length; li++) {
+    if (li > 0) {
+      const prevBottom = linePositions[li - 1].top + linePositions[li - 1].height;
+      const gap = linePositions[li].top - prevBottom;
+      if (gap > linePositions[li].height * 0.5) {
+        // There's a visual gap (empty line) — add a snap target in the gap
+        enrichedLines.push({
+          charOffset: linePositions[li].charOffset,
+          left: linePositions[li].left,
+          top: (prevBottom + linePositions[li].top) / 2,
+          centerY: (prevBottom + linePositions[li].top) / 2,
+          height: linePositions[li].height,
+          isEmptyLine: true
+        });
+      }
+    }
+    enrichedLines.push(linePositions[li]);
+  }
+
   const clientX = e.touches ? e.touches[0].clientX : e.clientX;
   const clientY = e.touches ? e.touches[0].clientY : e.clientY;
 
@@ -4746,6 +4784,7 @@ function leStartDrag(e) {
     startY: clientY,
     currentOffset: parseInt(markerEl.dataset.charOffset, 10),
     wordPositions,
+    linePositions: enrichedLines,
     moved: false
   };
 
@@ -4775,16 +4814,39 @@ function leMoveDrag(e) {
     _leDrag.moved = true;
   }
 
-  // Find nearest word boundary
-  const positions = _leDrag.wordPositions;
-  let bestDist = Infinity;
   let bestOffset = _leDrag.currentOffset;
 
-  for (const p of positions) {
-    const dist = Math.hypot(clientX - p.left, clientY - p.centerY);
-    if (dist < bestDist) {
-      bestDist = dist;
-      bestOffset = p.charOffset;
+  // Both part and bar markers: word-snap with cursor always LEFT of finger.
+  // Find nearest line by Y, then snap to the last word whose left edge
+  // is to the left of the finger (visible, not hidden under finger).
+  {
+    let bestLineDist = Infinity;
+    let bestLineTop = null;
+    let bestLineHeight = 0;
+    for (const lp of _leDrag.linePositions) {
+      const dist = Math.abs(clientY - lp.centerY);
+      if (dist < bestLineDist) {
+        bestLineDist = dist;
+        bestLineTop = lp.top;
+        bestLineHeight = lp.height;
+      }
+    }
+    if (bestLineTop !== null) {
+      // Collect words on this line, sorted left-to-right
+      const lineWords = _leDrag.wordPositions
+        .filter(p => Math.abs(p.top - bestLineTop) < bestLineHeight)
+        .sort((a, b) => a.left - b.left);
+      if (lineWords.length > 0) {
+        // Default: line start (first word) — edge case when finger is far left
+        let target = lineWords[0];
+        // Find the last word whose left edge is to the left of the finger
+        for (const w of lineWords) {
+          if (w.left < clientX) {
+            target = w;
+          }
+        }
+        bestOffset = target.charOffset;
+      }
     }
   }
 
@@ -4805,16 +4867,16 @@ function leMoveDrag(e) {
     guide.className = 'le-drag-guide';
     document.body.appendChild(guide);
   }
-  // Find the nearest word element to position the guide at text height
+  // Position guide at the LEFT EDGE of the snapped word (always left of finger)
   const nearestWordEl = document.querySelector(`.le-word[data-char-offset="${bestOffset}"]`);
   if (nearestWordEl) {
     const wordRect = nearestWordEl.getBoundingClientRect();
-    guide.style.left = (wordRect.left - 2) + 'px';
+    guide.style.left = wordRect.left + 'px';
     guide.style.top = wordRect.top + 'px';
     guide.style.height = wordRect.height + 'px';
     guide.style.display = '';
   } else {
-    guide.style.left = clientX + 'px';
+    guide.style.left = (clientX - 20) + 'px';
     guide.style.top = (clientY - 8) + 'px';
     guide.style.height = '16px';
     guide.style.display = '';

@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.15.16';
+const APP_VERSION = 'v0.15.17';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -129,6 +129,7 @@ const LIGHT_TEMPLATE_GROUPS = [
     'Spot auf PAC + Blinder',
     'Spot auf Pete',
     'Spot auf Tim',
+    'Spot auf Tim hot',
   ]},
   { label: 'Accent / Utility', items: [
     'blind (accent)',
@@ -173,7 +174,8 @@ const QXW_BASE_COLLECTIONS = {
   81: '10 Strobe', 82: '11 Stop', 83: '16 Searchlight',
   181: '20 white Fan up', 182: '21 white fan down',
   224: 'Spot auf Axel', 226: 'Spot auf Axel hot', 227: 'Spot auf Bibo',
-  228: 'Spot auf Pete', 229: 'Spot auf Tim', 212: 'blind (accent)',
+  228: 'Spot auf Pete', 229: 'Spot auf Tim', 14: 'Spot auf Tim hot',
+  212: 'blind (accent)',
   36: 'blackout (scene)',
 };
 

@@ -188,7 +188,7 @@
           "name": "Ausklang",
           "bars": 1,
           "duration_sec": 0,
-          "light_template": "generic_bpm",
+          "light_template": "22 blind",
           "qlc_scene": "01 statisch bunt",
           "qlc_scene_id": 71,
           "timestamp": "",

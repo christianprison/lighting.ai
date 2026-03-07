@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.15.11';
+const APP_VERSION = 'v0.15.13';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -2233,6 +2233,10 @@ function restoreMarkersFromSong() {
     const lastBar = barMarkers[barMarkers.length - 1];
     currentBarInPart = barMarkers.filter(b => b.partIndex === lastBar.partIndex).length;
 
+    // Auto-correct: snap bars near part boundaries + reassign
+    snapFirstBarsToPartMarkers();
+    reassignBarMarkerParts();
+
     // Sync bars count from markers (split_markers is source of truth)
     for (let i = 0; i < parts.length; i++) {
       const count = barMarkers.filter(m => m.partIndex === i).length;
@@ -2639,51 +2643,39 @@ function hitTestMarker(xPx, yPx) {
   let best = null;
   let bestDist = DRAG_HIT_PX + 1;
 
-  // Check part markers — flag area is wider hit target (top 16px)
+  // Check part markers — ONLY draggable via top flag (part name label)
   const parts = getSortedParts(selectedSongId);
+  const FLAG_H_PART = 20; // generous top hit zone for part flags
   for (let i = 0; i < partMarkers.length; i++) {
+    if (yPx === undefined || yPx > FLAG_H_PART) continue; // must touch top area
     const mx = (partMarkers[i].time / duration) * totalW;
-    const dist = Math.abs(xPx - mx);
-    // If click is in flag area (top), use wider hit zone based on flag width
-    let inFlag = false;
-    if (yPx !== undefined && yPx <= 16) {
-      const partName = partMarkers[i].partIndex < parts.length ? parts[partMarkers[i].partIndex].name : '';
-      if (partName) {
-        // Approximate flag width: measure roughly 7px per char + 8px padding
-        const flagW = partName.length * 7 + 8;
-        if (xPx >= mx && xPx <= mx + flagW) inFlag = true;
-      }
-    }
-    if (inFlag) {
-      // Flag hit always wins for part markers
+    const partName = partMarkers[i].partIndex < parts.length ? parts[partMarkers[i].partIndex].name : '';
+    const flagW = partName ? partName.length * 7 + 8 : 0;
+    // Hit if within flag rect OR within DRAG_HIT_PX of the line (but still in top zone)
+    const inFlag = partName && xPx >= mx && xPx <= mx + flagW;
+    const nearLine = Math.abs(xPx - mx) <= DRAG_HIT_PX;
+    if (inFlag || nearLine) {
       best = { type: 'part', index: i, marker: partMarkers[i], distPx: 0 };
       bestDist = 0;
-    } else if (dist < bestDist) {
-      bestDist = dist;
-      best = { type: 'part', index: i, marker: partMarkers[i], distPx: dist };
+      break; // flag hit is definitive
     }
   }
 
-  // Check bar markers — flag area at bottom (14px height)
+  // Check bar markers — ONLY draggable via bottom flag (bar number label)
+  const FLAG_H_BAR = 18; // generous bottom hit zone for bar flags
   for (let i = 0; i < barMarkers.length; i++) {
+    if (yPx === undefined || yPx < canvasH - FLAG_H_BAR) continue; // must touch bottom area
     const mx = (barMarkers[i].time / duration) * totalW;
-    const dist = Math.abs(xPx - mx);
-    // If click is in flag area (bottom), use wider hit zone
-    let inFlag = false;
-    if (yPx !== undefined && yPx >= canvasH - 14) {
-      const isPartStart = partMarkers.some(pm => Math.abs(pm.time - barMarkers[i].time) < 0.01);
-      if (!isPartStart) {
-        const label = String(i + 1);
-        const flagW = label.length * 7 + 6;
-        if (xPx >= mx && xPx <= mx + flagW) inFlag = true;
-      }
-    }
-    if (inFlag && (!best || best.type !== 'part' || best.distPx > 0)) {
+    const isPartStart = partMarkers.some(pm => Math.abs(pm.time - barMarkers[i].time) < 0.01);
+    if (isPartStart) continue; // skip bar markers co-located with part markers
+    const label = String(i + 1);
+    const flagW = label.length * 7 + 6;
+    const inFlag = xPx >= mx && xPx <= mx + flagW;
+    const nearLine = Math.abs(xPx - mx) <= DRAG_HIT_PX;
+    if (inFlag || nearLine) {
       best = { type: 'bar', index: i, marker: barMarkers[i], distPx: 0 };
       bestDist = 0;
-    } else if (dist < bestDist) {
-      bestDist = dist;
-      best = { type: 'bar', index: i, marker: barMarkers[i], distPx: dist };
+      break;
     }
   }
 
@@ -2915,12 +2907,27 @@ function onWaveformPointerUp(e) {
 
 /**
  * After dragging, re-assign each bar marker to the correct part based on time.
+ * Uses proximity logic at part boundaries: if a bar is within BOUNDARY_TOLERANCE
+ * of a part marker, it gets assigned to whichever part it's closer to the start of.
  */
+const BOUNDARY_TOLERANCE = 0.35; // seconds — bars within this range of a part boundary get smart-assigned
 function reassignBarMarkerParts() {
+  const sortedParts = [...partMarkers].sort((a, b) => a.time - b.time);
   for (const bm of barMarkers) {
+    // Default: assign to the last part whose start is <= bar time
     let assignedPart = 0;
-    for (const pm of partMarkers) {
+    for (const pm of sortedParts) {
       if (pm.time <= bm.time) assignedPart = pm.partIndex;
+    }
+    // Proximity check: if bar is very close to the NEXT part boundary,
+    // assign it to the next part (it likely belongs there as bar 1)
+    const nextPart = sortedParts.find(pm => pm.time > bm.time);
+    if (nextPart) {
+      const distToNext = nextPart.time - bm.time;
+      if (distToNext <= BOUNDARY_TOLERANCE) {
+        // Bar is just before next part — assign to next part
+        assignedPart = nextPart.partIndex;
+      }
     }
     bm.partIndex = assignedPart;
   }
@@ -2932,9 +2939,9 @@ function reassignBarMarkerParts() {
 
 /**
  * Ensure the first bar marker of each part is snapped to its part marker time.
+ * Uses BOUNDARY_TOLERANCE for consistency with reassignBarMarkerParts().
  */
 function snapFirstBarsToPartMarkers() {
-  const SNAP_TOLERANCE = 0.2; // seconds
   for (const pm of partMarkers) {
     // Find the nearest bar marker across ALL bars (regardless of partIndex)
     let nearest = null;
@@ -2943,7 +2950,7 @@ function snapFirstBarsToPartMarkers() {
       const d = Math.abs(bm.time - pm.time);
       if (d < nearestDist) { nearest = bm; nearestDist = d; }
     }
-    if (nearest && nearestDist <= SNAP_TOLERANCE) {
+    if (nearest && nearestDist <= BOUNDARY_TOLERANCE) {
       nearest.time = pm.time;
     }
   }

@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.13.2';
+const APP_VERSION = 'v0.13.3';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -723,9 +723,17 @@ function checkProgressAndCelebrate(songId) {
 
 /* ── TMS Modal ──────────────────────────────────────── */
 
+let _tmsCollapsed = new Set();
+
 function openTmsModal(songId) {
   if (!songId || !db?.songs[songId]) return;
   closeTmsModal();
+  // Reset collapsed state: auto-collapse completed categories
+  _tmsCollapsed = new Set();
+  const prog = getSongProgress(songId);
+  for (const cat of prog.categories) {
+    if (cat.allDone) _tmsCollapsed.add(cat.id);
+  }
   const overlay = document.createElement('div');
   overlay.className = 'tms-modal-overlay';
   overlay.id = 'tms-modal-overlay';
@@ -745,6 +753,19 @@ function openTmsModal(songId) {
 
     // Close button
     if (el.closest('.tms-close-btn')) { closeTmsModal(); return; }
+
+    // Toggle category collapse
+    const catToggle = el.closest('[data-tms-cat-toggle]');
+    if (catToggle) {
+      const catEl = catToggle.closest('.tms-category');
+      if (catEl) {
+        catEl.classList.toggle('collapsed');
+        const catId = catToggle.dataset.tmsCatToggle;
+        if (catEl.classList.contains('collapsed')) _tmsCollapsed.add(catId);
+        else _tmsCollapsed.delete(catId);
+      }
+      return;
+    }
 
     // Toggle manual completion of default task
     const manualToggle = el.closest('[data-tms-toggle]');
@@ -861,27 +882,30 @@ function renderTmsModalContent(songId) {
     </div>
     <div class="tms-body">
       ${prog.categories.map(cat => `
-        <div class="tms-category">
-          <div class="tms-cat-header">
+        <div class="tms-category${_tmsCollapsed.has(cat.id) ? ' collapsed' : ''}" data-tms-cat="${cat.id}">
+          <div class="tms-cat-header" data-tms-cat-toggle="${cat.id}">
+            <span class="tms-cat-chevron">&#9660;</span>
             <span class="tms-cat-icon">${cat.icon}</span>
             <span class="tms-cat-title">${esc(cat.label)}</span>
             <span class="tms-cat-count mono ${cat.allDone ? 'text-green' : 'text-t3'}">${cat.done}/${cat.total}</span>
             ${cat.allDone ? '<span class="tms-cat-check text-green">&#10003;</span>' : ''}
           </div>
-          ${cat.steps.map(s => `
-            <div class="tms-step ${s.done ? 'done' : ''}">
-              <button class="tms-check-btn" ${s.isUser ? `data-tms-user-toggle="${s.id}"` : `data-tms-toggle="${s.id}"`}
-                title="${s.done ? (s.autoCheck && !s.isUser ? 'Automatisch erkannt' : 'Als offen markieren') : 'Als erledigt markieren'}">
-                ${s.done ? (s.autoCheck && !s.isUser ? '&#10003;' : '&#10004;') : '&#9675;'}
-              </button>
-              <span class="tms-step-label">${esc(s.label)}</span>
-              ${s.isUser ? `<button class="tms-delete-btn" data-tms-user-delete="${s.id}" title="Task loeschen">&times;</button>` : ''}
-              ${!s.done && s.tab ? `<button class="btn btn-xs tms-goto-btn" data-tms-goto="${s.tab}">&#8594; ${s.tab.toUpperCase()}</button>` : ''}
+          <div class="tms-cat-body">
+            ${cat.steps.map(s => `
+              <div class="tms-step ${s.done ? 'done' : ''}">
+                <button class="tms-check-btn" ${s.isUser ? `data-tms-user-toggle="${s.id}"` : `data-tms-toggle="${s.id}"`}
+                  title="${s.done ? (s.autoCheck && !s.isUser ? 'Automatisch erkannt' : 'Als offen markieren') : 'Als erledigt markieren'}">
+                  ${s.done ? (s.autoCheck && !s.isUser ? '&#10003;' : '&#10004;') : '&#9675;'}
+                </button>
+                <span class="tms-step-label">${esc(s.label)}</span>
+                ${s.isUser ? `<button class="tms-delete-btn" data-tms-user-delete="${s.id}" title="Task loeschen">&times;</button>` : ''}
+                ${!s.done && s.tab ? `<button class="btn btn-xs tms-goto-btn" data-tms-goto="${s.tab}">&#8594; ${s.tab.toUpperCase()}</button>` : ''}
+              </div>
+            `).join('')}
+            <div class="tms-add-row">
+              <input type="text" class="tms-add-input" data-tms-new-task="${cat.id}" placeholder="Neuer Task...">
+              <button class="btn btn-xs tms-add-btn" data-tms-add-task="${cat.id}">+</button>
             </div>
-          `).join('')}
-          <div class="tms-add-row">
-            <input type="text" class="tms-add-input" data-tms-new-task="${cat.id}" placeholder="Neuer Task...">
-            <button class="btn btn-xs tms-add-btn" data-tms-add-task="${cat.id}">+</button>
           </div>
         </div>
       `).join('')}

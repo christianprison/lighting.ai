@@ -554,8 +554,8 @@ label {
 
 /* ── Part Waveform Editor Modal ────────────────────── */
 .part-wave-modal {
-  max-width: 700px;
-  width: 95%;
+  max-width: 90vw;
+  width: 90%;
   padding: 20px;
 }
 .pw-header {
@@ -2433,6 +2433,8 @@ label {
 .lyrics-paste {
   width: 100%;
   min-height: 100px;
+  max-height: 400px;
+  overflow-y: auto;
   background: var(--bg3);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -2441,7 +2443,17 @@ label {
   font-size: 0.8rem;
   line-height: 1.6;
   padding: 12px;
-  resize: vertical;
+  column-count: 3;
+  column-gap: 20px;
+  column-rule: 1px solid var(--border);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.lyrics-paste:empty::before {
+  content: attr(data-placeholder);
+  color: var(--t4);
+  white-space: pre-wrap;
+  column-span: all;
 }
 
 .lyrics-paste:focus {

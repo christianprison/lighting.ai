@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.12.9';
+const APP_VERSION = 'v0.12.11';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -3794,7 +3794,7 @@ function buildLyricsRawImport(song, geniusUrl) {
           <button class="btn btn-sm" id="lyrics-lrclib-btn" title="Zeitgestempelte Lyrics von LRCLIB abrufen">&#9201; LRCLIB</button>
         </div>
       </div>
-      <textarea id="lyrics-raw-text" class="lyrics-paste" rows="8" placeholder="Songtext hier einfuegen...&#10;Tipp: Auf Genius.com den Songtext kopieren und hier einfuegen.&#10;Oder LRCLIB-Button fuer zeitgestempelte Lyrics nutzen.&#10;Dann auf VERTEILEN klicken.">${esc(raw)}</textarea>
+      <div id="lyrics-raw-text" class="lyrics-paste" contenteditable="true" data-placeholder="Songtext hier einfuegen...\nTipp: Auf Genius.com den Songtext kopieren und hier einfuegen.\nOder LRCLIB-Button fuer zeitgestempelte Lyrics nutzen.\nDann auf VERTEILEN klicken.">${raw ? esc(raw).replace(/\n/g, '<br>') : ''}</div>
       <div class="lyrics-import-actions">
         <button class="btn btn-sm" id="lyrics-distribute-btn" title="Rohtext automatisch auf Parts verteilen">VERTEILEN</button>
         ${hasSyncedLyrics ? '<button class="btn btn-sm btn-primary" id="lyrics-sync-distribute-btn" title="Zeitgestempelte Lyrics praezise auf Takte verteilen">SYNC-VERTEILEN</button>' : ''}
@@ -3946,7 +3946,7 @@ async function handleLrclibFetch() {
   const rawText = result.plainLyrics || result.syncedLyrics?.replace(/\[\d+:\d+\.\d+\]\s*/g, '') || '';
   if (rawText) {
     const rawEl = document.getElementById('lyrics-raw-text');
-    if (rawEl) rawEl.value = rawText;
+    if (rawEl) rawEl.innerText = rawText;
     song.lyrics_raw = rawText;
     markDirty();
   }
@@ -4434,10 +4434,10 @@ function distributeLyricsToparts() {
   const rawEl = document.getElementById('lyrics-raw-text');
   if (!rawEl) return;
 
-  const rawText = rawEl.value.trim();
+  const rawText = rawEl.innerText.trim();
   if (!rawText) { toast('Kein Rohtext vorhanden', 'error'); return; }
 
-  song.lyrics_raw = rawEl.value;
+  song.lyrics_raw = rawEl.innerText;
 
   const parts = getSortedParts(selectedSongId);
   if (parts.length === 0) { toast('Keine Parts vorhanden', 'error'); return; }
@@ -4749,7 +4749,6 @@ function updateLyricsPlayButtons() {
  * Copy lyrics bar-by-bar from one part to another.
  */
 function copyLyricsFromPart(fromPartId, toPartId) {
-  const db = getDB();
   if (!db || !db.songs || !selectedSongId) return;
   const song = db.songs[selectedSongId];
   if (!song || !song.parts) return;
@@ -4897,7 +4896,7 @@ function saveLyricsRawText() {
   if (!song) return;
   const rawEl = document.getElementById('lyrics-raw-text');
   if (!rawEl) return;
-  const val = rawEl.value;
+  const val = rawEl.innerText;
   if (val !== (song.lyrics_raw || '')) {
     song.lyrics_raw = val;
     markDirty();
@@ -4948,6 +4947,13 @@ function _startVisualViewportTracking() {
   if (_vvCleanup || !window.visualViewport) return;
   const update = () => {
     document.documentElement.style.setProperty('--vv-h', `${window.visualViewport.height}px`);
+    // If viewport height is close to window height → keyboard closed, exit kbd mode
+    if (window.visualViewport.height > window.innerHeight * 0.85) {
+      const active = document.activeElement;
+      if (!active || !active.classList.contains('lyrics-bar-input')) {
+        _exitLyricsKbdMode();
+      }
+    }
   };
   update();
   window.visualViewport.addEventListener('resize', update);
@@ -4962,20 +4968,25 @@ function _startVisualViewportTracking() {
 
 // Remember scroll position so we can restore it when leaving kbd mode
 let _savedScrollY = 0;
+let _savedLyricsScrollTop = 0;
 
 function lyricsInputFocusIn(input) {
   if (_isIPad) {
     _savedScrollY = window.scrollY;
+    const scrollEl = document.getElementById('lyrics-scroll');
+    _savedLyricsScrollTop = scrollEl ? scrollEl.scrollTop : 0;
     _startVisualViewportTracking();
     const panel = document.querySelector('.lyrics-panel');
     if (panel) panel.classList.add('lyrics-kbd-mode');
-    // Scroll the focused input into view inside the now-fixed panel
-    const card = input.closest('.lyrics-part-card');
-    if (card) {
+    // Restore lyrics-scroll position inside the now-fixed panel, then
+    // scroll the focused input into view within the scroll container
+    requestAnimationFrame(() => {
+      const scrollEl2 = document.getElementById('lyrics-scroll');
+      if (scrollEl2) scrollEl2.scrollTop = _savedLyricsScrollTop;
       requestAnimationFrame(() => {
-        card.scrollIntoView({ block: 'start', behavior: 'smooth' });
+        input.scrollIntoView({ block: 'center', behavior: 'smooth' });
       });
-    }
+    });
   }
 }
 
@@ -4995,17 +5006,23 @@ function lyricsInputFocusOut(input) {
 
   // iPad: restore full layout (small delay to handle tab between inputs)
   if (_isIPad) {
-    setTimeout(() => {
-      const active = document.activeElement;
-      if (!active || !active.classList.contains('lyrics-bar-input')) {
-        const panel = document.querySelector('.lyrics-panel');
-        if (panel) panel.classList.remove('lyrics-kbd-mode');
-        if (_vvCleanup) _vvCleanup();
-        // Restore original scroll position
-        window.scrollTo(0, _savedScrollY);
-      }
-    }, 150);
+    _exitLyricsKbdMode();
   }
+}
+
+/** Remove lyrics-kbd-mode after a small delay (unless another bar input got focus). */
+function _exitLyricsKbdMode() {
+  setTimeout(() => {
+    const active = document.activeElement;
+    if (active && active.classList.contains('lyrics-bar-input')) return;
+    // Also check contenteditable raw text
+    if (active && active.id === 'lyrics-raw-text') return;
+    const panel = document.querySelector('.lyrics-panel');
+    if (panel) panel.classList.remove('lyrics-kbd-mode');
+    if (_vvCleanup) _vvCleanup();
+    // Restore original scroll position
+    window.scrollTo(0, _savedScrollY);
+  }, 250);
 }
 
 /* ══════════════════════════════════════════════════════
@@ -6000,12 +6017,32 @@ function handlePartsTabClick(e) {
     return;
   }
 
-  // Mini-waveform click → open Part Waveform Editor
+  // Mini-waveform click → seek to position and play from there
   const waveCanvas = el.closest('.mini-waveform');
   if (waveCanvas) {
     const row = waveCanvas.closest('.ptt-row');
     if (row) {
-      openPartWaveEditor(row.dataset.songId, row.dataset.partId);
+      const wStart = parseFloat(waveCanvas.dataset.waveStart);
+      const wEnd = parseFloat(waveCanvas.dataset.waveEnd);
+      if (!isNaN(wStart) && !isNaN(wEnd) && wEnd > wStart) {
+        const rect = waveCanvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const ratio = Math.max(0, Math.min(1, x / rect.width));
+        const seekTime = wStart + ratio * (wEnd - wStart);
+        const partId = row.dataset.partId;
+        // Stop current playback
+        stopPartPlay();
+        _playingPartId = partId;
+        _partPlayActive = true;
+        refreshPartPlayUI();
+        audio.playSegments([{ startTime: seekTime, endTime: wEnd }], () => {
+          if (_playingPartId === partId) {
+            _playingPartId = null;
+            _partPlayActive = false;
+            refreshPartPlayUI();
+          }
+        });
+      }
       return;
     }
   }
@@ -6607,18 +6644,16 @@ function _pwWaveformClick(e) {
   const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
   const time = _pwXToTime(x);
 
-  // If playing, seek to that position (restart segment from there)
-  if (_pw.playing) {
+  // Seek to clicked position and start playback (works whether playing or stopped)
+  if (_pw.playing) _pwStopPlay();
+  _pw.playing = true;
+  els.pwPlay.innerHTML = '&#9632; Stop';
+  els.pwPlayhead.style.display = 'block';
+  const seekTime = Math.max(_pw.trimStart, Math.min(time, _pw.trimEnd));
+  audio.playSegments([{ startTime: seekTime, endTime: _pw.trimEnd }], () => {
     _pwStopPlay();
-    _pw.playing = true;
-    els.pwPlay.innerHTML = '&#9632; Stop';
-    els.pwPlayhead.style.display = 'block';
-    const seekTime = Math.max(_pw.trimStart, Math.min(time, _pw.trimEnd));
-    audio.playSegments([{ startTime: seekTime, endTime: _pw.trimEnd }], () => {
-      _pwStopPlay();
-    });
-    _pwAnimatePlayhead();
-  }
+  });
+  _pwAnimatePlayhead();
 }
 
 /* ── Part Wave Editor: Init Event Listeners ── */
@@ -7365,6 +7400,15 @@ function wireEvents() {
     else if (activeTab === 'lyrics') handleLyricsClick(e);
     else if (activeTab === 'accents') handleAccentsTabClick(e);
     else if (activeTab === 'setlist') handleSetlistClick(e);
+  });
+  // Parts tab: double-click mini-waveform → open Part Wave Editor (Finetuning)
+  els.content.addEventListener('dblclick', (e) => {
+    if (activeTab !== 'parts') return;
+    const waveCanvas = e.target.closest('.mini-waveform');
+    if (waveCanvas) {
+      const row = waveCanvas.closest('.ptt-row');
+      if (row) openPartWaveEditor(row.dataset.songId, row.dataset.partId);
+    }
   });
   els.content.addEventListener('change', (e) => {
     if (activeTab === 'parts') handlePartsTabChange(e);

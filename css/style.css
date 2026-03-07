@@ -2562,12 +2562,20 @@ label {
 
 .le-part-marker.le-predicted {
   opacity: 0.7;
-  border: 1px dashed rgba(0, 0, 0, 0.3);
 }
 
 .le-part-marker.le-confirmed {
   opacity: 1;
-  border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+/* Orange guide line during drag, positioned left of marker */
+.le-drag-guide {
+  position: fixed;
+  width: 2px;
+  background: var(--amber);
+  pointer-events: none;
+  z-index: 9999;
+  border-radius: 1px;
 }
 
 /* ── Bar Markers: Cyan vertical stripe ─────── */

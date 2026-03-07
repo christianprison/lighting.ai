@@ -445,6 +445,15 @@ h3 { font-size: 0.95rem; }
   background: rgba(255, 59, 92, 0.1);
 }
 
+.btn-success {
+  color: var(--green);
+  border-color: rgba(0, 220, 130, 0.3);
+}
+
+.btn-success:hover {
+  background: rgba(0, 220, 130, 0.1);
+}
+
 .btn-sm {
   font-size: 0.75rem;
   padding: 4px 10px;

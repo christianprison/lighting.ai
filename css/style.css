@@ -3084,12 +3084,25 @@ label {
   color: var(--t2);
   text-transform: uppercase;
   letter-spacing: 0.04em;
+  cursor: pointer;
+  border-radius: var(--radius);
+  user-select: none;
 }
+.tms-cat-header:hover { background: var(--bg4); }
+
+.tms-cat-chevron {
+  font-size: 0.7rem;
+  transition: transform 0.15s ease;
+  color: var(--t3);
+}
+.tms-category.collapsed .tms-cat-chevron { transform: rotate(-90deg); }
 
 .tms-cat-icon { font-size: 0.85rem; }
 .tms-cat-title { flex: 1; }
 .tms-cat-count { font-size: 0.7rem; font-weight: 500; }
 .tms-cat-check { font-size: 0.85rem; }
+
+.tms-category.collapsed .tms-cat-body { display: none; }
 
 .tms-step {
   display: flex;

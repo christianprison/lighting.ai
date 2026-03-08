@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.0.14';
+const APP_VERSION = 'v1.0.15';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -446,12 +446,17 @@ function calcPartStarts(songId) {
 
 /**
  * Get the absolute (song-global) bar number for a given part + local bar number.
+ * Uses pure cumulative bar count (matching Audio Split numbering).
  * Local barNum is 1-based within the part. Returns 1-based absolute bar from song start.
  */
 function getAbsBarNum(songId, partId, localBarNum) {
-  const starts = calcPartStarts(songId);
-  const st = starts.get(partId);
-  return st ? st.startBar + localBarNum : localBarNum;
+  const parts = getSortedParts(songId);
+  let cumBars = 0;
+  for (const p of parts) {
+    if (p.id === partId) return cumBars + localBarNum;
+    cumBars += (p.bars || 0);
+  }
+  return localBarNum; // fallback
 }
 
 /* ── DB Helpers ────────────────────────────────────── */
@@ -7710,18 +7715,17 @@ function getAllBarsFlat() {
   const rows = [];
   for (const [songId, song] of Object.entries(db.songs)) {
     const parts = getSortedParts(songId);
-    const starts = calcPartStarts(songId);
+    let cumBars = 0;
     for (const p of parts) {
-      const st = starts.get(p.id) || { startBar: 0, startSec: 0 };
       const barCount = p.bars || 0;
       for (let n = 1; n <= barCount; n++) {
         const found = findBar(p.id, n);
         const barData = found ? found[1] : {};
         const barId = found ? found[0] : null;
         const accCount = barId ? getAccentsForBar(barId).length : 0;
-        const absBar = st.startBar + n;
+        const absBar = cumBars + n;
         const bpm = song.bpm || 0;
-        const barSec = bpm > 0 ? (st.startBar + n - 1) * 4 * 60 / bpm : 0;
+        const barSec = bpm > 0 ? (cumBars + n - 1) * 4 * 60 / bpm : 0;
         rows.push({
           songId, songName: song.name, bpm,
           partId: p.id, partName: p.name,
@@ -7731,6 +7735,7 @@ function getAllBarsFlat() {
           accCount, barId
         });
       }
+      cumBars += barCount;
     }
   }
   return rows;

@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.1.3';
+const APP_VERSION = 'v1.1.4';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4314,9 +4314,16 @@ function leRenderBlocks() {
   let html = '';
   for (let i = 0; i < _leBlocks.length; i++) {
     const b = _leBlocks[i];
-    // Line break before part blocks and blocks with newline flag
+    // Line break before part blocks, before first bar of each part, and blocks with newline flag
     if (b.type === 'part' || b.newline) {
       html += '<span class="le-break"></span>';
+    } else if (b.type === 'bar' && b.barNum === 1) {
+      // First bar of a part always starts on a new line
+      // (unless it's already right after the part block break)
+      const prev = i > 0 ? _leBlocks[i - 1] : null;
+      if (prev && prev.type !== 'part') {
+        html += '<span class="le-break"></span>';
+      }
     }
     let cls = `le-block le-block-${b.type}`;
     const draggable = 'draggable="true"';

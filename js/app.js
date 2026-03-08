@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.0.2';
+const APP_VERSION = 'v1.0.3';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -2886,6 +2886,25 @@ function onWaveformPointerUp(e) {
   }
 
   if (_dragMarker && _isDragging) {
+    // If a part marker was dragged far enough, leave a bar marker at the original position
+    if (_dragMarker.type === 'part') {
+      const origTime = _dragMarker.originalTime;
+      const newTime = partMarkers[_dragMarker.index].time;
+      const displacement = Math.abs(newTime - origTime);
+      const song = db.songs[selectedSongId];
+      const bpm = song ? (song.bpm || 120) : 120;
+      const quarterBar = 60 / bpm; // duration of one beat (quarter note)
+      if (displacement > quarterBar * 0.25) {
+        // Check if there's already a bar marker near the original position
+        const hasBarAtOrig = barMarkers.some(bm => Math.abs(bm.time - origTime) < 0.05);
+        if (!hasBarAtOrig) {
+          // Determine which part the original position now belongs to
+          const origPartIdx = getPartIndexForTime(origTime);
+          barMarkers.push({ time: origTime, partIndex: origPartIdx });
+        }
+      }
+    }
+
     // Finalize drag — snap first bar of each part to part marker
     snapFirstBarsToPartMarkers();
 

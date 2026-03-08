@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.0.5';
+const APP_VERSION = 'v1.0.6';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -8368,6 +8368,13 @@ const TAB_TIPS = [
     text: 'Öffne durch Antippen den Finetuning Editor',
     anchor: () => document.querySelector('.mini-waveform'),
     arrow: 'down'   // bubble above, arrow points down to waveform
+  },
+  {
+    id: 'songlist-tms-progress',
+    tab: '*',        // sidebar — always visible, show on any tab
+    text: 'Tippe auf den Fortschrittskreis um offene Aufgaben zu sehen',
+    anchor: () => document.querySelector('.song-progress-mini'),
+    arrow: 'left'    // bubble right of circle, arrow points left
   }
 ];
 
@@ -8402,7 +8409,7 @@ function showTabTip(tab) {
   document.querySelector('.tip-bubble')?.remove();
 
   const seen = getTipsSeen();
-  const tip = TAB_TIPS.find(t => t.tab === tab && !seen.includes(t.id));
+  const tip = TAB_TIPS.find(t => (t.tab === tab || t.tab === '*') && !seen.includes(t.id));
   if (!tip) return;
 
   // Small delay so the tab content is fully rendered & laid out

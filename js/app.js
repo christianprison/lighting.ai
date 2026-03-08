@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.0.17';
+const APP_VERSION = 'v1.0.18';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -7796,7 +7796,7 @@ function initPartWaveEditor() {
   els.pwPlay.addEventListener('click', _pwTogglePlay);
 
   // Tap bar button
-  els.pwTapBar.addEventListener('click', _pwTapBar);
+  els.pwTapBar?.addEventListener('click', _pwTapBar);
 
   // Keyboard shortcut: T to tap bar during playback
   document.addEventListener('keydown', (e) => {

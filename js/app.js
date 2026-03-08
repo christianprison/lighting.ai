@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.15.31';
+const APP_VERSION = 'v1.0.0';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -6976,6 +6976,8 @@ let _pw = {
   /** Original trim positions (for cancel) */
   origStart: 0,
   origEnd: 0,
+  /** Original bar marker times for cancel/undo */
+  origBarTimes: [],
   /** Playback animation frame id */
   animFrame: null,
   /** Is playing */
@@ -7013,6 +7015,9 @@ function openPartWaveEditor(songId, partId) {
   _pw.origEnd = endTime;
   _pw.open = true;
   _pw.playing = false;
+  // Save original bar marker times for cancel/undo
+  const bars = getBarMarkersForPart(partIdx);
+  _pw.origBarTimes = bars.map(m => ({ marker: m, time: m.time }));
 
   els.pwTitle.textContent = `${part.name} — ${db.songs[songId]?.name || ''}`;
   els.pwModal.classList.add('open');
@@ -7029,23 +7034,31 @@ function closePartWaveEditor(save) {
   _pw.open = false;
   els.pwModal.classList.remove('open');
 
-  if (save && (_pw.trimStart !== _pw.origStart || _pw.trimEnd !== _pw.origEnd)) {
-    // Update the part marker
-    const marker = partMarkers.find(m => m.partIndex === _pw.partIndex);
-    if (marker) {
-      marker.time = _pw.trimStart;
-    }
-    // Update next part marker (= end of this part) if it exists
-    const nextMarker = partMarkers.find(m => m.partIndex === _pw.partIndex + 1);
-    if (nextMarker) {
-      nextMarker.time = _pw.trimEnd;
+  // Check if bar markers were changed
+  const barsChanged = _pw.origBarTimes.some(ob => ob.marker.time !== ob.time);
+  const trimChanged = _pw.trimStart !== _pw.origStart || _pw.trimEnd !== _pw.origEnd;
+
+  if (save && (trimChanged || barsChanged)) {
+    if (trimChanged) {
+      // Update the part marker
+      const marker = partMarkers.find(m => m.partIndex === _pw.partIndex);
+      if (marker) marker.time = _pw.trimStart;
+      // Update next part marker (= end of this part) if it exists
+      const nextMarker = partMarkers.find(m => m.partIndex === _pw.partIndex + 1);
+      if (nextMarker) nextMarker.time = _pw.trimEnd;
     }
     // Persist and re-render
     saveMarkersToSong();
     markDirty();
     if (activeTab === 'parts') renderPartsTab();
     else if (activeTab === 'audio') { drawWaveform(); }
-    toast('Part-Grenzen aktualisiert', 'success');
+    toast(barsChanged && trimChanged ? 'Part-Grenzen + Takte aktualisiert' :
+          barsChanged ? 'Takt-Marker aktualisiert' : 'Part-Grenzen aktualisiert', 'success');
+  } else if (!save) {
+    // Cancel — restore original bar marker times
+    for (const ob of _pw.origBarTimes) {
+      ob.marker.time = ob.time;
+    }
   }
 }
 
@@ -7086,16 +7099,17 @@ function _pwDrawWaveform() {
     ctx.fillRect(i, mid - barH / 2, 1, barH || 1);
   }
 
-  // Draw bar markers with flags
+  // Draw bar markers with draggable flags
   const bars = getBarMarkersForPart(_pw.partIndex);
   if (bars.length > 0) {
     const viewRange = _pw.viewEnd - _pw.viewStart;
     for (let i = 0; i < bars.length; i++) {
       const x = ((bars[i].time - _pw.viewStart) / viewRange) * w;
       if (x < 0 || x > w) continue;
-      // Cyan vertical line
-      ctx.strokeStyle = 'rgba(56, 189, 248, 0.6)';
-      ctx.lineWidth = 1;
+      const isDragging = _pwDrag && _pwDrag.which === 'bar' && _pwDrag.barMarker === bars[i];
+      // Cyan vertical line (brighter when dragging)
+      ctx.strokeStyle = isDragging ? 'rgba(56, 189, 248, 1.0)' : 'rgba(56, 189, 248, 0.6)';
+      ctx.lineWidth = isDragging ? 2 : 1;
       ctx.beginPath();
       ctx.moveTo(x, 0);
       ctx.lineTo(x, h);
@@ -7104,10 +7118,20 @@ function _pwDrawWaveform() {
       const label = `${bars[i].barNum || i + 1}`;
       ctx.font = '9px DM Mono, monospace';
       const tw = ctx.measureText(label).width + 4;
-      ctx.fillStyle = 'rgba(56, 189, 248, 0.85)';
+      ctx.fillStyle = isDragging ? 'rgba(56, 189, 248, 1.0)' : 'rgba(56, 189, 248, 0.85)';
       ctx.fillRect(x, h - 13, tw, 13);
       ctx.fillStyle = '#08090d';
       ctx.fillText(label, x + 2, h - 3);
+      // Show time label when dragging
+      if (isDragging) {
+        const timeLabel = fmtTime(bars[i].time);
+        ctx.font = '9px DM Mono, monospace';
+        const tlw = ctx.measureText(timeLabel).width + 4;
+        ctx.fillStyle = 'rgba(56, 189, 248, 0.9)';
+        ctx.fillRect(x - tlw / 2, h - 26, tlw, 12);
+        ctx.fillStyle = '#08090d';
+        ctx.fillText(timeLabel, x - tlw / 2 + 2, h - 16);
+      }
     }
   }
 
@@ -7185,15 +7209,62 @@ function _pwUpdateUI() {
 
 /* fmtTime — siehe Zeile 1835 (einzige Definition) */
 
-/* ── Part Wave Editor: Handle Drag ── */
+/* ── Part Wave Editor: Handle Drag (Trim + Bar Markers) ── */
 
-let _pwDrag = null; // { which: 'start'|'end', startX }
+let _pwDrag = null; // { which: 'start'|'end'|'bar', startX, barMarker?, barIndex? }
 
 function _pwStartDrag(which, e) {
   e.preventDefault();
   const clientX = e.touches ? e.touches[0].clientX : e.clientX;
   _pwDrag = { which, startX: clientX };
+  _pwInstallDragListeners();
+}
 
+/** Hit-test bar marker flags in the modal waveform. Returns bar marker or null. */
+function _pwHitTestBar(xPx, yPx) {
+  const bars = getBarMarkersForPart(_pw.partIndex);
+  if (bars.length === 0) return null;
+  const w = els.pwWrap.clientWidth;
+  const h = els.pwWrap.clientHeight || 100;
+  const viewRange = _pw.viewEnd - _pw.viewStart;
+  if (viewRange <= 0) return null;
+
+  const FLAG_H = 18; // bottom hit zone for bar flags
+  if (yPx < h - FLAG_H) return null; // must touch bottom area
+
+  for (let i = 0; i < bars.length; i++) {
+    const mx = ((bars[i].time - _pw.viewStart) / viewRange) * w;
+    if (mx < 0 || mx > w) continue;
+    const label = String(bars[i].barNum || i + 1);
+    const flagW = label.length * 7 + 6;
+    const inFlag = xPx >= mx && xPx <= mx + flagW;
+    const nearLine = Math.abs(xPx - mx) <= DRAG_HIT_PX;
+    if (inFlag || nearLine) return { marker: bars[i], index: i };
+  }
+  return null;
+}
+
+/** Compute drag bounds for a bar marker in the modal (constrained to part + neighbours). */
+function _pwGetBarDragBounds(barMarker) {
+  const bars = getBarMarkersForPart(_pw.partIndex);
+  const sorted = [...bars].sort((a, b) => a.time - b.time);
+  const idx = sorted.indexOf(barMarker);
+  const gap = 0.05; // 50ms minimum gap
+  const min = idx > 0 ? sorted[idx - 1].time + gap : _pw.trimStart + gap;
+  const max = idx < sorted.length - 1 ? sorted[idx + 1].time - gap : _pw.trimEnd - gap;
+  return { min, max };
+}
+
+/** Start a bar marker drag from a pointer-down on the canvas. */
+function _pwStartBarDrag(barMarker, barIndex, e) {
+  e.preventDefault();
+  e.stopPropagation();
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  _pwDrag = { which: 'bar', startX: clientX, barMarker, barIndex, activated: false };
+  _pwInstallDragListeners();
+}
+
+function _pwInstallDragListeners() {
   const onMove = (ev) => {
     if (!_pwDrag) return;
     const cx = ev.touches ? ev.touches[0].clientX : ev.clientX;
@@ -7203,12 +7274,27 @@ function _pwStartDrag(which, e) {
 
     if (_pwDrag.which === 'start') {
       _pw.trimStart = Math.max(_pw.viewStart, Math.min(time, _pw.trimEnd - 0.1));
-    } else {
+    } else if (_pwDrag.which === 'end') {
       _pw.trimEnd = Math.min(_pw.viewEnd, Math.max(time, _pw.trimStart + 0.1));
+    } else if (_pwDrag.which === 'bar') {
+      ev.preventDefault();
+      _pwDrag.activated = true;
+      const bounds = _pwGetBarDragBounds(_pwDrag.barMarker);
+      _pwDrag.barMarker.time = Math.max(bounds.min, Math.min(bounds.max, time));
+      // Show drag balloon on touch
+      if (ev.touches) {
+        const clientY = ev.touches[0].clientY;
+        const label = `Takt ${_pwDrag.barMarker.barNum || _pwDrag.barIndex + 1}`;
+        showDragBalloon(label, _pwDrag.barMarker.time, '#38bdf8', cx, clientY);
+      }
     }
     _pwUpdateUI();
   };
   const onEnd = () => {
+    if (_pwDrag && _pwDrag.which === 'bar') {
+      hideDragBalloon();
+      els.pwWrap.classList.remove('bar-dragging');
+    }
     _pwDrag = null;
     document.removeEventListener('mousemove', onMove);
     document.removeEventListener('mouseup', onEnd);
@@ -7275,6 +7361,8 @@ function _pwNudge(which, dir) {
 /* ── Part Wave Editor: Click on waveform to seek ── */
 
 function _pwWaveformClick(e) {
+  // Skip if we just finished a bar drag
+  if (_pwBarDragUsed) { _pwBarDragUsed = false; return; }
   if (_pwDrag) return; // was a drag, not a click
   const rect = els.pwWrap.getBoundingClientRect();
   const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
@@ -7292,6 +7380,36 @@ function _pwWaveformClick(e) {
   _pwAnimatePlayhead();
 }
 
+/** Flag to suppress click-to-seek after a bar marker drag */
+let _pwBarDragUsed = false;
+
+/** Pointer-down handler on the modal waveform wrap to initiate bar marker drag */
+function _pwWaveformPointerDown(e) {
+  if (!_pw.open) return;
+  const rect = els.pwWrap.getBoundingClientRect();
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  const xPx = clientX - rect.left;
+  const yPx = clientY - rect.top;
+
+  const hit = _pwHitTestBar(xPx, yPx);
+  if (hit) {
+    _pwBarDragUsed = true;
+    els.pwWrap.classList.add('bar-dragging');
+    _pwStartBarDrag(hit.marker, hit.index, e);
+  }
+}
+
+/** Hover feedback: show grab cursor when mouse is over a bar flag */
+function _pwWaveformHover(e) {
+  if (!_pw.open || _pwDrag) return;
+  const rect = els.pwWrap.getBoundingClientRect();
+  const xPx = e.clientX - rect.left;
+  const yPx = e.clientY - rect.top;
+  const hit = _pwHitTestBar(xPx, yPx);
+  els.pwWrap.classList.toggle('bar-hover', !!hit);
+}
+
 /* ── Part Wave Editor: Init Event Listeners ── */
 
 function initPartWaveEditor() {
@@ -7300,6 +7418,11 @@ function initPartWaveEditor() {
   els.pwHandleStart.addEventListener('touchstart', (e) => _pwStartDrag('start', e), { passive: false });
   els.pwHandleEnd.addEventListener('mousedown', (e) => _pwStartDrag('end', e));
   els.pwHandleEnd.addEventListener('touchstart', (e) => _pwStartDrag('end', e), { passive: false });
+
+  // Bar marker drag (must be before click handler)
+  els.pwWrap.addEventListener('mousedown', _pwWaveformPointerDown);
+  els.pwWrap.addEventListener('touchstart', _pwWaveformPointerDown, { passive: false });
+  els.pwWrap.addEventListener('mousemove', _pwWaveformHover);
 
   // Waveform click to seek
   els.pwWrap.addEventListener('click', _pwWaveformClick);

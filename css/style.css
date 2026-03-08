@@ -665,6 +665,9 @@ label {
   width: 12px;
 }
 .pw-play-group { display: flex; gap: 6px; }
+/* Grab cursor when hovering over bar flags */
+.pw-waveform-wrap.bar-hover { cursor: grab; }
+.pw-waveform-wrap.bar-dragging { cursor: grabbing; }
 
 /* ── Toast / Notifications ─────────────────────────── */
 .toast-container {

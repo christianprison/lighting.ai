@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.0.6';
+const APP_VERSION = 'v1.0.7';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -572,30 +572,8 @@ const SONG_CHECKLIST = [
       const pm = s.split_markers?.partMarkers;
       return pm && pm.length >= parts.length && parts.length > 0;
     }},
-  { id: 'bar_markers',  label: 'Bar-Marker gesetzt (erwartet aus BPM/Bars)', cat: 'audio', tab: 'audio',
-    check: (s, parts, barIds, theDb) => {
-      if (parts.length === 0) return false;
-      // First and last parts don't need bar markers
-      if (parts.length <= 2) return true;
-      const bm = s.split_markers?.barMarkers;
-      const markersByPart = new Map();
-      if (bm) for (const m of bm) markersByPart.set(m.partIndex, (markersByPart.get(m.partIndex) || 0) + 1);
-      const dbBarsByPart = new Map();
-      for (const bId of barIds) {
-        const pid = theDb.bars[bId]?.part_id;
-        if (pid) dbBarsByPart.set(pid, (dbBarsByPart.get(pid) || 0) + 1);
-      }
-      // Check inner parts (skip first and last)
-      for (let i = 1; i < parts.length - 1; i++) {
-        const p = parts[i];
-        const expected = p.bars || 0;
-        if (expected <= 0) continue;
-        const fromMarkers = markersByPart.get(i) || 0;
-        const fromDb = dbBarsByPart.get(p.id) || 0;
-        if (fromMarkers < expected && fromDb < expected) return false;
-      }
-      return true;
-    }},
+  { id: 'bar_markers',  label: 'Alle Takte identifiziert', cat: 'audio', tab: 'audio',
+    check: () => false },  // Manuell abhaken — kein Auto-Check
   { id: 'audio_exported', label: 'Audio-Segmente exportiert', cat: 'audio', tab: 'audio',
     check: (s, parts, barIds, theDb) => {
       if (parts.length === 0) return false;
@@ -623,10 +601,7 @@ const SONG_CHECKLIST = [
       return total > 0 && (withLyrics / total) >= 0.3;
     }},
   { id: 'lyrics_saved',  label: 'Lyrics in DB uebernommen', cat: 'lyrics', tab: 'lyrics',
-    check: (s, parts, barIds, theDb) => {
-      // Same as above but stricter: at least 1 bar has lyrics
-      return barIds.some(bId => theDb.bars[bId]?.lyrics);
-    }},
+    check: () => false },  // Manuell abhaken — kein Auto-Check
 
   // ── Licht ──
   { id: 'templates_all', label: 'Light-Template fuer alle Parts', cat: 'licht', tab: 'parts',
@@ -753,6 +728,7 @@ function openTmsModal(songId) {
   document.body.appendChild(modal);
 
   renderTmsModalContent(songId);
+  showTmsModalTip();
 
   // Event delegation for modal
   modal.addEventListener('click', (e) => {
@@ -764,13 +740,10 @@ function openTmsModal(songId) {
     // Toggle category collapse
     const catToggle = el.closest('[data-tms-cat-toggle]');
     if (catToggle) {
-      const catEl = catToggle.closest('.tms-category');
-      if (catEl) {
-        catEl.classList.toggle('collapsed');
-        const catId = catToggle.dataset.tmsCatToggle;
-        if (catEl.classList.contains('collapsed')) _tmsCollapsed.add(catId);
-        else _tmsCollapsed.delete(catId);
-      }
+      const catId = catToggle.dataset.tmsCatToggle;
+      if (_tmsCollapsed.has(catId)) _tmsCollapsed.delete(catId);
+      else _tmsCollapsed.add(catId);
+      renderTmsModalContent(songId);
       return;
     }
 
@@ -858,6 +831,37 @@ function openTmsModal(songId) {
 function closeTmsModal() {
   document.getElementById('tms-modal')?.remove();
   document.getElementById('tms-modal-overlay')?.remove();
+  document.querySelector('.tip-bubble')?.remove();
+}
+
+function showTmsModalTip() {
+  const tipId = 'tms-custom-tasks';
+  const seen = getTipsSeen();
+  if (seen.includes(tipId)) return;
+
+  setTimeout(() => {
+    const addInput = document.querySelector('.tms-add-input');
+    if (!addInput) return;
+
+    // Remove any existing tip
+    document.querySelector('.tip-bubble')?.remove();
+
+    const bubble = document.createElement('div');
+    bubble.className = 'tip-bubble tip-arrow-up';
+    bubble.dataset.tipId = tipId;
+    bubble.innerHTML = `${esc('Hier kannst du eigene Aufgaben anlegen, diese erscheinen dann als kleiner Punkt in der Songliste')}<button class="tip-close" aria-label="Schliessen">&times;</button>`;
+
+    const rect = addInput.getBoundingClientRect();
+    bubble.style.position = 'fixed';
+    bubble.style.top = (rect.bottom + 10) + 'px';
+    bubble.style.left = Math.max(8, rect.left) + 'px';
+    bubble.style.maxWidth = '260px';
+
+    document.body.appendChild(bubble);
+
+    bubble.querySelector('.tip-close').addEventListener('click', (e) => { e.stopPropagation(); dismissTip(); });
+    bubble.addEventListener('click', dismissTip);
+  }, 500);
 }
 
 function renderTmsModalContent(songId) {

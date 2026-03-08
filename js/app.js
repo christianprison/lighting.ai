@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.0.4';
+const APP_VERSION = 'v1.0.5';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -5347,6 +5347,10 @@ function renderAccentsTab() {
     return;
   }
 
+  // Preserve scroll position across re-renders
+  const scrollEl = document.getElementById('accents-scroll');
+  const prevScroll = scrollEl ? scrollEl.scrollTop : 0;
+
   const song = db.songs[selectedSongId];
   const parts = getSortedParts(selectedSongId);
   ensureCollections();
@@ -5376,6 +5380,10 @@ function renderAccentsTab() {
         <span class="summary-item"><span class="summary-label">Accents</span><span class="mono">${totalAccents}</span></span>
       </div>
     </div>`;
+
+  // Restore scroll position
+  const newScrollEl = document.getElementById('accents-scroll');
+  if (newScrollEl && prevScroll) newScrollEl.scrollTop = prevScroll;
 }
 
 function buildAccentsPartsList(parts, song) {

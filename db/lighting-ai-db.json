@@ -13773,9 +13773,75 @@
       "lyrics": "",
       "audio": "audio/Always Where I Need to Be/14 Ausklang/116 Always Where I Need to Be Ausklang.mp3",
       "has_accents": false
+    },
+    "B0274": {
+      "part_id": "CC9FBm_P012",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": true
+    },
+    "B0275": {
+      "part_id": "CC9FBm_P012",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": true
+    },
+    "B0276": {
+      "part_id": "CC9FBm_P012",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": true
+    },
+    "B0277": {
+      "part_id": "CC9FBm_P012",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": true
+    },
+    "B0278": {
+      "part_id": "CC9FBm_P012",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": true
     }
   },
-  "accents": {},
+  "accents": {
+    "A0001": {
+      "bar_id": "B0274",
+      "pos_16th": 1,
+      "type": "bl",
+      "notes": ""
+    },
+    "A0002": {
+      "bar_id": "B0275",
+      "pos_16th": 1,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0003": {
+      "bar_id": "B0276",
+      "pos_16th": 1,
+      "type": "bl",
+      "notes": ""
+    },
+    "A0004": {
+      "bar_id": "B0277",
+      "pos_16th": 1,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0005": {
+      "bar_id": "B0278",
+      "pos_16th": 1,
+      "type": "st",
+      "notes": ""
+    }
+  },
   "meta": {
     "accent_types": {
       "bl": "Blinder",

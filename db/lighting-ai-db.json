@@ -78,7 +78,7 @@
         "5iZfKj_P004": {
           "pos": 4,
           "name": "Chorus 1 (nanana)",
-          "bars": 8,
+          "bars": 9,
           "duration_sec": 12,
           "light_template": "10 Strobe",
           "qlc_scene": "10 Strobe",
@@ -114,7 +114,7 @@
         "5iZfKj_P007": {
           "pos": 7,
           "name": "Bridge 2",
-          "bars": 4,
+          "bars": 3,
           "duration_sec": 6,
           "light_template": "02 slow blue",
           "qlc_scene": "02 slow blue",
@@ -138,7 +138,7 @@
         "5iZfKj_P009": {
           "pos": 9,
           "name": "Stop",
-          "bars": 8,
+          "bars": 9,
           "duration_sec": 12,
           "light_template": "Spot auf Tim",
           "qlc_scene": "Spot auf Tim",
@@ -1732,7 +1732,7 @@
         "CC9FBm_P002": {
           "pos": 2,
           "name": "Intro (alle)",
-          "bars": 8,
+          "bars": 9,
           "duration_sec": 11,
           "light_template": "09 Alarm",
           "qlc_scene": "09 Alarm",
@@ -2269,7 +2269,7 @@
             "partId": "CC9FBm_P007"
           },
           {
-            "time": 87.6716875,
+            "time": 89.00835416666666,
             "partIndex": 7,
             "partId": "CC9FBm_P008"
           },
@@ -2499,6 +2499,11 @@
             "partId": "CC9FBm_P013"
           },
           {
+            "time": 152.70848899812734,
+            "partIndex": 11,
+            "partId": "CC9FBm_P013"
+          },
+          {
             "time": 154.11202284377364,
             "partIndex": 12,
             "partId": "CC9FBm_P013"
@@ -2544,9 +2549,9 @@
             "partId": "CC9FBm_P014"
           },
           {
-            "time": 152.70848899812734,
-            "partIndex": 11,
-            "partId": "CC9FBm_P013"
+            "time": 18.355065502528358,
+            "partIndex": 1,
+            "partId": "CC9FBm_P002"
           }
         ]
       },
@@ -12532,133 +12537,133 @@
       "part_id": "5iZfKj_P005",
       "bar_num": 1,
       "lyrics": "",
-      "audio": "audio/All The Small Things/05 Thema 2/038 All The Small Things Thema 2.mp3",
+      "audio": "audio/All The Small Things/05 Thema 2/037 All The Small Things Thema 2.mp3",
       "has_accents": false
     },
     "B0097": {
       "part_id": "5iZfKj_P005",
       "bar_num": 2,
       "lyrics": "",
-      "audio": "audio/All The Small Things/05 Thema 2/039 All The Small Things Thema 2.mp3",
+      "audio": "audio/All The Small Things/05 Thema 2/038 All The Small Things Thema 2.mp3",
       "has_accents": false
     },
     "B0098": {
       "part_id": "5iZfKj_P005",
       "bar_num": 3,
       "lyrics": "",
-      "audio": "audio/All The Small Things/05 Thema 2/040 All The Small Things Thema 2.mp3",
+      "audio": "audio/All The Small Things/05 Thema 2/039 All The Small Things Thema 2.mp3",
       "has_accents": false
     },
     "B0099": {
       "part_id": "5iZfKj_P005",
       "bar_num": 4,
       "lyrics": "",
-      "audio": "audio/All The Small Things/05 Thema 2/041 All The Small Things Thema 2.mp3",
+      "audio": "audio/All The Small Things/05 Thema 2/040 All The Small Things Thema 2.mp3",
       "has_accents": false
     },
     "B0100": {
       "part_id": "5iZfKj_P005",
       "bar_num": 5,
       "lyrics": "",
-      "audio": "audio/All The Small Things/05 Thema 2/042 All The Small Things Thema 2.mp3",
+      "audio": "audio/All The Small Things/05 Thema 2/041 All The Small Things Thema 2.mp3",
       "has_accents": false
     },
     "B0101": {
       "part_id": "5iZfKj_P005",
       "bar_num": 6,
       "lyrics": "",
-      "audio": "audio/All The Small Things/05 Thema 2/043 All The Small Things Thema 2.mp3",
+      "audio": "audio/All The Small Things/05 Thema 2/042 All The Small Things Thema 2.mp3",
       "has_accents": false
     },
     "B0102": {
       "part_id": "5iZfKj_P005",
       "bar_num": 7,
       "lyrics": "",
-      "audio": "audio/All The Small Things/05 Thema 2/044 All The Small Things Thema 2.mp3",
+      "audio": "audio/All The Small Things/05 Thema 2/043 All The Small Things Thema 2.mp3",
       "has_accents": false
     },
     "B0103": {
       "part_id": "5iZfKj_P005",
       "bar_num": 8,
       "lyrics": "",
-      "audio": "audio/All The Small Things/05 Thema 2/045 All The Small Things Thema 2.mp3",
+      "audio": "audio/All The Small Things/05 Thema 2/044 All The Small Things Thema 2.mp3",
       "has_accents": false
     },
     "B0104": {
       "part_id": "5iZfKj_P006",
       "bar_num": 1,
       "lyrics": "Late night, come",
-      "audio": "audio/All The Small Things/06 Verse 2/046 All The Small Things Verse 2.mp3",
+      "audio": "audio/All The Small Things/06 Verse 2/045 All The Small Things Verse 2.mp3",
       "has_accents": false
     },
     "B0105": {
       "part_id": "5iZfKj_P006",
       "bar_num": 2,
       "lyrics": "home Work sucks,",
-      "audio": "audio/All The Small Things/06 Verse 2/047 All The Small Things Verse 2.mp3",
+      "audio": "audio/All The Small Things/06 Verse 2/046 All The Small Things Verse 2.mp3",
       "has_accents": false
     },
     "B0106": {
       "part_id": "5iZfKj_P006",
       "bar_num": 3,
       "lyrics": "I know",
-      "audio": "audio/All The Small Things/06 Verse 2/048 All The Small Things Verse 2.mp3",
+      "audio": "audio/All The Small Things/06 Verse 2/047 All The Small Things Verse 2.mp3",
       "has_accents": false
     },
     "B0107": {
       "part_id": "5iZfKj_P006",
       "bar_num": 4,
       "lyrics": "She left me",
-      "audio": "audio/All The Small Things/06 Verse 2/049 All The Small Things Verse 2.mp3",
+      "audio": "audio/All The Small Things/06 Verse 2/048 All The Small Things Verse 2.mp3",
       "has_accents": false
     },
     "B0108": {
       "part_id": "5iZfKj_P006",
       "bar_num": 5,
       "lyrics": "roses by the",
-      "audio": "audio/All The Small Things/06 Verse 2/050 All The Small Things Verse 2.mp3",
+      "audio": "audio/All The Small Things/06 Verse 2/049 All The Small Things Verse 2.mp3",
       "has_accents": false
     },
     "B0109": {
       "part_id": "5iZfKj_P006",
       "bar_num": 6,
       "lyrics": "stairs Surprises let",
-      "audio": "audio/All The Small Things/06 Verse 2/051 All The Small Things Verse 2.mp3",
+      "audio": "audio/All The Small Things/06 Verse 2/050 All The Small Things Verse 2.mp3",
       "has_accents": false
     },
     "B0110": {
       "part_id": "5iZfKj_P006",
       "bar_num": 7,
       "lyrics": "me know",
-      "audio": "audio/All The Small Things/06 Verse 2/052 All The Small Things Verse 2.mp3",
+      "audio": "audio/All The Small Things/06 Verse 2/051 All The Small Things Verse 2.mp3",
       "has_accents": false
     },
     "B0111": {
       "part_id": "5iZfKj_P006",
       "bar_num": 8,
       "lyrics": "she cares Bridge",
-      "audio": "audio/All The Small Things/06 Verse 2/053 All The Small Things Verse 2.mp3",
+      "audio": "audio/All The Small Things/06 Verse 2/052 All The Small Things Verse 2.mp3",
       "has_accents": false
     },
     "B0112": {
       "part_id": "5iZfKj_P007",
       "bar_num": 1,
       "lyrics": "Say it ain't so,",
-      "audio": "audio/All The Small Things/07 Bridge 2/054 All The Small Things Bridge 2.mp3",
+      "audio": "audio/All The Small Things/07 Bridge 2/053 All The Small Things Bridge 2.mp3",
       "has_accents": false
     },
     "B0113": {
       "part_id": "5iZfKj_P007",
       "bar_num": 2,
       "lyrics": "I will not go",
-      "audio": "audio/All The Small Things/07 Bridge 2/055 All The Small Things Bridge 2.mp3",
+      "audio": "audio/All The Small Things/07 Bridge 2/054 All The Small Things Bridge 2.mp3",
       "has_accents": false
     },
     "B0114": {
       "part_id": "5iZfKj_P007",
       "bar_num": 3,
       "lyrics": "Turn the lights off,",
-      "audio": "audio/All The Small Things/07 Bridge 2/056 All The Small Things Bridge 2.mp3",
+      "audio": "audio/All The Small Things/07 Bridge 2/055 All The Small Things Bridge 2.mp3",
       "has_accents": false
     },
     "B0115": {
@@ -12784,175 +12789,175 @@
       "part_id": "5iZfKj_P010",
       "bar_num": 1,
       "lyrics": "",
-      "audio": "audio/All The Small Things/10 Crescendo/074 All The Small Things Crescendo.mp3",
+      "audio": "audio/All The Small Things/10 Crescendo/073 All The Small Things Crescendo.mp3",
       "has_accents": false
     },
     "B0133": {
       "part_id": "5iZfKj_P010",
       "bar_num": 2,
       "lyrics": "",
-      "audio": "audio/All The Small Things/10 Crescendo/075 All The Small Things Crescendo.mp3",
+      "audio": "audio/All The Small Things/10 Crescendo/074 All The Small Things Crescendo.mp3",
       "has_accents": false
     },
     "B0134": {
       "part_id": "5iZfKj_P010",
       "bar_num": 3,
       "lyrics": "",
-      "audio": "audio/All The Small Things/10 Crescendo/076 All The Small Things Crescendo.mp3",
+      "audio": "audio/All The Small Things/10 Crescendo/075 All The Small Things Crescendo.mp3",
       "has_accents": false
     },
     "B0135": {
       "part_id": "5iZfKj_P010",
       "bar_num": 4,
       "lyrics": "",
-      "audio": "audio/All The Small Things/10 Crescendo/077 All The Small Things Crescendo.mp3",
+      "audio": "audio/All The Small Things/10 Crescendo/076 All The Small Things Crescendo.mp3",
       "has_accents": false
     },
     "B0136": {
       "part_id": "5iZfKj_P010",
       "bar_num": 5,
       "lyrics": "",
-      "audio": "audio/All The Small Things/10 Crescendo/078 All The Small Things Crescendo.mp3",
+      "audio": "audio/All The Small Things/10 Crescendo/077 All The Small Things Crescendo.mp3",
       "has_accents": false
     },
     "B0137": {
       "part_id": "5iZfKj_P010",
       "bar_num": 6,
       "lyrics": "",
-      "audio": "audio/All The Small Things/10 Crescendo/079 All The Small Things Crescendo.mp3",
+      "audio": "audio/All The Small Things/10 Crescendo/078 All The Small Things Crescendo.mp3",
       "has_accents": false
     },
     "B0138": {
       "part_id": "5iZfKj_P010",
       "bar_num": 7,
       "lyrics": "",
-      "audio": "audio/All The Small Things/10 Crescendo/080 All The Small Things Crescendo.mp3",
+      "audio": "audio/All The Small Things/10 Crescendo/079 All The Small Things Crescendo.mp3",
       "has_accents": false
     },
     "B0139": {
       "part_id": "5iZfKj_P010",
       "bar_num": 8,
       "lyrics": "",
-      "audio": "audio/All The Small Things/10 Crescendo/081 All The Small Things Crescendo.mp3",
+      "audio": "audio/All The Small Things/10 Crescendo/080 All The Small Things Crescendo.mp3",
       "has_accents": false
     },
     "B0140": {
       "part_id": "5iZfKj_P011",
       "bar_num": 1,
       "lyrics": "Say it ain't so,",
-      "audio": "audio/All The Small Things/11 Bridge 3 (schnell)/082 All The Small Things Bridge 3 (schnell).mp3",
+      "audio": "audio/All The Small Things/11 Bridge 3 (schnell)/081 All The Small Things Bridge 3 (schnell).mp3",
       "has_accents": false
     },
     "B0141": {
       "part_id": "5iZfKj_P011",
       "bar_num": 2,
       "lyrics": "I will not go",
-      "audio": "audio/All The Small Things/11 Bridge 3 (schnell)/083 All The Small Things Bridge 3 (schnell).mp3",
+      "audio": "audio/All The Small Things/11 Bridge 3 (schnell)/082 All The Small Things Bridge 3 (schnell).mp3",
       "has_accents": false
     },
     "B0142": {
       "part_id": "5iZfKj_P011",
       "bar_num": 3,
       "lyrics": "Turn the lights off,",
-      "audio": "audio/All The Small Things/11 Bridge 3 (schnell)/084 All The Small Things Bridge 3 (schnell).mp3",
+      "audio": "audio/All The Small Things/11 Bridge 3 (schnell)/083 All The Small Things Bridge 3 (schnell).mp3",
       "has_accents": false
     },
     "B0143": {
       "part_id": "5iZfKj_P011",
       "bar_num": 4,
       "lyrics": "carry me home",
-      "audio": "audio/All The Small Things/11 Bridge 3 (schnell)/085 All The Small Things Bridge 3 (schnell).mp3",
+      "audio": "audio/All The Small Things/11 Bridge 3 (schnell)/084 All The Small Things Bridge 3 (schnell).mp3",
       "has_accents": false
     },
     "B0144": {
       "part_id": "5iZfKj_P011",
       "bar_num": 5,
       "lyrics": "Keep your head still,",
-      "audio": "audio/All The Small Things/11 Bridge 3 (schnell)/086 All The Small Things Bridge 3 (schnell).mp3",
+      "audio": "audio/All The Small Things/11 Bridge 3 (schnell)/085 All The Small Things Bridge 3 (schnell).mp3",
       "has_accents": false
     },
     "B0145": {
       "part_id": "5iZfKj_P011",
       "bar_num": 6,
       "lyrics": "I'll be your thrill",
-      "audio": "audio/All The Small Things/11 Bridge 3 (schnell)/087 All The Small Things Bridge 3 (schnell).mp3",
+      "audio": "audio/All The Small Things/11 Bridge 3 (schnell)/086 All The Small Things Bridge 3 (schnell).mp3",
       "has_accents": false
     },
     "B0146": {
       "part_id": "5iZfKj_P011",
       "bar_num": 7,
       "lyrics": "The night will go on,",
-      "audio": "audio/All The Small Things/11 Bridge 3 (schnell)/088 All The Small Things Bridge 3 (schnell).mp3",
+      "audio": "audio/All The Small Things/11 Bridge 3 (schnell)/087 All The Small Things Bridge 3 (schnell).mp3",
       "has_accents": false
     },
     "B0147": {
       "part_id": "5iZfKj_P011",
       "bar_num": 8,
       "lyrics": "my little windmill",
-      "audio": "audio/All The Small Things/11 Bridge 3 (schnell)/089 All The Small Things Bridge 3 (schnell).mp3",
+      "audio": "audio/All The Small Things/11 Bridge 3 (schnell)/088 All The Small Things Bridge 3 (schnell).mp3",
       "has_accents": false
     },
     "B0148": {
       "part_id": "5iZfKj_P012",
       "bar_num": 1,
       "lyrics": "Say it ain't so,",
-      "audio": "audio/All The Small Things/12 Chorus 3 (nanana)/090 All The Small Things Chorus 3 (nanana).mp3",
+      "audio": "audio/All The Small Things/12 Chorus 3 (nanana)/089 All The Small Things Chorus 3 (nanana).mp3",
       "has_accents": false
     },
     "B0149": {
       "part_id": "5iZfKj_P012",
       "bar_num": 2,
       "lyrics": "I will not go (na-na-na-na-na-na-na-na-na-na)",
-      "audio": "audio/All The Small Things/12 Chorus 3 (nanana)/091 All The Small Things Chorus 3 (nanana).mp3",
+      "audio": "audio/All The Small Things/12 Chorus 3 (nanana)/090 All The Small Things Chorus 3 (nanana).mp3",
       "has_accents": false
     },
     "B0150": {
       "part_id": "5iZfKj_P012",
       "bar_num": 3,
       "lyrics": "Turn the lights off,",
-      "audio": "audio/All The Small Things/12 Chorus 3 (nanana)/092 All The Small Things Chorus 3 (nanana).mp3",
+      "audio": "audio/All The Small Things/12 Chorus 3 (nanana)/091 All The Small Things Chorus 3 (nanana).mp3",
       "has_accents": false
     },
     "B0151": {
       "part_id": "5iZfKj_P012",
       "bar_num": 4,
       "lyrics": "carry me home (na-na-na-na-na-na-na-na-na-na)",
-      "audio": "audio/All The Small Things/12 Chorus 3 (nanana)/093 All The Small Things Chorus 3 (nanana).mp3",
+      "audio": "audio/All The Small Things/12 Chorus 3 (nanana)/092 All The Small Things Chorus 3 (nanana).mp3",
       "has_accents": false
     },
     "B0152": {
       "part_id": "5iZfKj_P012",
       "bar_num": 5,
       "lyrics": "Keep your head still,",
-      "audio": "audio/All The Small Things/12 Chorus 3 (nanana)/094 All The Small Things Chorus 3 (nanana).mp3",
+      "audio": "audio/All The Small Things/12 Chorus 3 (nanana)/093 All The Small Things Chorus 3 (nanana).mp3",
       "has_accents": false
     },
     "B0153": {
       "part_id": "5iZfKj_P012",
       "bar_num": 6,
       "lyrics": "I'll be your thrill (na-na-na-na-na-na-na-na-na-na)",
-      "audio": "audio/All The Small Things/12 Chorus 3 (nanana)/095 All The Small Things Chorus 3 (nanana).mp3",
+      "audio": "audio/All The Small Things/12 Chorus 3 (nanana)/094 All The Small Things Chorus 3 (nanana).mp3",
       "has_accents": false
     },
     "B0154": {
       "part_id": "5iZfKj_P012",
       "bar_num": 7,
       "lyrics": "The night will go on",
-      "audio": "audio/All The Small Things/12 Chorus 3 (nanana)/096 All The Small Things Chorus 3 (nanana).mp3",
+      "audio": "audio/All The Small Things/12 Chorus 3 (nanana)/095 All The Small Things Chorus 3 (nanana).mp3",
       "has_accents": false
     },
     "B0155": {
       "part_id": "5iZfKj_P012",
       "bar_num": 8,
       "lyrics": "The night will go on",
-      "audio": "audio/All The Small Things/12 Chorus 3 (nanana)/097 All The Small Things Chorus 3 (nanana).mp3",
+      "audio": "audio/All The Small Things/12 Chorus 3 (nanana)/096 All The Small Things Chorus 3 (nanana).mp3",
       "has_accents": false
     },
     "B0156": {
       "part_id": "5iZfKj_P012",
       "bar_num": 9,
       "lyrics": "My little windmill",
-      "audio": "audio/All The Small Things/12 Chorus 3 (nanana)/098 All The Small Things Chorus 3 (nanana).mp3",
+      "audio": "audio/All The Small Things/12 Chorus 3 (nanana)/097 All The Small Things Chorus 3 (nanana).mp3",
       "has_accents": false
     },
     "B0157": {

@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.15.26';
+const APP_VERSION = 'v0.15.27';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -5172,7 +5172,7 @@ function leOpenTextEditor() {
 
     // Re-initialize markers from new text
     const parts = getSortedParts(selectedSongId);
-    _leWords = leParseWords(newText);
+    _leWords = leParseRawText(newText);
     // Re-map existing part markers to new word positions (best effort)
     leRemapMarkersToNewText(newText);
 

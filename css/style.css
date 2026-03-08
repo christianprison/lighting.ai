@@ -3003,7 +3003,7 @@ label {
   left: 50%;
   transform: translate(-50%, -50%);
   width: 90vw;
-  max-width: 520px;
+  max-width: 600px;
   max-height: 85vh;
   background: var(--bg2);
   border: 1px solid var(--border);
@@ -3465,6 +3465,15 @@ label {
   border-top: 8px solid transparent;
   border-bottom: 8px solid transparent;
   border-right: 8px solid var(--green);
+}
+
+.tip-bubble.tip-arrow-right::after {
+  top: 50%;
+  right: -8px;
+  transform: translateY(-50%);
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-left: 8px solid var(--green);
 }
 
 .tip-bubble .tip-close {

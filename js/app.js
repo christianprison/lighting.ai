@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.0.10';
+const APP_VERSION = 'v1.0.11';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -600,9 +600,6 @@ const SONG_CHECKLIST = [
       }
       return total > 0 && (withLyrics / total) >= 0.3;
     }},
-  { id: 'lyrics_saved',  label: 'Lyrics in DB uebernommen', cat: 'lyrics', tab: 'lyrics',
-    check: () => false },  // Manuell abhaken — kein Auto-Check
-
   // ── Licht ──
   { id: 'templates_all', label: 'Light-Template fuer alle Parts', cat: 'licht', tab: 'parts',
     check: (s, parts) => parts.length > 0 && parts.every(p => p.light_template && p.light_template !== '') },
@@ -835,39 +832,63 @@ function closeTmsModal() {
 }
 
 function showTmsModalTip() {
-  const tipId = 'tms-custom-tasks';
+  const modal = document.getElementById('tms-modal');
+  if (!modal) return;
+
+  // Tip 1: Custom tasks (on add-row)
+  const tipCustom = 'tms-custom-tasks';
   const seen = getTipsSeen();
-  if (seen.includes(tipId)) return;
+  if (!seen.includes(tipCustom)) {
+    setTimeout(() => {
+      const m = document.getElementById('tms-modal');
+      if (!m) return;
+      const addRow = m.querySelector('.tms-category:not(.collapsed) .tms-add-row')
+                  || m.querySelector('.tms-add-row');
+      if (!addRow) return;
+      document.querySelector('.tip-bubble')?.remove();
+      const bubble = document.createElement('div');
+      bubble.className = 'tip-bubble tip-arrow-down';
+      bubble.dataset.tipId = tipCustom;
+      bubble.innerHTML = `${esc('Hier kannst du eigene Aufgaben anlegen, diese erscheinen dann als kleiner Punkt in der Songliste')}<button class="tip-close" aria-label="Schliessen">&times;</button>`;
+      bubble.style.maxWidth = '260px';
+      addRow.style.position = 'relative';
+      addRow.appendChild(bubble);
+      bubble.style.position = 'absolute';
+      bubble.style.bottom = 'calc(100% + 10px)';
+      bubble.style.left = '0';
+      bubble.style.zIndex = '1';
+      bubble.querySelector('.tip-close').addEventListener('click', (e) => { e.stopPropagation(); dismissTip(); });
+      bubble.addEventListener('click', dismissTip);
+    }, 500);
+    return; // show only one tip at a time
+  }
 
-  setTimeout(() => {
-    const modal = document.getElementById('tms-modal');
-    if (!modal) return;
-    // Find the first visible add-row (in a non-collapsed category)
-    const addRow = modal.querySelector('.tms-category:not(.collapsed) .tms-add-row')
-                || modal.querySelector('.tms-add-row');
-    if (!addRow) return;
-
-    // Remove any existing tip
-    document.querySelector('.tip-bubble')?.remove();
-
-    const bubble = document.createElement('div');
-    bubble.className = 'tip-bubble tip-arrow-down';
-    bubble.dataset.tipId = tipId;
-    bubble.innerHTML = `${esc('Hier kannst du eigene Aufgaben anlegen, diese erscheinen dann als kleiner Punkt in der Songliste')}<button class="tip-close" aria-label="Schliessen">&times;</button>`;
-    bubble.style.maxWidth = '260px';
-
-    // Insert directly into the modal, right after the add-row
-    addRow.style.position = 'relative';
-    addRow.appendChild(bubble);
-    // Position above the add-row, anchored to its bottom-left
-    bubble.style.position = 'absolute';
-    bubble.style.bottom = 'calc(100% + 10px)';
-    bubble.style.left = '0';
-    bubble.style.zIndex = '1';
-
-    bubble.querySelector('.tip-close').addEventListener('click', (e) => { e.stopPropagation(); dismissTip(); });
-    bubble.addEventListener('click', dismissTip);
-  }, 500);
+  // Tip 2: Goto buttons (on first goto-btn)
+  const tipGoto = 'tms-goto-buttons';
+  if (!seen.includes(tipGoto)) {
+    setTimeout(() => {
+      const m = document.getElementById('tms-modal');
+      if (!m) return;
+      const gotoBtn = m.querySelector('.tms-goto-btn');
+      if (!gotoBtn) return;
+      document.querySelector('.tip-bubble')?.remove();
+      const step = gotoBtn.closest('.tms-step');
+      if (!step) return;
+      const bubble = document.createElement('div');
+      bubble.className = 'tip-bubble tip-arrow-down';
+      bubble.dataset.tipId = tipGoto;
+      bubble.innerHTML = `${esc('Springe direkt an die Stelle, wo du diese Aufgabe erledigen kannst')}<button class="tip-close" aria-label="Schliessen">&times;</button>`;
+      bubble.style.maxWidth = '260px';
+      step.style.position = 'relative';
+      step.appendChild(bubble);
+      bubble.style.position = 'absolute';
+      bubble.style.bottom = 'calc(100% + 10px)';
+      bubble.style.right = '0';
+      bubble.style.zIndex = '1';
+      bubble.querySelector('.tip-close').addEventListener('click', (e) => { e.stopPropagation(); dismissTip(); });
+      bubble.addEventListener('click', dismissTip);
+    }, 500);
+  }
 }
 
 function renderTmsModalContent(songId) {

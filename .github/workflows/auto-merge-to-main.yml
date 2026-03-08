@@ -1,0 +1,32 @@
+name: Auto Merge Into Main
+
+on:
+  push:
+    branches:
+      - claude/db-pflege-app-lyrics-drag-0b8up
+
+jobs:
+  merge:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Configure git user
+        run: |
+          git config --global user.email 'actions@github.com'
+          git config --global user.name 'GitHub Action'
+
+      - name: Fetch main branch
+        run: |
+          git fetch origin main
+
+      - name: Merge changes
+        run: |
+          git checkout main
+          git merge claude/db-pflege-app-lyrics-drag-0b8up
+
+      - name: Push changes to main
+        run: |
+          git push origin main

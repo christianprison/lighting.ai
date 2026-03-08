@@ -13,6 +13,9 @@ function getContext() {
   return ctx;
 }
 
+/** Expose the shared AudioContext for use outside the engine */
+export { getContext };
+
 /**
  * Pre-warm the AudioContext so playback starts instantly.
  * Call on user interaction (tab switch, click, touch) before actual play.

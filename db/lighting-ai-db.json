@@ -1927,7 +1927,7 @@
             "partId": "CC9FBm_P006"
           },
           {
-            "time": 75.075382765531,
+            "time": 75.06328196808283,
             "partIndex": 6,
             "partId": "CC9FBm_P007"
           },
@@ -2556,7 +2556,8 @@
       "tms": {
         "manual_done": [],
         "user_tasks": []
-      }
+      },
+      "instr_done": true
     },
     "UNIriZ": {
       "name": "Animal",
@@ -12957,6 +12958,818 @@
       "bar_num": 4,
       "lyrics": "carry me home Chorus",
       "audio": "",
+      "has_accents": false
+    },
+    "B0158": {
+      "part_id": "CC9FBm_P001",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/01 Intro (nur Axel)/001 Always Where I Need to Be Intro (nur Axel).mp3",
+      "has_accents": false
+    },
+    "B0159": {
+      "part_id": "CC9FBm_P001",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/01 Intro (nur Axel)/002 Always Where I Need to Be Intro (nur Axel).mp3",
+      "has_accents": false
+    },
+    "B0160": {
+      "part_id": "CC9FBm_P001",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/01 Intro (nur Axel)/003 Always Where I Need to Be Intro (nur Axel).mp3",
+      "has_accents": false
+    },
+    "B0161": {
+      "part_id": "CC9FBm_P001",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/01 Intro (nur Axel)/004 Always Where I Need to Be Intro (nur Axel).mp3",
+      "has_accents": false
+    },
+    "B0162": {
+      "part_id": "CC9FBm_P002",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/02 Intro (alle)/005 Always Where I Need to Be Intro (alle).mp3",
+      "has_accents": false
+    },
+    "B0163": {
+      "part_id": "CC9FBm_P002",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/02 Intro (alle)/006 Always Where I Need to Be Intro (alle).mp3",
+      "has_accents": false
+    },
+    "B0164": {
+      "part_id": "CC9FBm_P002",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/02 Intro (alle)/007 Always Where I Need to Be Intro (alle).mp3",
+      "has_accents": false
+    },
+    "B0165": {
+      "part_id": "CC9FBm_P002",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/02 Intro (alle)/008 Always Where I Need to Be Intro (alle).mp3",
+      "has_accents": false
+    },
+    "B0166": {
+      "part_id": "CC9FBm_P002",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/02 Intro (alle)/009 Always Where I Need to Be Intro (alle).mp3",
+      "has_accents": false
+    },
+    "B0167": {
+      "part_id": "CC9FBm_P002",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/02 Intro (alle)/010 Always Where I Need to Be Intro (alle).mp3",
+      "has_accents": false
+    },
+    "B0168": {
+      "part_id": "CC9FBm_P002",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/02 Intro (alle)/011 Always Where I Need to Be Intro (alle).mp3",
+      "has_accents": false
+    },
+    "B0169": {
+      "part_id": "CC9FBm_P002",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/02 Intro (alle)/012 Always Where I Need to Be Intro (alle).mp3",
+      "has_accents": false
+    },
+    "B0170": {
+      "part_id": "CC9FBm_P003",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/03 Verse 1/013 Always Where I Need to Be Verse 1.mp3",
+      "has_accents": false
+    },
+    "B0171": {
+      "part_id": "CC9FBm_P003",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/03 Verse 1/014 Always Where I Need to Be Verse 1.mp3",
+      "has_accents": false
+    },
+    "B0172": {
+      "part_id": "CC9FBm_P003",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/03 Verse 1/015 Always Where I Need to Be Verse 1.mp3",
+      "has_accents": false
+    },
+    "B0173": {
+      "part_id": "CC9FBm_P003",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/03 Verse 1/016 Always Where I Need to Be Verse 1.mp3",
+      "has_accents": false
+    },
+    "B0174": {
+      "part_id": "CC9FBm_P003",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/03 Verse 1/017 Always Where I Need to Be Verse 1.mp3",
+      "has_accents": false
+    },
+    "B0175": {
+      "part_id": "CC9FBm_P003",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/03 Verse 1/018 Always Where I Need to Be Verse 1.mp3",
+      "has_accents": false
+    },
+    "B0176": {
+      "part_id": "CC9FBm_P003",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/03 Verse 1/019 Always Where I Need to Be Verse 1.mp3",
+      "has_accents": false
+    },
+    "B0177": {
+      "part_id": "CC9FBm_P003",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/03 Verse 1/020 Always Where I Need to Be Verse 1.mp3",
+      "has_accents": false
+    },
+    "B0178": {
+      "part_id": "CC9FBm_P003",
+      "bar_num": 9,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/03 Verse 1/021 Always Where I Need to Be Verse 1.mp3",
+      "has_accents": false
+    },
+    "B0179": {
+      "part_id": "CC9FBm_P003",
+      "bar_num": 10,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/03 Verse 1/022 Always Where I Need to Be Verse 1.mp3",
+      "has_accents": false
+    },
+    "B0180": {
+      "part_id": "CC9FBm_P003",
+      "bar_num": 11,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/03 Verse 1/023 Always Where I Need to Be Verse 1.mp3",
+      "has_accents": false
+    },
+    "B0181": {
+      "part_id": "CC9FBm_P004",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/04 Chorus 1/024 Always Where I Need to Be Chorus 1.mp3",
+      "has_accents": false
+    },
+    "B0182": {
+      "part_id": "CC9FBm_P004",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/04 Chorus 1/025 Always Where I Need to Be Chorus 1.mp3",
+      "has_accents": false
+    },
+    "B0183": {
+      "part_id": "CC9FBm_P004",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/04 Chorus 1/026 Always Where I Need to Be Chorus 1.mp3",
+      "has_accents": false
+    },
+    "B0184": {
+      "part_id": "CC9FBm_P004",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/04 Chorus 1/027 Always Where I Need to Be Chorus 1.mp3",
+      "has_accents": false
+    },
+    "B0185": {
+      "part_id": "CC9FBm_P004",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/04 Chorus 1/028 Always Where I Need to Be Chorus 1.mp3",
+      "has_accents": false
+    },
+    "B0186": {
+      "part_id": "CC9FBm_P004",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/04 Chorus 1/029 Always Where I Need to Be Chorus 1.mp3",
+      "has_accents": false
+    },
+    "B0187": {
+      "part_id": "CC9FBm_P004",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/04 Chorus 1/030 Always Where I Need to Be Chorus 1.mp3",
+      "has_accents": false
+    },
+    "B0188": {
+      "part_id": "CC9FBm_P004",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/04 Chorus 1/031 Always Where I Need to Be Chorus 1.mp3",
+      "has_accents": false
+    },
+    "B0189": {
+      "part_id": "CC9FBm_P005",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/05 Dudup 1/032 Always Where I Need to Be Dudup 1.mp3",
+      "has_accents": false
+    },
+    "B0190": {
+      "part_id": "CC9FBm_P005",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/05 Dudup 1/033 Always Where I Need to Be Dudup 1.mp3",
+      "has_accents": false
+    },
+    "B0191": {
+      "part_id": "CC9FBm_P005",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/05 Dudup 1/034 Always Where I Need to Be Dudup 1.mp3",
+      "has_accents": false
+    },
+    "B0192": {
+      "part_id": "CC9FBm_P005",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/05 Dudup 1/035 Always Where I Need to Be Dudup 1.mp3",
+      "has_accents": false
+    },
+    "B0193": {
+      "part_id": "CC9FBm_P005",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/05 Dudup 1/036 Always Where I Need to Be Dudup 1.mp3",
+      "has_accents": false
+    },
+    "B0194": {
+      "part_id": "CC9FBm_P005",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/05 Dudup 1/037 Always Where I Need to Be Dudup 1.mp3",
+      "has_accents": false
+    },
+    "B0195": {
+      "part_id": "CC9FBm_P005",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/05 Dudup 1/038 Always Where I Need to Be Dudup 1.mp3",
+      "has_accents": false
+    },
+    "B0196": {
+      "part_id": "CC9FBm_P005",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/05 Dudup 1/039 Always Where I Need to Be Dudup 1.mp3",
+      "has_accents": false
+    },
+    "B0197": {
+      "part_id": "CC9FBm_P006",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/06 Verse 2/040 Always Where I Need to Be Verse 2.mp3",
+      "has_accents": false
+    },
+    "B0198": {
+      "part_id": "CC9FBm_P006",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/06 Verse 2/041 Always Where I Need to Be Verse 2.mp3",
+      "has_accents": false
+    },
+    "B0199": {
+      "part_id": "CC9FBm_P006",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/06 Verse 2/042 Always Where I Need to Be Verse 2.mp3",
+      "has_accents": false
+    },
+    "B0200": {
+      "part_id": "CC9FBm_P006",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/06 Verse 2/043 Always Where I Need to Be Verse 2.mp3",
+      "has_accents": false
+    },
+    "B0201": {
+      "part_id": "CC9FBm_P006",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/06 Verse 2/044 Always Where I Need to Be Verse 2.mp3",
+      "has_accents": false
+    },
+    "B0202": {
+      "part_id": "CC9FBm_P006",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/06 Verse 2/045 Always Where I Need to Be Verse 2.mp3",
+      "has_accents": false
+    },
+    "B0203": {
+      "part_id": "CC9FBm_P006",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/06 Verse 2/046 Always Where I Need to Be Verse 2.mp3",
+      "has_accents": false
+    },
+    "B0204": {
+      "part_id": "CC9FBm_P006",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/06 Verse 2/047 Always Where I Need to Be Verse 2.mp3",
+      "has_accents": false
+    },
+    "B0205": {
+      "part_id": "CC9FBm_P006",
+      "bar_num": 9,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/06 Verse 2/048 Always Where I Need to Be Verse 2.mp3",
+      "has_accents": false
+    },
+    "B0206": {
+      "part_id": "CC9FBm_P006",
+      "bar_num": 10,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/06 Verse 2/049 Always Where I Need to Be Verse 2.mp3",
+      "has_accents": false
+    },
+    "B0207": {
+      "part_id": "CC9FBm_P006",
+      "bar_num": 11,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/06 Verse 2/050 Always Where I Need to Be Verse 2.mp3",
+      "has_accents": false
+    },
+    "B0208": {
+      "part_id": "CC9FBm_P006",
+      "bar_num": 12,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/06 Verse 2/051 Always Where I Need to Be Verse 2.mp3",
+      "has_accents": false
+    },
+    "B0209": {
+      "part_id": "CC9FBm_P007",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/07 Chorus 2/052 Always Where I Need to Be Chorus 2.mp3",
+      "has_accents": false
+    },
+    "B0210": {
+      "part_id": "CC9FBm_P007",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/07 Chorus 2/053 Always Where I Need to Be Chorus 2.mp3",
+      "has_accents": false
+    },
+    "B0211": {
+      "part_id": "CC9FBm_P007",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/07 Chorus 2/054 Always Where I Need to Be Chorus 2.mp3",
+      "has_accents": false
+    },
+    "B0212": {
+      "part_id": "CC9FBm_P007",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/07 Chorus 2/055 Always Where I Need to Be Chorus 2.mp3",
+      "has_accents": false
+    },
+    "B0213": {
+      "part_id": "CC9FBm_P007",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/07 Chorus 2/056 Always Where I Need to Be Chorus 2.mp3",
+      "has_accents": false
+    },
+    "B0214": {
+      "part_id": "CC9FBm_P007",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/07 Chorus 2/057 Always Where I Need to Be Chorus 2.mp3",
+      "has_accents": false
+    },
+    "B0215": {
+      "part_id": "CC9FBm_P007",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/07 Chorus 2/058 Always Where I Need to Be Chorus 2.mp3",
+      "has_accents": false
+    },
+    "B0216": {
+      "part_id": "CC9FBm_P007",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/07 Chorus 2/059 Always Where I Need to Be Chorus 2.mp3",
+      "has_accents": false
+    },
+    "B0217": {
+      "part_id": "CC9FBm_P008",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/08 Dudup 2/060 Always Where I Need to Be Dudup 2.mp3",
+      "has_accents": false
+    },
+    "B0218": {
+      "part_id": "CC9FBm_P008",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/08 Dudup 2/061 Always Where I Need to Be Dudup 2.mp3",
+      "has_accents": false
+    },
+    "B0219": {
+      "part_id": "CC9FBm_P008",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/08 Dudup 2/062 Always Where I Need to Be Dudup 2.mp3",
+      "has_accents": false
+    },
+    "B0220": {
+      "part_id": "CC9FBm_P008",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/08 Dudup 2/063 Always Where I Need to Be Dudup 2.mp3",
+      "has_accents": false
+    },
+    "B0221": {
+      "part_id": "CC9FBm_P008",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/08 Dudup 2/064 Always Where I Need to Be Dudup 2.mp3",
+      "has_accents": false
+    },
+    "B0222": {
+      "part_id": "CC9FBm_P008",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/08 Dudup 2/065 Always Where I Need to Be Dudup 2.mp3",
+      "has_accents": false
+    },
+    "B0223": {
+      "part_id": "CC9FBm_P008",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/08 Dudup 2/066 Always Where I Need to Be Dudup 2.mp3",
+      "has_accents": false
+    },
+    "B0224": {
+      "part_id": "CC9FBm_P008",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/08 Dudup 2/067 Always Where I Need to Be Dudup 2.mp3",
+      "has_accents": false
+    },
+    "B0225": {
+      "part_id": "CC9FBm_P009",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/09 Solo Axel/068 Always Where I Need to Be Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0226": {
+      "part_id": "CC9FBm_P009",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/09 Solo Axel/069 Always Where I Need to Be Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0227": {
+      "part_id": "CC9FBm_P009",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/09 Solo Axel/070 Always Where I Need to Be Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0228": {
+      "part_id": "CC9FBm_P009",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/09 Solo Axel/071 Always Where I Need to Be Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0229": {
+      "part_id": "CC9FBm_P009",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/09 Solo Axel/072 Always Where I Need to Be Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0230": {
+      "part_id": "CC9FBm_P009",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/09 Solo Axel/073 Always Where I Need to Be Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0231": {
+      "part_id": "CC9FBm_P009",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/09 Solo Axel/074 Always Where I Need to Be Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0232": {
+      "part_id": "CC9FBm_P009",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/09 Solo Axel/075 Always Where I Need to Be Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0233": {
+      "part_id": "CC9FBm_P009",
+      "bar_num": 9,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/09 Solo Axel/076 Always Where I Need to Be Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0234": {
+      "part_id": "CC9FBm_P009",
+      "bar_num": 10,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/09 Solo Axel/077 Always Where I Need to Be Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0235": {
+      "part_id": "CC9FBm_P009",
+      "bar_num": 11,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/09 Solo Axel/078 Always Where I Need to Be Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0236": {
+      "part_id": "CC9FBm_P009",
+      "bar_num": 12,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/09 Solo Axel/079 Always Where I Need to Be Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0237": {
+      "part_id": "CC9FBm_P009",
+      "bar_num": 13,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/09 Solo Axel/080 Always Where I Need to Be Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0238": {
+      "part_id": "CC9FBm_P009",
+      "bar_num": 14,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/09 Solo Axel/081 Always Where I Need to Be Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0239": {
+      "part_id": "CC9FBm_P009",
+      "bar_num": 15,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/09 Solo Axel/082 Always Where I Need to Be Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0240": {
+      "part_id": "CC9FBm_P009",
+      "bar_num": 16,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/09 Solo Axel/083 Always Where I Need to Be Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0241": {
+      "part_id": "CC9FBm_P010",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/10 Interlude 1/084 Always Where I Need to Be Interlude 1.mp3",
+      "has_accents": false
+    },
+    "B0242": {
+      "part_id": "CC9FBm_P010",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/10 Interlude 1/085 Always Where I Need to Be Interlude 1.mp3",
+      "has_accents": false
+    },
+    "B0243": {
+      "part_id": "CC9FBm_P010",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/10 Interlude 1/086 Always Where I Need to Be Interlude 1.mp3",
+      "has_accents": false
+    },
+    "B0244": {
+      "part_id": "CC9FBm_P010",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/10 Interlude 1/087 Always Where I Need to Be Interlude 1.mp3",
+      "has_accents": false
+    },
+    "B0245": {
+      "part_id": "CC9FBm_P010",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/10 Interlude 1/088 Always Where I Need to Be Interlude 1.mp3",
+      "has_accents": false
+    },
+    "B0246": {
+      "part_id": "CC9FBm_P010",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/10 Interlude 1/089 Always Where I Need to Be Interlude 1.mp3",
+      "has_accents": false
+    },
+    "B0247": {
+      "part_id": "CC9FBm_P010",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/10 Interlude 1/090 Always Where I Need to Be Interlude 1.mp3",
+      "has_accents": false
+    },
+    "B0248": {
+      "part_id": "CC9FBm_P010",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/10 Interlude 1/091 Always Where I Need to Be Interlude 1.mp3",
+      "has_accents": false
+    },
+    "B0249": {
+      "part_id": "CC9FBm_P010",
+      "bar_num": 9,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/10 Interlude 1/092 Always Where I Need to Be Interlude 1.mp3",
+      "has_accents": false
+    },
+    "B0250": {
+      "part_id": "CC9FBm_P010",
+      "bar_num": 10,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/10 Interlude 1/093 Always Where I Need to Be Interlude 1.mp3",
+      "has_accents": false
+    },
+    "B0251": {
+      "part_id": "CC9FBm_P010",
+      "bar_num": 11,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/10 Interlude 1/094 Always Where I Need to Be Interlude 1.mp3",
+      "has_accents": false
+    },
+    "B0252": {
+      "part_id": "CC9FBm_P010",
+      "bar_num": 12,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/10 Interlude 1/095 Always Where I Need to Be Interlude 1.mp3",
+      "has_accents": false
+    },
+    "B0253": {
+      "part_id": "CC9FBm_P010",
+      "bar_num": 13,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/10 Interlude 1/096 Always Where I Need to Be Interlude 1.mp3",
+      "has_accents": false
+    },
+    "B0254": {
+      "part_id": "CC9FBm_P010",
+      "bar_num": 14,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/10 Interlude 1/097 Always Where I Need to Be Interlude 1.mp3",
+      "has_accents": false
+    },
+    "B0255": {
+      "part_id": "CC9FBm_P010",
+      "bar_num": 15,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/10 Interlude 1/098 Always Where I Need to Be Interlude 1.mp3",
+      "has_accents": false
+    },
+    "B0256": {
+      "part_id": "CC9FBm_P010",
+      "bar_num": 16,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/10 Interlude 1/099 Always Where I Need to Be Interlude 1.mp3",
+      "has_accents": false
+    },
+    "B0257": {
+      "part_id": "CC9FBm_P013",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/12 Dudup 3/100 Always Where I Need to Be Dudup 3.mp3",
+      "has_accents": false
+    },
+    "B0258": {
+      "part_id": "CC9FBm_P013",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/12 Dudup 3/101 Always Where I Need to Be Dudup 3.mp3",
+      "has_accents": false
+    },
+    "B0259": {
+      "part_id": "CC9FBm_P013",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/12 Dudup 3/102 Always Where I Need to Be Dudup 3.mp3",
+      "has_accents": false
+    },
+    "B0260": {
+      "part_id": "CC9FBm_P013",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/12 Dudup 3/103 Always Where I Need to Be Dudup 3.mp3",
+      "has_accents": false
+    },
+    "B0261": {
+      "part_id": "CC9FBm_P013",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/12 Dudup 3/104 Always Where I Need to Be Dudup 3.mp3",
+      "has_accents": false
+    },
+    "B0262": {
+      "part_id": "CC9FBm_P013",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/12 Dudup 3/105 Always Where I Need to Be Dudup 3.mp3",
+      "has_accents": false
+    },
+    "B0263": {
+      "part_id": "CC9FBm_P013",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/12 Dudup 3/106 Always Where I Need to Be Dudup 3.mp3",
+      "has_accents": false
+    },
+    "B0264": {
+      "part_id": "CC9FBm_P013",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/12 Dudup 3/107 Always Where I Need to Be Dudup 3.mp3",
+      "has_accents": false
+    },
+    "B0265": {
+      "part_id": "CC9FBm_P014",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/13 Dudup 4/108 Always Where I Need to Be Dudup 4.mp3",
+      "has_accents": false
+    },
+    "B0266": {
+      "part_id": "CC9FBm_P014",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/13 Dudup 4/109 Always Where I Need to Be Dudup 4.mp3",
+      "has_accents": false
+    },
+    "B0267": {
+      "part_id": "CC9FBm_P014",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/13 Dudup 4/110 Always Where I Need to Be Dudup 4.mp3",
+      "has_accents": false
+    },
+    "B0268": {
+      "part_id": "CC9FBm_P014",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/13 Dudup 4/111 Always Where I Need to Be Dudup 4.mp3",
+      "has_accents": false
+    },
+    "B0269": {
+      "part_id": "CC9FBm_P014",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/13 Dudup 4/112 Always Where I Need to Be Dudup 4.mp3",
+      "has_accents": false
+    },
+    "B0270": {
+      "part_id": "CC9FBm_P014",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/13 Dudup 4/113 Always Where I Need to Be Dudup 4.mp3",
+      "has_accents": false
+    },
+    "B0271": {
+      "part_id": "CC9FBm_P014",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/13 Dudup 4/114 Always Where I Need to Be Dudup 4.mp3",
+      "has_accents": false
+    },
+    "B0272": {
+      "part_id": "CC9FBm_P014",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/13 Dudup 4/115 Always Where I Need to Be Dudup 4.mp3",
+      "has_accents": false
+    },
+    "B0273": {
+      "part_id": "CC9FBm_P015",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "audio/Always Where I Need to Be/14 Ausklang/116 Always Where I Need to Be Ausklang.mp3",
       "has_accents": false
     }
   },

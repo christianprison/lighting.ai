@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.15.25';
+const APP_VERSION = 'v0.15.26';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -1758,9 +1758,8 @@ function stopPartPlay() {
 async function handleBarPlay(partId, barNum) {
   ensureCollections();
   const found = findBar(partId, barNum);
-  if (!found) { console.warn('handleBarPlay: bar not found', partId, barNum); return; }
-  const [barId, barData] = found;
-  if (!barData.audio) { console.warn('handleBarPlay: no audio path', barId); return; }
+  const barId = found ? found[0] : `${partId}_B${barNum}`;
+  const barData = found ? found[1] : {};
 
   // If already playing this bar → stop
   if (_barPlayId === barId && _partPlayActive) {
@@ -1780,27 +1779,48 @@ async function handleBarPlay(partId, barNum) {
     }
     if (_partPlayCtx.state === 'suspended') await _partPlayCtx.resume();
 
-    const arrBuf = await fetchAudioUrl(barData.audio);
-    if (!arrBuf) throw new Error(`Audio nicht gefunden: ${barData.audio}`);
-    const decoded = await _partPlayCtx.decodeAudioData(arrBuf);
-
-    const src = _partPlayCtx.createBufferSource();
-    src.buffer = decoded;
-    src.connect(_partPlayCtx.destination);
-    src.onended = () => {
-      if (_barPlayId === barId) {
-        _barPlayId = null;
-        _partPlayActive = false;
+    // Strategy 1: Use split audio file if available
+    if (barData.audio) {
+      const arrBuf = await fetchAudioUrl(barData.audio);
+      if (arrBuf) {
+        const decoded = await _partPlayCtx.decodeAudioData(arrBuf);
+        const src = _partPlayCtx.createBufferSource();
+        src.buffer = decoded;
+        src.connect(_partPlayCtx.destination);
+        src.onended = () => {
+          if (_barPlayId === barId) { _barPlayId = null; _partPlayActive = false; renderTakteTab(); }
+        };
+        src.start(0);
+        _partPlaySources = [src];
+        _partPlayBuffers = [decoded];
         renderTakteTab();
+        return;
       }
-    };
-    src.start(0);
-    _partPlaySources = [src];
-    _partPlayBuffers = [decoded];
+    }
 
-    renderTakteTab();
+    // Strategy 2: Play from reference audio buffer using bar time range
+    const refBuffer = audio.getBuffer();
+    if (refBuffer) {
+      const range = getBarTimeRange(partId, barNum);
+      if (range) {
+        const src = _partPlayCtx.createBufferSource();
+        src.buffer = refBuffer;
+        src.connect(_partPlayCtx.destination);
+        const dur = range.end - range.start;
+        src.onended = () => {
+          if (_barPlayId === barId) { _barPlayId = null; _partPlayActive = false; renderTakteTab(); }
+        };
+        src.start(0, range.start, dur);
+        _partPlaySources = [src];
+        _partPlayBuffers = [refBuffer];
+        renderTakteTab();
+        return;
+      }
+    }
+
+    throw new Error('Kein Audio verfügbar');
   } catch (err) {
-    console.error('Bar playback error:', err, 'path:', barData.audio);
+    console.error('Bar playback error:', err);
     toast(`Wiedergabe-Fehler: ${err.message}`, 'error');
     stopPartPlay();
     _barPlayId = null;
@@ -4431,6 +4451,7 @@ function renderLyricsTab() {
   if (_lePhase === 'empty') {
     html += `<button class="btn btn-sm" id="le-paste-btn" title="Text aus Zwischenablage einfügen">&#128203; Einfügen</button>`;
   } else {
+    html += `<button class="btn btn-sm" id="le-edit-text-btn" title="Rohtext bearbeiten">&#9998; Text</button>`;
     html += `<button class="btn btn-sm le-btn-danger" id="le-clear-btn" title="Text und Marker löschen">L&ouml;schen</button>`;
   }
 
@@ -4874,16 +4895,58 @@ function leMoveDrag(e) {
     _leDrag.moved = true;
   }
 
+  // Recalculate word positions LIVE (handles scroll, zoom, layout changes)
+  const wordEls = document.querySelectorAll('#le-text .le-word');
+  const wordPositions = [];
+  for (const w of wordEls) {
+    const rect = w.getBoundingClientRect();
+    wordPositions.push({
+      charOffset: parseInt(w.dataset.charOffset, 10),
+      left: rect.left,
+      right: rect.right,
+      top: rect.top,
+      centerY: rect.top + rect.height / 2,
+      height: rect.height
+    });
+  }
+
+  // Build line groups
+  const lineMap = new Map();
+  for (const p of wordPositions) {
+    const lineKey = Math.round(p.top / 3) * 3;
+    if (!lineMap.has(lineKey)) lineMap.set(lineKey, { ...p });
+    else if (p.left < lineMap.get(lineKey).left) lineMap.set(lineKey, { ...p });
+  }
+  const linePositions = Array.from(lineMap.values()).sort((a, b) => a.top - b.top);
+
+  // Enrich with empty-line snap targets
+  const enrichedLines = [];
+  for (let li = 0; li < linePositions.length; li++) {
+    if (li > 0) {
+      const prevBottom = linePositions[li - 1].top + linePositions[li - 1].height;
+      const gap = linePositions[li].top - prevBottom;
+      if (gap > linePositions[li].height * 0.5) {
+        enrichedLines.push({
+          charOffset: linePositions[li].charOffset,
+          left: linePositions[li].left,
+          top: (prevBottom + linePositions[li].top) / 2,
+          centerY: (prevBottom + linePositions[li].top) / 2,
+          height: linePositions[li].height,
+          isEmptyLine: true
+        });
+      }
+    }
+    enrichedLines.push(linePositions[li]);
+  }
+
   let bestOffset = _leDrag.currentOffset;
 
-  // Both part and bar markers: word-snap with cursor always LEFT of finger.
-  // Find nearest line by Y, then snap to the last word whose left edge
-  // is to the left of the finger (visible, not hidden under finger).
+  // Find nearest line by Y, then snap to the word closest to finger X
   {
     let bestLineDist = Infinity;
     let bestLineTop = null;
     let bestLineHeight = 0;
-    for (const lp of _leDrag.linePositions) {
+    for (const lp of enrichedLines) {
       const dist = Math.abs(clientY - lp.centerY);
       if (dist < bestLineDist) {
         bestLineDist = dist;
@@ -4892,23 +4955,18 @@ function leMoveDrag(e) {
       }
     }
     if (bestLineTop !== null) {
-      // Check if the nearest line is a virtual empty line (gap between content)
-      const bestLine = _leDrag.linePositions.find(lp =>
+      const bestLine = enrichedLines.find(lp =>
         Math.abs(lp.top - bestLineTop) < 2 && lp.isEmptyLine
       );
       if (bestLine) {
-        // Empty line: snap to first word of next content line
         bestOffset = bestLine.charOffset;
       } else {
-        // Collect words on this line, sorted left-to-right
-        const lineWords = _leDrag.wordPositions
+        const lineWords = wordPositions
           .filter(p => Math.abs(p.top - bestLineTop) < bestLineHeight)
           .sort((a, b) => a.left - b.left);
         if (lineWords.length > 0) {
-          // Default: line start (first word) — edge case when finger is far left
           let target = lineWords[0];
-          // Find the last word whose left edge is >= 50px left of finger
-          // (keeps cursor well clear of the finger on touch devices)
+          // Find word whose left edge is closest but left of finger (50px margin for touch)
           for (const w of lineWords) {
             if (w.left < clientX - 50) {
               target = w;
@@ -4937,6 +4995,7 @@ function leMoveDrag(e) {
     guide.className = 'le-drag-guide';
     document.body.appendChild(guide);
   }
+  guide.style.background = _leDrag.type === 'bar' ? 'var(--cyan)' : 'var(--amber)';
   // Position guide at the LEFT EDGE of the snapped word (always left of finger)
   const nearestWordEl = document.querySelector(`.le-word[data-char-offset="${bestOffset}"]`);
   if (nearestWordEl) {
@@ -5080,6 +5139,115 @@ function leStopPlayback() {
   _lePlayingBarId = null;
 }
 
+/* ── Lyrics Editor: Raw Text Edit Overlay ─────────── */
+
+function leOpenTextEditor() {
+  if (!selectedSongId || !db.songs[selectedSongId]) return;
+  const song = db.songs[selectedSongId];
+  const rawText = song.lyrics_raw || '';
+
+  // Create overlay
+  const overlay = document.createElement('div');
+  overlay.id = 'le-text-edit-overlay';
+  overlay.className = 'le-text-edit-overlay';
+  overlay.innerHTML = `
+    <div class="le-text-edit-modal">
+      <div class="le-text-edit-header">
+        <span>Rohtext bearbeiten</span>
+        <div style="flex:1"></div>
+        <button class="btn btn-sm le-btn-confirm" id="le-text-edit-save">&#10003; &Uuml;bernehmen</button>
+        <button class="btn btn-sm" id="le-text-edit-cancel">Abbrechen</button>
+      </div>
+      <textarea id="le-text-edit-area" class="le-text-edit-area" spellcheck="false">${esc(rawText)}</textarea>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  const textarea = document.getElementById('le-text-edit-area');
+  textarea.focus();
+
+  document.getElementById('le-text-edit-save').addEventListener('click', () => {
+    const newText = textarea.value;
+    song.lyrics_raw = newText;
+
+    // Re-initialize markers from new text
+    const parts = getSortedParts(selectedSongId);
+    _leWords = leParseWords(newText);
+    // Re-map existing part markers to new word positions (best effort)
+    leRemapMarkersToNewText(newText);
+
+    markDirty();
+    overlay.remove();
+    renderLyricsTab();
+  });
+
+  document.getElementById('le-text-edit-cancel').addEventListener('click', () => {
+    overlay.remove();
+  });
+}
+
+/**
+ * Re-map existing part/bar markers to the new text after editing.
+ * Tries to preserve marker positions by matching surrounding text.
+ */
+function leRemapMarkersToNewText(newText) {
+  const newWords = _leWords;
+  if (newWords.length === 0) {
+    _lePartMarkers = [];
+    _leBarMarkers = [];
+    _lePhase = 'empty';
+    return;
+  }
+
+  // For part markers: find the original word at charOffset in old text,
+  // then find the same word in new text
+  const oldText = db.songs[selectedSongId]?.lyrics_raw || newText;
+  for (const pm of _lePartMarkers) {
+    const bestWord = leMatchWordInNewText(pm.charOffset, oldText, newWords);
+    if (bestWord !== null) pm.charOffset = bestWord;
+    else pm.charOffset = Math.min(pm.charOffset, newWords[newWords.length - 1].offset);
+  }
+  for (const bm of _leBarMarkers) {
+    const bestWord = leMatchWordInNewText(bm.charOffset, oldText, newWords);
+    if (bestWord !== null) bm.charOffset = bestWord;
+    else bm.charOffset = Math.min(bm.charOffset, newWords[newWords.length - 1].offset);
+  }
+}
+
+/**
+ * Find the best matching word offset in new text for a charOffset from old text.
+ */
+function leMatchWordInNewText(oldOffset, oldText, newWords) {
+  // Extract word at old offset
+  const oldWord = leWordAtOffset(oldText, oldOffset);
+  if (!oldWord) return newWords.length > 0 ? newWords[0].offset : null;
+
+  // Find exact match by text
+  for (const nw of newWords) {
+    if (nw.text === oldWord && Math.abs(nw.offset - oldOffset) < oldText.length * 0.3) {
+      return nw.offset;
+    }
+  }
+
+  // Fallback: nearest offset
+  let best = newWords[0];
+  for (const nw of newWords) {
+    if (Math.abs(nw.offset - oldOffset) < Math.abs(best.offset - oldOffset)) {
+      best = nw;
+    }
+  }
+  return best.offset;
+}
+
+function leWordAtOffset(text, offset) {
+  if (offset >= text.length) return null;
+  let start = offset;
+  let end = offset;
+  while (end < text.length && !/\s/.test(text[end])) end++;
+  if (start === end) return null;
+  return text.slice(start, end);
+}
+
 /* ── Lyrics Editor: Event Handlers ───────────────── */
 
 function handleLyricsClick(e) {
@@ -5088,6 +5256,12 @@ function handleLyricsClick(e) {
   // Paste button
   if (el.closest('#le-paste-btn')) {
     handleLePasteButton();
+    return;
+  }
+
+  // Edit text button
+  if (el.closest('#le-edit-text-btn')) {
+    leOpenTextEditor();
     return;
   }
 
@@ -7300,19 +7474,22 @@ function buildTakteTabTable(bars, filterSong) {
       <tbody>
         ${bars.map((b, idx) => {
           const isActive = sel && sel.songId === b.songId && sel.partId === b.partId && sel.barNum === b.barNum;
-          const isBarPlaying = _barPlayId === b.barId && _partPlayActive;
+          const isBarPlaying = (_barPlayId === b.barId || _barPlayId === `${b.partId}_B${b.barNum}`) && _partPlayActive;
 
           let waveCanvas = '';
+          let hasRange = false;
           if (showWave) {
             const range = getBarTimeRange(b.partId, b.barNum);
             if (range) {
+              hasRange = true;
               waveCanvas = `<canvas class="mini-waveform mini-waveform-sm" data-wave-start="${range.start}" data-wave-end="${range.end}" data-wave-color="rgb(56, 189, 248)"></canvas>`;
             }
           }
 
+          const canPlay = b.audio || (hasBuf && hasRange);
           return `<tr class="ttt-row${isActive ? ' active' : ''}" data-song-id="${b.songId}" data-part-id="${b.partId}" data-bar-num="${b.barNum}">
             <td class="ttt-nr mono text-t3">${showSongCol ? idx + 1 : b.absBar}</td>
-            <td class="ttt-play">${b.audio ? `<button class="btn-bar-play${isBarPlaying ? ' playing' : ''}" data-action="play-bar" data-play-part-id="${b.partId}" data-play-bar-num="${b.barNum}" title="${isBarPlaying ? 'Stop' : 'Takt abspielen'}">${isBarPlaying ? '&#9632;' : '&#9654;'}</button>` : ''}</td>
+            <td class="ttt-play">${canPlay ? `<button class="btn-bar-play${isBarPlaying ? ' playing' : ''}" data-action="play-bar" data-play-part-id="${b.partId}" data-play-bar-num="${b.barNum}" title="${isBarPlaying ? 'Stop' : 'Takt abspielen'}">${isBarPlaying ? '&#9632;' : '&#9654;'}</button>` : ''}</td>
             ${showSongCol ? `<td class="ttt-song"><span class="ttt-song-name">${esc(b.songName)}</span></td>` : ''}
             <td class="ttt-part text-t2">${esc(b.partName)}</td>
             <td class="ttt-bar mono">${b.barNum}</td>

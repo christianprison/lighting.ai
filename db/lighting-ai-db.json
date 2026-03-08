@@ -78,7 +78,7 @@
         "5iZfKj_P004": {
           "pos": 4,
           "name": "Chorus 1 (nanana)",
-          "bars": 8,
+          "bars": 9,
           "duration_sec": 12,
           "light_template": "10 Strobe",
           "qlc_scene": "10 Strobe",
@@ -114,7 +114,7 @@
         "5iZfKj_P007": {
           "pos": 7,
           "name": "Bridge 2",
-          "bars": 4,
+          "bars": 3,
           "duration_sec": 6,
           "light_template": "02 slow blue",
           "qlc_scene": "02 slow blue",
@@ -138,7 +138,7 @@
         "5iZfKj_P009": {
           "pos": 9,
           "name": "Stop",
-          "bars": 8,
+          "bars": 9,
           "duration_sec": 12,
           "light_template": "Spot auf Tim",
           "qlc_scene": "Spot auf Tim",
@@ -762,7 +762,10 @@
       "audio_ref_name": "All The Small Things - Full Song.mp3",
       "lyrics_raw": "Verse 1\nAll the small things\nTrue care truth brings\nI'll take one lift\nYour ride best trip\nAlways I know\nYou'll be at my show\nWatching, waiting, commiserating\n\nBridge\nSay it ain't so, I will not go\nTurn the lights off, carry me home\n\nChorus\nNa, na, na, na\nNa, na, na, na, na, na, na, na, na, na, na\n\nVerse 2\nLate night, come home\nWork sucks, I know\nShe left me roses by the stairs\nSurprises let me know she cares\n\nBridge\nSay it ain't so, I will not go\nTurn the lights off, carry me home\n\nChorus\nNa, na, na, na\nNa, na, na, na, na, na, na, na, na, na, na\n\n(Interlude)\n\nPower-Bridge\nSay it ain't so, I will not go\nTurn the lights off, carry me home\nKeep your head still, I'll be your thrill\nThe night will go on, my little windmill\n\nSay it ain't so, I will not go\n(na-na-na-na-na-na-na-na-na-na)\nTurn the lights off, carry me home\n(na-na-na-na-na-na-na-na-na-na)\nKeep your head still, I'll be your thrill\n(na-na-na-na-na-na-na-na-na-na)\nThe night will go on\nThe night will go on\nMy little windmill",
       "tms": {
-        "manual_done": [],
+        "manual_done": [
+          "accents_any",
+          "in_setlist"
+        ],
         "user_tasks": []
       },
       "instr_done": true,

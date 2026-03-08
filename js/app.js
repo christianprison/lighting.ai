@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.0.7';
+const APP_VERSION = 'v1.0.8';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -840,24 +840,33 @@ function showTmsModalTip() {
   if (seen.includes(tipId)) return;
 
   setTimeout(() => {
-    const addInput = document.querySelector('.tms-add-input');
+    const modal = document.getElementById('tms-modal');
+    if (!modal) return;
+    // Find the first visible add-input (in a non-collapsed category)
+    const addInput = modal.querySelector('.tms-category:not(.collapsed) .tms-add-input')
+                  || modal.querySelector('.tms-add-input');
     if (!addInput) return;
 
     // Remove any existing tip
     document.querySelector('.tip-bubble')?.remove();
 
     const bubble = document.createElement('div');
-    bubble.className = 'tip-bubble tip-arrow-up';
+    bubble.className = 'tip-bubble tip-arrow-down';
     bubble.dataset.tipId = tipId;
     bubble.innerHTML = `${esc('Hier kannst du eigene Aufgaben anlegen, diese erscheinen dann als kleiner Punkt in der Songliste')}<button class="tip-close" aria-label="Schliessen">&times;</button>`;
-
-    const rect = addInput.getBoundingClientRect();
-    bubble.style.position = 'fixed';
-    bubble.style.top = (rect.bottom + 10) + 'px';
-    bubble.style.left = Math.max(8, rect.left) + 'px';
+    bubble.style.zIndex = '9999';
     bubble.style.maxWidth = '260px';
 
+    // Position above the input, inside the modal viewport
+    const rect = addInput.getBoundingClientRect();
+    bubble.style.position = 'fixed';
+    bubble.style.left = Math.max(8, rect.left) + 'px';
+    bubble.style.top = '0px'; // temporary, adjust after measuring
+
     document.body.appendChild(bubble);
+
+    const bh = bubble.offsetHeight;
+    bubble.style.top = (rect.top - bh - 10) + 'px';
 
     bubble.querySelector('.tip-close').addEventListener('click', (e) => { e.stopPropagation(); dismissTip(); });
     bubble.addEventListener('click', dismissTip);

@@ -30,3 +30,7 @@ jobs:
       - name: Push changes to main
         run: |
           git push origin main
+
+      - name: Delete branch
+        run: |
+          git push origin --delete claude/db-pflege-app-lyrics-drag-0b8up

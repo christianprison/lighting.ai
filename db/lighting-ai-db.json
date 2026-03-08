@@ -1751,7 +1751,8 @@
           "qlc_scene_id": 74,
           "timestamp": "",
           "notes": "",
-          "start_bar": 12
+          "start_bar": 12,
+          "lyrics_confirmed": true
         },
         "CC9FBm_P004": {
           "pos": 4,
@@ -1763,7 +1764,8 @@
           "qlc_scene_id": 77,
           "timestamp": "",
           "notes": "",
-          "start_bar": 8
+          "start_bar": 8,
+          "lyrics_confirmed": true
         },
         "CC9FBm_P005": {
           "pos": 5,
@@ -1774,7 +1776,8 @@
           "qlc_scene": "09 Alarm",
           "qlc_scene_id": 80,
           "timestamp": "",
-          "notes": ""
+          "notes": "",
+          "lyrics_confirmed": true
         },
         "CC9FBm_P006": {
           "pos": 6,
@@ -1786,7 +1789,8 @@
           "qlc_scene_id": 74,
           "timestamp": "",
           "notes": "",
-          "start_bar": 12
+          "start_bar": 12,
+          "lyrics_confirmed": true
         },
         "CC9FBm_P007": {
           "pos": 7,
@@ -1797,7 +1801,8 @@
           "qlc_scene": "06 blinking",
           "qlc_scene_id": 77,
           "timestamp": "",
-          "notes": ""
+          "notes": "",
+          "lyrics_confirmed": true
         },
         "CC9FBm_P008": {
           "pos": 8,
@@ -1809,7 +1814,8 @@
           "qlc_scene_id": 80,
           "timestamp": "",
           "notes": "",
-          "start_bar": 8
+          "start_bar": 8,
+          "lyrics_confirmed": true
         },
         "CC9FBm_P009": {
           "pos": 9,
@@ -1834,7 +1840,8 @@
           "qlc_scene_id": 77,
           "timestamp": "",
           "notes": "",
-          "start_bar": 8
+          "start_bar": 8,
+          "lyrics_confirmed": true
         },
         "CC9FBm_P012": {
           "pos": 11,
@@ -1845,7 +1852,8 @@
           "qlc_scene": "10 Strobe",
           "qlc_scene_id": 81,
           "timestamp": "",
-          "notes": ""
+          "notes": "",
+          "lyrics_confirmed": true
         },
         "CC9FBm_P013": {
           "pos": 12,
@@ -1856,7 +1864,8 @@
           "qlc_scene": "09 Alarm",
           "qlc_scene_id": 80,
           "timestamp": "",
-          "notes": ""
+          "notes": "",
+          "lyrics_confirmed": true
         },
         "CC9FBm_P014": {
           "pos": 13,
@@ -1867,7 +1876,8 @@
           "qlc_scene": "10 Strobe",
           "qlc_scene_id": 81,
           "timestamp": "",
-          "notes": ""
+          "notes": "",
+          "lyrics_confirmed": true
         },
         "CC9FBm_P015": {
           "pos": 14,

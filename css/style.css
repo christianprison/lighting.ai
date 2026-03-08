@@ -668,6 +668,12 @@ label {
 /* Grab cursor when hovering over bar flags */
 .pw-waveform-wrap.bar-hover { cursor: grab; }
 .pw-waveform-wrap.bar-dragging { cursor: grabbing; }
+/* Tap bar button (cyan accent) */
+.pw-tap-bar {
+  background: var(--cyan) !important;
+  color: var(--bg) !important;
+  font-weight: 600;
+}
 
 /* ── Toast / Notifications ─────────────────────────── */
 .toast-container {

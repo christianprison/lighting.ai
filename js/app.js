@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.0.0';
+const APP_VERSION = 'v1.0.3';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -252,6 +252,7 @@ function cacheDom() {
     pwHandleEnd:   document.getElementById('pw-handle-end'),
     pwDimLeft:     document.getElementById('pw-dim-left'),
     pwDimRight:    document.getElementById('pw-dim-right'),
+    pwTapBar:      document.getElementById('pw-tap-bar'),
     pwWrap:        document.querySelector('.pw-waveform-wrap'),
   };
 }
@@ -2885,6 +2886,25 @@ function onWaveformPointerUp(e) {
   }
 
   if (_dragMarker && _isDragging) {
+    // If a part marker was dragged far enough, leave a bar marker at the original position
+    if (_dragMarker.type === 'part') {
+      const origTime = _dragMarker.originalTime;
+      const newTime = partMarkers[_dragMarker.index].time;
+      const displacement = Math.abs(newTime - origTime);
+      const song = db.songs[selectedSongId];
+      const bpm = song ? (song.bpm || 120) : 120;
+      const quarterBar = 60 / bpm; // duration of one beat (quarter note)
+      if (displacement > quarterBar * 0.25) {
+        // Check if there's already a bar marker near the original position
+        const hasBarAtOrig = barMarkers.some(bm => Math.abs(bm.time - origTime) < 0.05);
+        if (!hasBarAtOrig) {
+          // Determine which part the original position now belongs to
+          const origPartIdx = getPartIndexForTime(origTime);
+          barMarkers.push({ time: origTime, partIndex: origPartIdx });
+        }
+      }
+    }
+
     // Finalize drag — snap first bar of each part to part marker
     snapFirstBarsToPartMarkers();
 
@@ -4965,14 +4985,15 @@ function leMoveDrag(e) {
           .filter(p => Math.abs(p.top - bestLineTop) < bestLineHeight)
           .sort((a, b) => a.left - b.left);
         if (lineWords.length > 0) {
-          // Find word whose left edge is nearest to finger X position
-          let target = lineWords[0];
-          let bestDist = Infinity;
-          for (const w of lineWords) {
-            const dist = Math.abs(w.left - clientX);
-            if (dist < bestDist) {
-              bestDist = dist;
-              target = w;
+          // Text-cursor-style snap: find the insertion gap nearest to cursor X.
+          // If cursor is past the midpoint of a word, snap to the NEXT word
+          // (= insert after this word). Otherwise snap to THIS word (= insert before).
+          let target = lineWords[lineWords.length - 1]; // default: last word
+          for (let i = 0; i < lineWords.length; i++) {
+            const mid = (lineWords[i].left + lineWords[i].right) / 2;
+            if (clientX <= mid) {
+              target = lineWords[i];
+              break;
             }
           }
           bestOffset = target.charOffset;
@@ -7099,8 +7120,16 @@ function _pwDrawWaveform() {
     ctx.fillRect(i, mid - barH / 2, 1, barH || 1);
   }
 
-  // Draw bar markers with draggable flags
+  // Draw bar markers with draggable flags (absolute bar numbers from song start)
   const bars = getBarMarkersForPart(_pw.partIndex);
+  // Compute absolute bar offset: count bars in all preceding parts
+  let absBarOffset = 0;
+  {
+    const parts = getSortedParts(_pw.songId);
+    for (let pi = 0; pi < _pw.partIndex && pi < parts.length; pi++) {
+      absBarOffset += getBarMarkersForPart(pi).length;
+    }
+  }
   if (bars.length > 0) {
     const viewRange = _pw.viewEnd - _pw.viewStart;
     for (let i = 0; i < bars.length; i++) {
@@ -7114,8 +7143,9 @@ function _pwDrawWaveform() {
       ctx.moveTo(x, 0);
       ctx.lineTo(x, h);
       ctx.stroke();
-      // Flag label (bottom, like Audio-Split-Tab)
-      const label = `${bars[i].barNum || i + 1}`;
+      // Flag label with absolute bar number (bottom)
+      const absNum = absBarOffset + i + 1;
+      const label = `${absNum}`;
       ctx.font = '9px DM Mono, monospace';
       const tw = ctx.measureText(label).width + 4;
       ctx.fillStyle = isDragging ? 'rgba(56, 189, 248, 1.0)' : 'rgba(56, 189, 248, 0.85)';
@@ -7281,11 +7311,19 @@ function _pwInstallDragListeners() {
       _pwDrag.activated = true;
       const bounds = _pwGetBarDragBounds(_pwDrag.barMarker);
       _pwDrag.barMarker.time = Math.max(bounds.min, Math.min(bounds.max, time));
-      // Show drag balloon on touch
+      // Show drag balloon on touch (absolute bar number)
       if (ev.touches) {
         const clientY = ev.touches[0].clientY;
-        const label = `Takt ${_pwDrag.barMarker.barNum || _pwDrag.barIndex + 1}`;
-        showDragBalloon(label, _pwDrag.barMarker.time, '#38bdf8', cx, clientY);
+        let absNum = _pwDrag.barIndex + 1;
+        const pwBars = getBarMarkersForPart(_pw.partIndex);
+        const bIdx = pwBars.indexOf(_pwDrag.barMarker);
+        if (bIdx >= 0) {
+          let offset = 0;
+          const ps = getSortedParts(_pw.songId);
+          for (let pi = 0; pi < _pw.partIndex && pi < ps.length; pi++) offset += getBarMarkersForPart(pi).length;
+          absNum = offset + bIdx + 1;
+        }
+        showDragBalloon(`Takt ${absNum}`, _pwDrag.barMarker.time, '#38bdf8', cx, clientY);
       }
     }
     _pwUpdateUI();
@@ -7356,6 +7394,27 @@ function _pwNudge(which, dir) {
     _pw.trimEnd = Math.min(_pw.viewEnd, Math.max(_pw.trimEnd + delta, _pw.trimStart + 0.05));
   }
   _pwUpdateUI();
+}
+
+/* ── Part Wave Editor: Tap to add bar marker ── */
+
+function _pwTapBar() {
+  if (!_pw.open || !_pw.playing) return;
+  const time = Math.max(0, audio.getSegmentCurrentTime() - audio.getOutputLatency());
+  // Only add within the trim range
+  if (time < _pw.trimStart || time > _pw.trimEnd) return;
+
+  // Add bar marker to the global barMarkers array for this part
+  barMarkers.push({ time, partIndex: _pw.partIndex });
+
+  // Update origBarTimes so the new marker is tracked
+  const bars = getBarMarkersForPart(_pw.partIndex);
+  const newMarker = bars.find(m => m.time === time);
+  if (newMarker) _pw.origBarTimes.push({ marker: newMarker, time });
+
+  saveMarkersToSong();
+  markDirty();
+  _pwDrawWaveform();
 }
 
 /* ── Part Wave Editor: Click on waveform to seek ── */
@@ -7429,6 +7488,16 @@ function initPartWaveEditor() {
 
   // Play button
   els.pwPlay.addEventListener('click', _pwTogglePlay);
+
+  // Tap bar button
+  els.pwTapBar.addEventListener('click', _pwTapBar);
+
+  // Keyboard shortcut: T to tap bar during playback
+  document.addEventListener('keydown', (e) => {
+    if (!_pw.open) return;
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (e.key === 't' || e.key === 'T') { _pwTapBar(); }
+  });
 
   // Nudge buttons
   els.pwModal.addEventListener('click', (e) => {
@@ -8062,7 +8131,10 @@ async function handleUndo() {
     toast('Keine ungespeicherten \u00c4nderungen vorhanden', 'info');
     return;
   }
-  if (!confirm('\u00c4nderungen verwerfen und letzte gespeicherte Version von GitHub laden?')) return;
+  // Bei unsaved Status: sofort ohne Rückfrage zurücksetzen.
+  // Nur bei bereits gespeicherten Versionen (= nicht dirty) kommt eine Bestätigung —
+  // aber da wir oben schon !dirty abfangen, greift die Confirm-Frage hier nie.
+  // → Undo bei unsaved = immer sofort.
   const s = getSettings();
   setSyncStatus('loading');
   try {

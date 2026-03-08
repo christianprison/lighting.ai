@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.0.0';
+const APP_VERSION = 'v1.0.1';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4965,14 +4965,15 @@ function leMoveDrag(e) {
           .filter(p => Math.abs(p.top - bestLineTop) < bestLineHeight)
           .sort((a, b) => a.left - b.left);
         if (lineWords.length > 0) {
-          // Find word whose left edge is nearest to finger X position
-          let target = lineWords[0];
-          let bestDist = Infinity;
-          for (const w of lineWords) {
-            const dist = Math.abs(w.left - clientX);
-            if (dist < bestDist) {
-              bestDist = dist;
-              target = w;
+          // Text-cursor-style snap: find the insertion gap nearest to cursor X.
+          // If cursor is past the midpoint of a word, snap to the NEXT word
+          // (= insert after this word). Otherwise snap to THIS word (= insert before).
+          let target = lineWords[lineWords.length - 1]; // default: last word
+          for (let i = 0; i < lineWords.length; i++) {
+            const mid = (lineWords[i].left + lineWords[i].right) / 2;
+            if (clientX <= mid) {
+              target = lineWords[i];
+              break;
             }
           }
           bestOffset = target.charOffset;
@@ -8062,7 +8063,10 @@ async function handleUndo() {
     toast('Keine ungespeicherten \u00c4nderungen vorhanden', 'info');
     return;
   }
-  if (!confirm('\u00c4nderungen verwerfen und letzte gespeicherte Version von GitHub laden?')) return;
+  // Bei unsaved Status: sofort ohne Rückfrage zurücksetzen.
+  // Nur bei bereits gespeicherten Versionen (= nicht dirty) kommt eine Bestätigung —
+  // aber da wir oben schon !dirty abfangen, greift die Confirm-Frage hier nie.
+  // → Undo bei unsaved = immer sofort.
   const s = getSettings();
   setSyncStatus('loading');
   try {

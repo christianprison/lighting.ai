@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.15.30';
+const APP_VERSION = 'v0.15.31';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -7178,6 +7178,9 @@ function _pwUpdateUI() {
   els.pwTimeStart.textContent = fmtTime(_pw.trimStart);
   els.pwTimeEnd.textContent = fmtTime(_pw.trimEnd);
   els.pwTimeDur.textContent = fmtTime(_pw.trimEnd - _pw.trimStart);
+
+  // Redraw canvas so amber Start/Ende markers follow the handles
+  _pwDrawWaveform();
 }
 
 /* fmtTime — siehe Zeile 1835 (einzige Definition) */

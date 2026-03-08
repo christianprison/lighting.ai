@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.1.0';
+const APP_VERSION = 'v1.1.1';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4310,7 +4310,11 @@ function leRenderBlocks() {
   let html = '';
   for (let i = 0; i < _leBlocks.length; i++) {
     const b = _leBlocks[i];
-    const cls = `le-block le-block-${b.type}`;
+    // Line break before part blocks and blocks with newline flag
+    if (b.type === 'part' || b.newline) {
+      html += '<span class="le-break"></span>';
+    }
+    let cls = `le-block le-block-${b.type}`;
     const draggable = 'draggable="true"';
     html += `<span class="${cls}" ${draggable} data-idx="${i}" data-type="${b.type}" data-id="${b.id}">${esc(b.content)}</span>`;
   }
@@ -4366,10 +4370,7 @@ function leWireCanvasEvents() {
     document.querySelectorAll('.le-drop-indicator').forEach(el => el.remove());
 
     const targetIdx = parseInt(targetBlock.dataset.idx, 10);
-    const rect = targetBlock.getBoundingClientRect();
-    const midX = rect.left + rect.width / 2;
-    const insertBefore = e.clientX < midX;
-    const dropIdx = insertBefore ? targetIdx : targetIdx + 1;
+    const dropIdx = targetIdx; // always drop BEFORE target
 
     // Validate drop position for part/bar blocks
     if (_leDrag.type === 'part' || _leDrag.type === 'bar') {
@@ -4379,14 +4380,10 @@ function leWireCanvasEvents() {
       }
     }
 
-    // Show indicator
+    // Show indicator before target block
     const indicator = document.createElement('span');
     indicator.className = 'le-drop-indicator';
-    if (insertBefore) {
-      targetBlock.parentNode.insertBefore(indicator, targetBlock);
-    } else {
-      targetBlock.parentNode.insertBefore(indicator, targetBlock.nextSibling);
-    }
+    targetBlock.parentNode.insertBefore(indicator, targetBlock);
   });
 
   // Drop
@@ -4400,10 +4397,7 @@ function leWireCanvasEvents() {
 
     const fromIdx = _leDrag.idx;
     const targetIdx = parseInt(targetBlock.dataset.idx, 10);
-    const rect = targetBlock.getBoundingClientRect();
-    const midX = rect.left + rect.width / 2;
-    const insertBefore = e.clientX < midX;
-    let toIdx = insertBefore ? targetIdx : targetIdx + 1;
+    let toIdx = targetIdx; // always drop BEFORE target
 
     // Validate
     if (_leDrag.type === 'part' || _leDrag.type === 'bar') {
@@ -4472,9 +4466,7 @@ function leWireCanvasEvents() {
         const fromIdx = touchDrag.idx;
         const targetIdx = parseInt(targetBlock.dataset.idx, 10);
         const blockData = _leBlocks[fromIdx];
-        const rect = targetBlock.getBoundingClientRect();
-        const midX = rect.left + rect.width / 2;
-        let toIdx = touch.clientX < midX ? targetIdx : targetIdx + 1;
+        let toIdx = targetIdx; // always drop BEFORE target
 
         if (blockData.type === 'part' || blockData.type === 'bar') {
           if (!leIsValidDrop(fromIdx, toIdx, blockData.type)) { touchDrag = null; return; }
@@ -4487,9 +4479,9 @@ function leWireCanvasEvents() {
         leRefreshCanvas();
       }
     } else {
-      // Tap (no drag) → context menu for words
+      // Tap (no drag) → context menu for words and bars
       const block = touchDrag.el;
-      if (block.dataset.type === 'word') {
+      if (block.dataset.type === 'word' || block.dataset.type === 'bar') {
         e.preventDefault();
         leShowContextMenu(parseInt(block.dataset.idx, 10), block);
       }
@@ -4502,7 +4494,7 @@ function leWireCanvasEvents() {
     leCloseContextMenu();
     const block = e.target.closest('.le-block');
     if (!block) return;
-    if (block.dataset.type === 'word') {
+    if (block.dataset.type === 'word' || block.dataset.type === 'bar') {
       leShowContextMenu(parseInt(block.dataset.idx, 10), block);
     }
   });
@@ -4552,21 +4544,31 @@ function leIsValidDrop(fromIdx, toIdx, type) {
   return true;
 }
 
-/* ── Context Menu for Word Blocks ────────────────── */
+/* ── Context Menu for Blocks ──────────────────────── */
 
 function leShowContextMenu(idx, blockEl) {
   leCloseContextMenu();
   const block = _leBlocks[idx];
-  if (!block || block.type !== 'word') return;
+  if (!block) return;
 
   const menu = document.createElement('div');
   menu.className = 'le-ctx-menu';
-  menu.innerHTML = `
-    <button data-action="delete" class="le-ctx-item le-ctx-delete">&#128465; L&ouml;schen</button>
-    <button data-action="split" class="le-ctx-item">&#9986; Trennen</button>
-    <button data-action="merge" class="le-ctx-item">&#128279; Zusammensetzen</button>
-    <button data-action="insert" class="le-ctx-item">&#10133; Einf&uuml;gen</button>
-  `;
+
+  if (block.type === 'word') {
+    menu.innerHTML = `
+      <button data-action="delete" class="le-ctx-item le-ctx-delete">&#128465; L&ouml;schen</button>
+      <button data-action="split" class="le-ctx-item">&#9986; Trennen</button>
+      <button data-action="merge" class="le-ctx-item">&#128279; Zusammensetzen</button>
+      <button data-action="insert" class="le-ctx-item">&#10133; Einf&uuml;gen</button>
+    `;
+  } else if (block.type === 'bar') {
+    const nlLabel = block.newline ? '&#8629; Neue Zeile entfernen' : '&#8629; Neue Zeile';
+    menu.innerHTML = `
+      <button data-action="newline" class="le-ctx-item">${nlLabel}</button>
+    `;
+  } else {
+    return; // no context menu for parts (yet)
+  }
 
   // Position below the block
   const rect = blockEl.getBoundingClientRect();
@@ -4654,6 +4656,13 @@ async function leHandleContextAction(action, idx) {
       id: `lb_${Date.now()}_ins_${i}`
     }));
     _leBlocks.splice(idx + 1, 0, ...newBlocks);
+    markDirty();
+    leRefreshCanvas();
+  }
+
+  else if (action === 'newline') {
+    // Toggle line break before this bar block
+    block.newline = !block.newline;
     markDirty();
     leRefreshCanvas();
   }

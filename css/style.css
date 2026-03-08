@@ -2540,6 +2540,15 @@ label {
   outline-offset: 2px;
 }
 
+/* ── Line Break (forces new row in flex-wrap) ──── */
+.le-break {
+  flex-basis: 100%;
+  height: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
 /* ── Part Block: Orange ────────────────────────── */
 .le-block-part {
   background: var(--amber);
@@ -2548,16 +2557,6 @@ label {
   font-weight: 700;
   font-size: 0.72rem;
   padding: 0 10px;
-  /* Force new line before part */
-  flex-basis: 100%;
-  justify-content: flex-start;
-  height: 28px;
-  margin-top: 8px;
-  border-radius: 4px 4px 0 0;
-}
-
-.le-block-part:first-child {
-  margin-top: 0;
 }
 
 /* ── Bar Block: Cyan ───────────────────────────── */

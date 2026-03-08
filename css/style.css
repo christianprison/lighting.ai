@@ -2429,7 +2429,7 @@ label {
 }
 
 /* ══════════════════════════════════════════════════════
-   LYRICS EDITOR — Grafischer Marker-Editor
+   LYRICS EDITOR — Block-based Canvas
    ══════════════════════════════════════════════════════ */
 
 /* ── Panel Layout ──────────────────────────────── */
@@ -2448,6 +2448,7 @@ label {
   align-items: center;
   gap: 8px;
   margin-bottom: 12px;
+  flex-wrap: wrap;
 }
 
 .le-btn-danger {
@@ -2458,7 +2459,16 @@ label {
   background: rgba(255, 59, 92, 0.1);
 }
 
-/* ── Genius Link (reused) ─────────────────────── */
+.le-btn-save {
+  background: var(--green) !important;
+  color: var(--bg) !important;
+  border-color: var(--green) !important;
+  font-weight: 600;
+}
+.le-btn-save:hover {
+  opacity: 0.9;
+}
+
 .lyrics-genius-link {
   background: var(--bg3);
   border: 1px solid var(--border2);
@@ -2474,224 +2484,152 @@ label {
   border-color: var(--amber);
 }
 
-/* ── Paste Area (empty state) ────────────────── */
-.le-empty-wrap {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.le-paste-area {
-  flex: 1;
-  min-height: 200px;
-  background: var(--bg3);
-  border: 2px dashed var(--border2);
-  border-radius: var(--radius);
-  color: var(--t1);
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  line-height: 1.6;
-  padding: 16px;
-  white-space: pre-wrap;
-  word-break: break-word;
-  outline: none;
-  transition: border-color 0.2s;
-}
-
-.le-paste-area:focus {
-  border-color: var(--green);
-}
-
-.le-paste-area:empty::before {
-  content: attr(data-placeholder);
-  color: var(--t4);
-  white-space: pre-wrap;
-}
-
-/* ── Phase Bar ────────────────────────────────── */
-.le-phase-bar {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 12px;
-  margin-bottom: 10px;
-  border-radius: var(--radius);
-  background: var(--bg2);
-  border: 1px solid var(--border);
-}
-
-.le-phase-icon {
-  color: var(--amber);
-  font-size: 0.8rem;
-}
-
-.le-phase-text {
-  font-size: 0.78rem;
-  color: var(--t2);
-  flex: 1;
-}
-
-.le-btn-confirm {
-  background: var(--green) !important;
-  color: var(--bg) !important;
-  border-color: var(--green) !important;
-  font-weight: 600;
-}
-.le-btn-confirm:hover {
-  opacity: 0.9;
-}
-
-.le-btn-save {
-  background: var(--green) !important;
-  color: var(--bg) !important;
-  border-color: var(--green) !important;
-  font-weight: 600;
-}
-.le-btn-save:hover {
-  opacity: 0.9;
-}
-
-.le-btn-back {
-  color: var(--t2);
-}
-
-.le-btn-distribute {
-  color: var(--t2);
-  border-color: var(--border2) !important;
-}
-.le-btn-distribute:hover {
-  color: var(--t1);
-  border-color: var(--cyan) !important;
-}
-
-/* ── Graphical Text Editor ───────────────────── */
-.le-editor {
+/* ── Block Canvas ──────────────────────────────── */
+.le-canvas {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--bg2);
-  padding: 16px 20px;
-  cursor: crosshair;
+  padding: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 4px;
+  position: relative;
 }
 
-.le-editor.le-dragging,
-.le-editor.le-dragging * {
-  cursor: grabbing !important;
-}
-
-.le-text {
+/* ── Block: shared base ────────────────────────── */
+.le-block {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  padding: 0 8px;
+  border-radius: 4px;
   font-family: var(--font-mono);
-  font-size: 0.82rem;
-  line-height: 2.0;
-  color: var(--t1);
-  word-break: break-word;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
   user-select: none;
+  cursor: grab;
+  transition: transform 0.1s, box-shadow 0.15s, opacity 0.15s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
-/* ── Words ────────────────────────────────────── */
-.le-word {
-  cursor: default;
-  transition: background 0.1s;
-  padding: 1px 0;
-  border-radius: 2px;
+.le-block:hover {
+  transform: scale(1.04);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-.le-word.le-drop-target {
-  /* no highlight during drag */
+.le-block:active,
+.le-block.le-dragging {
+  cursor: grabbing;
+  transform: scale(1.06);
+  opacity: 0.6;
 }
 
-.le-header {
-  color: var(--t4);
-  font-style: italic;
-  font-size: 0.75rem;
+.le-block.le-block-selected {
+  outline: 2px solid var(--green);
+  outline-offset: 1px;
 }
 
-/* ── Part Markers: Orange box with black text ── */
-.le-part-marker {
-  display: inline-block;
+.le-block.le-drop-hover {
+  outline: 2px dashed var(--green);
+  outline-offset: 2px;
+}
+
+/* ── Part Block: Orange ────────────────────────── */
+.le-block-part {
   background: var(--amber);
-  color: var(--bg) !important;
+  color: var(--bg);
   font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: 0.72rem;
+  padding: 0 10px;
+  /* Force new line before part */
+  flex-basis: 100%;
+  justify-content: flex-start;
+  height: 28px;
+  margin-top: 8px;
+  border-radius: 4px 4px 0 0;
+}
+
+.le-block-part:first-child {
+  margin-top: 0;
+}
+
+/* ── Bar Block: Cyan ───────────────────────────── */
+.le-block-bar {
+  background: var(--cyan);
+  color: var(--bg);
   font-size: 0.7rem;
   font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 4px;
-  margin: 0 4px;
-  cursor: grab;
-  user-select: none;
-  vertical-align: baseline;
-  white-space: nowrap;
-  transition: transform 0.1s, box-shadow 0.15s;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-  line-height: 1.4;
+  padding: 0 6px;
+  min-width: 28px;
 }
 
-.le-part-marker:hover {
-  transform: scale(1.05);
-  box-shadow: 0 2px 8px rgba(240, 160, 48, 0.4);
+/* ── Word Block: Dark with light text ──────────── */
+.le-block-word {
+  background: var(--bg3);
+  color: var(--t1);
+  border: 1px solid var(--border2);
+  font-weight: 400;
+  cursor: pointer;
 }
 
-.le-part-marker:active,
-.le-part-marker.le-dragging {
-  cursor: grabbing;
-  transform: scale(1.08);
-  box-shadow: 0 3px 12px rgba(240, 160, 48, 0.5);
-  opacity: 0.8;
+.le-block-word:hover {
+  background: var(--bg4);
+  border-color: var(--t3);
 }
 
-.le-part-marker.le-predicted {
-  opacity: 0.7;
-}
-
-.le-part-marker.le-confirmed {
-  opacity: 1;
-}
-
-/* Orange guide line during drag, positioned left of marker */
-.le-drag-guide {
-  position: fixed;
+/* ── Drop Indicator ────────────────────────────── */
+.le-drop-indicator {
   width: 2px;
-  background: var(--amber);
-  pointer-events: none;
-  z-index: 9999;
+  height: 32px;
+  background: var(--green);
   border-radius: 1px;
+  pointer-events: none;
+  flex-shrink: 0;
 }
 
-/* ── Bar Markers: Cyan vertical stripe ─────── */
-.le-bar-marker {
-  display: inline-block;
-  background: var(--cyan);
-  color: var(--bg) !important;
-  font-family: var(--font-mono);
-  font-size: 0.6rem;
-  font-weight: 700;
-  padding: 1px 5px;
-  border-radius: 3px;
-  margin: 0 3px;
-  cursor: grab;
-  user-select: none;
-  vertical-align: baseline;
-  white-space: nowrap;
-  transition: transform 0.1s, box-shadow 0.15s;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-  line-height: 1.4;
-  opacity: 0.7;
+/* ── Context Menu ──────────────────────────────── */
+.le-ctx-menu {
+  position: absolute;
+  z-index: 1000;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 4px 0;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  min-width: 160px;
 }
 
-.le-bar-marker:hover {
-  transform: scale(1.05);
-  box-shadow: 0 2px 8px rgba(56, 189, 248, 0.4);
-  opacity: 1;
+.le-ctx-item {
+  display: block;
+  width: 100%;
+  padding: 8px 14px;
+  border: none;
+  background: transparent;
+  color: var(--t1);
+  font-size: 0.78rem;
+  font-family: var(--font-ui);
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.1s;
 }
 
-.le-bar-marker:active,
-.le-bar-marker.le-dragging {
-  cursor: grabbing;
-  transform: scale(1.08);
-  box-shadow: 0 3px 12px rgba(56, 189, 248, 0.5);
-  opacity: 1;
+.le-ctx-item:hover {
+  background: var(--bg4);
+}
+
+.le-ctx-item.le-ctx-delete {
+  color: var(--red);
+}
+
+.le-ctx-item.le-ctx-delete:hover {
+  background: rgba(255, 59, 92, 0.1);
 }
 
 /* ── Legend ────────────────────────────────────── */
@@ -2722,87 +2660,11 @@ label {
 
 .le-swatch-bar {
   background: var(--cyan);
-  width: 14px;
-  height: 14px;
-  border-radius: 3px;
 }
 
-/* ── Bars Phase: Enlarged text for easier tapping ── */
-.le-bars-zoom {
-  padding: 10px 12px;
-}
-
-.le-bars-zoom .le-text {
-  font-size: 1.6rem;
-  line-height: 2.2;
-}
-
-.le-bars-zoom .le-header {
-  font-size: 1.4rem;
-}
-
-.le-bars-zoom .le-part-marker {
-  font-size: 1.3rem;
-  padding: 4px 14px;
-  border-radius: 6px;
-  margin: 0 6px;
-}
-
-.le-bars-zoom .le-bar-marker {
-  font-size: 1.1rem;
-  padding: 3px 9px;
-  border-radius: 5px;
-  margin: 0 5px;
-}
-
-/* ── Raw Text Edit Overlay ──────────────────────── */
-.le-text-edit-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 10000;
-  background: rgba(0, 0, 0, 0.7);
-  display: flex;
-  align-items: stretch;
-  justify-content: center;
-  padding: 24px;
-}
-
-.le-text-edit-modal {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  max-width: 700px;
-  background: var(--bg2);
-  border: 1px solid var(--border2);
-  border-radius: var(--radius);
-  overflow: hidden;
-}
-
-.le-text-edit-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 16px;
+.le-swatch-word {
   background: var(--bg3);
-  border-bottom: 1px solid var(--border);
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--t1);
-}
-
-.le-text-edit-area {
-  flex: 1;
-  background: var(--bg);
-  color: var(--t1);
-  font-family: var(--font-mono);
-  font-size: 0.85rem;
-  line-height: 1.6;
-  border: none;
-  padding: 16px;
-  resize: none;
-  outline: none;
-  white-space: pre-wrap;
-  word-break: break-word;
+  border: 1px solid var(--border2);
 }
 
 

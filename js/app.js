@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.0.18';
+const APP_VERSION = 'v1.1.0';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -31,13 +31,11 @@ let partsTabSelectedBar = null;   // bar number or null
 let takteTabFilterSong = '';
 let takteTabSelectedBar = null;  // {songId, partId, barNum}
 
-/* ── Lyrics Editor State ────────────────────────── */
-let _lePhase = 'empty';        // 'empty' | 'parts' | 'bars'
-let _leWords = [];              // [{text, offset, newlineBefore, emptyLineBefore, isHeader}]
-let _lePartMarkers = [];        // [{partId, charOffset, confirmed}] sorted by charOffset
-let _leBarMarkers = [];         // [{partId, barNum, charOffset}] sorted by charOffset
-let _leDrag = null;             // {type:'part'|'bar', idx, currentOffset, wordPositions}
-let _leInitSongId = null;       // songId for which markers were initialized
+/* ── Lyrics Editor State (Block-based Canvas) ──── */
+let _leBlocks = [];             // [{type:'part'|'bar'|'word', id, content, partId, barNum}]
+let _leInitSongId = null;       // songId for which blocks were built
+let _leDrag = null;             // active drag state
+let _leContextMenu = null;      // active context menu element
 
 /* ── Audio Split State ────────────────────────────── */
 let audioMeta = null;          // {duration, sampleRate, channels}
@@ -4090,70 +4088,15 @@ function handleAudioDrop(e) {
   if (file) handleAudioFileLoad(file);
 }
 
+
 /* ══════════════════════════════════════════════════════
-   LYRICS EDITOR — Grafischer Marker-Editor
-   Phasen: empty → parts (Part-Marker setzen) → bars (Takt-Marker setzen)
+   LYRICS EDITOR — Block-based Canvas
+   Bausteine: part (orange), bar (cyan), word (weiß)
+   Layout: flex-wrap, Drag & Drop, Kontextmenü
    ══════════════════════════════════════════════════════ */
 
-/* ── Lyrics Editor: Parse raw text into word tokens ── */
-
 /**
- * Parse raw lyrics text into word tokens.
- * Each token: {text, offset, newlineBefore, emptyLineBefore, isHeader}
- * Section headers like [Verse 1] are tagged as isHeader.
- */
-function leParseRawText(rawText) {
-  const words = [];
-  if (!rawText) return words;
-  const lines = rawText.split('\n');
-  let absOffset = 0;
-  let prevLineEmpty = false;
-
-  for (let li = 0; li < lines.length; li++) {
-    const line = lines[li];
-    const trimmed = line.trim();
-
-    if (trimmed === '') {
-      prevLineEmpty = true;
-      absOffset += line.length + 1;
-      continue;
-    }
-
-    const isHeader = /^\[.*\]$/.test(trimmed);
-
-    if (isHeader) {
-      const headerOffset = absOffset + line.indexOf(trimmed);
-      words.push({
-        text: trimmed,
-        offset: headerOffset,
-        newlineBefore: li > 0 && !prevLineEmpty,
-        emptyLineBefore: prevLineEmpty,
-        isHeader: true
-      });
-    } else {
-      const lineWords = trimmed.split(/\s+/);
-      let localOffset = line.indexOf(trimmed);
-      for (let wi = 0; wi < lineWords.length; wi++) {
-        const w = lineWords[wi];
-        const wOffset = line.indexOf(w, localOffset);
-        words.push({
-          text: w,
-          offset: absOffset + wOffset,
-          newlineBefore: wi === 0 && li > 0 && !prevLineEmpty,
-          emptyLineBefore: wi === 0 && prevLineEmpty,
-          isHeader: false
-        });
-        localOffset = wOffset + w.length;
-      }
-    }
-    prevLineEmpty = false;
-    absOffset += line.length + 1;
-  }
-  return words;
-}
-
-/**
- * Check if any bars for the given parts have lyrics.
+ * Check if any bars for the given parts have lyrics assigned.
  */
 function leHasAnyBarLyrics(parts) {
   ensureCollections();
@@ -4165,559 +4108,144 @@ function leHasAnyBarLyrics(parts) {
   return false;
 }
 
-/* ── Lyrics Editor: Marker Prediction ────────────── */
-
-/** Synonyms for section header → part name matching */
-const SECTION_SYNONYMS = {
-  'verse': ['verse', 'strophe', 'stanza'],
-  'chorus': ['chorus', 'refrain', 'hook'],
-  'pre-chorus': ['pre-chorus', 'prechorus', 'pre chorus'],
-  'bridge': ['bridge', 'bruecke', 'brücke', 'middle 8'],
-  'outro': ['outro', 'ending', 'coda'],
-  'intro': ['intro', 'opening'],
-  'solo': ['solo', 'guitar solo', 'instrumental'],
-  'breakdown': ['breakdown', 'break'],
-  'interlude': ['interlude', 'zwischenspiel'],
-  'post-chorus': ['post-chorus', 'postchorus', 'post chorus'],
-};
-
-function matchSectionToPartName(header) {
-  const clean = header.replace(/[\[\]]/g, '').replace(/\s*\d+\s*$/, '').trim().toLowerCase();
-  for (const [base, syns] of Object.entries(SECTION_SYNONYMS)) {
-    if (syns.some(s => clean === s || clean.startsWith(s))) return base;
-  }
-  return clean;
-}
-
-function normalizePartName(name) {
-  const clean = (name || '').replace(/\s*\d+\s*$/, '').trim().toLowerCase();
-  for (const [base, syns] of Object.entries(SECTION_SYNONYMS)) {
-    if (syns.some(s => clean === s || clean.startsWith(s))) return base;
-  }
-  return clean;
-}
-
 /**
- * Auto-predict part marker positions in the raw text.
- * Uses section headers [Verse 1] etc. to match parts.
+ * Build the block array from song data.
+ * Blocks: [{type:'part'|'bar'|'word', content, partId, barNum, id}]
+ * Order: Part → Bar 1 → words... → Bar 2 → words... → next Part → ...
  */
-function leGuessPartMarkers(words, parts) {
-  const markers = [];
-  const textParts = parts.filter(p => !p.instrumental);
-  if (textParts.length === 0) return markers;
+function leBuildBlocks(songId) {
+  const song = db.songs[songId];
+  if (!song) return [];
+  const parts = getSortedParts(songId);
+  ensureCollections();
 
-  // Find section headers in words
-  const headers = []; // [{wordIdx, header, base, num}]
-  for (let i = 0; i < words.length; i++) {
-    if (words[i].isHeader) {
-      const base = matchSectionToPartName(words[i].text);
-      const numMatch = words[i].text.replace(/[\[\]]/g, '').match(/\s+(\d+)\s*$/);
-      headers.push({ wordIdx: i, header: words[i].text, base, num: numMatch ? parseInt(numMatch[1], 10) : null });
-    }
-  }
+  const blocks = [];
+  let blockId = 0;
 
-  // Count part occurrences for matching numbered headers
-  const partOccurrence = new Map();
-  const baseCount = {};
-  for (const part of textParts) {
-    const base = normalizePartName(part.name);
-    baseCount[base] = (baseCount[base] || 0) + 1;
-    partOccurrence.set(part.id, baseCount[base]);
-  }
+  for (const part of parts) {
+    // Part block
+    blocks.push({
+      type: 'part',
+      content: part.name,
+      partId: part.id,
+      barNum: null,
+      id: `lb_${blockId++}`
+    });
 
-  // Match headers to parts
-  const usedHeaders = new Set();
-  for (const part of textParts) {
-    const partBase = normalizePartName(part.name);
-    const partOcc = partOccurrence.get(part.id);
+    const barCount = part.bars || 0;
+    for (let b = 1; b <= barCount; b++) {
+      const absNum = getAbsBarNum(songId, part.id, b);
 
-    for (const h of headers) {
-      if (usedHeaders.has(h.wordIdx)) continue;
-      if (h.base !== partBase) continue;
-      if (h.num !== null && h.num !== partOcc) continue;
-
-      // Found match: marker goes right after the header (next non-header word)
-      let targetIdx = h.wordIdx + 1;
-      while (targetIdx < words.length && words[targetIdx].isHeader) targetIdx++;
-      if (targetIdx >= words.length) targetIdx = h.wordIdx;
-
-      markers.push({
+      // Bar block
+      blocks.push({
+        type: 'bar',
+        content: String(absNum),
         partId: part.id,
-        charOffset: words[targetIdx] ? words[targetIdx].offset : words[h.wordIdx].offset,
-        confirmed: false
+        barNum: b,
+        id: `lb_${blockId++}`
       });
-      usedHeaders.add(h.wordIdx);
-      break;
-    }
-  }
 
-  // Parts without matched headers: distribute remaining text evenly
-  const unmatchedParts = textParts.filter(p => !markers.some(m => m.partId === p.id));
-  if (unmatchedParts.length > 0) {
-    // Get the non-header words
-    const lyricsWords = words.filter(w => !w.isHeader);
-    const matchedOffsets = new Set(markers.map(m => m.charOffset));
-    // Distribute unmatched parts across the remaining text
-    const totalWords = lyricsWords.length;
-    let usedWords = 0;
-    // Count words already claimed by matched parts
-    const sortedMarkers = [...markers].sort((a, b) => a.charOffset - b.charOffset);
-
-    for (const part of unmatchedParts) {
-      // Place marker at proportional position
-      const proportion = textParts.indexOf(part) / textParts.length;
-      const targetWordIdx = Math.floor(proportion * totalWords);
-      const wordAtPos = lyricsWords[Math.min(targetWordIdx, lyricsWords.length - 1)];
-      if (wordAtPos) {
-        markers.push({
-          partId: part.id,
-          charOffset: wordAtPos.offset,
-          confirmed: false
-        });
+      // Word blocks from bar lyrics (if any and not instrumental)
+      if (!part.instrumental) {
+        const found = findBar(part.id, b);
+        const lyrics = found ? (found[1].lyrics || '').trim() : '';
+        if (lyrics) {
+          const words = lyrics.split(/\s+/).filter(w => w.length > 0);
+          for (const w of words) {
+            blocks.push({
+              type: 'word',
+              content: w,
+              partId: part.id,
+              barNum: b,
+              id: `lb_${blockId++}`
+            });
+          }
+        }
       }
     }
   }
 
-  // Sort by charOffset
-  markers.sort((a, b) => a.charOffset - b.charOffset);
-  return markers;
+  return blocks;
 }
 
 /**
- * Predict bar marker positions within parts.
- * Distributes bars evenly across the words of each part.
+ * Distribute raw text words evenly across non-instrumental bars.
  */
-function leGuessBarMarkers(words, parts, partMarkers) {
-  const barMarkers = [];
-  const lyricsWords = words.filter(w => !w.isHeader);
-  if (lyricsWords.length === 0) return barMarkers;
+function leDistributeText(songId, rawText) {
+  const song = db.songs[songId];
+  if (!song) return [];
+  const parts = getSortedParts(songId);
+  ensureCollections();
 
-  const sortedPM = [...partMarkers].sort((a, b) => a.charOffset - b.charOffset);
+  // Parse words from raw text (strip section headers)
+  const cleanText = rawText.replace(/\[.*?\]/g, '').trim();
+  const allWords = cleanText.split(/\s+/).filter(w => w.length > 0);
+  if (allWords.length === 0) return _leBlocks;
 
-  for (let pi = 0; pi < sortedPM.length; pi++) {
-    const pm = sortedPM[pi];
-    const part = db.songs[selectedSongId]?.parts?.[pm.partId];
-    if (!part) continue;
+  // Collect non-instrumental bars
+  const bars = [];
+  for (const part of parts) {
+    if (part.instrumental) continue;
     const barCount = part.bars || 0;
-    if (barCount === 0) continue;
-
-    // Find the word range for this part
-    const startOffset = pm.charOffset;
-    const endOffset = (pi + 1 < sortedPM.length) ? sortedPM[pi + 1].charOffset : Infinity;
-
-    const partWords = lyricsWords.filter(w => w.offset >= startOffset && w.offset < endOffset);
-    if (partWords.length === 0) {
-      // No words in this part segment, place all bar markers at part start
-      for (let b = 1; b <= barCount; b++) {
-        barMarkers.push({ partId: pm.partId, barNum: b, charOffset: startOffset });
-      }
-      continue;
+    for (let b = 1; b <= barCount; b++) {
+      bars.push({ partId: part.id, barNum: b });
     }
+  }
 
-    // Distribute bars evenly across words
-    for (let b = 0; b < barCount; b++) {
-      const wordIdx = Math.round(b * partWords.length / barCount);
-      const word = partWords[Math.min(wordIdx, partWords.length - 1)];
-      barMarkers.push({
-        partId: pm.partId,
-        barNum: b + 1,
-        charOffset: word.offset
+  if (bars.length === 0) return _leBlocks;
+
+  // Distribute words evenly
+  const wordsPerBar = Math.ceil(allWords.length / bars.length);
+  let wordIdx = 0;
+
+  const blocks = [];
+  let blockId = 0;
+
+  for (const part of parts) {
+    blocks.push({
+      type: 'part',
+      content: part.name,
+      partId: part.id,
+      barNum: null,
+      id: `lb_${blockId++}`
+    });
+
+    const barCount = part.bars || 0;
+    for (let b = 1; b <= barCount; b++) {
+      const absNum = getAbsBarNum(songId, part.id, b);
+      blocks.push({
+        type: 'bar',
+        content: String(absNum),
+        partId: part.id,
+        barNum: b,
+        id: `lb_${blockId++}`
       });
-    }
-  }
 
-  barMarkers.sort((a, b) => a.charOffset - b.charOffset || a.barNum - b.barNum);
-  return barMarkers;
-}
-
-/**
- * Normalize bar lyrics for fuzzy matching against raw text.
- * Handles / separators, - - sustained notes, parentheses, case.
- */
-function _leNormalizeBarLyrics(lyrics) {
-  return lyrics
-    .replace(/\s*\/\s*/g, ' ')          // "/" line separator → space
-    .replace(/\s+-(\s+-)*\s*/g, ' ')     // "- -" or "-" sustained → space
-    .replace(/[()]/g, '')                // remove parentheses
-    .replace(/\s+/g, ' ')               // collapse whitespace
-    .trim()
-    .toLowerCase();
-}
-
-/**
- * Fuzzy-match bar lyrics in the normalized raw text within a bounded range.
- * Returns char offset in rawText or -1 if not found.
- */
-function _leMatchBarLyrics(normRaw, lyrics, fromOffset, maxOffset) {
-  const norm = _leNormalizeBarLyrics(lyrics);
-  if (!norm) return -1;
-  if (maxOffset === undefined) maxOffset = normRaw.length;
-
-  // Try full normalized match first
-  let idx = normRaw.indexOf(norm, fromOffset);
-  if (idx >= 0 && idx < maxOffset) return idx;
-
-  // Try matching the first few significant words (at least 2 chars each)
-  const words = norm.split(' ').filter(w => w.length >= 2);
-  if (words.length === 0) return -1;
-
-  // Use first 3 words for a shorter match
-  const shortNeedle = words.slice(0, Math.min(3, words.length)).join(' ');
-  idx = normRaw.indexOf(shortNeedle, fromOffset);
-  if (idx >= 0 && idx < maxOffset) return idx;
-
-  return -1;
-}
-
-/**
- * Reconstruct markers from existing per-bar lyrics stored in DB.
- *
- * Strategy: estimate each part's position proportionally, search within a
- * bounded window, then distribute bars evenly within each part's segment.
- */
-function leReconstructMarkers(rawText, parts) {
-  const partMarkers = [];
-  const barMarkers = [];
-  const normRaw = rawText.toLowerCase().replace(/\n/g, ' ');
-
-  // Collect non-instrumental parts with bars
-  const liveParts = parts.filter(p => !p.instrumental && (p.bars || 0) > 0);
-  if (liveParts.length === 0) return { partMarkers, barMarkers };
-
-  const totalBars = liveParts.reduce((sum, p) => sum + (p.bars || 0), 0);
-
-  // Step 1: Estimate each part's position proportionally by cumulative bar count
-  let cumBars = 0;
-  const partInfos = liveParts.map(part => {
-    const estimatedStart = Math.round(cumBars / totalBars * rawText.length);
-    cumBars += part.bars || 0;
-    return { part, estimatedStart, foundOffset: -1 };
-  });
-
-  // Step 2: Find each part's actual position by matching its first bar lyrics
-  // Search within a bounded window around the estimated position
-  let lastFoundEnd = 0;
-  for (let pi = 0; pi < partInfos.length; pi++) {
-    const info = partInfos[pi];
-    const part = info.part;
-
-    // Search window: from last found end (or estimated - margin) to next part's estimate + margin
-    const margin = Math.round(rawText.length / liveParts.length * 0.5);
-    const searchFrom = Math.max(lastFoundEnd, info.estimatedStart - margin);
-    const searchTo = pi + 1 < partInfos.length
-      ? partInfos[pi + 1].estimatedStart + margin
-      : rawText.length;
-
-    // Try to match the first few bars with lyrics in this window
-    for (let b = 1; b <= part.bars; b++) {
-      const found = findBar(part.id, b);
-      const lyrics = found ? (found[1].lyrics || '').trim() : '';
-      if (!lyrics) continue;
-
-      const idx = _leMatchBarLyrics(normRaw, lyrics, searchFrom, searchTo);
-      if (idx >= 0) {
-        info.foundOffset = idx;
-        lastFoundEnd = idx + 1;
-        break;
-      }
-    }
-  }
-
-  // Step 3: Resolve positions — ensure monotonically increasing
-  // Parts that didn't match get interpolated between neighbors
-  for (let pi = 0; pi < partInfos.length; pi++) {
-    if (partInfos[pi].foundOffset >= 0) continue;
-
-    // Find next part with a found offset
-    let nextFound = -1;
-    for (let j = pi + 1; j < partInfos.length; j++) {
-      if (partInfos[j].foundOffset >= 0) { nextFound = j; break; }
-    }
-    // Find previous part with a found offset
-    let prevFound = -1;
-    for (let j = pi - 1; j >= 0; j--) {
-      if (partInfos[j].foundOffset >= 0) { prevFound = j; break; }
-    }
-
-    // Interpolate between neighbors, or use estimate
-    const prevOff = prevFound >= 0 ? partInfos[prevFound].foundOffset : 0;
-    const nextOff = nextFound >= 0 ? partInfos[nextFound].foundOffset : rawText.length;
-    const prevIdx = prevFound >= 0 ? prevFound : -1;
-    const nextIdx = nextFound >= 0 ? nextFound : partInfos.length;
-    const span = nextIdx - prevIdx;
-    const step = pi - prevIdx;
-    partInfos[pi].foundOffset = Math.round(prevOff + (nextOff - prevOff) * step / span);
-  }
-
-  // Ensure monotonic and unique (each part marker at least 1 char after previous)
-  for (let pi = 1; pi < partInfos.length; pi++) {
-    if (partInfos[pi].foundOffset <= partInfos[pi - 1].foundOffset) {
-      partInfos[pi].foundOffset = partInfos[pi - 1].foundOffset + 1;
-    }
-  }
-
-  // Step 4: Create part markers
-  for (const info of partInfos) {
-    partMarkers.push({
-      partId: info.part.id,
-      charOffset: info.foundOffset,
-      confirmed: info.part.lyrics_confirmed || false
-    });
-  }
-
-  // Step 5: Create bar markers within each part's segment
-  // Try to match individual bars, fall back to even distribution
-  const lyricsWords = _leWords.filter(w => !w.isHeader);
-  for (let pi = 0; pi < partInfos.length; pi++) {
-    const info = partInfos[pi];
-    const part = info.part;
-    const segStart = info.foundOffset;
-    const segEnd = pi + 1 < partInfos.length ? partInfos[pi + 1].foundOffset : Infinity;
-    const barCount = part.bars || 0;
-
-    // Get words within this segment
-    const partWords = lyricsWords.filter(w => w.offset >= segStart && w.offset < segEnd);
-
-    if (partWords.length === 0) {
-      // No words — place all bars at segment start
-      for (let b = 1; b <= barCount; b++) {
-        barMarkers.push({ partId: part.id, barNum: b, charOffset: segStart });
-      }
-      continue;
-    }
-
-    // Try to match each bar's lyrics within the segment
-    const barOffsets = [];
-    let localSearch = segStart;
-    for (let b = 1; b <= barCount; b++) {
-      const found = findBar(part.id, b);
-      const lyrics = found ? (found[1].lyrics || '').trim() : '';
-      if (!lyrics) { barOffsets.push(null); continue; }
-
-      const idx = _leMatchBarLyrics(normRaw, lyrics, localSearch, segEnd);
-      if (idx >= 0) {
-        barOffsets.push(idx);
-        const matchLen = _leNormalizeBarLyrics(lyrics).length;
-        localSearch = idx + Math.max(matchLen, 1);
-      } else {
-        barOffsets.push(null);
-      }
-    }
-
-    // Fill unmatched bars: interpolate between matched neighbors or distribute evenly
-    const matchedCount = barOffsets.filter(o => o !== null).length;
-    if (matchedCount === 0) {
-      // No bars matched — distribute evenly across words
-      for (let b = 0; b < barCount; b++) {
-        const wordIdx = Math.round(b * partWords.length / barCount);
-        const word = partWords[Math.min(wordIdx, partWords.length - 1)];
-        barMarkers.push({ partId: part.id, barNum: b + 1, charOffset: word.offset });
-      }
-    } else {
-      // Fill gaps by interpolating between matched bars
-      for (let b = 0; b < barOffsets.length; b++) {
-        if (barOffsets[b] !== null) continue;
-        let nextOff = null, prevOff = null;
-        for (let j = b + 1; j < barOffsets.length; j++) {
-          if (barOffsets[j] !== null) { nextOff = barOffsets[j]; break; }
+      if (!part.instrumental) {
+        const barWords = allWords.slice(wordIdx, wordIdx + wordsPerBar);
+        wordIdx += wordsPerBar;
+        for (const w of barWords) {
+          blocks.push({
+            type: 'word',
+            content: w,
+            partId: part.id,
+            barNum: b,
+            id: `lb_${blockId++}`
+          });
         }
-        for (let j = b - 1; j >= 0; j--) {
-          if (barOffsets[j] !== null) { prevOff = barOffsets[j]; break; }
-        }
-        barOffsets[b] = nextOff ?? prevOff ?? segStart;
-      }
-      for (let b = 0; b < barOffsets.length; b++) {
-        barMarkers.push({ partId: part.id, barNum: b + 1, charOffset: barOffsets[b] });
       }
     }
   }
 
-  barMarkers.sort((a, b) => a.charOffset - b.charOffset || a.barNum - b.barNum);
-  return { partMarkers, barMarkers };
+  return blocks;
 }
 
 /**
- * Re-predict bar markers for a specific part after its part marker was moved.
+ * Initialize the block canvas for a song.
  */
-function leRepredictBarsForPart(partId) {
-  // Remove old bar markers for this part
-  _leBarMarkers = _leBarMarkers.filter(m => m.partId !== partId);
-  // Re-predict using current part markers
-  const parts = getSortedParts(selectedSongId);
-  const lyricsWords = _leWords.filter(w => !w.isHeader);
-  const sortedPM = [..._lePartMarkers].sort((a, b) => a.charOffset - b.charOffset);
-  const pmIdx = sortedPM.findIndex(m => m.partId === partId);
-  if (pmIdx < 0) return;
-
-  const pm = sortedPM[pmIdx];
-  const part = db.songs[selectedSongId]?.parts?.[partId];
-  if (!part) return;
-  const barCount = part.bars || 0;
-  if (barCount === 0) return;
-
-  const startOffset = pm.charOffset;
-  const endOffset = (pmIdx + 1 < sortedPM.length) ? sortedPM[pmIdx + 1].charOffset : Infinity;
-  const partWords = lyricsWords.filter(w => w.offset >= startOffset && w.offset < endOffset);
-
-  for (let b = 0; b < barCount; b++) {
-    const wordIdx = Math.round(b * partWords.length / barCount);
-    const word = partWords[Math.min(wordIdx, Math.max(0, partWords.length - 1))];
-    _leBarMarkers.push({
-      partId: partId,
-      barNum: b + 1,
-      charOffset: word ? word.offset : startOffset
-    });
-  }
-
-  _leBarMarkers.sort((a, b) => a.charOffset - b.charOffset || a.barNum - b.barNum);
-}
-
-/* ── Lyrics Editor: Init from song data ─────────── */
-
-/**
- * Check if bar markers have reconstruction problems.
- * Returns true if bars are out of order OR severely clustered.
- * "Clustered" = within a part, bars cover less than 30% of the available text
- * when the part has 4+ bars.
- */
-function leDetectOutOfOrder(barMarkers, songId, partMarkers) {
-  if (barMarkers.length < 2) return false;
-  const sorted = [...barMarkers].sort((a, b) => a.charOffset - b.charOffset);
-
-  // Check 1: absolute bar numbers must be monotonically increasing
-  let prevAbs = -1;
-  for (const m of sorted) {
-    const abs = getAbsBarNum(songId, m.partId, m.barNum);
-    if (abs < prevAbs) return true;
-    prevAbs = abs;
-  }
-
-  // Check 2: bars within each part should not be severely clustered
-  if (partMarkers && partMarkers.length > 0) {
-    const sortedPM = [...partMarkers].sort((a, b) => a.charOffset - b.charOffset);
-    const rawLen = (db.songs[songId]?.lyrics_raw || '').length || 1;
-
-    for (let pi = 0; pi < sortedPM.length; pi++) {
-      const pm = sortedPM[pi];
-      const segStart = pm.charOffset;
-      const segEnd = pi + 1 < sortedPM.length ? sortedPM[pi + 1].charOffset : rawLen;
-      const segLen = segEnd - segStart;
-      if (segLen < 20) continue; // very short segment, skip
-
-      const partBars = sorted.filter(m => m.partId === pm.partId);
-      if (partBars.length < 4) continue; // only check parts with 4+ bars
-
-      const minOff = partBars[0].charOffset;
-      const maxOff = partBars[partBars.length - 1].charOffset;
-      const barSpan = maxOff - minOff;
-
-      // If bars cover less than 30% of the part's text, it's clustered
-      if (barSpan < segLen * 0.3) return true;
-    }
-  }
-
-  return false;
-}
-
-/**
- * Handle lyrics conflict: clear bar-lyrics assignments and restart.
- */
-function leFixClearAssignments(songId, parts) {
-  ensureCollections();
-  for (const p of parts) {
-    for (const [, b] of Object.entries(db.bars)) {
-      if (b.part_id === p.id) b.lyrics = '';
-    }
-  }
-  markDirty();
-  // Reset to parts phase — keep raw text, re-predict part markers
-  const song = db.songs[songId];
-  const rawText = song.lyrics_raw || '';
-  _leWords = leParseRawText(rawText);
-  _lePartMarkers = leGuessPartMarkers(_leWords, parts);
-  _leBarMarkers = [];
-  _lePhase = 'parts';
-}
-
-/**
- * Handle lyrics conflict: regenerate raw text from bar lyrics in order.
- */
-function leFixRegenerateRaw(songId, parts) {
-  ensureCollections();
-  const song = db.songs[songId];
-  const lines = [];
-  for (const p of parts) {
-    if (p.instrumental) continue;
-    const barCount = p.bars || 0;
-    if (barCount === 0) continue;
-    lines.push(`[${p.name}]`);
-    for (let b = 1; b <= barCount; b++) {
-      const found = findBar(p.id, b);
-      const lyrics = found ? (found[1].lyrics || '').trim() : '';
-      if (lyrics) lines.push(lyrics);
-    }
-    lines.push('');
-  }
-  const newRaw = lines.join('\n').trim();
-  song.lyrics_raw = newRaw;
-  markDirty();
-  // Re-init from scratch with fresh raw text
-  _leWords = leParseRawText(newRaw);
-  const result = leReconstructMarkers(newRaw, parts);
-  _lePartMarkers = result.partMarkers;
-  _leBarMarkers = result.barMarkers;
-  _lePhase = _leBarMarkers.length > 0 ? 'bars' : 'parts';
-}
-
-let _leConflictPending = false; // prevent re-entrant dialog
-
 function leInitFromSong(song, parts) {
-  const rawText = song.lyrics_raw || '';
-  _leWords = leParseRawText(rawText);
   _leInitSongId = selectedSongId;
-
-  // Try to reconstruct from existing bar lyrics
-  const hasBarLyrics = leHasAnyBarLyrics(parts);
-  if (hasBarLyrics && rawText) {
-    const result = leReconstructMarkers(rawText, parts);
-    _lePartMarkers = result.partMarkers;
-    _leBarMarkers = result.barMarkers;
-    // If we have bar markers, go straight to bars phase
-    _lePhase = _leBarMarkers.length > 0 ? 'bars' : 'parts';
-
-    // Check for out-of-order bars after reconstruction
-    if (_leBarMarkers.length > 0 && leDetectOutOfOrder(_leBarMarkers, selectedSongId, _lePartMarkers) && !_leConflictPending) {
-      _leConflictPending = true;
-      const songId = selectedSongId;
-      setTimeout(async () => {
-        const choice = await showLyricsConflictDialog(
-          'Lyrics-Konflikt erkannt',
-          'Die Takte im Lyrics-Tab sind nicht in der richtigen Reihenfolge. '
-          + 'Entweder sind die Lyrics falsch den Takten zugeordnet, oder der Rohtext stimmt nicht mit den Zuordnungen überein.<br><br>'
-          + '<b>Zuordnungen löschen:</b> Alle Lyrics-zu-Takt-Zuordnungen werden gelöscht. Du kannst sie im Lyrics-Tab neu erstellen.<br>'
-          + '<b>Rohtext neu generieren:</b> Der Rohtext wird aus den bestehenden Takt-Zuordnungen neu erzeugt.'
-        );
-        _leConflictPending = false;
-        if (choice === 'clear_assignments') {
-          leFixClearAssignments(songId, getSortedParts(songId));
-          renderLyricsTab();
-        } else if (choice === 'regenerate_raw') {
-          leFixRegenerateRaw(songId, getSortedParts(songId));
-          renderLyricsTab();
-        }
-        // 'cancel' → do nothing, show as-is
-      }, 100);
-    }
-  } else if (rawText) {
-    // Fresh text: predict part markers
-    _lePartMarkers = leGuessPartMarkers(_leWords, parts);
-    _leBarMarkers = [];
-    _lePhase = 'parts';
-  } else {
-    _lePhase = 'empty';
-    _lePartMarkers = [];
-    _leBarMarkers = [];
-  }
+  _leBlocks = leBuildBlocks(selectedSongId);
 }
 
 /* ── Lyrics Editor: Rendering ────────────────────── */
@@ -4730,7 +4258,6 @@ function renderLyricsTab() {
 
   const song = db.songs[selectedSongId];
   const parts = getSortedParts(selectedSongId);
-  const rawText = song.lyrics_raw || '';
   ensureCollections();
 
   // Auto-load reference audio
@@ -4739,361 +4266,462 @@ function renderLyricsTab() {
     _refLoadingPromise = loadReferenceAudio().finally(() => { _refLoadingFor = null; _refLoadingPromise = null; });
   }
 
-  // Initialize markers if needed (new song or first load)
+  // Initialize blocks if needed
   if (_leInitSongId !== selectedSongId) {
-    if (rawText || leHasAnyBarLyrics(parts)) {
-      leInitFromSong(song, parts);
-    } else {
-      _lePhase = 'empty';
-      _lePartMarkers = [];
-      _leBarMarkers = [];
-      _leWords = [];
-      _leInitSongId = selectedSongId;
-    }
+    leInitFromSong(song, parts);
   }
 
+  const hasWords = _leBlocks.some(b => b.type === 'word');
   const geniusUrl = `https://genius.com/search?q=${encodeURIComponent(song.name + ' ' + song.artist)}`;
 
   let html = `<div class="lyrics-panel le-panel">
     ${buildSongHeader(song)}
     <div class="le-toolbar">
       <a href="${geniusUrl}" target="_blank" rel="noopener" class="btn btn-sm lyrics-genius-link" title="Auf Genius.com suchen">&#127925; Genius</a>
-      <div style="flex:1"></div>`;
-
-  if (_lePhase === 'empty') {
-    html += `<button class="btn btn-sm" id="le-paste-btn" title="Text aus Zwischenablage einfügen">&#128203; Einfügen</button>`;
-  } else {
-    html += `<button class="btn btn-sm" id="le-edit-text-btn" title="Rohtext bearbeiten">&#9998; Text</button>`;
-    html += `<button class="btn btn-sm le-btn-danger" id="le-clear-btn" title="Text und Marker löschen">L&ouml;schen</button>`;
-  }
-
-  html += '</div>';
-
-  if (_lePhase === 'empty') {
-    html += `<div class="le-empty-wrap">
-      <div id="le-paste-area" class="le-paste-area" contenteditable="true"
-           data-placeholder="Songtext hier einf&uuml;gen...\nTipp: Text von Genius.com kopieren und hier einf&uuml;gen.\nOder den Knopf 'Einf&uuml;gen' oben dr&uuml;cken."></div>
-    </div>`;
-  } else {
-    // Phase info bar
-    if (_lePhase === 'parts') {
-      html += `<div class="le-phase-bar le-phase-parts">
-        <span class="le-phase-text">Part-Marker an die richtige Stelle ziehen</span>
-        <button class="btn btn-sm le-btn-distribute" id="le-distribute-parts" title="Parts gleichm&auml;&szlig;ig im Text verteilen">&#8646; Verteilen</button>
-        <button class="btn btn-sm le-btn-confirm" id="le-confirm-parts">Fertig</button>
-      </div>`;
-    } else if (_lePhase === 'bars') {
-      html += `<div class="le-phase-bar le-phase-bars">
-        <span class="le-phase-text">Takt-Marker pr&uuml;fen &amp; anpassen</span>
-        <button class="btn btn-sm le-btn-back" id="le-back-to-parts" title="Zur&uuml;ck zu Part-Markern">Zur&uuml;ck</button>
-        <button class="btn btn-sm le-btn-save" id="le-save-lyrics">Fertig</button>
-      </div>`;
-    }
-
-    // Graphical editor
-    const barsZoomCls = _lePhase === 'bars' ? ' le-bars-zoom' : '';
-    html += `<div class="le-editor${barsZoomCls}" id="le-editor">
-      <div class="le-text" id="le-text">${buildLyricsEditorContent(rawText)}</div>
+      <div style="flex:1"></div>
+      <button class="btn btn-sm" id="le-paste-btn" title="Text einfügen und auf Takte verteilen">&#128203; Text einf&uuml;gen</button>
+      ${hasWords ? '<button class="btn btn-sm le-btn-save" id="le-save-lyrics">&#128190; Speichern</button>' : ''}
+      ${hasWords ? '<button class="btn btn-sm le-btn-danger" id="le-clear-words" title="Alle Wörter entfernen">W&ouml;rter l&ouml;schen</button>' : ''}
     </div>`;
 
-    // Legend
-    html += `<div class="le-legend">
-      <span class="le-legend-item"><span class="le-legend-swatch le-swatch-part"></span> Part-Marker</span>
-      ${_lePhase === 'bars' ? '<span class="le-legend-item"><span class="le-legend-swatch le-swatch-bar"></span> Takt-Marker</span>' : ''}
-    </div>`;
-  }
+  // Block canvas
+  html += `<div class="le-canvas" id="le-canvas">`;
+  html += leRenderBlocks();
+  html += `</div>`;
+
+  // Legend
+  html += `<div class="le-legend">
+    <span class="le-legend-item"><span class="le-legend-swatch le-swatch-part"></span> Part</span>
+    <span class="le-legend-item"><span class="le-legend-swatch le-swatch-bar"></span> Takt</span>
+    <span class="le-legend-item"><span class="le-legend-swatch le-swatch-word"></span> Wort</span>
+  </div>`;
 
   html += '</div>';
   els.content.innerHTML = html;
 
-  // Wire paste area events
-  const pasteArea = document.getElementById('le-paste-area');
-  if (pasteArea) {
-    pasteArea.addEventListener('paste', handleLePaste);
-    pasteArea.addEventListener('input', () => {
-      const text = pasteArea.innerText.trim();
-      if (text.length > 10) leAcceptRawText(text);
-    });
-  }
-
-  // Wire marker drag events
-  leWireMarkerDrag();
+  // Wire canvas events
+  leWireCanvasEvents();
 }
 
 /**
- * Build the inner HTML of the graphical text editor: words + markers.
+ * Render all blocks as HTML elements in the canvas.
  */
-function buildLyricsEditorContent(rawText) {
-  if (!rawText || _leWords.length === 0) return '';
-
-  // Combine all markers, sorted by charOffset
-  const allMarkers = [];
-  for (let i = 0; i < _lePartMarkers.length; i++) {
-    allMarkers.push({ ..._lePartMarkers[i], type: 'part', idx: i });
-  }
-  if (_lePhase === 'bars') {
-    for (let i = 0; i < _leBarMarkers.length; i++) {
-      allMarkers.push({ ..._leBarMarkers[i], type: 'bar', idx: i });
-    }
-  }
-  allMarkers.sort((a, b) => {
-    if (a.charOffset !== b.charOffset) return a.charOffset - b.charOffset;
-    // Part markers come before bar markers at same position
-    if (a.type !== b.type) return a.type === 'part' ? -1 : 1;
-    return 0;
-  });
-
-  // Build HTML by iterating through words and inserting markers
+function leRenderBlocks() {
   let html = '';
-  let markerIdx = 0;
-  let lastWasPartMarker = false;
-
-  for (let wi = 0; wi < _leWords.length; wi++) {
-    const word = _leWords[wi];
-
-    // Determine line break for this word (needed before bar markers)
-    let lineBreak = '';
-    if (word.emptyLineBefore) lineBreak = '<br><br>';
-    else if (word.newlineBefore) lineBreak = '<br>';
-    else if (wi > 0) lineBreak = ' ';
-
-    // Insert any markers that belong before this word
-    lastWasPartMarker = false;
-    let barMarkersHtml = '';
-    while (markerIdx < allMarkers.length && allMarkers[markerIdx].charOffset <= word.offset) {
-      if (allMarkers[markerIdx].type === 'part') {
-        // Part marker: emit any pending bar markers first, then line break
-        if (barMarkersHtml) { html += barMarkersHtml; barMarkersHtml = ''; }
-        if (wi > 0 || markerIdx > 0) html += '<br><br>';
-        html += leRenderMarker(allMarkers[markerIdx]);
-        lastWasPartMarker = true;
-        lineBreak = ''; // part marker already handles line breaks
-      } else {
-        // Bar marker: collect, will be emitted after line break
-        barMarkersHtml += leRenderMarker(allMarkers[markerIdx]);
-      }
-      markerIdx++;
-    }
-
-    // Emit line break BEFORE bar markers (so they appear at start of new line)
-    if (lastWasPartMarker) { /* br already emitted by part marker */ }
-    else if (barMarkersHtml) { html += lineBreak; lineBreak = ''; }
-
-    // Emit collected bar markers
-    if (barMarkersHtml) html += barMarkersHtml;
-
-    // Emit line break if not yet emitted (no markers case)
-    if (lineBreak && !lastWasPartMarker) html += lineBreak;
-
-    // Render word
-    if (word.isHeader) {
-      html += `<span class="le-header" data-char-offset="${word.offset}">${esc(word.text)}</span>`;
-    } else {
-      html += `<span class="le-word" data-char-offset="${word.offset}">${esc(word.text)}</span>`;
-    }
+  for (let i = 0; i < _leBlocks.length; i++) {
+    const b = _leBlocks[i];
+    const cls = `le-block le-block-${b.type}`;
+    const draggable = 'draggable="true"';
+    html += `<span class="${cls}" ${draggable} data-idx="${i}" data-type="${b.type}" data-id="${b.id}">${esc(b.content)}</span>`;
   }
-
-  // Any remaining markers after all words
-  while (markerIdx < allMarkers.length) {
-    if (allMarkers[markerIdx].type === 'part' && _leWords.length > 0) html += '<br><br>';
-    html += leRenderMarker(allMarkers[markerIdx]);
-    markerIdx++;
-  }
-
   return html;
 }
 
 /**
- * Render a single marker element (part or bar).
+ * Re-render only the canvas content (blocks), not the whole tab.
  */
-function leRenderMarker(marker) {
-  if (marker.type === 'part') {
-    const part = db.songs[selectedSongId]?.parts?.[marker.partId];
-    const name = part ? part.name : '?';
-    const confirmedClass = marker.confirmed ? ' le-confirmed' : ' le-predicted';
-    // Part markers: orange box with black part name, draggable inline in text, line break after
-    return `<span class="le-marker le-part-marker${confirmedClass}"
-                  data-le-type="part" data-le-idx="${marker.idx}"
-                  data-char-offset="${marker.charOffset}"
-                  title="${esc(name)}${marker.confirmed ? '' : ' (prognostiziert)'}">${esc(name)}</span><br>`;
-  } else {
-    // Bar markers: cyan badge with absolute bar number from song start
-    const absNum = getAbsBarNum(selectedSongId, marker.partId, marker.barNum);
-    return `<span class="le-marker le-bar-marker"
-                  data-le-type="bar" data-le-idx="${marker.idx}"
-                  data-char-offset="${marker.charOffset}"
-                  title="Takt ${absNum}">${absNum}</span>`;
-  }
+function leRefreshCanvas() {
+  const canvas = document.getElementById('le-canvas');
+  if (!canvas) return;
+  canvas.innerHTML = leRenderBlocks();
 }
 
-/* ── Lyrics Editor: Text Paste Handling ─────────── */
+/* ── Lyrics Editor: Canvas Events (Drag & Drop + Context Menu) ── */
 
-function handleLePaste(e) {
-  e.preventDefault();
-  const text = (e.clipboardData || window.clipboardData).getData('text');
-  if (text && text.trim()) {
-    leAcceptRawText(text.trim());
-  }
-}
+function leWireCanvasEvents() {
+  const canvas = document.getElementById('le-canvas');
+  if (!canvas) return;
 
-async function handleLePasteButton() {
-  try {
-    const text = await navigator.clipboard.readText();
-    if (text && text.trim()) {
-      leAcceptRawText(text.trim());
-    } else {
-      toast('Zwischenablage ist leer', 'error');
-    }
-  } catch {
-    toast('Kein Zugriff auf Zwischenablage. Text manuell einf\u00fcgen.', 'error');
-  }
-}
+  // Drag start
+  canvas.addEventListener('dragstart', (e) => {
+    const block = e.target.closest('.le-block');
+    if (!block) return;
+    const idx = parseInt(block.dataset.idx, 10);
+    const blockData = _leBlocks[idx];
+    if (!blockData) return;
 
-function leAcceptRawText(text) {
-  const song = db.songs[selectedSongId];
-  if (!song) return;
+    _leDrag = { idx, type: blockData.type, id: blockData.id };
+    block.classList.add('le-dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', String(idx));
+  });
 
-  song.lyrics_raw = text;
-  markDirty();
+  canvas.addEventListener('dragend', (e) => {
+    document.querySelectorAll('.le-block.le-dragging').forEach(el => el.classList.remove('le-dragging'));
+    document.querySelectorAll('.le-drop-indicator').forEach(el => el.remove());
+    _leDrag = null;
+  });
 
-  const parts = getSortedParts(selectedSongId);
-  _leWords = leParseRawText(text);
-  _lePartMarkers = leGuessPartMarkers(_leWords, parts);
-  _leBarMarkers = [];
-  _lePhase = 'parts';
-  _leInitSongId = selectedSongId;
+  // Drag over: show drop indicator
+  canvas.addEventListener('dragover', (e) => {
+    if (!_leDrag) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
 
-  renderLyricsTab();
-  toast('Text eingef\u00fcgt \u2013 Part-Marker pr\u00fcfen und best\u00e4tigen', 'success');
-}
+    // Find nearest block boundary
+    const targetBlock = e.target.closest('.le-block');
+    if (!targetBlock) return;
 
-/* ── Lyrics Editor: Phase Transitions ────────────── */
+    // Remove old indicators
+    document.querySelectorAll('.le-drop-indicator').forEach(el => el.remove());
 
-/**
- * Distribute part markers evenly across the lyrics text.
- */
-function leDistributeParts() {
-  if (_lePartMarkers.length < 2 || _leWords.length === 0) return;
-  if (!confirm('Part-Marker gleichmäßig im Text verteilen?\nBestehende Positionen gehen verloren.')) return;
-  const lyricsWords = _leWords.filter(w => !w.isHeader);
-  if (lyricsWords.length === 0) return;
-  const lastWord = lyricsWords[lyricsWords.length - 1];
-  const totalChars = lastWord.offset + lastWord.text.length;
-  const count = _lePartMarkers.length;
-  const gap = totalChars / count;
-  for (let i = 0; i < count; i++) {
-    const targetOffset = Math.round(i * gap);
-    // Snap to nearest word boundary
-    let bestWord = lyricsWords[0];
-    let bestDist = Math.abs(bestWord.offset - targetOffset);
-    for (const w of lyricsWords) {
-      const d = Math.abs(w.offset - targetOffset);
-      if (d < bestDist) { bestDist = d; bestWord = w; }
-    }
-    _lePartMarkers[i].charOffset = bestWord.offset;
-  }
-  renderLyricsTab();
-  toast('Parts gleichm\u00e4\u00dfig verteilt', 'success');
-}
+    const targetIdx = parseInt(targetBlock.dataset.idx, 10);
+    const rect = targetBlock.getBoundingClientRect();
+    const midX = rect.left + rect.width / 2;
+    const insertBefore = e.clientX < midX;
+    const dropIdx = insertBefore ? targetIdx : targetIdx + 1;
 
-function leConfirmParts() {
-  // Mark all part markers as confirmed
-  for (const m of _lePartMarkers) m.confirmed = true;
-
-  // Save confirmed status to song parts
-  const song = db.songs[selectedSongId];
-  if (song) {
-    for (const m of _lePartMarkers) {
-      if (song.parts[m.partId]) {
-        song.parts[m.partId].lyrics_confirmed = true;
+    // Validate drop position for part/bar blocks
+    if (_leDrag.type === 'part' || _leDrag.type === 'bar') {
+      if (!leIsValidDrop(_leDrag.idx, dropIdx, _leDrag.type)) {
+        e.dataTransfer.dropEffect = 'none';
+        return;
       }
     }
+
+    // Show indicator
+    const indicator = document.createElement('span');
+    indicator.className = 'le-drop-indicator';
+    if (insertBefore) {
+      targetBlock.parentNode.insertBefore(indicator, targetBlock);
+    } else {
+      targetBlock.parentNode.insertBefore(indicator, targetBlock.nextSibling);
+    }
+  });
+
+  // Drop
+  canvas.addEventListener('drop', (e) => {
+    e.preventDefault();
+    document.querySelectorAll('.le-drop-indicator').forEach(el => el.remove());
+    if (!_leDrag) return;
+
+    const targetBlock = e.target.closest('.le-block');
+    if (!targetBlock) return;
+
+    const fromIdx = _leDrag.idx;
+    const targetIdx = parseInt(targetBlock.dataset.idx, 10);
+    const rect = targetBlock.getBoundingClientRect();
+    const midX = rect.left + rect.width / 2;
+    const insertBefore = e.clientX < midX;
+    let toIdx = insertBefore ? targetIdx : targetIdx + 1;
+
+    // Validate
+    if (_leDrag.type === 'part' || _leDrag.type === 'bar') {
+      if (!leIsValidDrop(fromIdx, toIdx, _leDrag.type)) return;
+    }
+
+    // Move the block
+    const [block] = _leBlocks.splice(fromIdx, 1);
+    if (toIdx > fromIdx) toIdx--;
+    _leBlocks.splice(toIdx, 0, block);
+
+    _leDrag = null;
+    markDirty();
+    leRefreshCanvas();
+  });
+
+  // Touch-based drag for iPad
+  let touchDrag = null;
+  canvas.addEventListener('touchstart', (e) => {
+    const block = e.target.closest('.le-block');
+    if (!block) return;
+
+    const touch = e.touches[0];
+    touchDrag = {
+      idx: parseInt(block.dataset.idx, 10),
+      startX: touch.clientX,
+      startY: touch.clientY,
+      el: block,
+      moved: false
+    };
+  }, { passive: true });
+
+  canvas.addEventListener('touchmove', (e) => {
+    if (!touchDrag) return;
+    const touch = e.touches[0];
+    const dx = Math.abs(touch.clientX - touchDrag.startX);
+    const dy = Math.abs(touch.clientY - touchDrag.startY);
+    if (dx > 10 || dy > 10) {
+      touchDrag.moved = true;
+      e.preventDefault();
+      touchDrag.el.classList.add('le-dragging');
+
+      // Find drop target
+      const el = document.elementFromPoint(touch.clientX, touch.clientY);
+      const targetBlock = el?.closest?.('.le-block');
+      document.querySelectorAll('.le-drop-hover').forEach(el => el.classList.remove('le-drop-hover'));
+      if (targetBlock && targetBlock !== touchDrag.el) {
+        targetBlock.classList.add('le-drop-hover');
+      }
+    }
+  }, { passive: false });
+
+  canvas.addEventListener('touchend', (e) => {
+    if (!touchDrag) return;
+
+    if (touchDrag.moved) {
+      touchDrag.el.classList.remove('le-dragging');
+      document.querySelectorAll('.le-drop-hover').forEach(el => el.classList.remove('le-drop-hover'));
+
+      // Find final drop position
+      const touch = e.changedTouches[0];
+      const el = document.elementFromPoint(touch.clientX, touch.clientY);
+      const targetBlock = el?.closest?.('.le-block');
+
+      if (targetBlock && targetBlock !== touchDrag.el) {
+        const fromIdx = touchDrag.idx;
+        const targetIdx = parseInt(targetBlock.dataset.idx, 10);
+        const blockData = _leBlocks[fromIdx];
+        const rect = targetBlock.getBoundingClientRect();
+        const midX = rect.left + rect.width / 2;
+        let toIdx = touch.clientX < midX ? targetIdx : targetIdx + 1;
+
+        if (blockData.type === 'part' || blockData.type === 'bar') {
+          if (!leIsValidDrop(fromIdx, toIdx, blockData.type)) { touchDrag = null; return; }
+        }
+
+        const [block] = _leBlocks.splice(fromIdx, 1);
+        if (toIdx > fromIdx) toIdx--;
+        _leBlocks.splice(toIdx, 0, block);
+        markDirty();
+        leRefreshCanvas();
+      }
+    } else {
+      // Tap (no drag) → context menu for words
+      const block = touchDrag.el;
+      if (block.dataset.type === 'word') {
+        e.preventDefault();
+        leShowContextMenu(parseInt(block.dataset.idx, 10), block);
+      }
+    }
+    touchDrag = null;
+  });
+
+  // Click → context menu for words (desktop)
+  canvas.addEventListener('click', (e) => {
+    leCloseContextMenu();
+    const block = e.target.closest('.le-block');
+    if (!block) return;
+    if (block.dataset.type === 'word') {
+      leShowContextMenu(parseInt(block.dataset.idx, 10), block);
+    }
+  });
+
+  // Close context menu on outside click
+  document.addEventListener('click', (e) => {
+    if (_leContextMenu && !e.target.closest('.le-ctx-menu') && !e.target.closest('.le-block')) {
+      leCloseContextMenu();
+    }
+  }, { once: false });
+}
+
+/**
+ * Check if moving a part or bar block from fromIdx to toIdx is valid.
+ * Parts can't cross other parts. Bars can't cross their neighboring bars.
+ */
+function leIsValidDrop(fromIdx, toIdx, type) {
+  if (fromIdx === toIdx || fromIdx + 1 === toIdx) return false; // no-op
+
+  if (type === 'part') {
+    // Find previous and next part blocks
+    let prevPart = -1, nextPart = _leBlocks.length;
+    for (let i = fromIdx - 1; i >= 0; i--) {
+      if (_leBlocks[i].type === 'part') { prevPart = i; break; }
+    }
+    for (let i = fromIdx + 1; i < _leBlocks.length; i++) {
+      if (_leBlocks[i].type === 'part') { nextPart = i; break; }
+    }
+    // Can only move within range (prevPart, nextPart)
+    const effectiveToIdx = toIdx > fromIdx ? toIdx - 1 : toIdx;
+    return effectiveToIdx > prevPart && effectiveToIdx < nextPart;
   }
 
-  // Predict bar markers
-  _leBarMarkers = leGuessBarMarkers(_leWords, getSortedParts(selectedSongId), _lePartMarkers);
-  _lePhase = 'bars';
-  markDirty();
-  renderLyricsTab();
-  toast('Parts best\u00e4tigt \u2013 Takt-Marker anpassen', 'success');
+  if (type === 'bar') {
+    // Find previous and next bar or part blocks
+    let prevBarOrPart = -1, nextBarOrPart = _leBlocks.length;
+    for (let i = fromIdx - 1; i >= 0; i--) {
+      if (_leBlocks[i].type === 'bar' || _leBlocks[i].type === 'part') { prevBarOrPart = i; break; }
+    }
+    for (let i = fromIdx + 1; i < _leBlocks.length; i++) {
+      if (_leBlocks[i].type === 'bar' || _leBlocks[i].type === 'part') { nextBarOrPart = i; break; }
+    }
+    const effectiveToIdx = toIdx > fromIdx ? toIdx - 1 : toIdx;
+    return effectiveToIdx > prevBarOrPart && effectiveToIdx < nextBarOrPart;
+  }
+
+  return true;
 }
 
-function leBackToParts() {
-  _lePhase = 'parts';
-  _leBarMarkers = [];
-  renderLyricsTab();
+/* ── Context Menu for Word Blocks ────────────────── */
+
+function leShowContextMenu(idx, blockEl) {
+  leCloseContextMenu();
+  const block = _leBlocks[idx];
+  if (!block || block.type !== 'word') return;
+
+  const menu = document.createElement('div');
+  menu.className = 'le-ctx-menu';
+  menu.innerHTML = `
+    <button data-action="delete" class="le-ctx-item le-ctx-delete">&#128465; L&ouml;schen</button>
+    <button data-action="split" class="le-ctx-item">&#9986; Trennen</button>
+    <button data-action="merge" class="le-ctx-item">&#128279; Zusammensetzen</button>
+    <button data-action="insert" class="le-ctx-item">&#10133; Einf&uuml;gen</button>
+  `;
+
+  // Position below the block
+  const rect = blockEl.getBoundingClientRect();
+  const canvasRect = document.getElementById('le-canvas').getBoundingClientRect();
+  menu.style.position = 'absolute';
+  menu.style.left = `${rect.left - canvasRect.left}px`;
+  menu.style.top = `${rect.bottom - canvasRect.top + 4}px`;
+
+  menu.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    const action = btn.dataset.action;
+    leCloseContextMenu();
+    leHandleContextAction(action, idx);
+  });
+
+  document.getElementById('le-canvas').appendChild(menu);
+  _leContextMenu = menu;
+  blockEl.classList.add('le-block-selected');
 }
 
-function leClearLyrics() {
-  const song = db.songs[selectedSongId];
-  if (!song) return;
+function leCloseContextMenu() {
+  if (_leContextMenu) {
+    _leContextMenu.remove();
+    _leContextMenu = null;
+  }
+  document.querySelectorAll('.le-block-selected').forEach(el => el.classList.remove('le-block-selected'));
+}
 
-  song.lyrics_raw = '';
-  _lePhase = 'empty';
-  _lePartMarkers = [];
-  _leBarMarkers = [];
-  _leWords = [];
-  _leInitSongId = selectedSongId;
-  markDirty();
-  renderLyricsTab();
-  toast('Lyrics gel\u00f6scht', 'info');
+async function leHandleContextAction(action, idx) {
+  const block = _leBlocks[idx];
+  if (!block) return;
+
+  if (action === 'delete') {
+    _leBlocks.splice(idx, 1);
+    markDirty();
+    leRefreshCanvas();
+  }
+
+  else if (action === 'split') {
+    const word = block.content;
+    const input = prompt(`Bindestrich einf\u00fcgen in "${word}":`, word);
+    if (!input || !input.includes('-')) return;
+    const parts = input.split('-').filter(s => s.length > 0);
+    if (parts.length < 2) return;
+    // Replace block with multiple word blocks
+    const newBlocks = parts.map((p, i) => ({
+      type: 'word',
+      content: i < parts.length - 1 ? p + '-' : p,
+      partId: block.partId,
+      barNum: block.barNum,
+      id: `lb_${Date.now()}_${i}`
+    }));
+    _leBlocks.splice(idx, 1, ...newBlocks);
+    markDirty();
+    leRefreshCanvas();
+  }
+
+  else if (action === 'merge') {
+    // Merge with next word block
+    let nextWordIdx = -1;
+    for (let i = idx + 1; i < _leBlocks.length; i++) {
+      if (_leBlocks[i].type === 'word') { nextWordIdx = i; break; }
+      if (_leBlocks[i].type === 'bar' || _leBlocks[i].type === 'part') break; // don't cross structural blocks
+    }
+    if (nextWordIdx < 0) {
+      toast('Kein Wort dahinter zum Zusammensetzen', 'warn');
+      return;
+    }
+    block.content = block.content + ' ' + _leBlocks[nextWordIdx].content;
+    _leBlocks.splice(nextWordIdx, 1);
+    markDirty();
+    leRefreshCanvas();
+  }
+
+  else if (action === 'insert') {
+    const newWord = prompt('Neues Wort eingeben:');
+    if (!newWord || !newWord.trim()) return;
+    const words = newWord.trim().split(/\s+/);
+    const newBlocks = words.map((w, i) => ({
+      type: 'word',
+      content: w,
+      partId: block.partId,
+      barNum: block.barNum,
+      id: `lb_${Date.now()}_ins_${i}`
+    }));
+    _leBlocks.splice(idx + 1, 0, ...newBlocks);
+    markDirty();
+    leRefreshCanvas();
+  }
 }
 
 /* ── Lyrics Editor: Save Logic ───────────────────── */
 
 /**
- * Save lyrics by splitting text at marker positions.
- * Text between consecutive markers becomes the lyrics for each bar.
+ * Save lyrics from block positions back to bar DB entries.
+ * Words between two bar blocks belong to the first bar.
  */
 function leSaveLyrics() {
   if (!selectedSongId) return;
-  const song = db.songs[selectedSongId];
-  if (!song) return;
-  const rawText = song.lyrics_raw || '';
-  if (!rawText) return;
-
-  const parts = getSortedParts(selectedSongId);
   ensureCollections();
 
-  // Sort bar markers by charOffset
-  const sortedBars = [..._leBarMarkers].sort((a, b) => a.charOffset - b.charOffset || a.barNum - b.barNum);
-
-  // Group bar markers by partId
-  const barsByPart = new Map();
-  for (const bm of sortedBars) {
-    if (!barsByPart.has(bm.partId)) barsByPart.set(bm.partId, []);
-    barsByPart.get(bm.partId).push(bm);
+  // First, clear all existing bar lyrics for this song
+  const parts = getSortedParts(selectedSongId);
+  for (const p of parts) {
+    for (const [, b] of Object.entries(db.bars)) {
+      if (b.part_id === p.id) b.lyrics = '';
+    }
   }
 
-  // Sort part markers
-  const sortedParts = [..._lePartMarkers].sort((a, b) => a.charOffset - b.charOffset);
-
+  // Walk through blocks, collect words per bar
+  let currentPartId = null;
+  let currentBarNum = null;
+  let currentWords = [];
   let filledBars = 0;
 
-  for (let pi = 0; pi < sortedParts.length; pi++) {
-    const pm = sortedParts[pi];
-    const partBars = barsByPart.get(pm.partId) || [];
-    const part = song.parts[pm.partId];
-    if (!part) continue;
-
-    // Determine text range for this part
-    const partEnd = (pi + 1 < sortedParts.length) ? sortedParts[pi + 1].charOffset : rawText.length;
-
-    for (let bi = 0; bi < partBars.length; bi++) {
-      const bm = partBars[bi];
-      const barStart = bm.charOffset;
-      const barEnd = (bi + 1 < partBars.length) ? partBars[bi + 1].charOffset : partEnd;
-
-      // Extract text, strip section headers, clean up
-      let barText = rawText.slice(barStart, barEnd).trim();
-      barText = barText.replace(/\[.*?\]/g, '').trim();
-      barText = barText.replace(/\n+/g, ' ').replace(/\s+/g, ' ').trim();
-
-      // Save to DB
-      const [, barData] = getOrCreateBar(pm.partId, bm.barNum);
-      barData.lyrics = barText;
+  function flushWords() {
+    if (currentPartId && currentBarNum && currentWords.length > 0) {
+      const [, barData] = getOrCreateBar(currentPartId, currentBarNum);
+      barData.lyrics = currentWords.join(' ');
       filledBars++;
     }
+    currentWords = [];
+  }
+
+  for (const block of _leBlocks) {
+    if (block.type === 'part') {
+      flushWords();
+      currentPartId = block.partId;
+      currentBarNum = null;
+    } else if (block.type === 'bar') {
+      flushWords();
+      currentPartId = block.partId;
+      currentBarNum = block.barNum;
+    } else if (block.type === 'word') {
+      currentWords.push(block.content);
+    }
+  }
+  flushWords();
+
+  // Also save lyrics_raw from all words in order
+  const song = db.songs[selectedSongId];
+  if (song) {
+    const rawParts = [];
+    let lastPart = null;
+    for (const block of _leBlocks) {
+      if (block.type === 'part') {
+        if (rawParts.length > 0) rawParts.push('\n');
+        rawParts.push(`[${block.content}]\n`);
+        lastPart = block.partId;
+      } else if (block.type === 'word') {
+        rawParts.push(block.content + ' ');
+      }
+    }
+    song.lyrics_raw = rawParts.join('').trim();
   }
 
   markDirty();
@@ -5101,531 +4729,76 @@ function leSaveLyrics() {
   toast(`Lyrics f\u00fcr ${filledBars} Takte gespeichert`, 'success');
 }
 
-/* ── Lyrics Editor: Drag Handling ────────────────── */
+/* ── Lyrics Editor: Text Paste / Import ──────────── */
 
-/**
- * Wire drag event listeners for markers in the editor.
- */
-function leWireMarkerDrag() {
-  const editor = document.getElementById('le-editor');
-  if (!editor) return;
-
-  editor.addEventListener('mousedown', leStartDrag);
-  editor.addEventListener('touchstart', leStartDrag, { passive: false });
-}
-
-function leStartDrag(e) {
-  const markerEl = e.target.closest('.le-marker');
-  if (!markerEl) return;
-
-  e.preventDefault();
-  const type = markerEl.dataset.leType;
-  const idx = parseInt(markerEl.dataset.leIdx, 10);
-
-  // Build word positions for snap targets
-  const wordEls = document.querySelectorAll('#le-text .le-word');
-  const wordPositions = [];
-  for (const w of wordEls) {
-    const rect = w.getBoundingClientRect();
-    wordPositions.push({
-      charOffset: parseInt(w.dataset.charOffset, 10),
-      left: rect.left,
-      top: rect.top,
-      centerY: rect.top + rect.height / 2,
-      height: rect.height
-    });
+async function leShowPasteDialog() {
+  let text = '';
+  try {
+    text = await navigator.clipboard.readText();
+  } catch {
+    text = prompt('Songtext hier einf\u00fcgen:') || '';
   }
+  text = text.trim();
+  if (!text) return;
 
-  // Build line positions (group words by visual line)
-  const lineMap = new Map();
-  for (const p of wordPositions) {
-    const lineKey = Math.round(p.top / 3) * 3; // group within 3px tolerance
-    if (!lineMap.has(lineKey)) {
-      lineMap.set(lineKey, { ...p });
-    } else if (p.left < lineMap.get(lineKey).left) {
-      lineMap.set(lineKey, { ...p }); // keep leftmost word as line start
-    }
-  }
-  const linePositions = Array.from(lineMap.values()).sort((a, b) => a.top - b.top);
+  // Distribute text across bars
+  _leBlocks = leDistributeText(selectedSongId, text);
 
-  // Add virtual targets for empty lines (visual gaps between content lines)
-  const enrichedLines = [];
-  for (let li = 0; li < linePositions.length; li++) {
-    if (li > 0) {
-      const prevBottom = linePositions[li - 1].top + linePositions[li - 1].height;
-      const gap = linePositions[li].top - prevBottom;
-      if (gap > linePositions[li].height * 0.5) {
-        // There's a visual gap (empty line) — add a snap target in the gap
-        enrichedLines.push({
-          charOffset: linePositions[li].charOffset,
-          left: linePositions[li].left,
-          top: (prevBottom + linePositions[li].top) / 2,
-          centerY: (prevBottom + linePositions[li].top) / 2,
-          height: linePositions[li].height,
-          isEmptyLine: true
-        });
-      }
-    }
-    enrichedLines.push(linePositions[li]);
-  }
-
-  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-
-  _leDrag = {
-    type,
-    idx,
-    startX: clientX,
-    startY: clientY,
-    currentOffset: parseInt(markerEl.dataset.charOffset, 10),
-    wordPositions,
-    linePositions: enrichedLines,
-    moved: false
-  };
-
-  // Visual feedback: dragging cursor
-  const editorEl = document.getElementById('le-editor');
-  if (editorEl) editorEl.classList.add('le-dragging');
-
-  // Add global move/end listeners
-  document.addEventListener('mousemove', leMoveDrag);
-  document.addEventListener('mouseup', leEndDrag);
-  document.addEventListener('touchmove', leMoveDrag, { passive: false });
-  document.addEventListener('touchend', leEndDrag);
-}
-
-function leMoveDrag(e) {
-  if (!_leDrag) return;
-  e.preventDefault();
-
-  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-
-  // Check if we've moved enough to count as drag
-  if (!_leDrag.moved) {
-    const dx = clientX - _leDrag.startX;
-    const dy = clientY - _leDrag.startY;
-    if (Math.hypot(dx, dy) < 5) return;
-    _leDrag.moved = true;
-  }
-
-  // Recalculate word positions LIVE (handles scroll, zoom, layout changes)
-  const wordEls = document.querySelectorAll('#le-text .le-word');
-  const wordPositions = [];
-  for (const w of wordEls) {
-    const rect = w.getBoundingClientRect();
-    wordPositions.push({
-      charOffset: parseInt(w.dataset.charOffset, 10),
-      left: rect.left,
-      right: rect.right,
-      top: rect.top,
-      centerY: rect.top + rect.height / 2,
-      height: rect.height
-    });
-  }
-
-  // Build line groups
-  const lineMap = new Map();
-  for (const p of wordPositions) {
-    const lineKey = Math.round(p.top / 3) * 3;
-    if (!lineMap.has(lineKey)) lineMap.set(lineKey, { ...p });
-    else if (p.left < lineMap.get(lineKey).left) lineMap.set(lineKey, { ...p });
-  }
-  const linePositions = Array.from(lineMap.values()).sort((a, b) => a.top - b.top);
-
-  // Enrich with empty-line snap targets
-  const enrichedLines = [];
-  for (let li = 0; li < linePositions.length; li++) {
-    if (li > 0) {
-      const prevBottom = linePositions[li - 1].top + linePositions[li - 1].height;
-      const gap = linePositions[li].top - prevBottom;
-      if (gap > linePositions[li].height * 0.5) {
-        enrichedLines.push({
-          charOffset: linePositions[li].charOffset,
-          left: linePositions[li].left,
-          top: (prevBottom + linePositions[li].top) / 2,
-          centerY: (prevBottom + linePositions[li].top) / 2,
-          height: linePositions[li].height,
-          isEmptyLine: true
-        });
-      }
-    }
-    enrichedLines.push(linePositions[li]);
-  }
-
-  let bestOffset = _leDrag.currentOffset;
-
-  // Find nearest line by Y, then snap to the word closest to finger X
-  {
-    let bestLineDist = Infinity;
-    let bestLineTop = null;
-    let bestLineHeight = 0;
-    for (const lp of enrichedLines) {
-      const dist = Math.abs(clientY - lp.centerY);
-      if (dist < bestLineDist) {
-        bestLineDist = dist;
-        bestLineTop = lp.top;
-        bestLineHeight = lp.height;
-      }
-    }
-    if (bestLineTop !== null) {
-      const bestLine = enrichedLines.find(lp =>
-        Math.abs(lp.top - bestLineTop) < 2 && lp.isEmptyLine
-      );
-      if (bestLine) {
-        bestOffset = bestLine.charOffset;
-      } else {
-        const lineWords = wordPositions
-          .filter(p => Math.abs(p.top - bestLineTop) < bestLineHeight)
-          .sort((a, b) => a.left - b.left);
-        if (lineWords.length > 0) {
-          // Text-cursor-style snap: find the insertion gap nearest to cursor X.
-          // If cursor is past the midpoint of a word, snap to the NEXT word
-          // (= insert after this word). Otherwise snap to THIS word (= insert before).
-          let target = lineWords[lineWords.length - 1]; // default: last word
-          for (let i = 0; i < lineWords.length; i++) {
-            const mid = (lineWords[i].left + lineWords[i].right) / 2;
-            if (clientX <= mid) {
-              target = lineWords[i];
-              break;
-            }
-          }
-          bestOffset = target.charOffset;
-        }
-      }
-    }
-  }
-
-  _leDrag.currentOffset = bestOffset;
-
-  // Remove any previous drop-target highlight (no colored background needed)
-  document.querySelectorAll('.le-word.le-drop-target').forEach(w => w.classList.remove('le-drop-target'));
-
-  // Move the marker element visually (opacity change)
-  const marker = document.querySelector(`.le-marker[data-le-type="${_leDrag.type}"][data-le-idx="${_leDrag.idx}"]`);
-  if (marker) marker.classList.add('le-dragging');
-
-  // Show short cursor-like guide line at drag position
-  let guide = document.getElementById('le-drag-guide');
-  if (!guide) {
-    guide = document.createElement('div');
-    guide.id = 'le-drag-guide';
-    guide.className = 'le-drag-guide';
-    document.body.appendChild(guide);
-  }
-  guide.style.background = _leDrag.type === 'bar' ? 'var(--cyan)' : 'var(--amber)';
-  // Position guide at the LEFT EDGE of the snapped word (always left of finger)
-  const nearestWordEl = document.querySelector(`.le-word[data-char-offset="${bestOffset}"]`);
-  if (nearestWordEl) {
-    const wordRect = nearestWordEl.getBoundingClientRect();
-    guide.style.left = wordRect.left + 'px';
-    guide.style.top = wordRect.top + 'px';
-    guide.style.height = wordRect.height + 'px';
-    guide.style.display = '';
-  } else {
-    guide.style.left = (clientX - 20) + 'px';
-    guide.style.top = (clientY - 8) + 'px';
-    guide.style.height = '16px';
-    guide.style.display = '';
-  }
-
-  // Floating balloon above finger/cursor
-  let label = '';
-  let color = '#f0a030';
-  if (_leDrag.type === 'part' && _lePartMarkers[_leDrag.idx]) {
-    const partId = _lePartMarkers[_leDrag.idx].partId;
-    const song = db?.songs?.[selectedSongId];
-    label = (song?.parts?.[partId]?.name) || 'Part';
-    color = '#f0a030';
-  } else if (_leDrag.type === 'bar' && _leBarMarkers[_leDrag.idx]) {
-    label = 'Takt ' + getAbsBarNum(selectedSongId, _leBarMarkers[_leDrag.idx].partId, _leBarMarkers[_leDrag.idx].barNum);
-    color = '#38bdf8';
-  }
-  showDragBalloon(label, 0, color, clientX, clientY);
-}
-
-function leEndDrag() {
-  if (!_leDrag) return;
-
-  // Remove dragging cursor
-  const editorEl = document.getElementById('le-editor');
-  if (editorEl) editorEl.classList.remove('le-dragging');
-
-  // Clean up global listeners
-  document.removeEventListener('mousemove', leMoveDrag);
-  document.removeEventListener('mouseup', leEndDrag);
-  document.removeEventListener('touchmove', leMoveDrag);
-  document.removeEventListener('touchend', leEndDrag);
-
-  // Remove visual feedback
-  hideDragBalloon();
-  document.querySelectorAll('.le-word.le-drop-target').forEach(w => w.classList.remove('le-drop-target'));
-  const guide = document.getElementById('le-drag-guide');
-  if (guide) guide.remove();
-
-  if (_leDrag.moved) {
-    // Update marker position
-    if (_leDrag.type === 'part') {
-      if (_lePartMarkers[_leDrag.idx]) {
-        _lePartMarkers[_leDrag.idx].charOffset = _leDrag.currentOffset;
-        _lePartMarkers[_leDrag.idx].confirmed = true;
-        // Re-sort
-        _lePartMarkers.sort((a, b) => a.charOffset - b.charOffset);
-        // If in bars phase, re-predict bar markers for this part
-        if (_lePhase === 'bars') {
-          const partId = _lePartMarkers[_leDrag.idx]?.partId;
-          // Re-predict ALL bar markers since part order may have changed
-          _leBarMarkers = leGuessBarMarkers(_leWords, getSortedParts(selectedSongId), _lePartMarkers);
-        }
-      }
-    } else if (_leDrag.type === 'bar') {
-      if (_leBarMarkers[_leDrag.idx]) {
-        _leBarMarkers[_leDrag.idx].charOffset = _leDrag.currentOffset;
-        _leBarMarkers.sort((a, b) => a.charOffset - b.charOffset || a.barNum - b.barNum);
-      }
-    }
-
-    // Re-render the text with updated markers
-    const textEl = document.getElementById('le-text');
-    if (textEl) {
-      const rawText = db.songs[selectedSongId]?.lyrics_raw || '';
-      textEl.innerHTML = buildLyricsEditorContent(rawText);
-      // Re-wire drag events for the new marker elements
-      leWireMarkerDrag();
-    }
-  }
-
-  _leDrag = null;
-}
-
-/* ── Lyrics Editor: Audio Playback ───────────────── */
-
-let _leAudioTimeout = null;
-let _lePlayingBarId = null;
-
-async function lePlayBar(partId, barNum) {
-  audio.warmup(); // iOS: resume AudioContext in gesture handler
-  // Stop any current playback
-  leStopPlayback();
-
-  // Try reference audio with bar time range first
-  const refBuffer = audio.getBuffer();
-  if (refBuffer) {
-    const range = getBarTimeRange(partId, barNum);
-    if (range) {
-      audio.playSegments([{ startTime: range.start, endTime: range.end }], () => leStopPlayback());
-      _lePlayingBarId = `${partId}_${barNum}`;
-      return;
-    }
-  }
-
-  // Fallback: calculate from BPM
+  // Also save raw text
   const song = db.songs[selectedSongId];
-  if (!song || !song.bpm) { toast('Kein Audio verfügbar', 'info'); return; }
-  const starts = calcPartStarts(selectedSongId);
-  const partStart = starts.get(partId);
-  if (!partStart || !refBuffer) { toast('Kein Audio verfügbar', 'info'); return; }
+  if (song) song.lyrics_raw = text;
 
-  const barDuration = 4 * 60 / song.bpm;
-  const startTime = partStart.startSec + (barNum - 1) * barDuration;
-  audio.playSegments([{ startTime, endTime: startTime + barDuration }], () => leStopPlayback());
-  _lePlayingBarId = `${partId}_${barNum}`;
+  markDirty();
+  leRefreshCanvas();
+  toast('Text auf Takte verteilt', 'success');
 }
 
-function leStopPlayback() {
-  audio.stopSegments();
-  if (_leAudioTimeout) clearTimeout(_leAudioTimeout);
-  _leAudioTimeout = null;
-  _lePlayingBarId = null;
-}
+/* ── Lyrics Editor: Clear Words ──────────────────── */
 
-/* ── Lyrics Editor: Raw Text Edit Overlay ─────────── */
+function leClearWords() {
+  _leBlocks = _leBlocks.filter(b => b.type !== 'word');
 
-function leOpenTextEditor() {
-  if (!selectedSongId || !db.songs[selectedSongId]) return;
+  // Clear bar lyrics in DB
+  const parts = getSortedParts(selectedSongId);
+  ensureCollections();
+  for (const p of parts) {
+    for (const [, b] of Object.entries(db.bars)) {
+      if (b.part_id === p.id) b.lyrics = '';
+    }
+  }
+
   const song = db.songs[selectedSongId];
-  const rawText = song.lyrics_raw || '';
+  if (song) song.lyrics_raw = '';
 
-  // Create overlay
-  const overlay = document.createElement('div');
-  overlay.id = 'le-text-edit-overlay';
-  overlay.className = 'le-text-edit-overlay';
-  overlay.innerHTML = `
-    <div class="le-text-edit-modal">
-      <div class="le-text-edit-header">
-        <span>Rohtext bearbeiten</span>
-        <div style="flex:1"></div>
-        <button class="btn btn-sm le-btn-confirm" id="le-text-edit-save">&#10003; &Uuml;bernehmen</button>
-        <button class="btn btn-sm" id="le-text-edit-cancel">Abbrechen</button>
-      </div>
-      <textarea id="le-text-edit-area" class="le-text-edit-area" spellcheck="false">${esc(rawText)}</textarea>
-    </div>
-  `;
-  document.body.appendChild(overlay);
-
-  const textarea = document.getElementById('le-text-edit-area');
-  textarea.focus();
-
-  document.getElementById('le-text-edit-save').addEventListener('click', () => {
-    const newText = textarea.value;
-    song.lyrics_raw = newText;
-
-    // Re-initialize markers from new text
-    const parts = getSortedParts(selectedSongId);
-    _leWords = leParseRawText(newText);
-    // Re-map existing part markers to new word positions (best effort)
-    leRemapMarkersToNewText(newText);
-
-    markDirty();
-    overlay.remove();
-    renderLyricsTab();
-  });
-
-  document.getElementById('le-text-edit-cancel').addEventListener('click', () => {
-    overlay.remove();
-  });
-}
-
-/**
- * Re-map existing part/bar markers to the new text after editing.
- * Tries to preserve marker positions by matching surrounding text.
- */
-function leRemapMarkersToNewText(newText) {
-  const newWords = _leWords;
-  if (newWords.length === 0) {
-    _lePartMarkers = [];
-    _leBarMarkers = [];
-    _lePhase = 'empty';
-    return;
-  }
-
-  // For part markers: find the original word at charOffset in old text,
-  // then find the same word in new text
-  const oldText = db.songs[selectedSongId]?.lyrics_raw || newText;
-  for (const pm of _lePartMarkers) {
-    const bestWord = leMatchWordInNewText(pm.charOffset, oldText, newWords);
-    if (bestWord !== null) pm.charOffset = bestWord;
-    else pm.charOffset = Math.min(pm.charOffset, newWords[newWords.length - 1].offset);
-  }
-  for (const bm of _leBarMarkers) {
-    const bestWord = leMatchWordInNewText(bm.charOffset, oldText, newWords);
-    if (bestWord !== null) bm.charOffset = bestWord;
-    else bm.charOffset = Math.min(bm.charOffset, newWords[newWords.length - 1].offset);
-  }
-}
-
-/**
- * Find the best matching word offset in new text for a charOffset from old text.
- */
-function leMatchWordInNewText(oldOffset, oldText, newWords) {
-  // Extract word at old offset
-  const oldWord = leWordAtOffset(oldText, oldOffset);
-  if (!oldWord) return newWords.length > 0 ? newWords[0].offset : null;
-
-  // Find exact match by text
-  for (const nw of newWords) {
-    if (nw.text === oldWord && Math.abs(nw.offset - oldOffset) < oldText.length * 0.3) {
-      return nw.offset;
-    }
-  }
-
-  // Fallback: nearest offset
-  let best = newWords[0];
-  for (const nw of newWords) {
-    if (Math.abs(nw.offset - oldOffset) < Math.abs(best.offset - oldOffset)) {
-      best = nw;
-    }
-  }
-  return best.offset;
-}
-
-function leWordAtOffset(text, offset) {
-  if (offset >= text.length) return null;
-  let start = offset;
-  let end = offset;
-  while (end < text.length && !/\s/.test(text[end])) end++;
-  if (start === end) return null;
-  return text.slice(start, end);
+  markDirty();
+  renderLyricsTab();
 }
 
 /* ── Lyrics Editor: Event Handlers ───────────────── */
 
 function handleLyricsClick(e) {
-  const el = e.target;
+  const btn = e.target.closest('button') || e.target.closest('a');
+  if (!btn) return;
+  const id = btn.id;
 
-  // Paste button
-  if (el.closest('#le-paste-btn')) {
-    handleLePasteButton();
-    return;
-  }
-
-  // Edit text button
-  if (el.closest('#le-edit-text-btn')) {
-    leOpenTextEditor();
-    return;
-  }
-
-  // Clear button
-  if (el.closest('#le-clear-btn')) {
-    leClearLyrics();
-    return;
-  }
-
-  // Distribute parts
-  if (el.closest('#le-distribute-parts')) {
-    leDistributeParts();
-    return;
-  }
-
-  // Confirm parts
-  if (el.closest('#le-confirm-parts')) {
-    leConfirmParts();
-    return;
-  }
-
-  // Back to parts
-  if (el.closest('#le-back-to-parts')) {
-    leBackToParts();
-    return;
-  }
-
-  // Save lyrics
-  if (el.closest('#le-save-lyrics')) {
-    leSaveLyrics();
-    return;
-  }
-
-  // Play bar audio (if clicking a bar marker with audio)
-  const barMarker = el.closest('.le-bar-marker');
-  if (barMarker && e.detail === 2) { // double-click to play
-    const idx = parseInt(barMarker.dataset.leIdx, 10);
-    const bm = _leBarMarkers[idx];
-    if (bm) {
-      lePlayBar(bm.partId, bm.barNum);
-    }
-    return;
+  if (id === 'le-paste-btn') leShowPasteDialog();
+  else if (id === 'le-save-lyrics') leSaveLyrics();
+  else if (id === 'le-clear-words') {
+    if (confirm('Alle W\u00f6rter entfernen?')) leClearWords();
   }
 }
 
 function handleLyricsChange(e) {
-  // No special change handling needed in the new editor
+  // No-op for now
 }
 
-/**
- * Save raw lyrics text. Called on song switch.
- */
 function saveLyricsRawText() {
-  // In the new editor, raw text is saved when accepted via paste
-  // This function is kept for compatibility with song-switch logic
+  // Compatibility stub
 }
 
-/**
- * Stop lyrics playback. Called on tab switch / song switch.
- */
 function stopLyricsPartPlay() {
-  leStopPlayback();
+  // No playback in block editor (yet)
 }
-
 
 /* ══════════════════════════════════════════════════════
    ACCENTS TAB
@@ -8283,42 +7456,6 @@ function showConfirm(title, message, okLabel = 'Ersetzen') {
     els.confirmOk.addEventListener('click', onOk);
     els.confirmCancel.addEventListener('click', onCancel);
     els.confirmModal.addEventListener('click', onBg);
-  });
-}
-
-/**
- * Show the lyrics conflict dialog with 3 options.
- * Returns a Promise resolving to 'clear_assignments' | 'regenerate_raw' | 'cancel'.
- */
-function showLyricsConflictDialog(title, message) {
-  return new Promise((resolve) => {
-    const modal = document.getElementById('lyrics-conflict-modal');
-    const titleEl = document.getElementById('lyrics-conflict-title');
-    const msgEl = document.getElementById('lyrics-conflict-message');
-    const btnCancel = document.getElementById('lyrics-conflict-cancel');
-    const btnClear = document.getElementById('lyrics-conflict-clear');
-    const btnRegen = document.getElementById('lyrics-conflict-regen');
-
-    titleEl.textContent = title;
-    msgEl.innerHTML = message;
-    modal.classList.add('open');
-
-    function cleanup() {
-      modal.classList.remove('open');
-      btnCancel.removeEventListener('click', onCancel);
-      btnClear.removeEventListener('click', onClear);
-      btnRegen.removeEventListener('click', onRegen);
-      modal.removeEventListener('click', onBg);
-    }
-    function onCancel() { cleanup(); resolve('cancel'); }
-    function onClear() { cleanup(); resolve('clear_assignments'); }
-    function onRegen() { cleanup(); resolve('regenerate_raw'); }
-    function onBg(e) { if (e.target === modal) { cleanup(); resolve('cancel'); } }
-
-    btnCancel.addEventListener('click', onCancel);
-    btnClear.addEventListener('click', onClear);
-    btnRegen.addEventListener('click', onRegen);
-    modal.addEventListener('click', onBg);
   });
 }
 

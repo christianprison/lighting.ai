@@ -17,6 +17,32 @@ function getContext() {
 export { getContext };
 
 /**
+ * Play a short test beep to verify audio output works.
+ * Must be called from a user gesture (click/touch) on iOS.
+ * @returns {Promise<string>} diagnostic info
+ */
+export async function testBeep() {
+  const ac = getContext();
+  const info = [`state: ${ac.state}`, `sampleRate: ${ac.sampleRate}`];
+  if (ac.state === 'suspended') {
+    await ac.resume();
+    info.push(`after resume: ${ac.state}`);
+  }
+  // Generate a 440Hz sine wave for 200ms
+  const osc = ac.createOscillator();
+  const gain = ac.createGain();
+  osc.type = 'sine';
+  osc.frequency.value = 440;
+  gain.gain.value = 0.3;
+  osc.connect(gain);
+  gain.connect(ac.destination);
+  osc.start();
+  osc.stop(ac.currentTime + 0.2);
+  info.push('beep started');
+  return info.join(', ');
+}
+
+/**
  * Pre-warm the AudioContext so playback starts instantly.
  * Call on user interaction (tab switch, click, touch) before actual play.
  * Also installs a global gesture listener to keep the context alive.

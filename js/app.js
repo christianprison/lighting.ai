@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.0.11';
+const APP_VERSION = 'v1.0.12';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4311,12 +4311,52 @@ function leGuessBarMarkers(words, parts, partMarkers) {
 }
 
 /**
+ * Normalize bar lyrics for fuzzy matching against raw text.
+ * Handles / separators, - - sustained notes, parentheses, case.
+ */
+function _leNormalizeBarLyrics(lyrics) {
+  return lyrics
+    .replace(/\s*\/\s*/g, ' ')          // "/" line separator → space
+    .replace(/\s+-(\s+-)*\s*/g, ' ')     // "- -" or "-" sustained → space
+    .replace(/[()]/g, '')                // remove parentheses
+    .replace(/\s+/g, ' ')               // collapse whitespace
+    .trim()
+    .toLowerCase();
+}
+
+/**
+ * Fuzzy-match bar lyrics in the normalized raw text.
+ * Extracts significant words from lyrics and searches for them in sequence.
+ * Returns char offset in rawText or -1 if not found.
+ */
+function _leMatchBarLyrics(normRaw, lyrics, fromOffset) {
+  const norm = _leNormalizeBarLyrics(lyrics);
+  if (!norm) return -1;
+
+  // Try full normalized match first
+  let idx = normRaw.indexOf(norm, fromOffset);
+  if (idx >= 0) return idx;
+
+  // Try matching the first few significant words (at least 2 chars each)
+  const words = norm.split(' ').filter(w => w.length >= 2);
+  if (words.length === 0) return -1;
+
+  // Use first 3 words for a shorter match
+  const shortNeedle = words.slice(0, Math.min(3, words.length)).join(' ');
+  idx = normRaw.indexOf(shortNeedle, fromOffset);
+  return idx;
+}
+
+/**
  * Reconstruct markers from existing per-bar lyrics stored in DB.
  */
 function leReconstructMarkers(rawText, parts) {
   const partMarkers = [];
   const barMarkers = [];
   let searchOffset = 0;
+
+  // Normalized raw text for fuzzy matching (newlines→spaces, lowercase)
+  const normRaw = rawText.toLowerCase().replace(/\n/g, ' ');
 
   for (const part of parts) {
     if (part.instrumental) continue;
@@ -4338,7 +4378,11 @@ function leReconstructMarkers(rawText, parts) {
       }
 
       // Find this lyrics text in the raw text (progressive search)
-      const idx = rawText.indexOf(lyrics, searchOffset);
+      // Try exact match first, then fuzzy match (handles / separators, - - fillers, case)
+      let idx = rawText.indexOf(lyrics, searchOffset);
+      if (idx < 0) {
+        idx = _leMatchBarLyrics(normRaw, lyrics, searchOffset);
+      }
       if (idx >= 0) {
         if (partOffset < 0) {
           partOffset = idx;
@@ -4350,7 +4394,9 @@ function leReconstructMarkers(rawText, parts) {
         }
         barOffsets.push(idx);
         lastFoundOffset = idx;
-        searchOffset = idx + lyrics.length;
+        // Advance searchOffset by matched content length (approximate)
+        const matchLen = _leNormalizeBarLyrics(lyrics).length;
+        searchOffset = idx + Math.max(matchLen, 1);
       } else {
         barOffsets.push(null);
       }

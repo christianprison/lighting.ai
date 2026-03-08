@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.0.9';
+const APP_VERSION = 'v1.0.10';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -2669,8 +2669,8 @@ function hitTestMarker(xPx, yPx) {
   if (!scroll) return null;
   const totalW = scroll.getBoundingClientRect().width;
   const duration = audioMeta.duration;
-  const canvas = document.getElementById('waveform-scroll');
-  const canvasH = canvas ? canvas.height : 100;
+  const wrap = document.getElementById('waveform-wrap');
+  const canvasH = wrap ? wrap.getBoundingClientRect().height : 100;
   if (duration <= 0 || totalW <= 0) return null;
 
   let best = null;

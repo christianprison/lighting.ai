@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.0.15';
+const APP_VERSION = 'v1.0.16';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4574,6 +4574,74 @@ function leRepredictBarsForPart(partId) {
 
 /* ── Lyrics Editor: Init from song data ─────────── */
 
+/**
+ * Check if bar markers are in correct absolute-number order (sorted by charOffset).
+ * Returns true if bars are out of order.
+ */
+function leDetectOutOfOrder(barMarkers, songId) {
+  if (barMarkers.length < 2) return false;
+  const sorted = [...barMarkers].sort((a, b) => a.charOffset - b.charOffset);
+  let prevAbs = -1;
+  for (const m of sorted) {
+    const abs = getAbsBarNum(songId, m.partId, m.barNum);
+    if (abs < prevAbs) return true;
+    prevAbs = abs;
+  }
+  return false;
+}
+
+/**
+ * Handle lyrics conflict: clear bar-lyrics assignments and restart.
+ */
+function leFixClearAssignments(songId, parts) {
+  ensureCollections();
+  for (const p of parts) {
+    for (const [, b] of Object.entries(db.bars)) {
+      if (b.part_id === p.id) b.lyrics = '';
+    }
+  }
+  markDirty();
+  // Reset to parts phase — keep raw text, re-predict part markers
+  const song = db.songs[songId];
+  const rawText = song.lyrics_raw || '';
+  _leWords = leParseRawText(rawText);
+  _lePartMarkers = leGuessPartMarkers(_leWords, parts);
+  _leBarMarkers = [];
+  _lePhase = 'parts';
+}
+
+/**
+ * Handle lyrics conflict: regenerate raw text from bar lyrics in order.
+ */
+function leFixRegenerateRaw(songId, parts) {
+  ensureCollections();
+  const song = db.songs[songId];
+  const lines = [];
+  for (const p of parts) {
+    if (p.instrumental) continue;
+    const barCount = p.bars || 0;
+    if (barCount === 0) continue;
+    lines.push(`[${p.name}]`);
+    for (let b = 1; b <= barCount; b++) {
+      const found = findBar(p.id, b);
+      const lyrics = found ? (found[1].lyrics || '').trim() : '';
+      if (lyrics) lines.push(lyrics);
+    }
+    lines.push('');
+  }
+  const newRaw = lines.join('\n').trim();
+  song.lyrics_raw = newRaw;
+  markDirty();
+  // Re-init from scratch with fresh raw text
+  _leWords = leParseRawText(newRaw);
+  const result = leReconstructMarkers(newRaw, parts);
+  _lePartMarkers = result.partMarkers;
+  _leBarMarkers = result.barMarkers;
+  _lePhase = _leBarMarkers.length > 0 ? 'bars' : 'parts';
+}
+
+let _leConflictPending = false; // prevent re-entrant dialog
+
 function leInitFromSong(song, parts) {
   const rawText = song.lyrics_raw || '';
   _leWords = leParseRawText(rawText);
@@ -4587,6 +4655,30 @@ function leInitFromSong(song, parts) {
     _leBarMarkers = result.barMarkers;
     // If we have bar markers, go straight to bars phase
     _lePhase = _leBarMarkers.length > 0 ? 'bars' : 'parts';
+
+    // Check for out-of-order bars after reconstruction
+    if (_leBarMarkers.length > 0 && leDetectOutOfOrder(_leBarMarkers, selectedSongId) && !_leConflictPending) {
+      _leConflictPending = true;
+      const songId = selectedSongId;
+      setTimeout(async () => {
+        const choice = await showLyricsConflictDialog(
+          'Lyrics-Konflikt erkannt',
+          'Die Takte im Lyrics-Tab sind nicht in der richtigen Reihenfolge. '
+          + 'Entweder sind die Lyrics falsch den Takten zugeordnet, oder der Rohtext stimmt nicht mit den Zuordnungen überein.<br><br>'
+          + '<b>Zuordnungen löschen:</b> Alle Lyrics-zu-Takt-Zuordnungen werden gelöscht. Du kannst sie im Lyrics-Tab neu erstellen.<br>'
+          + '<b>Rohtext neu generieren:</b> Der Rohtext wird aus den bestehenden Takt-Zuordnungen neu erzeugt.'
+        );
+        _leConflictPending = false;
+        if (choice === 'clear_assignments') {
+          leFixClearAssignments(songId, getSortedParts(songId));
+          renderLyricsTab();
+        } else if (choice === 'regenerate_raw') {
+          leFixRegenerateRaw(songId, getSortedParts(songId));
+          renderLyricsTab();
+        }
+        // 'cancel' → do nothing, show as-is
+      }, 100);
+    }
   } else if (rawText) {
     // Fresh text: predict part markers
     _lePartMarkers = leGuessPartMarkers(_leWords, parts);
@@ -8162,6 +8254,42 @@ function showConfirm(title, message, okLabel = 'Ersetzen') {
     els.confirmOk.addEventListener('click', onOk);
     els.confirmCancel.addEventListener('click', onCancel);
     els.confirmModal.addEventListener('click', onBg);
+  });
+}
+
+/**
+ * Show the lyrics conflict dialog with 3 options.
+ * Returns a Promise resolving to 'clear_assignments' | 'regenerate_raw' | 'cancel'.
+ */
+function showLyricsConflictDialog(title, message) {
+  return new Promise((resolve) => {
+    const modal = document.getElementById('lyrics-conflict-modal');
+    const titleEl = document.getElementById('lyrics-conflict-title');
+    const msgEl = document.getElementById('lyrics-conflict-message');
+    const btnCancel = document.getElementById('lyrics-conflict-cancel');
+    const btnClear = document.getElementById('lyrics-conflict-clear');
+    const btnRegen = document.getElementById('lyrics-conflict-regen');
+
+    titleEl.textContent = title;
+    msgEl.innerHTML = message;
+    modal.classList.add('open');
+
+    function cleanup() {
+      modal.classList.remove('open');
+      btnCancel.removeEventListener('click', onCancel);
+      btnClear.removeEventListener('click', onClear);
+      btnRegen.removeEventListener('click', onRegen);
+      modal.removeEventListener('click', onBg);
+    }
+    function onCancel() { cleanup(); resolve('cancel'); }
+    function onClear() { cleanup(); resolve('clear_assignments'); }
+    function onRegen() { cleanup(); resolve('regenerate_raw'); }
+    function onBg(e) { if (e.target === modal) { cleanup(); resolve('cancel'); } }
+
+    btnCancel.addEventListener('click', onCancel);
+    btnClear.addEventListener('click', onClear);
+    btnRegen.addEventListener('click', onRegen);
+    modal.addEventListener('click', onBg);
   });
 }
 

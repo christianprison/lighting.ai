@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.0.16';
+const APP_VERSION = 'v1.0.17';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4575,18 +4575,47 @@ function leRepredictBarsForPart(partId) {
 /* ── Lyrics Editor: Init from song data ─────────── */
 
 /**
- * Check if bar markers are in correct absolute-number order (sorted by charOffset).
- * Returns true if bars are out of order.
+ * Check if bar markers have reconstruction problems.
+ * Returns true if bars are out of order OR severely clustered.
+ * "Clustered" = within a part, bars cover less than 30% of the available text
+ * when the part has 4+ bars.
  */
-function leDetectOutOfOrder(barMarkers, songId) {
+function leDetectOutOfOrder(barMarkers, songId, partMarkers) {
   if (barMarkers.length < 2) return false;
   const sorted = [...barMarkers].sort((a, b) => a.charOffset - b.charOffset);
+
+  // Check 1: absolute bar numbers must be monotonically increasing
   let prevAbs = -1;
   for (const m of sorted) {
     const abs = getAbsBarNum(songId, m.partId, m.barNum);
     if (abs < prevAbs) return true;
     prevAbs = abs;
   }
+
+  // Check 2: bars within each part should not be severely clustered
+  if (partMarkers && partMarkers.length > 0) {
+    const sortedPM = [...partMarkers].sort((a, b) => a.charOffset - b.charOffset);
+    const rawLen = (db.songs[songId]?.lyrics_raw || '').length || 1;
+
+    for (let pi = 0; pi < sortedPM.length; pi++) {
+      const pm = sortedPM[pi];
+      const segStart = pm.charOffset;
+      const segEnd = pi + 1 < sortedPM.length ? sortedPM[pi + 1].charOffset : rawLen;
+      const segLen = segEnd - segStart;
+      if (segLen < 20) continue; // very short segment, skip
+
+      const partBars = sorted.filter(m => m.partId === pm.partId);
+      if (partBars.length < 4) continue; // only check parts with 4+ bars
+
+      const minOff = partBars[0].charOffset;
+      const maxOff = partBars[partBars.length - 1].charOffset;
+      const barSpan = maxOff - minOff;
+
+      // If bars cover less than 30% of the part's text, it's clustered
+      if (barSpan < segLen * 0.3) return true;
+    }
+  }
+
   return false;
 }
 
@@ -4657,7 +4686,7 @@ function leInitFromSong(song, parts) {
     _lePhase = _leBarMarkers.length > 0 ? 'bars' : 'parts';
 
     // Check for out-of-order bars after reconstruction
-    if (_leBarMarkers.length > 0 && leDetectOutOfOrder(_leBarMarkers, selectedSongId) && !_leConflictPending) {
+    if (_leBarMarkers.length > 0 && leDetectOutOfOrder(_leBarMarkers, selectedSongId, _lePartMarkers) && !_leConflictPending) {
       _leConflictPending = true;
       const songId = selectedSongId;
       setTimeout(async () => {

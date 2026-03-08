@@ -3423,3 +3423,77 @@ label {
   font-style: italic;
 }
 
+/* ── Tip Bubble (Tutorial System) ─────────────────── */
+
+.tip-bubble {
+  position: absolute;
+  z-index: 900;
+  max-width: 280px;
+  padding: 10px 14px;
+  background: var(--green);
+  color: var(--bg);
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  font-weight: 500;
+  line-height: 1.4;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 220, 130, 0.25);
+  pointer-events: auto;
+  animation: tipFadeIn 0.35s ease-out;
+}
+
+.tip-bubble::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+/* Arrow pointing DOWN (bubble sits above target) */
+.tip-bubble.tip-arrow-down::after {
+  bottom: -8px;
+  left: 24px;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid var(--green);
+}
+
+/* Arrow pointing UP (bubble sits below target) */
+.tip-bubble.tip-arrow-up::after {
+  top: -8px;
+  left: 24px;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 8px solid var(--green);
+}
+
+/* Arrow pointing LEFT (bubble sits right of target) */
+.tip-bubble.tip-arrow-left::after {
+  top: 12px;
+  left: -8px;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-right: 8px solid var(--green);
+}
+
+.tip-bubble .tip-close {
+  position: absolute;
+  top: 4px;
+  right: 8px;
+  background: none;
+  border: none;
+  color: var(--bg);
+  font-size: 1rem;
+  cursor: pointer;
+  opacity: 0.6;
+  line-height: 1;
+  padding: 2px;
+}
+
+.tip-bubble .tip-close:hover { opacity: 1; }
+
+@keyframes tipFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+

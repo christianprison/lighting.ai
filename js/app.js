@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.0.3';
+const APP_VERSION = 'v1.0.4';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -1053,6 +1053,7 @@ function switchTab(tab) {
   els.tabAccents?.classList.toggle('active', tab === 'accents');
   els.tabSetlist?.classList.toggle('active', tab === 'setlist');
   renderContent();
+  showTabTip(tab);
 }
 
 function renderContent() {
@@ -8343,6 +8344,98 @@ function wireEvents() {
 
     // Lyrics tab: no keyboard shortcuts needed (per-part play via buttons)
   });
+}
+
+/* ══════════════════════════════════════════════════════
+   TIP SYSTEM — Contextual tutorial bubbles per tab
+   ══════════════════════════════════════════════════════ */
+
+const TIP_STORAGE_KEY = 'lai_tips_seen';
+
+/** Registry of tips per tab. Each tip: { id, tab, text, anchor(el), arrow } */
+const TAB_TIPS = [
+  {
+    id: 'parts-waveform-finetuning',
+    tab: 'parts',
+    text: 'Öffne durch Antippen den Finetuning Editor',
+    anchor: () => document.querySelector('.mini-waveform'),
+    arrow: 'down'   // bubble above, arrow points down to waveform
+  }
+];
+
+function getTipsSeen() {
+  try { return JSON.parse(localStorage.getItem(TIP_STORAGE_KEY) || '[]'); }
+  catch { return []; }
+}
+
+function markTipSeen(tipId) {
+  const seen = getTipsSeen();
+  if (!seen.includes(tipId)) {
+    seen.push(tipId);
+    localStorage.setItem(TIP_STORAGE_KEY, JSON.stringify(seen));
+  }
+}
+
+function dismissTip() {
+  const el = document.querySelector('.tip-bubble');
+  if (el) {
+    const tipId = el.dataset.tipId;
+    if (tipId) markTipSeen(tipId);
+    el.remove();
+  }
+}
+
+/**
+ * Show the next unseen tip for the current tab (if any).
+ * Called after each tab render with a short delay so DOM is ready.
+ */
+function showTabTip(tab) {
+  // Remove any existing tip first
+  document.querySelector('.tip-bubble')?.remove();
+
+  const seen = getTipsSeen();
+  const tip = TAB_TIPS.find(t => t.tab === tab && !seen.includes(t.id));
+  if (!tip) return;
+
+  // Small delay so the tab content is fully rendered & laid out
+  setTimeout(() => {
+    const anchorEl = tip.anchor();
+    if (!anchorEl) return;  // anchor element not present (e.g. no waveform loaded)
+
+    const bubble = document.createElement('div');
+    bubble.className = `tip-bubble tip-arrow-${tip.arrow || 'down'}`;
+    bubble.dataset.tipId = tip.id;
+    bubble.innerHTML = `${esc(tip.text)}<button class="tip-close" aria-label="Schliessen">&times;</button>`;
+
+    // Position relative to anchor
+    const rect = anchorEl.getBoundingClientRect();
+    const scrollParent = document.getElementById('content') || document.body;
+    const scrollRect = scrollParent.getBoundingClientRect();
+
+    bubble.style.position = 'fixed';
+    if (tip.arrow === 'down') {
+      bubble.style.top = (rect.top - 10) + 'px';  // will adjust after measuring
+      bubble.style.left = Math.max(8, rect.left) + 'px';
+    } else if (tip.arrow === 'up') {
+      bubble.style.top = (rect.bottom + 10) + 'px';
+      bubble.style.left = Math.max(8, rect.left) + 'px';
+    } else if (tip.arrow === 'left') {
+      bubble.style.top = rect.top + 'px';
+      bubble.style.left = (rect.right + 10) + 'px';
+    }
+
+    document.body.appendChild(bubble);
+
+    // Adjust: if arrow-down, move bubble up by its own height so it sits above anchor
+    if (tip.arrow === 'down') {
+      const bh = bubble.offsetHeight;
+      bubble.style.top = (rect.top - bh - 10) + 'px';
+    }
+
+    // Close on button click or tap anywhere on bubble
+    bubble.querySelector('.tip-close').addEventListener('click', (e) => { e.stopPropagation(); dismissTip(); });
+    bubble.addEventListener('click', dismissTip);
+  }, 400);
 }
 
 /* ── Boot ──────────────────────────────────────────── */

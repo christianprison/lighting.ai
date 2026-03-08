@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.0.12';
+const APP_VERSION = 'v1.0.13';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4325,17 +4325,17 @@ function _leNormalizeBarLyrics(lyrics) {
 }
 
 /**
- * Fuzzy-match bar lyrics in the normalized raw text.
- * Extracts significant words from lyrics and searches for them in sequence.
+ * Fuzzy-match bar lyrics in the normalized raw text within a bounded range.
  * Returns char offset in rawText or -1 if not found.
  */
-function _leMatchBarLyrics(normRaw, lyrics, fromOffset) {
+function _leMatchBarLyrics(normRaw, lyrics, fromOffset, maxOffset) {
   const norm = _leNormalizeBarLyrics(lyrics);
   if (!norm) return -1;
+  if (maxOffset === undefined) maxOffset = normRaw.length;
 
   // Try full normalized match first
   let idx = normRaw.indexOf(norm, fromOffset);
-  if (idx >= 0) return idx;
+  if (idx >= 0 && idx < maxOffset) return idx;
 
   // Try matching the first few significant words (at least 2 chars each)
   const words = norm.split(' ').filter(w => w.length >= 2);
@@ -4344,101 +4344,175 @@ function _leMatchBarLyrics(normRaw, lyrics, fromOffset) {
   // Use first 3 words for a shorter match
   const shortNeedle = words.slice(0, Math.min(3, words.length)).join(' ');
   idx = normRaw.indexOf(shortNeedle, fromOffset);
-  return idx;
+  if (idx >= 0 && idx < maxOffset) return idx;
+
+  return -1;
 }
 
 /**
  * Reconstruct markers from existing per-bar lyrics stored in DB.
+ *
+ * Strategy: estimate each part's position proportionally, search within a
+ * bounded window, then distribute bars evenly within each part's segment.
  */
 function leReconstructMarkers(rawText, parts) {
   const partMarkers = [];
   const barMarkers = [];
-  let searchOffset = 0;
-
-  // Normalized raw text for fuzzy matching (newlines→spaces, lowercase)
   const normRaw = rawText.toLowerCase().replace(/\n/g, ' ');
 
-  for (const part of parts) {
-    if (part.instrumental) continue;
+  // Collect non-instrumental parts with bars
+  const liveParts = parts.filter(p => !p.instrumental && (p.bars || 0) > 0);
+  if (liveParts.length === 0) return { partMarkers, barMarkers };
+
+  const totalBars = liveParts.reduce((sum, p) => sum + (p.bars || 0), 0);
+
+  // Step 1: Estimate each part's position proportionally by cumulative bar count
+  let cumBars = 0;
+  const partInfos = liveParts.map(part => {
+    const estimatedStart = Math.round(cumBars / totalBars * rawText.length);
+    cumBars += part.bars || 0;
+    return { part, estimatedStart, foundOffset: -1 };
+  });
+
+  // Step 2: Find each part's actual position by matching its first bar lyrics
+  // Search within a bounded window around the estimated position
+  let lastFoundEnd = 0;
+  for (let pi = 0; pi < partInfos.length; pi++) {
+    const info = partInfos[pi];
+    const part = info.part;
+
+    // Search window: from last found end (or estimated - margin) to next part's estimate + margin
+    const margin = Math.round(rawText.length / liveParts.length * 0.5);
+    const searchFrom = Math.max(lastFoundEnd, info.estimatedStart - margin);
+    const searchTo = pi + 1 < partInfos.length
+      ? partInfos[pi + 1].estimatedStart + margin
+      : rawText.length;
+
+    // Try to match the first few bars with lyrics in this window
+    for (let b = 1; b <= part.bars; b++) {
+      const found = findBar(part.id, b);
+      const lyrics = found ? (found[1].lyrics || '').trim() : '';
+      if (!lyrics) continue;
+
+      const idx = _leMatchBarLyrics(normRaw, lyrics, searchFrom, searchTo);
+      if (idx >= 0) {
+        info.foundOffset = idx;
+        lastFoundEnd = idx + 1;
+        break;
+      }
+    }
+  }
+
+  // Step 3: Resolve positions — ensure monotonically increasing
+  // Parts that didn't match get interpolated between neighbors
+  for (let pi = 0; pi < partInfos.length; pi++) {
+    if (partInfos[pi].foundOffset >= 0) continue;
+
+    // Find next part with a found offset
+    let nextFound = -1;
+    for (let j = pi + 1; j < partInfos.length; j++) {
+      if (partInfos[j].foundOffset >= 0) { nextFound = j; break; }
+    }
+    // Find previous part with a found offset
+    let prevFound = -1;
+    for (let j = pi - 1; j >= 0; j--) {
+      if (partInfos[j].foundOffset >= 0) { prevFound = j; break; }
+    }
+
+    // Interpolate between neighbors, or use estimate
+    const prevOff = prevFound >= 0 ? partInfos[prevFound].foundOffset : 0;
+    const nextOff = nextFound >= 0 ? partInfos[nextFound].foundOffset : rawText.length;
+    const prevIdx = prevFound >= 0 ? prevFound : -1;
+    const nextIdx = nextFound >= 0 ? nextFound : partInfos.length;
+    const span = nextIdx - prevIdx;
+    const step = pi - prevIdx;
+    partInfos[pi].foundOffset = Math.round(prevOff + (nextOff - prevOff) * step / span);
+  }
+
+  // Ensure monotonic and unique (each part marker at least 1 char after previous)
+  for (let pi = 1; pi < partInfos.length; pi++) {
+    if (partInfos[pi].foundOffset <= partInfos[pi - 1].foundOffset) {
+      partInfos[pi].foundOffset = partInfos[pi - 1].foundOffset + 1;
+    }
+  }
+
+  // Step 4: Create part markers
+  for (const info of partInfos) {
+    partMarkers.push({
+      partId: info.part.id,
+      charOffset: info.foundOffset,
+      confirmed: info.part.lyrics_confirmed || false
+    });
+  }
+
+  // Step 5: Create bar markers within each part's segment
+  // Try to match individual bars, fall back to even distribution
+  const lyricsWords = _leWords.filter(w => !w.isHeader);
+  for (let pi = 0; pi < partInfos.length; pi++) {
+    const info = partInfos[pi];
+    const part = info.part;
+    const segStart = info.foundOffset;
+    const segEnd = pi + 1 < partInfos.length ? partInfos[pi + 1].foundOffset : Infinity;
     const barCount = part.bars || 0;
-    if (barCount === 0) continue;
 
-    let partOffset = -1;
-    let lastFoundOffset = -1; // track position of last bar with lyrics
+    // Get words within this segment
+    const partWords = lyricsWords.filter(w => w.offset >= segStart && w.offset < segEnd);
 
-    // First pass: place bars that have lyrics
-    const barOffsets = []; // [barNum] → charOffset or null
-    const savedSearchOffset = searchOffset;
+    if (partWords.length === 0) {
+      // No words — place all bars at segment start
+      for (let b = 1; b <= barCount; b++) {
+        barMarkers.push({ partId: part.id, barNum: b, charOffset: segStart });
+      }
+      continue;
+    }
+
+    // Try to match each bar's lyrics within the segment
+    const barOffsets = [];
+    let localSearch = segStart;
     for (let b = 1; b <= barCount; b++) {
       const found = findBar(part.id, b);
       const lyrics = found ? (found[1].lyrics || '').trim() : '';
-      if (!lyrics) {
-        barOffsets.push(null);
-        continue;
-      }
+      if (!lyrics) { barOffsets.push(null); continue; }
 
-      // Find this lyrics text in the raw text (progressive search)
-      // Try exact match first, then fuzzy match (handles / separators, - - fillers, case)
-      let idx = rawText.indexOf(lyrics, searchOffset);
-      if (idx < 0) {
-        idx = _leMatchBarLyrics(normRaw, lyrics, searchOffset);
-      }
+      const idx = _leMatchBarLyrics(normRaw, lyrics, localSearch, segEnd);
       if (idx >= 0) {
-        if (partOffset < 0) {
-          partOffset = idx;
-          partMarkers.push({
-            partId: part.id,
-            charOffset: idx,
-            confirmed: part.lyrics_confirmed || false
-          });
-        }
         barOffsets.push(idx);
-        lastFoundOffset = idx;
-        // Advance searchOffset by matched content length (approximate)
         const matchLen = _leNormalizeBarLyrics(lyrics).length;
-        searchOffset = idx + Math.max(matchLen, 1);
+        localSearch = idx + Math.max(matchLen, 1);
       } else {
         barOffsets.push(null);
       }
     }
 
-    // Second pass: fill in bars without lyrics at the position of the next bar that has lyrics
-    // (or the previous bar if no next bar exists)
-    for (let b = 0; b < barOffsets.length; b++) {
-      if (barOffsets[b] !== null) continue;
-      // Look forward for next bar with an offset
-      let nextOffset = null;
-      for (let j = b + 1; j < barOffsets.length; j++) {
-        if (barOffsets[j] !== null) { nextOffset = barOffsets[j]; break; }
+    // Fill unmatched bars: interpolate between matched neighbors or distribute evenly
+    const matchedCount = barOffsets.filter(o => o !== null).length;
+    if (matchedCount === 0) {
+      // No bars matched — distribute evenly across words
+      for (let b = 0; b < barCount; b++) {
+        const wordIdx = Math.round(b * partWords.length / barCount);
+        const word = partWords[Math.min(wordIdx, partWords.length - 1)];
+        barMarkers.push({ partId: part.id, barNum: b + 1, charOffset: word.offset });
       }
-      // Look backward for previous bar with an offset
-      let prevOffset = null;
-      for (let j = b - 1; j >= 0; j--) {
-        if (barOffsets[j] !== null) { prevOffset = barOffsets[j]; break; }
+    } else {
+      // Fill gaps by interpolating between matched bars
+      for (let b = 0; b < barOffsets.length; b++) {
+        if (barOffsets[b] !== null) continue;
+        let nextOff = null, prevOff = null;
+        for (let j = b + 1; j < barOffsets.length; j++) {
+          if (barOffsets[j] !== null) { nextOff = barOffsets[j]; break; }
+        }
+        for (let j = b - 1; j >= 0; j--) {
+          if (barOffsets[j] !== null) { prevOff = barOffsets[j]; break; }
+        }
+        barOffsets[b] = nextOff ?? prevOff ?? segStart;
       }
-      // Use next offset (bar appears before that word), or previous, or part start
-      barOffsets[b] = nextOffset ?? prevOffset ?? partOffset ?? searchOffset;
-    }
-
-    // Emit all bar markers
-    for (let b = 0; b < barOffsets.length; b++) {
-      barMarkers.push({
-        partId: part.id,
-        barNum: b + 1,
-        charOffset: barOffsets[b]
-      });
-    }
-
-    // If no bar lyrics found, still place a part marker
-    if (partOffset < 0) {
-      partMarkers.push({
-        partId: part.id,
-        charOffset: searchOffset,
-        confirmed: part.lyrics_confirmed || false
-      });
+      for (let b = 0; b < barOffsets.length; b++) {
+        barMarkers.push({ partId: part.id, barNum: b + 1, charOffset: barOffsets[b] });
+      }
     }
   }
 
+  barMarkers.sort((a, b) => a.charOffset - b.charOffset || a.barNum - b.barNum);
   return { partMarkers, barMarkers };
 }
 

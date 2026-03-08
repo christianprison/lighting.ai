@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.0.1';
+const APP_VERSION = 'v1.0.2';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -252,6 +252,7 @@ function cacheDom() {
     pwHandleEnd:   document.getElementById('pw-handle-end'),
     pwDimLeft:     document.getElementById('pw-dim-left'),
     pwDimRight:    document.getElementById('pw-dim-right'),
+    pwTapBar:      document.getElementById('pw-tap-bar'),
     pwWrap:        document.querySelector('.pw-waveform-wrap'),
   };
 }
@@ -7100,8 +7101,16 @@ function _pwDrawWaveform() {
     ctx.fillRect(i, mid - barH / 2, 1, barH || 1);
   }
 
-  // Draw bar markers with draggable flags
+  // Draw bar markers with draggable flags (absolute bar numbers from song start)
   const bars = getBarMarkersForPart(_pw.partIndex);
+  // Compute absolute bar offset: count bars in all preceding parts
+  let absBarOffset = 0;
+  {
+    const parts = getSortedParts(_pw.songId);
+    for (let pi = 0; pi < _pw.partIndex && pi < parts.length; pi++) {
+      absBarOffset += getBarMarkersForPart(pi).length;
+    }
+  }
   if (bars.length > 0) {
     const viewRange = _pw.viewEnd - _pw.viewStart;
     for (let i = 0; i < bars.length; i++) {
@@ -7115,8 +7124,9 @@ function _pwDrawWaveform() {
       ctx.moveTo(x, 0);
       ctx.lineTo(x, h);
       ctx.stroke();
-      // Flag label (bottom, like Audio-Split-Tab)
-      const label = `${bars[i].barNum || i + 1}`;
+      // Flag label with absolute bar number (bottom)
+      const absNum = absBarOffset + i + 1;
+      const label = `${absNum}`;
       ctx.font = '9px DM Mono, monospace';
       const tw = ctx.measureText(label).width + 4;
       ctx.fillStyle = isDragging ? 'rgba(56, 189, 248, 1.0)' : 'rgba(56, 189, 248, 0.85)';
@@ -7282,11 +7292,19 @@ function _pwInstallDragListeners() {
       _pwDrag.activated = true;
       const bounds = _pwGetBarDragBounds(_pwDrag.barMarker);
       _pwDrag.barMarker.time = Math.max(bounds.min, Math.min(bounds.max, time));
-      // Show drag balloon on touch
+      // Show drag balloon on touch (absolute bar number)
       if (ev.touches) {
         const clientY = ev.touches[0].clientY;
-        const label = `Takt ${_pwDrag.barMarker.barNum || _pwDrag.barIndex + 1}`;
-        showDragBalloon(label, _pwDrag.barMarker.time, '#38bdf8', cx, clientY);
+        let absNum = _pwDrag.barIndex + 1;
+        const pwBars = getBarMarkersForPart(_pw.partIndex);
+        const bIdx = pwBars.indexOf(_pwDrag.barMarker);
+        if (bIdx >= 0) {
+          let offset = 0;
+          const ps = getSortedParts(_pw.songId);
+          for (let pi = 0; pi < _pw.partIndex && pi < ps.length; pi++) offset += getBarMarkersForPart(pi).length;
+          absNum = offset + bIdx + 1;
+        }
+        showDragBalloon(`Takt ${absNum}`, _pwDrag.barMarker.time, '#38bdf8', cx, clientY);
       }
     }
     _pwUpdateUI();
@@ -7357,6 +7375,27 @@ function _pwNudge(which, dir) {
     _pw.trimEnd = Math.min(_pw.viewEnd, Math.max(_pw.trimEnd + delta, _pw.trimStart + 0.05));
   }
   _pwUpdateUI();
+}
+
+/* ── Part Wave Editor: Tap to add bar marker ── */
+
+function _pwTapBar() {
+  if (!_pw.open || !_pw.playing) return;
+  const time = Math.max(0, audio.getSegmentCurrentTime() - audio.getOutputLatency());
+  // Only add within the trim range
+  if (time < _pw.trimStart || time > _pw.trimEnd) return;
+
+  // Add bar marker to the global barMarkers array for this part
+  barMarkers.push({ time, partIndex: _pw.partIndex });
+
+  // Update origBarTimes so the new marker is tracked
+  const bars = getBarMarkersForPart(_pw.partIndex);
+  const newMarker = bars.find(m => m.time === time);
+  if (newMarker) _pw.origBarTimes.push({ marker: newMarker, time });
+
+  saveMarkersToSong();
+  markDirty();
+  _pwDrawWaveform();
 }
 
 /* ── Part Wave Editor: Click on waveform to seek ── */
@@ -7430,6 +7469,16 @@ function initPartWaveEditor() {
 
   // Play button
   els.pwPlay.addEventListener('click', _pwTogglePlay);
+
+  // Tap bar button
+  els.pwTapBar.addEventListener('click', _pwTapBar);
+
+  // Keyboard shortcut: T to tap bar during playback
+  document.addEventListener('keydown', (e) => {
+    if (!_pw.open) return;
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (e.key === 't' || e.key === 'T') { _pwTapBar(); }
+  });
 
   // Nudge buttons
   els.pwModal.addEventListener('click', (e) => {

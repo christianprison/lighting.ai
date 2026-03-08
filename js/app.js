@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.1.1';
+const APP_VERSION = 'v1.1.3';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4275,13 +4275,17 @@ function renderLyricsTab() {
   const geniusUrl = `https://genius.com/search?q=${encodeURIComponent(song.name + ' ' + song.artist)}`;
 
   let html = `<div class="lyrics-panel le-panel">
-    ${buildSongHeader(song)}
-    <div class="le-toolbar">
-      <a href="${geniusUrl}" target="_blank" rel="noopener" class="btn btn-sm lyrics-genius-link" title="Auf Genius.com suchen">&#127925; Genius</a>
-      <div style="flex:1"></div>
-      <button class="btn btn-sm" id="le-paste-btn" title="Text einfügen und auf Takte verteilen">&#128203; Text einf&uuml;gen</button>
-      ${hasWords ? '<button class="btn btn-sm le-btn-save" id="le-save-lyrics">&#128190; Speichern</button>' : ''}
-      ${hasWords ? '<button class="btn btn-sm le-btn-danger" id="le-clear-words" title="Alle Wörter entfernen">W&ouml;rter l&ouml;schen</button>' : ''}
+    <div class="audio-song-header">
+      <div>
+        <div class="ash-name">${esc(song.name)}</div>
+        <div class="ash-artist">${esc(song.artist)}</div>
+      </div>
+      <div class="le-header-actions">
+        <a href="${geniusUrl}" target="_blank" rel="noopener" class="btn btn-sm lyrics-genius-link" title="Auf Genius.com suchen">&#127925; Genius</a>
+        <button class="btn btn-sm" id="le-paste-btn" title="Text einfügen und auf Takte verteilen">&#128203; Text einf&uuml;gen</button>
+        ${hasWords ? '<button class="btn btn-sm le-btn-save" id="le-save-lyrics">&#128190; Speichern</button>' : ''}
+        ${hasWords ? '<button class="btn btn-sm le-btn-danger" id="le-clear-words" title="Alle Wörter entfernen">W&ouml;rter l&ouml;schen</button>' : ''}
+      </div>
     </div>`;
 
   // Block canvas
@@ -4317,6 +4321,10 @@ function leRenderBlocks() {
     let cls = `le-block le-block-${b.type}`;
     const draggable = 'draggable="true"';
     html += `<span class="${cls}" ${draggable} data-idx="${i}" data-type="${b.type}" data-id="${b.id}">${esc(b.content)}</span>`;
+    // Line break after part blocks
+    if (b.type === 'part') {
+      html += '<span class="le-break"></span>';
+    }
   }
   return html;
 }

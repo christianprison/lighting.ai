@@ -78,7 +78,7 @@
         "5iZfKj_P004": {
           "pos": 4,
           "name": "Chorus 1 (nanana)",
-          "bars": 9,
+          "bars": 8,
           "duration_sec": 12,
           "light_template": "10 Strobe",
           "qlc_scene": "10 Strobe",
@@ -114,7 +114,7 @@
         "5iZfKj_P007": {
           "pos": 7,
           "name": "Bridge 2",
-          "bars": 3,
+          "bars": 4,
           "duration_sec": 6,
           "light_template": "02 slow blue",
           "qlc_scene": "02 slow blue",
@@ -138,7 +138,7 @@
         "5iZfKj_P009": {
           "pos": 9,
           "name": "Stop",
-          "bars": 9,
+          "bars": 8,
           "duration_sec": 12,
           "light_template": "Spot auf Tim",
           "qlc_scene": "Spot auf Tim",
@@ -1719,7 +1719,7 @@
         "CC9FBm_P001": {
           "pos": 1,
           "name": "Intro (nur Axel)",
-          "bars": 0,
+          "bars": 5,
           "duration_sec": 6,
           "light_template": "intro_buildup",
           "qlc_scene": "Spot auf Axel",
@@ -1732,7 +1732,7 @@
         "CC9FBm_P002": {
           "pos": 2,
           "name": "Intro (alle)",
-          "bars": 0,
+          "bars": 8,
           "duration_sec": 11,
           "light_template": "intro_buildup",
           "qlc_scene": "09 Alarm",
@@ -1744,7 +1744,7 @@
         "CC9FBm_P003": {
           "pos": 3,
           "name": "Verse 1",
-          "bars": 0,
+          "bars": 11,
           "duration_sec": 17,
           "light_template": "verse_driving",
           "qlc_scene": "03 walking",
@@ -1757,7 +1757,7 @@
         "CC9FBm_P004": {
           "pos": 4,
           "name": "Chorus 1",
-          "bars": 0,
+          "bars": 8,
           "duration_sec": 12,
           "light_template": "chorus_full",
           "qlc_scene": "06 blinking",
@@ -1770,7 +1770,7 @@
         "CC9FBm_P005": {
           "pos": 5,
           "name": "Dudup 1",
-          "bars": 0,
+          "bars": 8,
           "duration_sec": 11,
           "light_template": "generic_bpm",
           "qlc_scene": "09 Alarm",
@@ -1782,7 +1782,7 @@
         "CC9FBm_P006": {
           "pos": 6,
           "name": "Verse 2",
-          "bars": 0,
+          "bars": 12,
           "duration_sec": 17,
           "light_template": "verse_driving",
           "qlc_scene": "03 walking",
@@ -1795,7 +1795,7 @@
         "CC9FBm_P007": {
           "pos": 7,
           "name": "Chorus 2",
-          "bars": 0,
+          "bars": 8,
           "duration_sec": 11,
           "light_template": "chorus_full",
           "qlc_scene": "06 blinking",
@@ -1807,7 +1807,7 @@
         "CC9FBm_P008": {
           "pos": 8,
           "name": "Dudup 2",
-          "bars": 0,
+          "bars": 8,
           "duration_sec": 11,
           "light_template": "generic_bpm",
           "qlc_scene": "09 Alarm",
@@ -1820,7 +1820,7 @@
         "CC9FBm_P009": {
           "pos": 9,
           "name": "Solo Axel",
-          "bars": 0,
+          "bars": 16,
           "duration_sec": 23,
           "light_template": "solo_spotlight",
           "qlc_scene": "Spot auf Axel",
@@ -1833,7 +1833,7 @@
         "CC9FBm_P010": {
           "pos": 10,
           "name": "Interlude 1",
-          "bars": 0,
+          "bars": 15,
           "duration_sec": 11,
           "light_template": "bridge_atmospheric",
           "qlc_scene": "06 blinking",
@@ -1846,7 +1846,7 @@
         "CC9FBm_P012": {
           "pos": 11,
           "name": "Stops",
-          "bars": 0,
+          "bars": 1,
           "duration_sec": 2,
           "light_template": "generic_bpm",
           "qlc_scene": "10 Strobe",
@@ -1858,7 +1858,7 @@
         "CC9FBm_P013": {
           "pos": 12,
           "name": "Dudup 3",
-          "bars": 0,
+          "bars": 8,
           "duration_sec": 11,
           "light_template": "generic_bpm",
           "qlc_scene": "09 Alarm",
@@ -1870,7 +1870,7 @@
         "CC9FBm_P014": {
           "pos": 13,
           "name": "Dudup 4",
-          "bars": 0,
+          "bars": 8,
           "duration_sec": 11,
           "light_template": "generic_bpm",
           "qlc_scene": "10 Strobe",
@@ -1967,7 +1967,588 @@
             "partId": "CC9FBm_P015"
           }
         ],
-        "barMarkers": []
+        "barMarkers": [
+          {
+            "time": 1.3090208333333297,
+            "partIndex": 0,
+            "partId": "CC9FBm_P001"
+          },
+          {
+            "time": 2.738354166666662,
+            "partIndex": 0,
+            "partId": "CC9FBm_P001"
+          },
+          {
+            "time": 4.141020833333323,
+            "partIndex": 0,
+            "partId": "CC9FBm_P001"
+          },
+          {
+            "time": 5.591687499999987,
+            "partIndex": 0,
+            "partId": "CC9FBm_P001"
+          },
+          {
+            "time": 7.026354166666659,
+            "partIndex": 0,
+            "partId": "CC9FBm_P001"
+          },
+          {
+            "time": 8.471687499999996,
+            "partIndex": 1,
+            "partId": "CC9FBm_P002"
+          },
+          {
+            "time": 9.877020833333328,
+            "partIndex": 1,
+            "partId": "CC9FBm_P002"
+          },
+          {
+            "time": 11.290354166666654,
+            "partIndex": 1,
+            "partId": "CC9FBm_P002"
+          },
+          {
+            "time": 12.725020833333327,
+            "partIndex": 1,
+            "partId": "CC9FBm_P002"
+          },
+          {
+            "time": 14.159687499999999,
+            "partIndex": 1,
+            "partId": "CC9FBm_P002"
+          },
+          {
+            "time": 15.506354166666663,
+            "partIndex": 1,
+            "partId": "CC9FBm_P002"
+          },
+          {
+            "time": 16.943687499999992,
+            "partIndex": 1,
+            "partId": "CC9FBm_P002"
+          },
+          {
+            "time": 18.30902083333333,
+            "partIndex": 1,
+            "partId": "CC9FBm_P002"
+          },
+          {
+            "time": 19.77302083333333,
+            "partIndex": 2,
+            "partId": "CC9FBm_P003"
+          },
+          {
+            "time": 21.17568749999999,
+            "partIndex": 2,
+            "partId": "CC9FBm_P003"
+          },
+          {
+            "time": 22.677020833333327,
+            "partIndex": 2,
+            "partId": "CC9FBm_P003"
+          },
+          {
+            "time": 24.02635416666666,
+            "partIndex": 2,
+            "partId": "CC9FBm_P003"
+          },
+          {
+            "time": 25.506354166666664,
+            "partIndex": 2,
+            "partId": "CC9FBm_P003"
+          },
+          {
+            "time": 26.87702083333333,
+            "partIndex": 2,
+            "partId": "CC9FBm_P003"
+          },
+          {
+            "time": 28.325020833333323,
+            "partIndex": 2,
+            "partId": "CC9FBm_P003"
+          },
+          {
+            "time": 31.122354166666664,
+            "partIndex": 2,
+            "partId": "CC9FBm_P003"
+          },
+          {
+            "time": 32.50902083333333,
+            "partIndex": 2,
+            "partId": "CC9FBm_P003"
+          },
+          {
+            "time": 34.04235416666666,
+            "partIndex": 2,
+            "partId": "CC9FBm_P003"
+          },
+          {
+            "time": 35.41035416666666,
+            "partIndex": 2,
+            "partId": "CC9FBm_P003"
+          },
+          {
+            "time": 36.858354166666665,
+            "partIndex": 3,
+            "partId": "CC9FBm_P004"
+          },
+          {
+            "time": 38.32502083333332,
+            "partIndex": 3,
+            "partId": "CC9FBm_P004"
+          },
+          {
+            "time": 39.725020833333325,
+            "partIndex": 3,
+            "partId": "CC9FBm_P004"
+          },
+          {
+            "time": 41.12235416666666,
+            "partIndex": 3,
+            "partId": "CC9FBm_P004"
+          },
+          {
+            "time": 42.55968749999999,
+            "partIndex": 3,
+            "partId": "CC9FBm_P004"
+          },
+          {
+            "time": 43.93835416666666,
+            "partIndex": 3,
+            "partId": "CC9FBm_P004"
+          },
+          {
+            "time": 45.30902083333333,
+            "partIndex": 3,
+            "partId": "CC9FBm_P004"
+          },
+          {
+            "time": 46.65835416666666,
+            "partIndex": 3,
+            "partId": "CC9FBm_P004"
+          },
+          {
+            "time": 48.1596875,
+            "partIndex": 4,
+            "partId": "CC9FBm_P005"
+          },
+          {
+            "time": 49.573020833333324,
+            "partIndex": 4,
+            "partId": "CC9FBm_P005"
+          },
+          {
+            "time": 50.92235416666666,
+            "partIndex": 4,
+            "partId": "CC9FBm_P005"
+          },
+          {
+            "time": 52.30902083333333,
+            "partIndex": 4,
+            "partId": "CC9FBm_P005"
+          },
+          {
+            "time": 53.75702083333332,
+            "partIndex": 4,
+            "partId": "CC9FBm_P005"
+          },
+          {
+            "time": 55.1596875,
+            "partIndex": 4,
+            "partId": "CC9FBm_P005"
+          },
+          {
+            "time": 56.55968749999999,
+            "partIndex": 4,
+            "partId": "CC9FBm_P005"
+          },
+          {
+            "time": 57.975687499999985,
+            "partIndex": 4,
+            "partId": "CC9FBm_P005"
+          },
+          {
+            "time": 59.41035416666666,
+            "partIndex": 5,
+            "partId": "CC9FBm_P006"
+          },
+          {
+            "time": 60.90902083333332,
+            "partIndex": 5,
+            "partId": "CC9FBm_P006"
+          },
+          {
+            "time": 62.341020833333324,
+            "partIndex": 5,
+            "partId": "CC9FBm_P006"
+          },
+          {
+            "time": 63.69035416666666,
+            "partIndex": 5,
+            "partId": "CC9FBm_P006"
+          },
+          {
+            "time": 65.14102083333334,
+            "partIndex": 5,
+            "partId": "CC9FBm_P006"
+          },
+          {
+            "time": 66.50902083333334,
+            "partIndex": 5,
+            "partId": "CC9FBm_P006"
+          },
+          {
+            "time": 67.97302083333334,
+            "partIndex": 5,
+            "partId": "CC9FBm_P006"
+          },
+          {
+            "time": 69.32502083333334,
+            "partIndex": 5,
+            "partId": "CC9FBm_P006"
+          },
+          {
+            "time": 70.7596875,
+            "partIndex": 5,
+            "partId": "CC9FBm_P006"
+          },
+          {
+            "time": 72.18902083333334,
+            "partIndex": 5,
+            "partId": "CC9FBm_P006"
+          },
+          {
+            "time": 73.58902083333332,
+            "partIndex": 5,
+            "partId": "CC9FBm_P006"
+          },
+          {
+            "time": 75.00768749999999,
+            "partIndex": 5,
+            "partId": "CC9FBm_P006"
+          },
+          {
+            "time": 76.4396875,
+            "partIndex": 6,
+            "partId": "CC9FBm_P007"
+          },
+          {
+            "time": 77.82635416666666,
+            "partIndex": 6,
+            "partId": "CC9FBm_P007"
+          },
+          {
+            "time": 79.29302083333333,
+            "partIndex": 6,
+            "partId": "CC9FBm_P007"
+          },
+          {
+            "time": 80.67702083333334,
+            "partIndex": 6,
+            "partId": "CC9FBm_P007"
+          },
+          {
+            "time": 82.13835416666667,
+            "partIndex": 6,
+            "partId": "CC9FBm_P007"
+          },
+          {
+            "time": 83.53835416666668,
+            "partIndex": 6,
+            "partId": "CC9FBm_P007"
+          },
+          {
+            "time": 84.89302083333332,
+            "partIndex": 6,
+            "partId": "CC9FBm_P007"
+          },
+          {
+            "time": 86.2236875,
+            "partIndex": 6,
+            "partId": "CC9FBm_P007"
+          },
+          {
+            "time": 87.6716875,
+            "partIndex": 7,
+            "partId": "CC9FBm_P008"
+          },
+          {
+            "time": 89.05835416666666,
+            "partIndex": 7,
+            "partId": "CC9FBm_P008"
+          },
+          {
+            "time": 90.4396875,
+            "partIndex": 7,
+            "partId": "CC9FBm_P008"
+          },
+          {
+            "time": 91.84235416666665,
+            "partIndex": 7,
+            "partId": "CC9FBm_P008"
+          },
+          {
+            "time": 93.29035416666666,
+            "partIndex": 7,
+            "partId": "CC9FBm_P008"
+          },
+          {
+            "time": 94.65568749999998,
+            "partIndex": 7,
+            "partId": "CC9FBm_P008"
+          },
+          {
+            "time": 96.00502083333332,
+            "partIndex": 7,
+            "partId": "CC9FBm_P008"
+          },
+          {
+            "time": 97.47702083333333,
+            "partIndex": 7,
+            "partId": "CC9FBm_P008"
+          },
+          {
+            "time": 98.90635416666667,
+            "partIndex": 8,
+            "partId": "CC9FBm_P009"
+          },
+          {
+            "time": 100.35702083333332,
+            "partIndex": 8,
+            "partId": "CC9FBm_P009"
+          },
+          {
+            "time": 101.77302083333332,
+            "partIndex": 8,
+            "partId": "CC9FBm_P009"
+          },
+          {
+            "time": 103.2236875,
+            "partIndex": 8,
+            "partId": "CC9FBm_P009"
+          },
+          {
+            "time": 104.62635416666667,
+            "partIndex": 8,
+            "partId": "CC9FBm_P009"
+          },
+          {
+            "time": 106.00502083333332,
+            "partIndex": 8,
+            "partId": "CC9FBm_P009"
+          },
+          {
+            "time": 107.47702083333333,
+            "partIndex": 8,
+            "partId": "CC9FBm_P009"
+          },
+          {
+            "time": 108.84235416666665,
+            "partIndex": 8,
+            "partId": "CC9FBm_P009"
+          },
+          {
+            "time": 110.25568750000001,
+            "partIndex": 8,
+            "partId": "CC9FBm_P009"
+          },
+          {
+            "time": 111.6236875,
+            "partIndex": 8,
+            "partId": "CC9FBm_P009"
+          },
+          {
+            "time": 113.05835416666666,
+            "partIndex": 8,
+            "partId": "CC9FBm_P009"
+          },
+          {
+            "time": 114.47702083333333,
+            "partIndex": 8,
+            "partId": "CC9FBm_P009"
+          },
+          {
+            "time": 115.90635416666667,
+            "partIndex": 8,
+            "partId": "CC9FBm_P009"
+          },
+          {
+            "time": 117.32235416666667,
+            "partIndex": 8,
+            "partId": "CC9FBm_P009"
+          },
+          {
+            "time": 118.70635416666666,
+            "partIndex": 8,
+            "partId": "CC9FBm_P009"
+          },
+          {
+            "time": 120.1596875,
+            "partIndex": 8,
+            "partId": "CC9FBm_P009"
+          },
+          {
+            "time": 121.6236875,
+            "partIndex": 9,
+            "partId": "CC9FBm_P010"
+          },
+          {
+            "time": 123.0396875,
+            "partIndex": 9,
+            "partId": "CC9FBm_P010"
+          },
+          {
+            "time": 124.47168749999999,
+            "partIndex": 9,
+            "partId": "CC9FBm_P010"
+          },
+          {
+            "time": 125.8556875,
+            "partIndex": 9,
+            "partId": "CC9FBm_P010"
+          },
+          {
+            "time": 127.26102083333332,
+            "partIndex": 9,
+            "partId": "CC9FBm_P010"
+          },
+          {
+            "time": 128.69035416666668,
+            "partIndex": 9,
+            "partId": "CC9FBm_P010"
+          },
+          {
+            "time": 130.10902083333332,
+            "partIndex": 9,
+            "partId": "CC9FBm_P010"
+          },
+          {
+            "time": 131.50635416666665,
+            "partIndex": 9,
+            "partId": "CC9FBm_P010"
+          },
+          {
+            "time": 132.97302083333335,
+            "partIndex": 9,
+            "partId": "CC9FBm_P010"
+          },
+          {
+            "time": 134.37568750000003,
+            "partIndex": 9,
+            "partId": "CC9FBm_P010"
+          },
+          {
+            "time": 135.95702083333333,
+            "partIndex": 9,
+            "partId": "CC9FBm_P010"
+          },
+          {
+            "time": 137.4770208333333,
+            "partIndex": 9,
+            "partId": "CC9FBm_P010"
+          },
+          {
+            "time": 138.92502083333335,
+            "partIndex": 9,
+            "partId": "CC9FBm_P010"
+          },
+          {
+            "time": 140.25835416666666,
+            "partIndex": 9,
+            "partId": "CC9FBm_P010"
+          },
+          {
+            "time": 141.69035416666668,
+            "partIndex": 9,
+            "partId": "CC9FBm_P010"
+          },
+          {
+            "time": 142.9890208333333,
+            "partIndex": 10,
+            "partId": "CC9FBm_P012"
+          },
+          {
+            "time": 144.38902083333335,
+            "partIndex": 11,
+            "partId": "CC9FBm_P013"
+          },
+          {
+            "time": 145.7756875,
+            "partIndex": 11,
+            "partId": "CC9FBm_P013"
+          },
+          {
+            "time": 147.18902083333336,
+            "partIndex": 11,
+            "partId": "CC9FBm_P013"
+          },
+          {
+            "time": 148.54368749999998,
+            "partIndex": 11,
+            "partId": "CC9FBm_P013"
+          },
+          {
+            "time": 149.9436875,
+            "partIndex": 11,
+            "partId": "CC9FBm_P013"
+          },
+          {
+            "time": 151.32768750000002,
+            "partIndex": 11,
+            "partId": "CC9FBm_P013"
+          },
+          {
+            "time": 154.09302083333336,
+            "partIndex": 11,
+            "partId": "CC9FBm_P013"
+          },
+          {
+            "time": 155.54368749999998,
+            "partIndex": 12,
+            "partId": "CC9FBm_P014"
+          },
+          {
+            "time": 156.95702083333333,
+            "partIndex": 12,
+            "partId": "CC9FBm_P014"
+          },
+          {
+            "time": 158.4050208333333,
+            "partIndex": 12,
+            "partId": "CC9FBm_P014"
+          },
+          {
+            "time": 159.73835416666668,
+            "partIndex": 12,
+            "partId": "CC9FBm_P014"
+          },
+          {
+            "time": 161.12502083333334,
+            "partIndex": 12,
+            "partId": "CC9FBm_P014"
+          },
+          {
+            "time": 162.4423541666667,
+            "partIndex": 12,
+            "partId": "CC9FBm_P014"
+          },
+          {
+            "time": 163.95702083333333,
+            "partIndex": 12,
+            "partId": "CC9FBm_P014"
+          },
+          {
+            "time": 165.30635416666667,
+            "partIndex": 12,
+            "partId": "CC9FBm_P014"
+          },
+          {
+            "time": 152.70848899812734,
+            "partIndex": 11,
+            "partId": "CC9FBm_P013"
+          }
+        ]
       },
       "audio_ref": "audio/Always Where I Need to Be/Always Where I Need to Be - Full Song.mp3",
       "audio_ref_name": "Always Where I Need to Be - Full Song.mp3",

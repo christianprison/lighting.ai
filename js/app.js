@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.15.28';
+const APP_VERSION = 'v0.15.29';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;

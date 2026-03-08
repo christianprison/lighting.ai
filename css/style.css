@@ -2469,6 +2469,13 @@ label {
   opacity: 0.9;
 }
 
+.le-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
 .lyrics-genius-link {
   background: var(--bg3);
   border: 1px solid var(--border2);

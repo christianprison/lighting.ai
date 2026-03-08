@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.15.27';
+const APP_VERSION = 'v0.15.28';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -1628,8 +1628,8 @@ function handlePartAction(action) {
 
 /* ── Part Audio Playback ──────────────────────────── */
 
-/** AudioContext for part playback (separate from audio-engine to avoid conflicts) */
-let _partPlayCtx = null;
+/** Get the shared AudioContext from audio-engine (single context for iOS compatibility) */
+function _getAudioCtx() { return audio.getContext(); }
 let _partPlaySources = [];
 let _partPlayIndex = 0;
 let _partPlayBuffers = [];
@@ -1697,27 +1697,25 @@ async function handlePartPlay(partId) {
   refreshPartPlayUI();
 
   try {
-    if (!_partPlayCtx) {
-      _partPlayCtx = new (window.AudioContext || window.webkitAudioContext)();
-    }
-    if (_partPlayCtx.state === 'suspended') await _partPlayCtx.resume();
+    const ac = _getAudioCtx();
+    if (ac.state === 'suspended') await ac.resume();
 
     // Fetch and decode all bar audio files
     _partPlayBuffers = [];
     for (const bar of audioBars) {
       const arrBuf = await fetchAudioUrl(bar.audio);
       if (!arrBuf) throw new Error(`Audio nicht gefunden: ${bar.audio}`);
-      const decoded = await _partPlayCtx.decodeAudioData(arrBuf);
+      const decoded = await ac.decodeAudioData(arrBuf);
       _partPlayBuffers.push(decoded);
     }
 
     // Schedule all buffers back-to-back for gapless playback
-    let schedTime = _partPlayCtx.currentTime;
+    let schedTime = ac.currentTime;
     _partPlaySources = [];
     for (let i = 0; i < _partPlayBuffers.length; i++) {
-      const src = _partPlayCtx.createBufferSource();
+      const src = ac.createBufferSource();
       src.buffer = _partPlayBuffers[i];
-      src.connect(_partPlayCtx.destination);
+      src.connect(ac.destination);
       src.start(schedTime);
       schedTime += _partPlayBuffers[i].duration;
       _partPlaySources.push(src);
@@ -1774,19 +1772,17 @@ async function handleBarPlay(partId, barNum) {
   _partPlayActive = true;
 
   try {
-    if (!_partPlayCtx) {
-      _partPlayCtx = new (window.AudioContext || window.webkitAudioContext)();
-    }
-    if (_partPlayCtx.state === 'suspended') await _partPlayCtx.resume();
+    const ac = _getAudioCtx();
+    if (ac.state === 'suspended') await ac.resume();
 
     // Strategy 1: Use split audio file if available
     if (barData.audio) {
       const arrBuf = await fetchAudioUrl(barData.audio);
       if (arrBuf) {
-        const decoded = await _partPlayCtx.decodeAudioData(arrBuf);
-        const src = _partPlayCtx.createBufferSource();
+        const decoded = await ac.decodeAudioData(arrBuf);
+        const src = ac.createBufferSource();
         src.buffer = decoded;
-        src.connect(_partPlayCtx.destination);
+        src.connect(ac.destination);
         src.onended = () => {
           if (_barPlayId === barId) { _barPlayId = null; _partPlayActive = false; renderTakteTab(); }
         };
@@ -1803,9 +1799,9 @@ async function handleBarPlay(partId, barNum) {
     if (refBuffer) {
       const range = getBarTimeRange(partId, barNum);
       if (range) {
-        const src = _partPlayCtx.createBufferSource();
+        const src = ac.createBufferSource();
         src.buffer = refBuffer;
-        src.connect(_partPlayCtx.destination);
+        src.connect(ac.destination);
         const dur = range.end - range.start;
         src.onended = () => {
           if (_barPlayId === barId) { _barPlayId = null; _partPlayActive = false; renderTakteTab(); }
@@ -4661,6 +4657,7 @@ function leAcceptRawText(text) {
  */
 function leDistributeParts() {
   if (_lePartMarkers.length < 2 || _leWords.length === 0) return;
+  if (!confirm('Part-Marker gleichmäßig im Text verteilen?\nBestehende Positionen gehen verloren.')) return;
   const lyricsWords = _leWords.filter(w => !w.isHeader);
   if (lyricsWords.length === 0) return;
   const lastWord = lyricsWords[lyricsWords.length - 1];
@@ -4965,10 +4962,13 @@ function leMoveDrag(e) {
           .filter(p => Math.abs(p.top - bestLineTop) < bestLineHeight)
           .sort((a, b) => a.left - b.left);
         if (lineWords.length > 0) {
+          // Find word whose left edge is nearest to finger X position
           let target = lineWords[0];
-          // Find word whose left edge is closest but left of finger (50px margin for touch)
+          let bestDist = Infinity;
           for (const w of lineWords) {
-            if (w.left < clientX - 50) {
+            const dist = Math.abs(w.left - clientX);
+            if (dist < bestDist) {
+              bestDist = dist;
               target = w;
             }
           }
@@ -5089,51 +5089,32 @@ async function lePlayBar(partId, barNum) {
   // Stop any current playback
   leStopPlayback();
 
-  // Try bar audio snippet first
-  const found = findBar(partId, barNum);
-  if (found) {
-    const [barId, barData] = found;
-    if (barData.audio) {
-      const buf = await fetchAudioUrl(barData.audio);
-      if (buf) {
-        await audio.loadBuffer(buf);
-        audio.play();
-        _lePlayingBarId = barId;
-        // Auto-stop when bar finishes
-        const duration = audio.getBuffer()?.duration || 5;
-        _leAudioTimeout = setTimeout(() => leStopPlayback(), duration * 1000 + 200);
-        return;
-      }
+  // Try reference audio with bar time range first
+  const refBuffer = audio.getBuffer();
+  if (refBuffer) {
+    const range = getBarTimeRange(partId, barNum);
+    if (range) {
+      audio.playSegments([{ startTime: range.start, endTime: range.end }], () => leStopPlayback());
+      _lePlayingBarId = `${partId}_${barNum}`;
+      return;
     }
   }
 
-  // Fallback: play reference audio from calculated bar position
-  const hasBuf = !!audio.getBuffer();
-  if (!hasBuf) {
-    toast('Kein Audio verf\u00fcgbar', 'info');
-    return;
-  }
-
+  // Fallback: calculate from BPM
   const song = db.songs[selectedSongId];
-  if (!song || !song.bpm) return;
-  const parts = getSortedParts(selectedSongId);
-  const part = parts.find(p => p.id === partId);
-  if (!part) return;
-
+  if (!song || !song.bpm) { toast('Kein Audio verfügbar', 'info'); return; }
   const starts = calcPartStarts(selectedSongId);
   const partStart = starts.get(partId);
-  if (!partStart) return;
+  if (!partStart || !refBuffer) { toast('Kein Audio verfügbar', 'info'); return; }
 
   const barDuration = 4 * 60 / song.bpm;
   const startTime = partStart.startSec + (barNum - 1) * barDuration;
-
-  audio.play(startTime);
+  audio.playSegments([{ startTime, endTime: startTime + barDuration }], () => leStopPlayback());
   _lePlayingBarId = `${partId}_${barNum}`;
-  _leAudioTimeout = setTimeout(() => leStopPlayback(), barDuration * 1000 + 200);
 }
 
 function leStopPlayback() {
-  audio.pause();
+  audio.stopSegments();
   if (_leAudioTimeout) clearTimeout(_leAudioTimeout);
   _leAudioTimeout = null;
   _lePlayingBarId = null;
@@ -5519,18 +5500,16 @@ async function handleAccentBarPlay(partId, barNum) {
   renderAccentsTab();
 
   try {
-    if (!_partPlayCtx) {
-      _partPlayCtx = new (window.AudioContext || window.webkitAudioContext)();
-    }
-    if (_partPlayCtx.state === 'suspended') await _partPlayCtx.resume();
+    const ac = _getAudioCtx();
+    if (ac.state === 'suspended') await ac.resume();
 
     const arrBuf = await fetchAudioUrl(barData.audio);
     if (!arrBuf) throw new Error(`Audio nicht gefunden: ${barData.audio}`);
-    const decoded = await _partPlayCtx.decodeAudioData(arrBuf);
+    const decoded = await ac.decodeAudioData(arrBuf);
 
-    const src = _partPlayCtx.createBufferSource();
+    const src = ac.createBufferSource();
     src.buffer = decoded;
-    src.connect(_partPlayCtx.destination);
+    src.connect(ac.destination);
     src.onended = () => {
       if (_barPlayId === barId) {
         _barPlayId = null;
@@ -8081,6 +8060,10 @@ function wireEvents() {
     takteTabSelectedBar = null;
     stopLyricsPartPlay();
     renderSongList(els.searchBox.value);
+    // Auto-close sidebar on narrow screens (iPad, mobile)
+    if (window.innerWidth < 900 && !els.appEl.classList.contains('sidebar-collapsed')) {
+      toggleSidebar();
+    }
     // Restore tab (defensive — ensure no code above changed it)
     if (activeTab !== currentTab) switchTab(currentTab);
     else renderContent();

@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.0.13';
+const APP_VERSION = 'v1.0.14';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -444,6 +444,16 @@ function calcPartStarts(songId) {
   return result;
 }
 
+/**
+ * Get the absolute (song-global) bar number for a given part + local bar number.
+ * Local barNum is 1-based within the part. Returns 1-based absolute bar from song start.
+ */
+function getAbsBarNum(songId, partId, localBarNum) {
+  const starts = calcPartStarts(songId);
+  const st = starts.get(partId);
+  return st ? st.startBar + localBarNum : localBarNum;
+}
+
 /* ── DB Helpers ────────────────────────────────────── */
 
 function ensureCollections() {
@@ -875,14 +885,14 @@ function showTmsModalTip() {
       const step = gotoBtn.closest('.tms-step');
       if (!step) return;
       const bubble = document.createElement('div');
-      bubble.className = 'tip-bubble tip-arrow-down';
+      bubble.className = 'tip-bubble tip-arrow-up';
       bubble.dataset.tipId = tipGoto;
       bubble.innerHTML = `${esc('Springe direkt an die Stelle, wo du diese Aufgabe erledigen kannst')}<button class="tip-close" aria-label="Schliessen">&times;</button>`;
       bubble.style.maxWidth = '260px';
       step.style.position = 'relative';
       step.appendChild(bubble);
       bubble.style.position = 'absolute';
-      bubble.style.bottom = 'calc(100% + 10px)';
+      bubble.style.top = 'calc(100% + 10px)';
       bubble.style.right = '0';
       bubble.style.zIndex = '1';
       bubble.querySelector('.tip-close').addEventListener('click', (e) => { e.stopPropagation(); dismissTip(); });
@@ -1278,12 +1288,17 @@ function renderBarSection() {
 
   ensureCollections();
 
+  const starts = calcPartStarts(selectedSongId);
+  const partStart = starts.get(selectedPartId);
+  const barOffset = partStart ? partStart.startBar : 0;
+
   const blocks = Array.from({ length: barCount }, (_, i) => {
     const n = i + 1;
+    const absN = barOffset + n;
     const found = findBar(selectedPartId, n);
     const hasAcc = found ? getAccentsForBar(found[0]).length > 0 : false;
     const hasLyr = found && found[1].lyrics;
-    return `<div class="bar-block${n === selectedBarNum ? ' active' : ''}${hasAcc ? ' has-accents' : ''}${hasLyr ? ' has-lyrics' : ''}" data-bar-num="${n}">${n}</div>`;
+    return `<div class="bar-block${n === selectedBarNum ? ' active' : ''}${hasAcc ? ' has-accents' : ''}${hasLyr ? ' has-lyrics' : ''}" data-bar-num="${n}">${absN}</div>`;
   }).join('');
 
   let editor = '';
@@ -1318,7 +1333,7 @@ function buildBarEditor() {
   return `
     <div class="bar-editor">
       <div class="bar-editor-header">
-        <span class="mono text-t1">Bar ${selectedBarNum}</span>
+        <span class="mono text-t1">Bar ${getAbsBarNum(selectedSongId, selectedPartId, selectedBarNum)}</span>
         <span class="accent-legend">
           <span class="legend-item bl">bl</span>
           <span class="legend-item bo">bo</span>
@@ -1329,7 +1344,7 @@ function buildBarEditor() {
       </div>
       <div class="form-group" style="margin-bottom:12px">
         <label>Lyrics</label>
-        <input type="text" value="${esc(barData.lyrics || '')}" data-bar-lyrics placeholder="Lyrics f\u00fcr Bar ${selectedBarNum}...">
+        <input type="text" value="${esc(barData.lyrics || '')}" data-bar-lyrics placeholder="Lyrics f\u00fcr Bar ${getAbsBarNum(selectedSongId, selectedPartId, selectedBarNum)}...">
       </div>
       <div class="form-group">
         <label>Accents (16tel-Raster)</label>
@@ -4776,11 +4791,12 @@ function leRenderMarker(marker) {
                   data-char-offset="${marker.charOffset}"
                   title="${esc(name)}${marker.confirmed ? '' : ' (prognostiziert)'}">${esc(name)}</span><br>`;
   } else {
-    // Bar markers: cyan badge with bar number (same style as part markers)
+    // Bar markers: cyan badge with absolute bar number from song start
+    const absNum = getAbsBarNum(selectedSongId, marker.partId, marker.barNum);
     return `<span class="le-marker le-bar-marker"
                   data-le-type="bar" data-le-idx="${marker.idx}"
                   data-char-offset="${marker.charOffset}"
-                  title="Takt ${marker.barNum}">${marker.barNum}</span>`;
+                  title="Takt ${absNum}">${absNum}</span>`;
   }
 }
 
@@ -5196,7 +5212,7 @@ function leMoveDrag(e) {
     label = (song?.parts?.[partId]?.name) || 'Part';
     color = '#f0a030';
   } else if (_leDrag.type === 'bar' && _leBarMarkers[_leDrag.idx]) {
-    label = 'Takt ' + _leBarMarkers[_leDrag.idx].barNum;
+    label = 'Takt ' + getAbsBarNum(selectedSongId, _leBarMarkers[_leDrag.idx].partId, _leBarMarkers[_leDrag.idx].barNum);
     color = '#38bdf8';
   }
   showDragBalloon(label, 0, color, clientX, clientY);
@@ -5614,7 +5630,7 @@ function buildAccentsBarEditor(partId, barNum) {
   return `
     <div class="accents-bar-editor">
       <div class="accents-bar-editor-header">
-        <h4>Takt ${barNum}</h4>
+        <h4>Takt ${getAbsBarNum(selectedSongId, partId, barNum)}</h4>
         ${barData.lyrics ? `<div class="accents-bar-editor-lyrics text-t2">${esc(barData.lyrics)}</div>` : ''}
       </div>
       <div class="accent-grid">${cells}</div>
@@ -6779,12 +6795,16 @@ function renderPartsTabBarSection() {
   }
 
   ensureCollections();
+  const ptStarts = calcPartStarts(sel.songId);
+  const ptBarOffset = ptStarts.get(sel.partId)?.startBar || 0;
+
   const blocks = Array.from({ length: barCount }, (_, i) => {
     const n = i + 1;
+    const absN = ptBarOffset + n;
     const found = findBar(sel.partId, n);
     const hasAcc = found ? getAccentsForBar(found[0]).length > 0 : false;
     const hasLyr = found && found[1].lyrics;
-    return `<div class="bar-block${n === partsTabSelectedBar ? ' active' : ''}${hasAcc ? ' has-accents' : ''}${hasLyr ? ' has-lyrics' : ''}" data-bar-num="${n}">${n}</div>`;
+    return `<div class="bar-block${n === partsTabSelectedBar ? ' active' : ''}${hasAcc ? ' has-accents' : ''}${hasLyr ? ' has-lyrics' : ''}" data-bar-num="${n}">${absN}</div>`;
   }).join('');
 
   let editor = '';
@@ -6820,7 +6840,7 @@ function buildPartsTabBarEditor() {
   return `
     <div class="bar-editor">
       <div class="bar-editor-header">
-        <h3>Bar ${partsTabSelectedBar}</h3>
+        <h3>Bar ${getAbsBarNum(sel.songId, sel.partId, partsTabSelectedBar)}</h3>
         <div class="accent-legend">
           ${Object.entries(ACCENT_INFO).map(([k, v]) => `<span class="legend-item ${k}">${v}</span>`).join('')}
         </div>
@@ -7831,7 +7851,7 @@ function buildTakteTabTable(bars, filterSong) {
             <td class="ttt-play">${canPlay ? `<button class="btn-bar-play${isBarPlaying ? ' playing' : ''}" data-action="play-bar" data-play-part-id="${b.partId}" data-play-bar-num="${b.barNum}" title="${isBarPlaying ? 'Stop' : 'Takt abspielen'}">${isBarPlaying ? '&#9632;' : '&#9654;'}</button>` : ''}</td>
             ${showSongCol ? `<td class="ttt-song"><span class="ttt-song-name">${esc(b.songName)}</span></td>` : ''}
             <td class="ttt-part text-t2">${esc(b.partName)}</td>
-            <td class="ttt-bar mono">${b.barNum}</td>
+            <td class="ttt-bar mono">${b.absBar}</td>
             ${showWave ? `<td class="ttt-wave">${waveCanvas}</td>` : ''}
             <td class="ttt-time mono text-t3">${fmtDur(Math.round(b.barSec))}</td>
             <td class="ttt-lyrics"><input type="text" value="${esc(b.lyrics)}" data-ttf="lyrics" class="part-input" placeholder="\u2014"></td>
@@ -7872,7 +7892,7 @@ function renderTakteEditorSection() {
   area.innerHTML = `
     <div class="bar-editor">
       <div class="bar-editor-header">
-        <h3>Takt ${sel.barNum} \u2014 ${esc(part?.name || '')} <span class="text-t3">(${esc(song.name)})</span></h3>
+        <h3>Takt ${getAbsBarNum(sel.songId, sel.partId, sel.barNum)} \u2014 ${esc(part?.name || '')} <span class="text-t3">(${esc(song.name)})</span></h3>
         <div class="accent-legend">
           ${Object.entries(ACCENT_INFO).map(([k, v]) => `<span class="legend-item ${k}">${v}</span>`).join('')}
         </div>

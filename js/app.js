@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.1.1';
+const APP_VERSION = 'v1.1.2';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4317,6 +4317,10 @@ function leRenderBlocks() {
     let cls = `le-block le-block-${b.type}`;
     const draggable = 'draggable="true"';
     html += `<span class="${cls}" ${draggable} data-idx="${i}" data-type="${b.type}" data-id="${b.id}">${esc(b.content)}</span>`;
+    // Line break after part blocks
+    if (b.type === 'part') {
+      html += '<span class="le-break"></span>';
+    }
   }
   return html;
 }

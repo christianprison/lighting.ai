@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.0.8';
+const APP_VERSION = 'v1.0.10';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -842,10 +842,10 @@ function showTmsModalTip() {
   setTimeout(() => {
     const modal = document.getElementById('tms-modal');
     if (!modal) return;
-    // Find the first visible add-input (in a non-collapsed category)
-    const addInput = modal.querySelector('.tms-category:not(.collapsed) .tms-add-input')
-                  || modal.querySelector('.tms-add-input');
-    if (!addInput) return;
+    // Find the first visible add-row (in a non-collapsed category)
+    const addRow = modal.querySelector('.tms-category:not(.collapsed) .tms-add-row')
+                || modal.querySelector('.tms-add-row');
+    if (!addRow) return;
 
     // Remove any existing tip
     document.querySelector('.tip-bubble')?.remove();
@@ -854,19 +854,16 @@ function showTmsModalTip() {
     bubble.className = 'tip-bubble tip-arrow-down';
     bubble.dataset.tipId = tipId;
     bubble.innerHTML = `${esc('Hier kannst du eigene Aufgaben anlegen, diese erscheinen dann als kleiner Punkt in der Songliste')}<button class="tip-close" aria-label="Schliessen">&times;</button>`;
-    bubble.style.zIndex = '9999';
     bubble.style.maxWidth = '260px';
 
-    // Position above the input, inside the modal viewport
-    const rect = addInput.getBoundingClientRect();
-    bubble.style.position = 'fixed';
-    bubble.style.left = Math.max(8, rect.left) + 'px';
-    bubble.style.top = '0px'; // temporary, adjust after measuring
-
-    document.body.appendChild(bubble);
-
-    const bh = bubble.offsetHeight;
-    bubble.style.top = (rect.top - bh - 10) + 'px';
+    // Insert directly into the modal, right after the add-row
+    addRow.style.position = 'relative';
+    addRow.appendChild(bubble);
+    // Position above the add-row, anchored to its bottom-left
+    bubble.style.position = 'absolute';
+    bubble.style.bottom = 'calc(100% + 10px)';
+    bubble.style.left = '0';
+    bubble.style.zIndex = '1';
 
     bubble.querySelector('.tip-close').addEventListener('click', (e) => { e.stopPropagation(); dismissTip(); });
     bubble.addEventListener('click', dismissTip);
@@ -2672,8 +2669,8 @@ function hitTestMarker(xPx, yPx) {
   if (!scroll) return null;
   const totalW = scroll.getBoundingClientRect().width;
   const duration = audioMeta.duration;
-  const canvas = document.getElementById('waveform-scroll');
-  const canvasH = canvas ? canvas.height : 100;
+  const wrap = document.getElementById('waveform-wrap');
+  const canvasH = wrap ? wrap.getBoundingClientRect().height : 100;
   if (duration <= 0 || totalW <= 0) return null;
 
   let best = null;

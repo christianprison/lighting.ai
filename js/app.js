@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v0.15.28';
+const APP_VERSION = 'v0.15.30';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -1656,6 +1656,7 @@ function refreshPartPlayUI() {
 }
 
 async function handlePartPlay(partId) {
+  audio.warmup(); // iOS: resume AudioContext in gesture handler
   // If already playing this part → stop
   if (_playingPartId === partId && _partPlayActive) {
     stopPartPlay();
@@ -1754,6 +1755,7 @@ function stopPartPlay() {
 }
 
 async function handleBarPlay(partId, barNum) {
+  audio.warmup(); // iOS: resume AudioContext in gesture handler
   ensureCollections();
   const found = findBar(partId, barNum);
   const barId = found ? found[0] : `${partId}_B${barNum}`;
@@ -3327,6 +3329,7 @@ function handleWaveformClick(e) {
 
 function handlePlayPause() {
   if (!audio.getBuffer()) return;
+  audio.warmup(); // Ensure AudioContext is running (iOS gesture requirement)
   if (audio.isPlaying()) {
     audio.pause();
     stopPlayheadAnimation();
@@ -5086,6 +5089,7 @@ let _leAudioTimeout = null;
 let _lePlayingBarId = null;
 
 async function lePlayBar(partId, barNum) {
+  audio.warmup(); // iOS: resume AudioContext in gesture handler
   // Stop any current playback
   leStopPlayback();
 
@@ -5480,6 +5484,7 @@ function handleAccentsTabClick(e) {
 }
 
 async function handleAccentBarPlay(partId, barNum) {
+  audio.warmup(); // iOS: resume AudioContext in gesture handler
   ensureCollections();
   const found = findBar(partId, barNum);
   if (!found) return;
@@ -8000,6 +8005,14 @@ function wireEvents() {
   els.btnCancelSettings.addEventListener('click', closeSettings);
   els.btnSaveSettings.addEventListener('click', handleSaveSettings);
   els.btnTest.addEventListener('click', handleTestConnection);
+  document.getElementById('btn-test-audio')?.addEventListener('click', async () => {
+    try {
+      const info = await audio.testBeep();
+      toast(`Audio OK: ${info}`, 'success');
+    } catch (err) {
+      toast(`Audio FEHLER: ${err.message}`, 'error');
+    }
+  });
   els.modalOverlay.addEventListener('click', (e) => { if (e.target === els.modalOverlay) closeSettings(); });
 
   // Help

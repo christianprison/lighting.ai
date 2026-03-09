@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.2.7';
+const APP_VERSION = 'v1.2.8';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -567,15 +567,24 @@ function getAccentsForBar(barId) {
 
 /** Collect unique part names from all songs for datalist suggestions. */
 function getPartNameSuggestions() {
-  const names = new Set();
   if (!db.songs) return [];
+  // Count in how many distinct songs each part name occurs
+  const songCountByName = new Map();
   for (const song of Object.values(db.songs)) {
     if (!song.parts) continue;
+    const namesInSong = new Set();
     for (const part of Object.values(song.parts)) {
-      if (part.name) names.add(part.name);
+      if (part.name) namesInSong.add(part.name);
+    }
+    for (const name of namesInSong) {
+      songCountByName.set(name, (songCountByName.get(name) || 0) + 1);
     }
   }
-  return [...names].sort((a, b) => a.localeCompare(b, 'de'));
+  // Only suggest names that appear in at least 2 songs
+  return [...songCountByName.entries()]
+    .filter(([, count]) => count >= 2)
+    .map(([name]) => name)
+    .sort((a, b) => a.localeCompare(b, 'de'));
 }
 
 function getOrCreateBar(partId, barNum) {
@@ -6534,7 +6543,7 @@ function buildPartsTabTable(parts, filterSong) {
             ${hasBuf ? `<td class="ptt-wave">${waveCanvas}</td>` : ''}
             <td class="ptt-start">
               <div class="start-cell">
-                <input type="number" value="${st.startBar}" data-ptf="start_bar" class="part-input-num mono" min="0" step="1" inputmode="numeric" title="Takt-Offset ab Songstart">
+                <span class="part-input-num mono text-t2" title="Takt-Offset ab Songstart (berechnet)">${st.startBar}</span>
                 <span class="start-time mono text-t3">${fmtDur(Math.round(st.startSec))}</span>
               </div>
             </td>
@@ -6545,7 +6554,7 @@ function buildPartsTabTable(parts, filterSong) {
                 ${buildTemplateOptions(p.light_template)}
               </select>
             </td>
-            <td class="ptt-dur"><input type="number" value="${dur}" data-ptf="duration_sec" class="part-input-num mono" min="0" step="1" inputmode="numeric" title="Dauer in Sekunden"></td>
+            <td class="ptt-dur"><span class="part-input-num mono text-t2" title="Dauer in Sekunden (berechnet aus Takte × BPM)">${dur || '\u2014'}</span></td>
             <td class="ptt-instr"><input type="checkbox" data-ptf="instrumental" class="instr-check" ${p.instrumental ? 'checked' : ''}></td>
             <td class="ptt-notes"><input type="text" value="${esc(p.notes || '')}" data-ptf="notes" class="part-input ptt-notes-input" placeholder="\u2014"></td>
           </tr>`;
@@ -6739,24 +6748,6 @@ function handlePartsTabChange(e) {
       integrity.syncBarCount(db, partId, part.bars);
       recalcSongDurationFor(songId);
       // Bars changed → re-render to update subsequent start values
-      renderPartsTab();
-      if (partsTabSelectedPart && partsTabSelectedPart.partId === partId) {
-        partsTabSelectedBar = null;
-        renderPartsTabBarSection();
-      }
-    } else if (field === 'start_bar') {
-      part.start_bar = parseInt(el.value, 10) || 0;
-      renderPartsTab();
-    } else if (field === 'duration_sec') {
-      const newDur = parseInt(el.value, 10) || 0;
-      const bpm = song.bpm || 0;
-      if (bpm > 0) {
-        part.bars = Math.round(newDur * bpm / 240);
-      }
-      part.duration_sec = calcPartDuration(part.bars, bpm);
-      recalcAbsoluteBarNums(songId);
-      integrity.syncBarCount(db, partId, part.bars);
-      recalcSongDurationFor(songId);
       renderPartsTab();
       if (partsTabSelectedPart && partsTabSelectedPart.partId === partId) {
         partsTabSelectedBar = null;
@@ -7054,6 +7045,9 @@ function closePartWaveEditor(save) {
       const nextMarker = partMarkers.find(m => m.partIndex === _pw.partIndex + 1);
       if (nextMarker) nextMarker.time = _pw.trimEnd;
     }
+    // Sync first bar markers to their part markers (fixes desync after trim changes)
+    snapFirstBarsToPartMarkers();
+    reassignBarMarkerParts();
     // Persist and re-render
     saveMarkersToSong();
     markDirty();
@@ -7289,7 +7283,13 @@ function _pwInstallDragListeners() {
     const time = _pwXToTime(x);
 
     if (_pwDrag.which === 'start') {
-      _pw.trimStart = Math.max(_pw.viewStart, Math.min(time, _pw.trimEnd - 0.1));
+      const newStart = Math.max(_pw.viewStart, Math.min(time, _pw.trimEnd - 0.1));
+      // Move the first bar marker of this part along with the start handle
+      const firstBar = getBarMarkersForPart(_pw.partIndex)[0];
+      if (firstBar && Math.abs(firstBar.time - _pw.trimStart) < BOUNDARY_TOLERANCE) {
+        firstBar.time = newStart;
+      }
+      _pw.trimStart = newStart;
     } else if (_pwDrag.which === 'end') {
       _pw.trimEnd = Math.min(_pw.viewEnd, Math.max(time, _pw.trimStart + 0.1));
     } else if (_pwDrag.which === 'bar') {
@@ -7385,7 +7385,13 @@ const PW_NUDGE_MS = 50;
 function _pwNudge(which, dir) {
   const delta = (dir * PW_NUDGE_MS) / 1000;
   if (which === 'start') {
-    _pw.trimStart = Math.max(_pw.viewStart, Math.min(_pw.trimStart + delta, _pw.trimEnd - 0.05));
+    const newStart = Math.max(_pw.viewStart, Math.min(_pw.trimStart + delta, _pw.trimEnd - 0.05));
+    // Move the first bar marker along with the start handle
+    const firstBar = getBarMarkersForPart(_pw.partIndex)[0];
+    if (firstBar && Math.abs(firstBar.time - _pw.trimStart) < BOUNDARY_TOLERANCE) {
+      firstBar.time = newStart;
+    }
+    _pw.trimStart = newStart;
   } else {
     _pw.trimEnd = Math.min(_pw.viewEnd, Math.max(_pw.trimEnd + delta, _pw.trimStart + 0.05));
   }

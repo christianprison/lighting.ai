@@ -2476,7 +2476,8 @@ label {
   flex-wrap: wrap;
 }
 
-.lyrics-genius-link {
+.lyrics-genius-link,
+.lyrics-musix-link {
   background: var(--bg3);
   border: 1px solid var(--border2);
   color: var(--amber);
@@ -2486,9 +2487,61 @@ label {
   border-radius: var(--radius);
   transition: background 0.15s, border-color 0.15s;
 }
+.lyrics-musix-link {
+  color: var(--cyan);
+}
 .lyrics-genius-link:hover {
   background: var(--bg4);
   border-color: var(--amber);
+}
+.lyrics-musix-link:hover {
+  background: var(--bg4);
+  border-color: var(--cyan);
+}
+
+/* ── Paste Lyrics Modal ──────────────────────── */
+.le-paste-modal {
+  width: min(90vw, 600px);
+}
+.le-paste-body {
+  padding: 16px;
+}
+.le-paste-body p {
+  margin: 0 0 12px;
+  font-size: 0.85rem;
+}
+.le-paste-links {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.le-paste-textarea {
+  width: 100%;
+  min-height: 250px;
+  background: var(--bg);
+  color: var(--t1);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 12px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  resize: vertical;
+  box-sizing: border-box;
+}
+.le-paste-textarea:focus {
+  border-color: var(--green);
+  outline: none;
+}
+.le-paste-textarea::placeholder {
+  color: var(--t4);
+}
+.le-paste-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
 }
 
 /* ── Block Canvas ──────────────────────────────── */

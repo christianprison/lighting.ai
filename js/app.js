@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.1.5';
+const APP_VERSION = 'v1.1.6';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -432,7 +432,7 @@ function migrateBarNumToAbsolute() {
 
   for (const [songId, song] of Object.entries(db.songs)) {
     const parts = getSortedParts(songId);
-    if (parts.length === 0) continue;
+    if (parts.length <= 1) continue;
 
     // Build offset map: partId → cumulative bar offset before this part
     let cumBars = 0;
@@ -442,27 +442,22 @@ function migrateBarNumToAbsolute() {
       cumBars += (p.bars || 0);
     }
 
-    // Check if this song needs migration:
-    // If all bars for this song have bar_num <= their part's bar count,
-    // they are likely still in old local format (except for first part where local = absolute)
     const barsForSong = Object.entries(db.bars)
       .filter(([, b]) => offsetMap[b.part_id] !== undefined);
-
     if (barsForSong.length === 0) continue;
 
-    // Skip if any bar already has bar_num > its part's barCount (already migrated)
-    const needsMigration = barsForSong.every(([, b]) => {
-      const part = song.parts[b.part_id];
-      return part && b.bar_num <= (part.bars || 0);
-    });
+    // Check if migration needed: look at bars in parts AFTER the first.
+    // If most of them have bar_num starting at 1, they're still local/relative.
+    const barsAfterFirst = barsForSong.filter(([, b]) => offsetMap[b.part_id] > 0);
+    if (barsAfterFirst.length === 0) continue;
+    const startsAt1 = barsAfterFirst.filter(([, b]) => b.bar_num === 1).length;
+    // If no bars in later parts start at 1, assume already migrated
+    if (startsAt1 === 0) continue;
 
-    // Also skip if first part is the only part (local = absolute)
-    if (!needsMigration || parts.length <= 1) continue;
-
-    // Actually migrate
+    // Migrate: add offset to bars not in the first part
     for (const [barId, bar] of barsForSong) {
       const offset = offsetMap[bar.part_id];
-      if (offset > 0) { // Only change bars not in the first part
+      if (offset > 0) {
         bar.bar_num = offset + bar.bar_num;
         changed++;
       }
@@ -4370,7 +4365,9 @@ function renderLyricsTab() {
   }
 
   const hasWords = _leBlocks.some(b => b.type === 'word');
-  const geniusUrl = `https://genius.com/search?q=${encodeURIComponent(song.name + ' ' + song.artist)}`;
+  const searchQ = encodeURIComponent(song.name + ' ' + song.artist);
+  const geniusUrl = `https://genius.com/search?q=${searchQ}`;
+  const musixUrl = `https://www.musixmatch.com/search/${searchQ}`;
 
   let html = `<div class="lyrics-panel le-panel">
     <div class="audio-song-header">
@@ -4380,6 +4377,7 @@ function renderLyricsTab() {
       </div>
       <div class="le-header-actions">
         <a href="${geniusUrl}" target="_blank" rel="noopener" class="btn btn-sm lyrics-genius-link" title="Auf Genius.com suchen">&#127925; Genius</a>
+        <a href="${musixUrl}" target="_blank" rel="noopener" class="btn btn-sm lyrics-musix-link" title="Auf Musixmatch suchen">&#127926; Musixmatch</a>
         <button class="btn btn-sm" id="le-paste-btn" title="Text einfügen und auf Takte verteilen">&#128203; Text einf&uuml;gen</button>
         ${hasWords ? '<button class="btn btn-sm le-btn-save" id="le-save-lyrics">&#128190; Speichern</button>' : ''}
         ${hasWords ? '<button class="btn btn-sm le-btn-danger" id="le-clear-words" title="Alle Wörter entfernen">W&ouml;rter l&ouml;schen</button>' : ''}
@@ -4854,25 +4852,64 @@ function leSaveLyrics() {
 /* ── Lyrics Editor: Text Paste / Import ──────────── */
 
 async function leShowPasteDialog() {
-  let text = '';
-  try {
-    text = await navigator.clipboard.readText();
-  } catch {
-    text = prompt('Songtext hier einf\u00fcgen:') || '';
-  }
-  text = text.trim();
-  if (!text) return;
+  // Try to pre-fill from clipboard
+  let clipText = '';
+  try { clipText = await navigator.clipboard.readText(); } catch {}
 
-  // Distribute text across bars
-  _leBlocks = leDistributeText(selectedSongId, text);
-
-  // Also save raw text
+  // Pre-fill from existing lyrics_raw if available
   const song = db.songs[selectedSongId];
-  if (song) song.lyrics_raw = text;
+  const existing = song ? (song.lyrics_raw || '') : '';
+  const prefill = clipText || existing;
 
-  markDirty();
-  leRefreshCanvas();
-  toast('Text auf Takte verteilt', 'success');
+  const searchQ = encodeURIComponent(song.name + ' ' + song.artist);
+
+  // Modal overlay
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `
+    <div class="modal le-paste-modal">
+      <div class="modal-header">
+        <h3>Songtext einf&uuml;gen</h3>
+        <button class="modal-close" id="le-paste-close">&times;</button>
+      </div>
+      <div class="le-paste-body">
+        <p class="text-t2">Text von einer Lyrics-Seite kopieren und hier einf&uuml;gen. Abschnitts-Header wie [Verse], [Chorus] werden automatisch entfernt.</p>
+        <div class="le-paste-links">
+          <a href="https://genius.com/search?q=${searchQ}" target="_blank" rel="noopener" class="btn btn-sm lyrics-genius-link">&#127925; Genius &ouml;ffnen</a>
+          <a href="https://www.musixmatch.com/search/${searchQ}" target="_blank" rel="noopener" class="btn btn-sm lyrics-musix-link">&#127926; Musixmatch &ouml;ffnen</a>
+          <a href="https://www.google.com/search?q=${searchQ}+lyrics" target="_blank" rel="noopener" class="btn btn-sm">&#128269; Google Lyrics</a>
+        </div>
+        <textarea id="le-paste-textarea" class="le-paste-textarea" rows="15" placeholder="Songtext hier einf&uuml;gen...">${esc(prefill)}</textarea>
+        <div class="le-paste-footer">
+          <button class="btn" id="le-paste-cancel">Abbrechen</button>
+          <button class="btn btn-primary" id="le-paste-apply">&Uuml;bernehmen &amp; verteilen</button>
+        </div>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  const textarea = overlay.querySelector('#le-paste-textarea');
+  textarea.focus();
+  // Select all if pre-filled from clipboard so user can easily replace
+  if (clipText) textarea.select();
+
+  // Wire events
+  const close = () => overlay.remove();
+  overlay.querySelector('#le-paste-close').onclick = close;
+  overlay.querySelector('#le-paste-cancel').onclick = close;
+  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+
+  overlay.querySelector('#le-paste-apply').onclick = () => {
+    const text = textarea.value.trim();
+    if (!text) { toast('Kein Text eingegeben', 'error'); return; }
+
+    _leBlocks = leDistributeText(selectedSongId, text);
+    if (song) song.lyrics_raw = text;
+    markDirty();
+    leRefreshCanvas();
+    close();
+    toast('Text auf Takte verteilt', 'success');
+  };
 }
 
 /* ── Lyrics Editor: Clear Words ──────────────────── */

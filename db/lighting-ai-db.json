@@ -4665,7 +4665,7 @@
         "CEGcgc_P002": {
           "pos": 2,
           "name": "Verse 1 (Pete+Axel)",
-          "bars": 1,
+          "bars": 26,
           "duration_sec": 4,
           "light_template": "generic_bpm",
           "qlc_scene": "Spot auf Axel",
@@ -4676,7 +4676,7 @@
         "CEGcgc_P003": {
           "pos": 5,
           "name": "Verse 2",
-          "bars": 1,
+          "bars": 16,
           "duration_sec": 22,
           "light_template": "verse_driving",
           "qlc_scene": "08 swimming ‍",
@@ -4687,7 +4687,7 @@
         "CEGcgc_P004": {
           "pos": 6,
           "name": "Chorus 1",
-          "bars": 1,
+          "bars": 14,
           "duration_sec": 19,
           "light_template": "chorus_full",
           "qlc_scene": "05 left'n'right ↔",
@@ -4698,7 +4698,7 @@
         "CEGcgc_P005": {
           "pos": 7,
           "name": "Interlude",
-          "bars": 1,
+          "bars": 8,
           "duration_sec": 11,
           "light_template": "generic_bpm",
           "qlc_scene": "04 up'n'down ↕",
@@ -4709,7 +4709,7 @@
         "CEGcgc_P006": {
           "pos": 8,
           "name": "grasping to control",
-          "bars": 1,
+          "bars": 4,
           "duration_sec": 2,
           "light_template": "generic_bpm",
           "qlc_scene": "06 blinking",
@@ -4720,7 +4720,7 @@
         "CEGcgc_P008": {
           "pos": 9,
           "name": "Solo Axel",
-          "bars": 1,
+          "bars": 16,
           "duration_sec": 22,
           "light_template": "solo_spotlight",
           "qlc_scene": "Spot auf Axel",
@@ -4731,7 +4731,7 @@
         "CEGcgc_P009": {
           "pos": 10,
           "name": "Chorus 2",
-          "bars": 1,
+          "bars": 14,
           "duration_sec": 19,
           "light_template": "chorus_full",
           "qlc_scene": "05 left'n'right ↔",
@@ -4742,7 +4742,7 @@
         "CEGcgc_P010": {
           "pos": 3,
           "name": "Einsatz alle",
-          "bars": 1,
+          "bars": 4,
           "duration_sec": 11,
           "light_template": "generic_bpm",
           "qlc_scene": "Alarm neu",
@@ -4753,7 +4753,7 @@
         "CEGcgc_P011": {
           "pos": 4,
           "name": "Mini-Solo Axel",
-          "bars": 1,
+          "bars": 4,
           "duration_sec": 9,
           "light_template": "generic_bpm",
           "qlc_scene": "10 Strobe",
@@ -4764,7 +4764,7 @@
         "CEGcgc_P012": {
           "pos": 11,
           "name": "Finale",
-          "bars": 1,
+          "bars": 16,
           "duration_sec": 0,
           "light_template": "",
           "notes": ""
@@ -4772,7 +4772,7 @@
         "CEGcgc_P013": {
           "pos": 12,
           "name": "Ausklang",
-          "bars": 1,
+          "bars": 2,
           "duration_sec": 0,
           "light_template": "",
           "notes": ""
@@ -4851,7 +4851,7 @@
         ],
         "barMarkers": [
           {
-            "time": 0,
+            "time": 1.645020833333371,
             "partIndex": 0,
             "partId": "CEGcgc_P001"
           },
@@ -4861,7 +4861,147 @@
             "partId": "CEGcgc_P002"
           },
           {
+            "time": 4.5836874999998205,
+            "partIndex": 1,
+            "partId": "CEGcgc_P002"
+          },
+          {
+            "time": 6.045020833333462,
+            "partIndex": 1,
+            "partId": "CEGcgc_P002"
+          },
+          {
+            "time": 7.431687499999777,
+            "partIndex": 1,
+            "partId": "CEGcgc_P002"
+          },
+          {
+            "time": 8.943687499999948,
+            "partIndex": 1,
+            "partId": "CEGcgc_P002"
+          },
+          {
+            "time": 10.389020833333513,
+            "partIndex": 1,
+            "partId": "CEGcgc_P002"
+          },
+          {
+            "time": 11.847687499999944,
+            "partIndex": 1,
+            "partId": "CEGcgc_P002"
+          },
+          {
+            "time": 13.277020833333433,
+            "partIndex": 1,
+            "partId": "CEGcgc_P002"
+          },
+          {
+            "time": 14.762354166666507,
+            "partIndex": 1,
+            "partId": "CEGcgc_P002"
+          },
+          {
+            "time": 16.27435416666668,
+            "partIndex": 1,
+            "partId": "CEGcgc_P002"
+          },
+          {
+            "time": 17.77568749999983,
+            "partIndex": 1,
+            "partId": "CEGcgc_P002"
+          },
+          {
+            "time": 19.24502083333328,
+            "partIndex": 1,
+            "partId": "CEGcgc_P002"
+          },
+          {
+            "time": 20.76235416666651,
+            "partIndex": 1,
+            "partId": "CEGcgc_P002"
+          },
+          {
+            "time": 22.21035416666683,
+            "partIndex": 1,
+            "partId": "CEGcgc_P002"
+          },
+          {
+            "time": 23.693020833333147,
+            "partIndex": 1,
+            "partId": "CEGcgc_P002"
+          },
+          {
+            "time": 25.149020833333278,
+            "partIndex": 1,
+            "partId": "CEGcgc_P002"
+          },
+          {
+            "time": 26.67702083333307,
+            "partIndex": 1,
+            "partId": "CEGcgc_P002"
+          },
+          {
+            "time": 28.159687499999844,
+            "partIndex": 1,
+            "partId": "CEGcgc_P002"
+          },
+          {
+            "time": 29.65035416666643,
+            "partIndex": 1,
+            "partId": "CEGcgc_P002"
+          },
+          {
+            "time": 31.114354166666825,
+            "partIndex": 1,
+            "partId": "CEGcgc_P002"
+          },
+          {
+            "time": 32.498354166666836,
+            "partIndex": 1,
+            "partId": "CEGcgc_P002"
+          },
+          {
+            "time": 33.91435416666655,
+            "partIndex": 1,
+            "partId": "CEGcgc_P002"
+          },
+          {
+            "time": 35.493020833333325,
+            "partIndex": 1,
+            "partId": "CEGcgc_P002"
+          },
+          {
+            "time": 36.930354166666625,
+            "partIndex": 1,
+            "partId": "CEGcgc_P002"
+          },
+          {
+            "time": 38.37835416666649,
+            "partIndex": 1,
+            "partId": "CEGcgc_P002"
+          },
+          {
+            "time": 39.879687500000095,
+            "partIndex": 1,
+            "partId": "CEGcgc_P002"
+          },
+          {
             "time": 41.28726802434476,
+            "partIndex": 2,
+            "partId": "CEGcgc_P010"
+          },
+          {
+            "time": 42.74368750000013,
+            "partIndex": 2,
+            "partId": "CEGcgc_P010"
+          },
+          {
+            "time": 44.17835416666667,
+            "partIndex": 2,
+            "partId": "CEGcgc_P010"
+          },
+          {
+            "time": 45.693020833333144,
             "partIndex": 2,
             "partId": "CEGcgc_P010"
           },
@@ -4871,7 +5011,97 @@
             "partId": "CEGcgc_P011"
           },
           {
+            "time": 48.59702083333314,
+            "partIndex": 3,
+            "partId": "CEGcgc_P011"
+          },
+          {
+            "time": 50.01568750000006,
+            "partIndex": 3,
+            "partId": "CEGcgc_P011"
+          },
+          {
+            "time": 51.55968749999993,
+            "partIndex": 3,
+            "partId": "CEGcgc_P011"
+          },
+          {
             "time": 53.01068375468167,
+            "partIndex": 4,
+            "partId": "CEGcgc_P003"
+          },
+          {
+            "time": 54.40768749999989,
+            "partIndex": 4,
+            "partId": "CEGcgc_P003"
+          },
+          {
+            "time": 55.90902083333349,
+            "partIndex": 4,
+            "partId": "CEGcgc_P003"
+          },
+          {
+            "time": 57.33302083333347,
+            "partIndex": 4,
+            "partId": "CEGcgc_P003"
+          },
+          {
+            "time": 58.84235416666643,
+            "partIndex": 4,
+            "partId": "CEGcgc_P003"
+          },
+          {
+            "time": 60.210354166666825,
+            "partIndex": 4,
+            "partId": "CEGcgc_P003"
+          },
+          {
+            "time": 61.63168750000005,
+            "partIndex": 4,
+            "partId": "CEGcgc_P003"
+          },
+          {
+            "time": 63.098354166666745,
+            "partIndex": 4,
+            "partId": "CEGcgc_P003"
+          },
+          {
+            "time": 64.56502083333345,
+            "partIndex": 4,
+            "partId": "CEGcgc_P003"
+          },
+          {
+            "time": 65.96502083333309,
+            "partIndex": 4,
+            "partId": "CEGcgc_P003"
+          },
+          {
+            "time": 67.41035416666665,
+            "partIndex": 4,
+            "partId": "CEGcgc_P003"
+          },
+          {
+            "time": 68.79435416666666,
+            "partIndex": 4,
+            "partId": "CEGcgc_P003"
+          },
+          {
+            "time": 70.26368750000012,
+            "partIndex": 4,
+            "partId": "CEGcgc_P003"
+          },
+          {
+            "time": 71.69302083333315,
+            "partIndex": 4,
+            "partId": "CEGcgc_P003"
+          },
+          {
+            "time": 73.1330208333332,
+            "partIndex": 4,
+            "partId": "CEGcgc_P003"
+          },
+          {
+            "time": 74.5623541666667,
             "partIndex": 4,
             "partId": "CEGcgc_P003"
           },
@@ -4881,7 +5111,107 @@
             "partId": "CEGcgc_P004"
           },
           {
+            "time": 77.41568750000016,
+            "partIndex": 5,
+            "partId": "CEGcgc_P004"
+          },
+          {
+            "time": 78.83168749999987,
+            "partIndex": 5,
+            "partId": "CEGcgc_P004"
+          },
+          {
+            "time": 80.21568749999989,
+            "partIndex": 5,
+            "partId": "CEGcgc_P004"
+          },
+          {
+            "time": 81.6583541666667,
+            "partIndex": 5,
+            "partId": "CEGcgc_P004"
+          },
+          {
+            "time": 83.07702083333317,
+            "partIndex": 5,
+            "partId": "CEGcgc_P004"
+          },
+          {
+            "time": 84.51702083333322,
+            "partIndex": 5,
+            "partId": "CEGcgc_P004"
+          },
+          {
+            "time": 85.93035416666663,
+            "partIndex": 5,
+            "partId": "CEGcgc_P004"
+          },
+          {
+            "time": 87.29835416666657,
+            "partIndex": 5,
+            "partId": "CEGcgc_P004"
+          },
+          {
+            "time": 88.74102083333338,
+            "partIndex": 5,
+            "partId": "CEGcgc_P004"
+          },
+          {
+            "time": 90.19435416666676,
+            "partIndex": 5,
+            "partId": "CEGcgc_P004"
+          },
+          {
+            "time": 91.6290208333333,
+            "partIndex": 5,
+            "partId": "CEGcgc_P004"
+          },
+          {
+            "time": 93.11435416666683,
+            "partIndex": 5,
+            "partId": "CEGcgc_P004"
+          },
+          {
+            "time": 94.55968749999994,
+            "partIndex": 5,
+            "partId": "CEGcgc_P004"
+          },
+          {
             "time": 95.97868375468153,
+            "partIndex": 6,
+            "partId": "CEGcgc_P005"
+          },
+          {
+            "time": 97.46635416666669,
+            "partIndex": 6,
+            "partId": "CEGcgc_P005"
+          },
+          {
+            "time": 98.93302083333339,
+            "partIndex": 6,
+            "partId": "CEGcgc_P005"
+          },
+          {
+            "time": 100.4743541666665,
+            "partIndex": 6,
+            "partId": "CEGcgc_P005"
+          },
+          {
+            "time": 101.93035416666663,
+            "partIndex": 6,
+            "partId": "CEGcgc_P005"
+          },
+          {
+            "time": 103.39702083333333,
+            "partIndex": 6,
+            "partId": "CEGcgc_P005"
+          },
+          {
+            "time": 104.79968750000018,
+            "partIndex": 6,
+            "partId": "CEGcgc_P005"
+          },
+          {
+            "time": 106.27435416666668,
             "partIndex": 6,
             "partId": "CEGcgc_P005"
           },
@@ -4891,7 +5221,97 @@
             "partId": "CEGcgc_P006"
           },
           {
+            "time": 108.9996875,
+            "partIndex": 7,
+            "partId": "CEGcgc_P006"
+          },
+          {
+            "time": 110.41568750000016,
+            "partIndex": 7,
+            "partId": "CEGcgc_P006"
+          },
+          {
+            "time": 111.8130208333335,
+            "partIndex": 7,
+            "partId": "CEGcgc_P006"
+          },
+          {
             "time": 113.26399428466112,
+            "partIndex": 8,
+            "partId": "CEGcgc_P008"
+          },
+          {
+            "time": 114.71435416666674,
+            "partIndex": 8,
+            "partId": "CEGcgc_P008"
+          },
+          {
+            "time": 116.0956875,
+            "partIndex": 8,
+            "partId": "CEGcgc_P008"
+          },
+          {
+            "time": 117.55968749999994,
+            "partIndex": 8,
+            "partId": "CEGcgc_P008"
+          },
+          {
+            "time": 118.91435416666656,
+            "partIndex": 8,
+            "partId": "CEGcgc_P008"
+          },
+          {
+            "time": 120.38368750000001,
+            "partIndex": 8,
+            "partId": "CEGcgc_P008"
+          },
+          {
+            "time": 121.79168749999991,
+            "partIndex": 8,
+            "partId": "CEGcgc_P008"
+          },
+          {
+            "time": 123.26635416666642,
+            "partIndex": 8,
+            "partId": "CEGcgc_P008"
+          },
+          {
+            "time": 124.59702083333315,
+            "partIndex": 8,
+            "partId": "CEGcgc_P008"
+          },
+          {
+            "time": 126.04502083333347,
+            "partIndex": 8,
+            "partId": "CEGcgc_P008"
+          },
+          {
+            "time": 127.47702083333326,
+            "partIndex": 8,
+            "partId": "CEGcgc_P008"
+          },
+          {
+            "time": 128.87702083333335,
+            "partIndex": 8,
+            "partId": "CEGcgc_P008"
+          },
+          {
+            "time": 130.2290208333332,
+            "partIndex": 8,
+            "partId": "CEGcgc_P008"
+          },
+          {
+            "time": 131.69835416666666,
+            "partIndex": 8,
+            "partId": "CEGcgc_P008"
+          },
+          {
+            "time": 133.0423541666667,
+            "partIndex": 8,
+            "partId": "CEGcgc_P008"
+          },
+          {
+            "time": 134.49302083333333,
             "partIndex": 8,
             "partId": "CEGcgc_P008"
           },
@@ -4901,12 +5321,157 @@
             "partId": "CEGcgc_P009"
           },
           {
+            "time": 137.1996874999998,
+            "partIndex": 9,
+            "partId": "CEGcgc_P009"
+          },
+          {
+            "time": 138.59435416666685,
+            "partIndex": 9,
+            "partId": "CEGcgc_P009"
+          },
+          {
+            "time": 139.98102083333316,
+            "partIndex": 9,
+            "partId": "CEGcgc_P009"
+          },
+          {
+            "time": 141.42635416666673,
+            "partIndex": 9,
+            "partId": "CEGcgc_P009"
+          },
+          {
+            "time": 142.8156874999998,
+            "partIndex": 9,
+            "partId": "CEGcgc_P009"
+          },
+          {
+            "time": 144.21035416666683,
+            "partIndex": 9,
+            "partId": "CEGcgc_P009"
+          },
+          {
+            "time": 145.64235416666662,
+            "partIndex": 9,
+            "partId": "CEGcgc_P009"
+          },
+          {
+            "time": 147.01568750000007,
+            "partIndex": 9,
+            "partId": "CEGcgc_P009"
+          },
+          {
+            "time": 148.42635416666673,
+            "partIndex": 9,
+            "partId": "CEGcgc_P009"
+          },
+          {
+            "time": 149.8503541666667,
+            "partIndex": 9,
+            "partId": "CEGcgc_P009"
+          },
+          {
+            "time": 151.2583541666666,
+            "partIndex": 9,
+            "partId": "CEGcgc_P009"
+          },
+          {
+            "time": 152.68235416666658,
+            "partIndex": 9,
+            "partId": "CEGcgc_P009"
+          },
+          {
+            "time": 154.10902083333332,
+            "partIndex": 9,
+            "partId": "CEGcgc_P009"
+          },
+          {
             "time": 155.48266095132777,
             "partIndex": 10,
             "partId": "CEGcgc_P012"
           },
           {
+            "time": 156.92502083333312,
+            "partIndex": 10,
+            "partId": "CEGcgc_P012"
+          },
+          {
+            "time": 158.36235416666642,
+            "partIndex": 10,
+            "partId": "CEGcgc_P012"
+          },
+          {
+            "time": 159.79435416666666,
+            "partIndex": 10,
+            "partId": "CEGcgc_P012"
+          },
+          {
+            "time": 161.1916875,
+            "partIndex": 10,
+            "partId": "CEGcgc_P012"
+          },
+          {
+            "time": 162.59435416666685,
+            "partIndex": 10,
+            "partId": "CEGcgc_P012"
+          },
+          {
+            "time": 164.02635416666664,
+            "partIndex": 10,
+            "partId": "CEGcgc_P012"
+          },
+          {
+            "time": 165.4503541666666,
+            "partIndex": 10,
+            "partId": "CEGcgc_P012"
+          },
+          {
+            "time": 166.81035416666674,
+            "partIndex": 10,
+            "partId": "CEGcgc_P012"
+          },
+          {
+            "time": 168.1623541666666,
+            "partIndex": 10,
+            "partId": "CEGcgc_P012"
+          },
+          {
+            "time": 169.59435416666685,
+            "partIndex": 10,
+            "partId": "CEGcgc_P012"
+          },
+          {
+            "time": 171.0663541666666,
+            "partIndex": 10,
+            "partId": "CEGcgc_P012"
+          },
+          {
+            "time": 172.39702083333333,
+            "partIndex": 10,
+            "partId": "CEGcgc_P012"
+          },
+          {
+            "time": 173.8450208333332,
+            "partIndex": 10,
+            "partId": "CEGcgc_P012"
+          },
+          {
+            "time": 175.18368749999973,
+            "partIndex": 10,
+            "partId": "CEGcgc_P012"
+          },
+          {
+            "time": 176.61568749999998,
+            "partIndex": 10,
+            "partId": "CEGcgc_P012"
+          },
+          {
             "time": 178.10932761799432,
+            "partIndex": 11,
+            "partId": "CEGcgc_P013"
+          },
+          {
+            "time": 179.42477876106196,
             "partIndex": 11,
             "partId": "CEGcgc_P013"
           }
@@ -16705,55 +17270,6 @@
       "bar_num": 174,
       "lyrics": "",
       "audio": "audio/Are You Gonna Be My Girl/13 Chorus 3/174 Are You Gonna Be My Girl Chorus 3.mp3",
-      "has_accents": false
-    },
-    "B0457": {
-      "part_id": "CEGcgc_P001",
-      "bar_num": 1,
-      "lyrics": "",
-      "audio": "audio/Basket Case/01 Intro Axel/001 Basket Case Intro Axel.mp3",
-      "has_accents": false
-    },
-    "B0458": {
-      "part_id": "CEGcgc_P002",
-      "bar_num": 2,
-      "lyrics": "",
-      "audio": "audio/Basket Case/02 Verse 1 (Pete+Axel)/002 Basket Case Verse 1 (Pete+Axel).mp3",
-      "has_accents": false
-    },
-    "B0459": {
-      "part_id": "CEGcgc_P010",
-      "bar_num": 3,
-      "lyrics": "",
-      "audio": "audio/Basket Case/03 Einsatz alle/003 Basket Case Einsatz alle.mp3",
-      "has_accents": false
-    },
-    "B0460": {
-      "part_id": "CEGcgc_P011",
-      "bar_num": 4,
-      "lyrics": "",
-      "audio": "audio/Basket Case/04 Mini-Solo Axel/004 Basket Case Mini-Solo Axel.mp3",
-      "has_accents": false
-    },
-    "B0461": {
-      "part_id": "CEGcgc_P003",
-      "bar_num": 5,
-      "lyrics": "",
-      "audio": "audio/Basket Case/05 Verse 2/005 Basket Case Verse 2.mp3",
-      "has_accents": false
-    },
-    "B0462": {
-      "part_id": "CEGcgc_P004",
-      "bar_num": 6,
-      "lyrics": "",
-      "audio": "audio/Basket Case/06 Chorus 1/006 Basket Case Chorus 1.mp3",
-      "has_accents": false
-    },
-    "B0463": {
-      "part_id": "CEGcgc_P005",
-      "bar_num": 7,
-      "lyrics": "",
-      "audio": "audio/Basket Case/07 Interlude/007 Basket Case Interlude.mp3",
       "has_accents": false
     }
   },

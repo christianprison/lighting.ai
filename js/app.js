@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.3.6';
+const APP_VERSION = 'v1.3.7';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -5159,7 +5159,7 @@ async function leHandleContextAction(action, idx) {
       barNum: block.barNum,
       id: `lb_${Date.now()}_paste`
     };
-    _leBlocks.splice(idx + 1, 0, pasted);
+    _leBlocks.splice(idx, 0, pasted);
     markDirty();
     leRefreshCanvas();
   }

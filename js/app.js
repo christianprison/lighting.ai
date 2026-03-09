@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.3.1';
+const APP_VERSION = 'v1.3.2';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -1380,7 +1380,6 @@ function renderSongList(filter = '') {
             stroke-dasharray="${Math.PI * 20}" stroke-dashoffset="${Math.PI * 20 * (1 - prog.pct / 100)}"
             transform="rotate(-90 12 12)" stroke-linecap="round"/>
         </svg>
-        <span class="song-pct mono">${prog.pct}</span>
         ${prog.hasOpenUserTasks ? '<span class="song-tms-dot"></span>' : ''}
       </div>
     </div>`;

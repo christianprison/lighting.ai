@@ -2965,12 +2965,6 @@ label {
   flex-shrink: 0;
 }
 
-.song-pct {
-  font-size: 0.65rem;
-  color: var(--t3);
-  min-width: 22px;
-  text-align: right;
-}
 
 .song-progress-mini {
   cursor: pointer;

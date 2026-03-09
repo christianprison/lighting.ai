@@ -4763,7 +4763,7 @@
         },
         "CEGcgc_P012": {
           "pos": 11,
-          "name": "Part 11",
+          "name": "Finale",
           "bars": 1,
           "duration_sec": 0,
           "light_template": "",
@@ -4771,7 +4771,7 @@
         },
         "CEGcgc_P013": {
           "pos": 12,
-          "name": "Part 12",
+          "name": "Ausklang",
           "bars": 1,
           "duration_sec": 0,
           "light_template": "",

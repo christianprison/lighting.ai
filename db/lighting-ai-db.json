@@ -14148,14 +14148,14 @@
     "B0022": {
       "part_id": "tdyEcs_P004",
       "bar_num": 22,
-      "lyrics": "wanna give me kicks and be my",
+      "lyrics": "steady chick and give me pick of",
       "audio": "",
       "has_accents": false
     },
     "B0023": {
       "part_id": "tdyEcs_P004",
       "bar_num": 24,
-      "lyrics": "memories?",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
@@ -14169,7 +14169,7 @@
     "B0025": {
       "part_id": "tdyEcs_P004",
       "bar_num": 23,
-      "lyrics": "steady chick and give me pick of",
+      "lyrics": "memories?",
       "audio": "",
       "has_accents": false
     },
@@ -14232,21 +14232,21 @@
     "B0034": {
       "part_id": "tdyEcs_P007",
       "bar_num": 42,
-      "lyrics": "When vague desire is the fire in the",
+      "lyrics": "eyes of chicks Whose sickness is the",
       "audio": "",
       "has_accents": false
     },
     "B0035": {
       "part_id": "tdyEcs_P007",
       "bar_num": 43,
-      "lyrics": "eyes of chicks Whose sickness is the",
+      "lyrics": "games - - they",
       "audio": "",
       "has_accents": false
     },
     "B0036": {
       "part_id": "tdyEcs_P007",
       "bar_num": 44,
-      "lyrics": "games - - they",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
@@ -17509,6 +17509,20 @@
       "part_id": "tdyEcs_P003",
       "bar_num": 17,
       "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0483": {
+      "part_id": "tdyEcs_P004",
+      "bar_num": 21,
+      "lyrics": "wanna give me kicks and be my",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0484": {
+      "part_id": "tdyEcs_P007",
+      "bar_num": 41,
+      "lyrics": "When vague desire is the fire in the",
       "audio": "",
       "has_accents": false
     }

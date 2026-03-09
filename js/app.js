@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.3.7';
+const APP_VERSION = 'v1.3.8';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -511,10 +511,10 @@ function calcPartStarts(songId) {
   const result = new Map();
   let cumulBars = 0;
   for (const p of parts) {
-    const startBar = (typeof p.start_bar === 'number') ? p.start_bar : cumulBars;
-    const startSec = bpm > 0 ? startBar * 4 * 60 / bpm : 0;
+    const startBar = cumulBars + 1;  // 1-basiert (Takt 1 = erster Takt)
+    const startSec = bpm > 0 ? cumulBars * 4 * 60 / bpm : 0;
     result.set(p.id, { startBar, startSec });
-    cumulBars = startBar + (p.bars || 0);
+    cumulBars += (p.bars || 0);
   }
   return result;
 }
@@ -1579,7 +1579,7 @@ function renderPartsTable() {
           const audioBars = getAudioBarsForPart(p.id);
           const hasAudioBars = audioBars.length > 0;
           const isPlaying = _partPlayActive && _playingPartId === p.id;
-          const st = starts.get(p.id) || { startBar: 0, startSec: 0 };
+          const st = starts.get(p.id) || { startBar: 1, startSec: 0 };
           const dur = calcPartDuration(p.bars, song.bpm);
           const partIdx = parts.indexOf(p);
           const hasRefSeg = !!audio.getBuffer() && getPartStartTime(partIdx) !== null && getPartEndTime(partIdx) !== null;
@@ -1622,10 +1622,10 @@ function renderBarSection() {
 
   const starts = calcPartStarts(selectedSongId);
   const partStart = starts.get(selectedPartId);
-  const barOffset = partStart ? partStart.startBar : 0;
+  const barOffset = partStart ? partStart.startBar : 1;
 
   const blocks = Array.from({ length: barCount }, (_, i) => {
-    const absN = barOffset + i + 1;
+    const absN = barOffset + i;
     const found = findBar(selectedPartId, absN);
     const hasAcc = found ? getAccentsForBar(found[0]).length > 0 : false;
     const hasLyr = found && found[1].lyrics;
@@ -6921,7 +6921,7 @@ function buildPartsTabTable(parts, filterSong) {
         ${parts.map((p, idx) => {
           const isActive = sel && sel.songId === p.songId && sel.partId === p.partId;
           const dur = calcPartDuration(p.bars || 0, p.bpm);
-          const st = allStarts[p.songId]?.get(p.partId) || { startBar: 0, startSec: 0 };
+          const st = allStarts[p.songId]?.get(p.partId) || { startBar: 1, startSec: 0 };
           const audioBars = getAudioBarsForPart(p.partId);
           const hasAudioBars = audioBars.length > 0;
           const isPlaying = _partPlayActive && _playingPartId === p.partId;
@@ -6991,10 +6991,10 @@ function renderPartsTabBarSection() {
 
   ensureCollections();
   const ptStarts = calcPartStarts(sel.songId);
-  const ptBarOffset = ptStarts.get(sel.partId)?.startBar || 0;
+  const ptBarOffset = ptStarts.get(sel.partId)?.startBar || 1;
 
   const blocks = Array.from({ length: barCount }, (_, i) => {
-    const absN = ptBarOffset + i + 1;
+    const absN = ptBarOffset + i;
     const found = findBar(sel.partId, absN);
     const hasAcc = found ? getAccentsForBar(found[0]).length > 0 : false;
     const hasLyr = found && found[1].lyrics;

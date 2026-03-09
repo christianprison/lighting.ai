@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.1.8';
+const APP_VERSION = 'v1.1.9';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4769,6 +4769,7 @@ function leShowContextMenu(idx, blockEl) {
 
   if (block.type === 'word') {
     menu.innerHTML = `
+      <button data-action="edit" class="le-ctx-item">&#9998; Editieren</button>
       <button data-action="delete" class="le-ctx-item le-ctx-delete">&#128465; L&ouml;schen</button>
       <button data-action="split" class="le-ctx-item">&#9986; Trennen</button>
       <button data-action="merge" class="le-ctx-item">&#128279; Zusammensetzen</button>
@@ -4815,7 +4816,15 @@ async function leHandleContextAction(action, idx) {
   const block = _leBlocks[idx];
   if (!block) return;
 
-  if (action === 'delete') {
+  if (action === 'edit') {
+    const newVal = prompt(`Wort bearbeiten:`, block.content);
+    if (newVal === null || !newVal.trim() || newVal.trim() === block.content) return;
+    block.content = newVal.trim();
+    markDirty();
+    leRefreshCanvas();
+  }
+
+  else if (action === 'delete') {
     _leBlocks.splice(idx, 1);
     markDirty();
     leRefreshCanvas();

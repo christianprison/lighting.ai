@@ -2694,6 +2694,18 @@ label {
   font-weight: 700;
   font-size: 0.72rem;
   padding: 0 10px;
+  cursor: pointer;
+}
+
+.le-block-part.le-playing {
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
+  animation: le-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes le-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
 }
 
 /* ── Bar Block: Cyan ───────────────────────────── */

@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.3.2';
+const APP_VERSION = 'v1.3.3';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -2026,6 +2026,8 @@ function refreshPartPlayUI() {
     // Bar-level play detection not needed here — just reset all
     btn.classList.toggle('playing', false);
   });
+  // Lyrics tab: part block play state
+  leRefreshPartPlayState();
 }
 
 async function handlePartPlay(partId) {
@@ -4919,9 +4921,12 @@ function leWireCanvasEvents() {
         leRefreshCanvas();
       }
     } else {
-      // Tap (no drag) → context menu for words and bars
+      // Tap (no drag) → context menu for words/bars, play for parts
       const block = touchDrag.el;
-      if (block.dataset.type === 'word' || block.dataset.type === 'bar') {
+      if (block.dataset.type === 'part') {
+        e.preventDefault();
+        leHandlePartTap(parseInt(block.dataset.idx, 10));
+      } else if (block.dataset.type === 'word' || block.dataset.type === 'bar') {
         e.preventDefault();
         leShowContextMenu(parseInt(block.dataset.idx, 10), block);
       }
@@ -4929,12 +4934,14 @@ function leWireCanvasEvents() {
     touchDrag = null;
   });
 
-  // Click → context menu for words (desktop)
+  // Click → context menu for words/bars, play for parts (desktop)
   canvas.addEventListener('click', (e) => {
     leCloseContextMenu();
     const block = e.target.closest('.le-block');
     if (!block) return;
-    if (block.dataset.type === 'word' || block.dataset.type === 'bar') {
+    if (block.dataset.type === 'part') {
+      leHandlePartTap(parseInt(block.dataset.idx, 10));
+    } else if (block.dataset.type === 'word' || block.dataset.type === 'bar') {
       leShowContextMenu(parseInt(block.dataset.idx, 10), block);
     }
   });
@@ -5514,8 +5521,26 @@ function saveLyricsRawText() {
   // Compatibility stub
 }
 
+function leHandlePartTap(blockIdx) {
+  const block = _leBlocks[blockIdx];
+  if (!block || block.type !== 'part') return;
+  handlePartPlay(block.partId);
+}
+
+/** Update playing state on lyrics part blocks without full re-render */
+function leRefreshPartPlayState() {
+  document.querySelectorAll('.le-block-part').forEach(el => {
+    const idx = parseInt(el.dataset.idx, 10);
+    const block = _leBlocks[idx];
+    if (!block) return;
+    const isPlaying = _partPlayActive && _playingPartId === block.partId;
+    el.classList.toggle('le-playing', isPlaying);
+  });
+}
+
 function stopLyricsPartPlay() {
-  // No playback in block editor (yet)
+  stopPartPlay();
+  leRefreshPartPlayState();
 }
 
 /* ══════════════════════════════════════════════════════

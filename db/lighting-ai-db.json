@@ -1722,7 +1722,7 @@
         "CC9FBm_P001": {
           "pos": 1,
           "name": "Intro (nur Axel)",
-          "bars": 5,
+          "bars": 4,
           "duration_sec": 6,
           "light_template": "Spot auf Axel",
           "qlc_scene": "Spot auf Axel",
@@ -1836,7 +1836,7 @@
         "CC9FBm_P010": {
           "pos": 10,
           "name": "Interlude 1",
-          "bars": 15,
+          "bars": 8,
           "duration_sec": 11,
           "light_template": "01 statisch bunt",
           "qlc_scene": "06 blinking",
@@ -1849,7 +1849,7 @@
         "CC9FBm_P012": {
           "pos": 11,
           "name": "Stops",
-          "bars": 1,
+          "bars": 8,
           "duration_sec": 2,
           "light_template": "00 blackout",
           "qlc_scene": "10 Strobe",
@@ -3509,7 +3509,7 @@
         "5D6dZO_P005": {
           "pos": 5,
           "name": "Verse 1",
-          "bars": 16,
+          "bars": 18,
           "duration_sec": 19,
           "light_template": "verse_driving",
           "qlc_scene": "Spot auf Pete",
@@ -3531,7 +3531,7 @@
         "5D6dZO_P012": {
           "pos": 7,
           "name": "Chorus 1",
-          "bars": 19,
+          "bars": 20,
           "duration_sec": 18,
           "light_template": "chorus_full",
           "qlc_scene": "09 Alarm",
@@ -3553,7 +3553,7 @@
         "5D6dZO_P015": {
           "pos": 9,
           "name": "Verse 2",
-          "bars": 19,
+          "bars": 18,
           "duration_sec": 4,
           "light_template": "verse_driving",
           "qlc_scene": "Spot auf Pete",
@@ -3575,7 +3575,7 @@
         "5D6dZO_P022": {
           "pos": 11,
           "name": "Chorus 2",
-          "bars": 19,
+          "bars": 20,
           "duration_sec": 18,
           "light_template": "chorus_full",
           "qlc_scene": "09 Alarm",
@@ -4653,8 +4653,8 @@
       "parts": {
         "CEGcgc_P001": {
           "pos": 1,
-          "name": "Part 1",
-          "bars": 0,
+          "name": "Intro Axel",
+          "bars": 1,
           "duration_sec": 6,
           "light_template": "generic_bpm",
           "qlc_scene": "Spot auf Tim  hot ohne PAR",
@@ -4664,7 +4664,7 @@
         },
         "CEGcgc_P002": {
           "pos": 2,
-          "name": "Part 2",
+          "name": "Verse 1 (Pete+Axel)",
           "bars": 0,
           "duration_sec": 4,
           "light_template": "generic_bpm",
@@ -4780,6 +4780,22 @@
       "tms": {
         "manual_done": [],
         "user_tasks": []
+      },
+      "split_markers": {
+        "partMarkers": [
+          {
+            "time": 0.19168749999999515,
+            "partIndex": 0,
+            "partId": "CEGcgc_P001"
+          }
+        ],
+        "barMarkers": [
+          {
+            "time": 0.19168749999999515,
+            "partIndex": 0,
+            "partId": "CEGcgc_P001"
+          }
+        ]
       }
     },
     "dgSleW": {
@@ -16560,6 +16576,20 @@
       "bar_num": 172,
       "lyrics": "",
       "audio": "audio/Are You Gonna Be My Girl/13 Chorus 3/172 Are You Gonna Be My Girl Chorus 3.mp3",
+      "has_accents": false
+    },
+    "B0455": {
+      "part_id": "5D6dZO_P024",
+      "bar_num": 173,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/13 Chorus 3/173 Are You Gonna Be My Girl Chorus 3.mp3",
+      "has_accents": false
+    },
+    "B0456": {
+      "part_id": "5D6dZO_P024",
+      "bar_num": 174,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/13 Chorus 3/174 Are You Gonna Be My Girl Chorus 3.mp3",
       "has_accents": false
     }
   },

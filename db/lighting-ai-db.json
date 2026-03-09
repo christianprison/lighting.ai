@@ -760,7 +760,7 @@
       },
       "audio_ref": "audio/All The Small Things/All The Small Things - Full Song.mp3",
       "audio_ref_name": "All The Small Things - Full Song.mp3",
-      "lyrics_raw": "[Thema 1]\n\n[Verse 1]\nAll the small things True care truth brings I'll take one lift Your ride best trip Always I know You'll be at my show Watching, waiting, commiserating Bridge \n[Bridge 1]\nSay it ain't so, I will not go Turn the lights off, carry me home Chorus \n[Chorus 1 (nanana)]\nNana, nana, nana, nana, na, na, Nana, nana, na, na, na, na, na, na, na, na, na Verse 2 \n[Thema 2]\n\n[Verse 2]\nLate night, come home Work sucks, I know She left me roses by the stairs Surprises let me know \n[Bridge 2]\nSay it ain't so, I will not go Turn the lights off, \n[Chorus 2 (nanana)]\nNa, na, na, na Na, na, na, na, na, na, na, na, na, na, na \n[Stop]\n\n[Crescendo]\n\n[Bridge 3 (schnell)]\nSay it ain't so, I will not go Turn the lights off, carry me home Keep your head still, I'll be your thrill \n[Chorus 3 (nanana)]\nSay it ain't so, I will not go (na-na-na-na-na-na-na-na-na-na) Turn the lights off, carry me home (na-na-na-na-na-na-na-na-na-na) Keep your head still, I'll be your thrill (na-na-na-na-na-na-na-na-na-na) The night will go on \n[Ausklang]",
+      "lyrics_raw": "[Thema 1]\n\n[Verse 1]\nAll the small things True care truth brings I'll take one lift Your ride best trip Always I know You'll be at my show waiting, commiserating Bridge \n[Bridge 1]\nSay it ain't so, I will not go Turn the lights off, carry me Watching, home Chorus \n[Chorus 1 (nanana)]\nNana, nana, nana, nana, na, na, Nana, nana, nana, nana, na, na, Nana, nana, nana, nana, na, na, Nana, nana, nana, nana, na, na, \n[Thema 2]\n\n[Verse 2]\nLate night, come home Work sucks, I know She left me roses by the stairs Surprises let me know \n[Bridge 2]\nSay it ain't so, I will not go Turn the lights off, \n[Chorus 2 (nanana)]\nNa, na, na, na Na, na, na, na, na, na, na, na, na, na, na \n[Stop]\n\n[Crescendo]\n\n[Bridge 3 (schnell)]\nSay it ain't so, I will not go Turn the lights off, carry me home Keep your head still, I'll be your thrill \n[Chorus 3 (nanana)]\nSay it ain't so, I will not go (na-na-na-na-na-na-na-na-na-na) Turn the lights off, carry me home (na-na-na-na-na-na-na-na-na-na) Keep your head still, I'll be your thrill (na-na-na-na-na-na-na-na-na-na) The night will go on \n[Ausklang]",
       "tms": {
         "manual_done": [
           "accents_any",
@@ -14708,7 +14708,7 @@
     "B0079": {
       "part_id": "5iZfKj_P002",
       "bar_num": 21,
-      "lyrics": "Watching,",
+      "lyrics": "",
       "audio": "audio/All The Small Things/02 Verse 1/021 All The Small Things Verse 1.mp3",
       "has_accents": false
     },
@@ -14757,7 +14757,7 @@
     "B0086": {
       "part_id": "5iZfKj_P003",
       "bar_num": 28,
-      "lyrics": "carry me home Chorus",
+      "lyrics": "carry me Watching, home Chorus",
       "audio": "audio/All The Small Things/03 Bridge 1/028 All The Small Things Bridge 1.mp3",
       "has_accents": false
     },
@@ -14778,42 +14778,42 @@
     "B0089": {
       "part_id": "5iZfKj_P004",
       "bar_num": 31,
-      "lyrics": "Nana, nana,",
+      "lyrics": "Nana, nana, nana,",
       "audio": "audio/All The Small Things/04 Chorus 1 (nanana)/031 All The Small Things Chorus 1 (nanana).mp3",
       "has_accents": false
     },
     "B0090": {
       "part_id": "5iZfKj_P004",
       "bar_num": 32,
-      "lyrics": "na, na, na,",
+      "lyrics": "nana, na, na,",
       "audio": "audio/All The Small Things/04 Chorus 1 (nanana)/032 All The Small Things Chorus 1 (nanana).mp3",
       "has_accents": false
     },
     "B0091": {
       "part_id": "5iZfKj_P004",
       "bar_num": 33,
-      "lyrics": "na, na,",
+      "lyrics": "Nana, nana, nana,",
       "audio": "audio/All The Small Things/04 Chorus 1 (nanana)/033 All The Small Things Chorus 1 (nanana).mp3",
       "has_accents": false
     },
     "B0092": {
       "part_id": "5iZfKj_P004",
       "bar_num": 34,
-      "lyrics": "na, na,",
+      "lyrics": "nana, na, na,",
       "audio": "audio/All The Small Things/04 Chorus 1 (nanana)/034 All The Small Things Chorus 1 (nanana).mp3",
       "has_accents": false
     },
     "B0093": {
       "part_id": "5iZfKj_P004",
       "bar_num": 35,
-      "lyrics": "na, na",
+      "lyrics": "Nana, nana, nana,",
       "audio": "audio/All The Small Things/04 Chorus 1 (nanana)/035 All The Small Things Chorus 1 (nanana).mp3",
       "has_accents": false
     },
     "B0094": {
       "part_id": "5iZfKj_P004",
       "bar_num": 36,
-      "lyrics": "Verse 2",
+      "lyrics": "nana, na, na,",
       "audio": "audio/All The Small Things/04 Chorus 1 (nanana)/036 All The Small Things Chorus 1 (nanana).mp3",
       "has_accents": false
     },

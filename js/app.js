@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.2.5';
+const APP_VERSION = 'v1.2.6';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -3382,6 +3382,16 @@ function handleAudioFileLoad(file) {
         toast('Lade bestehende Referenz-Audio...', 'info');
         await loadReferenceAudio();
         return;
+      }
+      // Reset audio-dependent TMS tasks when replacing reference audio
+      const tms = getSongTms(selectedSongId);
+      const audioDepTasks = ['part_markers', 'bar_markers', 'audio_exported'];
+      const before = tms.manual_done.length;
+      tms.manual_done = tms.manual_done.filter(id => !audioDepTasks.includes(id));
+      if (tms.manual_done.length < before) {
+        song.tms = tms;
+        markDirty();
+        toast('Audio-abhängige TMS-Aufgaben zurückgesetzt', 'info');
       }
     }
 

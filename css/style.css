@@ -563,6 +563,23 @@ label {
   justify-content: space-between;
   margin-bottom: 16px;
 }
+.pw-nav-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.pw-nav-group #pw-prev,
+.pw-nav-group #pw-next {
+  font-size: 1rem;
+  padding: 4px 10px;
+  color: var(--t2);
+  min-width: 36px;
+}
+.pw-nav-group #pw-prev:disabled,
+.pw-nav-group #pw-next:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
 .pw-header h2 { margin: 0; font-size: 1.1rem; }
 .pw-header #pw-close {
   font-size: 1.3rem;
@@ -673,6 +690,35 @@ label {
   background: var(--cyan) !important;
   color: var(--bg) !important;
   font-weight: 600;
+}
+
+/* ── Bar Marker Context Menu ──────────────────────── */
+.bar-ctx-menu {
+  position: fixed;
+  z-index: 3000;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 16px rgba(0,0,0,.5);
+  padding: 4px 0;
+  min-width: 140px;
+}
+.bar-ctx-menu button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 14px;
+  background: none;
+  border: none;
+  color: var(--red);
+  font-size: 0.85rem;
+  font-family: 'Sora', sans-serif;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.bar-ctx-menu button:hover {
+  background: var(--bg4);
 }
 
 /* ── Toast / Notifications ─────────────────────────── */
@@ -2476,7 +2522,8 @@ label {
   flex-wrap: wrap;
 }
 
-.lyrics-genius-link {
+.lyrics-genius-link,
+.lyrics-musix-link {
   background: var(--bg3);
   border: 1px solid var(--border2);
   color: var(--amber);
@@ -2486,9 +2533,92 @@ label {
   border-radius: var(--radius);
   transition: background 0.15s, border-color 0.15s;
 }
+.lyrics-musix-link {
+  color: var(--cyan);
+}
 .lyrics-genius-link:hover {
   background: var(--bg4);
   border-color: var(--amber);
+}
+.lyrics-musix-link:hover {
+  background: var(--bg4);
+  border-color: var(--cyan);
+}
+
+/* ── Paste Lyrics Modal ──────────────────────── */
+.le-paste-modal {
+  width: min(90vw, 600px);
+}
+.le-paste-body {
+  padding: 16px;
+}
+.le-paste-body p {
+  margin: 0 0 12px;
+  font-size: 0.85rem;
+}
+.le-paste-links {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.le-url-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.le-url-input {
+  flex: 1;
+  background: var(--bg);
+  color: var(--t1);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 8px 12px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.82rem;
+}
+.le-url-input:focus {
+  border-color: var(--cyan);
+  outline: none;
+}
+.le-url-input::placeholder {
+  color: var(--t4);
+}
+.le-url-status {
+  font-size: 0.78rem;
+  margin-bottom: 8px;
+  min-height: 1.2em;
+}
+.le-url-loading { color: var(--cyan); }
+.le-url-success { color: var(--green); }
+.le-url-error { color: var(--red); }
+
+.le-paste-textarea {
+  width: 100%;
+  min-height: 250px;
+  background: var(--bg);
+  color: var(--t1);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 12px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  resize: vertical;
+  box-sizing: border-box;
+}
+.le-paste-textarea:focus {
+  border-color: var(--green);
+  outline: none;
+}
+.le-paste-textarea::placeholder {
+  color: var(--t4);
+}
+.le-paste-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
 }
 
 /* ── Block Canvas ──────────────────────────────── */

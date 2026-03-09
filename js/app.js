@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.2.8';
+const APP_VERSION = 'v1.2.9';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -715,7 +715,8 @@ const SONG_CHECKLIST = [
 ];
 
 /** Track previously completed steps per song to detect newly completed ones */
-let _prevProgress = {}; // songId → Set of completed step ids
+let _prevProgress = {};
+let _suppressCelebration = false; // songId → Set of completed step ids
 
 /**
  * Get or initialize the TMS data for a song.
@@ -788,14 +789,17 @@ function checkProgressAndCelebrate(songId) {
   const prev = _prevProgress[songId];
   if (!prev) { _prevProgress[songId] = completed; return; }
 
-  for (const stepId of completed) {
-    if (!prev.has(stepId)) {
-      const step = SONG_CHECKLIST.find(s => s.id === stepId);
-      if (step) {
-        toastConfetti(`${step.label} erledigt!`, pct);
+  if (!_suppressCelebration) {
+    for (const stepId of completed) {
+      if (!prev.has(stepId)) {
+        const step = SONG_CHECKLIST.find(s => s.id === stepId);
+        if (step) {
+          fireworksCelebration(`${step.label} erledigt!`, pct);
+        }
       }
     }
   }
+  _suppressCelebration = false;
   _prevProgress[songId] = completed;
 }
 
@@ -843,7 +847,7 @@ function openTmsModal(songId) {
       return;
     }
 
-    // Toggle manual completion of default task
+    // Toggle manual completion of default task (no celebration)
     const manualToggle = el.closest('[data-tms-toggle]');
     if (manualToggle) {
       const stepId = manualToggle.dataset.tmsToggle;
@@ -851,19 +855,24 @@ function openTmsModal(songId) {
       const idx = tms.manual_done.indexOf(stepId);
       if (idx >= 0) tms.manual_done.splice(idx, 1);
       else tms.manual_done.push(stepId);
+      _suppressCelebration = true;
       markDirty();
       renderTmsModalContent(songId);
       renderSongList(els.searchBox.value);
       return;
     }
 
-    // Toggle user task
+    // Toggle user task (no celebration)
     const userToggle = el.closest('[data-tms-user-toggle]');
     if (userToggle) {
       const taskId = userToggle.dataset.tmsUserToggle;
       const tms = getSongTms(songId);
       const task = tms.user_tasks.find(t => t.id === taskId);
-      if (task) { task.done = !task.done; markDirty(); }
+      if (task) {
+        task.done = !task.done;
+        _suppressCelebration = true;
+        markDirty();
+      }
       renderTmsModalContent(songId);
       renderSongList(els.searchBox.value);
       return;
@@ -1049,67 +1058,277 @@ function renderTmsModalContent(songId) {
     </div>`;
 }
 
-/* ── Confetti Toast ───────────────────────────────── */
+/* ── Fireworks Celebration (Fullscreen) ──────────── */
 
-function toastConfetti(msg, pct) {
-  const el = document.createElement('div');
-  el.className = 'toast success toast-confetti';
-  el.innerHTML = `
-    <div class="toast-confetti-content">
-      <span class="toast-confetti-icon">&#127881;</span>
-      <span>${esc(msg)}</span>
-      ${pct !== undefined ? `<span class="toast-pct">${pct}%</span>` : ''}
-    </div>
-    <canvas class="toast-confetti-canvas" width="300" height="60"></canvas>`;
-  els.toastContainer.appendChild(el);
+function fireworksCelebration(msg, pct) {
+  // Create fullscreen overlay
+  const overlay = document.createElement('div');
+  overlay.className = 'fireworks-overlay';
+  overlay.innerHTML = `
+    <canvas class="fireworks-canvas"></canvas>
+    <div class="fireworks-msg">
+      <span class="fireworks-icon">&#127881;</span>
+      <span class="fireworks-text">${esc(msg)}</span>
+      ${pct !== undefined ? `<span class="fireworks-pct">${pct}%</span>` : ''}
+    </div>`;
+  document.body.appendChild(overlay);
 
-  // Animate confetti particles
-  const canvas = el.querySelector('.toast-confetti-canvas');
-  if (canvas) animateConfetti(canvas);
-
-  setTimeout(() => el.remove(), 4000);
-}
-
-function animateConfetti(canvas) {
+  const canvas = overlay.querySelector('.fireworks-canvas');
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = window.innerWidth * dpr;
+  canvas.height = window.innerHeight * dpr;
   const ctx = canvas.getContext('2d');
-  const w = canvas.width, h = canvas.height;
-  const colors = ['#00dc82', '#f0a030', '#38bdf8', '#ff3b5c', '#eef0f6', '#a855f7'];
-  const particles = Array.from({ length: 40 }, () => ({
-    x: w / 2 + (Math.random() - 0.5) * 60,
-    y: h,
-    vx: (Math.random() - 0.5) * 8,
-    vy: -Math.random() * 5 - 3,
-    size: Math.random() * 4 + 2,
-    color: colors[Math.floor(Math.random() * colors.length)],
-    rot: Math.random() * Math.PI * 2,
-    rotV: (Math.random() - 0.5) * 0.3,
-    life: 1,
-  }));
+  ctx.scale(dpr, dpr);
+  const W = window.innerWidth, H = window.innerHeight;
+
+  // Play fireworks sound via Web Audio API
+  playFireworksSound();
+
+  // Fireworks + confetti particles
+  const colors = ['#00dc82', '#f0a030', '#38bdf8', '#ff3b5c', '#eef0f6', '#a855f7', '#ff6b9d', '#c084fc'];
+  const particles = [];
+  const rockets = [];
+
+  // Launch multiple rockets in sequence
+  function launchRocket() {
+    rockets.push({
+      x: W * (0.2 + Math.random() * 0.6),
+      y: H,
+      targetY: H * (0.15 + Math.random() * 0.3),
+      vy: -12 - Math.random() * 4,
+      exploded: false,
+      trail: [],
+    });
+  }
+
+  // Initial rockets
+  launchRocket();
+  setTimeout(launchRocket, 200);
+  setTimeout(launchRocket, 500);
+  setTimeout(launchRocket, 900);
+  setTimeout(launchRocket, 1300);
+
+  function explode(x, y) {
+    const count = 80 + Math.floor(Math.random() * 40);
+    for (let i = 0; i < count; i++) {
+      const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.3;
+      const speed = 2 + Math.random() * 6;
+      particles.push({
+        x, y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        size: Math.random() * 4 + 1.5,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        life: 1,
+        decay: 0.008 + Math.random() * 0.012,
+        type: 'spark',
+      });
+    }
+    // Confetti pieces
+    for (let i = 0; i < 30; i++) {
+      particles.push({
+        x, y,
+        vx: (Math.random() - 0.5) * 10,
+        vy: (Math.random() - 0.5) * 10 - 2,
+        size: Math.random() * 8 + 4,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        life: 1,
+        decay: 0.005 + Math.random() * 0.008,
+        rot: Math.random() * Math.PI * 2,
+        rotV: (Math.random() - 0.5) * 0.2,
+        type: 'confetti',
+      });
+    }
+  }
 
   let frame = 0;
+  const totalFrames = 240; // ~4 seconds at 60fps
+
   function tick() {
-    ctx.clearRect(0, 0, w, h);
-    let alive = false;
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = 'rgba(8, 9, 13, 0.15)';
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.globalCompositeOperation = 'lighter';
+
+    // Update rockets
+    for (const r of rockets) {
+      if (r.exploded) continue;
+      r.y += r.vy;
+      r.trail.push({ x: r.x, y: r.y, life: 1 });
+      if (r.trail.length > 15) r.trail.shift();
+
+      // Draw trail
+      for (const t of r.trail) {
+        ctx.globalAlpha = t.life * 0.6;
+        ctx.fillStyle = '#f0a030';
+        ctx.beginPath();
+        ctx.arc(t.x, t.y, 2, 0, Math.PI * 2);
+        ctx.fill();
+        t.life -= 0.08;
+      }
+
+      // Draw rocket head
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = '#eef0f6';
+      ctx.beginPath();
+      ctx.arc(r.x, r.y, 3, 0, Math.PI * 2);
+      ctx.fill();
+
+      if (r.y <= r.targetY) {
+        r.exploded = true;
+        explode(r.x, r.y);
+      }
+    }
+
+    // Update particles
     for (const p of particles) {
       if (p.life <= 0) continue;
-      alive = true;
       p.x += p.vx;
       p.y += p.vy;
-      p.vy += 0.15; // gravity
-      p.rot += p.rotV;
-      p.life -= 0.02;
-      ctx.save();
-      ctx.translate(p.x, p.y);
-      ctx.rotate(p.rot);
+      p.vy += 0.06; // gravity
+      p.vx *= 0.99; // drag
+      p.life -= p.decay;
+
       ctx.globalAlpha = Math.max(0, p.life);
-      ctx.fillStyle = p.color;
-      ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
-      ctx.restore();
+
+      if (p.type === 'spark') {
+        // Glowing spark
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+        ctx.fill();
+        // Glow
+        ctx.globalAlpha = Math.max(0, p.life * 0.3);
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size * p.life * 3, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        // Confetti rectangle
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        p.rot += p.rotV;
+        ctx.rotate(p.rot);
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size * 0.5);
+        ctx.restore();
+      }
     }
+
+    ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = 'source-over';
+
     frame++;
-    if (alive && frame < 120) requestAnimationFrame(tick);
+    if (frame < totalFrames) {
+      requestAnimationFrame(tick);
+    }
   }
+
   requestAnimationFrame(tick);
+
+  // Fade out overlay and remove
+  setTimeout(() => overlay.classList.add('fireworks-fade'), 3200);
+  setTimeout(() => overlay.remove(), 4000);
+
+  // Click to dismiss early
+  overlay.addEventListener('click', () => {
+    overlay.classList.add('fireworks-fade');
+    setTimeout(() => overlay.remove(), 400);
+  });
+}
+
+/** Synthesize a fireworks sound using Web Audio API */
+function playFireworksSound() {
+  try {
+    const ac = new (window.AudioContext || window.webkitAudioContext)();
+    const master = ac.createGain();
+    master.gain.value = 0.3;
+    master.connect(ac.destination);
+
+    function boom(time, freq, dur) {
+      // Noise burst for explosion
+      const bufLen = ac.sampleRate * dur;
+      const buf = ac.createBuffer(1, bufLen, ac.sampleRate);
+      const data = buf.getChannelData(0);
+      for (let i = 0; i < bufLen; i++) {
+        data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufLen, 3);
+      }
+      const src = ac.createBufferSource();
+      src.buffer = buf;
+
+      const filt = ac.createBiquadFilter();
+      filt.type = 'lowpass';
+      filt.frequency.setValueAtTime(freq, time);
+      filt.frequency.exponentialRampToValueAtTime(100, time + dur);
+
+      const gain = ac.createGain();
+      gain.gain.setValueAtTime(0.6, time);
+      gain.gain.exponentialRampToValueAtTime(0.001, time + dur);
+
+      src.connect(filt);
+      filt.connect(gain);
+      gain.connect(master);
+      src.start(time);
+      src.stop(time + dur);
+    }
+
+    function whistle(time, dur) {
+      const osc = ac.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(800, time);
+      osc.frequency.linearRampToValueAtTime(2000, time + dur);
+
+      const gain = ac.createGain();
+      gain.gain.setValueAtTime(0.08, time);
+      gain.gain.exponentialRampToValueAtTime(0.001, time + dur);
+
+      osc.connect(gain);
+      gain.connect(master);
+      osc.start(time);
+      osc.stop(time + dur);
+    }
+
+    function crackle(time, dur) {
+      const bufLen = ac.sampleRate * dur;
+      const buf = ac.createBuffer(1, bufLen, ac.sampleRate);
+      const data = buf.getChannelData(0);
+      for (let i = 0; i < bufLen; i++) {
+        data[i] = Math.random() > 0.97 ? (Math.random() * 2 - 1) : 0;
+      }
+      const src = ac.createBufferSource();
+      src.buffer = buf;
+      const gain = ac.createGain();
+      gain.gain.setValueAtTime(0.4, time);
+      gain.gain.exponentialRampToValueAtTime(0.001, time + dur);
+      src.connect(gain);
+      gain.connect(master);
+      src.start(time);
+      src.stop(time + dur);
+    }
+
+    const now = ac.currentTime;
+    // Rocket 1
+    whistle(now, 0.3);
+    boom(now + 0.3, 400, 0.8);
+    crackle(now + 0.4, 1.2);
+    // Rocket 2
+    whistle(now + 0.2, 0.25);
+    boom(now + 0.5, 300, 0.7);
+    crackle(now + 0.6, 1.0);
+    // Rocket 3
+    boom(now + 0.9, 500, 0.6);
+    crackle(now + 1.0, 1.5);
+    // Rocket 4
+    whistle(now + 1.1, 0.2);
+    boom(now + 1.3, 350, 0.9);
+    crackle(now + 1.4, 1.2);
+
+    // Cleanup
+    setTimeout(() => ac.close(), 4000);
+  } catch (e) {
+    // Audio not available — silent fallback
+  }
 }
 
 /* ── Song List ─────────────────────────────────────── */

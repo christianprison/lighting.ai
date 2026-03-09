@@ -864,7 +864,7 @@
         "tdyEcs_P010": {
           "pos": 10,
           "name": "Chorus 2",
-          "bars": 3,
+          "bars": 4,
           "duration_sec": 0,
           "light_template": "generic_bpm",
           "notes": ""
@@ -1358,17 +1358,17 @@
             "partId": "tdyEcs_P009"
           },
           {
-            "time": 94.83510416666667,
+            "time": 93.4406149322169,
             "partIndex": 9,
             "partId": "tdyEcs_P010"
           },
           {
-            "time": 96.3774375,
+            "time": 94.94932915214025,
             "partIndex": 9,
             "partId": "tdyEcs_P010"
           },
           {
-            "time": 98.0144375,
+            "time": 96.58509921118757,
             "partIndex": 9,
             "partId": "tdyEcs_P010"
           },
@@ -1691,6 +1691,11 @@
             "time": 197.2376677631579,
             "partIndex": 19,
             "partId": "tdyEcs_P019"
+          },
+          {
+            "time": 98.27763576555029,
+            "partIndex": 9,
+            "partId": "tdyEcs_P010"
           }
         ]
       },

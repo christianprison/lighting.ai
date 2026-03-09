@@ -3457,8 +3457,8 @@
       "year": "2003",
       "pick": "🔻",
       "gema_nr": "7944469-001",
-      "duration": "0:11",
-      "duration_sec": 11,
+      "duration": "3:35",
+      "duration_sec": 215,
       "notes": "Intro; Verse 1; ; Bridge; ; Chorus; ; Thema; Verse 2; Bridge; Chorus; rest 8/4; Guitar+Clap; Guitar Solo; Chorus; End",
       "parts": {
         "5D6dZO_P001": {
@@ -3470,7 +3470,8 @@
           "qlc_scene": "Spot auf Bibo",
           "qlc_scene_id": 227,
           "timestamp": "",
-          "notes": ""
+          "notes": "",
+          "start_bar": 1
         },
         "5D6dZO_P002": {
           "pos": 2,
@@ -3497,7 +3498,7 @@
         "5D6dZO_P004": {
           "pos": 4,
           "name": "Thema 1",
-          "bars": 9,
+          "bars": 8,
           "duration_sec": 9,
           "light_template": "intro_buildup",
           "qlc_scene": "09 Alarm",
@@ -3508,8 +3509,8 @@
         "5D6dZO_P005": {
           "pos": 5,
           "name": "Verse 1",
-          "bars": 17,
-          "duration_sec": 4,
+          "bars": 16,
+          "duration_sec": 19,
           "light_template": "verse_driving",
           "qlc_scene": "Spot auf Pete",
           "qlc_scene_id": 228,
@@ -3519,8 +3520,8 @@
         "5D6dZO_P008": {
           "pos": 6,
           "name": "Bridge 1",
-          "bars": 9,
-          "duration_sec": 1,
+          "bars": 8,
+          "duration_sec": 9,
           "light_template": "generic_bpm",
           "qlc_scene": "01 statisch bunt",
           "qlc_scene_id": 71,
@@ -3644,7 +3645,7 @@
             "partId": "5D6dZO_P004"
           },
           {
-            "time": 38.599306476279644,
+            "time": 38.50219898026689,
             "partIndex": 4,
             "partId": "5D6dZO_P005"
           },
@@ -15376,6 +15377,1189 @@
       "bar_num": 12,
       "lyrics": "",
       "audio": "",
+      "has_accents": false
+    },
+    "B0283": {
+      "part_id": "5D6dZO_P001",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/01 Bass Solo mit Tambourine/001 Are You Gonna Be My Girl Bass Solo mit Tambourine.mp3",
+      "has_accents": false
+    },
+    "B0284": {
+      "part_id": "5D6dZO_P001",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/01 Bass Solo mit Tambourine/002 Are You Gonna Be My Girl Bass Solo mit Tambourine.mp3",
+      "has_accents": false
+    },
+    "B0285": {
+      "part_id": "5D6dZO_P001",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/01 Bass Solo mit Tambourine/003 Are You Gonna Be My Girl Bass Solo mit Tambourine.mp3",
+      "has_accents": false
+    },
+    "B0286": {
+      "part_id": "5D6dZO_P001",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/01 Bass Solo mit Tambourine/004 Are You Gonna Be My Girl Bass Solo mit Tambourine.mp3",
+      "has_accents": false
+    },
+    "B0287": {
+      "part_id": "5D6dZO_P001",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/01 Bass Solo mit Tambourine/005 Are You Gonna Be My Girl Bass Solo mit Tambourine.mp3",
+      "has_accents": false
+    },
+    "B0288": {
+      "part_id": "5D6dZO_P001",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/01 Bass Solo mit Tambourine/006 Are You Gonna Be My Girl Bass Solo mit Tambourine.mp3",
+      "has_accents": false
+    },
+    "B0289": {
+      "part_id": "5D6dZO_P001",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/01 Bass Solo mit Tambourine/007 Are You Gonna Be My Girl Bass Solo mit Tambourine.mp3",
+      "has_accents": false
+    },
+    "B0290": {
+      "part_id": "5D6dZO_P001",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/01 Bass Solo mit Tambourine/008 Are You Gonna Be My Girl Bass Solo mit Tambourine.mp3",
+      "has_accents": false
+    },
+    "B0291": {
+      "part_id": "5D6dZO_P002",
+      "bar_num": 9,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/02 + Drums/009 Are You Gonna Be My Girl + Drums.mp3",
+      "has_accents": false
+    },
+    "B0292": {
+      "part_id": "5D6dZO_P002",
+      "bar_num": 10,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/02 + Drums/010 Are You Gonna Be My Girl + Drums.mp3",
+      "has_accents": false
+    },
+    "B0293": {
+      "part_id": "5D6dZO_P002",
+      "bar_num": 11,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/02 + Drums/011 Are You Gonna Be My Girl + Drums.mp3",
+      "has_accents": false
+    },
+    "B0294": {
+      "part_id": "5D6dZO_P002",
+      "bar_num": 12,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/02 + Drums/012 Are You Gonna Be My Girl + Drums.mp3",
+      "has_accents": false
+    },
+    "B0295": {
+      "part_id": "5D6dZO_P002",
+      "bar_num": 13,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/02 + Drums/013 Are You Gonna Be My Girl + Drums.mp3",
+      "has_accents": false
+    },
+    "B0296": {
+      "part_id": "5D6dZO_P002",
+      "bar_num": 14,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/02 + Drums/014 Are You Gonna Be My Girl + Drums.mp3",
+      "has_accents": false
+    },
+    "B0297": {
+      "part_id": "5D6dZO_P003",
+      "bar_num": 15,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/03 Mini-Solo Axel/015 Are You Gonna Be My Girl Mini-Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0298": {
+      "part_id": "5D6dZO_P003",
+      "bar_num": 16,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/03 Mini-Solo Axel/016 Are You Gonna Be My Girl Mini-Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0299": {
+      "part_id": "5D6dZO_P004",
+      "bar_num": 17,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/04 Thema 1/017 Are You Gonna Be My Girl Thema 1.mp3",
+      "has_accents": false
+    },
+    "B0300": {
+      "part_id": "5D6dZO_P004",
+      "bar_num": 18,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/04 Thema 1/018 Are You Gonna Be My Girl Thema 1.mp3",
+      "has_accents": false
+    },
+    "B0301": {
+      "part_id": "5D6dZO_P004",
+      "bar_num": 19,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/04 Thema 1/019 Are You Gonna Be My Girl Thema 1.mp3",
+      "has_accents": false
+    },
+    "B0302": {
+      "part_id": "5D6dZO_P004",
+      "bar_num": 20,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/04 Thema 1/020 Are You Gonna Be My Girl Thema 1.mp3",
+      "has_accents": false
+    },
+    "B0303": {
+      "part_id": "5D6dZO_P004",
+      "bar_num": 21,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/04 Thema 1/021 Are You Gonna Be My Girl Thema 1.mp3",
+      "has_accents": false
+    },
+    "B0304": {
+      "part_id": "5D6dZO_P004",
+      "bar_num": 22,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/04 Thema 1/022 Are You Gonna Be My Girl Thema 1.mp3",
+      "has_accents": false
+    },
+    "B0305": {
+      "part_id": "5D6dZO_P004",
+      "bar_num": 23,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/04 Thema 1/023 Are You Gonna Be My Girl Thema 1.mp3",
+      "has_accents": false
+    },
+    "B0306": {
+      "part_id": "5D6dZO_P004",
+      "bar_num": 24,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/04 Thema 1/024 Are You Gonna Be My Girl Thema 1.mp3",
+      "has_accents": false
+    },
+    "B0308": {
+      "part_id": "5D6dZO_P005",
+      "bar_num": 25,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/05 Verse 1/026 Are You Gonna Be My Girl Verse 1.mp3",
+      "has_accents": false
+    },
+    "B0309": {
+      "part_id": "5D6dZO_P005",
+      "bar_num": 26,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/05 Verse 1/027 Are You Gonna Be My Girl Verse 1.mp3",
+      "has_accents": false
+    },
+    "B0310": {
+      "part_id": "5D6dZO_P005",
+      "bar_num": 27,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/05 Verse 1/028 Are You Gonna Be My Girl Verse 1.mp3",
+      "has_accents": false
+    },
+    "B0311": {
+      "part_id": "5D6dZO_P005",
+      "bar_num": 28,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/05 Verse 1/029 Are You Gonna Be My Girl Verse 1.mp3",
+      "has_accents": false
+    },
+    "B0312": {
+      "part_id": "5D6dZO_P005",
+      "bar_num": 29,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/05 Verse 1/030 Are You Gonna Be My Girl Verse 1.mp3",
+      "has_accents": false
+    },
+    "B0313": {
+      "part_id": "5D6dZO_P005",
+      "bar_num": 30,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/05 Verse 1/031 Are You Gonna Be My Girl Verse 1.mp3",
+      "has_accents": false
+    },
+    "B0314": {
+      "part_id": "5D6dZO_P005",
+      "bar_num": 31,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/05 Verse 1/032 Are You Gonna Be My Girl Verse 1.mp3",
+      "has_accents": false
+    },
+    "B0315": {
+      "part_id": "5D6dZO_P005",
+      "bar_num": 32,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/05 Verse 1/033 Are You Gonna Be My Girl Verse 1.mp3",
+      "has_accents": false
+    },
+    "B0316": {
+      "part_id": "5D6dZO_P005",
+      "bar_num": 33,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/05 Verse 1/034 Are You Gonna Be My Girl Verse 1.mp3",
+      "has_accents": false
+    },
+    "B0317": {
+      "part_id": "5D6dZO_P005",
+      "bar_num": 34,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/05 Verse 1/035 Are You Gonna Be My Girl Verse 1.mp3",
+      "has_accents": false
+    },
+    "B0318": {
+      "part_id": "5D6dZO_P005",
+      "bar_num": 35,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/05 Verse 1/036 Are You Gonna Be My Girl Verse 1.mp3",
+      "has_accents": false
+    },
+    "B0319": {
+      "part_id": "5D6dZO_P005",
+      "bar_num": 36,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/05 Verse 1/037 Are You Gonna Be My Girl Verse 1.mp3",
+      "has_accents": false
+    },
+    "B0320": {
+      "part_id": "5D6dZO_P005",
+      "bar_num": 37,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/05 Verse 1/038 Are You Gonna Be My Girl Verse 1.mp3",
+      "has_accents": false
+    },
+    "B0321": {
+      "part_id": "5D6dZO_P005",
+      "bar_num": 38,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/05 Verse 1/039 Are You Gonna Be My Girl Verse 1.mp3",
+      "has_accents": false
+    },
+    "B0322": {
+      "part_id": "5D6dZO_P005",
+      "bar_num": 39,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/05 Verse 1/040 Are You Gonna Be My Girl Verse 1.mp3",
+      "has_accents": false
+    },
+    "B0323": {
+      "part_id": "5D6dZO_P005",
+      "bar_num": 40,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/05 Verse 1/041 Are You Gonna Be My Girl Verse 1.mp3",
+      "has_accents": false
+    },
+    "B0325": {
+      "part_id": "5D6dZO_P008",
+      "bar_num": 41,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/06 Bridge 1/043 Are You Gonna Be My Girl Bridge 1.mp3",
+      "has_accents": false
+    },
+    "B0326": {
+      "part_id": "5D6dZO_P008",
+      "bar_num": 42,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/06 Bridge 1/044 Are You Gonna Be My Girl Bridge 1.mp3",
+      "has_accents": false
+    },
+    "B0327": {
+      "part_id": "5D6dZO_P008",
+      "bar_num": 43,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/06 Bridge 1/045 Are You Gonna Be My Girl Bridge 1.mp3",
+      "has_accents": false
+    },
+    "B0328": {
+      "part_id": "5D6dZO_P008",
+      "bar_num": 44,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/06 Bridge 1/046 Are You Gonna Be My Girl Bridge 1.mp3",
+      "has_accents": false
+    },
+    "B0329": {
+      "part_id": "5D6dZO_P008",
+      "bar_num": 45,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/06 Bridge 1/047 Are You Gonna Be My Girl Bridge 1.mp3",
+      "has_accents": false
+    },
+    "B0330": {
+      "part_id": "5D6dZO_P008",
+      "bar_num": 46,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/06 Bridge 1/048 Are You Gonna Be My Girl Bridge 1.mp3",
+      "has_accents": false
+    },
+    "B0331": {
+      "part_id": "5D6dZO_P008",
+      "bar_num": 47,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/06 Bridge 1/049 Are You Gonna Be My Girl Bridge 1.mp3",
+      "has_accents": false
+    },
+    "B0332": {
+      "part_id": "5D6dZO_P008",
+      "bar_num": 48,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/06 Bridge 1/050 Are You Gonna Be My Girl Bridge 1.mp3",
+      "has_accents": false
+    },
+    "B0334": {
+      "part_id": "5D6dZO_P012",
+      "bar_num": 49,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/052 Are You Gonna Be My Girl Chorus 1.mp3",
+      "has_accents": false
+    },
+    "B0335": {
+      "part_id": "5D6dZO_P012",
+      "bar_num": 50,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/053 Are You Gonna Be My Girl Chorus 1.mp3",
+      "has_accents": false
+    },
+    "B0336": {
+      "part_id": "5D6dZO_P012",
+      "bar_num": 51,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/054 Are You Gonna Be My Girl Chorus 1.mp3",
+      "has_accents": false
+    },
+    "B0337": {
+      "part_id": "5D6dZO_P012",
+      "bar_num": 52,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/055 Are You Gonna Be My Girl Chorus 1.mp3",
+      "has_accents": false
+    },
+    "B0338": {
+      "part_id": "5D6dZO_P012",
+      "bar_num": 53,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/056 Are You Gonna Be My Girl Chorus 1.mp3",
+      "has_accents": false
+    },
+    "B0339": {
+      "part_id": "5D6dZO_P012",
+      "bar_num": 54,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/057 Are You Gonna Be My Girl Chorus 1.mp3",
+      "has_accents": false
+    },
+    "B0340": {
+      "part_id": "5D6dZO_P012",
+      "bar_num": 55,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/058 Are You Gonna Be My Girl Chorus 1.mp3",
+      "has_accents": false
+    },
+    "B0341": {
+      "part_id": "5D6dZO_P012",
+      "bar_num": 56,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/059 Are You Gonna Be My Girl Chorus 1.mp3",
+      "has_accents": false
+    },
+    "B0342": {
+      "part_id": "5D6dZO_P012",
+      "bar_num": 57,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/060 Are You Gonna Be My Girl Chorus 1.mp3",
+      "has_accents": false
+    },
+    "B0343": {
+      "part_id": "5D6dZO_P012",
+      "bar_num": 58,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/061 Are You Gonna Be My Girl Chorus 1.mp3",
+      "has_accents": false
+    },
+    "B0344": {
+      "part_id": "5D6dZO_P012",
+      "bar_num": 59,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/062 Are You Gonna Be My Girl Chorus 1.mp3",
+      "has_accents": false
+    },
+    "B0345": {
+      "part_id": "5D6dZO_P012",
+      "bar_num": 60,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/063 Are You Gonna Be My Girl Chorus 1.mp3",
+      "has_accents": false
+    },
+    "B0346": {
+      "part_id": "5D6dZO_P012",
+      "bar_num": 61,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/064 Are You Gonna Be My Girl Chorus 1.mp3",
+      "has_accents": false
+    },
+    "B0347": {
+      "part_id": "5D6dZO_P012",
+      "bar_num": 62,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/065 Are You Gonna Be My Girl Chorus 1.mp3",
+      "has_accents": false
+    },
+    "B0348": {
+      "part_id": "5D6dZO_P012",
+      "bar_num": 63,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/066 Are You Gonna Be My Girl Chorus 1.mp3",
+      "has_accents": false
+    },
+    "B0349": {
+      "part_id": "5D6dZO_P012",
+      "bar_num": 64,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/067 Are You Gonna Be My Girl Chorus 1.mp3",
+      "has_accents": false
+    },
+    "B0350": {
+      "part_id": "5D6dZO_P012",
+      "bar_num": 65,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/068 Are You Gonna Be My Girl Chorus 1.mp3",
+      "has_accents": false
+    },
+    "B0351": {
+      "part_id": "5D6dZO_P012",
+      "bar_num": 66,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/069 Are You Gonna Be My Girl Chorus 1.mp3",
+      "has_accents": false
+    },
+    "B0352": {
+      "part_id": "5D6dZO_P012",
+      "bar_num": 67,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/070 Are You Gonna Be My Girl Chorus 1.mp3",
+      "has_accents": false
+    },
+    "B0353": {
+      "part_id": "5D6dZO_P013",
+      "bar_num": 68,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/08 Thema 2/071 Are You Gonna Be My Girl Thema 2.mp3",
+      "has_accents": false
+    },
+    "B0354": {
+      "part_id": "5D6dZO_P013",
+      "bar_num": 69,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/08 Thema 2/072 Are You Gonna Be My Girl Thema 2.mp3",
+      "has_accents": false
+    },
+    "B0355": {
+      "part_id": "5D6dZO_P013",
+      "bar_num": 70,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/08 Thema 2/073 Are You Gonna Be My Girl Thema 2.mp3",
+      "has_accents": false
+    },
+    "B0356": {
+      "part_id": "5D6dZO_P013",
+      "bar_num": 71,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/08 Thema 2/074 Are You Gonna Be My Girl Thema 2.mp3",
+      "has_accents": false
+    },
+    "B0357": {
+      "part_id": "5D6dZO_P013",
+      "bar_num": 72,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/08 Thema 2/075 Are You Gonna Be My Girl Thema 2.mp3",
+      "has_accents": false
+    },
+    "B0358": {
+      "part_id": "5D6dZO_P013",
+      "bar_num": 73,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/08 Thema 2/076 Are You Gonna Be My Girl Thema 2.mp3",
+      "has_accents": false
+    },
+    "B0359": {
+      "part_id": "5D6dZO_P013",
+      "bar_num": 74,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/08 Thema 2/077 Are You Gonna Be My Girl Thema 2.mp3",
+      "has_accents": false
+    },
+    "B0360": {
+      "part_id": "5D6dZO_P013",
+      "bar_num": 75,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/08 Thema 2/078 Are You Gonna Be My Girl Thema 2.mp3",
+      "has_accents": false
+    },
+    "B0361": {
+      "part_id": "5D6dZO_P015",
+      "bar_num": 76,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/09 Verse 2/079 Are You Gonna Be My Girl Verse 2.mp3",
+      "has_accents": false
+    },
+    "B0362": {
+      "part_id": "5D6dZO_P015",
+      "bar_num": 77,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/09 Verse 2/080 Are You Gonna Be My Girl Verse 2.mp3",
+      "has_accents": false
+    },
+    "B0363": {
+      "part_id": "5D6dZO_P015",
+      "bar_num": 78,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/09 Verse 2/081 Are You Gonna Be My Girl Verse 2.mp3",
+      "has_accents": false
+    },
+    "B0364": {
+      "part_id": "5D6dZO_P015",
+      "bar_num": 79,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/09 Verse 2/082 Are You Gonna Be My Girl Verse 2.mp3",
+      "has_accents": false
+    },
+    "B0365": {
+      "part_id": "5D6dZO_P015",
+      "bar_num": 80,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/09 Verse 2/083 Are You Gonna Be My Girl Verse 2.mp3",
+      "has_accents": false
+    },
+    "B0366": {
+      "part_id": "5D6dZO_P015",
+      "bar_num": 81,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/09 Verse 2/084 Are You Gonna Be My Girl Verse 2.mp3",
+      "has_accents": false
+    },
+    "B0367": {
+      "part_id": "5D6dZO_P015",
+      "bar_num": 82,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/09 Verse 2/085 Are You Gonna Be My Girl Verse 2.mp3",
+      "has_accents": false
+    },
+    "B0368": {
+      "part_id": "5D6dZO_P015",
+      "bar_num": 83,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/09 Verse 2/086 Are You Gonna Be My Girl Verse 2.mp3",
+      "has_accents": false
+    },
+    "B0369": {
+      "part_id": "5D6dZO_P015",
+      "bar_num": 84,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/09 Verse 2/087 Are You Gonna Be My Girl Verse 2.mp3",
+      "has_accents": false
+    },
+    "B0370": {
+      "part_id": "5D6dZO_P015",
+      "bar_num": 85,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/09 Verse 2/088 Are You Gonna Be My Girl Verse 2.mp3",
+      "has_accents": false
+    },
+    "B0371": {
+      "part_id": "5D6dZO_P015",
+      "bar_num": 86,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/09 Verse 2/089 Are You Gonna Be My Girl Verse 2.mp3",
+      "has_accents": false
+    },
+    "B0372": {
+      "part_id": "5D6dZO_P015",
+      "bar_num": 87,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/09 Verse 2/090 Are You Gonna Be My Girl Verse 2.mp3",
+      "has_accents": false
+    },
+    "B0373": {
+      "part_id": "5D6dZO_P015",
+      "bar_num": 88,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/09 Verse 2/091 Are You Gonna Be My Girl Verse 2.mp3",
+      "has_accents": false
+    },
+    "B0374": {
+      "part_id": "5D6dZO_P015",
+      "bar_num": 89,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/09 Verse 2/092 Are You Gonna Be My Girl Verse 2.mp3",
+      "has_accents": false
+    },
+    "B0375": {
+      "part_id": "5D6dZO_P015",
+      "bar_num": 90,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/09 Verse 2/093 Are You Gonna Be My Girl Verse 2.mp3",
+      "has_accents": false
+    },
+    "B0376": {
+      "part_id": "5D6dZO_P015",
+      "bar_num": 91,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/09 Verse 2/094 Are You Gonna Be My Girl Verse 2.mp3",
+      "has_accents": false
+    },
+    "B0377": {
+      "part_id": "5D6dZO_P015",
+      "bar_num": 92,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/09 Verse 2/095 Are You Gonna Be My Girl Verse 2.mp3",
+      "has_accents": false
+    },
+    "B0378": {
+      "part_id": "5D6dZO_P015",
+      "bar_num": 93,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/09 Verse 2/096 Are You Gonna Be My Girl Verse 2.mp3",
+      "has_accents": false
+    },
+    "B0379": {
+      "part_id": "5D6dZO_P015",
+      "bar_num": 94,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/09 Verse 2/097 Are You Gonna Be My Girl Verse 2.mp3",
+      "has_accents": false
+    },
+    "B0380": {
+      "part_id": "5D6dZO_P016",
+      "bar_num": 95,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/10 Bridge 2/098 Are You Gonna Be My Girl Bridge 2.mp3",
+      "has_accents": false
+    },
+    "B0381": {
+      "part_id": "5D6dZO_P016",
+      "bar_num": 96,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/10 Bridge 2/099 Are You Gonna Be My Girl Bridge 2.mp3",
+      "has_accents": false
+    },
+    "B0382": {
+      "part_id": "5D6dZO_P016",
+      "bar_num": 97,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/10 Bridge 2/100 Are You Gonna Be My Girl Bridge 2.mp3",
+      "has_accents": false
+    },
+    "B0383": {
+      "part_id": "5D6dZO_P016",
+      "bar_num": 98,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/10 Bridge 2/101 Are You Gonna Be My Girl Bridge 2.mp3",
+      "has_accents": false
+    },
+    "B0384": {
+      "part_id": "5D6dZO_P016",
+      "bar_num": 99,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/10 Bridge 2/102 Are You Gonna Be My Girl Bridge 2.mp3",
+      "has_accents": false
+    },
+    "B0385": {
+      "part_id": "5D6dZO_P016",
+      "bar_num": 100,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/10 Bridge 2/103 Are You Gonna Be My Girl Bridge 2.mp3",
+      "has_accents": false
+    },
+    "B0386": {
+      "part_id": "5D6dZO_P016",
+      "bar_num": 101,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/10 Bridge 2/104 Are You Gonna Be My Girl Bridge 2.mp3",
+      "has_accents": false
+    },
+    "B0387": {
+      "part_id": "5D6dZO_P016",
+      "bar_num": 102,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/10 Bridge 2/105 Are You Gonna Be My Girl Bridge 2.mp3",
+      "has_accents": false
+    },
+    "B0388": {
+      "part_id": "5D6dZO_P022",
+      "bar_num": 103,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/11 Chorus 2/106 Are You Gonna Be My Girl Chorus 2.mp3",
+      "has_accents": false
+    },
+    "B0389": {
+      "part_id": "5D6dZO_P022",
+      "bar_num": 104,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/11 Chorus 2/107 Are You Gonna Be My Girl Chorus 2.mp3",
+      "has_accents": false
+    },
+    "B0390": {
+      "part_id": "5D6dZO_P022",
+      "bar_num": 105,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/11 Chorus 2/108 Are You Gonna Be My Girl Chorus 2.mp3",
+      "has_accents": false
+    },
+    "B0391": {
+      "part_id": "5D6dZO_P022",
+      "bar_num": 106,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/11 Chorus 2/109 Are You Gonna Be My Girl Chorus 2.mp3",
+      "has_accents": false
+    },
+    "B0392": {
+      "part_id": "5D6dZO_P022",
+      "bar_num": 107,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/11 Chorus 2/110 Are You Gonna Be My Girl Chorus 2.mp3",
+      "has_accents": false
+    },
+    "B0393": {
+      "part_id": "5D6dZO_P022",
+      "bar_num": 108,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/11 Chorus 2/111 Are You Gonna Be My Girl Chorus 2.mp3",
+      "has_accents": false
+    },
+    "B0394": {
+      "part_id": "5D6dZO_P022",
+      "bar_num": 109,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/11 Chorus 2/112 Are You Gonna Be My Girl Chorus 2.mp3",
+      "has_accents": false
+    },
+    "B0395": {
+      "part_id": "5D6dZO_P022",
+      "bar_num": 110,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/11 Chorus 2/113 Are You Gonna Be My Girl Chorus 2.mp3",
+      "has_accents": false
+    },
+    "B0396": {
+      "part_id": "5D6dZO_P022",
+      "bar_num": 114,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/11 Chorus 2/114 Are You Gonna Be My Girl Chorus 2.mp3",
+      "has_accents": false
+    },
+    "B0397": {
+      "part_id": "5D6dZO_P022",
+      "bar_num": 115,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/11 Chorus 2/115 Are You Gonna Be My Girl Chorus 2.mp3",
+      "has_accents": false
+    },
+    "B0398": {
+      "part_id": "5D6dZO_P022",
+      "bar_num": 116,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/11 Chorus 2/116 Are You Gonna Be My Girl Chorus 2.mp3",
+      "has_accents": false
+    },
+    "B0399": {
+      "part_id": "5D6dZO_P022",
+      "bar_num": 117,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/11 Chorus 2/117 Are You Gonna Be My Girl Chorus 2.mp3",
+      "has_accents": false
+    },
+    "B0400": {
+      "part_id": "5D6dZO_P022",
+      "bar_num": 118,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/11 Chorus 2/118 Are You Gonna Be My Girl Chorus 2.mp3",
+      "has_accents": false
+    },
+    "B0401": {
+      "part_id": "5D6dZO_P022",
+      "bar_num": 119,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/11 Chorus 2/119 Are You Gonna Be My Girl Chorus 2.mp3",
+      "has_accents": false
+    },
+    "B0402": {
+      "part_id": "5D6dZO_P022",
+      "bar_num": 120,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/11 Chorus 2/120 Are You Gonna Be My Girl Chorus 2.mp3",
+      "has_accents": false
+    },
+    "B0403": {
+      "part_id": "5D6dZO_P022",
+      "bar_num": 121,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/11 Chorus 2/121 Are You Gonna Be My Girl Chorus 2.mp3",
+      "has_accents": false
+    },
+    "B0404": {
+      "part_id": "5D6dZO_P022",
+      "bar_num": 122,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/11 Chorus 2/122 Are You Gonna Be My Girl Chorus 2.mp3",
+      "has_accents": false
+    },
+    "B0405": {
+      "part_id": "5D6dZO_P022",
+      "bar_num": 123,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/11 Chorus 2/123 Are You Gonna Be My Girl Chorus 2.mp3",
+      "has_accents": false
+    },
+    "B0406": {
+      "part_id": "5D6dZO_P022",
+      "bar_num": 124,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/11 Chorus 2/124 Are You Gonna Be My Girl Chorus 2.mp3",
+      "has_accents": false
+    },
+    "B0407": {
+      "part_id": "5D6dZO_P026",
+      "bar_num": 125,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/125 Are You Gonna Be My Girl Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0408": {
+      "part_id": "5D6dZO_P026",
+      "bar_num": 126,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/126 Are You Gonna Be My Girl Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0409": {
+      "part_id": "5D6dZO_P026",
+      "bar_num": 127,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/127 Are You Gonna Be My Girl Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0410": {
+      "part_id": "5D6dZO_P026",
+      "bar_num": 128,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/128 Are You Gonna Be My Girl Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0411": {
+      "part_id": "5D6dZO_P026",
+      "bar_num": 129,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/129 Are You Gonna Be My Girl Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0412": {
+      "part_id": "5D6dZO_P026",
+      "bar_num": 130,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/130 Are You Gonna Be My Girl Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0413": {
+      "part_id": "5D6dZO_P026",
+      "bar_num": 131,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/131 Are You Gonna Be My Girl Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0414": {
+      "part_id": "5D6dZO_P026",
+      "bar_num": 132,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/132 Are You Gonna Be My Girl Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0415": {
+      "part_id": "5D6dZO_P026",
+      "bar_num": 133,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/133 Are You Gonna Be My Girl Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0416": {
+      "part_id": "5D6dZO_P026",
+      "bar_num": 134,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/134 Are You Gonna Be My Girl Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0417": {
+      "part_id": "5D6dZO_P026",
+      "bar_num": 135,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/135 Are You Gonna Be My Girl Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0418": {
+      "part_id": "5D6dZO_P026",
+      "bar_num": 136,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/136 Are You Gonna Be My Girl Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0419": {
+      "part_id": "5D6dZO_P026",
+      "bar_num": 137,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/137 Are You Gonna Be My Girl Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0420": {
+      "part_id": "5D6dZO_P026",
+      "bar_num": 138,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/138 Are You Gonna Be My Girl Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0421": {
+      "part_id": "5D6dZO_P026",
+      "bar_num": 139,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/139 Are You Gonna Be My Girl Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0422": {
+      "part_id": "5D6dZO_P026",
+      "bar_num": 140,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/140 Are You Gonna Be My Girl Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0423": {
+      "part_id": "5D6dZO_P026",
+      "bar_num": 141,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/141 Are You Gonna Be My Girl Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0424": {
+      "part_id": "5D6dZO_P026",
+      "bar_num": 142,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/142 Are You Gonna Be My Girl Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0425": {
+      "part_id": "5D6dZO_P026",
+      "bar_num": 143,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/143 Are You Gonna Be My Girl Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0426": {
+      "part_id": "5D6dZO_P026",
+      "bar_num": 144,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/144 Are You Gonna Be My Girl Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0427": {
+      "part_id": "5D6dZO_P026",
+      "bar_num": 145,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/145 Are You Gonna Be My Girl Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0428": {
+      "part_id": "5D6dZO_P026",
+      "bar_num": 146,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/146 Are You Gonna Be My Girl Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0429": {
+      "part_id": "5D6dZO_P026",
+      "bar_num": 147,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/147 Are You Gonna Be My Girl Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0430": {
+      "part_id": "5D6dZO_P026",
+      "bar_num": 148,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/148 Are You Gonna Be My Girl Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0431": {
+      "part_id": "5D6dZO_P026",
+      "bar_num": 149,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/149 Are You Gonna Be My Girl Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0432": {
+      "part_id": "5D6dZO_P026",
+      "bar_num": 150,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/150 Are You Gonna Be My Girl Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0433": {
+      "part_id": "5D6dZO_P026",
+      "bar_num": 151,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/151 Are You Gonna Be My Girl Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0434": {
+      "part_id": "5D6dZO_P026",
+      "bar_num": 152,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/152 Are You Gonna Be My Girl Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0435": {
+      "part_id": "5D6dZO_P026",
+      "bar_num": 153,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/153 Are You Gonna Be My Girl Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0436": {
+      "part_id": "5D6dZO_P026",
+      "bar_num": 154,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/154 Are You Gonna Be My Girl Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0437": {
+      "part_id": "5D6dZO_P026",
+      "bar_num": 155,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/155 Are You Gonna Be My Girl Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0438": {
+      "part_id": "5D6dZO_P026",
+      "bar_num": 156,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/156 Are You Gonna Be My Girl Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0439": {
+      "part_id": "5D6dZO_P026",
+      "bar_num": 157,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/157 Are You Gonna Be My Girl Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0440": {
+      "part_id": "5D6dZO_P026",
+      "bar_num": 158,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/158 Are You Gonna Be My Girl Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0441": {
+      "part_id": "5D6dZO_P026",
+      "bar_num": 159,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/159 Are You Gonna Be My Girl Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0442": {
+      "part_id": "5D6dZO_P026",
+      "bar_num": 160,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/160 Are You Gonna Be My Girl Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0443": {
+      "part_id": "5D6dZO_P026",
+      "bar_num": 161,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/161 Are You Gonna Be My Girl Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0444": {
+      "part_id": "5D6dZO_P026",
+      "bar_num": 162,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/162 Are You Gonna Be My Girl Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0445": {
+      "part_id": "5D6dZO_P026",
+      "bar_num": 163,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/163 Are You Gonna Be My Girl Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0446": {
+      "part_id": "5D6dZO_P026",
+      "bar_num": 164,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/164 Are You Gonna Be My Girl Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0447": {
+      "part_id": "5D6dZO_P024",
+      "bar_num": 165,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/13 Chorus 3/165 Are You Gonna Be My Girl Chorus 3.mp3",
+      "has_accents": false
+    },
+    "B0448": {
+      "part_id": "5D6dZO_P024",
+      "bar_num": 166,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/13 Chorus 3/166 Are You Gonna Be My Girl Chorus 3.mp3",
+      "has_accents": false
+    },
+    "B0449": {
+      "part_id": "5D6dZO_P024",
+      "bar_num": 167,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/13 Chorus 3/167 Are You Gonna Be My Girl Chorus 3.mp3",
+      "has_accents": false
+    },
+    "B0450": {
+      "part_id": "5D6dZO_P024",
+      "bar_num": 168,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/13 Chorus 3/168 Are You Gonna Be My Girl Chorus 3.mp3",
+      "has_accents": false
+    },
+    "B0451": {
+      "part_id": "5D6dZO_P024",
+      "bar_num": 169,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/13 Chorus 3/169 Are You Gonna Be My Girl Chorus 3.mp3",
+      "has_accents": false
+    },
+    "B0452": {
+      "part_id": "5D6dZO_P024",
+      "bar_num": 170,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/13 Chorus 3/170 Are You Gonna Be My Girl Chorus 3.mp3",
+      "has_accents": false
+    },
+    "B0453": {
+      "part_id": "5D6dZO_P024",
+      "bar_num": 171,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/13 Chorus 3/171 Are You Gonna Be My Girl Chorus 3.mp3",
+      "has_accents": false
+    },
+    "B0454": {
+      "part_id": "5D6dZO_P024",
+      "bar_num": 172,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/13 Chorus 3/172 Are You Gonna Be My Girl Chorus 3.mp3",
       "has_accents": false
     }
   },

@@ -961,7 +961,7 @@
             "partId": "tdyEcs_P001"
           },
           {
-            "time": 12.758083333333333,
+            "time": 12.924792244816587,
             "partIndex": 1,
             "partId": "tdyEcs_P002"
           },
@@ -981,7 +981,7 @@
             "partId": "tdyEcs_P005"
           },
           {
-            "time": 50.120125,
+            "time": 50.08164502591707,
             "partIndex": 5,
             "partId": "tdyEcs_P006"
           },
@@ -1001,12 +1001,12 @@
             "partId": "tdyEcs_P009"
           },
           {
-            "time": 93.66435416666667,
+            "time": 93.4406149322169,
             "partIndex": 9,
             "partId": "tdyEcs_P010"
           },
           {
-            "time": 99.66916666666667,
+            "time": 99.61611967103356,
             "partIndex": 10,
             "partId": "tdyEcs_P011"
           },
@@ -1051,14 +1051,14 @@
             "partId": "tdyEcs_P019"
           },
           {
-            "time": 197.3675,
+            "time": 197.2376677631579,
             "partIndex": 19,
             "partId": "tdyEcs_P020"
           }
         ],
         "barMarkers": [
           {
-            "time": 0.571,
+            "time": 0.5706458333333333,
             "partIndex": 0,
             "partId": "tdyEcs_P001"
           },
@@ -1098,7 +1098,7 @@
             "partId": "tdyEcs_P001"
           },
           {
-            "time": 12.922333333333333,
+            "time": 12.924792244816587,
             "partIndex": 1,
             "partId": "tdyEcs_P002"
           },
@@ -1138,8 +1138,8 @@
             "partId": "tdyEcs_P002"
           },
           {
-            "time": 25.226666666666667,
-            "partIndex": 1,
+            "time": 25.345708333333334,
+            "partIndex": 2,
             "partId": "tdyEcs_P002"
           },
           {
@@ -1158,8 +1158,8 @@
             "partId": "tdyEcs_P003"
           },
           {
-            "time": 31.521104166666667,
-            "partIndex": 2,
+            "time": 31.5165625,
+            "partIndex": 3,
             "partId": "tdyEcs_P003"
           },
           {
@@ -1198,8 +1198,8 @@
             "partId": "tdyEcs_P004"
           },
           {
-            "time": 43.806104166666664,
-            "partIndex": 3,
+            "time": 43.933729166666666,
+            "partIndex": 4,
             "partId": "tdyEcs_P004"
           },
           {
@@ -1218,8 +1218,8 @@
             "partId": "tdyEcs_P005"
           },
           {
-            "time": 50.119770833333334,
-            "partIndex": 4,
+            "time": 50.08164502591707,
+            "partIndex": 5,
             "partId": "tdyEcs_P005"
           },
           {
@@ -1258,8 +1258,8 @@
             "partId": "tdyEcs_P006"
           },
           {
-            "time": 62.5164375,
-            "partIndex": 5,
+            "time": 62.599645833333334,
+            "partIndex": 6,
             "partId": "tdyEcs_P006"
           },
           {
@@ -1298,8 +1298,8 @@
             "partId": "tdyEcs_P007"
           },
           {
-            "time": 74.64610416666666,
-            "partIndex": 6,
+            "time": 74.89008333333334,
+            "partIndex": 7,
             "partId": "tdyEcs_P007"
           },
           {
@@ -1318,8 +1318,8 @@
             "partId": "tdyEcs_P008"
           },
           {
-            "time": 80.94377083333333,
-            "partIndex": 7,
+            "time": 81.06572916666667,
+            "partIndex": 8,
             "partId": "tdyEcs_P008"
           },
           {
@@ -1373,8 +1373,8 @@
             "partId": "tdyEcs_P010"
           },
           {
-            "time": 99.66877083333334,
-            "partIndex": 9,
+            "time": 99.61611967103356,
+            "partIndex": 10,
             "partId": "tdyEcs_P010"
           },
           {
@@ -1413,8 +1413,8 @@
             "partId": "tdyEcs_P011"
           },
           {
-            "time": 111.89277083333333,
-            "partIndex": 10,
+            "time": 112.06597916666666,
+            "partIndex": 11,
             "partId": "tdyEcs_P011"
           },
           {
@@ -1453,8 +1453,8 @@
             "partId": "tdyEcs_P012"
           },
           {
-            "time": 124.33010416666667,
-            "partIndex": 11,
+            "time": 124.4438125,
+            "partIndex": 12,
             "partId": "tdyEcs_P012"
           },
           {
@@ -1473,8 +1473,8 @@
             "partId": "tdyEcs_P013"
           },
           {
-            "time": 130.55077083333333,
-            "partIndex": 12,
+            "time": 130.6145625,
+            "partIndex": 13,
             "partId": "tdyEcs_P013"
           },
           {
@@ -1513,8 +1513,8 @@
             "partId": "tdyEcs_P014"
           },
           {
-            "time": 142.90410416666666,
-            "partIndex": 13,
+            "time": 143.03604166666668,
+            "partIndex": 14,
             "partId": "tdyEcs_P014"
           },
           {
@@ -1533,8 +1533,8 @@
             "partId": "tdyEcs_P015"
           },
           {
-            "time": 149.20310416666666,
-            "partIndex": 14,
+            "time": 149.21766666666667,
+            "partIndex": 15,
             "partId": "tdyEcs_P015"
           },
           {
@@ -1573,8 +1573,8 @@
             "partId": "tdyEcs_P016"
           },
           {
-            "time": 161.49510416666666,
-            "partIndex": 15,
+            "time": 161.614375,
+            "partIndex": 16,
             "partId": "tdyEcs_P016"
           },
           {
@@ -1613,8 +1613,8 @@
             "partId": "tdyEcs_P017"
           },
           {
-            "time": 173.99810416666668,
-            "partIndex": 16,
+            "time": 173.99764583333334,
+            "partIndex": 17,
             "partId": "tdyEcs_P017"
           },
           {
@@ -1653,8 +1653,8 @@
             "partId": "tdyEcs_P018"
           },
           {
-            "time": 186.2814375,
-            "partIndex": 17,
+            "time": 186.37979166666668,
+            "partIndex": 18,
             "partId": "tdyEcs_P018"
           },
           {
@@ -1688,8 +1688,8 @@
             "partId": "tdyEcs_P019"
           },
           {
-            "time": 197.21410416666666,
-            "partIndex": 18,
+            "time": 197.2376677631579,
+            "partIndex": 19,
             "partId": "tdyEcs_P019"
           }
         ]

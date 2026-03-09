@@ -2717,6 +2717,13 @@ label {
   box-shadow: 0 0 10px rgba(0, 220, 130, 0.4);
   transition: background 0.12s, transform 0.12s, box-shadow 0.12s;
 }
+/* Already-spoken words: subtle green tint */
+.le-block-word.le-highlight-past {
+  background: rgba(0, 220, 130, 0.15);
+  color: var(--green);
+  border-color: rgba(0, 220, 130, 0.3);
+  transition: background 0.12s;
+}
 
 /* ── Bar Block: Cyan ───────────────────────────── */
 .le-block-bar {

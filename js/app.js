@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.3.8';
+const APP_VERSION = 'v1.3.9';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4576,12 +4576,14 @@ function leBuildBlocks(songId) {
         const lyrics = found ? (found[1].lyrics || '').trim() : '';
         if (lyrics) {
           const words = lyrics.split(/\s+/).filter(w => w.length > 0);
-          for (const w of words) {
+          for (let wi = 0; wi < words.length; wi++) {
             blocks.push({
               type: 'word',
-              content: w,
+              content: words[wi],
               partId: part.id,
               barNum: absNum,
+              wordIndexInBar: wi,
+              wordCountInBar: words.length,
               id: `lb_${blockId++}`
             });
           }
@@ -5650,22 +5652,39 @@ function _leHighlightTick() {
     elapsed = _getAudioCtx().currentTime - _leHighlightStart;
   }
 
-  // Find current bar
+  // Find current bar and position within it
   let currentBarNum = null;
+  let barFraction = 0; // 0..1 position within the bar
   for (const bt of _leHighlightBarNums) {
     if (elapsed >= bt.startTime && elapsed < bt.endTime) {
       currentBarNum = bt.barNum;
+      const barDur = bt.endTime - bt.startTime;
+      barFraction = barDur > 0 ? (elapsed - bt.startTime) / barDur : 0;
       break;
     }
   }
 
-  // Update highlights in DOM (lightweight, no re-render)
+  // Update highlights in DOM — word-by-word karaoke style
   document.querySelectorAll('.le-block').forEach(el => {
     const idx = parseInt(el.dataset.idx, 10);
     const b = _leBlocks[idx];
     if (!b) return;
-    const isActive = currentBarNum !== null && b.barNum === currentBarNum && (b.type === 'word' || b.type === 'bar');
-    el.classList.toggle('le-highlight', isActive);
+    const inCurrentBar = currentBarNum !== null && b.barNum === currentBarNum;
+
+    if (b.type === 'bar') {
+      // Bar block: highlight while its bar is playing
+      el.classList.toggle('le-highlight', inCurrentBar);
+    } else if (b.type === 'word') {
+      // Word block: highlight only the word whose turn it is
+      if (inCurrentBar && b.wordCountInBar > 0) {
+        const activeWordIdx = Math.min(Math.floor(barFraction * b.wordCountInBar), b.wordCountInBar - 1);
+        const isActiveWord = b.wordIndexInBar === activeWordIdx;
+        el.classList.toggle('le-highlight', isActiveWord);
+        el.classList.toggle('le-highlight-past', b.wordIndexInBar < activeWordIdx);
+      } else {
+        el.classList.remove('le-highlight', 'le-highlight-past');
+      }
+    }
   });
 
   _leHighlightRAF = requestAnimationFrame(_leHighlightTick);
@@ -5674,7 +5693,7 @@ function _leHighlightTick() {
 function _leStopHighlight() {
   if (_leHighlightRAF) { cancelAnimationFrame(_leHighlightRAF); _leHighlightRAF = null; }
   _leHighlightBarNums = [];
-  document.querySelectorAll('.le-highlight').forEach(el => el.classList.remove('le-highlight'));
+  document.querySelectorAll('.le-highlight, .le-highlight-past').forEach(el => el.classList.remove('le-highlight', 'le-highlight-past'));
 }
 
 /** Update playing state on lyrics part blocks without full re-render */

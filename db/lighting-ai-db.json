@@ -4647,8 +4647,8 @@
       "year": "1994",
       "pick": "",
       "gema_nr": "3327614-001",
-      "duration": "—",
-      "duration_sec": 0,
+      "duration": "0:02",
+      "duration_sec": 2,
       "notes": "riff vor solo 4x, ending 4x; ; Intro; Chorus 1; Verse; Main chorus; Chords; Bridge; Verse; Main chorus; Outro; ;",
       "parts": {
         "CEGcgc_P001": {
@@ -4674,7 +4674,7 @@
           "notes": ""
         },
         "CEGcgc_P003": {
-          "pos": 3,
+          "pos": 4,
           "name": "Verse 2",
           "bars": 0,
           "duration_sec": 22,
@@ -4685,7 +4685,7 @@
           "notes": ""
         },
         "CEGcgc_P004": {
-          "pos": 4,
+          "pos": 5,
           "name": "Chorus 1",
           "bars": 0,
           "duration_sec": 19,
@@ -4696,7 +4696,7 @@
           "notes": ""
         },
         "CEGcgc_P005": {
-          "pos": 5,
+          "pos": 6,
           "name": "Part 5",
           "bars": 0,
           "duration_sec": 11,
@@ -4707,7 +4707,7 @@
           "notes": ""
         },
         "CEGcgc_P006": {
-          "pos": 6,
+          "pos": 7,
           "name": "grasping to",
           "bars": 0,
           "duration_sec": 2,
@@ -4718,7 +4718,7 @@
           "notes": ""
         },
         "CEGcgc_P007": {
-          "pos": 7,
+          "pos": 8,
           "name": "control",
           "bars": 0,
           "duration_sec": 1,
@@ -4729,7 +4729,7 @@
           "notes": ""
         },
         "CEGcgc_P008": {
-          "pos": 8,
+          "pos": 9,
           "name": "Solo Axel",
           "bars": 0,
           "duration_sec": 22,
@@ -4740,7 +4740,7 @@
           "notes": ""
         },
         "CEGcgc_P009": {
-          "pos": 9,
+          "pos": 10,
           "name": "Chorus 2",
           "bars": 0,
           "duration_sec": 19,
@@ -4751,8 +4751,8 @@
           "notes": ""
         },
         "CEGcgc_P010": {
-          "pos": 10,
-          "name": "Part 10",
+          "pos": 3,
+          "name": "Einsatz alle",
           "bars": 0,
           "duration_sec": 11,
           "light_template": "generic_bpm",
@@ -4763,7 +4763,7 @@
         },
         "CEGcgc_P011": {
           "pos": 11,
-          "name": "Part 11",
+          "name": "Mini-Solo Axel",
           "bars": 0,
           "duration_sec": 9,
           "light_template": "generic_bpm",

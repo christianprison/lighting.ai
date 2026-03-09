@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.2.1';
+const APP_VERSION = 'v1.2.2';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4777,7 +4777,7 @@ function leShowContextMenu(idx, blockEl) {
       <button data-action="delete" class="le-ctx-item le-ctx-delete">&#128465; L&ouml;schen</button>
       <button data-action="split" class="le-ctx-item">&#9986; Trennen</button>
       <button data-action="merge" class="le-ctx-item">&#128279; Zusammensetzen</button>
-      <button data-action="insert" class="le-ctx-item">&#10133; Einf&uuml;gen (neu)</button>
+      <button data-action="insert" class="le-ctx-item">&#10133; Neues Wort</button>
     `;
   } else if (block.type === 'bar') {
     const nlLabel = block.newline ? '&#8629; Neue Zeile entfernen' : '&#8629; Neue Zeile';

@@ -4753,7 +4753,7 @@
         "CEGcgc_P010": {
           "pos": 3,
           "name": "Einsatz alle",
-          "bars": 0,
+          "bars": 1,
           "duration_sec": 11,
           "light_template": "generic_bpm",
           "qlc_scene": "Alarm neu",
@@ -4792,6 +4792,11 @@
             "time": 3.117020833333351,
             "partIndex": 1,
             "partId": "CEGcgc_P002"
+          },
+          {
+            "time": 41.28726802434476,
+            "partIndex": 2,
+            "partId": "CEGcgc_P010"
           }
         ],
         "barMarkers": [
@@ -4804,6 +4809,11 @@
             "time": 3.117020833333351,
             "partIndex": 1,
             "partId": "CEGcgc_P002"
+          },
+          {
+            "time": 41.28726802434476,
+            "partIndex": 2,
+            "partId": "CEGcgc_P010"
           }
         ]
       }

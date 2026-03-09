@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.3.10';
+const APP_VERSION = 'v1.3.11';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -2672,7 +2672,7 @@ function drawWaveform() {
   const wrapRect = wrap.getBoundingClientRect();
   const baseW = wrapRect.width;
   const totalW = baseW * waveformZoom;  // virtual total width
-  const h = 120;
+  const h = wrapRect.height || 120;
 
   // Viewport-based rendering: canvas is always viewport-sized,
   // only the scroll container spans the full virtual width.
@@ -2684,7 +2684,7 @@ function drawWaveform() {
   canvas.width = viewW * dpr;
   canvas.height = h * dpr;
   canvas.style.width = viewW + 'px';
-  canvas.style.height = h + 'px';
+  canvas.style.height = '100%';
   // Pin canvas to viewport via CSS left offset inside scroll container
   canvas.style.position = 'sticky';
   canvas.style.left = '0px';

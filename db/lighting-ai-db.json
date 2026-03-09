@@ -4647,15 +4647,15 @@
       "year": "1994",
       "pick": "",
       "gema_nr": "3327614-001",
-      "duration": "3:10",
-      "duration_sec": 190,
+      "duration": "—",
+      "duration_sec": 0,
       "notes": "riff vor solo 4x, ending 4x; ; Intro; Chorus 1; Verse; Main chorus; Chords; Bridge; Verse; Main chorus; Outro; ;",
       "parts": {
         "CEGcgc_P001": {
           "pos": 1,
           "name": "Intro Axel",
-          "bars": 1,
-          "duration_sec": 6,
+          "bars": 0,
+          "duration_sec": 0,
           "light_template": "generic_bpm",
           "qlc_scene": "Spot auf Tim  hot ohne PAR",
           "qlc_scene_id": 230,
@@ -4784,14 +4784,14 @@
       "split_markers": {
         "partMarkers": [
           {
-            "time": 0.19168749999999515,
+            "time": 0,
             "partIndex": 0,
             "partId": "CEGcgc_P001"
           }
         ],
         "barMarkers": [
           {
-            "time": 0.19168749999999515,
+            "time": 0,
             "partIndex": 0,
             "partId": "CEGcgc_P001"
           }

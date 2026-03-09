@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.1.8';
+const APP_VERSION = 'v1.2.0';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4769,6 +4769,7 @@ function leShowContextMenu(idx, blockEl) {
 
   if (block.type === 'word') {
     menu.innerHTML = `
+      <button data-action="edit" class="le-ctx-item">&#9998; Editieren</button>
       <button data-action="delete" class="le-ctx-item le-ctx-delete">&#128465; L&ouml;schen</button>
       <button data-action="split" class="le-ctx-item">&#9986; Trennen</button>
       <button data-action="merge" class="le-ctx-item">&#128279; Zusammensetzen</button>
@@ -4783,12 +4784,11 @@ function leShowContextMenu(idx, blockEl) {
     return; // no context menu for parts (yet)
   }
 
-  // Position below the block
-  const rect = blockEl.getBoundingClientRect();
-  const canvasRect = document.getElementById('le-canvas').getBoundingClientRect();
+  // Position below the block — use offsetLeft/offsetTop (CSS-px, zoom-safe)
+  const canvas = document.getElementById('le-canvas');
   menu.style.position = 'absolute';
-  menu.style.left = `${rect.left - canvasRect.left}px`;
-  menu.style.top = `${rect.bottom - canvasRect.top + 4}px`;
+  menu.style.left = `${blockEl.offsetLeft}px`;
+  menu.style.top = `${blockEl.offsetTop + blockEl.offsetHeight + 4}px`;
 
   menu.addEventListener('click', (e) => {
     const btn = e.target.closest('[data-action]');
@@ -4798,9 +4798,15 @@ function leShowContextMenu(idx, blockEl) {
     leHandleContextAction(action, idx);
   });
 
-  document.getElementById('le-canvas').appendChild(menu);
+  canvas.appendChild(menu);
   _leContextMenu = menu;
   blockEl.classList.add('le-block-selected');
+
+  // Ensure menu is visible within canvas scroll area
+  const menuBottom = blockEl.offsetTop + blockEl.offsetHeight + 4 + menu.offsetHeight;
+  if (menuBottom > canvas.scrollTop + canvas.clientHeight) {
+    canvas.scrollTop = menuBottom - canvas.clientHeight + 8;
+  }
 }
 
 function leCloseContextMenu() {
@@ -4815,7 +4821,15 @@ async function leHandleContextAction(action, idx) {
   const block = _leBlocks[idx];
   if (!block) return;
 
-  if (action === 'delete') {
+  if (action === 'edit') {
+    const newVal = prompt(`Wort bearbeiten:`, block.content);
+    if (newVal === null || !newVal.trim() || newVal.trim() === block.content) return;
+    block.content = newVal.trim();
+    markDirty();
+    leRefreshCanvas();
+  }
+
+  else if (action === 'delete') {
     _leBlocks.splice(idx, 1);
     markDirty();
     leRefreshCanvas();

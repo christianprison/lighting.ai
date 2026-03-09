@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.2.2';
+const APP_VERSION = 'v1.2.3';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4454,6 +4454,13 @@ function renderLyricsTab() {
   const song = db.songs[selectedSongId];
   const parts = getSortedParts(selectedSongId);
   ensureCollections();
+
+  // Check if song has any bars defined
+  const totalBars = parts.reduce((sum, p) => sum + (p.bars || 0), 0);
+  if (totalBars === 0) {
+    els.content.innerHTML = `<div class="empty-state"><div class="icon">&#9835;</div><p>Bitte erst Takte anlegen.</p></div>`;
+    return;
+  }
 
   // Auto-load reference audio
   if (!audio.getBuffer() && song.audio_ref && _refLoadingFor !== selectedSongId) {

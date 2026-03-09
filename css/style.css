@@ -1415,7 +1415,7 @@ label {
   background: var(--bg2);
   border: 1px solid var(--border);
   cursor: crosshair;
-  height: 120px;
+  height: 240px;
 }
 
 .waveform-scroll {

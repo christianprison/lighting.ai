@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.3.4';
+const APP_VERSION = 'v1.3.5';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -1212,19 +1212,21 @@ function fireworksCelebration(msg, pct) {
       p.vy += 0.06; // gravity
       p.vx *= 0.99; // drag
       p.life -= p.decay;
+      if (p.life <= 0) continue;
 
-      ctx.globalAlpha = Math.max(0, p.life);
+      ctx.globalAlpha = p.life;
 
       if (p.type === 'spark') {
         // Glowing spark
+        const r1 = Math.max(0.1, p.size * p.life);
         ctx.fillStyle = p.color;
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, r1, 0, Math.PI * 2);
         ctx.fill();
         // Glow
-        ctx.globalAlpha = Math.max(0, p.life * 0.3);
+        ctx.globalAlpha = p.life * 0.3;
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size * p.life * 3, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, r1 * 3, 0, Math.PI * 2);
         ctx.fill();
       } else {
         // Confetti rectangle

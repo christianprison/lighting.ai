@@ -4697,7 +4697,7 @@
         },
         "CEGcgc_P005": {
           "pos": 7,
-          "name": "Part 5",
+          "name": "Interlude",
           "bars": 1,
           "duration_sec": 11,
           "light_template": "generic_bpm",
@@ -16671,6 +16671,34 @@
       "bar_num": 3,
       "lyrics": "",
       "audio": "audio/Basket Case/03 Einsatz alle/003 Basket Case Einsatz alle.mp3",
+      "has_accents": false
+    },
+    "B0460": {
+      "part_id": "CEGcgc_P011",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "audio/Basket Case/04 Mini-Solo Axel/004 Basket Case Mini-Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0461": {
+      "part_id": "CEGcgc_P003",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "audio/Basket Case/05 Verse 2/005 Basket Case Verse 2.mp3",
+      "has_accents": false
+    },
+    "B0462": {
+      "part_id": "CEGcgc_P004",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "audio/Basket Case/06 Chorus 1/006 Basket Case Chorus 1.mp3",
+      "has_accents": false
+    },
+    "B0463": {
+      "part_id": "CEGcgc_P005",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "audio/Basket Case/07 Part 5/007 Basket Case Part 5.mp3",
       "has_accents": false
     }
   },

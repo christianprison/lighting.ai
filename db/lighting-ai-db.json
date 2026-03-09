@@ -3585,7 +3585,7 @@
         "5D6dZO_P024": {
           "pos": 13,
           "name": "Chorus 3",
-          "bars": 0,
+          "bars": 1,
           "duration_sec": 18,
           "light_template": "chorus_full",
           "qlc_scene": "09 Alarm",
@@ -3596,7 +3596,7 @@
         "5D6dZO_P025": {
           "pos": 14,
           "name": "Chorus 4",
-          "bars": 0,
+          "bars": 1,
           "duration_sec": 7,
           "light_template": "chorus_full",
           "qlc_scene": "10 Strobe",
@@ -3607,7 +3607,7 @@
         "5D6dZO_P026": {
           "pos": 12,
           "name": "Solo Axel",
-          "bars": 0,
+          "bars": 1,
           "duration_sec": 0,
           "light_template": "",
           "notes": ""
@@ -3624,116 +3624,146 @@
       "split_markers": {
         "partMarkers": [
           {
-            "time": 4.365020833333327,
+            "time": 9.997254041822709,
             "partIndex": 0,
             "partId": "5D6dZO_P001"
           },
           {
-            "time": 14.282354166666659,
+            "time": 19.753973142946332,
             "partIndex": 1,
             "partId": "5D6dZO_P002"
           },
           {
-            "time": 21.29568750000001,
+            "time": 26.87130647627958,
             "partIndex": 2,
             "partId": "5D6dZO_P003"
           },
           {
-            "time": 23.585754915730316,
+            "time": 29.236639809612992,
             "partIndex": 3,
             "partId": "5D6dZO_P004"
           },
           {
-            "time": 32.764421582397,
+            "time": 38.599306476279644,
             "partIndex": 4,
             "partId": "5D6dZO_P005"
           },
           {
-            "time": 53.47108824906365,
+            "time": 59.33263980961299,
             "partIndex": 5,
             "partId": "5D6dZO_P008"
           },
           {
-            "time": 62.380421582396984,
+            "time": 68.34863980961296,
             "partIndex": 6,
             "partId": "5D6dZO_P012"
           },
           {
-            "time": 87.80442158239703,
+            "time": 93.96997314294634,
             "partIndex": 7,
             "partId": "5D6dZO_P013"
           },
           {
-            "time": 96.80442158239703,
+            "time": 102.94863980961298,
             "partIndex": 8,
             "partId": "5D6dZO_P015"
           },
           {
-            "time": 117.39642158239695,
+            "time": 123.70330647627969,
             "partIndex": 9,
             "partId": "5D6dZO_P016"
           },
           {
-            "time": 126.09775491573038,
+            "time": 132.56463980961297,
             "partIndex": 10,
             "partId": "5D6dZO_P022"
+          },
+          {
+            "time": 157.72204255617982,
+            "partIndex": 11,
+            "partId": "5D6dZO_P026"
+          },
+          {
+            "time": 204.33777414169782,
+            "partIndex": 12,
+            "partId": "5D6dZO_P024"
+          },
+          {
+            "time": 222.6044408083646,
+            "partIndex": 13,
+            "partId": "5D6dZO_P025"
           }
         ],
         "barMarkers": [
           {
-            "time": 4.365020833333327,
+            "time": 9.997254041822709,
             "partIndex": 0,
             "partId": "5D6dZO_P001"
           },
           {
-            "time": 14.282354166666659,
+            "time": 19.753973142946332,
             "partIndex": 1,
             "partId": "5D6dZO_P002"
           },
           {
-            "time": 21.29568750000001,
+            "time": 26.87130647627958,
             "partIndex": 2,
             "partId": "5D6dZO_P003"
           },
           {
-            "time": 23.585754915730316,
+            "time": 29.236639809612992,
             "partIndex": 3,
             "partId": "5D6dZO_P004"
           },
           {
-            "time": 32.764421582397,
+            "time": 38.599306476279644,
             "partIndex": 4,
             "partId": "5D6dZO_P005"
           },
           {
-            "time": 53.47108824906365,
+            "time": 59.33263980961299,
             "partIndex": 5,
             "partId": "5D6dZO_P008"
           },
           {
-            "time": 62.380421582396984,
+            "time": 68.34863980961296,
             "partIndex": 6,
             "partId": "5D6dZO_P012"
           },
           {
-            "time": 87.80442158239703,
+            "time": 93.96997314294634,
             "partIndex": 7,
             "partId": "5D6dZO_P013"
           },
           {
-            "time": 96.80442158239703,
+            "time": 102.94863980961298,
             "partIndex": 8,
             "partId": "5D6dZO_P015"
           },
           {
-            "time": 117.39642158239695,
+            "time": 123.70330647627969,
             "partIndex": 9,
             "partId": "5D6dZO_P016"
           },
           {
-            "time": 126.09775491573038,
+            "time": 132.56463980961297,
             "partIndex": 10,
             "partId": "5D6dZO_P022"
+          },
+          {
+            "time": 157.72204255617982,
+            "partIndex": 11,
+            "partId": "5D6dZO_P026"
+          },
+          {
+            "time": 204.33777414169782,
+            "partIndex": 12,
+            "partId": "5D6dZO_P024"
+          },
+          {
+            "time": 222.6044408083646,
+            "partIndex": 13,
+            "partId": "5D6dZO_P025"
           }
         ]
       }

@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.3.3';
+const APP_VERSION = 'v1.3.4';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -727,8 +727,9 @@ let _suppressCelebration = false; // songId → Set of completed step ids
 function getSongTms(songId) {
   if (!songId || !db?.songs[songId]) return { manual_done: [], user_tasks: [] };
   const song = db.songs[songId];
-  if (!song.tms) song.tms = { manual_done: [], user_tasks: [] };
+  if (!song.tms) song.tms = { manual_done: [], manual_undone: [], user_tasks: [] };
   if (!song.tms.manual_done) song.tms.manual_done = [];
+  if (!song.tms.manual_undone) song.tms.manual_undone = [];
   if (!song.tms.user_tasks) song.tms.user_tasks = [];
   return song.tms;
 }
@@ -753,9 +754,10 @@ function getSongProgress(songId) {
   const steps = SONG_CHECKLIST.map(s => {
     const autoCheck = s.check(song, parts, barIds, db);
     const manualDone = tms.manual_done.includes(s.id);
-    const done = autoCheck || manualDone;
+    const manualUndone = tms.manual_undone.includes(s.id);
+    const done = (autoCheck || manualDone) && !manualUndone;
     if (done) completed.add(s.id);
-    return { ...s, done, autoCheck, manualDone, isUser: false };
+    return { ...s, done, autoCheck, manualDone, manualUndone, isUser: false };
   });
 
   // Add user-created tasks
@@ -861,9 +863,21 @@ function openTmsModal(songId) {
     if (manualToggle) {
       const stepId = manualToggle.dataset.tmsToggle;
       const tms = getSongTms(songId);
-      const idx = tms.manual_done.indexOf(stepId);
-      if (idx >= 0) tms.manual_done.splice(idx, 1);
-      else tms.manual_done.push(stepId);
+      const prog = getSongProgress(songId);
+      const step = prog.steps.find(s => s.id === stepId);
+      if (step && step.done) {
+        // Currently done → mark as undone
+        tms.manual_done = tms.manual_done.filter(id => id !== stepId);
+        if (step.autoCheck && !tms.manual_undone.includes(stepId)) {
+          tms.manual_undone.push(stepId);
+        }
+      } else {
+        // Currently undone → mark as done
+        tms.manual_undone = tms.manual_undone.filter(id => id !== stepId);
+        if (!tms.manual_done.includes(stepId)) {
+          tms.manual_done.push(stepId);
+        }
+      }
       _suppressCelebration = true;
       markDirty();
       renderTmsModalContent(songId);
@@ -1049,8 +1063,8 @@ function renderTmsModalContent(songId) {
             ${cat.steps.map(s => `
               <div class="tms-step ${s.done ? 'done' : ''}">
                 <button class="tms-check-btn" ${s.isUser ? `data-tms-user-toggle="${s.id}"` : `data-tms-toggle="${s.id}"`}
-                  title="${s.done ? (s.autoCheck && !s.isUser ? 'Automatisch erkannt' : 'Als offen markieren') : 'Als erledigt markieren'}">
-                  ${s.done ? (s.autoCheck && !s.isUser ? '&#10003;' : '&#10004;') : '&#9675;'}
+                  title="${s.done ? (s.autoCheck && !s.manualUndone && !s.isUser ? 'Automatisch erkannt — Tap zum Zuruecksetzen' : 'Als offen markieren') : 'Als erledigt markieren'}">
+                  ${s.done ? (s.autoCheck && !s.manualUndone && !s.isUser ? '&#10003;' : '&#10004;') : '&#9675;'}
                 </button>
                 <span class="tms-step-label">${esc(s.label)}</span>
                 ${s.isUser ? `<button class="tms-delete-btn" data-tms-user-delete="${s.id}" title="Task loeschen">&times;</button>` : ''}

@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.3.5';
+const APP_VERSION = 'v1.3.8';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -511,10 +511,10 @@ function calcPartStarts(songId) {
   const result = new Map();
   let cumulBars = 0;
   for (const p of parts) {
-    const startBar = (typeof p.start_bar === 'number') ? p.start_bar : cumulBars;
-    const startSec = bpm > 0 ? startBar * 4 * 60 / bpm : 0;
+    const startBar = cumulBars + 1;  // 1-basiert (Takt 1 = erster Takt)
+    const startSec = bpm > 0 ? cumulBars * 4 * 60 / bpm : 0;
     result.set(p.id, { startBar, startSec });
-    cumulBars = startBar + (p.bars || 0);
+    cumulBars += (p.bars || 0);
   }
   return result;
 }
@@ -1579,7 +1579,7 @@ function renderPartsTable() {
           const audioBars = getAudioBarsForPart(p.id);
           const hasAudioBars = audioBars.length > 0;
           const isPlaying = _partPlayActive && _playingPartId === p.id;
-          const st = starts.get(p.id) || { startBar: 0, startSec: 0 };
+          const st = starts.get(p.id) || { startBar: 1, startSec: 0 };
           const dur = calcPartDuration(p.bars, song.bpm);
           const partIdx = parts.indexOf(p);
           const hasRefSeg = !!audio.getBuffer() && getPartStartTime(partIdx) !== null && getPartEndTime(partIdx) !== null;
@@ -1622,10 +1622,10 @@ function renderBarSection() {
 
   const starts = calcPartStarts(selectedSongId);
   const partStart = starts.get(selectedPartId);
-  const barOffset = partStart ? partStart.startBar : 0;
+  const barOffset = partStart ? partStart.startBar : 1;
 
   const blocks = Array.from({ length: barCount }, (_, i) => {
-    const absN = barOffset + i + 1;
+    const absN = barOffset + i;
     const found = findBar(selectedPartId, absN);
     const hasAcc = found ? getAccentsForBar(found[0]).length > 0 : false;
     const hasLyr = found && found[1].lyrics;
@@ -5022,7 +5022,7 @@ function leShowContextMenu(idx, blockEl) {
       <button data-action="edit" class="le-ctx-item">&#9998; Editieren</button>
       <button data-action="duplicate" class="le-ctx-item">&#10697; Duplizieren</button>
       <button data-action="copy" class="le-ctx-item">&#128203; Kopieren</button>
-      <button data-action="paste" class="le-ctx-item"${_leClipboard ? '' : ' disabled'}>&#128203; Einf&uuml;gen (Paste)</button>
+      <button data-action="paste" class="le-ctx-item"${_leClipboard ? '' : ' disabled'}>&#128203; Einf&uuml;gen</button>
       <button data-action="delete" class="le-ctx-item le-ctx-delete">&#128465; L&ouml;schen</button>
       <button data-action="split" class="le-ctx-item">&#9986; Trennen</button>
       <button data-action="merge" class="le-ctx-item">&#128279; Zusammensetzen</button>
@@ -5159,7 +5159,7 @@ async function leHandleContextAction(action, idx) {
       barNum: block.barNum,
       id: `lb_${Date.now()}_paste`
     };
-    _leBlocks.splice(idx + 1, 0, pasted);
+    _leBlocks.splice(idx, 0, pasted);
     markDirty();
     leRefreshCanvas();
   }
@@ -5537,10 +5537,144 @@ function saveLyricsRawText() {
   // Compatibility stub
 }
 
+let _leHighlightRAF = null;
+let _leHighlightBarNums = [];   // [{barNum, startTime, endTime}] relative to play start
+let _leHighlightStart = 0;      // ac.currentTime when playback started
+let _leHighlightMode = null;    // 'segment' | 'bars'
+
 function leHandlePartTap(blockIdx) {
   const block = _leBlocks[blockIdx];
   if (!block || block.type !== 'part') return;
-  handlePartPlay(block.partId);
+  const partId = block.partId;
+
+  // If already playing → stop (handlePartPlay toggles)
+  if (_playingPartId === partId && _partPlayActive) {
+    handlePartPlay(partId);
+    return;
+  }
+
+  // Pre-calculate bar timings for highlight, then start playback
+  _leHighlightBarNums = [];
+  _leHighlightMode = null;
+
+  const song = db.songs[selectedSongId];
+  const parts = getSortedParts(selectedSongId);
+  const partIdx = parts.findIndex(p => p.id === partId);
+  const partObj = parts[partIdx];
+  if (!partObj) return;
+
+  // Calculate absolute bar numbers for this part
+  let absBarOffset = 0;
+  for (let i = 0; i < partIdx; i++) absBarOffset += (parts[i].bars || 0);
+  const barCount = partObj.bars || 0;
+
+  // Try to get bar timing from split_markers
+  const sm = song?.split_markers;
+  if (sm && sm.barMarkers && sm.partMarkers) {
+    const partStart = sm.partMarkers.find(m => m.partId === partId || m.partIndex === partIdx);
+    const partBars = sm.barMarkers
+      .filter(m => m.partId === partId || m.partIndex === partIdx)
+      .sort((a, b) => a.time - b.time);
+
+    if (partStart && partBars.length > 0) {
+      const pStartTime = partStart.time;
+      // Find part end time
+      const nextPart = sm.partMarkers.find(m => m.partIndex === partIdx + 1);
+      const pEndTime = nextPart ? nextPart.time : (audio.getBuffer() ? audio.getBuffer().duration : partBars[partBars.length - 1].time + 5);
+
+      for (let i = 0; i < partBars.length; i++) {
+        const absBar = absBarOffset + i + 1;
+        const start = partBars[i].time - pStartTime;
+        const end = (i + 1 < partBars.length ? partBars[i + 1].time : pEndTime) - pStartTime;
+        _leHighlightBarNums.push({ barNum: absBar, startTime: start, endTime: end });
+      }
+      _leHighlightMode = 'segment';
+    }
+  }
+
+  // Start playback (handlePartPlay will set _partPlayActive etc.)
+  handlePartPlay(partId).then(() => {
+    // After playback starts, capture timing and start RAF
+    if (!_partPlayActive) return;
+
+    // If no split_markers timing, try to get from bar MP3 buffers
+    if (_leHighlightBarNums.length === 0 && _partPlayBuffers.length > 0) {
+      let offset = 0;
+      const audioBars = getAudioBarsForPart(partId);
+      for (let i = 0; i < _partPlayBuffers.length; i++) {
+        const dur = _partPlayBuffers[i].duration;
+        const absBar = audioBars[i] ? audioBars[i].bar_num : (absBarOffset + i + 1);
+        _leHighlightBarNums.push({ barNum: absBar, startTime: offset, endTime: offset + dur });
+        offset += dur;
+      }
+      _leHighlightMode = 'bars';
+    }
+
+    // If still no timings, divide equally using BPM
+    if (_leHighlightBarNums.length === 0 && barCount > 0) {
+      const bpm = song.bpm || 120;
+      const barDur = (4 * 60) / bpm; // 4 beats per bar
+      for (let i = 0; i < barCount; i++) {
+        _leHighlightBarNums.push({ barNum: absBarOffset + i + 1, startTime: i * barDur, endTime: (i + 1) * barDur });
+      }
+      _leHighlightMode = 'segment';
+    }
+
+    _leHighlightStart = _getAudioCtx().currentTime;
+    _leStartHighlightLoop();
+  });
+}
+
+function _leStartHighlightLoop() {
+  if (_leHighlightRAF) cancelAnimationFrame(_leHighlightRAF);
+  _leHighlightTick();
+}
+
+function _leHighlightTick() {
+  if (!_partPlayActive || _leHighlightBarNums.length === 0) {
+    _leStopHighlight();
+    return;
+  }
+
+  // Get elapsed time
+  let elapsed;
+  if (_leHighlightMode === 'segment') {
+    // Reference audio: use getSegmentCurrentTime relative to part start
+    const parts = getSortedParts(selectedSongId);
+    const partIdx = parts.findIndex(p => p.id === _playingPartId);
+    const partStart = getPartStartTime(partIdx);
+    const segTime = audio.getSegmentCurrentTime();
+    elapsed = partStart !== null ? segTime - partStart : (_getAudioCtx().currentTime - _leHighlightStart);
+  } else {
+    // Bar MP3s: elapsed from schedule start
+    elapsed = _getAudioCtx().currentTime - _leHighlightStart;
+  }
+
+  // Find current bar
+  let currentBarNum = null;
+  for (const bt of _leHighlightBarNums) {
+    if (elapsed >= bt.startTime && elapsed < bt.endTime) {
+      currentBarNum = bt.barNum;
+      break;
+    }
+  }
+
+  // Update highlights in DOM (lightweight, no re-render)
+  document.querySelectorAll('.le-block').forEach(el => {
+    const idx = parseInt(el.dataset.idx, 10);
+    const b = _leBlocks[idx];
+    if (!b) return;
+    const isActive = currentBarNum !== null && b.barNum === currentBarNum && (b.type === 'word' || b.type === 'bar');
+    el.classList.toggle('le-highlight', isActive);
+  });
+
+  _leHighlightRAF = requestAnimationFrame(_leHighlightTick);
+}
+
+function _leStopHighlight() {
+  if (_leHighlightRAF) { cancelAnimationFrame(_leHighlightRAF); _leHighlightRAF = null; }
+  _leHighlightBarNums = [];
+  document.querySelectorAll('.le-highlight').forEach(el => el.classList.remove('le-highlight'));
 }
 
 /** Update playing state on lyrics part blocks without full re-render */
@@ -5552,10 +5686,13 @@ function leRefreshPartPlayState() {
     const isPlaying = _partPlayActive && _playingPartId === block.partId;
     el.classList.toggle('le-playing', isPlaying);
   });
+  // Stop highlight loop if playback ended
+  if (!_partPlayActive) _leStopHighlight();
 }
 
 function stopLyricsPartPlay() {
   stopPartPlay();
+  _leStopHighlight();
   leRefreshPartPlayState();
 }
 
@@ -6784,7 +6921,7 @@ function buildPartsTabTable(parts, filterSong) {
         ${parts.map((p, idx) => {
           const isActive = sel && sel.songId === p.songId && sel.partId === p.partId;
           const dur = calcPartDuration(p.bars || 0, p.bpm);
-          const st = allStarts[p.songId]?.get(p.partId) || { startBar: 0, startSec: 0 };
+          const st = allStarts[p.songId]?.get(p.partId) || { startBar: 1, startSec: 0 };
           const audioBars = getAudioBarsForPart(p.partId);
           const hasAudioBars = audioBars.length > 0;
           const isPlaying = _partPlayActive && _playingPartId === p.partId;
@@ -6854,10 +6991,10 @@ function renderPartsTabBarSection() {
 
   ensureCollections();
   const ptStarts = calcPartStarts(sel.songId);
-  const ptBarOffset = ptStarts.get(sel.partId)?.startBar || 0;
+  const ptBarOffset = ptStarts.get(sel.partId)?.startBar || 1;
 
   const blocks = Array.from({ length: barCount }, (_, i) => {
-    const absN = ptBarOffset + i + 1;
+    const absN = ptBarOffset + i;
     const found = findBar(sel.partId, absN);
     const hasAcc = found ? getAccentsForBar(found[0]).length > 0 : false;
     const hasLyr = found && found[1].lyrics;

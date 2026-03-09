@@ -2749,6 +2749,13 @@ label {
   border-color: var(--t3);
 }
 
+.le-newline-marker {
+  color: var(--green);
+  font-size: 0.75em;
+  margin-left: 2px;
+  opacity: 0.7;
+}
+
 /* ── Drop Indicator ────────────────────────────── */
 .le-drop-indicator {
   width: 2px;

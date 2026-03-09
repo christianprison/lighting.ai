@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.3.0';
+const APP_VERSION = 'v1.3.5';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -727,8 +727,9 @@ let _suppressCelebration = false; // songId → Set of completed step ids
 function getSongTms(songId) {
   if (!songId || !db?.songs[songId]) return { manual_done: [], user_tasks: [] };
   const song = db.songs[songId];
-  if (!song.tms) song.tms = { manual_done: [], user_tasks: [] };
+  if (!song.tms) song.tms = { manual_done: [], manual_undone: [], user_tasks: [] };
   if (!song.tms.manual_done) song.tms.manual_done = [];
+  if (!song.tms.manual_undone) song.tms.manual_undone = [];
   if (!song.tms.user_tasks) song.tms.user_tasks = [];
   return song.tms;
 }
@@ -753,9 +754,10 @@ function getSongProgress(songId) {
   const steps = SONG_CHECKLIST.map(s => {
     const autoCheck = s.check(song, parts, barIds, db);
     const manualDone = tms.manual_done.includes(s.id);
-    const done = autoCheck || manualDone;
+    const manualUndone = tms.manual_undone.includes(s.id);
+    const done = (autoCheck || manualDone) && !manualUndone;
     if (done) completed.add(s.id);
-    return { ...s, done, autoCheck, manualDone, isUser: false };
+    return { ...s, done, autoCheck, manualDone, manualUndone, isUser: false };
   });
 
   // Add user-created tasks
@@ -861,9 +863,21 @@ function openTmsModal(songId) {
     if (manualToggle) {
       const stepId = manualToggle.dataset.tmsToggle;
       const tms = getSongTms(songId);
-      const idx = tms.manual_done.indexOf(stepId);
-      if (idx >= 0) tms.manual_done.splice(idx, 1);
-      else tms.manual_done.push(stepId);
+      const prog = getSongProgress(songId);
+      const step = prog.steps.find(s => s.id === stepId);
+      if (step && step.done) {
+        // Currently done → mark as undone
+        tms.manual_done = tms.manual_done.filter(id => id !== stepId);
+        if (step.autoCheck && !tms.manual_undone.includes(stepId)) {
+          tms.manual_undone.push(stepId);
+        }
+      } else {
+        // Currently undone → mark as done
+        tms.manual_undone = tms.manual_undone.filter(id => id !== stepId);
+        if (!tms.manual_done.includes(stepId)) {
+          tms.manual_done.push(stepId);
+        }
+      }
       _suppressCelebration = true;
       markDirty();
       renderTmsModalContent(songId);
@@ -1049,8 +1063,8 @@ function renderTmsModalContent(songId) {
             ${cat.steps.map(s => `
               <div class="tms-step ${s.done ? 'done' : ''}">
                 <button class="tms-check-btn" ${s.isUser ? `data-tms-user-toggle="${s.id}"` : `data-tms-toggle="${s.id}"`}
-                  title="${s.done ? (s.autoCheck && !s.isUser ? 'Automatisch erkannt' : 'Als offen markieren') : 'Als erledigt markieren'}">
-                  ${s.done ? (s.autoCheck && !s.isUser ? '&#10003;' : '&#10004;') : '&#9675;'}
+                  title="${s.done ? (s.autoCheck && !s.manualUndone && !s.isUser ? 'Automatisch erkannt — Tap zum Zuruecksetzen' : 'Als offen markieren') : 'Als erledigt markieren'}">
+                  ${s.done ? (s.autoCheck && !s.manualUndone && !s.isUser ? '&#10003;' : '&#10004;') : '&#9675;'}
                 </button>
                 <span class="tms-step-label">${esc(s.label)}</span>
                 ${s.isUser ? `<button class="tms-delete-btn" data-tms-user-delete="${s.id}" title="Task loeschen">&times;</button>` : ''}
@@ -1198,19 +1212,21 @@ function fireworksCelebration(msg, pct) {
       p.vy += 0.06; // gravity
       p.vx *= 0.99; // drag
       p.life -= p.decay;
+      if (p.life <= 0) continue;
 
-      ctx.globalAlpha = Math.max(0, p.life);
+      ctx.globalAlpha = p.life;
 
       if (p.type === 'spark') {
         // Glowing spark
+        const r1 = Math.max(0.1, p.size * p.life);
         ctx.fillStyle = p.color;
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, r1, 0, Math.PI * 2);
         ctx.fill();
         // Glow
-        ctx.globalAlpha = Math.max(0, p.life * 0.3);
+        ctx.globalAlpha = p.life * 0.3;
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size * p.life * 3, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, r1 * 3, 0, Math.PI * 2);
         ctx.fill();
       } else {
         // Confetti rectangle
@@ -1380,7 +1396,6 @@ function renderSongList(filter = '') {
             stroke-dasharray="${Math.PI * 20}" stroke-dashoffset="${Math.PI * 20 * (1 - prog.pct / 100)}"
             transform="rotate(-90 12 12)" stroke-linecap="round"/>
         </svg>
-        <span class="song-pct mono">${prog.pct}</span>
         ${prog.hasOpenUserTasks ? '<span class="song-tms-dot"></span>' : ''}
       </div>
     </div>`;
@@ -2027,6 +2042,8 @@ function refreshPartPlayUI() {
     // Bar-level play detection not needed here — just reset all
     btn.classList.toggle('playing', false);
   });
+  // Lyrics tab: part block play state
+  leRefreshPartPlayState();
 }
 
 async function handlePartPlay(partId) {
@@ -4920,9 +4937,12 @@ function leWireCanvasEvents() {
         leRefreshCanvas();
       }
     } else {
-      // Tap (no drag) → context menu for words and bars
+      // Tap (no drag) → context menu for words/bars, play for parts
       const block = touchDrag.el;
-      if (block.dataset.type === 'word' || block.dataset.type === 'bar') {
+      if (block.dataset.type === 'part') {
+        e.preventDefault();
+        leHandlePartTap(parseInt(block.dataset.idx, 10));
+      } else if (block.dataset.type === 'word' || block.dataset.type === 'bar') {
         e.preventDefault();
         leShowContextMenu(parseInt(block.dataset.idx, 10), block);
       }
@@ -4930,12 +4950,14 @@ function leWireCanvasEvents() {
     touchDrag = null;
   });
 
-  // Click → context menu for words (desktop)
+  // Click → context menu for words/bars, play for parts (desktop)
   canvas.addEventListener('click', (e) => {
     leCloseContextMenu();
     const block = e.target.closest('.le-block');
     if (!block) return;
-    if (block.dataset.type === 'word' || block.dataset.type === 'bar') {
+    if (block.dataset.type === 'part') {
+      leHandlePartTap(parseInt(block.dataset.idx, 10));
+    } else if (block.dataset.type === 'word' || block.dataset.type === 'bar') {
       leShowContextMenu(parseInt(block.dataset.idx, 10), block);
     }
   });
@@ -5515,8 +5537,26 @@ function saveLyricsRawText() {
   // Compatibility stub
 }
 
+function leHandlePartTap(blockIdx) {
+  const block = _leBlocks[blockIdx];
+  if (!block || block.type !== 'part') return;
+  handlePartPlay(block.partId);
+}
+
+/** Update playing state on lyrics part blocks without full re-render */
+function leRefreshPartPlayState() {
+  document.querySelectorAll('.le-block-part').forEach(el => {
+    const idx = parseInt(el.dataset.idx, 10);
+    const block = _leBlocks[idx];
+    if (!block) return;
+    const isPlaying = _partPlayActive && _playingPartId === block.partId;
+    el.classList.toggle('le-playing', isPlaying);
+  });
+}
+
 function stopLyricsPartPlay() {
-  // No playback in block editor (yet)
+  stopPartPlay();
+  leRefreshPartPlayState();
 }
 
 /* ══════════════════════════════════════════════════════
@@ -5588,29 +5628,25 @@ function buildAccentsPartsList(parts, song) {
       </div>`;
 
     if (isSelected && barCount > 0) {
-      html += '<div class="accents-bars-list">';
+      // Bar blocks in flex-wrap layout (Bausteine)
+      html += '<div class="acc-blocks">';
       for (let b = 1; b <= barCount; b++) {
         const absBar = absBarOffset + b;
         const isBarSel = _accentsSelectedBar === absBar;
         const found = findBar(part.id, absBar);
         const accCount = found ? getAccentsForBar(found[0]).length : 0;
-        const barData = found ? db.bars[found[0]] : null;
-        const lyrics = barData?.lyrics || '';
-        const hasAudio = barData?.audio ? true : false;
-        const isBarPlaying = barData && _barPlayId === found[0] && _partPlayActive;
+        const hasAccents = accCount > 0;
 
-        html += `<div class="accents-bar-row${isBarSel ? ' active' : ''}${accCount > 0 ? ' has-accents' : ''}" data-accent-bar="${absBar}">
-          <span class="accents-bar-num mono">${absBar}</span>
-          <span class="accents-bar-lyrics text-t2">${lyrics ? esc(lyrics) : '<span class="text-t4">—</span>'}</span>
-          ${accCount > 0 ? `<span class="accents-bar-dots mono text-amber">${accCount}</span>` : ''}
-          ${hasAudio ? `<button class="btn-bar-play${isBarPlaying ? ' playing' : ''}" data-action="accent-play-bar" data-play-part-id="${part.id}" data-play-bar-num="${absBar}" title="${isBarPlaying ? 'Stop' : 'Takt abspielen'}">${isBarPlaying ? '&#9632;' : '&#9654;'}</button>` : ''}
-        </div>`;
+        html += `<span class="acc-block${hasAccents ? ' has-acc' : ''}${isBarSel ? ' selected' : ''}" data-accent-bar="${absBar}">${absBar}</span>`;
       }
       html += '</div>';
 
-      // Show the 16th-note grid for the selected bar
-      if (_accentsSelectedBar && _accentsSelectedBar <= barCount) {
-        html += buildAccentsBarEditor(part.id, _accentsSelectedBar);
+      // Show the 16th-note block editor for the selected bar
+      if (_accentsSelectedBar !== null) {
+        const selBarLocal = _accentsSelectedBar - absBarOffset;
+        if (selBarLocal >= 1 && selBarLocal <= barCount) {
+          html += buildAccentsBarEditor(part.id, _accentsSelectedBar);
+        }
       }
     }
 
@@ -5633,25 +5669,29 @@ function countPartAccents(partId) {
 function buildAccentsBarEditor(partId, barNum) {
   const [barId, barData] = getOrCreateBar(partId, barNum);
   const accents = getAccentsForBar(barId);
+  const hasAudio = barData?.audio ? true : false;
+  const isBarPlaying = _barPlayId === barId && _partPlayActive;
 
-  const cells = Array.from({ length: 16 }, (_, i) => {
+  // 16th-note blocks in flex-wrap layout
+  const blocks = Array.from({ length: 16 }, (_, i) => {
     const pos = i + 1;
     const accent = accents.find(a => a.pos_16th === pos);
     const isBeat = (pos - 1) % 4 === 0;
-    const cls = ['accent-cell', isBeat ? 'beat' : '', accent ? accent.type : ''].filter(Boolean).join(' ');
-    return `<div class="${cls}" data-accent-pos16="${pos}">
-      <span class="accent-num">${BEAT_LABELS[i]}</span>
-      ${accent ? `<span class="accent-tag">${accent.type}</span>` : ''}
-    </div>`;
+    const typeClass = accent ? ` acc-16-${accent.type}` : '';
+    const beatClass = isBeat ? ' acc-16-beat' : '';
+    const label = BEAT_LABELS[i];
+    const display = accent ? accent.type.toUpperCase() : label;
+    return `<span class="acc-16${beatClass}${typeClass}" data-accent-pos16="${pos}">${display}</span>`;
   }).join('');
 
   return `
-    <div class="accents-bar-editor">
-      <div class="accents-bar-editor-header">
-        <h4>Takt ${barNum}</h4>
-        ${barData.lyrics ? `<div class="accents-bar-editor-lyrics text-t2">${esc(barData.lyrics)}</div>` : ''}
+    <div class="acc-editor">
+      <div class="acc-editor-head">
+        <span class="acc-editor-title mono">Takt ${barNum}</span>
+        ${barData.lyrics ? `<span class="acc-editor-lyrics text-t2">${esc(barData.lyrics)}</span>` : ''}
+        ${hasAudio ? `<button class="btn-bar-play${isBarPlaying ? ' playing' : ''}" data-action="accent-play-bar" data-play-part-id="${partId}" data-play-bar-num="${barNum}" title="${isBarPlaying ? 'Stop' : 'Takt abspielen'}">${isBarPlaying ? '&#9632;' : '&#9654;'}</button>` : ''}
       </div>
-      <div class="accent-grid">${cells}</div>
+      <div class="acc-16-row">${blocks}</div>
     </div>`;
 }
 
@@ -5673,12 +5713,11 @@ function handleAccentsTabClick(e) {
     return;
   }
 
-  // Select bar
-  const barBlock = el.closest('[data-accent-bar]');
-  if (barBlock) {
-    const barNum = parseInt(barBlock.dataset.accentBar, 10);
-    _accentsSelectedBar = (_accentsSelectedBar === barNum) ? null : barNum;
-    renderAccentsTab();
+  // Accent 16th-note block click (check before bar block)
+  const accentCell = el.closest('[data-accent-pos16]');
+  if (accentCell && _accentsSelectedPart && _accentsSelectedBar) {
+    const pos = parseInt(accentCell.dataset.accentPos16, 10);
+    handleAccentsTabToggle(_accentsSelectedPart, _accentsSelectedBar, pos);
     return;
   }
 
@@ -5689,11 +5728,12 @@ function handleAccentsTabClick(e) {
     return;
   }
 
-  // Accent cell click
-  const accentCell = el.closest('[data-accent-pos16]');
-  if (accentCell && _accentsSelectedPart && _accentsSelectedBar) {
-    const pos = parseInt(accentCell.dataset.accentPos16, 10);
-    handleAccentsTabToggle(_accentsSelectedPart, _accentsSelectedBar, pos);
+  // Select bar block
+  const barBlock = el.closest('[data-accent-bar]');
+  if (barBlock) {
+    const barNum = parseInt(barBlock.dataset.accentBar, 10);
+    _accentsSelectedBar = (_accentsSelectedBar === barNum) ? null : barNum;
+    renderAccentsTab();
     return;
   }
 }

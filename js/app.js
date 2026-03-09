@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.1.6';
+const APP_VERSION = 'v1.1.7';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4851,6 +4851,68 @@ function leSaveLyrics() {
 
 /* ── Lyrics Editor: Text Paste / Import ──────────── */
 
+/**
+ * Fetch lyrics from a URL via CORS proxy.
+ * Supports Genius, AZLyrics, Musixmatch and generic extraction.
+ */
+async function leFetchLyricsFromUrl(url) {
+  const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
+  const resp = await fetch(proxyUrl);
+  if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+  const html = await resp.text();
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+
+  // Remove script/style tags
+  doc.querySelectorAll('script, style, noscript').forEach(el => el.remove());
+
+  let lines = [];
+
+  // Genius: data-lyrics-container divs
+  const geniusEls = doc.querySelectorAll('[data-lyrics-container="true"]');
+  if (geniusEls.length > 0) {
+    for (const el of geniusEls) {
+      // Replace <br> with newlines before extracting text
+      el.innerHTML = el.innerHTML.replace(/<br\s*\/?>/gi, '\n');
+      const text = el.textContent.trim();
+      if (text) lines.push(text);
+    }
+    return lines.join('\n');
+  }
+
+  // AZLyrics: div between comments
+  const azDiv = doc.querySelector('.ringtone ~ div:not([class])');
+  if (azDiv) {
+    return azDiv.textContent.trim();
+  }
+
+  // Musixmatch: lyrics body
+  const mxm = doc.querySelectorAll('[class*="Lyrics__Container"], .lyrics__content__ok, .mxm-lyrics span');
+  if (mxm.length > 0) {
+    for (const el of mxm) {
+      const text = el.textContent.trim();
+      if (text) lines.push(text);
+    }
+    return lines.join('\n');
+  }
+
+  // Generic fallback: look for common lyrics containers
+  const fallbackSelectors = [
+    '.lyrics', '.lyric-body', '.song-text', '[class*="lyric"]',
+    '.entry-content', 'article', '.content'
+  ];
+  for (const sel of fallbackSelectors) {
+    const el = doc.querySelector(sel);
+    if (el && el.textContent.trim().length > 100) {
+      return el.textContent.trim();
+    }
+  }
+
+  // Last resort: largest text block in body
+  const body = doc.querySelector('body');
+  if (body) return body.textContent.trim().slice(0, 5000);
+  throw new Error('Keine Lyrics gefunden');
+}
+
 async function leShowPasteDialog() {
   // Try to pre-fill from clipboard
   let clipText = '';
@@ -4873,12 +4935,17 @@ async function leShowPasteDialog() {
         <button class="modal-close" id="le-paste-close">&times;</button>
       </div>
       <div class="le-paste-body">
-        <p class="text-t2">Text von einer Lyrics-Seite kopieren und hier einf&uuml;gen. Abschnitts-Header wie [Verse], [Chorus] werden automatisch entfernt.</p>
+        <p class="text-t2">Lyrics-URL eingeben oder Text manuell einf&uuml;gen. Abschnitts-Header wie [Verse], [Chorus] werden automatisch entfernt.</p>
         <div class="le-paste-links">
           <a href="https://genius.com/search?q=${searchQ}" target="_blank" rel="noopener" class="btn btn-sm lyrics-genius-link">&#127925; Genius &ouml;ffnen</a>
           <a href="https://www.musixmatch.com/search/${searchQ}" target="_blank" rel="noopener" class="btn btn-sm lyrics-musix-link">&#127926; Musixmatch &ouml;ffnen</a>
           <a href="https://www.google.com/search?q=${searchQ}+lyrics" target="_blank" rel="noopener" class="btn btn-sm">&#128269; Google Lyrics</a>
         </div>
+        <div class="le-url-row">
+          <input type="url" id="le-url-input" class="le-url-input" placeholder="Lyrics-URL einf&uuml;gen (z.B. genius.com/...)" />
+          <button class="btn btn-primary btn-sm" id="le-url-fetch">Lyrics holen</button>
+        </div>
+        <div id="le-url-status" class="le-url-status"></div>
         <textarea id="le-paste-textarea" class="le-paste-textarea" rows="15" placeholder="Songtext hier einf&uuml;gen...">${esc(prefill)}</textarea>
         <div class="le-paste-footer">
           <button class="btn" id="le-paste-cancel">Abbrechen</button>
@@ -4889,9 +4956,47 @@ async function leShowPasteDialog() {
   document.body.appendChild(overlay);
 
   const textarea = overlay.querySelector('#le-paste-textarea');
+  const urlInput = overlay.querySelector('#le-url-input');
+  const urlStatus = overlay.querySelector('#le-url-status');
   textarea.focus();
   // Select all if pre-filled from clipboard so user can easily replace
   if (clipText) textarea.select();
+
+  // If clipboard contains a URL, put it in the URL field instead
+  if (clipText && /^https?:\/\/.+/i.test(clipText.trim())) {
+    textarea.value = existing;
+    urlInput.value = clipText.trim();
+    urlInput.focus();
+  }
+
+  // Fetch lyrics from URL
+  const fetchFromUrl = async () => {
+    const url = urlInput.value.trim();
+    if (!url) { toast('Keine URL eingegeben', 'error'); return; }
+    if (!/^https?:\/\//i.test(url)) { toast('Ung\u00fcltige URL', 'error'); return; }
+
+    const fetchBtn = overlay.querySelector('#le-url-fetch');
+    fetchBtn.disabled = true;
+    fetchBtn.textContent = 'Laden...';
+    urlStatus.textContent = 'Lyrics werden geladen...';
+    urlStatus.className = 'le-url-status le-url-loading';
+
+    try {
+      const lyrics = await leFetchLyricsFromUrl(url);
+      textarea.value = lyrics;
+      urlStatus.textContent = 'Lyrics geladen!';
+      urlStatus.className = 'le-url-status le-url-success';
+    } catch (err) {
+      urlStatus.textContent = 'Fehler: ' + err.message;
+      urlStatus.className = 'le-url-status le-url-error';
+    } finally {
+      fetchBtn.disabled = false;
+      fetchBtn.textContent = 'Lyrics holen';
+    }
+  };
+
+  overlay.querySelector('#le-url-fetch').onclick = fetchFromUrl;
+  urlInput.addEventListener('keydown', e => { if (e.key === 'Enter') fetchFromUrl(); });
 
   // Wire events
   const close = () => overlay.remove();

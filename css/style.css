@@ -2516,6 +2516,37 @@ label {
   flex-wrap: wrap;
   margin-bottom: 12px;
 }
+.le-url-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.le-url-input {
+  flex: 1;
+  background: var(--bg);
+  color: var(--t1);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 8px 12px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.82rem;
+}
+.le-url-input:focus {
+  border-color: var(--cyan);
+  outline: none;
+}
+.le-url-input::placeholder {
+  color: var(--t4);
+}
+.le-url-status {
+  font-size: 0.78rem;
+  margin-bottom: 8px;
+  min-height: 1.2em;
+}
+.le-url-loading { color: var(--cyan); }
+.le-url-success { color: var(--green); }
+.le-url-error { color: var(--red); }
+
 .le-paste-textarea {
   width: 100%;
   min-height: 250px;

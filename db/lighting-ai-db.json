@@ -14389,6 +14389,27 @@
       "lyrics": "",
       "audio": "",
       "has_accents": false
+    },
+    "B0283": {
+      "part_id": "5D6dZO_P001",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/01 Bass Solo mit Tambourine/001 Are You Gonna Be My Girl Bass Solo mit Tambourine.mp3",
+      "has_accents": false
+    },
+    "B0284": {
+      "part_id": "5D6dZO_P002",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/02 + Drums/002 Are You Gonna Be My Girl + Drums.mp3",
+      "has_accents": false
+    },
+    "B0285": {
+      "part_id": "5D6dZO_P003",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/03 Mini-Solo Axel/003 Are You Gonna Be My Girl Mini-Solo Axel.mp3",
+      "has_accents": false
     }
   },
   "accents": {

@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.2.6';
+const APP_VERSION = 'v1.2.7';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -2131,7 +2131,7 @@ function buildTapButtons(parts, isPlay) {
       <button class="tap-btn tap-undo" id="tap-undo" ${tapHistory.length === 0 ? 'disabled' : ''}>
         <span class="tap-label">UNDO <kbd>Z</kbd></span>
       </button>
-      <button class="tap-btn tap-btn-dist" id="tap-distribute-parts" ${parts.length < 2 ? 'disabled' : ''} title="Part-Marker gleichmaessig ueber die Audiodauer verteilen">
+      <button class="tap-btn tap-btn-dist" id="tap-distribute-parts" ${parts.length < 2 ? 'disabled' : ''} title="Wenn du die Parts bereits angelegt hast, kannst du sie hier vorl\u00e4ufig auf den Song verteilen. Dann brauchst du sie nur noch an die richtige Stelle verschieben.">
         <span class="tap-label">PARTS</span>
         <span class="tap-info">verteilen</span>
       </button>

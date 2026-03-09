@@ -4709,7 +4709,7 @@
         "CEGcgc_P006": {
           "pos": 8,
           "name": "grasping to control",
-          "bars": 0,
+          "bars": 1,
           "duration_sec": 2,
           "light_template": "generic_bpm",
           "qlc_scene": "06 blinking",
@@ -4720,7 +4720,7 @@
         "CEGcgc_P008": {
           "pos": 9,
           "name": "Solo Axel",
-          "bars": 0,
+          "bars": 1,
           "duration_sec": 22,
           "light_template": "solo_spotlight",
           "qlc_scene": "Spot auf Axel",
@@ -4731,7 +4731,7 @@
         "CEGcgc_P009": {
           "pos": 10,
           "name": "Chorus 2",
-          "bars": 0,
+          "bars": 1,
           "duration_sec": 19,
           "light_template": "chorus_full",
           "qlc_scene": "05 left'n'right ↔",
@@ -4759,6 +4759,22 @@
           "qlc_scene": "10 Strobe",
           "qlc_scene_id": 81,
           "timestamp": "",
+          "notes": ""
+        },
+        "CEGcgc_P012": {
+          "pos": 11,
+          "name": "Part 11",
+          "bars": 1,
+          "duration_sec": 0,
+          "light_template": "",
+          "notes": ""
+        },
+        "CEGcgc_P013": {
+          "pos": 12,
+          "name": "Part 12",
+          "bars": 1,
+          "duration_sec": 0,
+          "light_template": "",
           "notes": ""
         }
       },
@@ -4806,6 +4822,31 @@
             "time": 95.97868375468153,
             "partIndex": 6,
             "partId": "CEGcgc_P005"
+          },
+          {
+            "time": 107.57599428466102,
+            "partIndex": 7,
+            "partId": "CEGcgc_P006"
+          },
+          {
+            "time": 113.26399428466112,
+            "partIndex": 8,
+            "partId": "CEGcgc_P008"
+          },
+          {
+            "time": 135.73066095132737,
+            "partIndex": 9,
+            "partId": "CEGcgc_P009"
+          },
+          {
+            "time": 155.48266095132777,
+            "partIndex": 10,
+            "partId": "CEGcgc_P012"
+          },
+          {
+            "time": 178.10932761799432,
+            "partIndex": 11,
+            "partId": "CEGcgc_P013"
           }
         ],
         "barMarkers": [
@@ -4843,6 +4884,31 @@
             "time": 95.97868375468153,
             "partIndex": 6,
             "partId": "CEGcgc_P005"
+          },
+          {
+            "time": 107.57599428466102,
+            "partIndex": 7,
+            "partId": "CEGcgc_P006"
+          },
+          {
+            "time": 113.26399428466112,
+            "partIndex": 8,
+            "partId": "CEGcgc_P008"
+          },
+          {
+            "time": 135.73066095132737,
+            "partIndex": 9,
+            "partId": "CEGcgc_P009"
+          },
+          {
+            "time": 155.48266095132777,
+            "partIndex": 10,
+            "partId": "CEGcgc_P012"
+          },
+          {
+            "time": 178.10932761799432,
+            "partIndex": 11,
+            "partId": "CEGcgc_P013"
           }
         ]
       }

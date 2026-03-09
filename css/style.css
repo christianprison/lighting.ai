@@ -2054,10 +2054,10 @@ label {
   display: flex;
   align-items: flex-end;
   gap: 16px;
-  margin-bottom: 16px;
-  padding-bottom: 12px;
+  padding: 16px 20px 12px;
   border-bottom: 1px solid var(--border);
   flex-wrap: wrap;
+  flex-shrink: 0;
 }
 
 .parts-tab-filter {

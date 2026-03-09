@@ -4647,8 +4647,8 @@
       "year": "1994",
       "pick": "",
       "gema_nr": "3327614-001",
-      "duration": "0:03",
-      "duration_sec": 3,
+      "duration": "0:21",
+      "duration_sec": 21,
       "notes": "riff vor solo 4x, ending 4x; ; Intro; Chorus 1; Verse; Main chorus; Chords; Bridge; Verse; Main chorus; Outro; ;",
       "parts": {
         "CEGcgc_P001": {
@@ -4708,7 +4708,7 @@
         },
         "CEGcgc_P006": {
           "pos": 8,
-          "name": "grasping to",
+          "name": "grasping to control",
           "bars": 0,
           "duration_sec": 2,
           "light_template": "generic_bpm",
@@ -4717,19 +4717,8 @@
           "timestamp": "",
           "notes": ""
         },
-        "CEGcgc_P007": {
-          "pos": 9,
-          "name": "control",
-          "bars": 0,
-          "duration_sec": 1,
-          "light_template": "generic_bpm",
-          "qlc_scene": "Alarm neu",
-          "qlc_scene_id": 279,
-          "timestamp": "",
-          "notes": ""
-        },
         "CEGcgc_P008": {
-          "pos": 10,
+          "pos": 9,
           "name": "Solo Axel",
           "bars": 0,
           "duration_sec": 22,
@@ -4740,7 +4729,7 @@
           "notes": ""
         },
         "CEGcgc_P009": {
-          "pos": 11,
+          "pos": 10,
           "name": "Chorus 2",
           "bars": 0,
           "duration_sec": 19,

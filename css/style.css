@@ -3408,54 +3408,124 @@ label {
 .accents-part-info { font-size: 0.78rem; }
 .accents-part-count { font-size: 0.78rem; }
 
-.accents-bars-list {
+/* ── Accent Bar Blocks (Bausteine) ────────────────── */
+.acc-blocks {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 0 14px 10px;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding: 8px 14px 12px;
 }
 
-.accents-bar-row {
-  display: flex;
+.acc-block {
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 5px 10px;
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  justify-content: center;
+  height: 32px;
+  min-width: 32px;
+  padding: 0 6px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
-  min-height: 36px;
+  user-select: none;
+  transition: transform 0.1s, box-shadow 0.15s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  /* Default: cyan on black (no accents) */
+  background: var(--bg);
+  color: var(--cyan);
+  border: 1px solid var(--cyan);
 }
 
-.accents-bar-row:hover { background: var(--bg4); }
-.accents-bar-row.active { border-color: var(--cyan); background: var(--bg4); }
-.accents-bar-row.has-accents { border-color: var(--amber); }
+.acc-block:hover {
+  transform: scale(1.06);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
 
-.accents-bar-row .accents-bar-num { font-size: 0.75rem; min-width: 24px; text-align: right; color: var(--t3); }
-.accents-bar-row .accents-bar-lyrics { font-size: 0.8rem; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.accents-bar-row .accents-bar-dots { font-size: 0.7rem; min-width: 20px; text-align: center; }
-.accents-bar-row .btn-bar-play { flex-shrink: 0; }
+.acc-block.has-acc {
+  /* Black on cyan (has accents) */
+  background: var(--cyan);
+  color: var(--bg);
+  border-color: var(--cyan);
+}
 
-.accents-bar-editor {
-  padding: 10px 14px 14px;
+.acc-block.selected {
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
+  transform: scale(1.06);
+}
+
+/* ── Accent 16th-Note Block Editor ───────────────── */
+.acc-editor {
+  padding: 8px 14px 14px;
   border-top: 1px solid var(--border);
 }
 
-.accents-bar-editor-header {
-  margin-bottom: 10px;
+.acc-editor-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
 }
 
-.accents-bar-editor-header h4 {
-  font-size: 0.85rem;
-  font-weight: 500;
+.acc-editor-title {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--t1);
 }
 
-.accents-bar-editor-lyrics {
-  font-size: 0.85rem;
-  margin-top: 4px;
+.acc-editor-lyrics {
+  font-size: 0.82rem;
   font-style: italic;
+  flex: 1;
 }
+
+.acc-16-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.acc-16 {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  min-width: 36px;
+  padding: 0 4px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.1s, box-shadow 0.15s;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  /* Default: no accent */
+  background: var(--bg3);
+  color: var(--t4);
+  border: 1px solid var(--border);
+  text-transform: uppercase;
+}
+
+.acc-16:hover {
+  transform: scale(1.08);
+  background: var(--bg4);
+  border-color: var(--border2);
+}
+
+.acc-16.acc-16-beat {
+  color: var(--t3);
+  border-bottom: 2px solid var(--border2);
+  font-weight: 700;
+}
+
+/* Accent type colors on 16th blocks */
+.acc-16.acc-16-bl { background: var(--amber); color: var(--bg); border-color: var(--amber); }
+.acc-16.acc-16-bo { background: var(--red); color: var(--bg); border-color: var(--red); }
+.acc-16.acc-16-hl { background: var(--green); color: var(--bg); border-color: var(--green); }
+.acc-16.acc-16-st { background: var(--cyan); color: var(--bg); border-color: var(--cyan); }
+.acc-16.acc-16-fg { background: var(--t3); color: var(--bg); border-color: var(--t3); }
 
 /* ── Tip Bubble (Tutorial System) ─────────────────── */
 

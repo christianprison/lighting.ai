@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.3.0';
+const APP_VERSION = 'v1.3.1';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -5588,29 +5588,25 @@ function buildAccentsPartsList(parts, song) {
       </div>`;
 
     if (isSelected && barCount > 0) {
-      html += '<div class="accents-bars-list">';
+      // Bar blocks in flex-wrap layout (Bausteine)
+      html += '<div class="acc-blocks">';
       for (let b = 1; b <= barCount; b++) {
         const absBar = absBarOffset + b;
         const isBarSel = _accentsSelectedBar === absBar;
         const found = findBar(part.id, absBar);
         const accCount = found ? getAccentsForBar(found[0]).length : 0;
-        const barData = found ? db.bars[found[0]] : null;
-        const lyrics = barData?.lyrics || '';
-        const hasAudio = barData?.audio ? true : false;
-        const isBarPlaying = barData && _barPlayId === found[0] && _partPlayActive;
+        const hasAccents = accCount > 0;
 
-        html += `<div class="accents-bar-row${isBarSel ? ' active' : ''}${accCount > 0 ? ' has-accents' : ''}" data-accent-bar="${absBar}">
-          <span class="accents-bar-num mono">${absBar}</span>
-          <span class="accents-bar-lyrics text-t2">${lyrics ? esc(lyrics) : '<span class="text-t4">—</span>'}</span>
-          ${accCount > 0 ? `<span class="accents-bar-dots mono text-amber">${accCount}</span>` : ''}
-          ${hasAudio ? `<button class="btn-bar-play${isBarPlaying ? ' playing' : ''}" data-action="accent-play-bar" data-play-part-id="${part.id}" data-play-bar-num="${absBar}" title="${isBarPlaying ? 'Stop' : 'Takt abspielen'}">${isBarPlaying ? '&#9632;' : '&#9654;'}</button>` : ''}
-        </div>`;
+        html += `<span class="acc-block${hasAccents ? ' has-acc' : ''}${isBarSel ? ' selected' : ''}" data-accent-bar="${absBar}">${absBar}</span>`;
       }
       html += '</div>';
 
-      // Show the 16th-note grid for the selected bar
-      if (_accentsSelectedBar && _accentsSelectedBar <= barCount) {
-        html += buildAccentsBarEditor(part.id, _accentsSelectedBar);
+      // Show the 16th-note block editor for the selected bar
+      if (_accentsSelectedBar !== null) {
+        const selBarLocal = _accentsSelectedBar - absBarOffset;
+        if (selBarLocal >= 1 && selBarLocal <= barCount) {
+          html += buildAccentsBarEditor(part.id, _accentsSelectedBar);
+        }
       }
     }
 
@@ -5633,25 +5629,29 @@ function countPartAccents(partId) {
 function buildAccentsBarEditor(partId, barNum) {
   const [barId, barData] = getOrCreateBar(partId, barNum);
   const accents = getAccentsForBar(barId);
+  const hasAudio = barData?.audio ? true : false;
+  const isBarPlaying = _barPlayId === barId && _partPlayActive;
 
-  const cells = Array.from({ length: 16 }, (_, i) => {
+  // 16th-note blocks in flex-wrap layout
+  const blocks = Array.from({ length: 16 }, (_, i) => {
     const pos = i + 1;
     const accent = accents.find(a => a.pos_16th === pos);
     const isBeat = (pos - 1) % 4 === 0;
-    const cls = ['accent-cell', isBeat ? 'beat' : '', accent ? accent.type : ''].filter(Boolean).join(' ');
-    return `<div class="${cls}" data-accent-pos16="${pos}">
-      <span class="accent-num">${BEAT_LABELS[i]}</span>
-      ${accent ? `<span class="accent-tag">${accent.type}</span>` : ''}
-    </div>`;
+    const typeClass = accent ? ` acc-16-${accent.type}` : '';
+    const beatClass = isBeat ? ' acc-16-beat' : '';
+    const label = BEAT_LABELS[i];
+    const display = accent ? accent.type.toUpperCase() : label;
+    return `<span class="acc-16${beatClass}${typeClass}" data-accent-pos16="${pos}">${display}</span>`;
   }).join('');
 
   return `
-    <div class="accents-bar-editor">
-      <div class="accents-bar-editor-header">
-        <h4>Takt ${barNum}</h4>
-        ${barData.lyrics ? `<div class="accents-bar-editor-lyrics text-t2">${esc(barData.lyrics)}</div>` : ''}
+    <div class="acc-editor">
+      <div class="acc-editor-head">
+        <span class="acc-editor-title mono">Takt ${barNum}</span>
+        ${barData.lyrics ? `<span class="acc-editor-lyrics text-t2">${esc(barData.lyrics)}</span>` : ''}
+        ${hasAudio ? `<button class="btn-bar-play${isBarPlaying ? ' playing' : ''}" data-action="accent-play-bar" data-play-part-id="${partId}" data-play-bar-num="${barNum}" title="${isBarPlaying ? 'Stop' : 'Takt abspielen'}">${isBarPlaying ? '&#9632;' : '&#9654;'}</button>` : ''}
       </div>
-      <div class="accent-grid">${cells}</div>
+      <div class="acc-16-row">${blocks}</div>
     </div>`;
 }
 
@@ -5673,12 +5673,11 @@ function handleAccentsTabClick(e) {
     return;
   }
 
-  // Select bar
-  const barBlock = el.closest('[data-accent-bar]');
-  if (barBlock) {
-    const barNum = parseInt(barBlock.dataset.accentBar, 10);
-    _accentsSelectedBar = (_accentsSelectedBar === barNum) ? null : barNum;
-    renderAccentsTab();
+  // Accent 16th-note block click (check before bar block)
+  const accentCell = el.closest('[data-accent-pos16]');
+  if (accentCell && _accentsSelectedPart && _accentsSelectedBar) {
+    const pos = parseInt(accentCell.dataset.accentPos16, 10);
+    handleAccentsTabToggle(_accentsSelectedPart, _accentsSelectedBar, pos);
     return;
   }
 
@@ -5689,11 +5688,12 @@ function handleAccentsTabClick(e) {
     return;
   }
 
-  // Accent cell click
-  const accentCell = el.closest('[data-accent-pos16]');
-  if (accentCell && _accentsSelectedPart && _accentsSelectedBar) {
-    const pos = parseInt(accentCell.dataset.accentPos16, 10);
-    handleAccentsTabToggle(_accentsSelectedPart, _accentsSelectedBar, pos);
+  // Select bar block
+  const barBlock = el.closest('[data-accent-bar]');
+  if (barBlock) {
+    const barNum = parseInt(barBlock.dataset.accentBar, 10);
+    _accentsSelectedBar = (_accentsSelectedBar === barNum) ? null : barNum;
+    renderAccentsTab();
     return;
   }
 }

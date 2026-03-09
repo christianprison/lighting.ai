@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.2.0';
+const APP_VERSION = 'v1.3.0';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -36,6 +36,7 @@ let _leBlocks = [];             // [{type:'part'|'bar'|'word', id, content, part
 let _leInitSongId = null;       // songId for which blocks were built
 let _leDrag = null;             // active drag state
 let _leContextMenu = null;      // active context menu element
+let _leClipboard = null;        // copied word block for paste
 
 /* ── Audio Split State ────────────────────────────── */
 let audioMeta = null;          // {duration, sampleRate, channels}
@@ -566,15 +567,24 @@ function getAccentsForBar(barId) {
 
 /** Collect unique part names from all songs for datalist suggestions. */
 function getPartNameSuggestions() {
-  const names = new Set();
   if (!db.songs) return [];
+  // Count in how many distinct songs each part name occurs
+  const songCountByName = new Map();
   for (const song of Object.values(db.songs)) {
     if (!song.parts) continue;
+    const namesInSong = new Set();
     for (const part of Object.values(song.parts)) {
-      if (part.name) names.add(part.name);
+      if (part.name) namesInSong.add(part.name);
+    }
+    for (const name of namesInSong) {
+      songCountByName.set(name, (songCountByName.get(name) || 0) + 1);
     }
   }
-  return [...names].sort((a, b) => a.localeCompare(b, 'de'));
+  // Only suggest names that appear in at least 2 songs
+  return [...songCountByName.entries()]
+    .filter(([, count]) => count >= 2)
+    .map(([name]) => name)
+    .sort((a, b) => a.localeCompare(b, 'de'));
 }
 
 function getOrCreateBar(partId, barNum) {
@@ -705,7 +715,8 @@ const SONG_CHECKLIST = [
 ];
 
 /** Track previously completed steps per song to detect newly completed ones */
-let _prevProgress = {}; // songId → Set of completed step ids
+let _prevProgress = {};
+let _suppressCelebration = false; // songId → Set of completed step ids
 
 /**
  * Get or initialize the TMS data for a song.
@@ -761,8 +772,17 @@ function getSongProgress(songId) {
     return { ...cat, steps: catSteps, done: catDone, total: catSteps.length, allDone: catDone === catSteps.length };
   });
 
-  const doneCount = steps.filter(s => s.done).length;
-  const pct = Math.round((doneCount / steps.length) * 100);
+  // Weighted progress: all Stammdaten tasks together count as 1 task
+  const stammdatenSteps = steps.filter(s => s.cat === 'stammdaten');
+  const otherSteps = steps.filter(s => s.cat !== 'stammdaten');
+  const stammdatenDone = stammdatenSteps.filter(s => s.done).length;
+  const stammdatenWeight = stammdatenSteps.length > 0
+    ? stammdatenDone / stammdatenSteps.length   // 0..1 (counts as 1 task)
+    : 0;
+  const otherDone = otherSteps.filter(s => s.done).length;
+  const totalWeighted = 1 + otherSteps.length;  // Stammdaten = 1 + rest
+  const doneWeighted = stammdatenWeight + otherDone;
+  const pct = Math.round((doneWeighted / totalWeighted) * 100);
   const next = steps.find(s => !s.done) || null;
 
   // Check if any user-created tasks are still open
@@ -778,14 +798,17 @@ function checkProgressAndCelebrate(songId) {
   const prev = _prevProgress[songId];
   if (!prev) { _prevProgress[songId] = completed; return; }
 
-  for (const stepId of completed) {
-    if (!prev.has(stepId)) {
-      const step = SONG_CHECKLIST.find(s => s.id === stepId);
-      if (step) {
-        toastConfetti(`${step.label} erledigt!`, pct);
+  if (!_suppressCelebration) {
+    for (const stepId of completed) {
+      if (!prev.has(stepId)) {
+        const step = SONG_CHECKLIST.find(s => s.id === stepId);
+        if (step) {
+          fireworksCelebration(`${step.label} erledigt!`, pct);
+        }
       }
     }
   }
+  _suppressCelebration = false;
   _prevProgress[songId] = completed;
 }
 
@@ -833,7 +856,7 @@ function openTmsModal(songId) {
       return;
     }
 
-    // Toggle manual completion of default task
+    // Toggle manual completion of default task (no celebration)
     const manualToggle = el.closest('[data-tms-toggle]');
     if (manualToggle) {
       const stepId = manualToggle.dataset.tmsToggle;
@@ -841,19 +864,24 @@ function openTmsModal(songId) {
       const idx = tms.manual_done.indexOf(stepId);
       if (idx >= 0) tms.manual_done.splice(idx, 1);
       else tms.manual_done.push(stepId);
+      _suppressCelebration = true;
       markDirty();
       renderTmsModalContent(songId);
       renderSongList(els.searchBox.value);
       return;
     }
 
-    // Toggle user task
+    // Toggle user task (no celebration)
     const userToggle = el.closest('[data-tms-user-toggle]');
     if (userToggle) {
       const taskId = userToggle.dataset.tmsUserToggle;
       const tms = getSongTms(songId);
       const task = tms.user_tasks.find(t => t.id === taskId);
-      if (task) { task.done = !task.done; markDirty(); }
+      if (task) {
+        task.done = !task.done;
+        _suppressCelebration = true;
+        markDirty();
+      }
       renderTmsModalContent(songId);
       renderSongList(els.searchBox.value);
       return;
@@ -1039,67 +1067,277 @@ function renderTmsModalContent(songId) {
     </div>`;
 }
 
-/* ── Confetti Toast ───────────────────────────────── */
+/* ── Fireworks Celebration (Fullscreen) ──────────── */
 
-function toastConfetti(msg, pct) {
-  const el = document.createElement('div');
-  el.className = 'toast success toast-confetti';
-  el.innerHTML = `
-    <div class="toast-confetti-content">
-      <span class="toast-confetti-icon">&#127881;</span>
-      <span>${esc(msg)}</span>
-      ${pct !== undefined ? `<span class="toast-pct">${pct}%</span>` : ''}
-    </div>
-    <canvas class="toast-confetti-canvas" width="300" height="60"></canvas>`;
-  els.toastContainer.appendChild(el);
+function fireworksCelebration(msg, pct) {
+  // Create fullscreen overlay
+  const overlay = document.createElement('div');
+  overlay.className = 'fireworks-overlay';
+  overlay.innerHTML = `
+    <canvas class="fireworks-canvas"></canvas>
+    <div class="fireworks-msg">
+      <span class="fireworks-icon">&#127881;</span>
+      <span class="fireworks-text">${esc(msg)}</span>
+      ${pct !== undefined ? `<span class="fireworks-pct">${pct}%</span>` : ''}
+    </div>`;
+  document.body.appendChild(overlay);
 
-  // Animate confetti particles
-  const canvas = el.querySelector('.toast-confetti-canvas');
-  if (canvas) animateConfetti(canvas);
-
-  setTimeout(() => el.remove(), 4000);
-}
-
-function animateConfetti(canvas) {
+  const canvas = overlay.querySelector('.fireworks-canvas');
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = window.innerWidth * dpr;
+  canvas.height = window.innerHeight * dpr;
   const ctx = canvas.getContext('2d');
-  const w = canvas.width, h = canvas.height;
-  const colors = ['#00dc82', '#f0a030', '#38bdf8', '#ff3b5c', '#eef0f6', '#a855f7'];
-  const particles = Array.from({ length: 40 }, () => ({
-    x: w / 2 + (Math.random() - 0.5) * 60,
-    y: h,
-    vx: (Math.random() - 0.5) * 8,
-    vy: -Math.random() * 5 - 3,
-    size: Math.random() * 4 + 2,
-    color: colors[Math.floor(Math.random() * colors.length)],
-    rot: Math.random() * Math.PI * 2,
-    rotV: (Math.random() - 0.5) * 0.3,
-    life: 1,
-  }));
+  ctx.scale(dpr, dpr);
+  const W = window.innerWidth, H = window.innerHeight;
+
+  // Play fireworks sound via Web Audio API
+  playFireworksSound();
+
+  // Fireworks + confetti particles
+  const colors = ['#00dc82', '#f0a030', '#38bdf8', '#ff3b5c', '#eef0f6', '#a855f7', '#ff6b9d', '#c084fc'];
+  const particles = [];
+  const rockets = [];
+
+  // Launch multiple rockets in sequence
+  function launchRocket() {
+    rockets.push({
+      x: W * (0.2 + Math.random() * 0.6),
+      y: H,
+      targetY: H * (0.15 + Math.random() * 0.3),
+      vy: -12 - Math.random() * 4,
+      exploded: false,
+      trail: [],
+    });
+  }
+
+  // Initial rockets
+  launchRocket();
+  setTimeout(launchRocket, 200);
+  setTimeout(launchRocket, 500);
+  setTimeout(launchRocket, 900);
+  setTimeout(launchRocket, 1300);
+
+  function explode(x, y) {
+    const count = 80 + Math.floor(Math.random() * 40);
+    for (let i = 0; i < count; i++) {
+      const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.3;
+      const speed = 2 + Math.random() * 6;
+      particles.push({
+        x, y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        size: Math.random() * 4 + 1.5,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        life: 1,
+        decay: 0.008 + Math.random() * 0.012,
+        type: 'spark',
+      });
+    }
+    // Confetti pieces
+    for (let i = 0; i < 30; i++) {
+      particles.push({
+        x, y,
+        vx: (Math.random() - 0.5) * 10,
+        vy: (Math.random() - 0.5) * 10 - 2,
+        size: Math.random() * 8 + 4,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        life: 1,
+        decay: 0.005 + Math.random() * 0.008,
+        rot: Math.random() * Math.PI * 2,
+        rotV: (Math.random() - 0.5) * 0.2,
+        type: 'confetti',
+      });
+    }
+  }
 
   let frame = 0;
+  const totalFrames = 240; // ~4 seconds at 60fps
+
   function tick() {
-    ctx.clearRect(0, 0, w, h);
-    let alive = false;
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = 'rgba(8, 9, 13, 0.15)';
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.globalCompositeOperation = 'lighter';
+
+    // Update rockets
+    for (const r of rockets) {
+      if (r.exploded) continue;
+      r.y += r.vy;
+      r.trail.push({ x: r.x, y: r.y, life: 1 });
+      if (r.trail.length > 15) r.trail.shift();
+
+      // Draw trail
+      for (const t of r.trail) {
+        ctx.globalAlpha = t.life * 0.6;
+        ctx.fillStyle = '#f0a030';
+        ctx.beginPath();
+        ctx.arc(t.x, t.y, 2, 0, Math.PI * 2);
+        ctx.fill();
+        t.life -= 0.08;
+      }
+
+      // Draw rocket head
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = '#eef0f6';
+      ctx.beginPath();
+      ctx.arc(r.x, r.y, 3, 0, Math.PI * 2);
+      ctx.fill();
+
+      if (r.y <= r.targetY) {
+        r.exploded = true;
+        explode(r.x, r.y);
+      }
+    }
+
+    // Update particles
     for (const p of particles) {
       if (p.life <= 0) continue;
-      alive = true;
       p.x += p.vx;
       p.y += p.vy;
-      p.vy += 0.15; // gravity
-      p.rot += p.rotV;
-      p.life -= 0.02;
-      ctx.save();
-      ctx.translate(p.x, p.y);
-      ctx.rotate(p.rot);
+      p.vy += 0.06; // gravity
+      p.vx *= 0.99; // drag
+      p.life -= p.decay;
+
       ctx.globalAlpha = Math.max(0, p.life);
-      ctx.fillStyle = p.color;
-      ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
-      ctx.restore();
+
+      if (p.type === 'spark') {
+        // Glowing spark
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+        ctx.fill();
+        // Glow
+        ctx.globalAlpha = Math.max(0, p.life * 0.3);
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size * p.life * 3, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        // Confetti rectangle
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        p.rot += p.rotV;
+        ctx.rotate(p.rot);
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size * 0.5);
+        ctx.restore();
+      }
     }
+
+    ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = 'source-over';
+
     frame++;
-    if (alive && frame < 120) requestAnimationFrame(tick);
+    if (frame < totalFrames) {
+      requestAnimationFrame(tick);
+    }
   }
+
   requestAnimationFrame(tick);
+
+  // Fade out overlay and remove
+  setTimeout(() => overlay.classList.add('fireworks-fade'), 3200);
+  setTimeout(() => overlay.remove(), 4000);
+
+  // Click to dismiss early
+  overlay.addEventListener('click', () => {
+    overlay.classList.add('fireworks-fade');
+    setTimeout(() => overlay.remove(), 400);
+  });
+}
+
+/** Synthesize a fireworks sound using Web Audio API */
+function playFireworksSound() {
+  try {
+    const ac = new (window.AudioContext || window.webkitAudioContext)();
+    const master = ac.createGain();
+    master.gain.value = 0.3;
+    master.connect(ac.destination);
+
+    function boom(time, freq, dur) {
+      // Noise burst for explosion
+      const bufLen = ac.sampleRate * dur;
+      const buf = ac.createBuffer(1, bufLen, ac.sampleRate);
+      const data = buf.getChannelData(0);
+      for (let i = 0; i < bufLen; i++) {
+        data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufLen, 3);
+      }
+      const src = ac.createBufferSource();
+      src.buffer = buf;
+
+      const filt = ac.createBiquadFilter();
+      filt.type = 'lowpass';
+      filt.frequency.setValueAtTime(freq, time);
+      filt.frequency.exponentialRampToValueAtTime(100, time + dur);
+
+      const gain = ac.createGain();
+      gain.gain.setValueAtTime(0.6, time);
+      gain.gain.exponentialRampToValueAtTime(0.001, time + dur);
+
+      src.connect(filt);
+      filt.connect(gain);
+      gain.connect(master);
+      src.start(time);
+      src.stop(time + dur);
+    }
+
+    function whistle(time, dur) {
+      const osc = ac.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(800, time);
+      osc.frequency.linearRampToValueAtTime(2000, time + dur);
+
+      const gain = ac.createGain();
+      gain.gain.setValueAtTime(0.08, time);
+      gain.gain.exponentialRampToValueAtTime(0.001, time + dur);
+
+      osc.connect(gain);
+      gain.connect(master);
+      osc.start(time);
+      osc.stop(time + dur);
+    }
+
+    function crackle(time, dur) {
+      const bufLen = ac.sampleRate * dur;
+      const buf = ac.createBuffer(1, bufLen, ac.sampleRate);
+      const data = buf.getChannelData(0);
+      for (let i = 0; i < bufLen; i++) {
+        data[i] = Math.random() > 0.97 ? (Math.random() * 2 - 1) : 0;
+      }
+      const src = ac.createBufferSource();
+      src.buffer = buf;
+      const gain = ac.createGain();
+      gain.gain.setValueAtTime(0.4, time);
+      gain.gain.exponentialRampToValueAtTime(0.001, time + dur);
+      src.connect(gain);
+      gain.connect(master);
+      src.start(time);
+      src.stop(time + dur);
+    }
+
+    const now = ac.currentTime;
+    // Rocket 1
+    whistle(now, 0.3);
+    boom(now + 0.3, 400, 0.8);
+    crackle(now + 0.4, 1.2);
+    // Rocket 2
+    whistle(now + 0.2, 0.25);
+    boom(now + 0.5, 300, 0.7);
+    crackle(now + 0.6, 1.0);
+    // Rocket 3
+    boom(now + 0.9, 500, 0.6);
+    crackle(now + 1.0, 1.5);
+    // Rocket 4
+    whistle(now + 1.1, 0.2);
+    boom(now + 1.3, 350, 0.9);
+    crackle(now + 1.4, 1.2);
+
+    // Cleanup
+    setTimeout(() => ac.close(), 4000);
+  } catch (e) {
+    // Audio not available — silent fallback
+  }
 }
 
 /* ── Song List ─────────────────────────────────────── */
@@ -2130,7 +2368,7 @@ function buildTapButtons(parts, isPlay) {
       <button class="tap-btn tap-undo" id="tap-undo" ${tapHistory.length === 0 ? 'disabled' : ''}>
         <span class="tap-label">UNDO <kbd>Z</kbd></span>
       </button>
-      <button class="tap-btn tap-btn-dist" id="tap-distribute-parts" ${parts.length < 2 ? 'disabled' : ''} title="Part-Marker gleichmaessig ueber die Audiodauer verteilen">
+      <button class="tap-btn tap-btn-dist" id="tap-distribute-parts" ${parts.length < 2 ? 'disabled' : ''} title="Wenn du die Parts bereits angelegt hast, kannst du sie hier vorl\u00e4ufig auf den Song verteilen. Dann brauchst du sie nur noch an die richtige Stelle verschieben.">
         <span class="tap-label">PARTS</span>
         <span class="tap-info">verteilen</span>
       </button>
@@ -2521,33 +2759,6 @@ function drawWaveform() {
     absCounter += (parts[pi].bars || 0);
   }
 
-  // Ghost markers: expected part positions from DB (dashed, dimmed)
-  const song = db.songs[selectedSongId];
-  if (song && song.bpm > 0 && parts.length > 0) {
-    const starts = calcPartStarts(selectedSongId);
-    ctx.setLineDash([4, 4]);
-    for (let pi = 0; pi < parts.length; pi++) {
-      const st = starts.get(parts[pi].id);
-      if (!st || st.startSec <= 0) continue;
-      const vx = (st.startSec / duration) * totalW;
-      if (!inView(vx)) continue;
-      const x = vToC(vx);
-      ctx.strokeStyle = 'rgba(240, 160, 48, 0.25)';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, h);
-      ctx.stroke();
-      const hasTapped = partMarkers.some(m => m.partIndex === pi);
-      if (!hasTapped) {
-        ctx.font = '9px Sora, sans-serif';
-        ctx.fillStyle = 'rgba(240, 160, 48, 0.35)';
-        const label = parts[pi].name;
-        ctx.fillText(label, x + 3, 11);
-      }
-    }
-    ctx.setLineDash([]);
-  }
 
   // Part markers (amber) with flag labels as drag handles
   for (let pi2 = 0; pi2 < partMarkers.length; pi2++) {
@@ -3408,6 +3619,16 @@ function handleAudioFileLoad(file) {
         toast('Lade bestehende Referenz-Audio...', 'info');
         await loadReferenceAudio();
         return;
+      }
+      // Reset audio-dependent TMS tasks when replacing reference audio
+      const tms = getSongTms(selectedSongId);
+      const audioDepTasks = ['part_markers', 'bar_markers', 'audio_exported'];
+      const before = tms.manual_done.length;
+      tms.manual_done = tms.manual_done.filter(id => !audioDepTasks.includes(id));
+      if (tms.manual_done.length < before) {
+        song.tms = tms;
+        markDirty();
+        toast('Audio-abhängige TMS-Aufgaben zurückgesetzt', 'info');
       }
     }
 
@@ -4454,6 +4675,13 @@ function renderLyricsTab() {
   const parts = getSortedParts(selectedSongId);
   ensureCollections();
 
+  // Check if song has any bars defined
+  const totalBars = parts.reduce((sum, p) => sum + (p.bars || 0), 0);
+  if (totalBars === 0) {
+    els.content.innerHTML = `<div class="empty-state"><div class="icon">&#9835;</div><p>Bitte erst Takte anlegen.</p></div>`;
+    return;
+  }
+
   // Auto-load reference audio
   if (!audio.getBuffer() && song.audio_ref && _refLoadingFor !== selectedSongId) {
     _refLoadingFor = selectedSongId;
@@ -4770,10 +4998,13 @@ function leShowContextMenu(idx, blockEl) {
   if (block.type === 'word') {
     menu.innerHTML = `
       <button data-action="edit" class="le-ctx-item">&#9998; Editieren</button>
+      <button data-action="duplicate" class="le-ctx-item">&#10697; Duplizieren</button>
+      <button data-action="copy" class="le-ctx-item">&#128203; Kopieren</button>
+      <button data-action="paste" class="le-ctx-item"${_leClipboard ? '' : ' disabled'}>&#128203; Einf&uuml;gen (Paste)</button>
       <button data-action="delete" class="le-ctx-item le-ctx-delete">&#128465; L&ouml;schen</button>
       <button data-action="split" class="le-ctx-item">&#9986; Trennen</button>
       <button data-action="merge" class="le-ctx-item">&#128279; Zusammensetzen</button>
-      <button data-action="insert" class="le-ctx-item">&#10133; Einf&uuml;gen</button>
+      <button data-action="insert" class="le-ctx-item">&#10133; Neues Wort</button>
     `;
   } else if (block.type === 'bar') {
     const nlLabel = block.newline ? '&#8629; Neue Zeile entfernen' : '&#8629; Neue Zeile';
@@ -4837,14 +5068,22 @@ async function leHandleContextAction(action, idx) {
 
   else if (action === 'split') {
     const word = block.content;
-    const input = prompt(`Bindestrich einf\u00fcgen in "${word}":`, word);
-    if (!input || !input.includes('-')) return;
-    const parts = input.split('-').filter(s => s.length > 0);
-    if (parts.length < 2) return;
-    // Replace block with multiple word blocks
-    const newBlocks = parts.map((p, i) => ({
+    const input = prompt(`Trennen mit Bindestrich (-) oder Leerzeichen in "${word}":`, word);
+    if (!input || input === word) return;
+    // Split by spaces first, then by hyphens (keeping hyphens attached)
+    const tokens = [];
+    input.split(/\s+/).filter(s => s.length > 0).forEach(chunk => {
+      if (chunk.includes('-')) {
+        const hParts = chunk.split('-').filter(s => s.length > 0);
+        hParts.forEach((p, i) => tokens.push(i < hParts.length - 1 ? p + '-' : p));
+      } else {
+        tokens.push(chunk);
+      }
+    });
+    if (tokens.length < 2) return;
+    const newBlocks = tokens.map((t, i) => ({
       type: 'word',
-      content: i < parts.length - 1 ? p + '-' : p,
+      content: t,
       partId: block.partId,
       barNum: block.barNum,
       id: `lb_${Date.now()}_${i}`
@@ -4867,6 +5106,38 @@ async function leHandleContextAction(action, idx) {
     }
     block.content = block.content + ' ' + _leBlocks[nextWordIdx].content;
     _leBlocks.splice(nextWordIdx, 1);
+    markDirty();
+    leRefreshCanvas();
+  }
+
+  else if (action === 'duplicate') {
+    const dup = {
+      type: 'word',
+      content: block.content,
+      partId: block.partId,
+      barNum: block.barNum,
+      id: `lb_${Date.now()}_dup`
+    };
+    _leBlocks.splice(idx + 1, 0, dup);
+    markDirty();
+    leRefreshCanvas();
+  }
+
+  else if (action === 'copy') {
+    _leClipboard = { content: block.content, partId: block.partId, barNum: block.barNum };
+    toast('Wort kopiert: ' + block.content);
+  }
+
+  else if (action === 'paste') {
+    if (!_leClipboard) { toast('Nichts kopiert', 'warn'); return; }
+    const pasted = {
+      type: 'word',
+      content: _leClipboard.content,
+      partId: block.partId,
+      barNum: block.barNum,
+      id: `lb_${Date.now()}_paste`
+    };
+    _leBlocks.splice(idx + 1, 0, pasted);
     markDirty();
     leRefreshCanvas();
   }
@@ -6413,18 +6684,18 @@ function renderPartsTab() {
 
   els.content.innerHTML = `
     <div class="parts-tab-panel">
-      <div class="parts-tab-scroll" id="parts-tab-scroll">
-        <div class="parts-tab-header">
-          <div class="parts-toolbar">
-            ${filterSong ? `<button class="btn btn-sm btn-primary" data-pt-action="add">+ ADD</button>` : ''}
-            <button class="btn btn-sm" data-pt-action="move-up" ${hasSel ? '' : 'disabled'}>&#9650;</button>
-            <button class="btn btn-sm" data-pt-action="move-down" ${hasSel ? '' : 'disabled'}>&#9660;</button>
-            <button class="btn btn-sm" data-pt-action="dup" ${hasSel ? '' : 'disabled'}>DUP</button>
-            <button class="btn btn-sm btn-danger" data-pt-action="del" ${hasSel ? '' : 'disabled'}>DEL</button>
-            ${filterSong ? `<button class="btn btn-sm${db.songs[filterSong]?.instr_done ? ' btn-success' : ''}" data-pt-action="instr-done" title="Alle Instrumental-Parts identifiziert">${db.songs[filterSong]?.instr_done ? '&#9835; &#10003;' : '&#9835; Instr. gepr\u00fcft'}</button>` : ''}
-            ${filterSong ? `<button class="btn btn-sm" data-pt-action="qlc-import" title="Light Templates aus QLC+ QXW importieren">&#9728; QLC+</button>` : ''}
-          </div>
+      <div class="parts-tab-header">
+        <div class="parts-toolbar">
+          ${filterSong ? `<button class="btn btn-sm btn-primary" data-pt-action="add">+ ADD</button>` : ''}
+          <button class="btn btn-sm" data-pt-action="move-up" ${hasSel ? '' : 'disabled'}>&#9650;</button>
+          <button class="btn btn-sm" data-pt-action="move-down" ${hasSel ? '' : 'disabled'}>&#9660;</button>
+          <button class="btn btn-sm" data-pt-action="dup" ${hasSel ? '' : 'disabled'}>DUP</button>
+          <button class="btn btn-sm btn-danger" data-pt-action="del" ${hasSel ? '' : 'disabled'}>DEL</button>
+          ${filterSong ? `<button class="btn btn-sm${db.songs[filterSong]?.instr_done ? ' btn-success' : ''}" data-pt-action="instr-done" title="Alle Instrumental-Parts identifiziert">${db.songs[filterSong]?.instr_done ? '&#9835; &#10003;' : '&#9835; Instr. gepr\u00fcft'}</button>` : ''}
+          ${filterSong ? `<button class="btn btn-sm" data-pt-action="qlc-import" title="Light Templates aus QLC+ QXW importieren">&#9728; QLC+</button>` : ''}
         </div>
+      </div>
+      <div class="parts-tab-scroll" id="parts-tab-scroll">
         ${allParts.length === 0
           ? '<div class="empty-state" style="padding:60px 0"><div class="icon">&#9881;</div><p>Keine Parts gefunden.</p></div>'
           : buildPartsTabTable(allParts, filterSong)}
@@ -6500,7 +6771,7 @@ function buildPartsTabTable(parts, filterSong) {
             ${hasBuf ? `<td class="ptt-wave">${waveCanvas}</td>` : ''}
             <td class="ptt-start">
               <div class="start-cell">
-                <input type="number" value="${st.startBar}" data-ptf="start_bar" class="part-input-num mono" min="0" step="1" inputmode="numeric" title="Takt-Offset ab Songstart">
+                <span class="part-input-num mono text-t2" title="Takt-Offset ab Songstart (berechnet)">${st.startBar}</span>
                 <span class="start-time mono text-t3">${fmtDur(Math.round(st.startSec))}</span>
               </div>
             </td>
@@ -6511,7 +6782,7 @@ function buildPartsTabTable(parts, filterSong) {
                 ${buildTemplateOptions(p.light_template)}
               </select>
             </td>
-            <td class="ptt-dur"><input type="number" value="${dur}" data-ptf="duration_sec" class="part-input-num mono" min="0" step="1" inputmode="numeric" title="Dauer in Sekunden"></td>
+            <td class="ptt-dur"><span class="part-input-num mono text-t2" title="Dauer in Sekunden (berechnet aus Takte × BPM)">${dur || '\u2014'}</span></td>
             <td class="ptt-instr"><input type="checkbox" data-ptf="instrumental" class="instr-check" ${p.instrumental ? 'checked' : ''}></td>
             <td class="ptt-notes"><input type="text" value="${esc(p.notes || '')}" data-ptf="notes" class="part-input ptt-notes-input" placeholder="\u2014"></td>
           </tr>`;
@@ -6705,24 +6976,6 @@ function handlePartsTabChange(e) {
       integrity.syncBarCount(db, partId, part.bars);
       recalcSongDurationFor(songId);
       // Bars changed → re-render to update subsequent start values
-      renderPartsTab();
-      if (partsTabSelectedPart && partsTabSelectedPart.partId === partId) {
-        partsTabSelectedBar = null;
-        renderPartsTabBarSection();
-      }
-    } else if (field === 'start_bar') {
-      part.start_bar = parseInt(el.value, 10) || 0;
-      renderPartsTab();
-    } else if (field === 'duration_sec') {
-      const newDur = parseInt(el.value, 10) || 0;
-      const bpm = song.bpm || 0;
-      if (bpm > 0) {
-        part.bars = Math.round(newDur * bpm / 240);
-      }
-      part.duration_sec = calcPartDuration(part.bars, bpm);
-      recalcAbsoluteBarNums(songId);
-      integrity.syncBarCount(db, partId, part.bars);
-      recalcSongDurationFor(songId);
       renderPartsTab();
       if (partsTabSelectedPart && partsTabSelectedPart.partId === partId) {
         partsTabSelectedBar = null;
@@ -7020,6 +7273,9 @@ function closePartWaveEditor(save) {
       const nextMarker = partMarkers.find(m => m.partIndex === _pw.partIndex + 1);
       if (nextMarker) nextMarker.time = _pw.trimEnd;
     }
+    // Sync first bar markers to their part markers (fixes desync after trim changes)
+    snapFirstBarsToPartMarkers();
+    reassignBarMarkerParts();
     // Persist and re-render
     saveMarkersToSong();
     markDirty();
@@ -7255,7 +7511,13 @@ function _pwInstallDragListeners() {
     const time = _pwXToTime(x);
 
     if (_pwDrag.which === 'start') {
-      _pw.trimStart = Math.max(_pw.viewStart, Math.min(time, _pw.trimEnd - 0.1));
+      const newStart = Math.max(_pw.viewStart, Math.min(time, _pw.trimEnd - 0.1));
+      // Move the first bar marker of this part along with the start handle
+      const firstBar = getBarMarkersForPart(_pw.partIndex)[0];
+      if (firstBar && Math.abs(firstBar.time - _pw.trimStart) < BOUNDARY_TOLERANCE) {
+        firstBar.time = newStart;
+      }
+      _pw.trimStart = newStart;
     } else if (_pwDrag.which === 'end') {
       _pw.trimEnd = Math.min(_pw.viewEnd, Math.max(time, _pw.trimStart + 0.1));
     } else if (_pwDrag.which === 'bar') {
@@ -7351,7 +7613,13 @@ const PW_NUDGE_MS = 50;
 function _pwNudge(which, dir) {
   const delta = (dir * PW_NUDGE_MS) / 1000;
   if (which === 'start') {
-    _pw.trimStart = Math.max(_pw.viewStart, Math.min(_pw.trimStart + delta, _pw.trimEnd - 0.05));
+    const newStart = Math.max(_pw.viewStart, Math.min(_pw.trimStart + delta, _pw.trimEnd - 0.05));
+    // Move the first bar marker along with the start handle
+    const firstBar = getBarMarkersForPart(_pw.partIndex)[0];
+    if (firstBar && Math.abs(firstBar.time - _pw.trimStart) < BOUNDARY_TOLERANCE) {
+      firstBar.time = newStart;
+    }
+    _pw.trimStart = newStart;
   } else {
     _pw.trimEnd = Math.min(_pw.viewEnd, Math.max(_pw.trimEnd + delta, _pw.trimStart + 0.05));
   }

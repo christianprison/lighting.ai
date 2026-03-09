@@ -2760,6 +2760,11 @@ label {
   background: var(--bg4);
 }
 
+.le-ctx-item:disabled {
+  color: var(--t4);
+  pointer-events: none;
+}
+
 .le-ctx-item.le-ctx-delete {
   color: var(--red);
 }

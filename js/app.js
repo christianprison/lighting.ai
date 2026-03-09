@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.2.0';
+const APP_VERSION = 'v1.2.1';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -36,6 +36,7 @@ let _leBlocks = [];             // [{type:'part'|'bar'|'word', id, content, part
 let _leInitSongId = null;       // songId for which blocks were built
 let _leDrag = null;             // active drag state
 let _leContextMenu = null;      // active context menu element
+let _leClipboard = null;        // copied word block for paste
 
 /* ── Audio Split State ────────────────────────────── */
 let audioMeta = null;          // {duration, sampleRate, channels}
@@ -4770,10 +4771,13 @@ function leShowContextMenu(idx, blockEl) {
   if (block.type === 'word') {
     menu.innerHTML = `
       <button data-action="edit" class="le-ctx-item">&#9998; Editieren</button>
+      <button data-action="duplicate" class="le-ctx-item">&#10697; Duplizieren</button>
+      <button data-action="copy" class="le-ctx-item">&#128203; Kopieren</button>
+      <button data-action="paste" class="le-ctx-item"${_leClipboard ? '' : ' disabled'}>&#128203; Einf&uuml;gen (Paste)</button>
       <button data-action="delete" class="le-ctx-item le-ctx-delete">&#128465; L&ouml;schen</button>
       <button data-action="split" class="le-ctx-item">&#9986; Trennen</button>
       <button data-action="merge" class="le-ctx-item">&#128279; Zusammensetzen</button>
-      <button data-action="insert" class="le-ctx-item">&#10133; Einf&uuml;gen</button>
+      <button data-action="insert" class="le-ctx-item">&#10133; Einf&uuml;gen (neu)</button>
     `;
   } else if (block.type === 'bar') {
     const nlLabel = block.newline ? '&#8629; Neue Zeile entfernen' : '&#8629; Neue Zeile';
@@ -4837,14 +4841,22 @@ async function leHandleContextAction(action, idx) {
 
   else if (action === 'split') {
     const word = block.content;
-    const input = prompt(`Bindestrich einf\u00fcgen in "${word}":`, word);
-    if (!input || !input.includes('-')) return;
-    const parts = input.split('-').filter(s => s.length > 0);
-    if (parts.length < 2) return;
-    // Replace block with multiple word blocks
-    const newBlocks = parts.map((p, i) => ({
+    const input = prompt(`Trennen mit Bindestrich (-) oder Leerzeichen in "${word}":`, word);
+    if (!input || input === word) return;
+    // Split by spaces first, then by hyphens (keeping hyphens attached)
+    const tokens = [];
+    input.split(/\s+/).filter(s => s.length > 0).forEach(chunk => {
+      if (chunk.includes('-')) {
+        const hParts = chunk.split('-').filter(s => s.length > 0);
+        hParts.forEach((p, i) => tokens.push(i < hParts.length - 1 ? p + '-' : p));
+      } else {
+        tokens.push(chunk);
+      }
+    });
+    if (tokens.length < 2) return;
+    const newBlocks = tokens.map((t, i) => ({
       type: 'word',
-      content: i < parts.length - 1 ? p + '-' : p,
+      content: t,
       partId: block.partId,
       barNum: block.barNum,
       id: `lb_${Date.now()}_${i}`
@@ -4867,6 +4879,38 @@ async function leHandleContextAction(action, idx) {
     }
     block.content = block.content + ' ' + _leBlocks[nextWordIdx].content;
     _leBlocks.splice(nextWordIdx, 1);
+    markDirty();
+    leRefreshCanvas();
+  }
+
+  else if (action === 'duplicate') {
+    const dup = {
+      type: 'word',
+      content: block.content,
+      partId: block.partId,
+      barNum: block.barNum,
+      id: `lb_${Date.now()}_dup`
+    };
+    _leBlocks.splice(idx + 1, 0, dup);
+    markDirty();
+    leRefreshCanvas();
+  }
+
+  else if (action === 'copy') {
+    _leClipboard = { content: block.content, partId: block.partId, barNum: block.barNum };
+    toast('Wort kopiert: ' + block.content);
+  }
+
+  else if (action === 'paste') {
+    if (!_leClipboard) { toast('Nichts kopiert', 'warn'); return; }
+    const pasted = {
+      type: 'word',
+      content: _leClipboard.content,
+      partId: block.partId,
+      barNum: block.barNum,
+      id: `lb_${Date.now()}_paste`
+    };
+    _leBlocks.splice(idx + 1, 0, pasted);
     markDirty();
     leRefreshCanvas();
   }

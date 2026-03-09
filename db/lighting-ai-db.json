@@ -4642,7 +4642,7 @@
     "CEGcgc": {
       "name": "Basket Case",
       "artist": "Green Day",
-      "bpm": 168,
+      "bpm": 77,
       "key": "E dur",
       "year": "1994",
       "pick": "",
@@ -4676,7 +4676,7 @@
         "CEGcgc_P003": {
           "pos": 5,
           "name": "Verse 2",
-          "bars": 0,
+          "bars": 1,
           "duration_sec": 22,
           "light_template": "verse_driving",
           "qlc_scene": "08 swimming ‍",
@@ -4687,7 +4687,7 @@
         "CEGcgc_P004": {
           "pos": 6,
           "name": "Chorus 1",
-          "bars": 0,
+          "bars": 1,
           "duration_sec": 19,
           "light_template": "chorus_full",
           "qlc_scene": "05 left'n'right ↔",
@@ -4698,7 +4698,7 @@
         "CEGcgc_P005": {
           "pos": 7,
           "name": "Part 5",
-          "bars": 0,
+          "bars": 1,
           "duration_sec": 11,
           "light_template": "generic_bpm",
           "qlc_scene": "04 up'n'down ↕",
@@ -4764,7 +4764,7 @@
         "CEGcgc_P011": {
           "pos": 4,
           "name": "Mini-Solo Axel",
-          "bars": 0,
+          "bars": 1,
           "duration_sec": 9,
           "light_template": "generic_bpm",
           "qlc_scene": "10 Strobe",
@@ -4797,6 +4797,26 @@
             "time": 41.28726802434476,
             "partIndex": 2,
             "partId": "CEGcgc_P010"
+          },
+          {
+            "time": 47.07735042134828,
+            "partIndex": 3,
+            "partId": "CEGcgc_P011"
+          },
+          {
+            "time": 53.01068375468167,
+            "partIndex": 4,
+            "partId": "CEGcgc_P003"
+          },
+          {
+            "time": 76.01068375468168,
+            "partIndex": 5,
+            "partId": "CEGcgc_P004"
+          },
+          {
+            "time": 95.97868375468153,
+            "partIndex": 6,
+            "partId": "CEGcgc_P005"
           }
         ],
         "barMarkers": [
@@ -4814,6 +4834,26 @@
             "time": 41.28726802434476,
             "partIndex": 2,
             "partId": "CEGcgc_P010"
+          },
+          {
+            "time": 47.07735042134828,
+            "partIndex": 3,
+            "partId": "CEGcgc_P011"
+          },
+          {
+            "time": 53.01068375468167,
+            "partIndex": 4,
+            "partId": "CEGcgc_P003"
+          },
+          {
+            "time": 76.01068375468168,
+            "partIndex": 5,
+            "partId": "CEGcgc_P004"
+          },
+          {
+            "time": 95.97868375468153,
+            "partIndex": 6,
+            "partId": "CEGcgc_P005"
           }
         ]
       }

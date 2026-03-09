@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.1.4';
+const APP_VERSION = 'v1.1.5';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -406,8 +406,7 @@ function migrateAudioPaths() {
       if (!bar.audio) continue;
       const part = partById[bar.part_id];
       if (!part) continue;
-      const globalBarNum = partGlobalOffset[bar.part_id] + bar.bar_num;
-      const expected = buildBarAudioPath(song, part, bar.bar_num, globalBarNum);
+      const expected = buildBarAudioPath(song, part, bar.bar_num, bar.bar_num);
       if (bar.audio !== expected) {
         bar.audio = expected;
         changed++;
@@ -418,6 +417,86 @@ function migrateAudioPaths() {
   if (changed > 0) {
     markDirty();
     console.log(`migrateAudioPaths: updated ${changed} path(s)`);
+  }
+}
+
+/**
+ * Migrate bar_num from part-relative (1-based per part) to absolute (song-wide).
+ * Detects bars that still use old local numbering by checking if bar_num <= part.bars
+ * for ALL bars of a song. Only runs once — after migration, bar_num values exceed
+ * part.bars for parts after the first one.
+ */
+function migrateBarNumToAbsolute() {
+  if (!db || !db.songs || !db.bars) return;
+  let changed = 0;
+
+  for (const [songId, song] of Object.entries(db.songs)) {
+    const parts = getSortedParts(songId);
+    if (parts.length === 0) continue;
+
+    // Build offset map: partId → cumulative bar offset before this part
+    let cumBars = 0;
+    const offsetMap = {};
+    for (const p of parts) {
+      offsetMap[p.id] = cumBars;
+      cumBars += (p.bars || 0);
+    }
+
+    // Check if this song needs migration:
+    // If all bars for this song have bar_num <= their part's bar count,
+    // they are likely still in old local format (except for first part where local = absolute)
+    const barsForSong = Object.entries(db.bars)
+      .filter(([, b]) => offsetMap[b.part_id] !== undefined);
+
+    if (barsForSong.length === 0) continue;
+
+    // Skip if any bar already has bar_num > its part's barCount (already migrated)
+    const needsMigration = barsForSong.every(([, b]) => {
+      const part = song.parts[b.part_id];
+      return part && b.bar_num <= (part.bars || 0);
+    });
+
+    // Also skip if first part is the only part (local = absolute)
+    if (!needsMigration || parts.length <= 1) continue;
+
+    // Actually migrate
+    for (const [barId, bar] of barsForSong) {
+      const offset = offsetMap[bar.part_id];
+      if (offset > 0) { // Only change bars not in the first part
+        bar.bar_num = offset + bar.bar_num;
+        changed++;
+      }
+    }
+  }
+
+  if (changed > 0) {
+    markDirty();
+    console.log(`migrateBarNumToAbsolute: converted ${changed} bar(s) to absolute numbering`);
+  }
+}
+
+/**
+ * Recalculate bar_num for all bars of a song to be absolute (song-wide).
+ * Call this after part reorder, delete, duplicate, or bar count changes.
+ */
+function recalcAbsoluteBarNums(songId) {
+  const song = db.songs[songId];
+  if (!song) return;
+  ensureCollections();
+  const parts = getSortedParts(songId);
+  let cumBars = 0;
+
+  for (const p of parts) {
+    // Get bars for this part, sorted by current bar_num
+    const barsForPart = Object.entries(db.bars)
+      .filter(([, b]) => b.part_id === p.id)
+      .sort((a, b) => a[1].bar_num - b[1].bar_num);
+
+    // Renumber: first bar in part gets cumBars+1, second gets cumBars+2, etc.
+    for (let i = 0; i < barsForPart.length; i++) {
+      barsForPart[i][1].bar_num = cumBars + i + 1;
+    }
+    cumBars += (p.bars || 0);
   }
 }
 
@@ -1296,16 +1375,16 @@ function renderBarSection() {
   const barOffset = partStart ? partStart.startBar : 0;
 
   const blocks = Array.from({ length: barCount }, (_, i) => {
-    const n = i + 1;
-    const absN = barOffset + n;
-    const found = findBar(selectedPartId, n);
+    const absN = barOffset + i + 1;
+    const found = findBar(selectedPartId, absN);
     const hasAcc = found ? getAccentsForBar(found[0]).length > 0 : false;
     const hasLyr = found && found[1].lyrics;
-    return `<div class="bar-block${n === selectedBarNum ? ' active' : ''}${hasAcc ? ' has-accents' : ''}${hasLyr ? ' has-lyrics' : ''}" data-bar-num="${n}">${absN}</div>`;
+    return `<div class="bar-block${absN === selectedBarNum ? ' active' : ''}${hasAcc ? ' has-accents' : ''}${hasLyr ? ' has-lyrics' : ''}" data-bar-num="${absN}">${absN}</div>`;
   }).join('');
 
   let editor = '';
-  if (selectedBarNum && selectedBarNum <= barCount) {
+  const absEnd = barOffset + barCount;
+  if (selectedBarNum && selectedBarNum > barOffset && selectedBarNum <= absEnd) {
     editor = buildBarEditor();
   }
 
@@ -1336,7 +1415,7 @@ function buildBarEditor() {
   return `
     <div class="bar-editor">
       <div class="bar-editor-header">
-        <span class="mono text-t1">Bar ${getAbsBarNum(selectedSongId, selectedPartId, selectedBarNum)}</span>
+        <span class="mono text-t1">Bar ${selectedBarNum}</span>
         <span class="accent-legend">
           <span class="legend-item bl">bl</span>
           <span class="legend-item bo">bo</span>
@@ -1347,7 +1426,7 @@ function buildBarEditor() {
       </div>
       <div class="form-group" style="margin-bottom:12px">
         <label>Lyrics</label>
-        <input type="text" value="${esc(barData.lyrics || '')}" data-bar-lyrics placeholder="Lyrics f\u00fcr Bar ${getAbsBarNum(selectedSongId, selectedPartId, selectedBarNum)}...">
+        <input type="text" value="${esc(barData.lyrics || '')}" data-bar-lyrics placeholder="Lyrics f\u00fcr Bar ${selectedBarNum}...">
       </div>
       <div class="form-group">
         <label>Accents (16tel-Raster)</label>
@@ -1427,7 +1506,8 @@ function handleEditorChange(e) {
     if (field === 'bars') {
       part.bars = parseInt(el.value, 10) || 0;
       part.duration_sec = calcPartDuration(part.bars, song.bpm || 0);
-      // Clean up excess bars when count is reduced
+      // Recalc absolute bar numbers, then clean up excess
+      recalcAbsoluteBarNums(selectedSongId);
       integrity.syncBarCount(db, partId, part.bars);
       // Update duration cell
       const row = el.closest('[data-part-id]');
@@ -1441,7 +1521,7 @@ function handleEditorChange(e) {
       renderPartsTable();
       // Re-render bar section if this part is selected
       if (partId === selectedPartId) {
-        if (selectedBarNum && selectedBarNum > part.bars) selectedBarNum = null;
+        selectedBarNum = null;
         renderBarSection();
       }
     } else if (field === 'start_bar') {
@@ -1454,13 +1534,15 @@ function handleEditorChange(e) {
         part.bars = Math.round(newDur * bpm / 240);
       }
       part.duration_sec = calcPartDuration(part.bars, bpm);
+      recalcAbsoluteBarNums(selectedSongId);
+      integrity.syncBarCount(db, partId, part.bars);
       recalcSongDuration();
       const durField = document.getElementById('song-duration-field');
       if (durField) durField.value = song.duration || '';
       renderSummary();
       renderPartsTable();
       if (partId === selectedPartId) {
-        if (selectedBarNum && selectedBarNum > part.bars) selectedBarNum = null;
+        selectedBarNum = null;
         renderBarSection();
       }
     } else if (field === 'light_template') {
@@ -1618,6 +1700,7 @@ function handlePartAction(action) {
       delete song.parts[selectedPartId];
       // Renumber
       getSortedParts(selectedSongId).forEach((p, i) => { song.parts[p.id].pos = i + 1; });
+      recalcAbsoluteBarNums(selectedSongId);
       // Sync: remove split_markers for the deleted part
       removeSplitMarkersForPart(song, deletedPartId);
       selectedPartId = null;
@@ -1640,7 +1723,9 @@ function handlePartAction(action) {
       const curr = song.parts[parts[idx].id];
       const prev = song.parts[parts[idx - 1].id];
       [curr.pos, prev.pos] = [prev.pos, curr.pos];
+      recalcAbsoluteBarNums(selectedSongId);
       updateSplitMarkersAfterReorder(song);
+      selectedBarNum = null;
       markDirty();
       renderPartsTable();
       break;
@@ -1654,7 +1739,9 @@ function handlePartAction(action) {
       const curr = song.parts[parts[idx].id];
       const next = song.parts[parts[idx + 1].id];
       [curr.pos, next.pos] = [next.pos, curr.pos];
+      recalcAbsoluteBarNums(selectedSongId);
       updateSplitMarkersAfterReorder(song);
+      selectedBarNum = null;
       markDirty();
       renderPartsTable();
       break;
@@ -1665,6 +1752,7 @@ function handlePartAction(action) {
       // Use integrity module for cascade duplicate (copies bars + accents too)
       const newId = integrity.duplicatePart(db, selectedSongId, selectedPartId);
       if (!newId) return;
+      recalcAbsoluteBarNums(selectedSongId);
       selectedPartId = newId;
       selectedBarNum = null;
       markDirty();
@@ -3947,13 +4035,15 @@ async function handleAudioExport() {
 
       if (bars.length === 0 || partEnd === null) continue;
 
-      // Clean up old bars that exceed the new bar count
+      // Clean up old bars that exceed the new bar count (absolute range)
+      const absRangeStart = globalBarOffset + 1;
+      const absRangeEnd = globalBarOffset + bars.length;
       const oldBars = Object.entries(db.bars)
         .filter(([, b]) => b.part_id === part.id)
         .sort((a, b) => a[1].bar_num - b[1].bar_num);
 
       for (const [oldBarId, oldBar] of oldBars) {
-        if (oldBar.bar_num > bars.length) {
+        if (oldBar.bar_num > absRangeEnd || oldBar.bar_num < absRangeStart) {
           // Delete orphaned audio file from GitHub
           if (oldBar.audio) {
             try {
@@ -3972,16 +4062,15 @@ async function handleAudioExport() {
       for (let b = 0; b < bars.length; b++) {
         const barStart = bars[b].time;
         const barEnd = (b + 1 < bars.length) ? bars[b + 1].time : partEnd;
-        const barNum = b + 1;
-        const globalBarNum = globalBarOffset + barNum;
+        const globalBarNum = globalBarOffset + b + 1;
 
         const base64mp3 = await audio.exportSegmentMp3(barStart, barEnd);
-        const path = buildBarAudioPath(song, part, barNum, globalBarNum);
+        const path = buildBarAudioPath(song, part, globalBarNum, globalBarNum);
 
-        await uploadFile(s.repo, path, s.token, base64mp3, `Audio: ${part.name} Bar ${barNum} (${songName})`);
+        await uploadFile(s.repo, path, s.token, base64mp3, `Audio: ${part.name} Bar ${globalBarNum} (${songName})`);
 
         // Update bar record in DB (preserves existing lyrics/accents)
-        const [barId, barData] = getOrCreateBar(part.id, barNum);
+        const [barId, barData] = getOrCreateBar(part.id, globalBarNum);
         barData.audio = path;
 
         done++;
@@ -4122,6 +4211,7 @@ function leBuildBlocks(songId) {
   const blocks = [];
   let blockId = 0;
 
+  let cumBars = 0;
   for (const part of parts) {
     // Part block
     blocks.push({
@@ -4134,20 +4224,21 @@ function leBuildBlocks(songId) {
 
     const barCount = part.bars || 0;
     for (let b = 1; b <= barCount; b++) {
-      const absNum = getAbsBarNum(songId, part.id, b);
+      const absNum = cumBars + b;
 
       // Bar block
       blocks.push({
         type: 'bar',
         content: String(absNum),
         partId: part.id,
-        barNum: b,
+        barNum: absNum,
+        firstInPart: b === 1,
         id: `lb_${blockId++}`
       });
 
       // Word blocks from bar lyrics (if any and not instrumental)
       if (!part.instrumental) {
-        const found = findBar(part.id, b);
+        const found = findBar(part.id, absNum);
         const lyrics = found ? (found[1].lyrics || '').trim() : '';
         if (lyrics) {
           const words = lyrics.split(/\s+/).filter(w => w.length > 0);
@@ -4156,13 +4247,14 @@ function leBuildBlocks(songId) {
               type: 'word',
               content: w,
               partId: part.id,
-              barNum: b,
+              barNum: absNum,
               id: `lb_${blockId++}`
             });
           }
         }
       }
     }
+    cumBars += barCount;
   }
 
   return blocks;
@@ -4184,12 +4276,15 @@ function leDistributeText(songId, rawText) {
 
   // Collect non-instrumental bars
   const bars = [];
+  let cumBarsD = 0;
   for (const part of parts) {
-    if (part.instrumental) continue;
     const barCount = part.bars || 0;
-    for (let b = 1; b <= barCount; b++) {
-      bars.push({ partId: part.id, barNum: b });
+    if (!part.instrumental) {
+      for (let b = 1; b <= barCount; b++) {
+        bars.push({ partId: part.id, barNum: cumBarsD + b });
+      }
     }
+    cumBarsD += barCount;
   }
 
   if (bars.length === 0) return _leBlocks;
@@ -4200,6 +4295,7 @@ function leDistributeText(songId, rawText) {
 
   const blocks = [];
   let blockId = 0;
+  let cumBarsD2 = 0;
 
   for (const part of parts) {
     blocks.push({
@@ -4212,12 +4308,13 @@ function leDistributeText(songId, rawText) {
 
     const barCount = part.bars || 0;
     for (let b = 1; b <= barCount; b++) {
-      const absNum = getAbsBarNum(songId, part.id, b);
+      const absNum = cumBarsD2 + b;
       blocks.push({
         type: 'bar',
         content: String(absNum),
         partId: part.id,
-        barNum: b,
+        barNum: absNum,
+        firstInPart: b === 1,
         id: `lb_${blockId++}`
       });
 
@@ -4229,12 +4326,13 @@ function leDistributeText(songId, rawText) {
             type: 'word',
             content: w,
             partId: part.id,
-            barNum: b,
+            barNum: absNum,
             id: `lb_${blockId++}`
           });
         }
       }
     }
+    cumBarsD2 += barCount;
   }
 
   return blocks;
@@ -4317,7 +4415,7 @@ function leRenderBlocks() {
     // Line break before part blocks, before first bar of each part, and blocks with newline flag
     if (b.type === 'part' || b.newline) {
       html += '<span class="le-break"></span>';
-    } else if (b.type === 'bar' && b.barNum === 1) {
+    } else if (b.type === 'bar' && b.firstInPart) {
       // First bar of a part always starts on a new line
       // (unless it's already right after the part block break)
       const prev = i > 0 ? _leBlocks[i - 1] : null;
@@ -4896,19 +4994,19 @@ function buildAccentsPartsList(parts, song) {
       html += '<div class="accents-bars-list">';
       for (let b = 1; b <= barCount; b++) {
         const absBar = absBarOffset + b;
-        const isBarSel = _accentsSelectedBar === b;
-        const found = findBar(part.id, b);
+        const isBarSel = _accentsSelectedBar === absBar;
+        const found = findBar(part.id, absBar);
         const accCount = found ? getAccentsForBar(found[0]).length : 0;
         const barData = found ? db.bars[found[0]] : null;
         const lyrics = barData?.lyrics || '';
         const hasAudio = barData?.audio ? true : false;
         const isBarPlaying = barData && _barPlayId === found[0] && _partPlayActive;
 
-        html += `<div class="accents-bar-row${isBarSel ? ' active' : ''}${accCount > 0 ? ' has-accents' : ''}" data-accent-bar="${b}">
+        html += `<div class="accents-bar-row${isBarSel ? ' active' : ''}${accCount > 0 ? ' has-accents' : ''}" data-accent-bar="${absBar}">
           <span class="accents-bar-num mono">${absBar}</span>
           <span class="accents-bar-lyrics text-t2">${lyrics ? esc(lyrics) : '<span class="text-t4">—</span>'}</span>
           ${accCount > 0 ? `<span class="accents-bar-dots mono text-amber">${accCount}</span>` : ''}
-          ${hasAudio ? `<button class="btn-bar-play${isBarPlaying ? ' playing' : ''}" data-action="accent-play-bar" data-play-part-id="${part.id}" data-play-bar-num="${b}" title="${isBarPlaying ? 'Stop' : 'Takt abspielen'}">${isBarPlaying ? '&#9632;' : '&#9654;'}</button>` : ''}
+          ${hasAudio ? `<button class="btn-bar-play${isBarPlaying ? ' playing' : ''}" data-action="accent-play-bar" data-play-part-id="${part.id}" data-play-bar-num="${absBar}" title="${isBarPlaying ? 'Stop' : 'Takt abspielen'}">${isBarPlaying ? '&#9632;' : '&#9654;'}</button>` : ''}
         </div>`;
       }
       html += '</div>';
@@ -4953,7 +5051,7 @@ function buildAccentsBarEditor(partId, barNum) {
   return `
     <div class="accents-bar-editor">
       <div class="accents-bar-editor-header">
-        <h4>Takt ${getAbsBarNum(selectedSongId, partId, barNum)}</h4>
+        <h4>Takt ${barNum}</h4>
         ${barData.lyrics ? `<div class="accents-bar-editor-lyrics text-t2">${esc(barData.lyrics)}</div>` : ''}
       </div>
       <div class="accent-grid">${cells}</div>
@@ -6122,16 +6220,16 @@ function renderPartsTabBarSection() {
   const ptBarOffset = ptStarts.get(sel.partId)?.startBar || 0;
 
   const blocks = Array.from({ length: barCount }, (_, i) => {
-    const n = i + 1;
-    const absN = ptBarOffset + n;
-    const found = findBar(sel.partId, n);
+    const absN = ptBarOffset + i + 1;
+    const found = findBar(sel.partId, absN);
     const hasAcc = found ? getAccentsForBar(found[0]).length > 0 : false;
     const hasLyr = found && found[1].lyrics;
-    return `<div class="bar-block${n === partsTabSelectedBar ? ' active' : ''}${hasAcc ? ' has-accents' : ''}${hasLyr ? ' has-lyrics' : ''}" data-bar-num="${n}">${absN}</div>`;
+    return `<div class="bar-block${absN === partsTabSelectedBar ? ' active' : ''}${hasAcc ? ' has-accents' : ''}${hasLyr ? ' has-lyrics' : ''}" data-bar-num="${absN}">${absN}</div>`;
   }).join('');
 
   let editor = '';
-  if (partsTabSelectedBar && partsTabSelectedBar <= barCount) {
+  const ptAbsEnd = ptBarOffset + barCount;
+  if (partsTabSelectedBar && partsTabSelectedBar > ptBarOffset && partsTabSelectedBar <= ptAbsEnd) {
     editor = buildPartsTabBarEditor();
   }
 
@@ -6163,7 +6261,7 @@ function buildPartsTabBarEditor() {
   return `
     <div class="bar-editor">
       <div class="bar-editor-header">
-        <h3>Bar ${getAbsBarNum(sel.songId, sel.partId, partsTabSelectedBar)}</h3>
+        <h3>Bar ${partsTabSelectedBar}</h3>
         <div class="accent-legend">
           ${Object.entries(ACCENT_INFO).map(([k, v]) => `<span class="legend-item ${k}">${v}</span>`).join('')}
         </div>
@@ -6277,11 +6375,13 @@ function handlePartsTabChange(e) {
     if (field === 'bars') {
       part.bars = parseInt(el.value, 10) || 0;
       part.duration_sec = calcPartDuration(part.bars, song.bpm || 0);
+      recalcAbsoluteBarNums(songId);
+      integrity.syncBarCount(db, partId, part.bars);
       recalcSongDurationFor(songId);
       // Bars changed → re-render to update subsequent start values
       renderPartsTab();
       if (partsTabSelectedPart && partsTabSelectedPart.partId === partId) {
-        if (partsTabSelectedBar && partsTabSelectedBar > part.bars) partsTabSelectedBar = null;
+        partsTabSelectedBar = null;
         renderPartsTabBarSection();
       }
     } else if (field === 'start_bar') {
@@ -6294,10 +6394,12 @@ function handlePartsTabChange(e) {
         part.bars = Math.round(newDur * bpm / 240);
       }
       part.duration_sec = calcPartDuration(part.bars, bpm);
+      recalcAbsoluteBarNums(songId);
+      integrity.syncBarCount(db, partId, part.bars);
       recalcSongDurationFor(songId);
       renderPartsTab();
       if (partsTabSelectedPart && partsTabSelectedPart.partId === partId) {
-        if (partsTabSelectedBar && partsTabSelectedBar > part.bars) partsTabSelectedBar = null;
+        partsTabSelectedBar = null;
         renderPartsTabBarSection();
       }
     } else if (field === 'light_template') {
@@ -7037,17 +7139,17 @@ function getAllBarsFlat() {
     for (const p of parts) {
       const barCount = p.bars || 0;
       for (let n = 1; n <= barCount; n++) {
-        const found = findBar(p.id, n);
+        const absBar = cumBars + n;
+        const found = findBar(p.id, absBar);
         const barData = found ? found[1] : {};
         const barId = found ? found[0] : null;
         const accCount = barId ? getAccentsForBar(barId).length : 0;
-        const absBar = cumBars + n;
         const bpm = song.bpm || 0;
-        const barSec = bpm > 0 ? (cumBars + n - 1) * 4 * 60 / bpm : 0;
+        const barSec = bpm > 0 ? (absBar - 1) * 4 * 60 / bpm : 0;
         rows.push({
           songId, songName: song.name, bpm,
           partId: p.id, partName: p.name,
-          barNum: n, absBar, barSec,
+          barNum: absBar, absBar, barSec,
           lyrics: barData.lyrics || '',
           audio: barData.audio || '',
           accCount, barId
@@ -7112,6 +7214,7 @@ function renderTakteTab() {
 
 /**
  * Get the time range of a bar from bar markers (for the selected song).
+ * barNum is absolute (song-wide). Converts to local part index internally.
  * Returns { start, end } in seconds or null.
  */
 function getBarTimeRange(partId, barNum) {
@@ -7120,15 +7223,23 @@ function getBarTimeRange(partId, barNum) {
   const partIdx = parts.findIndex(p => p.id === partId);
   if (partIdx < 0) return null;
 
+  // Convert absolute barNum to local (1-based within part)
+  let cumBars = 0;
+  for (const p of parts) {
+    if (p.id === partId) break;
+    cumBars += (p.bars || 0);
+  }
+  const localBarNum = barNum - cumBars;
+
   // Get sorted bar markers for this part
   const barsInPart = barMarkers
     .filter(m => m.partIndex === partIdx)
     .sort((a, b) => a.time - b.time);
 
-  if (barNum < 1 || barNum > barsInPart.length) return null;
-  const start = barsInPart[barNum - 1].time;
-  const end = barNum < barsInPart.length
-    ? barsInPart[barNum].time
+  if (localBarNum < 1 || localBarNum > barsInPart.length) return null;
+  const start = barsInPart[localBarNum - 1].time;
+  const end = localBarNum < barsInPart.length
+    ? barsInPart[localBarNum].time
     : (getPartEndTime(partIdx) || audioMeta.duration);
   return { start, end };
 }
@@ -7215,7 +7326,7 @@ function renderTakteEditorSection() {
   area.innerHTML = `
     <div class="bar-editor">
       <div class="bar-editor-header">
-        <h3>Takt ${getAbsBarNum(sel.songId, sel.partId, sel.barNum)} \u2014 ${esc(part?.name || '')} <span class="text-t3">(${esc(song.name)})</span></h3>
+        <h3>Takt ${sel.barNum} \u2014 ${esc(part?.name || '')} <span class="text-t3">(${esc(song.name)})</span></h3>
         <div class="accent-legend">
           ${Object.entries(ACCENT_INFO).map(([k, v]) => `<span class="legend-item ${k}">${v}</span>`).join('')}
         </div>
@@ -7533,6 +7644,7 @@ async function initDB() {
       readOnly = false;
       setSyncStatus('saved');
       migrateAudioPaths();
+      migrateBarNumToAbsolute();
       // Run integrity checks, auto-clean orphans, migrate split markers
       const check = integrity.checkOnLoad(db, true);
       if (!check.valid) dirty = true; // auto-cleaned orphans need saving
@@ -7561,6 +7673,7 @@ async function loadLocal() {
     readOnly = true;
     setSyncStatus('readonly');
     migrateAudioPaths();
+    migrateBarNumToAbsolute();
     integrity.checkOnLoad(db, false); // validate + migrate markers, no auto-clean in read-only
     const hasToken = !!getSettings().token;
     const hint = hasToken ? ' \u2014 Token pr\u00fcfen!' : '';
@@ -7647,6 +7760,7 @@ async function handleUndo() {
     dirty = false;
     setSyncStatus('saved');
     migrateAudioPaths();
+    migrateBarNumToAbsolute();
     integrity.checkOnLoad(db, true);
     renderSongList(els.searchBox.value);
     renderContent();

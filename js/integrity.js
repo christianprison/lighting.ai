@@ -257,24 +257,24 @@ export function duplicatePart(db, songId, partId) {
 /**
  * Synchronise bars in db.bars with the declared part.bars count.
  * Removes excess bars (and their accents) when part.bars is reduced.
+ * bar_num is absolute (song-wide), so we keep the first declaredCount bars
+ * sorted by bar_num and remove the rest.
  * Returns { removed: string[] } — list of removed bar IDs.
  */
 export function syncBarCount(db, partId, declaredCount) {
   ensureCollections(db);
   const removed = [];
 
-  // Get all bars for this part, sorted by bar_num
+  // Get all bars for this part, sorted by bar_num (absolute)
   const barsForPart = Object.entries(db.bars)
     .filter(([, b]) => b.part_id === partId)
     .map(([id, b]) => ({ id, ...b }))
     .sort((a, b) => a.bar_num - b.bar_num);
 
-  // Remove bars whose bar_num > declaredCount
-  for (const bar of barsForPart) {
-    if (bar.bar_num > declaredCount) {
-      deleteBar(db, bar.id);
-      removed.push(bar.id);
-    }
+  // Keep first declaredCount bars, remove the rest
+  for (let i = declaredCount; i < barsForPart.length; i++) {
+    deleteBar(db, barsForPart[i].id);
+    removed.push(barsForPart[i].id);
   }
 
   return { removed };

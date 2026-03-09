@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.1.7';
+const APP_VERSION = 'v1.1.8';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -238,6 +238,8 @@ function cacheDom() {
     pwModal:       document.getElementById('part-wave-modal'),
     pwCanvas:      document.getElementById('pw-canvas'),
     pwTitle:       document.getElementById('pw-title'),
+    pwPrev:        document.getElementById('pw-prev'),
+    pwNext:        document.getElementById('pw-next'),
     pwClose:       document.getElementById('pw-close'),
     pwPlay:        document.getElementById('pw-play'),
     pwSave:        document.getElementById('pw-save'),
@@ -3018,6 +3020,16 @@ function onWaveformPointerUp(e) {
     wrap.style.cursor = 'crosshair';
   }
 
+  // Tap without drag on a bar marker → show context menu
+  if (_dragMarker && !_isDragging && _dragMarker.type === 'bar') {
+    const clientX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+    const clientY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
+    showBarContextMenu(clientX, clientY, _dragMarker.index, 'split');
+    _dragMarker = null;
+    _isDragging = false;
+    return;
+  }
+
   if (_dragMarker && _isDragging) {
     // If a part marker was dragged far enough, leave a bar marker at the original position
     if (_dragMarker.type === 'part') {
@@ -3109,6 +3121,95 @@ function reassignBarMarkerParts() {
   if (currentPartIndex > 0) {
     currentBarInPart = barMarkers.filter(m => m.partIndex === currentPartIndex - 1).length;
   }
+}
+
+/* ── Bar Marker Context Menu (Delete) ──────────────── */
+
+let _barCtxMenu = null;
+
+/**
+ * Show context menu near a tapped bar marker to allow deletion.
+ * @param {number} clientX - screen X
+ * @param {number} clientY - screen Y
+ * @param {number} barIndex - index in barMarkers array
+ * @param {string} context - 'split' or 'pw' (part waveform editor)
+ */
+function showBarContextMenu(clientX, clientY, barIndex, context) {
+  hideBarContextMenu();
+  const barNum = barIndex + 1;
+  const menu = document.createElement('div');
+  menu.className = 'bar-ctx-menu';
+  menu.innerHTML = `<button data-action="delete">&#128465; Takt ${barNum} l&ouml;schen</button>`;
+  menu.style.left = clientX + 'px';
+  menu.style.top = clientY + 'px';
+  document.body.appendChild(menu);
+  _barCtxMenu = menu;
+
+  // Clamp to viewport
+  const r = menu.getBoundingClientRect();
+  if (r.right > window.innerWidth) menu.style.left = (window.innerWidth - r.width - 8) + 'px';
+  if (r.bottom > window.innerHeight) menu.style.top = (window.innerHeight - r.height - 8) + 'px';
+
+  menu.querySelector('[data-action="delete"]').onclick = () => {
+    hideBarContextMenu();
+    deleteBarMarker(barIndex, context);
+  };
+
+  // Close on click outside
+  setTimeout(() => {
+    document.addEventListener('pointerdown', _barCtxOutside, { once: true });
+  }, 50);
+}
+
+function _barCtxOutside(e) {
+  if (_barCtxMenu && !_barCtxMenu.contains(e.target)) hideBarContextMenu();
+}
+
+function hideBarContextMenu() {
+  if (_barCtxMenu) { _barCtxMenu.remove(); _barCtxMenu = null; }
+  document.removeEventListener('pointerdown', _barCtxOutside);
+}
+
+/**
+ * Delete a bar marker and renumber remaining bars in that part.
+ */
+function deleteBarMarker(barIndex, context) {
+  if (barIndex < 0 || barIndex >= barMarkers.length) return;
+  const removed = barMarkers[barIndex];
+  barMarkers.splice(barIndex, 1);
+
+  // Sort and reassign parts
+  barMarkers.sort((a, b) => a.time - b.time);
+  reassignBarMarkerParts();
+
+  // Persist to song and update bar counts
+  saveMarkersToSong();
+  markDirty();
+
+  if (context === 'pw') {
+    // Refresh Finetuning modal
+    _pw.origBarTimes = getBarMarkersForPart(_pw.partIndex).map(m => ({ marker: m, time: m.time }));
+    _pwDrawWaveform();
+    _pwUpdateUI();
+  } else {
+    // Refresh Splitting tab
+    const scrollEl = document.getElementById('audio-scroll');
+    const savedScrollTop = scrollEl ? scrollEl.scrollTop : 0;
+    const wrap = document.getElementById('waveform-wrap');
+    const savedWrapScroll = wrap ? wrap.scrollLeft : 0;
+    _suppressAutoScroll = true;
+    renderAudioTab();
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const scrollEl2 = document.getElementById('audio-scroll');
+        if (scrollEl2) scrollEl2.scrollTop = savedScrollTop;
+        const wrap2 = document.getElementById('waveform-wrap');
+        if (wrap2) wrap2.scrollLeft = savedWrapScroll;
+        _suppressAutoScroll = false;
+      });
+    });
+  }
+  toast('Takt-Marker gelöscht', 'success');
 }
 
 /**
@@ -4376,8 +4477,9 @@ function renderLyricsTab() {
         <div class="ash-artist">${esc(song.artist)}</div>
       </div>
       <div class="le-header-actions">
-        <a href="${geniusUrl}" target="_blank" rel="noopener" class="btn btn-sm lyrics-genius-link" title="Auf Genius.com suchen">&#127925; Genius</a>
-        <a href="${musixUrl}" target="_blank" rel="noopener" class="btn btn-sm lyrics-musix-link" title="Auf Musixmatch suchen">&#127926; Musixmatch</a>
+        <button class="btn btn-sm lyrics-genius-link" id="le-genius-quick" title="Lyrics direkt von Genius laden">&#127925; Genius Auto</button>
+        <a href="${geniusUrl}" target="_blank" rel="noopener" class="btn btn-sm" title="Genius-Suche &ouml;ffnen">&#128269; Genius</a>
+        <a href="${musixUrl}" target="_blank" rel="noopener" class="btn btn-sm lyrics-musix-link" title="Musixmatch-Suche &ouml;ffnen">&#128269; Musixmatch</a>
         <button class="btn btn-sm" id="le-paste-btn" title="Text einfügen und auf Takte verteilen">&#128203; Text einf&uuml;gen</button>
         ${hasWords ? '<button class="btn btn-sm le-btn-save" id="le-save-lyrics">&#128190; Speichern</button>' : ''}
         ${hasWords ? '<button class="btn btn-sm le-btn-danger" id="le-clear-words" title="Alle Wörter entfernen">W&ouml;rter l&ouml;schen</button>' : ''}
@@ -4855,6 +4957,24 @@ function leSaveLyrics() {
  * Fetch lyrics from a URL via CORS proxy.
  * Supports Genius, AZLyrics, Musixmatch and generic extraction.
  */
+/**
+ * Fetch first song URL from Genius search API.
+ * Returns the URL string or null.
+ */
+async function leGeniusFirstUrl(query) {
+  const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(
+    'https://genius.com/api/search?q=' + encodeURIComponent(query)
+  );
+  const resp = await fetch(proxyUrl);
+  if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+  const data = await resp.json();
+  const hits = data?.response?.hits;
+  if (hits && hits.length > 0) {
+    return hits[0].result?.url || null;
+  }
+  return null;
+}
+
 async function leFetchLyricsFromUrl(url) {
   const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
   const resp = await fetch(proxyUrl);
@@ -4937,9 +5057,9 @@ async function leShowPasteDialog() {
       <div class="le-paste-body">
         <p class="text-t2">Lyrics-URL eingeben oder Text manuell einf&uuml;gen. Abschnitts-Header wie [Verse], [Chorus] werden automatisch entfernt.</p>
         <div class="le-paste-links">
-          <a href="https://genius.com/search?q=${searchQ}" target="_blank" rel="noopener" class="btn btn-sm lyrics-genius-link">&#127925; Genius &ouml;ffnen</a>
-          <a href="https://www.musixmatch.com/search/${searchQ}" target="_blank" rel="noopener" class="btn btn-sm lyrics-musix-link">&#127926; Musixmatch &ouml;ffnen</a>
-          <a href="https://www.google.com/search?q=${searchQ}+lyrics" target="_blank" rel="noopener" class="btn btn-sm">&#128269; Google Lyrics</a>
+          <button class="btn btn-sm lyrics-genius-link" id="le-genius-auto" title="Ersten Genius-Treffer suchen &amp; Lyrics laden">&#127925; Genius Auto-Fetch</button>
+          <a href="https://genius.com/search?q=${searchQ}" target="_blank" rel="noopener" class="btn btn-sm" title="Genius-Suche manuell &ouml;ffnen">&#128269; Genius</a>
+          <a href="https://www.musixmatch.com/search/${searchQ}" target="_blank" rel="noopener" class="btn btn-sm lyrics-musix-link" title="Musixmatch-Suche manuell &ouml;ffnen">&#128269; Musixmatch</a>
         </div>
         <div class="le-url-row">
           <input type="url" id="le-url-input" class="le-url-input" placeholder="Lyrics-URL einf&uuml;gen (z.B. genius.com/...)" />
@@ -4998,6 +5118,28 @@ async function leShowPasteDialog() {
   overlay.querySelector('#le-url-fetch').onclick = fetchFromUrl;
   urlInput.addEventListener('keydown', e => { if (e.key === 'Enter') fetchFromUrl(); });
 
+  // Genius Auto-Fetch: search → first result URL → fetch lyrics
+  overlay.querySelector('#le-genius-auto').onclick = async () => {
+    const autoBtn = overlay.querySelector('#le-genius-auto');
+    autoBtn.disabled = true;
+    autoBtn.textContent = 'Suche...';
+    urlStatus.textContent = 'Genius wird durchsucht...';
+    urlStatus.className = 'le-url-status le-url-loading';
+    try {
+      const gUrl = await leGeniusFirstUrl(song.name + ' ' + song.artist);
+      if (!gUrl) throw new Error('Kein Treffer auf Genius');
+      urlInput.value = gUrl;
+      urlStatus.textContent = 'Treffer gefunden, lade Lyrics...';
+      await fetchFromUrl();
+    } catch (err) {
+      urlStatus.textContent = 'Fehler: ' + err.message;
+      urlStatus.className = 'le-url-status le-url-error';
+    } finally {
+      autoBtn.disabled = false;
+      autoBtn.textContent = '\u{1F3B5} Genius Auto-Fetch';
+    }
+  };
+
   // Wire events
   const close = () => overlay.remove();
   overlay.querySelector('#le-paste-close').onclick = close;
@@ -5046,6 +5188,7 @@ function handleLyricsClick(e) {
   const id = btn.id;
 
   if (id === 'le-paste-btn') leShowPasteDialog();
+  else if (id === 'le-genius-quick') leGeniusQuickFetch();
   else if (id === 'le-save-lyrics') leSaveLyrics();
   else if (id === 'le-clear-words') {
     if (confirm('Alle W\u00f6rter entfernen?')) leClearWords();
@@ -5054,6 +5197,33 @@ function handleLyricsClick(e) {
 
 function handleLyricsChange(e) {
   // No-op for now
+}
+
+/**
+ * Quick-fetch lyrics from Genius: search → first result → extract → distribute.
+ */
+async function leGeniusQuickFetch() {
+  const song = db.songs[selectedSongId];
+  if (!song) return;
+  const btn = document.getElementById('le-genius-quick');
+  if (btn) { btn.disabled = true; btn.textContent = 'Suche...'; }
+  toast('Genius wird durchsucht...', 'info');
+  try {
+    const gUrl = await leGeniusFirstUrl(song.name + ' ' + song.artist);
+    if (!gUrl) throw new Error('Kein Treffer auf Genius');
+    toast('Treffer gefunden, lade Lyrics...', 'info');
+    const lyrics = await leFetchLyricsFromUrl(gUrl);
+    if (!lyrics || lyrics.length < 20) throw new Error('Keine Lyrics gefunden');
+    _leBlocks = leDistributeText(selectedSongId, lyrics);
+    song.lyrics_raw = lyrics;
+    markDirty();
+    leRefreshCanvas();
+    toast('Lyrics von Genius geladen & verteilt', 'success');
+  } catch (err) {
+    toast('Genius: ' + err.message, 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '\u{1F3B5} Genius Auto'; }
+  }
 }
 
 function saveLyricsRawText() {
@@ -6790,11 +6960,32 @@ function openPartWaveEditor(songId, partId) {
   els.pwTitle.textContent = `${part.name} — ${db.songs[songId]?.name || ''}`;
   els.pwModal.classList.add('open');
 
+  _pwUpdateNav();
+
   // Draw after modal is visible (needs layout for canvas size)
   requestAnimationFrame(() => {
     _pwDrawWaveform();
     _pwUpdateUI();
   });
+}
+
+/** Navigate to previous/next part in the Finetuning dialog */
+function _pwNavigatePart(dir) {
+  if (!_pw.open || !_pw.songId) return;
+  // Save current changes before navigating
+  closePartWaveEditor(true);
+  const parts = getSortedParts(_pw.songId);
+  const newIdx = _pw.partIndex + dir;
+  if (newIdx < 0 || newIdx >= parts.length) return;
+  openPartWaveEditor(_pw.songId, parts[newIdx].id);
+}
+
+/** Update prev/next button disabled state */
+function _pwUpdateNav() {
+  if (!els.pwPrev || !els.pwNext) return;
+  const parts = getSortedParts(_pw.songId);
+  els.pwPrev.disabled = _pw.partIndex <= 0;
+  els.pwNext.disabled = _pw.partIndex >= parts.length - 1;
 }
 
 function closePartWaveEditor(save) {
@@ -7075,10 +7266,20 @@ function _pwInstallDragListeners() {
     }
     _pwUpdateUI();
   };
-  const onEnd = () => {
+  const onEnd = (ev) => {
     if (_pwDrag && _pwDrag.which === 'bar') {
       hideDragBalloon();
       els.pwWrap.classList.remove('bar-dragging');
+      // Tap without drag → show context menu
+      if (!_pwDrag.activated) {
+        const cx = ev.changedTouches ? ev.changedTouches[0].clientX : ev.clientX;
+        const cy = ev.changedTouches ? ev.changedTouches[0].clientY : ev.clientY;
+        // Find global barMarkers index for this marker
+        const globalIdx = barMarkers.indexOf(_pwDrag.barMarker);
+        if (globalIdx >= 0) {
+          showBarContextMenu(cx, cy, globalIdx, 'pw');
+        }
+      }
     }
     _pwDrag = null;
     document.removeEventListener('mousemove', onMove);
@@ -7256,6 +7457,10 @@ function initPartWaveEditor() {
     if (action === 'nudge-end-left')    _pwNudge('end', -1);
     if (action === 'nudge-end-right')   _pwNudge('end', 1);
   });
+
+  // Part navigation (prev / next)
+  els.pwPrev.addEventListener('click', () => _pwNavigatePart(-1));
+  els.pwNext.addEventListener('click', () => _pwNavigatePart(1));
 
   // Save / Cancel / Close
   els.pwSave.addEventListener('click', () => closePartWaveEditor(true));

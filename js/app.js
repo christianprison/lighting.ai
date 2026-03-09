@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.2.9';
+const APP_VERSION = 'v1.3.0';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -772,8 +772,17 @@ function getSongProgress(songId) {
     return { ...cat, steps: catSteps, done: catDone, total: catSteps.length, allDone: catDone === catSteps.length };
   });
 
-  const doneCount = steps.filter(s => s.done).length;
-  const pct = Math.round((doneCount / steps.length) * 100);
+  // Weighted progress: all Stammdaten tasks together count as 1 task
+  const stammdatenSteps = steps.filter(s => s.cat === 'stammdaten');
+  const otherSteps = steps.filter(s => s.cat !== 'stammdaten');
+  const stammdatenDone = stammdatenSteps.filter(s => s.done).length;
+  const stammdatenWeight = stammdatenSteps.length > 0
+    ? stammdatenDone / stammdatenSteps.length   // 0..1 (counts as 1 task)
+    : 0;
+  const otherDone = otherSteps.filter(s => s.done).length;
+  const totalWeighted = 1 + otherSteps.length;  // Stammdaten = 1 + rest
+  const doneWeighted = stammdatenWeight + otherDone;
+  const pct = Math.round((doneWeighted / totalWeighted) * 100);
   const next = steps.find(s => !s.done) || null;
 
   // Check if any user-created tasks are still open

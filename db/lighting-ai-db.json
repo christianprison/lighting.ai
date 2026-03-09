@@ -3464,7 +3464,7 @@
         "5D6dZO_P001": {
           "pos": 1,
           "name": "Bass Solo mit Tambourine",
-          "bars": 1,
+          "bars": 8,
           "duration_sec": 10,
           "light_template": "solo_intense",
           "qlc_scene": "Spot auf Bibo",
@@ -3475,7 +3475,7 @@
         "5D6dZO_P002": {
           "pos": 2,
           "name": "+ Drums",
-          "bars": 1,
+          "bars": 6,
           "duration_sec": 7,
           "light_template": "generic_bpm",
           "qlc_scene": "Spot auf Tim",
@@ -3486,7 +3486,7 @@
         "5D6dZO_P003": {
           "pos": 3,
           "name": "Mini-Solo Axel",
-          "bars": 1,
+          "bars": 2,
           "duration_sec": 2,
           "light_template": "solo_spotlight",
           "qlc_scene": "Spot auf Axel  hot",
@@ -3497,7 +3497,7 @@
         "5D6dZO_P004": {
           "pos": 4,
           "name": "Thema 1",
-          "bars": 1,
+          "bars": 9,
           "duration_sec": 9,
           "light_template": "intro_buildup",
           "qlc_scene": "09 Alarm",
@@ -3508,7 +3508,7 @@
         "5D6dZO_P005": {
           "pos": 5,
           "name": "Verse 1",
-          "bars": 1,
+          "bars": 17,
           "duration_sec": 4,
           "light_template": "verse_driving",
           "qlc_scene": "Spot auf Pete",
@@ -3519,7 +3519,7 @@
         "5D6dZO_P008": {
           "pos": 6,
           "name": "Bridge 1",
-          "bars": 1,
+          "bars": 9,
           "duration_sec": 1,
           "light_template": "generic_bpm",
           "qlc_scene": "01 statisch bunt",
@@ -3530,7 +3530,7 @@
         "5D6dZO_P012": {
           "pos": 7,
           "name": "Chorus 1",
-          "bars": 1,
+          "bars": 19,
           "duration_sec": 18,
           "light_template": "chorus_full",
           "qlc_scene": "09 Alarm",
@@ -3541,7 +3541,7 @@
         "5D6dZO_P013": {
           "pos": 8,
           "name": "Thema 2",
-          "bars": 1,
+          "bars": 8,
           "duration_sec": 4,
           "light_template": "generic_bpm",
           "qlc_scene": "Spot auf Pete",
@@ -3552,7 +3552,7 @@
         "5D6dZO_P015": {
           "pos": 9,
           "name": "Verse 2",
-          "bars": 1,
+          "bars": 19,
           "duration_sec": 4,
           "light_template": "verse_driving",
           "qlc_scene": "Spot auf Pete",
@@ -3563,7 +3563,7 @@
         "5D6dZO_P016": {
           "pos": 10,
           "name": "Bridge 2",
-          "bars": 1,
+          "bars": 8,
           "duration_sec": 5,
           "light_template": "generic_bpm",
           "qlc_scene": "Spot auf Pete",
@@ -3574,7 +3574,7 @@
         "5D6dZO_P022": {
           "pos": 11,
           "name": "Chorus 2",
-          "bars": 1,
+          "bars": 19,
           "duration_sec": 18,
           "light_template": "chorus_full",
           "qlc_scene": "09 Alarm",
@@ -3585,7 +3585,7 @@
         "5D6dZO_P024": {
           "pos": 13,
           "name": "Chorus 3",
-          "bars": 1,
+          "bars": 25,
           "duration_sec": 18,
           "light_template": "chorus_full",
           "qlc_scene": "09 Alarm",
@@ -3596,7 +3596,7 @@
         "5D6dZO_P025": {
           "pos": 14,
           "name": "Chorus 4",
-          "bars": 1,
+          "bars": 0,
           "duration_sec": 7,
           "light_template": "chorus_full",
           "qlc_scene": "10 Strobe",
@@ -3607,7 +3607,7 @@
         "5D6dZO_P026": {
           "pos": 12,
           "name": "Solo Axel",
-          "bars": 1,
+          "bars": 40,
           "duration_sec": 0,
           "light_template": "",
           "notes": ""
@@ -3624,7 +3624,7 @@
       "split_markers": {
         "partMarkers": [
           {
-            "time": 9.997254041822709,
+            "time": 10.168941024612092,
             "partIndex": 0,
             "partId": "5D6dZO_P001"
           },
@@ -3687,83 +3687,953 @@
             "time": 204.33777414169782,
             "partIndex": 12,
             "partId": "5D6dZO_P024"
-          },
-          {
-            "time": 222.6044408083646,
-            "partIndex": 13,
-            "partId": "5D6dZO_P025"
           }
         ],
         "barMarkers": [
           {
-            "time": 9.997254041822709,
+            "time": 10.165020833333353,
             "partIndex": 0,
             "partId": "5D6dZO_P001"
           },
           {
-            "time": 19.753973142946332,
+            "time": 11.367044137168074,
+            "partIndex": 0,
+            "partId": "5D6dZO_P001"
+          },
+          {
+            "time": 12.564377470501364,
+            "partIndex": 0,
+            "partId": "5D6dZO_P001"
+          },
+          {
+            "time": 13.748377470501334,
+            "partIndex": 0,
+            "partId": "5D6dZO_P001"
+          },
+          {
+            "time": 14.964377470501455,
+            "partIndex": 0,
+            "partId": "5D6dZO_P001"
+          },
+          {
+            "time": 16.183044137168107,
+            "partIndex": 0,
+            "partId": "5D6dZO_P001"
+          },
+          {
+            "time": 17.380377470501397,
+            "partIndex": 0,
+            "partId": "5D6dZO_P001"
+          },
+          {
+            "time": 18.631044137167972,
+            "partIndex": 0,
+            "partId": "5D6dZO_P001"
+          },
+          {
+            "time": 19.767044137168167,
             "partIndex": 1,
             "partId": "5D6dZO_P002"
           },
           {
-            "time": 26.87130647627958,
+            "time": 20.999044137168138,
+            "partIndex": 1,
+            "partId": "5D6dZO_P002"
+          },
+          {
+            "time": 22.15104413716818,
+            "partIndex": 1,
+            "partId": "5D6dZO_P002"
+          },
+          {
+            "time": 23.351044137168,
+            "partIndex": 1,
+            "partId": "5D6dZO_P002"
+          },
+          {
+            "time": 24.53237747050144,
+            "partIndex": 1,
+            "partId": "5D6dZO_P002"
+          },
+          {
+            "time": 25.732377470501486,
+            "partIndex": 1,
+            "partId": "5D6dZO_P002"
+          },
+          {
+            "time": 26.897710803834624,
             "partIndex": 2,
             "partId": "5D6dZO_P003"
           },
           {
-            "time": 29.236639809612992,
+            "time": 28.13237747050135,
+            "partIndex": 2,
+            "partId": "5D6dZO_P003"
+          },
+          {
+            "time": 29.28171080383464,
             "partIndex": 3,
             "partId": "5D6dZO_P004"
           },
           {
-            "time": 38.599306476279644,
+            "time": 30.417710803834833,
+            "partIndex": 3,
+            "partId": "5D6dZO_P004"
+          },
+          {
+            "time": 31.665710803834653,
+            "partIndex": 3,
+            "partId": "5D6dZO_P004"
+          },
+          {
+            "time": 32.78304413716801,
+            "partIndex": 3,
+            "partId": "5D6dZO_P004"
+          },
+          {
+            "time": 33.9803774705013,
+            "partIndex": 3,
+            "partId": "5D6dZO_P004"
+          },
+          {
+            "time": 35.1643774705015,
+            "partIndex": 3,
+            "partId": "5D6dZO_P004"
+          },
+          {
+            "time": 36.281710803834635,
+            "partIndex": 3,
+            "partId": "5D6dZO_P004"
+          },
+          {
+            "time": 37.43371080383468,
+            "partIndex": 3,
+            "partId": "5D6dZO_P004"
+          },
+          {
+            "time": 38.59904413716804,
+            "partIndex": 3,
+            "partId": "5D6dZO_P004"
+          },
+          {
+            "time": 39.76437747050141,
             "partIndex": 4,
             "partId": "5D6dZO_P005"
           },
           {
-            "time": 59.33263980961299,
+            "time": 40.91637747050145,
+            "partIndex": 4,
+            "partId": "5D6dZO_P005"
+          },
+          {
+            "time": 41.999044137168134,
+            "partIndex": 4,
+            "partId": "5D6dZO_P005"
+          },
+          {
+            "time": 43.14837747050142,
+            "partIndex": 4,
+            "partId": "5D6dZO_P005"
+          },
+          {
+            "time": 44.300377470501466,
+            "partIndex": 4,
+            "partId": "5D6dZO_P005"
+          },
+          {
+            "time": 45.46571080383483,
+            "partIndex": 4,
+            "partId": "5D6dZO_P005"
+          },
+          {
+            "time": 46.61504413716812,
+            "partIndex": 4,
+            "partId": "5D6dZO_P005"
+          },
+          {
+            "time": 47.76704413716816,
+            "partIndex": 4,
+            "partId": "5D6dZO_P005"
+          },
+          {
+            "time": 48.98304413716806,
+            "partIndex": 4,
+            "partId": "5D6dZO_P005"
+          },
+          {
+            "time": 50.084377470501344,
+            "partIndex": 4,
+            "partId": "5D6dZO_P005"
+          },
+          {
+            "time": 51.29771080383471,
+            "partIndex": 4,
+            "partId": "5D6dZO_P005"
+          },
+          {
+            "time": 52.49771080383476,
+            "partIndex": 4,
+            "partId": "5D6dZO_P005"
+          },
+          {
+            "time": 53.63104413716797,
+            "partIndex": 4,
+            "partId": "5D6dZO_P005"
+          },
+          {
+            "time": 54.716377470501406,
+            "partIndex": 4,
+            "partId": "5D6dZO_P005"
+          },
+          {
+            "time": 55.815044137168165,
+            "partIndex": 4,
+            "partId": "5D6dZO_P005"
+          },
+          {
+            "time": 57.03104413716806,
+            "partIndex": 4,
+            "partId": "5D6dZO_P005"
+          },
+          {
+            "time": 58.23371080383463,
+            "partIndex": 4,
+            "partId": "5D6dZO_P005"
+          },
+          {
+            "time": 59.34837747050147,
             "partIndex": 5,
             "partId": "5D6dZO_P008"
           },
           {
-            "time": 68.34863980961296,
+            "time": 60.449710803834755,
+            "partIndex": 5,
+            "partId": "5D6dZO_P008"
+          },
+          {
+            "time": 61.66571080383465,
+            "partIndex": 5,
+            "partId": "5D6dZO_P008"
+          },
+          {
+            "time": 62.76704413716816,
+            "partIndex": 5,
+            "partId": "5D6dZO_P008"
+          },
+          {
+            "time": 63.89771080383462,
+            "partIndex": 5,
+            "partId": "5D6dZO_P008"
+          },
+          {
+            "time": 65.08171080383482,
+            "partIndex": 5,
+            "partId": "5D6dZO_P008"
+          },
+          {
+            "time": 66.19904413716796,
+            "partIndex": 5,
+            "partId": "5D6dZO_P008"
+          },
+          {
+            "time": 67.19904413716796,
+            "partIndex": 5,
+            "partId": "5D6dZO_P008"
+          },
+          {
+            "time": 68.29771080383472,
+            "partIndex": 5,
+            "partId": "5D6dZO_P008"
+          },
+          {
+            "time": 69.44971080383476,
             "partIndex": 6,
             "partId": "5D6dZO_P012"
           },
           {
-            "time": 93.96997314294634,
+            "time": 70.58304413716797,
+            "partIndex": 6,
+            "partId": "5D6dZO_P012"
+          },
+          {
+            "time": 71.74837747050134,
+            "partIndex": 6,
+            "partId": "5D6dZO_P012"
+          },
+          {
+            "time": 72.89771080383463,
+            "partIndex": 6,
+            "partId": "5D6dZO_P012"
+          },
+          {
+            "time": 74.08171080383482,
+            "partIndex": 6,
+            "partId": "5D6dZO_P012"
+          },
+          {
+            "time": 75.23104413716811,
+            "partIndex": 6,
+            "partId": "5D6dZO_P012"
+          },
+          {
+            "time": 76.38304413716816,
+            "partIndex": 6,
+            "partId": "5D6dZO_P012"
+          },
+          {
+            "time": 77.447044137168,
+            "partIndex": 6,
+            "partId": "5D6dZO_P012"
+          },
+          {
+            "time": 78.58304413716797,
+            "partIndex": 6,
+            "partId": "5D6dZO_P012"
+          },
+          {
+            "time": 79.78304413716802,
+            "partIndex": 6,
+            "partId": "5D6dZO_P012"
+          },
+          {
+            "time": 80.89771080383463,
+            "partIndex": 6,
+            "partId": "5D6dZO_P012"
+          },
+          {
+            "time": 82.01771080383475,
+            "partIndex": 6,
+            "partId": "5D6dZO_P012"
+          },
+          {
+            "time": 83.19904413716796,
+            "partIndex": 6,
+            "partId": "5D6dZO_P012"
+          },
+          {
+            "time": 84.30037747050147,
+            "partIndex": 6,
+            "partId": "5D6dZO_P012"
+          },
+          {
+            "time": 85.49771080383476,
+            "partIndex": 6,
+            "partId": "5D6dZO_P012"
+          },
+          {
+            "time": 86.48437747050144,
+            "partIndex": 6,
+            "partId": "5D6dZO_P012"
+          },
+          {
+            "time": 87.5483774705013,
+            "partIndex": 6,
+            "partId": "5D6dZO_P012"
+          },
+          {
+            "time": 88.76704413716817,
+            "partIndex": 6,
+            "partId": "5D6dZO_P012"
+          },
+          {
+            "time": 89.98304413716806,
+            "partIndex": 6,
+            "partId": "5D6dZO_P012"
+          },
+          {
+            "time": 93.99904413716814,
             "partIndex": 7,
             "partId": "5D6dZO_P013"
           },
           {
-            "time": 102.94863980961298,
+            "time": 95.08171080383482,
+            "partIndex": 7,
+            "partId": "5D6dZO_P013"
+          },
+          {
+            "time": 96.24971080383472,
+            "partIndex": 7,
+            "partId": "5D6dZO_P013"
+          },
+          {
+            "time": 97.41504413716808,
+            "partIndex": 7,
+            "partId": "5D6dZO_P013"
+          },
+          {
+            "time": 98.53237747050144,
+            "partIndex": 7,
+            "partId": "5D6dZO_P013"
+          },
+          {
+            "time": 99.66571080383466,
+            "partIndex": 7,
+            "partId": "5D6dZO_P013"
+          },
+          {
+            "time": 100.78037747050149,
+            "partIndex": 7,
+            "partId": "5D6dZO_P013"
+          },
+          {
+            "time": 101.90037747050138,
+            "partIndex": 7,
+            "partId": "5D6dZO_P013"
+          },
+          {
+            "time": 102.98304413716806,
             "partIndex": 8,
             "partId": "5D6dZO_P015"
           },
           {
-            "time": 123.70330647627969,
+            "time": 104.15104413716818,
+            "partIndex": 8,
+            "partId": "5D6dZO_P015"
+          },
+          {
+            "time": 105.34837747050148,
+            "partIndex": 8,
+            "partId": "5D6dZO_P015"
+          },
+          {
+            "time": 106.49771080383476,
+            "partIndex": 8,
+            "partId": "5D6dZO_P015"
+          },
+          {
+            "time": 107.64971080383481,
+            "partIndex": 8,
+            "partId": "5D6dZO_P015"
+          },
+          {
+            "time": 108.8177108038347,
+            "partIndex": 8,
+            "partId": "5D6dZO_P015"
+          },
+          {
+            "time": 109.91637747050146,
+            "partIndex": 8,
+            "partId": "5D6dZO_P015"
+          },
+          {
+            "time": 111.09771080383467,
+            "partIndex": 8,
+            "partId": "5D6dZO_P015"
+          },
+          {
+            "time": 112.24971080383472,
+            "partIndex": 8,
+            "partId": "5D6dZO_P015"
+          },
+          {
+            "time": 113.43104413716816,
+            "partIndex": 8,
+            "partId": "5D6dZO_P015"
+          },
+          {
+            "time": 114.56704413716812,
+            "partIndex": 8,
+            "partId": "5D6dZO_P015"
+          },
+          {
+            "time": 115.76437747050142,
+            "partIndex": 8,
+            "partId": "5D6dZO_P015"
+          },
+          {
+            "time": 117.04704413716814,
+            "partIndex": 8,
+            "partId": "5D6dZO_P015"
+          },
+          {
+            "time": 118.01771080383475,
+            "partIndex": 8,
+            "partId": "5D6dZO_P015"
+          },
+          {
+            "time": 119.08171080383482,
+            "partIndex": 8,
+            "partId": "5D6dZO_P015"
+          },
+          {
+            "time": 120.29771080383472,
+            "partIndex": 8,
+            "partId": "5D6dZO_P015"
+          },
+          {
+            "time": 121.3803774705014,
+            "partIndex": 8,
+            "partId": "5D6dZO_P015"
+          },
+          {
+            "time": 122.55104413716805,
+            "partIndex": 8,
+            "partId": "5D6dZO_P015"
+          },
+          {
+            "time": 123.66571080383466,
+            "partIndex": 8,
+            "partId": "5D6dZO_P015"
+          },
+          {
+            "time": 124.78304413716802,
             "partIndex": 9,
             "partId": "5D6dZO_P016"
           },
           {
-            "time": 132.56463980961297,
+            "time": 125.91637747050146,
+            "partIndex": 9,
+            "partId": "5D6dZO_P016"
+          },
+          {
+            "time": 127.03104413716807,
+            "partIndex": 9,
+            "partId": "5D6dZO_P016"
+          },
+          {
+            "time": 128.14837747050143,
+            "partIndex": 9,
+            "partId": "5D6dZO_P016"
+          },
+          {
+            "time": 129.1163774705015,
+            "partIndex": 9,
+            "partId": "5D6dZO_P016"
+          },
+          {
+            "time": 130.31637747050132,
+            "partIndex": 9,
+            "partId": "5D6dZO_P016"
+          },
+          {
+            "time": 131.44971080383476,
+            "partIndex": 9,
+            "partId": "5D6dZO_P016"
+          },
+          {
+            "time": 132.55809423549664,
+            "partIndex": 9,
+            "partId": "5D6dZO_P016"
+          },
+          {
+            "time": 133.68076090216329,
             "partIndex": 10,
             "partId": "5D6dZO_P022"
           },
           {
-            "time": 157.72204255617982,
+            "time": 134.84609423549665,
+            "partIndex": 10,
+            "partId": "5D6dZO_P022"
+          },
+          {
+            "time": 136.01409423549654,
+            "partIndex": 10,
+            "partId": "5D6dZO_P022"
+          },
+          {
+            "time": 137.14742756882998,
+            "partIndex": 10,
+            "partId": "5D6dZO_P022"
+          },
+          {
+            "time": 138.2807609021632,
+            "partIndex": 10,
+            "partId": "5D6dZO_P022"
+          },
+          {
+            "time": 139.40876090216335,
+            "partIndex": 10,
+            "partId": "5D6dZO_P022"
+          },
+          {
+            "time": 140.57409423549672,
+            "partIndex": 10,
+            "partId": "5D6dZO_P022"
+          },
+          {
+            "time": 141.60609423549664,
+            "partIndex": 10,
+            "partId": "5D6dZO_P022"
+          },
+          {
+            "time": 142.77942756883004,
+            "partIndex": 10,
+            "partId": "5D6dZO_P022"
+          },
+          {
+            "time": 143.92876090216333,
+            "partIndex": 10,
+            "partId": "5D6dZO_P022"
+          },
+          {
+            "time": 145.09142756882994,
+            "partIndex": 10,
+            "partId": "5D6dZO_P022"
+          },
+          {
+            "time": 146.14742756882998,
+            "partIndex": 10,
+            "partId": "5D6dZO_P022"
+          },
+          {
+            "time": 147.29676090216327,
+            "partIndex": 10,
+            "partId": "5D6dZO_P022"
+          },
+          {
+            "time": 148.48076090216324,
+            "partIndex": 10,
+            "partId": "5D6dZO_P022"
+          },
+          {
+            "time": 149.63009423549653,
+            "partIndex": 10,
+            "partId": "5D6dZO_P022"
+          },
+          {
+            "time": 150.67542756883,
+            "partIndex": 10,
+            "partId": "5D6dZO_P022"
+          },
+          {
+            "time": 151.75809423549669,
+            "partIndex": 10,
+            "partId": "5D6dZO_P022"
+          },
+          {
+            "time": 152.92876090216333,
+            "partIndex": 10,
+            "partId": "5D6dZO_P022"
+          },
+          {
+            "time": 154.19809423549674,
+            "partIndex": 10,
+            "partId": "5D6dZO_P022"
+          },
+          {
+            "time": 157.76342756882997,
             "partIndex": 11,
             "partId": "5D6dZO_P026"
           },
           {
-            "time": 204.33777414169782,
+            "time": 158.8914275688299,
+            "partIndex": 11,
+            "partId": "5D6dZO_P026"
+          },
+          {
+            "time": 160.0460942354967,
+            "partIndex": 11,
+            "partId": "5D6dZO_P026"
+          },
+          {
+            "time": 161.24609423549674,
+            "partIndex": 11,
+            "partId": "5D6dZO_P026"
+          },
+          {
+            "time": 162.3234275688299,
+            "partIndex": 11,
+            "partId": "5D6dZO_P026"
+          },
+          {
+            "time": 163.55809423549664,
+            "partIndex": 11,
+            "partId": "5D6dZO_P026"
+          },
+          {
+            "time": 164.69676090216336,
+            "partIndex": 11,
+            "partId": "5D6dZO_P026"
+          },
+          {
+            "time": 165.88076090216333,
+            "partIndex": 11,
+            "partId": "5D6dZO_P026"
+          },
+          {
+            "time": 167.0647609021633,
+            "partIndex": 11,
+            "partId": "5D6dZO_P026"
+          },
+          {
+            "time": 168.2620942354966,
+            "partIndex": 11,
+            "partId": "5D6dZO_P026"
+          },
+          {
+            "time": 169.39009423549652,
+            "partIndex": 11,
+            "partId": "5D6dZO_P026"
+          },
+          {
+            "time": 170.57409423549672,
+            "partIndex": 11,
+            "partId": "5D6dZO_P026"
+          },
+          {
+            "time": 171.7127609021632,
+            "partIndex": 11,
+            "partId": "5D6dZO_P026"
+          },
+          {
+            "time": 172.8914275688299,
+            "partIndex": 11,
+            "partId": "5D6dZO_P026"
+          },
+          {
+            "time": 174.09142756882994,
+            "partIndex": 11,
+            "partId": "5D6dZO_P026"
+          },
+          {
+            "time": 175.22476090216338,
+            "partIndex": 11,
+            "partId": "5D6dZO_P026"
+          },
+          {
+            "time": 176.37942756882995,
+            "partIndex": 11,
+            "partId": "5D6dZO_P026"
+          },
+          {
+            "time": 177.62476090216325,
+            "partIndex": 11,
+            "partId": "5D6dZO_P026"
+          },
+          {
+            "time": 178.70742756882993,
+            "partIndex": 11,
+            "partId": "5D6dZO_P026"
+          },
+          {
+            "time": 179.99009423549666,
+            "partIndex": 11,
+            "partId": "5D6dZO_P026"
+          },
+          {
+            "time": 181.10742756883002,
+            "partIndex": 11,
+            "partId": "5D6dZO_P026"
+          },
+          {
+            "time": 182.29676090216327,
+            "partIndex": 11,
+            "partId": "5D6dZO_P026"
+          },
+          {
+            "time": 183.39809423549656,
+            "partIndex": 11,
+            "partId": "5D6dZO_P026"
+          },
+          {
+            "time": 184.5980942354966,
+            "partIndex": 11,
+            "partId": "5D6dZO_P026"
+          },
+          {
+            "time": 185.7127609021632,
+            "partIndex": 11,
+            "partId": "5D6dZO_P026"
+          },
+          {
+            "time": 186.92342756883005,
+            "partIndex": 11,
+            "partId": "5D6dZO_P026"
+          },
+          {
+            "time": 188.03009423549662,
+            "partIndex": 11,
+            "partId": "5D6dZO_P026"
+          },
+          {
+            "time": 189.2087609021633,
+            "partIndex": 11,
+            "partId": "5D6dZO_P026"
+          },
+          {
+            "time": 190.3234275688299,
+            "partIndex": 11,
+            "partId": "5D6dZO_P026"
+          },
+          {
+            "time": 191.54742756883007,
+            "partIndex": 11,
+            "partId": "5D6dZO_P026"
+          },
+          {
+            "time": 192.69142756882985,
+            "partIndex": 11,
+            "partId": "5D6dZO_P026"
+          },
+          {
+            "time": 193.8914275688299,
+            "partIndex": 11,
+            "partId": "5D6dZO_P026"
+          },
+          {
+            "time": 195.02476090216334,
+            "partIndex": 11,
+            "partId": "5D6dZO_P026"
+          },
+          {
+            "time": 196.24609423549674,
+            "partIndex": 11,
+            "partId": "5D6dZO_P026"
+          },
+          {
+            "time": 197.37409423549667,
+            "partIndex": 11,
+            "partId": "5D6dZO_P026"
+          },
+          {
+            "time": 198.62476090216325,
+            "partIndex": 11,
+            "partId": "5D6dZO_P026"
+          },
+          {
+            "time": 199.7127609021632,
+            "partIndex": 11,
+            "partId": "5D6dZO_P026"
+          },
+          {
+            "time": 200.8914275688299,
+            "partIndex": 11,
+            "partId": "5D6dZO_P026"
+          },
+          {
+            "time": 202.02476090216334,
+            "partIndex": 11,
+            "partId": "5D6dZO_P026"
+          },
+          {
+            "time": 203.2140942354966,
+            "partIndex": 11,
+            "partId": "5D6dZO_P026"
+          },
+          {
+            "time": 204.38556957964607,
             "partIndex": 12,
             "partId": "5D6dZO_P024"
           },
           {
-            "time": 222.6044408083646,
-            "partIndex": 13,
-            "partId": "5D6dZO_P025"
+            "time": 205.53756957964612,
+            "partIndex": 12,
+            "partId": "5D6dZO_P024"
+          },
+          {
+            "time": 206.67090291297933,
+            "partIndex": 12,
+            "partId": "5D6dZO_P024"
+          },
+          {
+            "time": 207.8069029129793,
+            "partIndex": 12,
+            "partId": "5D6dZO_P024"
+          },
+          {
+            "time": 208.9509029129793,
+            "partIndex": 12,
+            "partId": "5D6dZO_P024"
+          },
+          {
+            "time": 210.13223624631274,
+            "partIndex": 12,
+            "partId": "5D6dZO_P024"
+          },
+          {
+            "time": 211.2842362463128,
+            "partIndex": 12,
+            "partId": "5D6dZO_P024"
+          },
+          {
+            "time": 212.42556957964604,
+            "partIndex": 12,
+            "partId": "5D6dZO_P024"
+          },
+          {
+            "time": 213.5322362463126,
+            "partIndex": 12,
+            "partId": "5D6dZO_P024"
+          },
+          {
+            "time": 214.68956957964593,
+            "partIndex": 12,
+            "partId": "5D6dZO_P024"
+          },
+          {
+            "time": 215.82290291297937,
+            "partIndex": 12,
+            "partId": "5D6dZO_P024"
+          },
+          {
+            "time": 217.01756957964614,
+            "partIndex": 12,
+            "partId": "5D6dZO_P024"
+          },
+          {
+            "time": 218.1055695796461,
+            "partIndex": 12,
+            "partId": "5D6dZO_P024"
+          },
+          {
+            "time": 219.25756957964592,
+            "partIndex": 12,
+            "partId": "5D6dZO_P024"
+          },
+          {
+            "time": 220.33490291297932,
+            "partIndex": 12,
+            "partId": "5D6dZO_P024"
+          },
+          {
+            "time": 221.53756957964612,
+            "partIndex": 12,
+            "partId": "5D6dZO_P024"
+          },
+          {
+            "time": 222.63623624631265,
+            "partIndex": 12,
+            "partId": "5D6dZO_P024"
+          },
+          {
+            "time": 223.7402362463127,
+            "partIndex": 12,
+            "partId": "5D6dZO_P024"
+          },
+          {
+            "time": 224.89223624631273,
+            "partIndex": 12,
+            "partId": "5D6dZO_P024"
+          },
+          {
+            "time": 225.98290291297945,
+            "partIndex": 12,
+            "partId": "5D6dZO_P024"
+          },
+          {
+            "time": 227.13756957964603,
+            "partIndex": 12,
+            "partId": "5D6dZO_P024"
+          },
+          {
+            "time": 228.273569579646,
+            "partIndex": 12,
+            "partId": "5D6dZO_P024"
+          },
+          {
+            "time": 229.45490291297943,
+            "partIndex": 12,
+            "partId": "5D6dZO_P024"
+          },
+          {
+            "time": 230.5242362463128,
+            "partIndex": 12,
+            "partId": "5D6dZO_P024"
+          },
+          {
+            "time": 231.70023624631273,
+            "partIndex": 12,
+            "partId": "5D6dZO_P024"
           }
         ]
       }
@@ -14506,27 +15376,6 @@
       "bar_num": 12,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
-    },
-    "B0283": {
-      "part_id": "5D6dZO_P001",
-      "bar_num": 1,
-      "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/01 Bass Solo mit Tambourine/001 Are You Gonna Be My Girl Bass Solo mit Tambourine.mp3",
-      "has_accents": false
-    },
-    "B0284": {
-      "part_id": "5D6dZO_P002",
-      "bar_num": 2,
-      "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/02 + Drums/002 Are You Gonna Be My Girl + Drums.mp3",
-      "has_accents": false
-    },
-    "B0285": {
-      "part_id": "5D6dZO_P003",
-      "bar_num": 3,
-      "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/03 Mini-Solo Axel/003 Are You Gonna Be My Girl Mini-Solo Axel.mp3",
       "has_accents": false
     }
   },

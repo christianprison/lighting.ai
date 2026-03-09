@@ -2708,6 +2708,16 @@ label {
   50% { opacity: 0.7; }
 }
 
+/* ── Playback Highlight ──────────────────────── */
+.le-block.le-highlight {
+  background: var(--green);
+  color: var(--bg);
+  border-color: var(--green);
+  transform: scale(1.06);
+  box-shadow: 0 0 10px rgba(0, 220, 130, 0.4);
+  transition: background 0.12s, transform 0.12s, box-shadow 0.12s;
+}
+
 /* ── Bar Block: Cyan ───────────────────────────── */
 .le-block-bar {
   background: var(--cyan);

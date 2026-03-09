@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.2.4';
+const APP_VERSION = 'v1.2.5';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -2522,33 +2522,6 @@ function drawWaveform() {
     absCounter += (parts[pi].bars || 0);
   }
 
-  // Ghost markers: expected part positions from DB (dashed, dimmed)
-  const song = db.songs[selectedSongId];
-  if (song && song.bpm > 0 && parts.length > 0) {
-    const starts = calcPartStarts(selectedSongId);
-    ctx.setLineDash([4, 4]);
-    for (let pi = 0; pi < parts.length; pi++) {
-      const st = starts.get(parts[pi].id);
-      if (!st || st.startSec <= 0) continue;
-      const vx = (st.startSec / duration) * totalW;
-      if (!inView(vx)) continue;
-      const x = vToC(vx);
-      ctx.strokeStyle = 'rgba(240, 160, 48, 0.25)';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, h);
-      ctx.stroke();
-      const hasTapped = partMarkers.some(m => m.partIndex === pi);
-      if (!hasTapped) {
-        ctx.font = '9px Sora, sans-serif';
-        ctx.fillStyle = 'rgba(240, 160, 48, 0.35)';
-        const label = parts[pi].name;
-        ctx.fillText(label, x + 3, 11);
-      }
-    }
-    ctx.setLineDash([]);
-  }
 
   // Part markers (amber) with flag labels as drag handles
   for (let pi2 = 0; pi2 < partMarkers.length; pi2++) {

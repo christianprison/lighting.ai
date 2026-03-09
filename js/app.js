@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.3.9';
+const APP_VERSION = 'v1.3.10';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4546,6 +4546,7 @@ function leBuildBlocks(songId) {
   let blockId = 0;
 
   let cumBars = 0;
+  let nextBarNewline = false;
   for (const part of parts) {
     // Part block
     blocks.push({
@@ -4555,25 +4556,38 @@ function leBuildBlocks(songId) {
       barNum: null,
       id: `lb_${blockId++}`
     });
+    nextBarNewline = false; // reset at part boundaries
 
     const barCount = part.bars || 0;
     for (let b = 1; b <= barCount; b++) {
       const absNum = cumBars + b;
 
       // Bar block
-      blocks.push({
+      const barBlock = {
         type: 'bar',
         content: String(absNum),
         partId: part.id,
         barNum: absNum,
         firstInPart: b === 1,
         id: `lb_${blockId++}`
-      });
+      };
+      if (nextBarNewline) {
+        barBlock.newline = true;
+        nextBarNewline = false;
+      }
+      blocks.push(barBlock);
 
       // Word blocks from bar lyrics (if any and not instrumental)
       if (!part.instrumental) {
         const found = findBar(part.id, absNum);
-        const lyrics = found ? (found[1].lyrics || '').trim() : '';
+        let lyrics = found ? (found[1].lyrics || '').trim() : '';
+
+        // Trailing \n means next bar starts on a new line
+        if (lyrics.endsWith('\n')) {
+          nextBarNewline = true;
+          lyrics = lyrics.slice(0, -1).trim();
+        }
+
         if (lyrics) {
           const words = lyrics.split(/\s+/).filter(w => w.length > 0);
           for (let wi = 0; wi < words.length; wi++) {
@@ -4771,8 +4785,16 @@ function leRenderBlocks() {
       }
     }
     let cls = `le-block le-block-${b.type}`;
+    // Mark last word before a newline bar with ↵ indicator
+    let displayContent = esc(b.content);
+    if (b.type === 'word') {
+      const next = i + 1 < _leBlocks.length ? _leBlocks[i + 1] : null;
+      if (next && next.type === 'bar' && next.newline) {
+        displayContent += '<span class="le-newline-marker">↵</span>';
+      }
+    }
     const draggable = 'draggable="true"';
-    html += `<span class="${cls}" ${draggable} data-idx="${i}" data-type="${b.type}" data-id="${b.id}">${esc(b.content)}</span>`;
+    html += `<span class="${cls}" ${draggable} data-idx="${i}" data-type="${b.type}" data-id="${b.id}">${displayContent}</span>`;
     // Line break after part blocks
     if (b.type === 'part') {
       html += '<span class="le-break"></span>';
@@ -5214,10 +5236,13 @@ function leSaveLyrics() {
   let currentWords = [];
   let filledBars = 0;
 
-  function flushWords() {
+  function flushWords(nextBarHasNewline) {
     if (currentPartId && currentBarNum && currentWords.length > 0) {
       const [, barData] = getOrCreateBar(currentPartId, currentBarNum);
-      barData.lyrics = currentWords.join(' ');
+      let text = currentWords.join(' ');
+      // Persist newline: append \n to last word if next bar starts a new line
+      if (nextBarHasNewline) text += '\n';
+      barData.lyrics = text;
       filledBars++;
     }
     currentWords = [];
@@ -5225,18 +5250,18 @@ function leSaveLyrics() {
 
   for (const block of _leBlocks) {
     if (block.type === 'part') {
-      flushWords();
+      flushWords(false);
       currentPartId = block.partId;
       currentBarNum = null;
     } else if (block.type === 'bar') {
-      flushWords();
+      flushWords(block.newline || false);
       currentPartId = block.partId;
       currentBarNum = block.barNum;
     } else if (block.type === 'word') {
       currentWords.push(block.content);
     }
   }
-  flushWords();
+  flushWords(false);
 
   // Also save lyrics_raw from all words in order
   const song = db.songs[selectedSongId];

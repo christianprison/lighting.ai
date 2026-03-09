@@ -78,7 +78,7 @@
         "5iZfKj_P004": {
           "pos": 4,
           "name": "Chorus 1 (nanana)",
-          "bars": 8,
+          "bars": 9,
           "duration_sec": 12,
           "light_template": "10 Strobe",
           "qlc_scene": "10 Strobe",
@@ -114,7 +114,7 @@
         "5iZfKj_P007": {
           "pos": 7,
           "name": "Bridge 2",
-          "bars": 4,
+          "bars": 3,
           "duration_sec": 6,
           "light_template": "02 slow blue",
           "qlc_scene": "02 slow blue",
@@ -138,7 +138,7 @@
         "5iZfKj_P009": {
           "pos": 9,
           "name": "Stop",
-          "bars": 8,
+          "bars": 9,
           "duration_sec": 12,
           "light_template": "Spot auf Tim",
           "qlc_scene": "Spot auf Tim",
@@ -3457,14 +3457,14 @@
       "year": "2003",
       "pick": "🔻",
       "gema_nr": "7944469-001",
-      "duration": "3:54",
-      "duration_sec": 234,
+      "duration": "0:03",
+      "duration_sec": 3,
       "notes": "Intro; Verse 1; ; Bridge; ; Chorus; ; Thema; Verse 2; Bridge; Chorus; rest 8/4; Guitar+Clap; Guitar Solo; Chorus; End",
       "parts": {
         "5D6dZO_P001": {
           "pos": 1,
           "name": "Bass Solo mit Tambourine",
-          "bars": 0,
+          "bars": 1,
           "duration_sec": 10,
           "light_template": "solo_intense",
           "qlc_scene": "Spot auf Bibo",
@@ -3475,7 +3475,7 @@
         "5D6dZO_P002": {
           "pos": 2,
           "name": "+ Drums",
-          "bars": 0,
+          "bars": 1,
           "duration_sec": 7,
           "light_template": "generic_bpm",
           "qlc_scene": "Spot auf Tim",
@@ -3485,8 +3485,8 @@
         },
         "5D6dZO_P003": {
           "pos": 3,
-          "name": "Solo Axel",
-          "bars": 0,
+          "name": "Mini-Solo Axel",
+          "bars": 1,
           "duration_sec": 2,
           "light_template": "solo_spotlight",
           "qlc_scene": "Spot auf Axel  hot",
@@ -3496,7 +3496,7 @@
         },
         "5D6dZO_P004": {
           "pos": 4,
-          "name": "Thema",
+          "name": "Thema 1",
           "bars": 0,
           "duration_sec": 9,
           "light_template": "intro_buildup",
@@ -3516,64 +3516,9 @@
           "timestamp": "",
           "notes": ""
         },
-        "5D6dZO_P006": {
-          "pos": 6,
-          "name": "Part 6",
-          "bars": 0,
-          "duration_sec": 4,
-          "light_template": "generic_bpm",
-          "qlc_scene": "Spot auf Pete",
-          "qlc_scene_id": 228,
-          "timestamp": "",
-          "notes": ""
-        },
-        "5D6dZO_P007": {
-          "pos": 7,
-          "name": "Part 7",
-          "bars": 0,
-          "duration_sec": 4,
-          "light_template": "generic_bpm",
-          "qlc_scene": "09 Alarm",
-          "qlc_scene_id": 80,
-          "timestamp": "",
-          "notes": ""
-        },
         "5D6dZO_P008": {
-          "pos": 8,
-          "name": "boots",
-          "bars": 0,
-          "duration_sec": 1,
-          "light_template": "generic_bpm",
-          "qlc_scene": "01 statisch bunt",
-          "qlc_scene_id": 71,
-          "timestamp": "",
-          "notes": ""
-        },
-        "5D6dZO_P009": {
-          "pos": 9,
-          "name": "hair",
-          "bars": 0,
-          "duration_sec": 1,
-          "light_template": "generic_bpm",
-          "qlc_scene": "01 statisch bunt",
-          "qlc_scene_id": 71,
-          "timestamp": "",
-          "notes": ""
-        },
-        "5D6dZO_P010": {
-          "pos": 10,
-          "name": "sweet",
-          "bars": 0,
-          "duration_sec": 1,
-          "light_template": "generic_bpm",
-          "qlc_scene": "01 statisch bunt",
-          "qlc_scene_id": 71,
-          "timestamp": "",
-          "notes": ""
-        },
-        "5D6dZO_P011": {
-          "pos": 11,
-          "name": "stare",
+          "pos": 6,
+          "name": "Bridge 1",
           "bars": 0,
           "duration_sec": 1,
           "light_template": "generic_bpm",
@@ -3583,7 +3528,7 @@
           "notes": ""
         },
         "5D6dZO_P012": {
-          "pos": 12,
+          "pos": 7,
           "name": "Chorus 1",
           "bars": 0,
           "duration_sec": 18,
@@ -3594,8 +3539,8 @@
           "notes": ""
         },
         "5D6dZO_P013": {
-          "pos": 13,
-          "name": "Part 13",
+          "pos": 8,
+          "name": "Thema 2",
           "bars": 0,
           "duration_sec": 4,
           "light_template": "generic_bpm",
@@ -3604,19 +3549,8 @@
           "timestamp": "",
           "notes": ""
         },
-        "5D6dZO_P014": {
-          "pos": 14,
-          "name": "Part 14",
-          "bars": 0,
-          "duration_sec": 9,
-          "light_template": "generic_bpm",
-          "qlc_scene": "09 Alarm",
-          "qlc_scene_id": 80,
-          "timestamp": "",
-          "notes": ""
-        },
         "5D6dZO_P015": {
-          "pos": 15,
+          "pos": 9,
           "name": "Verse 2",
           "bars": 0,
           "duration_sec": 4,
@@ -3627,8 +3561,8 @@
           "notes": ""
         },
         "5D6dZO_P016": {
-          "pos": 16,
-          "name": "Part 16",
+          "pos": 10,
+          "name": "Bridge 2",
           "bars": 0,
           "duration_sec": 5,
           "light_template": "generic_bpm",
@@ -3637,63 +3571,8 @@
           "timestamp": "",
           "notes": ""
         },
-        "5D6dZO_P017": {
-          "pos": 17,
-          "name": "Part 17",
-          "bars": 0,
-          "duration_sec": 4,
-          "light_template": "generic_bpm",
-          "qlc_scene": "09 Alarm",
-          "qlc_scene_id": 80,
-          "timestamp": "",
-          "notes": ""
-        },
-        "5D6dZO_P018": {
-          "pos": 18,
-          "name": "boots",
-          "bars": 0,
-          "duration_sec": 1,
-          "light_template": "generic_bpm",
-          "qlc_scene": "01 statisch bunt",
-          "qlc_scene_id": 71,
-          "timestamp": "",
-          "notes": ""
-        },
-        "5D6dZO_P019": {
-          "pos": 19,
-          "name": "hair",
-          "bars": 0,
-          "duration_sec": 1,
-          "light_template": "generic_bpm",
-          "qlc_scene": "01 statisch bunt",
-          "qlc_scene_id": 71,
-          "timestamp": "",
-          "notes": ""
-        },
-        "5D6dZO_P020": {
-          "pos": 20,
-          "name": "sweet",
-          "bars": 0,
-          "duration_sec": 1,
-          "light_template": "generic_bpm",
-          "qlc_scene": "01 statisch bunt",
-          "qlc_scene_id": 71,
-          "timestamp": "",
-          "notes": ""
-        },
-        "5D6dZO_P021": {
-          "pos": 21,
-          "name": "stare",
-          "bars": 0,
-          "duration_sec": 1,
-          "light_template": "generic_bpm",
-          "qlc_scene": "01 statisch bunt",
-          "qlc_scene_id": 71,
-          "timestamp": "",
-          "notes": ""
-        },
         "5D6dZO_P022": {
-          "pos": 22,
+          "pos": 11,
           "name": "Chorus 2",
           "bars": 0,
           "duration_sec": 18,
@@ -3703,19 +3582,8 @@
           "timestamp": "",
           "notes": ""
         },
-        "5D6dZO_P023": {
-          "pos": 23,
-          "name": "Part 23",
-          "bars": 0,
-          "duration_sec": 4,
-          "light_template": "generic_bpm",
-          "qlc_scene": "Spot auf Pete",
-          "qlc_scene_id": 228,
-          "timestamp": "",
-          "notes": ""
-        },
         "5D6dZO_P024": {
-          "pos": 24,
+          "pos": 12,
           "name": "Chorus 3",
           "bars": 0,
           "duration_sec": 18,
@@ -3726,7 +3594,7 @@
           "notes": ""
         },
         "5D6dZO_P025": {
-          "pos": 25,
+          "pos": 13,
           "name": "Chorus 4",
           "bars": 0,
           "duration_sec": 7,
@@ -3744,6 +3612,42 @@
       "tms": {
         "manual_done": [],
         "user_tasks": []
+      },
+      "split_markers": {
+        "partMarkers": [
+          {
+            "time": 4.365020833333327,
+            "partIndex": 0,
+            "partId": "5D6dZO_P001"
+          },
+          {
+            "time": 14.282354166666659,
+            "partIndex": 1,
+            "partId": "5D6dZO_P002"
+          },
+          {
+            "time": 21.29568750000001,
+            "partIndex": 2,
+            "partId": "5D6dZO_P003"
+          }
+        ],
+        "barMarkers": [
+          {
+            "time": 4.365020833333327,
+            "partIndex": 0,
+            "partId": "5D6dZO_P001"
+          },
+          {
+            "time": 14.282354166666659,
+            "partIndex": 1,
+            "partId": "5D6dZO_P002"
+          },
+          {
+            "time": 21.29568750000001,
+            "partIndex": 2,
+            "partId": "5D6dZO_P003"
+          }
+        ]
       }
     },
     "CEGcgc": {

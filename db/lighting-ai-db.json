@@ -78,7 +78,7 @@
         "5iZfKj_P004": {
           "pos": 4,
           "name": "Chorus 1 (nanana)",
-          "bars": 9,
+          "bars": 8,
           "duration_sec": 12,
           "light_template": "10 Strobe",
           "qlc_scene": "10 Strobe",
@@ -138,7 +138,7 @@
         "5iZfKj_P009": {
           "pos": 9,
           "name": "Stop",
-          "bars": 9,
+          "bars": 8,
           "duration_sec": 12,
           "light_template": "Spot auf Tim",
           "qlc_scene": "Spot auf Tim",
@@ -1836,7 +1836,7 @@
         "CC9FBm_P010": {
           "pos": 10,
           "name": "Interlude 1",
-          "bars": 16,
+          "bars": 15,
           "duration_sec": 11,
           "light_template": "01 statisch bunt",
           "qlc_scene": "06 blinking",
@@ -1849,7 +1849,7 @@
         "CC9FBm_P012": {
           "pos": 11,
           "name": "Stops",
-          "bars": 8,
+          "bars": 1,
           "duration_sec": 2,
           "light_template": "00 blackout",
           "qlc_scene": "10 Strobe",
@@ -12411,84 +12411,84 @@
       "part_id": "tdyEcs_P002",
       "bar_num": 9,
       "lyrics": "Every time I think that I'm The",
-      "audio": "audio/Along comes Mary/02 Verse 1/001 Along comes Mary Verse 1.mp3",
+      "audio": "audio/Along comes Mary/02 Verse 1/009 Along comes Mary Verse 1.mp3",
       "has_accents": false
     },
     "B0010": {
       "part_id": "tdyEcs_P002",
       "bar_num": 10,
       "lyrics": "only one who's lonely someone",
-      "audio": "audio/Along comes Mary/02 Verse 1/002 Along comes Mary Verse 1.mp3",
+      "audio": "audio/Along comes Mary/02 Verse 1/010 Along comes Mary Verse 1.mp3",
       "has_accents": false
     },
     "B0011": {
       "part_id": "tdyEcs_P002",
       "bar_num": 11,
       "lyrics": "calls on",
-      "audio": "audio/Along comes Mary/02 Verse 1/003 Along comes Mary Verse 1.mp3",
+      "audio": "audio/Along comes Mary/02 Verse 1/011 Along comes Mary Verse 1.mp3",
       "has_accents": false
     },
     "B0012": {
       "part_id": "tdyEcs_P002",
       "bar_num": 12,
       "lyrics": "me - - - and",
-      "audio": "audio/Along comes Mary/02 Verse 1/004 Along comes Mary Verse 1.mp3",
+      "audio": "audio/Along comes Mary/02 Verse 1/012 Along comes Mary Verse 1.mp3",
       "has_accents": false
     },
     "B0013": {
       "part_id": "tdyEcs_P002",
       "bar_num": 13,
       "lyrics": "every now and then I spend my",
-      "audio": "audio/Along comes Mary/02 Verse 1/005 Along comes Mary Verse 1.mp3",
+      "audio": "audio/Along comes Mary/02 Verse 1/013 Along comes Mary Verse 1.mp3",
       "has_accents": false
     },
     "B0014": {
       "part_id": "tdyEcs_P002",
       "bar_num": 14,
       "lyrics": "time and rhyme and verse and curse those",
-      "audio": "audio/Along comes Mary/02 Verse 1/006 Along comes Mary Verse 1.mp3",
+      "audio": "audio/Along comes Mary/02 Verse 1/014 Along comes Mary Verse 1.mp3",
       "has_accents": false
     },
     "B0015": {
       "part_id": "tdyEcs_P002",
       "bar_num": 15,
       "lyrics": "faults - - in",
-      "audio": "audio/Along comes Mary/02 Verse 1/007 Along comes Mary Verse 1.mp3",
+      "audio": "audio/Along comes Mary/02 Verse 1/015 Along comes Mary Verse 1.mp3",
       "has_accents": false
     },
     "B0016": {
       "part_id": "tdyEcs_P002",
       "bar_num": 16,
       "lyrics": "me and then",
-      "audio": "audio/Along comes Mary/02 Verse 1/008 Along comes Mary Verse 1.mp3",
+      "audio": "audio/Along comes Mary/02 Verse 1/016 Along comes Mary Verse 1.mp3",
       "has_accents": false
     },
     "B0017": {
       "part_id": "tdyEcs_P002",
       "bar_num": 17,
       "lyrics": "a-",
-      "audio": "audio/Along comes Mary/02 Verse 1/009 Along comes Mary Verse 1.mp3",
+      "audio": "audio/Along comes Mary/02 Verse 1/017 Along comes Mary Verse 1.mp3",
       "has_accents": false
     },
     "B0018": {
       "part_id": "tdyEcs_P003",
       "bar_num": 18,
       "lyrics": "long comes Mary",
-      "audio": "audio/Along comes Mary/03 Bridge A 1/001 Along comes Mary Bridge A 1.mp3",
+      "audio": "audio/Along comes Mary/03 Bridge A 1/018 Along comes Mary Bridge A 1.mp3",
       "has_accents": false
     },
     "B0019": {
       "part_id": "tdyEcs_P003",
       "bar_num": 19,
       "lyrics": "(Mary, Mary) And then a-",
-      "audio": "audio/Along comes Mary/03 Bridge A 1/002 Along comes Mary Bridge A 1.mp3",
+      "audio": "audio/Along comes Mary/03 Bridge A 1/019 Along comes Mary Bridge A 1.mp3",
       "has_accents": false
     },
     "B0020": {
       "part_id": "tdyEcs_P003",
       "bar_num": 20,
       "lyrics": "long comes Mary",
-      "audio": "audio/Along comes Mary/03 Bridge A 1/003 Along comes Mary Bridge A 1.mp3",
+      "audio": "audio/Along comes Mary/03 Bridge A 1/020 Along comes Mary Bridge A 1.mp3",
       "has_accents": false
     },
     "B0021": {
@@ -12978,630 +12978,630 @@
       "part_id": "5iZfKj_P002",
       "bar_num": 9,
       "lyrics": "All",
-      "audio": "audio/All The Small Things/02 Verse 1/001 All The Small Things Verse 1.mp3",
+      "audio": "audio/All The Small Things/02 Verse 1/009 All The Small Things Verse 1.mp3",
       "has_accents": false
     },
     "B0068": {
       "part_id": "5iZfKj_P002",
       "bar_num": 10,
       "lyrics": "the small things",
-      "audio": "audio/All The Small Things/02 Verse 1/002 All The Small Things Verse 1.mp3",
+      "audio": "audio/All The Small Things/02 Verse 1/010 All The Small Things Verse 1.mp3",
       "has_accents": false
     },
     "B0069": {
       "part_id": "5iZfKj_P002",
       "bar_num": 11,
       "lyrics": "True care",
-      "audio": "audio/All The Small Things/02 Verse 1/003 All The Small Things Verse 1.mp3",
+      "audio": "audio/All The Small Things/02 Verse 1/011 All The Small Things Verse 1.mp3",
       "has_accents": false
     },
     "B0070": {
       "part_id": "5iZfKj_P002",
       "bar_num": 12,
       "lyrics": "truth brings",
-      "audio": "audio/All The Small Things/02 Verse 1/004 All The Small Things Verse 1.mp3",
+      "audio": "audio/All The Small Things/02 Verse 1/012 All The Small Things Verse 1.mp3",
       "has_accents": false
     },
     "B0071": {
       "part_id": "5iZfKj_P002",
       "bar_num": 13,
       "lyrics": "I'll take",
-      "audio": "audio/All The Small Things/02 Verse 1/005 All The Small Things Verse 1.mp3",
+      "audio": "audio/All The Small Things/02 Verse 1/013 All The Small Things Verse 1.mp3",
       "has_accents": false
     },
     "B0072": {
       "part_id": "5iZfKj_P002",
       "bar_num": 14,
       "lyrics": "one lift",
-      "audio": "audio/All The Small Things/02 Verse 1/006 All The Small Things Verse 1.mp3",
+      "audio": "audio/All The Small Things/02 Verse 1/014 All The Small Things Verse 1.mp3",
       "has_accents": false
     },
     "B0073": {
       "part_id": "5iZfKj_P002",
       "bar_num": 15,
       "lyrics": "Your ride",
-      "audio": "audio/All The Small Things/02 Verse 1/007 All The Small Things Verse 1.mp3",
+      "audio": "audio/All The Small Things/02 Verse 1/015 All The Small Things Verse 1.mp3",
       "has_accents": false
     },
     "B0074": {
       "part_id": "5iZfKj_P002",
       "bar_num": 16,
       "lyrics": "best trip",
-      "audio": "audio/All The Small Things/02 Verse 1/008 All The Small Things Verse 1.mp3",
+      "audio": "audio/All The Small Things/02 Verse 1/016 All The Small Things Verse 1.mp3",
       "has_accents": false
     },
     "B0075": {
       "part_id": "5iZfKj_P002",
       "bar_num": 17,
       "lyrics": "Always",
-      "audio": "audio/All The Small Things/02 Verse 1/009 All The Small Things Verse 1.mp3",
+      "audio": "audio/All The Small Things/02 Verse 1/017 All The Small Things Verse 1.mp3",
       "has_accents": false
     },
     "B0076": {
       "part_id": "5iZfKj_P002",
       "bar_num": 18,
       "lyrics": "I know",
-      "audio": "audio/All The Small Things/02 Verse 1/010 All The Small Things Verse 1.mp3",
+      "audio": "audio/All The Small Things/02 Verse 1/018 All The Small Things Verse 1.mp3",
       "has_accents": false
     },
     "B0077": {
       "part_id": "5iZfKj_P002",
       "bar_num": 19,
       "lyrics": "You'll be",
-      "audio": "audio/All The Small Things/02 Verse 1/011 All The Small Things Verse 1.mp3",
+      "audio": "audio/All The Small Things/02 Verse 1/019 All The Small Things Verse 1.mp3",
       "has_accents": false
     },
     "B0078": {
       "part_id": "5iZfKj_P002",
       "bar_num": 20,
       "lyrics": "at my show",
-      "audio": "audio/All The Small Things/02 Verse 1/012 All The Small Things Verse 1.mp3",
+      "audio": "audio/All The Small Things/02 Verse 1/020 All The Small Things Verse 1.mp3",
       "has_accents": false
     },
     "B0079": {
       "part_id": "5iZfKj_P002",
       "bar_num": 21,
       "lyrics": "Watching,",
-      "audio": "audio/All The Small Things/02 Verse 1/013 All The Small Things Verse 1.mp3",
+      "audio": "audio/All The Small Things/02 Verse 1/021 All The Small Things Verse 1.mp3",
       "has_accents": false
     },
     "B0080": {
       "part_id": "5iZfKj_P002",
       "bar_num": 22,
       "lyrics": "waiting,",
-      "audio": "audio/All The Small Things/02 Verse 1/014 All The Small Things Verse 1.mp3",
+      "audio": "audio/All The Small Things/02 Verse 1/022 All The Small Things Verse 1.mp3",
       "has_accents": false
     },
     "B0081": {
       "part_id": "5iZfKj_P002",
       "bar_num": 23,
       "lyrics": "",
-      "audio": "audio/All The Small Things/02 Verse 1/015 All The Small Things Verse 1.mp3",
+      "audio": "audio/All The Small Things/02 Verse 1/023 All The Small Things Verse 1.mp3",
       "has_accents": false
     },
     "B0082": {
       "part_id": "5iZfKj_P002",
       "bar_num": 24,
       "lyrics": "commiserating Bridge",
-      "audio": "audio/All The Small Things/02 Verse 1/016 All The Small Things Verse 1.mp3",
+      "audio": "audio/All The Small Things/02 Verse 1/024 All The Small Things Verse 1.mp3",
       "has_accents": false
     },
     "B0083": {
       "part_id": "5iZfKj_P003",
       "bar_num": 25,
       "lyrics": "Say it ain't so,",
-      "audio": "audio/All The Small Things/03 Bridge 1/001 All The Small Things Bridge 1.mp3",
+      "audio": "audio/All The Small Things/03 Bridge 1/025 All The Small Things Bridge 1.mp3",
       "has_accents": false
     },
     "B0084": {
       "part_id": "5iZfKj_P003",
       "bar_num": 26,
       "lyrics": "I will not go",
-      "audio": "audio/All The Small Things/03 Bridge 1/002 All The Small Things Bridge 1.mp3",
+      "audio": "audio/All The Small Things/03 Bridge 1/026 All The Small Things Bridge 1.mp3",
       "has_accents": false
     },
     "B0085": {
       "part_id": "5iZfKj_P003",
       "bar_num": 27,
       "lyrics": "Turn the lights off,",
-      "audio": "audio/All The Small Things/03 Bridge 1/003 All The Small Things Bridge 1.mp3",
+      "audio": "audio/All The Small Things/03 Bridge 1/027 All The Small Things Bridge 1.mp3",
       "has_accents": false
     },
     "B0086": {
       "part_id": "5iZfKj_P003",
       "bar_num": 28,
       "lyrics": "carry me home Chorus",
-      "audio": "audio/All The Small Things/03 Bridge 1/004 All The Small Things Bridge 1.mp3",
+      "audio": "audio/All The Small Things/03 Bridge 1/028 All The Small Things Bridge 1.mp3",
       "has_accents": false
     },
     "B0087": {
       "part_id": "5iZfKj_P004",
       "bar_num": 29,
       "lyrics": "Na, na,",
-      "audio": "audio/All The Small Things/04 Chorus 1 (nanana)/001 All The Small Things Chorus 1 (nanana).mp3",
+      "audio": "audio/All The Small Things/04 Chorus 1 (nanana)/029 All The Small Things Chorus 1 (nanana).mp3",
       "has_accents": false
     },
     "B0088": {
       "part_id": "5iZfKj_P004",
       "bar_num": 30,
       "lyrics": "na, na",
-      "audio": "audio/All The Small Things/04 Chorus 1 (nanana)/002 All The Small Things Chorus 1 (nanana).mp3",
+      "audio": "audio/All The Small Things/04 Chorus 1 (nanana)/030 All The Small Things Chorus 1 (nanana).mp3",
       "has_accents": false
     },
     "B0089": {
       "part_id": "5iZfKj_P004",
       "bar_num": 31,
       "lyrics": "Na, na,",
-      "audio": "audio/All The Small Things/04 Chorus 1 (nanana)/003 All The Small Things Chorus 1 (nanana).mp3",
+      "audio": "audio/All The Small Things/04 Chorus 1 (nanana)/031 All The Small Things Chorus 1 (nanana).mp3",
       "has_accents": false
     },
     "B0090": {
       "part_id": "5iZfKj_P004",
       "bar_num": 32,
       "lyrics": "na, na, na,",
-      "audio": "audio/All The Small Things/04 Chorus 1 (nanana)/004 All The Small Things Chorus 1 (nanana).mp3",
+      "audio": "audio/All The Small Things/04 Chorus 1 (nanana)/032 All The Small Things Chorus 1 (nanana).mp3",
       "has_accents": false
     },
     "B0091": {
       "part_id": "5iZfKj_P004",
       "bar_num": 33,
       "lyrics": "na, na,",
-      "audio": "audio/All The Small Things/04 Chorus 1 (nanana)/005 All The Small Things Chorus 1 (nanana).mp3",
+      "audio": "audio/All The Small Things/04 Chorus 1 (nanana)/033 All The Small Things Chorus 1 (nanana).mp3",
       "has_accents": false
     },
     "B0092": {
       "part_id": "5iZfKj_P004",
       "bar_num": 34,
       "lyrics": "na, na,",
-      "audio": "audio/All The Small Things/04 Chorus 1 (nanana)/006 All The Small Things Chorus 1 (nanana).mp3",
+      "audio": "audio/All The Small Things/04 Chorus 1 (nanana)/034 All The Small Things Chorus 1 (nanana).mp3",
       "has_accents": false
     },
     "B0093": {
       "part_id": "5iZfKj_P004",
       "bar_num": 35,
       "lyrics": "na, na",
-      "audio": "audio/All The Small Things/04 Chorus 1 (nanana)/007 All The Small Things Chorus 1 (nanana).mp3",
+      "audio": "audio/All The Small Things/04 Chorus 1 (nanana)/035 All The Small Things Chorus 1 (nanana).mp3",
       "has_accents": false
     },
     "B0094": {
       "part_id": "5iZfKj_P004",
       "bar_num": 36,
       "lyrics": "Verse 2",
-      "audio": "audio/All The Small Things/04 Chorus 1 (nanana)/008 All The Small Things Chorus 1 (nanana).mp3",
+      "audio": "audio/All The Small Things/04 Chorus 1 (nanana)/036 All The Small Things Chorus 1 (nanana).mp3",
       "has_accents": false
     },
     "B0095": {
       "part_id": "5iZfKj_P004",
       "bar_num": 37,
       "lyrics": "",
-      "audio": "audio/All The Small Things/04 Chorus 1 (nanana)/009 All The Small Things Chorus 1 (nanana).mp3",
+      "audio": "audio/All The Small Things/04 Chorus 1 (nanana)/037 All The Small Things Chorus 1 (nanana).mp3",
       "has_accents": false
     },
     "B0096": {
       "part_id": "5iZfKj_P005",
       "bar_num": 38,
       "lyrics": "",
-      "audio": "audio/All The Small Things/05 Thema 2/001 All The Small Things Thema 2.mp3",
+      "audio": "audio/All The Small Things/05 Thema 2/038 All The Small Things Thema 2.mp3",
       "has_accents": false
     },
     "B0097": {
       "part_id": "5iZfKj_P005",
       "bar_num": 39,
       "lyrics": "",
-      "audio": "audio/All The Small Things/05 Thema 2/002 All The Small Things Thema 2.mp3",
+      "audio": "audio/All The Small Things/05 Thema 2/039 All The Small Things Thema 2.mp3",
       "has_accents": false
     },
     "B0098": {
       "part_id": "5iZfKj_P005",
       "bar_num": 40,
       "lyrics": "",
-      "audio": "audio/All The Small Things/05 Thema 2/003 All The Small Things Thema 2.mp3",
+      "audio": "audio/All The Small Things/05 Thema 2/040 All The Small Things Thema 2.mp3",
       "has_accents": false
     },
     "B0099": {
       "part_id": "5iZfKj_P005",
       "bar_num": 41,
       "lyrics": "",
-      "audio": "audio/All The Small Things/05 Thema 2/004 All The Small Things Thema 2.mp3",
+      "audio": "audio/All The Small Things/05 Thema 2/041 All The Small Things Thema 2.mp3",
       "has_accents": false
     },
     "B0100": {
       "part_id": "5iZfKj_P005",
       "bar_num": 42,
       "lyrics": "",
-      "audio": "audio/All The Small Things/05 Thema 2/005 All The Small Things Thema 2.mp3",
+      "audio": "audio/All The Small Things/05 Thema 2/042 All The Small Things Thema 2.mp3",
       "has_accents": false
     },
     "B0101": {
       "part_id": "5iZfKj_P005",
       "bar_num": 43,
       "lyrics": "",
-      "audio": "audio/All The Small Things/05 Thema 2/006 All The Small Things Thema 2.mp3",
+      "audio": "audio/All The Small Things/05 Thema 2/043 All The Small Things Thema 2.mp3",
       "has_accents": false
     },
     "B0102": {
       "part_id": "5iZfKj_P005",
       "bar_num": 44,
       "lyrics": "",
-      "audio": "audio/All The Small Things/05 Thema 2/007 All The Small Things Thema 2.mp3",
+      "audio": "audio/All The Small Things/05 Thema 2/044 All The Small Things Thema 2.mp3",
       "has_accents": false
     },
     "B0103": {
       "part_id": "5iZfKj_P005",
       "bar_num": 45,
       "lyrics": "",
-      "audio": "audio/All The Small Things/05 Thema 2/008 All The Small Things Thema 2.mp3",
+      "audio": "audio/All The Small Things/05 Thema 2/045 All The Small Things Thema 2.mp3",
       "has_accents": false
     },
     "B0104": {
       "part_id": "5iZfKj_P006",
       "bar_num": 46,
       "lyrics": "Late night, come",
-      "audio": "audio/All The Small Things/06 Verse 2/001 All The Small Things Verse 2.mp3",
+      "audio": "audio/All The Small Things/06 Verse 2/046 All The Small Things Verse 2.mp3",
       "has_accents": false
     },
     "B0105": {
       "part_id": "5iZfKj_P006",
       "bar_num": 47,
       "lyrics": "home Work sucks,",
-      "audio": "audio/All The Small Things/06 Verse 2/002 All The Small Things Verse 2.mp3",
+      "audio": "audio/All The Small Things/06 Verse 2/047 All The Small Things Verse 2.mp3",
       "has_accents": false
     },
     "B0106": {
       "part_id": "5iZfKj_P006",
       "bar_num": 48,
       "lyrics": "I know",
-      "audio": "audio/All The Small Things/06 Verse 2/003 All The Small Things Verse 2.mp3",
+      "audio": "audio/All The Small Things/06 Verse 2/048 All The Small Things Verse 2.mp3",
       "has_accents": false
     },
     "B0107": {
       "part_id": "5iZfKj_P006",
       "bar_num": 49,
       "lyrics": "She left me",
-      "audio": "audio/All The Small Things/06 Verse 2/004 All The Small Things Verse 2.mp3",
+      "audio": "audio/All The Small Things/06 Verse 2/049 All The Small Things Verse 2.mp3",
       "has_accents": false
     },
     "B0108": {
       "part_id": "5iZfKj_P006",
       "bar_num": 50,
       "lyrics": "roses by the",
-      "audio": "audio/All The Small Things/06 Verse 2/005 All The Small Things Verse 2.mp3",
+      "audio": "audio/All The Small Things/06 Verse 2/050 All The Small Things Verse 2.mp3",
       "has_accents": false
     },
     "B0109": {
       "part_id": "5iZfKj_P006",
       "bar_num": 51,
       "lyrics": "stairs Surprises let",
-      "audio": "audio/All The Small Things/06 Verse 2/006 All The Small Things Verse 2.mp3",
+      "audio": "audio/All The Small Things/06 Verse 2/051 All The Small Things Verse 2.mp3",
       "has_accents": false
     },
     "B0110": {
       "part_id": "5iZfKj_P006",
       "bar_num": 52,
       "lyrics": "me know",
-      "audio": "audio/All The Small Things/06 Verse 2/007 All The Small Things Verse 2.mp3",
+      "audio": "audio/All The Small Things/06 Verse 2/052 All The Small Things Verse 2.mp3",
       "has_accents": false
     },
     "B0111": {
       "part_id": "5iZfKj_P006",
       "bar_num": 53,
       "lyrics": "she cares Bridge",
-      "audio": "audio/All The Small Things/06 Verse 2/008 All The Small Things Verse 2.mp3",
+      "audio": "audio/All The Small Things/06 Verse 2/053 All The Small Things Verse 2.mp3",
       "has_accents": false
     },
     "B0112": {
       "part_id": "5iZfKj_P007",
       "bar_num": 54,
       "lyrics": "Say it ain't so,",
-      "audio": "audio/All The Small Things/07 Bridge 2/001 All The Small Things Bridge 2.mp3",
+      "audio": "audio/All The Small Things/07 Bridge 2/054 All The Small Things Bridge 2.mp3",
       "has_accents": false
     },
     "B0113": {
       "part_id": "5iZfKj_P007",
       "bar_num": 55,
       "lyrics": "I will not go",
-      "audio": "audio/All The Small Things/07 Bridge 2/002 All The Small Things Bridge 2.mp3",
+      "audio": "audio/All The Small Things/07 Bridge 2/055 All The Small Things Bridge 2.mp3",
       "has_accents": false
     },
     "B0114": {
       "part_id": "5iZfKj_P007",
       "bar_num": 56,
       "lyrics": "Turn the lights off,",
-      "audio": "audio/All The Small Things/07 Bridge 2/003 All The Small Things Bridge 2.mp3",
+      "audio": "audio/All The Small Things/07 Bridge 2/056 All The Small Things Bridge 2.mp3",
       "has_accents": false
     },
     "B0115": {
       "part_id": "5iZfKj_P008",
       "bar_num": 58,
       "lyrics": "Na, na,",
-      "audio": "audio/All The Small Things/08 Chorus 2 (nanana)/001 All The Small Things Chorus 2 (nanana).mp3",
+      "audio": "audio/All The Small Things/08 Chorus 2 (nanana)/058 All The Small Things Chorus 2 (nanana).mp3",
       "has_accents": false
     },
     "B0116": {
       "part_id": "5iZfKj_P008",
       "bar_num": 59,
       "lyrics": "na, na",
-      "audio": "audio/All The Small Things/08 Chorus 2 (nanana)/002 All The Small Things Chorus 2 (nanana).mp3",
+      "audio": "audio/All The Small Things/08 Chorus 2 (nanana)/059 All The Small Things Chorus 2 (nanana).mp3",
       "has_accents": false
     },
     "B0117": {
       "part_id": "5iZfKj_P008",
       "bar_num": 60,
       "lyrics": "Na, na,",
-      "audio": "audio/All The Small Things/08 Chorus 2 (nanana)/003 All The Small Things Chorus 2 (nanana).mp3",
+      "audio": "audio/All The Small Things/08 Chorus 2 (nanana)/060 All The Small Things Chorus 2 (nanana).mp3",
       "has_accents": false
     },
     "B0118": {
       "part_id": "5iZfKj_P008",
       "bar_num": 61,
       "lyrics": "na, na, na,",
-      "audio": "audio/All The Small Things/08 Chorus 2 (nanana)/004 All The Small Things Chorus 2 (nanana).mp3",
+      "audio": "audio/All The Small Things/08 Chorus 2 (nanana)/061 All The Small Things Chorus 2 (nanana).mp3",
       "has_accents": false
     },
     "B0119": {
       "part_id": "5iZfKj_P008",
       "bar_num": 62,
       "lyrics": "na, na,",
-      "audio": "audio/All The Small Things/08 Chorus 2 (nanana)/005 All The Small Things Chorus 2 (nanana).mp3",
+      "audio": "audio/All The Small Things/08 Chorus 2 (nanana)/062 All The Small Things Chorus 2 (nanana).mp3",
       "has_accents": false
     },
     "B0120": {
       "part_id": "5iZfKj_P008",
       "bar_num": 63,
       "lyrics": "na, na,",
-      "audio": "audio/All The Small Things/08 Chorus 2 (nanana)/006 All The Small Things Chorus 2 (nanana).mp3",
+      "audio": "audio/All The Small Things/08 Chorus 2 (nanana)/063 All The Small Things Chorus 2 (nanana).mp3",
       "has_accents": false
     },
     "B0121": {
       "part_id": "5iZfKj_P008",
       "bar_num": 64,
       "lyrics": "na, na",
-      "audio": "audio/All The Small Things/08 Chorus 2 (nanana)/007 All The Small Things Chorus 2 (nanana).mp3",
+      "audio": "audio/All The Small Things/08 Chorus 2 (nanana)/064 All The Small Things Chorus 2 (nanana).mp3",
       "has_accents": false
     },
     "B0122": {
       "part_id": "5iZfKj_P008",
       "bar_num": 65,
       "lyrics": "(Interlude) Power-Bridge",
-      "audio": "audio/All The Small Things/08 Chorus 2 (nanana)/008 All The Small Things Chorus 2 (nanana).mp3",
+      "audio": "audio/All The Small Things/08 Chorus 2 (nanana)/065 All The Small Things Chorus 2 (nanana).mp3",
       "has_accents": false
     },
     "B0123": {
       "part_id": "5iZfKj_P009",
       "bar_num": 66,
       "lyrics": "",
-      "audio": "audio/All The Small Things/09 Stop/001 All The Small Things Stop.mp3",
+      "audio": "audio/All The Small Things/09 Stop/066 All The Small Things Stop.mp3",
       "has_accents": false
     },
     "B0124": {
       "part_id": "5iZfKj_P009",
       "bar_num": 67,
       "lyrics": "",
-      "audio": "audio/All The Small Things/09 Stop/002 All The Small Things Stop.mp3",
+      "audio": "audio/All The Small Things/09 Stop/067 All The Small Things Stop.mp3",
       "has_accents": false
     },
     "B0125": {
       "part_id": "5iZfKj_P009",
       "bar_num": 68,
       "lyrics": "",
-      "audio": "audio/All The Small Things/09 Stop/003 All The Small Things Stop.mp3",
+      "audio": "audio/All The Small Things/09 Stop/068 All The Small Things Stop.mp3",
       "has_accents": false
     },
     "B0126": {
       "part_id": "5iZfKj_P009",
       "bar_num": 69,
       "lyrics": "",
-      "audio": "audio/All The Small Things/09 Stop/004 All The Small Things Stop.mp3",
+      "audio": "audio/All The Small Things/09 Stop/069 All The Small Things Stop.mp3",
       "has_accents": false
     },
     "B0127": {
       "part_id": "5iZfKj_P009",
       "bar_num": 70,
       "lyrics": "",
-      "audio": "audio/All The Small Things/09 Stop/005 All The Small Things Stop.mp3",
+      "audio": "audio/All The Small Things/09 Stop/070 All The Small Things Stop.mp3",
       "has_accents": false
     },
     "B0128": {
       "part_id": "5iZfKj_P009",
       "bar_num": 71,
       "lyrics": "",
-      "audio": "audio/All The Small Things/09 Stop/006 All The Small Things Stop.mp3",
+      "audio": "audio/All The Small Things/09 Stop/071 All The Small Things Stop.mp3",
       "has_accents": false
     },
     "B0129": {
       "part_id": "5iZfKj_P009",
       "bar_num": 72,
       "lyrics": "",
-      "audio": "audio/All The Small Things/09 Stop/007 All The Small Things Stop.mp3",
+      "audio": "audio/All The Small Things/09 Stop/072 All The Small Things Stop.mp3",
       "has_accents": false
     },
     "B0130": {
       "part_id": "5iZfKj_P009",
       "bar_num": 73,
       "lyrics": "",
-      "audio": "audio/All The Small Things/09 Stop/008 All The Small Things Stop.mp3",
+      "audio": "audio/All The Small Things/09 Stop/073 All The Small Things Stop.mp3",
       "has_accents": false
     },
     "B0131": {
       "part_id": "5iZfKj_P009",
       "bar_num": 74,
       "lyrics": "",
-      "audio": "audio/All The Small Things/09 Stop/009 All The Small Things Stop.mp3",
+      "audio": "audio/All The Small Things/09 Stop/074 All The Small Things Stop.mp3",
       "has_accents": false
     },
     "B0132": {
       "part_id": "5iZfKj_P010",
       "bar_num": 75,
       "lyrics": "",
-      "audio": "audio/All The Small Things/10 Crescendo/001 All The Small Things Crescendo.mp3",
+      "audio": "audio/All The Small Things/10 Crescendo/075 All The Small Things Crescendo.mp3",
       "has_accents": false
     },
     "B0133": {
       "part_id": "5iZfKj_P010",
       "bar_num": 76,
       "lyrics": "",
-      "audio": "audio/All The Small Things/10 Crescendo/002 All The Small Things Crescendo.mp3",
+      "audio": "audio/All The Small Things/10 Crescendo/076 All The Small Things Crescendo.mp3",
       "has_accents": false
     },
     "B0134": {
       "part_id": "5iZfKj_P010",
       "bar_num": 77,
       "lyrics": "",
-      "audio": "audio/All The Small Things/10 Crescendo/003 All The Small Things Crescendo.mp3",
+      "audio": "audio/All The Small Things/10 Crescendo/077 All The Small Things Crescendo.mp3",
       "has_accents": false
     },
     "B0135": {
       "part_id": "5iZfKj_P010",
       "bar_num": 78,
       "lyrics": "",
-      "audio": "audio/All The Small Things/10 Crescendo/004 All The Small Things Crescendo.mp3",
+      "audio": "audio/All The Small Things/10 Crescendo/078 All The Small Things Crescendo.mp3",
       "has_accents": false
     },
     "B0136": {
       "part_id": "5iZfKj_P010",
       "bar_num": 79,
       "lyrics": "",
-      "audio": "audio/All The Small Things/10 Crescendo/005 All The Small Things Crescendo.mp3",
+      "audio": "audio/All The Small Things/10 Crescendo/079 All The Small Things Crescendo.mp3",
       "has_accents": false
     },
     "B0137": {
       "part_id": "5iZfKj_P010",
       "bar_num": 80,
       "lyrics": "",
-      "audio": "audio/All The Small Things/10 Crescendo/006 All The Small Things Crescendo.mp3",
+      "audio": "audio/All The Small Things/10 Crescendo/080 All The Small Things Crescendo.mp3",
       "has_accents": false
     },
     "B0138": {
       "part_id": "5iZfKj_P010",
       "bar_num": 81,
       "lyrics": "",
-      "audio": "audio/All The Small Things/10 Crescendo/007 All The Small Things Crescendo.mp3",
+      "audio": "audio/All The Small Things/10 Crescendo/081 All The Small Things Crescendo.mp3",
       "has_accents": false
     },
     "B0139": {
       "part_id": "5iZfKj_P010",
       "bar_num": 82,
       "lyrics": "",
-      "audio": "audio/All The Small Things/10 Crescendo/008 All The Small Things Crescendo.mp3",
+      "audio": "audio/All The Small Things/10 Crescendo/082 All The Small Things Crescendo.mp3",
       "has_accents": false
     },
     "B0140": {
       "part_id": "5iZfKj_P011",
       "bar_num": 83,
       "lyrics": "Say it ain't so,",
-      "audio": "audio/All The Small Things/11 Bridge 3 (schnell)/001 All The Small Things Bridge 3 (schnell).mp3",
+      "audio": "audio/All The Small Things/11 Bridge 3 (schnell)/083 All The Small Things Bridge 3 (schnell).mp3",
       "has_accents": false
     },
     "B0141": {
       "part_id": "5iZfKj_P011",
       "bar_num": 84,
       "lyrics": "I will not go",
-      "audio": "audio/All The Small Things/11 Bridge 3 (schnell)/002 All The Small Things Bridge 3 (schnell).mp3",
+      "audio": "audio/All The Small Things/11 Bridge 3 (schnell)/084 All The Small Things Bridge 3 (schnell).mp3",
       "has_accents": false
     },
     "B0142": {
       "part_id": "5iZfKj_P011",
       "bar_num": 85,
       "lyrics": "Turn the lights off,",
-      "audio": "audio/All The Small Things/11 Bridge 3 (schnell)/003 All The Small Things Bridge 3 (schnell).mp3",
+      "audio": "audio/All The Small Things/11 Bridge 3 (schnell)/085 All The Small Things Bridge 3 (schnell).mp3",
       "has_accents": false
     },
     "B0143": {
       "part_id": "5iZfKj_P011",
       "bar_num": 86,
       "lyrics": "carry me home",
-      "audio": "audio/All The Small Things/11 Bridge 3 (schnell)/004 All The Small Things Bridge 3 (schnell).mp3",
+      "audio": "audio/All The Small Things/11 Bridge 3 (schnell)/086 All The Small Things Bridge 3 (schnell).mp3",
       "has_accents": false
     },
     "B0144": {
       "part_id": "5iZfKj_P011",
       "bar_num": 87,
       "lyrics": "Keep your head still,",
-      "audio": "audio/All The Small Things/11 Bridge 3 (schnell)/005 All The Small Things Bridge 3 (schnell).mp3",
+      "audio": "audio/All The Small Things/11 Bridge 3 (schnell)/087 All The Small Things Bridge 3 (schnell).mp3",
       "has_accents": false
     },
     "B0145": {
       "part_id": "5iZfKj_P011",
       "bar_num": 88,
       "lyrics": "I'll be your thrill",
-      "audio": "audio/All The Small Things/11 Bridge 3 (schnell)/006 All The Small Things Bridge 3 (schnell).mp3",
+      "audio": "audio/All The Small Things/11 Bridge 3 (schnell)/088 All The Small Things Bridge 3 (schnell).mp3",
       "has_accents": false
     },
     "B0146": {
       "part_id": "5iZfKj_P011",
       "bar_num": 89,
       "lyrics": "The night will go on,",
-      "audio": "audio/All The Small Things/11 Bridge 3 (schnell)/007 All The Small Things Bridge 3 (schnell).mp3",
+      "audio": "audio/All The Small Things/11 Bridge 3 (schnell)/089 All The Small Things Bridge 3 (schnell).mp3",
       "has_accents": false
     },
     "B0147": {
       "part_id": "5iZfKj_P011",
       "bar_num": 90,
       "lyrics": "my little windmill",
-      "audio": "audio/All The Small Things/11 Bridge 3 (schnell)/008 All The Small Things Bridge 3 (schnell).mp3",
+      "audio": "audio/All The Small Things/11 Bridge 3 (schnell)/090 All The Small Things Bridge 3 (schnell).mp3",
       "has_accents": false
     },
     "B0148": {
       "part_id": "5iZfKj_P012",
       "bar_num": 91,
       "lyrics": "Say it ain't so,",
-      "audio": "audio/All The Small Things/12 Chorus 3 (nanana)/001 All The Small Things Chorus 3 (nanana).mp3",
+      "audio": "audio/All The Small Things/12 Chorus 3 (nanana)/091 All The Small Things Chorus 3 (nanana).mp3",
       "has_accents": false
     },
     "B0149": {
       "part_id": "5iZfKj_P012",
       "bar_num": 92,
       "lyrics": "I will not go (na-na-na-na-na-na-na-na-na-na)",
-      "audio": "audio/All The Small Things/12 Chorus 3 (nanana)/002 All The Small Things Chorus 3 (nanana).mp3",
+      "audio": "audio/All The Small Things/12 Chorus 3 (nanana)/092 All The Small Things Chorus 3 (nanana).mp3",
       "has_accents": false
     },
     "B0150": {
       "part_id": "5iZfKj_P012",
       "bar_num": 93,
       "lyrics": "Turn the lights off,",
-      "audio": "audio/All The Small Things/12 Chorus 3 (nanana)/003 All The Small Things Chorus 3 (nanana).mp3",
+      "audio": "audio/All The Small Things/12 Chorus 3 (nanana)/093 All The Small Things Chorus 3 (nanana).mp3",
       "has_accents": false
     },
     "B0151": {
       "part_id": "5iZfKj_P012",
       "bar_num": 94,
       "lyrics": "carry me home (na-na-na-na-na-na-na-na-na-na)",
-      "audio": "audio/All The Small Things/12 Chorus 3 (nanana)/004 All The Small Things Chorus 3 (nanana).mp3",
+      "audio": "audio/All The Small Things/12 Chorus 3 (nanana)/094 All The Small Things Chorus 3 (nanana).mp3",
       "has_accents": false
     },
     "B0152": {
       "part_id": "5iZfKj_P012",
       "bar_num": 95,
       "lyrics": "Keep your head still,",
-      "audio": "audio/All The Small Things/12 Chorus 3 (nanana)/005 All The Small Things Chorus 3 (nanana).mp3",
+      "audio": "audio/All The Small Things/12 Chorus 3 (nanana)/095 All The Small Things Chorus 3 (nanana).mp3",
       "has_accents": false
     },
     "B0153": {
       "part_id": "5iZfKj_P012",
       "bar_num": 96,
       "lyrics": "I'll be your thrill (na-na-na-na-na-na-na-na-na-na)",
-      "audio": "audio/All The Small Things/12 Chorus 3 (nanana)/006 All The Small Things Chorus 3 (nanana).mp3",
+      "audio": "audio/All The Small Things/12 Chorus 3 (nanana)/096 All The Small Things Chorus 3 (nanana).mp3",
       "has_accents": false
     },
     "B0154": {
       "part_id": "5iZfKj_P012",
       "bar_num": 97,
       "lyrics": "The night will go on",
-      "audio": "audio/All The Small Things/12 Chorus 3 (nanana)/007 All The Small Things Chorus 3 (nanana).mp3",
+      "audio": "audio/All The Small Things/12 Chorus 3 (nanana)/097 All The Small Things Chorus 3 (nanana).mp3",
       "has_accents": false
     },
     "B0155": {
       "part_id": "5iZfKj_P012",
       "bar_num": 98,
       "lyrics": "The night will go on",
-      "audio": "audio/All The Small Things/12 Chorus 3 (nanana)/008 All The Small Things Chorus 3 (nanana).mp3",
+      "audio": "audio/All The Small Things/12 Chorus 3 (nanana)/098 All The Small Things Chorus 3 (nanana).mp3",
       "has_accents": false
     },
     "B0156": {
       "part_id": "5iZfKj_P012",
       "bar_num": 99,
       "lyrics": "My little windmill",
-      "audio": "audio/All The Small Things/12 Chorus 3 (nanana)/009 All The Small Things Chorus 3 (nanana).mp3",
+      "audio": "audio/All The Small Things/12 Chorus 3 (nanana)/099 All The Small Things Chorus 3 (nanana).mp3",
       "has_accents": false
     },
     "B0157": {
@@ -13643,784 +13643,784 @@
       "part_id": "CC9FBm_P002",
       "bar_num": 6,
       "lyrics": "",
-      "audio": "audio/Always Where I Need to Be/02 Intro (alle)/001 Always Where I Need to Be Intro (alle).mp3",
+      "audio": "audio/Always Where I Need to Be/02 Intro (alle)/006 Always Where I Need to Be Intro (alle).mp3",
       "has_accents": false
     },
     "B0163": {
       "part_id": "CC9FBm_P002",
       "bar_num": 7,
       "lyrics": "",
-      "audio": "audio/Always Where I Need to Be/02 Intro (alle)/002 Always Where I Need to Be Intro (alle).mp3",
+      "audio": "audio/Always Where I Need to Be/02 Intro (alle)/007 Always Where I Need to Be Intro (alle).mp3",
       "has_accents": false
     },
     "B0164": {
       "part_id": "CC9FBm_P002",
       "bar_num": 8,
       "lyrics": "",
-      "audio": "audio/Always Where I Need to Be/02 Intro (alle)/003 Always Where I Need to Be Intro (alle).mp3",
+      "audio": "audio/Always Where I Need to Be/02 Intro (alle)/008 Always Where I Need to Be Intro (alle).mp3",
       "has_accents": false
     },
     "B0165": {
       "part_id": "CC9FBm_P002",
       "bar_num": 9,
       "lyrics": "",
-      "audio": "audio/Always Where I Need to Be/02 Intro (alle)/004 Always Where I Need to Be Intro (alle).mp3",
+      "audio": "audio/Always Where I Need to Be/02 Intro (alle)/009 Always Where I Need to Be Intro (alle).mp3",
       "has_accents": false
     },
     "B0166": {
       "part_id": "CC9FBm_P002",
       "bar_num": 10,
       "lyrics": "",
-      "audio": "audio/Always Where I Need to Be/02 Intro (alle)/005 Always Where I Need to Be Intro (alle).mp3",
+      "audio": "audio/Always Where I Need to Be/02 Intro (alle)/010 Always Where I Need to Be Intro (alle).mp3",
       "has_accents": false
     },
     "B0167": {
       "part_id": "CC9FBm_P002",
       "bar_num": 11,
       "lyrics": "",
-      "audio": "audio/Always Where I Need to Be/02 Intro (alle)/006 Always Where I Need to Be Intro (alle).mp3",
+      "audio": "audio/Always Where I Need to Be/02 Intro (alle)/011 Always Where I Need to Be Intro (alle).mp3",
       "has_accents": false
     },
     "B0168": {
       "part_id": "CC9FBm_P002",
       "bar_num": 12,
       "lyrics": "",
-      "audio": "audio/Always Where I Need to Be/02 Intro (alle)/007 Always Where I Need to Be Intro (alle).mp3",
+      "audio": "audio/Always Where I Need to Be/02 Intro (alle)/012 Always Where I Need to Be Intro (alle).mp3",
       "has_accents": false
     },
     "B0169": {
       "part_id": "CC9FBm_P002",
       "bar_num": 13,
       "lyrics": "",
-      "audio": "audio/Always Where I Need to Be/02 Intro (alle)/008 Always Where I Need to Be Intro (alle).mp3",
+      "audio": "audio/Always Where I Need to Be/02 Intro (alle)/013 Always Where I Need to Be Intro (alle).mp3",
       "has_accents": false
     },
     "B0170": {
       "part_id": "CC9FBm_P003",
       "bar_num": 14,
       "lyrics": "She don't",
-      "audio": "audio/Always Where I Need to Be/03 Verse 1/001 Always Where I Need to Be Verse 1.mp3",
+      "audio": "audio/Always Where I Need to Be/03 Verse 1/014 Always Where I Need to Be Verse 1.mp3",
       "has_accents": false
     },
     "B0171": {
       "part_id": "CC9FBm_P003",
       "bar_num": 15,
       "lyrics": "know who she is",
-      "audio": "audio/Always Where I Need to Be/03 Verse 1/002 Always Where I Need to Be Verse 1.mp3",
+      "audio": "audio/Always Where I Need to Be/03 Verse 1/015 Always Where I Need to Be Verse 1.mp3",
       "has_accents": false
     },
     "B0172": {
       "part_id": "CC9FBm_P003",
       "bar_num": 16,
       "lyrics": "Oh,",
-      "audio": "audio/Always Where I Need to Be/03 Verse 1/003 Always Where I Need to Be Verse 1.mp3",
+      "audio": "audio/Always Where I Need to Be/03 Verse 1/016 Always Where I Need to Be Verse 1.mp3",
       "has_accents": false
     },
     "B0173": {
       "part_id": "CC9FBm_P003",
       "bar_num": 17,
       "lyrics": "I can take her anywhere",
-      "audio": "audio/Always Where I Need to Be/03 Verse 1/004 Always Where I Need to Be Verse 1.mp3",
+      "audio": "audio/Always Where I Need to Be/03 Verse 1/017 Always Where I Need to Be Verse 1.mp3",
       "has_accents": false
     },
     "B0174": {
       "part_id": "CC9FBm_P003",
       "bar_num": 18,
       "lyrics": "Do whatever",
-      "audio": "audio/Always Where I Need to Be/03 Verse 1/005 Always Where I Need to Be Verse 1.mp3",
+      "audio": "audio/Always Where I Need to Be/03 Verse 1/018 Always Where I Need to Be Verse 1.mp3",
       "has_accents": false
     },
     "B0175": {
       "part_id": "CC9FBm_P003",
       "bar_num": 19,
       "lyrics": "comes",
-      "audio": "audio/Always Where I Need to Be/03 Verse 1/006 Always Where I Need to Be Verse 1.mp3",
+      "audio": "audio/Always Where I Need to Be/03 Verse 1/019 Always Where I Need to Be Verse 1.mp3",
       "has_accents": false
     },
     "B0176": {
       "part_id": "CC9FBm_P003",
       "bar_num": 20,
       "lyrics": "naturally to you",
-      "audio": "audio/Always Where I Need to Be/03 Verse 1/007 Always Where I Need to Be Verse 1.mp3",
+      "audio": "audio/Always Where I Need to Be/03 Verse 1/020 Always Where I Need to Be Verse 1.mp3",
       "has_accents": false
     },
     "B0177": {
       "part_id": "CC9FBm_P003",
       "bar_num": 21,
       "lyrics": "You know she just don't",
-      "audio": "audio/Always Where I Need to Be/03 Verse 1/008 Always Where I Need to Be Verse 1.mp3",
+      "audio": "audio/Always Where I Need to Be/03 Verse 1/021 Always Where I Need to Be Verse 1.mp3",
       "has_accents": false
     },
     "B0178": {
       "part_id": "CC9FBm_P003",
       "bar_num": 22,
       "lyrics": "care",
-      "audio": "audio/Always Where I Need to Be/03 Verse 1/009 Always Where I Need to Be Verse 1.mp3",
+      "audio": "audio/Always Where I Need to Be/03 Verse 1/022 Always Where I Need to Be Verse 1.mp3",
       "has_accents": false
     },
     "B0179": {
       "part_id": "CC9FBm_P003",
       "bar_num": 23,
       "lyrics": "",
-      "audio": "audio/Always Where I Need to Be/03 Verse 1/010 Always Where I Need to Be Verse 1.mp3",
+      "audio": "audio/Always Where I Need to Be/03 Verse 1/023 Always Where I Need to Be Verse 1.mp3",
       "has_accents": false
     },
     "B0180": {
       "part_id": "CC9FBm_P003",
       "bar_num": 24,
       "lyrics": "You know she just don't care",
-      "audio": "audio/Always Where I Need to Be/03 Verse 1/011 Always Where I Need to Be Verse 1.mp3",
+      "audio": "audio/Always Where I Need to Be/03 Verse 1/024 Always Where I Need to Be Verse 1.mp3",
       "has_accents": false
     },
     "B0181": {
       "part_id": "CC9FBm_P004",
       "bar_num": 27,
       "lyrics": "Because I am",
-      "audio": "audio/Always Where I Need to Be/04 Chorus 1/001 Always Where I Need to Be Chorus 1.mp3",
+      "audio": "audio/Always Where I Need to Be/04 Chorus 1/027 Always Where I Need to Be Chorus 1.mp3",
       "has_accents": false
     },
     "B0182": {
       "part_id": "CC9FBm_P004",
       "bar_num": 28,
       "lyrics": "always where",
-      "audio": "audio/Always Where I Need to Be/04 Chorus 1/002 Always Where I Need to Be Chorus 1.mp3",
+      "audio": "audio/Always Where I Need to Be/04 Chorus 1/028 Always Where I Need to Be Chorus 1.mp3",
       "has_accents": false
     },
     "B0183": {
       "part_id": "CC9FBm_P004",
       "bar_num": 29,
       "lyrics": "I need to",
-      "audio": "audio/Always Where I Need to Be/04 Chorus 1/003 Always Where I Need to Be Chorus 1.mp3",
+      "audio": "audio/Always Where I Need to Be/04 Chorus 1/029 Always Where I Need to Be Chorus 1.mp3",
       "has_accents": false
     },
     "B0184": {
       "part_id": "CC9FBm_P004",
       "bar_num": 30,
       "lyrics": "be And",
-      "audio": "audio/Always Where I Need to Be/04 Chorus 1/004 Always Where I Need to Be Chorus 1.mp3",
+      "audio": "audio/Always Where I Need to Be/04 Chorus 1/030 Always Where I Need to Be Chorus 1.mp3",
       "has_accents": false
     },
     "B0185": {
       "part_id": "CC9FBm_P004",
       "bar_num": 31,
       "lyrics": "I always thought",
-      "audio": "audio/Always Where I Need to Be/04 Chorus 1/005 Always Where I Need to Be Chorus 1.mp3",
+      "audio": "audio/Always Where I Need to Be/04 Chorus 1/031 Always Where I Need to Be Chorus 1.mp3",
       "has_accents": false
     },
     "B0186": {
       "part_id": "CC9FBm_P004",
       "bar_num": 32,
       "lyrics": "I would",
-      "audio": "audio/Always Where I Need to Be/04 Chorus 1/006 Always Where I Need to Be Chorus 1.mp3",
+      "audio": "audio/Always Where I Need to Be/04 Chorus 1/032 Always Where I Need to Be Chorus 1.mp3",
       "has_accents": false
     },
     "B0187": {
       "part_id": "CC9FBm_P004",
       "bar_num": 33,
       "lyrics": "end up with",
-      "audio": "audio/Always Where I Need to Be/04 Chorus 1/007 Always Where I Need to Be Chorus 1.mp3",
+      "audio": "audio/Always Where I Need to Be/04 Chorus 1/033 Always Where I Need to Be Chorus 1.mp3",
       "has_accents": false
     },
     "B0188": {
       "part_id": "CC9FBm_P004",
       "bar_num": 34,
       "lyrics": "you eventually",
-      "audio": "audio/Always Where I Need to Be/04 Chorus 1/008 Always Where I Need to Be Chorus 1.mp3",
+      "audio": "audio/Always Where I Need to Be/04 Chorus 1/034 Always Where I Need to Be Chorus 1.mp3",
       "has_accents": false
     },
     "B0189": {
       "part_id": "CC9FBm_P005",
       "bar_num": 35,
       "lyrics": "Do, do,",
-      "audio": "audio/Always Where I Need to Be/05 Dudup 1/001 Always Where I Need to Be Dudup 1.mp3",
+      "audio": "audio/Always Where I Need to Be/05 Dudup 1/035 Always Where I Need to Be Dudup 1.mp3",
       "has_accents": false
     },
     "B0190": {
       "part_id": "CC9FBm_P005",
       "bar_num": 36,
       "lyrics": "do-do-do,",
-      "audio": "audio/Always Where I Need to Be/05 Dudup 1/002 Always Where I Need to Be Dudup 1.mp3",
+      "audio": "audio/Always Where I Need to Be/05 Dudup 1/036 Always Where I Need to Be Dudup 1.mp3",
       "has_accents": false
     },
     "B0191": {
       "part_id": "CC9FBm_P005",
       "bar_num": 37,
       "lyrics": "do-do Do,",
-      "audio": "audio/Always Where I Need to Be/05 Dudup 1/003 Always Where I Need to Be Dudup 1.mp3",
+      "audio": "audio/Always Where I Need to Be/05 Dudup 1/037 Always Where I Need to Be Dudup 1.mp3",
       "has_accents": false
     },
     "B0192": {
       "part_id": "CC9FBm_P005",
       "bar_num": 38,
       "lyrics": "do,",
-      "audio": "audio/Always Where I Need to Be/05 Dudup 1/004 Always Where I Need to Be Dudup 1.mp3",
+      "audio": "audio/Always Where I Need to Be/05 Dudup 1/038 Always Where I Need to Be Dudup 1.mp3",
       "has_accents": false
     },
     "B0193": {
       "part_id": "CC9FBm_P005",
       "bar_num": 39,
       "lyrics": "do-do-do, do-do",
-      "audio": "audio/Always Where I Need to Be/05 Dudup 1/005 Always Where I Need to Be Dudup 1.mp3",
+      "audio": "audio/Always Where I Need to Be/05 Dudup 1/039 Always Where I Need to Be Dudup 1.mp3",
       "has_accents": false
     },
     "B0194": {
       "part_id": "CC9FBm_P005",
       "bar_num": 40,
       "lyrics": "Do,",
-      "audio": "audio/Always Where I Need to Be/05 Dudup 1/006 Always Where I Need to Be Dudup 1.mp3",
+      "audio": "audio/Always Where I Need to Be/05 Dudup 1/040 Always Where I Need to Be Dudup 1.mp3",
       "has_accents": false
     },
     "B0195": {
       "part_id": "CC9FBm_P005",
       "bar_num": 41,
       "lyrics": "do, do-do-do,",
-      "audio": "audio/Always Where I Need to Be/05 Dudup 1/007 Always Where I Need to Be Dudup 1.mp3",
+      "audio": "audio/Always Where I Need to Be/05 Dudup 1/041 Always Where I Need to Be Dudup 1.mp3",
       "has_accents": false
     },
     "B0196": {
       "part_id": "CC9FBm_P005",
       "bar_num": 42,
       "lyrics": "do-do",
-      "audio": "audio/Always Where I Need to Be/05 Dudup 1/008 Always Where I Need to Be Dudup 1.mp3",
+      "audio": "audio/Always Where I Need to Be/05 Dudup 1/042 Always Where I Need to Be Dudup 1.mp3",
       "has_accents": false
     },
     "B0197": {
       "part_id": "CC9FBm_P006",
       "bar_num": 43,
       "lyrics": "And now I",
-      "audio": "audio/Always Where I Need to Be/06 Verse 2/001 Always Where I Need to Be Verse 2.mp3",
+      "audio": "audio/Always Where I Need to Be/06 Verse 2/043 Always Where I Need to Be Verse 2.mp3",
       "has_accents": false
     },
     "B0198": {
       "part_id": "CC9FBm_P006",
       "bar_num": 44,
       "lyrics": "see her",
-      "audio": "audio/Always Where I Need to Be/06 Verse 2/002 Always Where I Need to Be Verse 2.mp3",
+      "audio": "audio/Always Where I Need to Be/06 Verse 2/044 Always Where I Need to Be Verse 2.mp3",
       "has_accents": false
     },
     "B0199": {
       "part_id": "CC9FBm_P006",
       "bar_num": 45,
       "lyrics": "again I ask",
-      "audio": "audio/Always Where I Need to Be/06 Verse 2/003 Always Where I Need to Be Verse 2.mp3",
+      "audio": "audio/Always Where I Need to Be/06 Verse 2/045 Always Where I Need to Be Verse 2.mp3",
       "has_accents": false
     },
     "B0200": {
       "part_id": "CC9FBm_P006",
       "bar_num": 46,
       "lyrics": "to be",
-      "audio": "audio/Always Where I Need to Be/06 Verse 2/004 Always Where I Need to Be Verse 2.mp3",
+      "audio": "audio/Always Where I Need to Be/06 Verse 2/046 Always Where I Need to Be Verse 2.mp3",
       "has_accents": false
     },
     "B0201": {
       "part_id": "CC9FBm_P006",
       "bar_num": 47,
       "lyrics": "her hummingbird Whisper",
-      "audio": "audio/Always Where I Need to Be/06 Verse 2/005 Always Where I Need to Be Verse 2.mp3",
+      "audio": "audio/Always Where I Need to Be/06 Verse 2/047 Always Where I Need to Be Verse 2.mp3",
       "has_accents": false
     },
     "B0202": {
       "part_id": "CC9FBm_P006",
       "bar_num": 48,
       "lyrics": "words in her",
-      "audio": "audio/Always Where I Need to Be/06 Verse 2/006 Always Where I Need to Be Verse 2.mp3",
+      "audio": "audio/Always Where I Need to Be/06 Verse 2/048 Always Where I Need to Be Verse 2.mp3",
       "has_accents": false
     },
     "B0203": {
       "part_id": "CC9FBm_P006",
       "bar_num": 49,
       "lyrics": "ear Oh,",
-      "audio": "audio/Always Where I Need to Be/06 Verse 2/007 Always Where I Need to Be Verse 2.mp3",
+      "audio": "audio/Always Where I Need to Be/06 Verse 2/049 Always Where I Need to Be Verse 2.mp3",
       "has_accents": false
     },
     "B0204": {
       "part_id": "CC9FBm_P006",
       "bar_num": 50,
       "lyrics": "now you know",
-      "audio": "audio/Always Where I Need to Be/06 Verse 2/008 Always Where I Need to Be Verse 2.mp3",
+      "audio": "audio/Always Where I Need to Be/06 Verse 2/050 Always Where I Need to Be Verse 2.mp3",
       "has_accents": false
     },
     "B0205": {
       "part_id": "CC9FBm_P006",
       "bar_num": 51,
       "lyrics": "I just",
-      "audio": "audio/Always Where I Need to Be/06 Verse 2/009 Always Where I Need to Be Verse 2.mp3",
+      "audio": "audio/Always Where I Need to Be/06 Verse 2/051 Always Where I Need to Be Verse 2.mp3",
       "has_accents": false
     },
     "B0206": {
       "part_id": "CC9FBm_P006",
       "bar_num": 52,
       "lyrics": "don't care You",
-      "audio": "audio/Always Where I Need to Be/06 Verse 2/010 Always Where I Need to Be Verse 2.mp3",
+      "audio": "audio/Always Where I Need to Be/06 Verse 2/052 Always Where I Need to Be Verse 2.mp3",
       "has_accents": false
     },
     "B0207": {
       "part_id": "CC9FBm_P006",
       "bar_num": 53,
       "lyrics": "know she",
-      "audio": "audio/Always Where I Need to Be/06 Verse 2/011 Always Where I Need to Be Verse 2.mp3",
+      "audio": "audio/Always Where I Need to Be/06 Verse 2/053 Always Where I Need to Be Verse 2.mp3",
       "has_accents": false
     },
     "B0208": {
       "part_id": "CC9FBm_P006",
       "bar_num": 54,
       "lyrics": "just don't care",
-      "audio": "audio/Always Where I Need to Be/06 Verse 2/012 Always Where I Need to Be Verse 2.mp3",
+      "audio": "audio/Always Where I Need to Be/06 Verse 2/054 Always Where I Need to Be Verse 2.mp3",
       "has_accents": false
     },
     "B0209": {
       "part_id": "CC9FBm_P007",
       "bar_num": 55,
       "lyrics": "Because I am",
-      "audio": "audio/Always Where I Need to Be/07 Chorus 2/001 Always Where I Need to Be Chorus 2.mp3",
+      "audio": "audio/Always Where I Need to Be/07 Chorus 2/055 Always Where I Need to Be Chorus 2.mp3",
       "has_accents": false
     },
     "B0210": {
       "part_id": "CC9FBm_P007",
       "bar_num": 56,
       "lyrics": "always where",
-      "audio": "audio/Always Where I Need to Be/07 Chorus 2/002 Always Where I Need to Be Chorus 2.mp3",
+      "audio": "audio/Always Where I Need to Be/07 Chorus 2/056 Always Where I Need to Be Chorus 2.mp3",
       "has_accents": false
     },
     "B0211": {
       "part_id": "CC9FBm_P007",
       "bar_num": 57,
       "lyrics": "I need to",
-      "audio": "audio/Always Where I Need to Be/07 Chorus 2/003 Always Where I Need to Be Chorus 2.mp3",
+      "audio": "audio/Always Where I Need to Be/07 Chorus 2/057 Always Where I Need to Be Chorus 2.mp3",
       "has_accents": false
     },
     "B0212": {
       "part_id": "CC9FBm_P007",
       "bar_num": 58,
       "lyrics": "be And",
-      "audio": "audio/Always Where I Need to Be/07 Chorus 2/004 Always Where I Need to Be Chorus 2.mp3",
+      "audio": "audio/Always Where I Need to Be/07 Chorus 2/058 Always Where I Need to Be Chorus 2.mp3",
       "has_accents": false
     },
     "B0213": {
       "part_id": "CC9FBm_P007",
       "bar_num": 59,
       "lyrics": "I always thought",
-      "audio": "audio/Always Where I Need to Be/07 Chorus 2/005 Always Where I Need to Be Chorus 2.mp3",
+      "audio": "audio/Always Where I Need to Be/07 Chorus 2/059 Always Where I Need to Be Chorus 2.mp3",
       "has_accents": false
     },
     "B0214": {
       "part_id": "CC9FBm_P007",
       "bar_num": 60,
       "lyrics": "I would",
-      "audio": "audio/Always Where I Need to Be/07 Chorus 2/006 Always Where I Need to Be Chorus 2.mp3",
+      "audio": "audio/Always Where I Need to Be/07 Chorus 2/060 Always Where I Need to Be Chorus 2.mp3",
       "has_accents": false
     },
     "B0215": {
       "part_id": "CC9FBm_P007",
       "bar_num": 61,
       "lyrics": "end up with",
-      "audio": "audio/Always Where I Need to Be/07 Chorus 2/007 Always Where I Need to Be Chorus 2.mp3",
+      "audio": "audio/Always Where I Need to Be/07 Chorus 2/061 Always Where I Need to Be Chorus 2.mp3",
       "has_accents": false
     },
     "B0216": {
       "part_id": "CC9FBm_P007",
       "bar_num": 62,
       "lyrics": "you eventually",
-      "audio": "audio/Always Where I Need to Be/07 Chorus 2/008 Always Where I Need to Be Chorus 2.mp3",
+      "audio": "audio/Always Where I Need to Be/07 Chorus 2/062 Always Where I Need to Be Chorus 2.mp3",
       "has_accents": false
     },
     "B0217": {
       "part_id": "CC9FBm_P008",
       "bar_num": 63,
       "lyrics": "Do, do,",
-      "audio": "audio/Always Where I Need to Be/08 Dudup 2/001 Always Where I Need to Be Dudup 2.mp3",
+      "audio": "audio/Always Where I Need to Be/08 Dudup 2/063 Always Where I Need to Be Dudup 2.mp3",
       "has_accents": false
     },
     "B0218": {
       "part_id": "CC9FBm_P008",
       "bar_num": 64,
       "lyrics": "do-do-do,",
-      "audio": "audio/Always Where I Need to Be/08 Dudup 2/002 Always Where I Need to Be Dudup 2.mp3",
+      "audio": "audio/Always Where I Need to Be/08 Dudup 2/064 Always Where I Need to Be Dudup 2.mp3",
       "has_accents": false
     },
     "B0219": {
       "part_id": "CC9FBm_P008",
       "bar_num": 65,
       "lyrics": "do-do Do,",
-      "audio": "audio/Always Where I Need to Be/08 Dudup 2/003 Always Where I Need to Be Dudup 2.mp3",
+      "audio": "audio/Always Where I Need to Be/08 Dudup 2/065 Always Where I Need to Be Dudup 2.mp3",
       "has_accents": false
     },
     "B0220": {
       "part_id": "CC9FBm_P008",
       "bar_num": 66,
       "lyrics": "do,",
-      "audio": "audio/Always Where I Need to Be/08 Dudup 2/004 Always Where I Need to Be Dudup 2.mp3",
+      "audio": "audio/Always Where I Need to Be/08 Dudup 2/066 Always Where I Need to Be Dudup 2.mp3",
       "has_accents": false
     },
     "B0221": {
       "part_id": "CC9FBm_P008",
       "bar_num": 67,
       "lyrics": "do-do-do, do-do",
-      "audio": "audio/Always Where I Need to Be/08 Dudup 2/005 Always Where I Need to Be Dudup 2.mp3",
+      "audio": "audio/Always Where I Need to Be/08 Dudup 2/067 Always Where I Need to Be Dudup 2.mp3",
       "has_accents": false
     },
     "B0222": {
       "part_id": "CC9FBm_P008",
       "bar_num": 68,
       "lyrics": "Do,",
-      "audio": "audio/Always Where I Need to Be/08 Dudup 2/006 Always Where I Need to Be Dudup 2.mp3",
+      "audio": "audio/Always Where I Need to Be/08 Dudup 2/068 Always Where I Need to Be Dudup 2.mp3",
       "has_accents": false
     },
     "B0223": {
       "part_id": "CC9FBm_P008",
       "bar_num": 69,
       "lyrics": "do, do-do-do,",
-      "audio": "audio/Always Where I Need to Be/08 Dudup 2/007 Always Where I Need to Be Dudup 2.mp3",
+      "audio": "audio/Always Where I Need to Be/08 Dudup 2/069 Always Where I Need to Be Dudup 2.mp3",
       "has_accents": false
     },
     "B0224": {
       "part_id": "CC9FBm_P008",
       "bar_num": 70,
       "lyrics": "do-do",
-      "audio": "audio/Always Where I Need to Be/08 Dudup 2/008 Always Where I Need to Be Dudup 2.mp3",
+      "audio": "audio/Always Where I Need to Be/08 Dudup 2/070 Always Where I Need to Be Dudup 2.mp3",
       "has_accents": false
     },
     "B0225": {
       "part_id": "CC9FBm_P009",
       "bar_num": 71,
       "lyrics": "",
-      "audio": "audio/Always Where I Need to Be/09 Solo Axel/001 Always Where I Need to Be Solo Axel.mp3",
+      "audio": "audio/Always Where I Need to Be/09 Solo Axel/071 Always Where I Need to Be Solo Axel.mp3",
       "has_accents": false
     },
     "B0226": {
       "part_id": "CC9FBm_P009",
       "bar_num": 72,
       "lyrics": "",
-      "audio": "audio/Always Where I Need to Be/09 Solo Axel/002 Always Where I Need to Be Solo Axel.mp3",
+      "audio": "audio/Always Where I Need to Be/09 Solo Axel/072 Always Where I Need to Be Solo Axel.mp3",
       "has_accents": false
     },
     "B0227": {
       "part_id": "CC9FBm_P009",
       "bar_num": 73,
       "lyrics": "",
-      "audio": "audio/Always Where I Need to Be/09 Solo Axel/003 Always Where I Need to Be Solo Axel.mp3",
+      "audio": "audio/Always Where I Need to Be/09 Solo Axel/073 Always Where I Need to Be Solo Axel.mp3",
       "has_accents": false
     },
     "B0228": {
       "part_id": "CC9FBm_P009",
       "bar_num": 74,
       "lyrics": "",
-      "audio": "audio/Always Where I Need to Be/09 Solo Axel/004 Always Where I Need to Be Solo Axel.mp3",
+      "audio": "audio/Always Where I Need to Be/09 Solo Axel/074 Always Where I Need to Be Solo Axel.mp3",
       "has_accents": false
     },
     "B0229": {
       "part_id": "CC9FBm_P009",
       "bar_num": 75,
       "lyrics": "",
-      "audio": "audio/Always Where I Need to Be/09 Solo Axel/005 Always Where I Need to Be Solo Axel.mp3",
+      "audio": "audio/Always Where I Need to Be/09 Solo Axel/075 Always Where I Need to Be Solo Axel.mp3",
       "has_accents": false
     },
     "B0230": {
       "part_id": "CC9FBm_P009",
       "bar_num": 76,
       "lyrics": "",
-      "audio": "audio/Always Where I Need to Be/09 Solo Axel/006 Always Where I Need to Be Solo Axel.mp3",
+      "audio": "audio/Always Where I Need to Be/09 Solo Axel/076 Always Where I Need to Be Solo Axel.mp3",
       "has_accents": false
     },
     "B0231": {
       "part_id": "CC9FBm_P009",
       "bar_num": 77,
       "lyrics": "",
-      "audio": "audio/Always Where I Need to Be/09 Solo Axel/007 Always Where I Need to Be Solo Axel.mp3",
+      "audio": "audio/Always Where I Need to Be/09 Solo Axel/077 Always Where I Need to Be Solo Axel.mp3",
       "has_accents": false
     },
     "B0232": {
       "part_id": "CC9FBm_P009",
       "bar_num": 78,
       "lyrics": "",
-      "audio": "audio/Always Where I Need to Be/09 Solo Axel/008 Always Where I Need to Be Solo Axel.mp3",
+      "audio": "audio/Always Where I Need to Be/09 Solo Axel/078 Always Where I Need to Be Solo Axel.mp3",
       "has_accents": false
     },
     "B0233": {
       "part_id": "CC9FBm_P009",
       "bar_num": 79,
       "lyrics": "",
-      "audio": "audio/Always Where I Need to Be/09 Solo Axel/009 Always Where I Need to Be Solo Axel.mp3",
+      "audio": "audio/Always Where I Need to Be/09 Solo Axel/079 Always Where I Need to Be Solo Axel.mp3",
       "has_accents": false
     },
     "B0234": {
       "part_id": "CC9FBm_P009",
       "bar_num": 80,
       "lyrics": "",
-      "audio": "audio/Always Where I Need to Be/09 Solo Axel/010 Always Where I Need to Be Solo Axel.mp3",
+      "audio": "audio/Always Where I Need to Be/09 Solo Axel/080 Always Where I Need to Be Solo Axel.mp3",
       "has_accents": false
     },
     "B0235": {
       "part_id": "CC9FBm_P009",
       "bar_num": 81,
       "lyrics": "",
-      "audio": "audio/Always Where I Need to Be/09 Solo Axel/011 Always Where I Need to Be Solo Axel.mp3",
+      "audio": "audio/Always Where I Need to Be/09 Solo Axel/081 Always Where I Need to Be Solo Axel.mp3",
       "has_accents": false
     },
     "B0236": {
       "part_id": "CC9FBm_P009",
       "bar_num": 82,
       "lyrics": "",
-      "audio": "audio/Always Where I Need to Be/09 Solo Axel/012 Always Where I Need to Be Solo Axel.mp3",
+      "audio": "audio/Always Where I Need to Be/09 Solo Axel/082 Always Where I Need to Be Solo Axel.mp3",
       "has_accents": false
     },
     "B0237": {
       "part_id": "CC9FBm_P009",
       "bar_num": 83,
       "lyrics": "",
-      "audio": "audio/Always Where I Need to Be/09 Solo Axel/013 Always Where I Need to Be Solo Axel.mp3",
+      "audio": "audio/Always Where I Need to Be/09 Solo Axel/083 Always Where I Need to Be Solo Axel.mp3",
       "has_accents": false
     },
     "B0238": {
       "part_id": "CC9FBm_P009",
       "bar_num": 84,
       "lyrics": "",
-      "audio": "audio/Always Where I Need to Be/09 Solo Axel/014 Always Where I Need to Be Solo Axel.mp3",
+      "audio": "audio/Always Where I Need to Be/09 Solo Axel/084 Always Where I Need to Be Solo Axel.mp3",
       "has_accents": false
     },
     "B0239": {
       "part_id": "CC9FBm_P009",
       "bar_num": 85,
       "lyrics": "",
-      "audio": "audio/Always Where I Need to Be/09 Solo Axel/015 Always Where I Need to Be Solo Axel.mp3",
+      "audio": "audio/Always Where I Need to Be/09 Solo Axel/085 Always Where I Need to Be Solo Axel.mp3",
       "has_accents": false
     },
     "B0240": {
       "part_id": "CC9FBm_P009",
       "bar_num": 86,
       "lyrics": "",
-      "audio": "audio/Always Where I Need to Be/09 Solo Axel/016 Always Where I Need to Be Solo Axel.mp3",
+      "audio": "audio/Always Where I Need to Be/09 Solo Axel/086 Always Where I Need to Be Solo Axel.mp3",
       "has_accents": false
     },
     "B0241": {
       "part_id": "CC9FBm_P010",
       "bar_num": 87,
       "lyrics": "I'm a man,",
-      "audio": "audio/Always Where I Need to Be/10 Interlude 1/001 Always Where I Need to Be Interlude 1.mp3",
+      "audio": "audio/Always Where I Need to Be/10 Interlude 1/087 Always Where I Need to Be Interlude 1.mp3",
       "has_accents": false
     },
     "B0242": {
       "part_id": "CC9FBm_P010",
       "bar_num": 88,
       "lyrics": "I'm a man,",
-      "audio": "audio/Always Where I Need to Be/10 Interlude 1/002 Always Where I Need to Be Interlude 1.mp3",
+      "audio": "audio/Always Where I Need to Be/10 Interlude 1/088 Always Where I Need to Be Interlude 1.mp3",
       "has_accents": false
     },
     "B0243": {
       "part_id": "CC9FBm_P010",
       "bar_num": 89,
       "lyrics": "oh, oh, I'm",
-      "audio": "audio/Always Where I Need to Be/10 Interlude 1/003 Always Where I Need to Be Interlude 1.mp3",
+      "audio": "audio/Always Where I Need to Be/10 Interlude 1/089 Always Where I Need to Be Interlude 1.mp3",
       "has_accents": false
     },
     "B0244": {
       "part_id": "CC9FBm_P010",
       "bar_num": 90,
       "lyrics": "a man on",
-      "audio": "audio/Always Where I Need to Be/10 Interlude 1/004 Always Where I Need to Be Interlude 1.mp3",
+      "audio": "audio/Always Where I Need to Be/10 Interlude 1/090 Always Where I Need to Be Interlude 1.mp3",
       "has_accents": false
     },
     "B0245": {
       "part_id": "CC9FBm_P010",
       "bar_num": 91,
       "lyrics": "the scene",
-      "audio": "audio/Always Where I Need to Be/10 Interlude 1/005 Always Where I Need to Be Interlude 1.mp3",
+      "audio": "audio/Always Where I Need to Be/10 Interlude 1/091 Always Where I Need to Be Interlude 1.mp3",
       "has_accents": false
     },
     "B0246": {
       "part_id": "CC9FBm_P010",
       "bar_num": 92,
       "lyrics": "I'm a man",
-      "audio": "audio/Always Where I Need to Be/10 Interlude 1/006 Always Where I Need to Be Interlude 1.mp3",
+      "audio": "audio/Always Where I Need to Be/10 Interlude 1/092 Always Where I Need to Be Interlude 1.mp3",
       "has_accents": false
     },
     "B0247": {
       "part_id": "CC9FBm_P010",
       "bar_num": 93,
       "lyrics": "and I can",
-      "audio": "audio/Always Where I Need to Be/10 Interlude 1/007 Always Where I Need to Be Interlude 1.mp3",
+      "audio": "audio/Always Where I Need to Be/10 Interlude 1/093 Always Where I Need to Be Interlude 1.mp3",
       "has_accents": false
     },
     "B0248": {
       "part_id": "CC9FBm_P010",
       "bar_num": 94,
       "lyrics": "be so obscene",
-      "audio": "audio/Always Where I Need to Be/10 Interlude 1/008 Always Where I Need to Be Interlude 1.mp3",
+      "audio": "audio/Always Where I Need to Be/10 Interlude 1/094 Always Where I Need to Be Interlude 1.mp3",
       "has_accents": false
     },
     "B0249": {
       "part_id": "CC9FBm_P010",
       "bar_num": 95,
       "lyrics": "",
-      "audio": "audio/Always Where I Need to Be/10 Interlude 1/009 Always Where I Need to Be Interlude 1.mp3",
+      "audio": "audio/Always Where I Need to Be/10 Interlude 1/095 Always Where I Need to Be Interlude 1.mp3",
       "has_accents": false
     },
     "B0250": {
       "part_id": "CC9FBm_P010",
       "bar_num": 96,
       "lyrics": "",
-      "audio": "audio/Always Where I Need to Be/10 Interlude 1/010 Always Where I Need to Be Interlude 1.mp3",
+      "audio": "audio/Always Where I Need to Be/10 Interlude 1/096 Always Where I Need to Be Interlude 1.mp3",
       "has_accents": false
     },
     "B0251": {
       "part_id": "CC9FBm_P010",
       "bar_num": 97,
       "lyrics": "",
-      "audio": "audio/Always Where I Need to Be/10 Interlude 1/011 Always Where I Need to Be Interlude 1.mp3",
+      "audio": "audio/Always Where I Need to Be/10 Interlude 1/097 Always Where I Need to Be Interlude 1.mp3",
       "has_accents": false
     },
     "B0252": {
       "part_id": "CC9FBm_P010",
       "bar_num": 98,
       "lyrics": "",
-      "audio": "audio/Always Where I Need to Be/10 Interlude 1/012 Always Where I Need to Be Interlude 1.mp3",
+      "audio": "audio/Always Where I Need to Be/10 Interlude 1/098 Always Where I Need to Be Interlude 1.mp3",
       "has_accents": false
     },
     "B0253": {
       "part_id": "CC9FBm_P010",
       "bar_num": 99,
       "lyrics": "",
-      "audio": "audio/Always Where I Need to Be/10 Interlude 1/013 Always Where I Need to Be Interlude 1.mp3",
+      "audio": "audio/Always Where I Need to Be/10 Interlude 1/099 Always Where I Need to Be Interlude 1.mp3",
       "has_accents": false
     },
     "B0254": {
       "part_id": "CC9FBm_P010",
       "bar_num": 100,
       "lyrics": "",
-      "audio": "audio/Always Where I Need to Be/10 Interlude 1/014 Always Where I Need to Be Interlude 1.mp3",
+      "audio": "audio/Always Where I Need to Be/10 Interlude 1/100 Always Where I Need to Be Interlude 1.mp3",
       "has_accents": false
     },
     "B0255": {
       "part_id": "CC9FBm_P010",
       "bar_num": 101,
       "lyrics": "",
-      "audio": "audio/Always Where I Need to Be/10 Interlude 1/015 Always Where I Need to Be Interlude 1.mp3",
+      "audio": "audio/Always Where I Need to Be/10 Interlude 1/101 Always Where I Need to Be Interlude 1.mp3",
       "has_accents": false
     },
     "B0256": {
       "part_id": "CC9FBm_P010",
       "bar_num": 102,
       "lyrics": "",
-      "audio": "audio/Always Where I Need to Be/10 Interlude 1/016 Always Where I Need to Be Interlude 1.mp3",
+      "audio": "audio/Always Where I Need to Be/10 Interlude 1/102 Always Where I Need to Be Interlude 1.mp3",
       "has_accents": false
     },
     "B0257": {
       "part_id": "CC9FBm_P013",
       "bar_num": 111,
       "lyrics": "Do, do,",
-      "audio": "audio/Always Where I Need to Be/12 Dudup 3/001 Always Where I Need to Be Dudup 3.mp3",
+      "audio": "audio/Always Where I Need to Be/12 Dudup 3/111 Always Where I Need to Be Dudup 3.mp3",
       "has_accents": false
     },
     "B0258": {
       "part_id": "CC9FBm_P013",
       "bar_num": 112,
       "lyrics": "do-do-do,",
-      "audio": "audio/Always Where I Need to Be/12 Dudup 3/002 Always Where I Need to Be Dudup 3.mp3",
+      "audio": "audio/Always Where I Need to Be/12 Dudup 3/112 Always Where I Need to Be Dudup 3.mp3",
       "has_accents": false
     },
     "B0259": {
       "part_id": "CC9FBm_P013",
       "bar_num": 113,
       "lyrics": "do-do Do,",
-      "audio": "audio/Always Where I Need to Be/12 Dudup 3/003 Always Where I Need to Be Dudup 3.mp3",
+      "audio": "audio/Always Where I Need to Be/12 Dudup 3/113 Always Where I Need to Be Dudup 3.mp3",
       "has_accents": false
     },
     "B0260": {
       "part_id": "CC9FBm_P013",
       "bar_num": 114,
       "lyrics": "do,",
-      "audio": "audio/Always Where I Need to Be/12 Dudup 3/004 Always Where I Need to Be Dudup 3.mp3",
+      "audio": "audio/Always Where I Need to Be/12 Dudup 3/114 Always Where I Need to Be Dudup 3.mp3",
       "has_accents": false
     },
     "B0261": {
       "part_id": "CC9FBm_P013",
       "bar_num": 115,
       "lyrics": "do-do-do, do-do",
-      "audio": "audio/Always Where I Need to Be/12 Dudup 3/005 Always Where I Need to Be Dudup 3.mp3",
+      "audio": "audio/Always Where I Need to Be/12 Dudup 3/115 Always Where I Need to Be Dudup 3.mp3",
       "has_accents": false
     },
     "B0262": {
       "part_id": "CC9FBm_P013",
       "bar_num": 116,
       "lyrics": "Do,",
-      "audio": "audio/Always Where I Need to Be/12 Dudup 3/006 Always Where I Need to Be Dudup 3.mp3",
+      "audio": "audio/Always Where I Need to Be/12 Dudup 3/116 Always Where I Need to Be Dudup 3.mp3",
       "has_accents": false
     },
     "B0263": {
       "part_id": "CC9FBm_P013",
       "bar_num": 117,
       "lyrics": "do, do-do-do,",
-      "audio": "audio/Always Where I Need to Be/12 Dudup 3/007 Always Where I Need to Be Dudup 3.mp3",
+      "audio": "audio/Always Where I Need to Be/12 Dudup 3/117 Always Where I Need to Be Dudup 3.mp3",
       "has_accents": false
     },
     "B0264": {
       "part_id": "CC9FBm_P013",
       "bar_num": 118,
       "lyrics": "do-do",
-      "audio": "audio/Always Where I Need to Be/12 Dudup 3/008 Always Where I Need to Be Dudup 3.mp3",
+      "audio": "audio/Always Where I Need to Be/12 Dudup 3/118 Always Where I Need to Be Dudup 3.mp3",
       "has_accents": false
     },
     "B0265": {
       "part_id": "CC9FBm_P014",
       "bar_num": 119,
       "lyrics": "I'm a man,",
-      "audio": "audio/Always Where I Need to Be/13 Dudup 4/001 Always Where I Need to Be Dudup 4.mp3",
+      "audio": "audio/Always Where I Need to Be/13 Dudup 4/119 Always Where I Need to Be Dudup 4.mp3",
       "has_accents": false
     },
     "B0266": {
       "part_id": "CC9FBm_P014",
       "bar_num": 120,
       "lyrics": "I'm a",
-      "audio": "audio/Always Where I Need to Be/13 Dudup 4/002 Always Where I Need to Be Dudup 4.mp3",
+      "audio": "audio/Always Where I Need to Be/13 Dudup 4/120 Always Where I Need to Be Dudup 4.mp3",
       "has_accents": false
     },
     "B0267": {
       "part_id": "CC9FBm_P014",
       "bar_num": 121,
       "lyrics": "man on the",
-      "audio": "audio/Always Where I Need to Be/13 Dudup 4/003 Always Where I Need to Be Dudup 4.mp3",
+      "audio": "audio/Always Where I Need to Be/13 Dudup 4/121 Always Where I Need to Be Dudup 4.mp3",
       "has_accents": false
     },
     "B0268": {
       "part_id": "CC9FBm_P014",
       "bar_num": 122,
       "lyrics": "scene I'm",
-      "audio": "audio/Always Where I Need to Be/13 Dudup 4/004 Always Where I Need to Be Dudup 4.mp3",
+      "audio": "audio/Always Where I Need to Be/13 Dudup 4/122 Always Where I Need to Be Dudup 4.mp3",
       "has_accents": false
     },
     "B0269": {
       "part_id": "CC9FBm_P014",
       "bar_num": 123,
       "lyrics": "a man, I'm",
-      "audio": "audio/Always Where I Need to Be/13 Dudup 4/005 Always Where I Need to Be Dudup 4.mp3",
+      "audio": "audio/Always Where I Need to Be/13 Dudup 4/123 Always Where I Need to Be Dudup 4.mp3",
       "has_accents": false
     },
     "B0270": {
       "part_id": "CC9FBm_P014",
       "bar_num": 124,
       "lyrics": "a man,",
-      "audio": "audio/Always Where I Need to Be/13 Dudup 4/006 Always Where I Need to Be Dudup 4.mp3",
+      "audio": "audio/Always Where I Need to Be/13 Dudup 4/124 Always Where I Need to Be Dudup 4.mp3",
       "has_accents": false
     },
     "B0271": {
       "part_id": "CC9FBm_P014",
       "bar_num": 125,
       "lyrics": "I can be",
-      "audio": "audio/Always Where I Need to Be/13 Dudup 4/007 Always Where I Need to Be Dudup 4.mp3",
+      "audio": "audio/Always Where I Need to Be/13 Dudup 4/125 Always Where I Need to Be Dudup 4.mp3",
       "has_accents": false
     },
     "B0272": {
       "part_id": "CC9FBm_P014",
       "bar_num": 126,
       "lyrics": "so obscene",
-      "audio": "audio/Always Where I Need to Be/13 Dudup 4/008 Always Where I Need to Be Dudup 4.mp3",
+      "audio": "audio/Always Where I Need to Be/13 Dudup 4/126 Always Where I Need to Be Dudup 4.mp3",
       "has_accents": false
     },
     "B0273": {
       "part_id": "CC9FBm_P015",
       "bar_num": 127,
       "lyrics": "",
-      "audio": "audio/Always Where I Need to Be/14 Ausklang/001 Always Where I Need to Be Ausklang.mp3",
+      "audio": "audio/Always Where I Need to Be/14 Ausklang/127 Always Where I Need to Be Ausklang.mp3",
       "has_accents": false
     },
     "B0274": {

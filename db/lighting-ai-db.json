@@ -4647,8 +4647,8 @@
       "year": "1994",
       "pick": "",
       "gema_nr": "3327614-001",
-      "duration": "0:21",
-      "duration_sec": 21,
+      "duration": "6:23",
+      "duration_sec": 383,
       "notes": "riff vor solo 4x, ending 4x; ; Intro; Chorus 1; Verse; Main chorus; Chords; Bridge; Verse; Main chorus; Outro; ;",
       "parts": {
         "CEGcgc_P001": {
@@ -4704,7 +4704,8 @@
           "qlc_scene": "04 up'n'down ↕",
           "qlc_scene_id": 75,
           "timestamp": "",
-          "notes": ""
+          "notes": "",
+          "instrumental": true
         },
         "CEGcgc_P006": {
           "pos": 8,
@@ -4726,7 +4727,8 @@
           "qlc_scene": "Spot auf Axel",
           "qlc_scene_id": 224,
           "timestamp": "",
-          "notes": ""
+          "notes": "",
+          "instrumental": true
         },
         "CEGcgc_P009": {
           "pos": 10,
@@ -4759,7 +4761,8 @@
           "qlc_scene": "10 Strobe",
           "qlc_scene_id": 81,
           "timestamp": "",
-          "notes": ""
+          "notes": "",
+          "instrumental": true
         },
         "CEGcgc_P012": {
           "pos": 11,
@@ -4767,15 +4770,17 @@
           "bars": 16,
           "duration_sec": 0,
           "light_template": "",
-          "notes": ""
+          "notes": "",
+          "instrumental": true
         },
         "CEGcgc_P013": {
           "pos": 12,
           "name": "Ausklang",
-          "bars": 2,
+          "bars": 0,
           "duration_sec": 0,
           "light_template": "",
-          "notes": ""
+          "notes": "",
+          "instrumental": true
         }
       },
       "qlc_id": 91,
@@ -5476,7 +5481,8 @@
             "partId": "CEGcgc_P013"
           }
         ]
-      }
+      },
+      "instr_done": true
     },
     "dgSleW": {
       "name": "Bitter End",
@@ -17270,6 +17276,181 @@
       "bar_num": 174,
       "lyrics": "",
       "audio": "audio/Are You Gonna Be My Girl/13 Chorus 3/174 Are You Gonna Be My Girl Chorus 3.mp3",
+      "has_accents": false
+    },
+    "B0457": {
+      "part_id": "CEGcgc_P001",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "audio/Basket Case/01 Intro Axel/001 Basket Case Intro Axel.mp3",
+      "has_accents": false
+    },
+    "B0458": {
+      "part_id": "CEGcgc_P002",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "audio/Basket Case/02 Verse 1 (Pete+Axel)/002 Basket Case Verse 1 (Pete+Axel).mp3",
+      "has_accents": false
+    },
+    "B0459": {
+      "part_id": "CEGcgc_P002",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "audio/Basket Case/02 Verse 1 (Pete+Axel)/003 Basket Case Verse 1 (Pete+Axel).mp3",
+      "has_accents": false
+    },
+    "B0460": {
+      "part_id": "CEGcgc_P002",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "audio/Basket Case/02 Verse 1 (Pete+Axel)/004 Basket Case Verse 1 (Pete+Axel).mp3",
+      "has_accents": false
+    },
+    "B0461": {
+      "part_id": "CEGcgc_P002",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "audio/Basket Case/02 Verse 1 (Pete+Axel)/005 Basket Case Verse 1 (Pete+Axel).mp3",
+      "has_accents": false
+    },
+    "B0462": {
+      "part_id": "CEGcgc_P002",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "audio/Basket Case/02 Verse 1 (Pete+Axel)/006 Basket Case Verse 1 (Pete+Axel).mp3",
+      "has_accents": false
+    },
+    "B0463": {
+      "part_id": "CEGcgc_P002",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "audio/Basket Case/02 Verse 1 (Pete+Axel)/007 Basket Case Verse 1 (Pete+Axel).mp3",
+      "has_accents": false
+    },
+    "B0464": {
+      "part_id": "CEGcgc_P002",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "audio/Basket Case/02 Verse 1 (Pete+Axel)/008 Basket Case Verse 1 (Pete+Axel).mp3",
+      "has_accents": false
+    },
+    "B0465": {
+      "part_id": "CEGcgc_P002",
+      "bar_num": 9,
+      "lyrics": "",
+      "audio": "audio/Basket Case/02 Verse 1 (Pete+Axel)/009 Basket Case Verse 1 (Pete+Axel).mp3",
+      "has_accents": false
+    },
+    "B0466": {
+      "part_id": "CEGcgc_P002",
+      "bar_num": 10,
+      "lyrics": "",
+      "audio": "audio/Basket Case/02 Verse 1 (Pete+Axel)/010 Basket Case Verse 1 (Pete+Axel).mp3",
+      "has_accents": false
+    },
+    "B0467": {
+      "part_id": "CEGcgc_P002",
+      "bar_num": 11,
+      "lyrics": "",
+      "audio": "audio/Basket Case/02 Verse 1 (Pete+Axel)/011 Basket Case Verse 1 (Pete+Axel).mp3",
+      "has_accents": false
+    },
+    "B0468": {
+      "part_id": "CEGcgc_P002",
+      "bar_num": 12,
+      "lyrics": "",
+      "audio": "audio/Basket Case/02 Verse 1 (Pete+Axel)/012 Basket Case Verse 1 (Pete+Axel).mp3",
+      "has_accents": false
+    },
+    "B0469": {
+      "part_id": "CEGcgc_P002",
+      "bar_num": 13,
+      "lyrics": "",
+      "audio": "audio/Basket Case/02 Verse 1 (Pete+Axel)/013 Basket Case Verse 1 (Pete+Axel).mp3",
+      "has_accents": false
+    },
+    "B0470": {
+      "part_id": "CEGcgc_P002",
+      "bar_num": 14,
+      "lyrics": "",
+      "audio": "audio/Basket Case/02 Verse 1 (Pete+Axel)/014 Basket Case Verse 1 (Pete+Axel).mp3",
+      "has_accents": false
+    },
+    "B0471": {
+      "part_id": "CEGcgc_P002",
+      "bar_num": 15,
+      "lyrics": "",
+      "audio": "audio/Basket Case/02 Verse 1 (Pete+Axel)/015 Basket Case Verse 1 (Pete+Axel).mp3",
+      "has_accents": false
+    },
+    "B0472": {
+      "part_id": "CEGcgc_P002",
+      "bar_num": 16,
+      "lyrics": "",
+      "audio": "audio/Basket Case/02 Verse 1 (Pete+Axel)/016 Basket Case Verse 1 (Pete+Axel).mp3",
+      "has_accents": false
+    },
+    "B0473": {
+      "part_id": "CEGcgc_P002",
+      "bar_num": 17,
+      "lyrics": "",
+      "audio": "audio/Basket Case/02 Verse 1 (Pete+Axel)/017 Basket Case Verse 1 (Pete+Axel).mp3",
+      "has_accents": false
+    },
+    "B0474": {
+      "part_id": "CEGcgc_P002",
+      "bar_num": 18,
+      "lyrics": "",
+      "audio": "audio/Basket Case/02 Verse 1 (Pete+Axel)/018 Basket Case Verse 1 (Pete+Axel).mp3",
+      "has_accents": false
+    },
+    "B0475": {
+      "part_id": "CEGcgc_P002",
+      "bar_num": 19,
+      "lyrics": "",
+      "audio": "audio/Basket Case/02 Verse 1 (Pete+Axel)/019 Basket Case Verse 1 (Pete+Axel).mp3",
+      "has_accents": false
+    },
+    "B0476": {
+      "part_id": "CEGcgc_P002",
+      "bar_num": 20,
+      "lyrics": "",
+      "audio": "audio/Basket Case/02 Verse 1 (Pete+Axel)/020 Basket Case Verse 1 (Pete+Axel).mp3",
+      "has_accents": false
+    },
+    "B0477": {
+      "part_id": "CEGcgc_P002",
+      "bar_num": 21,
+      "lyrics": "",
+      "audio": "audio/Basket Case/02 Verse 1 (Pete+Axel)/021 Basket Case Verse 1 (Pete+Axel).mp3",
+      "has_accents": false
+    },
+    "B0478": {
+      "part_id": "CEGcgc_P002",
+      "bar_num": 22,
+      "lyrics": "",
+      "audio": "audio/Basket Case/02 Verse 1 (Pete+Axel)/022 Basket Case Verse 1 (Pete+Axel).mp3",
+      "has_accents": false
+    },
+    "B0479": {
+      "part_id": "CEGcgc_P002",
+      "bar_num": 23,
+      "lyrics": "",
+      "audio": "audio/Basket Case/02 Verse 1 (Pete+Axel)/023 Basket Case Verse 1 (Pete+Axel).mp3",
+      "has_accents": false
+    },
+    "B0480": {
+      "part_id": "CEGcgc_P002",
+      "bar_num": 24,
+      "lyrics": "",
+      "audio": "audio/Basket Case/02 Verse 1 (Pete+Axel)/024 Basket Case Verse 1 (Pete+Axel).mp3",
+      "has_accents": false
+    },
+    "B0481": {
+      "part_id": "CEGcgc_P002",
+      "bar_num": 25,
+      "lyrics": "",
+      "audio": "audio/Basket Case/02 Verse 1 (Pete+Axel)/025 Basket Case Verse 1 (Pete+Axel).mp3",
       "has_accents": false
     }
   },

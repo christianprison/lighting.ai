@@ -13804,14 +13804,14 @@
       "year": "",
       "pick": "",
       "gema_nr": "",
-      "duration": "3:49",
-      "duration_sec": 229,
+      "duration": "1:10",
+      "duration_sec": 70,
       "notes": "",
       "parts": {
         "HDX1IN_P001": {
           "pos": 1,
           "name": "Intro",
-          "bars": 0,
+          "bars": 11,
           "duration_sec": 7,
           "light_template": "intro_buildup",
           "notes": ""
@@ -13819,15 +13819,15 @@
         "HDX1IN_P002": {
           "pos": 2,
           "name": "Verse 1",
-          "bars": 0,
-          "duration_sec": 28,
+          "bars": 1,
+          "duration_sec": 2,
           "light_template": "verse_driving",
           "notes": ""
         },
         "HDX1IN_P003": {
           "pos": 3,
           "name": "Pre-Chorus 1",
-          "bars": 0,
+          "bars": 4,
           "duration_sec": 14,
           "light_template": "prechorus_rise",
           "notes": ""
@@ -13835,7 +13835,7 @@
         "HDX1IN_P004": {
           "pos": 4,
           "name": "Chorus 1",
-          "bars": 0,
+          "bars": 16,
           "duration_sec": 28,
           "light_template": "chorus_full",
           "notes": ""
@@ -13843,7 +13843,7 @@
         "HDX1IN_P005": {
           "pos": 5,
           "name": "Verse 2",
-          "bars": 0,
+          "bars": 1,
           "duration_sec": 28,
           "light_template": "verse_driving",
           "notes": ""
@@ -13851,7 +13851,7 @@
         "HDX1IN_P006": {
           "pos": 6,
           "name": "Pre-Chorus 2",
-          "bars": 0,
+          "bars": 1,
           "duration_sec": 14,
           "light_template": "prechorus_rise",
           "notes": ""
@@ -13859,7 +13859,7 @@
         "HDX1IN_P007": {
           "pos": 7,
           "name": "Chorus 2",
-          "bars": 0,
+          "bars": 1,
           "duration_sec": 28,
           "light_template": "chorus_full",
           "notes": ""
@@ -13867,25 +13867,33 @@
         "HDX1IN_P008": {
           "pos": 8,
           "name": "Bridge",
-          "bars": 0,
+          "bars": 1,
           "duration_sec": 14,
           "light_template": "bridge_atmospheric",
           "notes": ""
         },
         "HDX1IN_P009": {
           "pos": 9,
-          "name": "Chorus 3",
-          "bars": 0,
+          "name": "Interlude",
+          "bars": 1,
           "duration_sec": 28,
           "light_template": "chorus_full",
           "notes": ""
         },
         "HDX1IN_P010": {
           "pos": 10,
-          "name": "Outro",
-          "bars": 0,
+          "name": "Chorus 3",
+          "bars": 1,
           "duration_sec": 14,
           "light_template": "outro_fadeout",
+          "notes": ""
+        },
+        "HDX1IN_P011": {
+          "pos": 11,
+          "name": "Outro",
+          "bars": 1,
+          "duration_sec": 0,
+          "light_template": "",
           "notes": ""
         }
       },
@@ -13896,7 +13904,268 @@
         "manual_undone": []
       },
       "audio_ref": "audio/You're all I have/You're all I have - Full Song.mp3",
-      "audio_ref_name": "You're All I Have - 9GTEyj.mp3"
+      "audio_ref_name": "You're All I Have - 9GTEyj.mp3",
+      "split_markers": {
+        "partMarkers": [
+          {
+            "time": 0.9063541666666683,
+            "partIndex": 0,
+            "partId": "HDX1IN_P001"
+          },
+          {
+            "time": 23.981687500000003,
+            "partIndex": 1,
+            "partId": "HDX1IN_P002"
+          },
+          {
+            "time": 53.01635416666665,
+            "partIndex": 2,
+            "partId": "HDX1IN_P003"
+          },
+          {
+            "time": 60.3336875,
+            "partIndex": 3,
+            "partId": "HDX1IN_P004"
+          },
+          {
+            "time": 74.91768750000001,
+            "partIndex": 4,
+            "partId": "HDX1IN_P005"
+          },
+          {
+            "time": 103.9816875,
+            "partIndex": 5,
+            "partId": "HDX1IN_P006"
+          },
+          {
+            "time": 118.46435416666667,
+            "partIndex": 6,
+            "partId": "HDX1IN_P007"
+          },
+          {
+            "time": 147.6003541666667,
+            "partIndex": 7,
+            "partId": "HDX1IN_P008"
+          },
+          {
+            "time": 162.1683541666667,
+            "partIndex": 8,
+            "partId": "HDX1IN_P009"
+          },
+          {
+            "time": 176.64776835205993,
+            "partIndex": 9,
+            "partId": "HDX1IN_P010"
+          },
+          {
+            "time": 205.81843501872657,
+            "partIndex": 10,
+            "partId": "HDX1IN_P011"
+          }
+        ],
+        "barMarkers": [
+          {
+            "time": 0.9063541666666683,
+            "partIndex": 0,
+            "partId": "HDX1IN_P001"
+          },
+          {
+            "time": 23.981687500000003,
+            "partIndex": 1,
+            "partId": "HDX1IN_P002"
+          },
+          {
+            "time": 53.01635416666665,
+            "partIndex": 2,
+            "partId": "HDX1IN_P003"
+          },
+          {
+            "time": 60.3336875,
+            "partIndex": 3,
+            "partId": "HDX1IN_P004"
+          },
+          {
+            "time": 74.91768750000001,
+            "partIndex": 4,
+            "partId": "HDX1IN_P005"
+          },
+          {
+            "time": 103.9816875,
+            "partIndex": 5,
+            "partId": "HDX1IN_P006"
+          },
+          {
+            "time": 118.46435416666667,
+            "partIndex": 6,
+            "partId": "HDX1IN_P007"
+          },
+          {
+            "time": 147.6003541666667,
+            "partIndex": 7,
+            "partId": "HDX1IN_P008"
+          },
+          {
+            "time": 162.1683541666667,
+            "partIndex": 8,
+            "partId": "HDX1IN_P009"
+          },
+          {
+            "time": 176.64776835205993,
+            "partIndex": 9,
+            "partId": "HDX1IN_P010"
+          },
+          {
+            "time": 205.81843501872657,
+            "partIndex": 10,
+            "partId": "HDX1IN_P011"
+          },
+          {
+            "time": 3.983687500000025,
+            "partIndex": 0,
+            "partId": "HDX1IN_P001"
+          },
+          {
+            "time": 5.730354166666695,
+            "partIndex": 0,
+            "partId": "HDX1IN_P001"
+          },
+          {
+            "time": 7.546354166666669,
+            "partIndex": 0,
+            "partId": "HDX1IN_P001"
+          },
+          {
+            "time": 9.301020833333377,
+            "partIndex": 0,
+            "partId": "HDX1IN_P001"
+          },
+          {
+            "time": 11.234354166666714,
+            "partIndex": 0,
+            "partId": "HDX1IN_P001"
+          },
+          {
+            "time": 13.09835416666669,
+            "partIndex": 0,
+            "partId": "HDX1IN_P001"
+          },
+          {
+            "time": 14.930354166666683,
+            "partIndex": 0,
+            "partId": "HDX1IN_P001"
+          },
+          {
+            "time": 16.78368750000004,
+            "partIndex": 0,
+            "partId": "HDX1IN_P001"
+          },
+          {
+            "time": 18.599687500000012,
+            "partIndex": 0,
+            "partId": "HDX1IN_P001"
+          },
+          {
+            "time": 20.383687500000004,
+            "partIndex": 0,
+            "partId": "HDX1IN_P001"
+          },
+          {
+            "time": 23.997020833333348,
+            "partIndex": 1,
+            "partId": "HDX1IN_P002"
+          },
+          {
+            "time": 25.866354166666664,
+            "partIndex": 1,
+            "partId": "HDX1IN_P002"
+          },
+          {
+            "time": 27.634354166666693,
+            "partIndex": 1,
+            "partId": "HDX1IN_P002"
+          },
+          {
+            "time": 29.501020833333367,
+            "partIndex": 1,
+            "partId": "HDX1IN_P002"
+          },
+          {
+            "time": 31.33035416666672,
+            "partIndex": 1,
+            "partId": "HDX1IN_P002"
+          },
+          {
+            "time": 33.14902083333333,
+            "partIndex": 1,
+            "partId": "HDX1IN_P002"
+          },
+          {
+            "time": 34.96502083333336,
+            "partIndex": 1,
+            "partId": "HDX1IN_P002"
+          },
+          {
+            "time": 36.767687500000015,
+            "partIndex": 1,
+            "partId": "HDX1IN_P002"
+          },
+          {
+            "time": 38.61568750000003,
+            "partIndex": 1,
+            "partId": "HDX1IN_P002"
+          },
+          {
+            "time": 40.39968750000002,
+            "partIndex": 1,
+            "partId": "HDX1IN_P002"
+          },
+          {
+            "time": 44.03435416666672,
+            "partIndex": 1,
+            "partId": "HDX1IN_P002"
+          },
+          {
+            "time": 45.88235416666668,
+            "partIndex": 1,
+            "partId": "HDX1IN_P002"
+          },
+          {
+            "time": 47.66368750000003,
+            "partIndex": 1,
+            "partId": "HDX1IN_P002"
+          },
+          {
+            "time": 49.41568749999998,
+            "partIndex": 1,
+            "partId": "HDX1IN_P002"
+          },
+          {
+            "time": 51.28235416666666,
+            "partIndex": 1,
+            "partId": "HDX1IN_P002"
+          },
+          {
+            "time": 54.96502083333336,
+            "partIndex": 2,
+            "partId": "HDX1IN_P003"
+          },
+          {
+            "time": 56.76502083333332,
+            "partIndex": 2,
+            "partId": "HDX1IN_P003"
+          },
+          {
+            "time": 58.61568750000003,
+            "partIndex": 2,
+            "partId": "HDX1IN_P003"
+          },
+          {
+            "time": 42.2050706928839,
+            "partIndex": 1,
+            "partId": "HDX1IN_P002"
+          }
+        ]
+      }
     },
     "FaAM01": {
       "name": "Fluorescent Adolescent",

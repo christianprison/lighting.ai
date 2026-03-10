@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.4.3';
+const APP_VERSION = 'v1.4.4';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -2110,6 +2110,8 @@ function refreshPartPlayUI() {
   });
   // Lyrics tab: part block play state
   leRefreshPartPlayState();
+  // QLC import modal: play state
+  updateQlcImportPlayState();
 }
 
 async function handlePartPlay(partId) {
@@ -6636,6 +6638,9 @@ async function openChaserModal(songId) {
   // Filter out title/end steps and pure "11 Stop" transitions without a note
   const chaserSteps = match.steps.filter(s => !s.isTitle && !(s.functionId === QXW_STOP_ID && !s.note));
 
+  // Save chaser steps as qlc_parts on the song (import suggestions)
+  saveQlcParts(songId, chaserSteps);
+
   closeChaserModal();
   const overlay = document.createElement('div');
   overlay.className = 'tms-modal-overlay';
@@ -6846,6 +6851,305 @@ function openBatchAssignDialog(chaserModal, unmatchedSteps) {
 }
 
 /* ══════════════════════════════════════════════════════
+   QLC PARTS IMPORT (Drag & Drop)
+   ══════════════════════════════════════════════════════ */
+
+/**
+ * Save QLC+ chaser steps as qlc_parts on the song.
+ * These serve as import suggestions (name + light_template) for real parts.
+ */
+function saveQlcParts(songId, chaserSteps) {
+  const song = db.songs[songId];
+  if (!song) return;
+  const qlcParts = {};
+  let pos = 0;
+  for (const step of chaserSteps) {
+    if (!step.note) continue; // skip unnamed steps
+    pos++;
+    const qpId = `${songId}_QP${String(pos).padStart(3, '0')}`;
+    qlcParts[qpId] = {
+      pos,
+      name: step.note,
+      light_template: step.functionName,
+      notes: ''
+    };
+  }
+  if (Object.keys(qlcParts).length > 0) {
+    song.qlc_parts = qlcParts;
+    markDirty();
+  }
+}
+
+/** Get sorted qlc_parts for a song */
+function getSortedQlcParts(songId) {
+  const song = db.songs[songId];
+  if (!song?.qlc_parts) return [];
+  return Object.entries(song.qlc_parts)
+    .map(([id, qp]) => ({ id, ...qp }))
+    .sort((a, b) => a.pos - b.pos);
+}
+
+/** Open the QLC Parts Import modal (drag & drop assignment) */
+function openQlcPartsImportModal(songId) {
+  if (!songId || !db?.songs[songId]) return;
+  const song = db.songs[songId];
+  const qlcParts = getSortedQlcParts(songId);
+  const realParts = getSortedParts(songId);
+
+  if (qlcParts.length === 0) { toast('Keine QLC Parts vorhanden — erst QLC+ Import durchfuehren', 'error'); return; }
+  if (realParts.length === 0) { toast('Keine Parts vorhanden', 'error'); return; }
+
+  closeQlcPartsImportModal();
+
+  const overlay = document.createElement('div');
+  overlay.className = 'tms-modal-overlay';
+  overlay.id = 'qlc-import-overlay';
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) closeQlcPartsImportModal(); });
+  document.body.appendChild(overlay);
+
+  const modal = document.createElement('div');
+  modal.className = 'tms-modal qlc-import-modal';
+  modal.id = 'qlc-import-modal';
+  document.body.appendChild(modal);
+
+  renderQlcImportContent(modal, songId);
+}
+
+function closeQlcPartsImportModal() {
+  stopPartPlay();
+  document.getElementById('qlc-import-modal')?.remove();
+  document.getElementById('qlc-import-overlay')?.remove();
+}
+
+function renderQlcImportContent(modal, songId) {
+  const song = db.songs[songId];
+  const qlcParts = getSortedQlcParts(songId);
+  const realParts = getSortedParts(songId);
+
+  // Track which qlc_parts are already assigned (matched by name+template to a real part)
+  const assignedQpIds = new Set();
+  for (const qp of qlcParts) {
+    for (const rp of realParts) {
+      if (rp.light_template === qp.light_template && rp.name === qp.name) {
+        assignedQpIds.add(qp.id);
+        break;
+      }
+    }
+  }
+
+  const hasBuf = !!audio.getBuffer();
+
+  modal.innerHTML = `
+    <div class="tms-header">
+      <div class="tms-header-info" style="flex:1">
+        <div class="tms-title">Parts importieren</div>
+        <div class="tms-next text-t2">${esc(song.name)} — QLC-Vorlagen auf Parts ziehen</div>
+      </div>
+      <button class="btn btn-sm tms-close-btn" title="Schliessen">&times;</button>
+    </div>
+    <div class="tms-body qlc-import-body">
+      <div class="qlc-import-section">
+        <div class="qlc-import-label text-t3">QLC+ Vorlagen <span class="mono">(${qlcParts.length})</span></div>
+        <div class="qlc-chip-pool" id="qlc-chip-pool">
+          ${qlcParts.map(qp => `
+            <span class="qlc-chip${assignedQpIds.has(qp.id) ? ' qlc-chip-used' : ''}" draggable="true" data-qp-id="${qp.id}" title="${esc(qp.light_template)}">
+              <span class="qlc-chip-name">${esc(qp.name)}</span>
+              <span class="qlc-chip-tmpl text-t3">${esc(qp.light_template)}</span>
+              ${assignedQpIds.has(qp.id) ? '<span class="qlc-chip-check text-green">&#10003;</span>' : ''}
+            </span>
+          `).join('')}
+        </div>
+      </div>
+      <div class="qlc-import-section">
+        <div class="qlc-import-label text-t3">Parts <span class="mono">(${realParts.length})</span></div>
+        <div class="qlc-parts-list" id="qlc-parts-list">
+          ${realParts.map((rp, idx) => {
+            const canPlay = hasBuf || getAudioBarsForPart(rp.id).length > 0;
+            const isPlaying = _partPlayActive && _playingPartId === rp.id;
+            return `
+            <div class="qlc-part-row" data-part-id="${rp.id}" data-song-id="${songId}">
+              <span class="qlc-part-num mono text-t3">${rp.pos}</span>
+              ${canPlay ? `<button class="btn-part-play${isPlaying ? ' playing' : ''}" data-action="play-part" data-part-id="${rp.id}" title="${isPlaying ? 'Stop' : 'Anhoeren'}">${isPlaying ? '&#9632;' : '&#9654;'}</button>` : '<span class="qlc-part-no-play"></span>'}
+              <span class="qlc-part-name">${esc(rp.name)}</span>
+              <span class="qlc-part-bars mono text-t3">${rp.bars || 0} T</span>
+              <span class="qlc-part-tmpl mono${rp.light_template ? ' text-green' : ' text-t4'}">${rp.light_template || '\u2014'}</span>
+              <span class="qlc-drop-zone" data-drop-part="${rp.id}">&#8592; hierher ziehen</span>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+    </div>`;
+
+  // Store data on modal
+  modal._qlcData = { songId, qlcParts, realParts };
+
+  // Wire events
+  wireQlcImportEvents(modal);
+}
+
+function wireQlcImportEvents(modal) {
+  const data = modal._qlcData;
+
+  // Close button
+  modal.addEventListener('click', (e) => {
+    if (e.target.closest('.tms-close-btn')) { closeQlcPartsImportModal(); return; }
+
+    // Play button
+    const playBtn = e.target.closest('[data-action="play-part"]');
+    if (playBtn) {
+      handlePartPlay(playBtn.dataset.partId);
+      // Update play buttons in modal
+      setTimeout(() => updateQlcImportPlayState(), 50);
+      return;
+    }
+  });
+
+  // Desktop Drag & Drop (HTML5)
+  const chipPool = modal.querySelector('#qlc-chip-pool');
+  const partsList = modal.querySelector('#qlc-parts-list');
+
+  let dragQpId = null;
+
+  chipPool.addEventListener('dragstart', (e) => {
+    const chip = e.target.closest('.qlc-chip');
+    if (!chip || chip.classList.contains('qlc-chip-used')) { e.preventDefault(); return; }
+    dragQpId = chip.dataset.qpId;
+    chip.classList.add('qlc-chip-dragging');
+    e.dataTransfer.effectAllowed = 'copy';
+    e.dataTransfer.setData('text/plain', dragQpId);
+  });
+
+  chipPool.addEventListener('dragend', (e) => {
+    modal.querySelectorAll('.qlc-chip-dragging').forEach(el => el.classList.remove('qlc-chip-dragging'));
+    modal.querySelectorAll('.qlc-part-row.qlc-drop-hover').forEach(el => el.classList.remove('qlc-drop-hover'));
+    dragQpId = null;
+  });
+
+  partsList.addEventListener('dragover', (e) => {
+    if (!dragQpId) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+    const row = e.target.closest('.qlc-part-row');
+    modal.querySelectorAll('.qlc-part-row.qlc-drop-hover').forEach(el => el.classList.remove('qlc-drop-hover'));
+    if (row) row.classList.add('qlc-drop-hover');
+  });
+
+  partsList.addEventListener('dragleave', (e) => {
+    if (!e.relatedTarget?.closest?.('.qlc-part-row')) {
+      modal.querySelectorAll('.qlc-part-row.qlc-drop-hover').forEach(el => el.classList.remove('qlc-drop-hover'));
+    }
+  });
+
+  partsList.addEventListener('drop', (e) => {
+    e.preventDefault();
+    modal.querySelectorAll('.qlc-part-row.qlc-drop-hover').forEach(el => el.classList.remove('qlc-drop-hover'));
+    const qpId = e.dataTransfer.getData('text/plain') || dragQpId;
+    if (!qpId) return;
+    const row = e.target.closest('.qlc-part-row');
+    if (!row) return;
+    applyQlcPartToReal(modal, qpId, row.dataset.partId);
+  });
+
+  // Touch Drag & Drop (iPad)
+  let touchDrag = null;
+
+  chipPool.addEventListener('touchstart', (e) => {
+    const chip = e.target.closest('.qlc-chip');
+    if (!chip || chip.classList.contains('qlc-chip-used')) return;
+    const touch = e.touches[0];
+    touchDrag = {
+      qpId: chip.dataset.qpId,
+      el: chip,
+      startX: touch.clientX,
+      startY: touch.clientY,
+      moved: false,
+      ghost: null
+    };
+  }, { passive: true });
+
+  modal.addEventListener('touchmove', (e) => {
+    if (!touchDrag) return;
+    const touch = e.touches[0];
+    const dx = Math.abs(touch.clientX - touchDrag.startX);
+    const dy = Math.abs(touch.clientY - touchDrag.startY);
+    if (dx > 10 || dy > 10) {
+      touchDrag.moved = true;
+      e.preventDefault();
+      touchDrag.el.classList.add('qlc-chip-dragging');
+
+      // Create/move ghost element
+      if (!touchDrag.ghost) {
+        const ghost = touchDrag.el.cloneNode(true);
+        ghost.className = 'qlc-chip qlc-chip-ghost';
+        document.body.appendChild(ghost);
+        touchDrag.ghost = ghost;
+      }
+      touchDrag.ghost.style.left = (touch.clientX - 40) + 'px';
+      touchDrag.ghost.style.top = (touch.clientY - 20) + 'px';
+
+      // Highlight drop target
+      const el = document.elementFromPoint(touch.clientX, touch.clientY);
+      const row = el?.closest?.('.qlc-part-row');
+      modal.querySelectorAll('.qlc-part-row.qlc-drop-hover').forEach(r => r.classList.remove('qlc-drop-hover'));
+      if (row) row.classList.add('qlc-drop-hover');
+    }
+  }, { passive: false });
+
+  modal.addEventListener('touchend', (e) => {
+    if (!touchDrag) return;
+    touchDrag.el.classList.remove('qlc-chip-dragging');
+    modal.querySelectorAll('.qlc-part-row.qlc-drop-hover').forEach(r => r.classList.remove('qlc-drop-hover'));
+    if (touchDrag.ghost) { touchDrag.ghost.remove(); touchDrag.ghost = null; }
+
+    if (touchDrag.moved) {
+      const touch = e.changedTouches[0];
+      const el = document.elementFromPoint(touch.clientX, touch.clientY);
+      const row = el?.closest?.('.qlc-part-row');
+      if (row) {
+        applyQlcPartToReal(modal, touchDrag.qpId, row.dataset.partId);
+      }
+    }
+    touchDrag = null;
+  });
+}
+
+/**
+ * Apply a qlc_part's name + light_template to a real part.
+ */
+function applyQlcPartToReal(modal, qpId, realPartId) {
+  const data = modal._qlcData;
+  if (!data) return;
+  const song = db.songs[data.songId];
+  if (!song) return;
+  const qp = song.qlc_parts?.[qpId];
+  const part = song.parts?.[realPartId];
+  if (!qp || !part) return;
+
+  part.name = qp.name;
+  part.light_template = qp.light_template;
+  markDirty();
+
+  toast(`"${qp.name}" (${qp.light_template}) &#8594; Part ${part.pos}`, 'success', 2000);
+
+  // Re-render modal + parts tab
+  renderQlcImportContent(modal, data.songId);
+  renderPartsTab();
+}
+
+/** Update play button states inside QLC import modal */
+function updateQlcImportPlayState() {
+  const modal = document.getElementById('qlc-import-modal');
+  if (!modal) return;
+  modal.querySelectorAll('[data-action="play-part"]').forEach(btn => {
+    const id = btn.dataset.partId;
+    const isPlaying = _partPlayActive && _playingPartId === id;
+    btn.innerHTML = isPlaying ? '&#9632;' : '&#9654;';
+    btn.title = isPlaying ? 'Stop' : 'Anhoeren';
+    btn.classList.toggle('playing', isPlaying);
+  });
+}
+
+/* ══════════════════════════════════════════════════════
    PARTS TAB
    ══════════════════════════════════════════════════════ */
 
@@ -6911,6 +7215,7 @@ function renderPartsTab() {
           <button class="btn btn-sm btn-danger" data-pt-action="del" ${hasSel ? '' : 'disabled'}>DEL</button>
           ${filterSong ? `<button class="btn btn-sm${db.songs[filterSong]?.instr_done ? ' btn-success' : ''}" data-pt-action="instr-done" title="Alle Instrumental-Parts identifiziert">${db.songs[filterSong]?.instr_done ? '&#9835; &#10003;' : '&#9835; Instr. gepr\u00fcft'}</button>` : ''}
           ${filterSong ? `<button class="btn btn-sm" data-pt-action="qlc-import" title="Light Templates aus QLC+ QXW importieren">&#9728; QLC+</button>` : ''}
+          ${filterSong && db.songs[filterSong]?.qlc_parts ? `<button class="btn btn-sm btn-accent" data-pt-action="qlc-parts-import" title="QLC-Vorlagen per Drag&amp;Drop auf Parts zuordnen">&#9733; Parts importieren</button>` : ''}
         </div>
       </div>
       <div class="parts-tab-scroll" id="parts-tab-scroll">
@@ -7348,6 +7653,12 @@ function handlePartsTabAction(action) {
     case 'qlc-import': {
       if (!filterSong) return;
       openChaserModal(filterSong);
+      break;
+    }
+
+    case 'qlc-parts-import': {
+      if (!filterSong) return;
+      openQlcPartsImportModal(filterSong);
       break;
     }
   }

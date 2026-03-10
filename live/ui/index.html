@@ -202,12 +202,22 @@ cursor:pointer;transition:all .12s;position:relative;overflow:hidden}
 .cfg-btn .ch{font-family:'DM Mono',monospace;font-size:9px;color:var(--t4)}
 .cfg-btn.flash .ch{color:var(--green)}
 
-/* ═══ CONNECTION OVERLAY ═══ */
-.conn-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(8,9,13,.9);
-display:none;align-items:center;justify-content:center;z-index:100;flex-direction:column;gap:12px}
+/* ═══ CONNECTION / WARMUP OVERLAY ═══ */
+.conn-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(8,9,13,.85);
+display:none;align-items:center;justify-content:center;z-index:100;flex-direction:column;gap:16px;
+transition:opacity .4s}
 .conn-overlay.show{display:flex}
-.conn-msg{font-family:'DM Mono',monospace;font-size:14px;color:var(--t2)}
-.conn-dot{width:10px;height:10px;border-radius:50%;background:var(--amber);animation:pulse 1s infinite}
+.conn-overlay.fade{opacity:0}
+.conn-title{font-family:'Sora',sans-serif;font-size:18px;font-weight:600;color:var(--t1);letter-spacing:-.3px}
+.conn-tasks{display:flex;flex-direction:column;gap:6px;min-width:260px}
+.conn-task{display:flex;align-items:center;gap:10px;font-family:'DM Mono',monospace;font-size:12px;color:var(--t3);transition:color .2s}
+.conn-task.active{color:var(--t2)}
+.conn-task.done{color:var(--green)}
+.conn-task.err{color:var(--red)}
+.conn-task .ct-icon{width:16px;text-align:center;flex-shrink:0;font-size:10px}
+.conn-task.active .ct-icon{color:var(--amber);animation:pulse 1s infinite}
+.conn-task.done .ct-icon{color:var(--green)}
+.conn-task.err .ct-icon{color:var(--red)}
 
 /* ═══ TOAST ═══ */
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--bg3);border:1px solid var(--green);
@@ -241,8 +251,13 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
 <div class="toast" id="toast"></div>
 
 <div class="conn-overlay" id="connOverlay">
-  <div class="conn-dot"></div>
-  <div class="conn-msg">Verbinde mit Server...</div>
+  <div class="conn-title">lighting.ai</div>
+  <div class="conn-tasks" id="connTasks">
+    <div class="conn-task" id="ct-songs"><span class="ct-icon">&#x25CB;</span>Songs laden</div>
+    <div class="conn-task" id="ct-setlist"><span class="ct-icon">&#x25CB;</span>Setlist laden</div>
+    <div class="conn-task" id="ct-qlc"><span class="ct-icon">&#x25CB;</span>QLC+ Mapping</div>
+    <div class="conn-task" id="ct-ws"><span class="ct-icon">&#x25CB;</span>WebSocket verbinden</div>
+  </div>
 </div>
 
 <div class="app">
@@ -358,7 +373,8 @@ function connectWS() {
   ws = new WebSocket(url);
   ws.onopen = function() {
     wsReady = true;
-    document.getElementById('connOverlay').classList.remove('show');
+    setTask('ct-ws', 'done');
+    setTimeout(dismissOverlay, 300);
     if (reconnTimer) { clearTimeout(reconnTimer); reconnTimer = null; }
   };
   ws.onmessage = function(e) {
@@ -370,7 +386,14 @@ function connectWS() {
   };
   ws.onclose = function() {
     wsReady = false;
-    document.getElementById('connOverlay').classList.add('show');
+    // Show overlay again on disconnect with reconnect status
+    var ov = document.getElementById('connOverlay');
+    setTask('ct-songs', 'done');
+    setTask('ct-setlist', 'done');
+    setTask('ct-qlc', 'done');
+    setTask('ct-ws', 'active');
+    ov.classList.remove('fade');
+    ov.classList.add('show');
     reconnTimer = setTimeout(connectWS, 2000);
   };
   ws.onerror = function() { ws.close(); };
@@ -875,12 +898,68 @@ function showToast(msg) {
   toastTimer = setTimeout(function() { el.classList.remove('show'); }, 2000);
 }
 
+// ─── Warmup Task UI ──────────────────────────
+function setTask(id, status) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.className = 'conn-task ' + status;
+  var icon = el.querySelector('.ct-icon');
+  if (status === 'active') icon.innerHTML = '&#x25CF;';
+  else if (status === 'done') icon.innerHTML = '&#x2714;';
+  else if (status === 'err') icon.innerHTML = '&#x2716;';
+}
+
+function dismissOverlay() {
+  var ov = document.getElementById('connOverlay');
+  ov.classList.add('fade');
+  setTimeout(function() { ov.classList.remove('show', 'fade'); }, 400);
+}
+
 // ─── Init ─────────────────────────────────────
 document.getElementById('connOverlay').classList.add('show');
 updateBeats();
-loadInitialData().then(function() {
+
+(async function warmup() {
+  // Step 1: Songs
+  setTask('ct-songs', 'active');
+  try {
+    songs = await fetchJSON('/api/songs');
+    setTask('ct-songs', 'done');
+  } catch (e) {
+    setTask('ct-songs', 'err');
+    console.error('Songs load failed', e);
+  }
+
+  // Step 2: Setlist
+  setTask('ct-setlist', 'active');
+  try {
+    var sl = await fetchJSON('/api/setlist');
+    setlist = sl.items || [];
+    setTask('ct-setlist', 'done');
+  } catch (e) {
+    setTask('ct-setlist', 'err');
+    console.error('Setlist load failed', e);
+  }
+
+  // Step 3: QLC+ Mapping
+  setTask('ct-qlc', 'active');
+  try {
+    var m = await fetchJSON('/api/qlc/mapping');
+    qlcMapping = m.song_mapping || {};
+    setTask('ct-qlc', 'done');
+  } catch (e) {
+    setTask('ct-qlc', 'err');
+    console.error('QLC mapping load failed', e);
+  }
+
+  // Render what we have so far
+  renderAll();
+
+  // Step 4: WebSocket
+  setTask('ct-ws', 'active');
   connectWS();
-});
+  // WS onopen will mark done and dismiss overlay
+})();
 </script>
 </body>
 </html>

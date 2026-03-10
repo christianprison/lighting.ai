@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.3.13';
+const APP_VERSION = 'v1.3.14';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -594,6 +594,35 @@ function getOrCreateBar(partId, barNum) {
   const barId = nextId('B', db.bars);
   db.bars[barId] = { part_id: partId, bar_num: barNum, lyrics: '', audio: '', has_accents: false };
   return [barId, db.bars[barId]];
+}
+
+/**
+ * Reconcile part.bars declarations with actual db.bars entries for a song.
+ * Fixes cases where part.bars says X but there are Y entries in db.bars.
+ * Prefers the higher count (doesn't delete data silently).
+ */
+function reconcileBars(songId) {
+  const song = db.songs[songId];
+  if (!song || !song.parts) return;
+  ensureCollections();
+  const parts = getSortedParts(songId);
+  let changed = false;
+
+  for (const p of parts) {
+    const actualBars = Object.values(db.bars).filter(b => b.part_id === p.id).length;
+    const declared = p.bars || 0;
+
+    if (actualBars > declared) {
+      // More bars exist than declared — update declared count to match reality
+      song.parts[p.id].bars = actualBars;
+      changed = true;
+    }
+  }
+
+  if (changed) {
+    recalcAbsoluteBarNums(songId);
+    recalcSongDurationFor(songId);
+  }
 }
 
 function nextId(prefix, collection) {
@@ -1409,6 +1438,11 @@ function switchTab(tab) {
   // Stop playhead animation when leaving audio tab
   if (activeTab === 'audio' && tab !== 'audio') {
     cancelAnimationFrame(animFrameId);
+    // Persist markers and sync db.bars when leaving Audio Split tab
+    if (selectedSongId && (partMarkers.length > 0 || barMarkers.length > 0)) {
+      saveMarkersToSong();
+      markDirty();
+    }
   }
   // Stop lyrics part playback when leaving lyrics tab
   if (activeTab === 'lyrics' && tab !== 'lyrics') {
@@ -1417,6 +1451,11 @@ function switchTab(tab) {
   // Pre-warm AudioContext for tabs with playback
   if (tab === 'lyrics' || tab === 'audio' || tab === 'parts' || tab === 'takte' || tab === 'accents') {
     audio.warmup();
+  }
+  // Ensure bar data is consistent when entering data-dependent tabs
+  if ((tab === 'takte' || tab === 'parts' || tab === 'lyrics' || tab === 'accents') && selectedSongId) {
+    reconcileBars(selectedSongId);
+    recalcAbsoluteBarNums(selectedSongId);
   }
   activeTab = tab;
   els.tabEditor?.classList.toggle('active', tab === 'editor');
@@ -2571,13 +2610,31 @@ function saveMarkersToSong() {
     barMarkers: barMarkers.map(m => ({ time: m.time, partIndex: m.partIndex, partId: m.partId || indexToId(m.partIndex) })),
   };
 
-  // Update bars count per part from bar markers
+  // Update bars count per part from bar markers and sync db.bars
+  ensureCollections();
+  let globalBarOffset = 0;
   for (let i = 0; i < parts.length; i++) {
+    const partId = parts[i].id;
     const count = barMarkers.filter(m => m.partIndex === i).length;
-    if (song.parts[parts[i].id]) {
-      song.parts[parts[i].id].bars = count;
+    if (song.parts[partId]) {
+      const oldCount = song.parts[partId].bars || 0;
+      song.parts[partId].bars = count;
+
+      // Ensure db.bars entries exist for each bar in this part
+      for (let b = 1; b <= count; b++) {
+        getOrCreateBar(partId, globalBarOffset + b);
+      }
+
+      // Remove excess bars if count decreased
+      if (count < oldCount) {
+        integrity.syncBarCount(db, partId, count);
+      }
     }
+    globalBarOffset += count;
   }
+
+  // Renumber all bars to ensure absolute numbering is consistent
+  recalcAbsoluteBarNums(selectedSongId);
 }
 
 /**
@@ -6919,6 +6976,9 @@ function getAllPartsFlat() {
 function renderPartsTab() {
   const filterSong = selectedSongId;
 
+  // Reconcile bar data before rendering
+  if (filterSong) reconcileBars(filterSong);
+
   // Auto-load reference audio if available and not yet loaded
   if (filterSong) {
     const s = db.songs[filterSong];
@@ -8031,17 +8091,32 @@ function initPartWaveEditor() {
 
 function getAllBarsFlat() {
   if (!db || !db.songs) return [];
+  ensureCollections();
   const rows = [];
+
+  // Pre-index all bars by part_id for fast lookup (avoids bar_num mismatch issues)
+  const barsByPart = {};
+  for (const [barId, bar] of Object.entries(db.bars)) {
+    if (!barsByPart[bar.part_id]) barsByPart[bar.part_id] = [];
+    barsByPart[bar.part_id].push({ barId, ...bar });
+  }
+  // Sort each part's bars by bar_num
+  for (const partId of Object.keys(barsByPart)) {
+    barsByPart[partId].sort((a, b) => a.bar_num - b.bar_num);
+  }
+
   for (const [songId, song] of Object.entries(db.songs)) {
     const parts = getSortedParts(songId);
     let cumBars = 0;
     for (const p of parts) {
       const barCount = p.bars || 0;
-      for (let n = 1; n <= barCount; n++) {
-        const absBar = cumBars + n;
-        const found = findBar(p.id, absBar);
-        const barData = found ? found[1] : {};
-        const barId = found ? found[0] : null;
+      const partBars = barsByPart[p.id] || [];
+      for (let n = 0; n < barCount; n++) {
+        const absBar = cumBars + n + 1;
+        // Match by index within part (more robust than relying on exact bar_num)
+        const barEntry = partBars[n] || null;
+        const barData = barEntry || {};
+        const barId = barEntry ? barEntry.barId : null;
         const accCount = barId ? getAccentsForBar(barId).length : 0;
         const bpm = song.bpm || 0;
         const barSec = bpm > 0 ? (absBar - 1) * 4 * 60 / bpm : 0;
@@ -8063,6 +8138,9 @@ function getAllBarsFlat() {
 function renderTakteTab() {
   const filterSong = selectedSongId;
   ensureCollections();
+
+  // Reconcile bar data before rendering
+  if (filterSong) reconcileBars(filterSong);
 
   // Auto-load reference audio if available and not yet loaded (skip during bar playback)
   if (filterSong && !_partPlayActive) {

@@ -8828,7 +8828,14 @@
       "lyrics_raw": "[Intro]\n(Killing in the name of)\n\n[Verse]\nSome of those that work forces\nAre the same that burn crosses\nSome of those that work forces\nAre the same that burn crosses\nSome of those that work forces\nAre the same that burn crosses\nSome of those that work forces\nAre the same that burn crosses, ugh\n[Refrain]\nKilling in the name of\nKilling in the name of\n\n[Pre-Chorus]\nAnd now you do what they told ya\nAnd now you do what they told ya\nAnd now you do what they told ya\nAnd now you do what they told ya\nAnd now you do what they told ya\nAnd now you do what they told ya\nAnd now you do what they told ya\nAnd now you do what they told ya\nAnd now you do what they told ya\nAnd now you do what they told ya\nBut now you do what they told ya\nWell now you do what they told ya\n\n[Chorus]\nThose who died are justified\nFor wearin' the badge, they're the chosen whites\nYou justify those that died\nBy wearin' the badge, they're the chosen whites\nThose who died are justified\nFor wearin' the badge, they're the chosen whites\nYou justify those that died\nBy wearin' the badge, they're the chosen whites\n[Verse]\nSome of those that work forces\nAre the same that burn crosses\nSome of those that work forces\nAre the same that burn crosses\nSome of those that work forces\nAre the same that burn crosses\nSome of those that work forces\nAre the same that burn crosses, ugh\n\n[Refrain]\nKilling in the name of\nKilling in the name of\n\n[Pre-Chorus]\nAnd now you do what they told ya\nAnd now you do what they told ya\nAnd now you do what they told ya\nAnd now you do what they told ya\nAnd now you do what they told ya (Now you're under control)\nAnd now you do what they told ya (And now you're under control)\nAnd now you do what they told ya (And now you're under control)\nAnd now you do what they told ya (Now you're under control)\nAnd now you do what they told ya (Now you're under control)\nAnd now you do what they told ya (Now you're under control)\nAnd now you do what they told ya (Now you're under control)\nAnd now you do what they told ya\n[Chorus]\nThose who died are justified\nFor wearin' the badge, they're the chosen whites\nYou justify those that died\nBy wearin' the badge, they're the chosen whites\nThose who died are justified\nFor wearin' the badge, they're the chosen whites\nYou justify those that died\nBy wearin' the badge, they're the chosen whites, come on\n\n[Guitar Solo]\nUgh\nYeah\nCome on\nUgh\n\n[Outro]\nFuck you, I won't do what you tell me\nFuck you, I won't do what you tell me\nFuck you, I won't do what you tell me\nFuck you, I won't do what you tell me\nFuck you, I won't do what you tell me\nFuck you, I won't do what you tell me\nFuck you, I won't do what you tell me\nFuck you, I won't do what you tell me\nFuck you, I won't do what you tell me\nFuck you, I won't do what you tell me\nFuck you, I won't do what you tell me\nFuck you, I won't do what you tell me\nFuck you, I won't do what you tell me\nFuck you, I won't do what you tell me\nFuck you, I won't do what you tell me\nFuck you, I won't do what you tell me\nMotherfucker, ugh",
       "tms": {
         "manual_done": [],
-        "user_tasks": [],
+        "user_tasks": [
+          {
+            "id": "ut_1773145638870_q96b",
+            "cat": "stammdaten",
+            "label": "hier habe ich einen Takt versehentlich gelöscht, kannst du den mal wiederholen",
+            "done": false
+          }
+        ],
         "manual_undone": []
       }
     },
@@ -13803,7 +13810,7 @@
       "key": "",
       "year": "",
       "pick": "",
-      "gema_nr": "",
+      "gema_nr": "9328309",
       "duration": "3:50",
       "duration_sec": 230,
       "notes": "",
@@ -13892,7 +13899,7 @@
         "HDX1IN_P011": {
           "pos": 12,
           "name": "Outro",
-          "bars": 10,
+          "bars": 18,
           "duration_sec": 0,
           "light_template": "",
           "notes": "",

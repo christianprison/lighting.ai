@@ -3391,6 +3391,178 @@ label {
 }
 .chaser-assign-part:hover { background: var(--bg4); }
 
+/* ── QLC Parts Import Modal ────────────────────── */
+
+.qlc-import-modal {
+  width: min(650px, 94vw);
+  max-height: 90vh;
+}
+
+.qlc-import-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.qlc-import-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.qlc-import-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Chip pool: draggable QLC part suggestions */
+.qlc-chip-pool {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px;
+  background: var(--bg3);
+  border-radius: var(--radius);
+  min-height: 40px;
+}
+
+.qlc-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  background: var(--bg4);
+  border: 1px solid var(--amber);
+  border-radius: 16px;
+  font-size: 0.78rem;
+  cursor: grab;
+  user-select: none;
+  transition: opacity 0.2s, transform 0.15s, box-shadow 0.15s;
+  touch-action: none;
+}
+
+.qlc-chip:active { cursor: grabbing; }
+
+.qlc-chip-name {
+  font-weight: 500;
+  color: var(--t1);
+}
+
+.qlc-chip-tmpl {
+  font-size: 0.68rem;
+  font-family: var(--font-mono);
+}
+
+.qlc-chip-check {
+  font-size: 0.75rem;
+}
+
+.qlc-chip-used {
+  opacity: 0.4;
+  border-color: var(--border2);
+  cursor: default;
+  pointer-events: none;
+}
+
+.qlc-chip-dragging {
+  opacity: 0.5;
+  transform: scale(0.95);
+}
+
+.qlc-chip-ghost {
+  position: fixed;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.85;
+  transform: scale(1.05);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+}
+
+/* Part list: drop targets */
+.qlc-parts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.qlc-part-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  transition: background 0.15s, border-color 0.2s;
+}
+
+.qlc-part-row.qlc-drop-hover {
+  background: var(--bg4);
+  border-color: var(--amber);
+  box-shadow: 0 0 8px rgba(240, 160, 48, 0.2);
+}
+
+.qlc-part-num {
+  width: 22px;
+  text-align: right;
+  font-size: 0.7rem;
+  flex-shrink: 0;
+}
+
+.qlc-part-no-play {
+  width: 28px;
+  flex-shrink: 0;
+}
+
+.qlc-part-name {
+  flex: 1;
+  font-size: 0.85rem;
+  font-weight: 500;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.qlc-part-bars {
+  font-size: 0.7rem;
+  flex-shrink: 0;
+}
+
+.qlc-part-tmpl {
+  font-size: 0.7rem;
+  flex-shrink: 0;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.qlc-drop-zone {
+  font-size: 0.68rem;
+  color: var(--t4);
+  flex-shrink: 0;
+  padding: 2px 8px;
+  border: 1px dashed var(--border2);
+  border-radius: var(--radius);
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.qlc-drop-hover .qlc-drop-zone {
+  color: var(--amber);
+  border-color: var(--amber);
+}
+
+/* Accent button style */
+.btn-accent {
+  border-color: var(--amber);
+  color: var(--amber);
+}
+.btn-accent:hover {
+  background: rgba(240, 160, 48, 0.15);
+}
+
 /* ══════════════════════════════════════════════════════
    Confetti Toast
    ══════════════════════════════════════════════════════ */

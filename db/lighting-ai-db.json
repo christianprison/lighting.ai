@@ -13501,7 +13501,7 @@
         "HDX1IN_P001": {
           "pos": 1,
           "name": "Synth Intro",
-          "bars": 12,
+          "bars": 4,
           "duration_sec": 7,
           "light_template": "00 blackout",
           "notes": "",
@@ -13591,8 +13591,8 @@
         "HDX1IN_P012": {
           "pos": 2,
           "name": "Intro",
-          "bars": 0,
-          "duration_sec": 0,
+          "bars": 8,
+          "duration_sec": 15,
           "light_template": "",
           "notes": "",
           "instrumental": true
@@ -13635,42 +13635,42 @@
           },
           {
             "time": 9.414236001872661,
-            "partId": "HDX1IN_P011",
+            "partId": "HDX1IN_P012",
             "partStart": true
           },
           {
             "time": 11.234354166666714,
-            "partId": "HDX1IN_P001",
+            "partId": "HDX1IN_P012",
             "partStart": false
           },
           {
             "time": 13.09835416666669,
-            "partId": "HDX1IN_P001",
+            "partId": "HDX1IN_P012",
             "partStart": false
           },
           {
             "time": 14.930354166666683,
-            "partId": "HDX1IN_P001",
+            "partId": "HDX1IN_P012",
             "partStart": false
           },
           {
             "time": 16.78368750000004,
-            "partId": "HDX1IN_P001",
+            "partId": "HDX1IN_P012",
             "partStart": false
           },
           {
             "time": 18.599687500000012,
-            "partId": "HDX1IN_P001",
+            "partId": "HDX1IN_P012",
             "partStart": false
           },
           {
             "time": 20.383687500000004,
-            "partId": "HDX1IN_P001",
+            "partId": "HDX1IN_P012",
             "partStart": false
           },
           {
             "time": 22.058075304307117,
-            "partId": "HDX1IN_P001",
+            "partId": "HDX1IN_P012",
             "partStart": false
           },
           {
@@ -18324,57 +18324,57 @@
       "has_accents": false
     },
     "B0646": {
-      "part_id": "HDX1IN_P001",
-      "bar_num": 5,
+      "part_id": "HDX1IN_P012",
+      "bar_num": 1,
       "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B0647": {
-      "part_id": "HDX1IN_P001",
-      "bar_num": 6,
+      "part_id": "HDX1IN_P012",
+      "bar_num": 2,
       "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B0648": {
-      "part_id": "HDX1IN_P001",
-      "bar_num": 7,
+      "part_id": "HDX1IN_P012",
+      "bar_num": 3,
       "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B0649": {
-      "part_id": "HDX1IN_P001",
-      "bar_num": 8,
+      "part_id": "HDX1IN_P012",
+      "bar_num": 4,
       "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B0650": {
-      "part_id": "HDX1IN_P001",
-      "bar_num": 9,
+      "part_id": "HDX1IN_P012",
+      "bar_num": 5,
       "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B0651": {
-      "part_id": "HDX1IN_P001",
-      "bar_num": 10,
+      "part_id": "HDX1IN_P012",
+      "bar_num": 6,
       "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B0652": {
-      "part_id": "HDX1IN_P001",
-      "bar_num": 11,
+      "part_id": "HDX1IN_P012",
+      "bar_num": 7,
       "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B0653": {
-      "part_id": "HDX1IN_P001",
-      "bar_num": 12,
+      "part_id": "HDX1IN_P012",
+      "bar_num": 8,
       "lyrics": "",
       "audio": "",
       "has_accents": false

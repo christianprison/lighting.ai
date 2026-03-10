@@ -19105,7 +19105,7 @@
       "bar_num": 79,
       "lyrics": "",
       "audio": "audio/You're all I have/08 Bridge/088 You're all I have Bridge.mp3",
-      "has_accents": false
+      "has_accents": true
     },
     "B0633": {
       "part_id": "HDX1IN_P008",
@@ -19228,6 +19228,12 @@
       "bar_id": "B0278",
       "pos_16th": 1,
       "type": "st",
+      "notes": ""
+    },
+    "A0006": {
+      "bar_id": "B0632",
+      "pos_16th": 1,
+      "type": "fg",
       "notes": ""
     }
   },

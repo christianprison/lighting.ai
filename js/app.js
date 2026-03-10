@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.4.2';
+const APP_VERSION = 'v1.4.3';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -267,6 +267,29 @@ function setSyncStatus(status) {
   };
   els.syncStatus.dataset.status = status;
   els.syncStatus.textContent = labels[status] || status;
+}
+
+/* ── Clipboard (fallback for non-secure contexts) ──── */
+
+function copyToClipboard(text) {
+  if (navigator.clipboard?.writeText) {
+    return navigator.clipboard.writeText(text);
+  }
+  // Fallback: execCommand('copy') for HTTP contexts
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try {
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    return Promise.resolve();
+  } catch (e) {
+    document.body.removeChild(ta);
+    return Promise.reject(e);
+  }
 }
 
 /* ── Toast ─────────────────────────────────────────── */
@@ -8946,7 +8969,7 @@ function initDebugPanel() {
     const out = document.getElementById('debug-output');
     if (!out) return;
     const text = out.innerText || out.textContent;
-    navigator.clipboard.writeText(text).then(
+    copyToClipboard(text).then(
       () => toast('Debug-Daten kopiert', 'success'),
       () => toast('Kopieren fehlgeschlagen', 'error')
     );

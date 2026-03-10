@@ -13494,8 +13494,8 @@
       "year": "",
       "pick": "",
       "gema_nr": "9328309",
-      "duration": "5:44",
-      "duration_sec": 344,
+      "duration": "4:14",
+      "duration_sec": 254,
       "notes": "",
       "parts": {
         "HDX1IN_P001": {
@@ -13510,7 +13510,7 @@
         "HDX1IN_P002": {
           "pos": 3,
           "name": "Verse 1",
-          "bars": 25,
+          "bars": 17,
           "duration_sec": 28,
           "light_template": "verse_driving",
           "notes": ""
@@ -13518,7 +13518,7 @@
         "HDX1IN_P003": {
           "pos": 4,
           "name": "Pre-Chorus 1",
-          "bars": 8,
+          "bars": 4,
           "duration_sec": 14,
           "light_template": "prechorus_rise",
           "notes": ""
@@ -13526,7 +13526,7 @@
         "HDX1IN_P004": {
           "pos": 5,
           "name": "Chorus 1",
-          "bars": 17,
+          "bars": 9,
           "duration_sec": 14,
           "light_template": "chorus_full",
           "notes": ""
@@ -13534,7 +13534,7 @@
         "HDX1IN_P005": {
           "pos": 6,
           "name": "Verse 2",
-          "bars": 26,
+          "bars": 18,
           "duration_sec": 28,
           "light_template": "verse_driving",
           "notes": ""
@@ -13542,7 +13542,7 @@
         "HDX1IN_P006": {
           "pos": 7,
           "name": "Pre-Chorus 2",
-          "bars": 17,
+          "bars": 8,
           "duration_sec": 14,
           "light_template": "prechorus_rise",
           "notes": ""
@@ -13550,7 +13550,7 @@
         "HDX1IN_P007": {
           "pos": 8,
           "name": "Chorus 2",
-          "bars": 25,
+          "bars": 17,
           "duration_sec": 28,
           "light_template": "chorus_full",
           "notes": ""
@@ -13558,7 +13558,7 @@
         "HDX1IN_P008": {
           "pos": 9,
           "name": "Bridge",
-          "bars": 15,
+          "bars": 8,
           "duration_sec": 14,
           "light_template": "Spot auf Pete",
           "notes": ""
@@ -13566,7 +13566,7 @@
         "HDX1IN_P009": {
           "pos": 10,
           "name": "Interlude",
-          "bars": 13,
+          "bars": 8,
           "duration_sec": 28,
           "light_template": "chorus_full",
           "notes": ""
@@ -13609,7 +13609,7 @@
       "split_markers": {
         "markers": [
           {
-            "time": 0.9063541666666683,
+            "time": 2.0291773598820058,
             "partId": "HDX1IN_P001",
             "partStart": true
           },
@@ -18213,597 +18213,114 @@
     },
     "B0557": {
       "part_id": "HDX1IN_P002",
-      "bar_num": 13,
-      "lyrics": "",
-      "audio": "audio/You're all I have/03 Verse 1/005 You're all I have Verse 1.mp3",
-      "has_accents": false
-    },
-    "B0558": {
-      "part_id": "HDX1IN_P002",
       "bar_num": 14,
-      "lyrics": "",
-      "audio": "audio/You're all I have/03 Verse 1/006 You're all I have Verse 1.mp3",
-      "has_accents": false
-    },
-    "B0559": {
-      "part_id": "HDX1IN_P002",
-      "bar_num": 15,
-      "lyrics": "",
-      "audio": "audio/You're all I have/03 Verse 1/007 You're all I have Verse 1.mp3",
-      "has_accents": false
-    },
-    "B0560": {
-      "part_id": "HDX1IN_P002",
-      "bar_num": 16,
-      "lyrics": "",
-      "audio": "audio/You're all I have/03 Verse 1/008 You're all I have Verse 1.mp3",
-      "has_accents": false
-    },
-    "B0561": {
-      "part_id": "HDX1IN_P002",
-      "bar_num": 17,
-      "lyrics": "",
-      "audio": "audio/You're all I have/03 Verse 1/009 You're all I have Verse 1.mp3",
-      "has_accents": false
-    },
-    "B0562": {
-      "part_id": "HDX1IN_P002",
-      "bar_num": 18,
-      "lyrics": "",
-      "audio": "audio/You're all I have/03 Verse 1/010 You're all I have Verse 1.mp3",
-      "has_accents": false
-    },
-    "B0563": {
-      "part_id": "HDX1IN_P002",
-      "bar_num": 19,
-      "lyrics": "",
-      "audio": "audio/You're all I have/03 Verse 1/011 You're all I have Verse 1.mp3",
-      "has_accents": false
-    },
-    "B0564": {
-      "part_id": "HDX1IN_P002",
-      "bar_num": 20,
-      "lyrics": "",
-      "audio": "audio/You're all I have/03 Verse 1/012 You're all I have Verse 1.mp3",
-      "has_accents": false
-    },
-    "B0565": {
-      "part_id": "HDX1IN_P002",
-      "bar_num": 21,
       "lyrics": "",
       "audio": "audio/You're all I have/03 Verse 1/013 You're all I have Verse 1.mp3",
       "has_accents": false
     },
-    "B0566": {
+    "B0558": {
       "part_id": "HDX1IN_P002",
-      "bar_num": 22,
+      "bar_num": 15,
       "lyrics": "",
       "audio": "audio/You're all I have/03 Verse 1/014 You're all I have Verse 1.mp3",
       "has_accents": false
     },
-    "B0567": {
+    "B0559": {
       "part_id": "HDX1IN_P002",
-      "bar_num": 23,
+      "bar_num": 16,
       "lyrics": "",
       "audio": "audio/You're all I have/03 Verse 1/015 You're all I have Verse 1.mp3",
       "has_accents": false
     },
-    "B0568": {
+    "B0560": {
       "part_id": "HDX1IN_P002",
-      "bar_num": 24,
+      "bar_num": 17,
       "lyrics": "",
       "audio": "audio/You're all I have/03 Verse 1/016 You're all I have Verse 1.mp3",
       "has_accents": false
     },
-    "B0569": {
+    "B0561": {
       "part_id": "HDX1IN_P002",
-      "bar_num": 25,
+      "bar_num": 18,
       "lyrics": "",
       "audio": "audio/You're all I have/03 Verse 1/017 You're all I have Verse 1.mp3",
       "has_accents": false
     },
-    "B0570": {
+    "B0562": {
       "part_id": "HDX1IN_P002",
-      "bar_num": 26,
+      "bar_num": 19,
       "lyrics": "",
       "audio": "audio/You're all I have/03 Verse 1/018 You're all I have Verse 1.mp3",
       "has_accents": false
     },
-    "B0571": {
+    "B0563": {
       "part_id": "HDX1IN_P002",
-      "bar_num": 27,
+      "bar_num": 20,
       "lyrics": "",
       "audio": "audio/You're all I have/03 Verse 1/019 You're all I have Verse 1.mp3",
       "has_accents": false
     },
-    "B0572": {
+    "B0564": {
       "part_id": "HDX1IN_P002",
-      "bar_num": 28,
+      "bar_num": 21,
       "lyrics": "",
       "audio": "audio/You're all I have/03 Verse 1/020 You're all I have Verse 1.mp3",
       "has_accents": false
     },
-    "B0574": {
-      "part_id": "HDX1IN_P003",
-      "bar_num": 38,
+    "B0565": {
+      "part_id": "HDX1IN_P002",
+      "bar_num": 22,
       "lyrics": "",
-      "audio": "audio/You're all I have/04 Pre-Chorus 1/022 You're all I have Pre-Chorus 1.mp3",
+      "audio": "audio/You're all I have/03 Verse 1/021 You're all I have Verse 1.mp3",
       "has_accents": false
     },
-    "B0575": {
-      "part_id": "HDX1IN_P003",
-      "bar_num": 39,
+    "B0566": {
+      "part_id": "HDX1IN_P002",
+      "bar_num": 23,
       "lyrics": "",
-      "audio": "audio/You're all I have/04 Pre-Chorus 1/023 You're all I have Pre-Chorus 1.mp3",
+      "audio": "audio/You're all I have/03 Verse 1/022 You're all I have Verse 1.mp3",
       "has_accents": false
     },
-    "B0576": {
-      "part_id": "HDX1IN_P003",
-      "bar_num": 40,
+    "B0567": {
+      "part_id": "HDX1IN_P002",
+      "bar_num": 24,
       "lyrics": "",
-      "audio": "audio/You're all I have/04 Pre-Chorus 1/024 You're all I have Pre-Chorus 1.mp3",
+      "audio": "audio/You're all I have/03 Verse 1/023 You're all I have Verse 1.mp3",
       "has_accents": false
     },
-    "B0577": {
-      "part_id": "HDX1IN_P003",
-      "bar_num": 41,
+    "B0568": {
+      "part_id": "HDX1IN_P002",
+      "bar_num": 25,
       "lyrics": "",
-      "audio": "audio/You're all I have/04 Pre-Chorus 1/025 You're all I have Pre-Chorus 1.mp3",
+      "audio": "audio/You're all I have/03 Verse 1/024 You're all I have Verse 1.mp3",
       "has_accents": false
     },
-    "B0578": {
-      "part_id": "HDX1IN_P004",
-      "bar_num": 46,
+    "B0569": {
+      "part_id": "HDX1IN_P002",
+      "bar_num": 26,
       "lyrics": "",
-      "audio": "audio/You're all I have/05 Chorus 1/026 You're all I have Chorus 1.mp3",
+      "audio": "audio/You're all I have/03 Verse 1/025 You're all I have Verse 1.mp3",
       "has_accents": false
     },
-    "B0579": {
-      "part_id": "HDX1IN_P004",
-      "bar_num": 47,
+    "B0570": {
+      "part_id": "HDX1IN_P002",
+      "bar_num": 27,
       "lyrics": "",
-      "audio": "audio/You're all I have/05 Chorus 1/027 You're all I have Chorus 1.mp3",
+      "audio": "audio/You're all I have/03 Verse 1/026 You're all I have Verse 1.mp3",
       "has_accents": false
     },
-    "B0580": {
-      "part_id": "HDX1IN_P004",
-      "bar_num": 48,
+    "B0571": {
+      "part_id": "HDX1IN_P002",
+      "bar_num": 28,
       "lyrics": "",
-      "audio": "audio/You're all I have/05 Chorus 1/028 You're all I have Chorus 1.mp3",
+      "audio": "audio/You're all I have/03 Verse 1/027 You're all I have Verse 1.mp3",
       "has_accents": false
     },
-    "B0581": {
-      "part_id": "HDX1IN_P004",
-      "bar_num": 49,
+    "B0572": {
+      "part_id": "HDX1IN_P002",
+      "bar_num": 29,
       "lyrics": "",
-      "audio": "audio/You're all I have/05 Chorus 1/029 You're all I have Chorus 1.mp3",
-      "has_accents": false
-    },
-    "B0582": {
-      "part_id": "HDX1IN_P004",
-      "bar_num": 50,
-      "lyrics": "",
-      "audio": "audio/You're all I have/05 Chorus 1/030 You're all I have Chorus 1.mp3",
-      "has_accents": false
-    },
-    "B0583": {
-      "part_id": "HDX1IN_P004",
-      "bar_num": 51,
-      "lyrics": "",
-      "audio": "audio/You're all I have/05 Chorus 1/031 You're all I have Chorus 1.mp3",
-      "has_accents": false
-    },
-    "B0584": {
-      "part_id": "HDX1IN_P004",
-      "bar_num": 52,
-      "lyrics": "",
-      "audio": "audio/You're all I have/05 Chorus 1/032 You're all I have Chorus 1.mp3",
-      "has_accents": false
-    },
-    "B0585": {
-      "part_id": "HDX1IN_P004",
-      "bar_num": 53,
-      "lyrics": "",
-      "audio": "audio/You're all I have/05 Chorus 1/033 You're all I have Chorus 1.mp3",
-      "has_accents": false
-    },
-    "B0587": {
-      "part_id": "HDX1IN_P005",
-      "bar_num": 63,
-      "lyrics": "",
-      "audio": "audio/You're all I have/06 Verse 2/035 You're all I have Verse 2.mp3",
-      "has_accents": false
-    },
-    "B0588": {
-      "part_id": "HDX1IN_P005",
-      "bar_num": 64,
-      "lyrics": "",
-      "audio": "audio/You're all I have/06 Verse 2/036 You're all I have Verse 2.mp3",
-      "has_accents": false
-    },
-    "B0589": {
-      "part_id": "HDX1IN_P005",
-      "bar_num": 65,
-      "lyrics": "",
-      "audio": "audio/You're all I have/06 Verse 2/037 You're all I have Verse 2.mp3",
-      "has_accents": false
-    },
-    "B0590": {
-      "part_id": "HDX1IN_P005",
-      "bar_num": 66,
-      "lyrics": "",
-      "audio": "audio/You're all I have/06 Verse 2/038 You're all I have Verse 2.mp3",
-      "has_accents": false
-    },
-    "B0591": {
-      "part_id": "HDX1IN_P005",
-      "bar_num": 67,
-      "lyrics": "",
-      "audio": "audio/You're all I have/06 Verse 2/039 You're all I have Verse 2.mp3",
-      "has_accents": false
-    },
-    "B0592": {
-      "part_id": "HDX1IN_P005",
-      "bar_num": 68,
-      "lyrics": "",
-      "audio": "audio/You're all I have/06 Verse 2/040 You're all I have Verse 2.mp3",
-      "has_accents": false
-    },
-    "B0593": {
-      "part_id": "HDX1IN_P005",
-      "bar_num": 69,
-      "lyrics": "",
-      "audio": "audio/You're all I have/06 Verse 2/041 You're all I have Verse 2.mp3",
-      "has_accents": false
-    },
-    "B0594": {
-      "part_id": "HDX1IN_P005",
-      "bar_num": 70,
-      "lyrics": "",
-      "audio": "audio/You're all I have/06 Verse 2/042 You're all I have Verse 2.mp3",
-      "has_accents": false
-    },
-    "B0595": {
-      "part_id": "HDX1IN_P005",
-      "bar_num": 71,
-      "lyrics": "",
-      "audio": "audio/You're all I have/06 Verse 2/043 You're all I have Verse 2.mp3",
-      "has_accents": false
-    },
-    "B0596": {
-      "part_id": "HDX1IN_P005",
-      "bar_num": 72,
-      "lyrics": "",
-      "audio": "audio/You're all I have/06 Verse 2/044 You're all I have Verse 2.mp3",
-      "has_accents": false
-    },
-    "B0597": {
-      "part_id": "HDX1IN_P005",
-      "bar_num": 73,
-      "lyrics": "",
-      "audio": "audio/You're all I have/06 Verse 2/045 You're all I have Verse 2.mp3",
-      "has_accents": false
-    },
-    "B0598": {
-      "part_id": "HDX1IN_P005",
-      "bar_num": 74,
-      "lyrics": "",
-      "audio": "audio/You're all I have/06 Verse 2/046 You're all I have Verse 2.mp3",
-      "has_accents": false
-    },
-    "B0599": {
-      "part_id": "HDX1IN_P005",
-      "bar_num": 75,
-      "lyrics": "",
-      "audio": "audio/You're all I have/06 Verse 2/047 You're all I have Verse 2.mp3",
-      "has_accents": false
-    },
-    "B0600": {
-      "part_id": "HDX1IN_P005",
-      "bar_num": 76,
-      "lyrics": "",
-      "audio": "audio/You're all I have/06 Verse 2/048 You're all I have Verse 2.mp3",
-      "has_accents": false
-    },
-    "B0601": {
-      "part_id": "HDX1IN_P005",
-      "bar_num": 77,
-      "lyrics": "",
-      "audio": "audio/You're all I have/06 Verse 2/049 You're all I have Verse 2.mp3",
-      "has_accents": false
-    },
-    "B0602": {
-      "part_id": "HDX1IN_P005",
-      "bar_num": 78,
-      "lyrics": "",
-      "audio": "audio/You're all I have/06 Verse 2/050 You're all I have Verse 2.mp3",
-      "has_accents": false
-    },
-    "B0605": {
-      "part_id": "HDX1IN_P006",
-      "bar_num": 89,
-      "lyrics": "",
-      "audio": "audio/You're all I have/07 Pre-Chorus 2/052 You're all I have Pre-Chorus 2.mp3",
-      "has_accents": false
-    },
-    "B0606": {
-      "part_id": "HDX1IN_P006",
-      "bar_num": 90,
-      "lyrics": "",
-      "audio": "audio/You're all I have/07 Pre-Chorus 2/053 You're all I have Pre-Chorus 2.mp3",
-      "has_accents": false
-    },
-    "B0607": {
-      "part_id": "HDX1IN_P006",
-      "bar_num": 91,
-      "lyrics": "",
-      "audio": "audio/You're all I have/07 Pre-Chorus 2/054 You're all I have Pre-Chorus 2.mp3",
-      "has_accents": false
-    },
-    "B0608": {
-      "part_id": "HDX1IN_P006",
-      "bar_num": 92,
-      "lyrics": "",
-      "audio": "audio/You're all I have/07 Pre-Chorus 2/055 You're all I have Pre-Chorus 2.mp3",
-      "has_accents": false
-    },
-    "B0609": {
-      "part_id": "HDX1IN_P006",
-      "bar_num": 93,
-      "lyrics": "",
-      "audio": "audio/You're all I have/07 Pre-Chorus 2/056 You're all I have Pre-Chorus 2.mp3",
-      "has_accents": false
-    },
-    "B0610": {
-      "part_id": "HDX1IN_P006",
-      "bar_num": 94,
-      "lyrics": "",
-      "audio": "audio/You're all I have/07 Pre-Chorus 2/057 You're all I have Pre-Chorus 2.mp3",
-      "has_accents": false
-    },
-    "B0611": {
-      "part_id": "HDX1IN_P006",
-      "bar_num": 95,
-      "lyrics": "",
-      "audio": "audio/You're all I have/07 Pre-Chorus 2/058 You're all I have Pre-Chorus 2.mp3",
-      "has_accents": false
-    },
-    "B0612": {
-      "part_id": "HDX1IN_P006",
-      "bar_num": 96,
-      "lyrics": "",
-      "audio": "audio/You're all I have/07 Pre-Chorus 2/059 You're all I have Pre-Chorus 2.mp3",
-      "has_accents": false
-    },
-    "B0613": {
-      "part_id": "HDX1IN_P006",
-      "bar_num": 97,
-      "lyrics": "",
-      "audio": "audio/You're all I have/07 Pre-Chorus 2/060 You're all I have Pre-Chorus 2.mp3",
-      "has_accents": false
-    },
-    "B0614": {
-      "part_id": "HDX1IN_P006",
-      "bar_num": 98,
-      "lyrics": "",
-      "audio": "audio/You're all I have/07 Pre-Chorus 2/061 You're all I have Pre-Chorus 2.mp3",
-      "has_accents": false
-    },
-    "B0615": {
-      "part_id": "HDX1IN_P007",
-      "bar_num": 106,
-      "lyrics": "",
-      "audio": "audio/You're all I have/08 Chorus 2/061 You're all I have Chorus 2.mp3",
-      "has_accents": false
-    },
-    "B0616": {
-      "part_id": "HDX1IN_P007",
-      "bar_num": 107,
-      "lyrics": "",
-      "audio": "audio/You're all I have/08 Chorus 2/062 You're all I have Chorus 2.mp3",
-      "has_accents": false
-    },
-    "B0617": {
-      "part_id": "HDX1IN_P007",
-      "bar_num": 108,
-      "lyrics": "",
-      "audio": "audio/You're all I have/08 Chorus 2/063 You're all I have Chorus 2.mp3",
-      "has_accents": false
-    },
-    "B0618": {
-      "part_id": "HDX1IN_P007",
-      "bar_num": 109,
-      "lyrics": "",
-      "audio": "audio/You're all I have/08 Chorus 2/064 You're all I have Chorus 2.mp3",
-      "has_accents": false
-    },
-    "B0619": {
-      "part_id": "HDX1IN_P007",
-      "bar_num": 110,
-      "lyrics": "",
-      "audio": "audio/You're all I have/08 Chorus 2/065 You're all I have Chorus 2.mp3",
-      "has_accents": false
-    },
-    "B0620": {
-      "part_id": "HDX1IN_P007",
-      "bar_num": 111,
-      "lyrics": "",
-      "audio": "audio/You're all I have/08 Chorus 2/066 You're all I have Chorus 2.mp3",
-      "has_accents": false
-    },
-    "B0621": {
-      "part_id": "HDX1IN_P007",
-      "bar_num": 112,
-      "lyrics": "",
-      "audio": "audio/You're all I have/08 Chorus 2/067 You're all I have Chorus 2.mp3",
-      "has_accents": false
-    },
-    "B0622": {
-      "part_id": "HDX1IN_P007",
-      "bar_num": 113,
-      "lyrics": "",
-      "audio": "audio/You're all I have/08 Chorus 2/068 You're all I have Chorus 2.mp3",
-      "has_accents": false
-    },
-    "B0623": {
-      "part_id": "HDX1IN_P007",
-      "bar_num": 114,
-      "lyrics": "",
-      "audio": "audio/You're all I have/08 Chorus 2/069 You're all I have Chorus 2.mp3",
-      "has_accents": false
-    },
-    "B0624": {
-      "part_id": "HDX1IN_P007",
-      "bar_num": 115,
-      "lyrics": "",
-      "audio": "audio/You're all I have/08 Chorus 2/070 You're all I have Chorus 2.mp3",
-      "has_accents": false
-    },
-    "B0625": {
-      "part_id": "HDX1IN_P007",
-      "bar_num": 116,
-      "lyrics": "",
-      "audio": "audio/You're all I have/08 Chorus 2/071 You're all I have Chorus 2.mp3",
-      "has_accents": false
-    },
-    "B0626": {
-      "part_id": "HDX1IN_P007",
-      "bar_num": 117,
-      "lyrics": "",
-      "audio": "audio/You're all I have/08 Chorus 2/072 You're all I have Chorus 2.mp3",
-      "has_accents": false
-    },
-    "B0627": {
-      "part_id": "HDX1IN_P007",
-      "bar_num": 118,
-      "lyrics": "",
-      "audio": "audio/You're all I have/08 Chorus 2/073 You're all I have Chorus 2.mp3",
-      "has_accents": false
-    },
-    "B0628": {
-      "part_id": "HDX1IN_P007",
-      "bar_num": 119,
-      "lyrics": "",
-      "audio": "audio/You're all I have/08 Chorus 2/074 You're all I have Chorus 2.mp3",
-      "has_accents": false
-    },
-    "B0629": {
-      "part_id": "HDX1IN_P007",
-      "bar_num": 120,
-      "lyrics": "",
-      "audio": "audio/You're all I have/08 Chorus 2/075 You're all I have Chorus 2.mp3",
-      "has_accents": false
-    },
-    "B0630": {
-      "part_id": "HDX1IN_P007",
-      "bar_num": 121,
-      "lyrics": "",
-      "audio": "audio/You're all I have/08 Chorus 2/076 You're all I have Chorus 2.mp3",
-      "has_accents": false
-    },
-    "B0631": {
-      "part_id": "HDX1IN_P007",
-      "bar_num": 122,
-      "lyrics": "",
-      "audio": "audio/You're all I have/08 Chorus 2/077 You're all I have Chorus 2.mp3",
-      "has_accents": false
-    },
-    "B0632": {
-      "part_id": "HDX1IN_P008",
-      "bar_num": 131,
-      "lyrics": "",
-      "audio": "audio/You're all I have/09 Bridge/079 You're all I have Bridge.mp3",
-      "has_accents": true
-    },
-    "B0633": {
-      "part_id": "HDX1IN_P008",
-      "bar_num": 132,
-      "lyrics": "",
-      "audio": "audio/You're all I have/09 Bridge/080 You're all I have Bridge.mp3",
-      "has_accents": false
-    },
-    "B0634": {
-      "part_id": "HDX1IN_P008",
-      "bar_num": 133,
-      "lyrics": "",
-      "audio": "audio/You're all I have/09 Bridge/081 You're all I have Bridge.mp3",
-      "has_accents": false
-    },
-    "B0635": {
-      "part_id": "HDX1IN_P008",
-      "bar_num": 134,
-      "lyrics": "",
-      "audio": "audio/You're all I have/09 Bridge/082 You're all I have Bridge.mp3",
-      "has_accents": false
-    },
-    "B0636": {
-      "part_id": "HDX1IN_P008",
-      "bar_num": 135,
-      "lyrics": "",
-      "audio": "audio/You're all I have/09 Bridge/083 You're all I have Bridge.mp3",
-      "has_accents": false
-    },
-    "B0637": {
-      "part_id": "HDX1IN_P008",
-      "bar_num": 136,
-      "lyrics": "",
-      "audio": "audio/You're all I have/09 Bridge/084 You're all I have Bridge.mp3",
-      "has_accents": false
-    },
-    "B0638": {
-      "part_id": "HDX1IN_P008",
-      "bar_num": 137,
-      "lyrics": "",
-      "audio": "audio/You're all I have/09 Bridge/085 You're all I have Bridge.mp3",
-      "has_accents": false
-    },
-    "B0639": {
-      "part_id": "HDX1IN_P008",
-      "bar_num": 138,
-      "lyrics": "",
-      "audio": "audio/You're all I have/09 Bridge/086 You're all I have Bridge.mp3",
-      "has_accents": false
-    },
-    "B0640": {
-      "part_id": "HDX1IN_P008",
-      "bar_num": 139,
-      "lyrics": "",
-      "audio": "audio/You're all I have/09 Bridge/087 You're all I have Bridge.mp3",
-      "has_accents": false
-    },
-    "B0641": {
-      "part_id": "HDX1IN_P009",
-      "bar_num": 146,
-      "lyrics": "",
-      "audio": "audio/You're all I have/10 Interlude/088 You're all I have Interlude.mp3",
-      "has_accents": false
-    },
-    "B0642": {
-      "part_id": "HDX1IN_P009",
-      "bar_num": 147,
-      "lyrics": "",
-      "audio": "audio/You're all I have/10 Interlude/089 You're all I have Interlude.mp3",
-      "has_accents": false
-    },
-    "B0643": {
-      "part_id": "HDX1IN_P009",
-      "bar_num": 148,
-      "lyrics": "",
-      "audio": "audio/You're all I have/10 Interlude/090 You're all I have Interlude.mp3",
-      "has_accents": false
-    },
-    "B0644": {
-      "part_id": "HDX1IN_P009",
-      "bar_num": 149,
-      "lyrics": "",
-      "audio": "audio/You're all I have/10 Interlude/091 You're all I have Interlude.mp3",
-      "has_accents": false
-    },
-    "B0645": {
-      "part_id": "HDX1IN_P009",
-      "bar_num": 150,
-      "lyrics": "",
-      "audio": "audio/You're all I have/10 Interlude/092 You're all I have Interlude.mp3",
+      "audio": "audio/You're all I have/03 Verse 1/028 You're all I have Verse 1.mp3",
       "has_accents": false
     },
     "B0646": {
@@ -18862,611 +18379,695 @@
       "audio": "",
       "has_accents": false
     },
-    "B0654": {
-      "part_id": "HDX1IN_P002",
-      "bar_num": 29,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0655": {
-      "part_id": "HDX1IN_P002",
-      "bar_num": 30,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0656": {
-      "part_id": "HDX1IN_P002",
-      "bar_num": 31,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0657": {
-      "part_id": "HDX1IN_P002",
+    "B0840": {
+      "part_id": "HDX1IN_P003",
       "bar_num": 32,
       "lyrics": "",
       "audio": "",
       "has_accents": false
     },
-    "B0658": {
-      "part_id": "HDX1IN_P002",
+    "B0841": {
+      "part_id": "HDX1IN_P003",
       "bar_num": 33,
       "lyrics": "",
       "audio": "",
       "has_accents": false
     },
-    "B0659": {
-      "part_id": "HDX1IN_P002",
-      "bar_num": 34,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0660": {
-      "part_id": "HDX1IN_P002",
-      "bar_num": 35,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0661": {
-      "part_id": "HDX1IN_P002",
-      "bar_num": 36,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0662": {
-      "part_id": "HDX1IN_P002",
+    "B0844": {
+      "part_id": "HDX1IN_P004",
       "bar_num": 37,
       "lyrics": "",
       "audio": "",
       "has_accents": false
     },
-    "B0663": {
-      "part_id": "HDX1IN_P003",
+    "B0845": {
+      "part_id": "HDX1IN_P004",
+      "bar_num": 38,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0846": {
+      "part_id": "HDX1IN_P004",
+      "bar_num": 39,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0847": {
+      "part_id": "HDX1IN_P004",
+      "bar_num": 40,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0848": {
+      "part_id": "HDX1IN_P004",
+      "bar_num": 41,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0849": {
+      "part_id": "HDX1IN_P004",
       "bar_num": 42,
       "lyrics": "",
       "audio": "",
       "has_accents": false
     },
-    "B0664": {
-      "part_id": "HDX1IN_P003",
-      "bar_num": 43,
+    "B0853": {
+      "part_id": "HDX1IN_P005",
+      "bar_num": 47,
       "lyrics": "",
       "audio": "",
       "has_accents": false
     },
-    "B0665": {
-      "part_id": "HDX1IN_P003",
-      "bar_num": 44,
+    "B0854": {
+      "part_id": "HDX1IN_P005",
+      "bar_num": 48,
       "lyrics": "",
       "audio": "",
       "has_accents": false
     },
-    "B0666": {
-      "part_id": "HDX1IN_P003",
-      "bar_num": 45,
+    "B0855": {
+      "part_id": "HDX1IN_P005",
+      "bar_num": 49,
       "lyrics": "",
       "audio": "",
       "has_accents": false
     },
-    "B0667": {
-      "part_id": "HDX1IN_P004",
+    "B0856": {
+      "part_id": "HDX1IN_P005",
+      "bar_num": 50,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0857": {
+      "part_id": "HDX1IN_P005",
+      "bar_num": 51,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0858": {
+      "part_id": "HDX1IN_P005",
+      "bar_num": 52,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0859": {
+      "part_id": "HDX1IN_P005",
+      "bar_num": 53,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0860": {
+      "part_id": "HDX1IN_P005",
       "bar_num": 54,
       "lyrics": "",
       "audio": "",
       "has_accents": false
     },
-    "B0668": {
-      "part_id": "HDX1IN_P004",
+    "B0861": {
+      "part_id": "HDX1IN_P005",
       "bar_num": 55,
       "lyrics": "",
       "audio": "",
       "has_accents": false
     },
-    "B0669": {
-      "part_id": "HDX1IN_P004",
+    "B0862": {
+      "part_id": "HDX1IN_P005",
       "bar_num": 56,
       "lyrics": "",
       "audio": "",
       "has_accents": false
     },
-    "B0670": {
-      "part_id": "HDX1IN_P004",
+    "B0863": {
+      "part_id": "HDX1IN_P005",
       "bar_num": 57,
       "lyrics": "",
       "audio": "",
       "has_accents": false
     },
-    "B0671": {
-      "part_id": "HDX1IN_P004",
+    "B0864": {
+      "part_id": "HDX1IN_P005",
       "bar_num": 58,
       "lyrics": "",
       "audio": "",
       "has_accents": false
     },
-    "B0672": {
-      "part_id": "HDX1IN_P004",
+    "B0865": {
+      "part_id": "HDX1IN_P005",
       "bar_num": 59,
       "lyrics": "",
       "audio": "",
       "has_accents": false
     },
-    "B0673": {
-      "part_id": "HDX1IN_P004",
+    "B0866": {
+      "part_id": "HDX1IN_P005",
       "bar_num": 60,
       "lyrics": "",
       "audio": "",
       "has_accents": false
     },
-    "B0674": {
-      "part_id": "HDX1IN_P004",
-      "bar_num": 61,
+    "B0871": {
+      "part_id": "HDX1IN_P006",
+      "bar_num": 66,
       "lyrics": "",
       "audio": "",
       "has_accents": false
     },
-    "B0675": {
-      "part_id": "HDX1IN_P004",
-      "bar_num": 62,
+    "B0872": {
+      "part_id": "HDX1IN_P006",
+      "bar_num": 67,
       "lyrics": "",
       "audio": "",
       "has_accents": false
     },
-    "B0676": {
-      "part_id": "HDX1IN_P005",
+    "B0873": {
+      "part_id": "HDX1IN_P006",
+      "bar_num": 68,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0879": {
+      "part_id": "HDX1IN_P007",
+      "bar_num": 75,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0880": {
+      "part_id": "HDX1IN_P007",
+      "bar_num": 76,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0881": {
+      "part_id": "HDX1IN_P007",
+      "bar_num": 77,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0882": {
+      "part_id": "HDX1IN_P007",
+      "bar_num": 78,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0883": {
+      "part_id": "HDX1IN_P007",
       "bar_num": 79,
       "lyrics": "",
       "audio": "",
       "has_accents": false
     },
-    "B0677": {
-      "part_id": "HDX1IN_P005",
+    "B0884": {
+      "part_id": "HDX1IN_P007",
       "bar_num": 80,
       "lyrics": "",
       "audio": "",
       "has_accents": false
     },
-    "B0678": {
-      "part_id": "HDX1IN_P005",
+    "B0885": {
+      "part_id": "HDX1IN_P007",
       "bar_num": 81,
       "lyrics": "",
       "audio": "",
       "has_accents": false
     },
-    "B0679": {
-      "part_id": "HDX1IN_P005",
+    "B0886": {
+      "part_id": "HDX1IN_P007",
       "bar_num": 82,
       "lyrics": "",
       "audio": "",
       "has_accents": false
     },
-    "B0680": {
-      "part_id": "HDX1IN_P005",
+    "B0887": {
+      "part_id": "HDX1IN_P007",
       "bar_num": 83,
       "lyrics": "",
       "audio": "",
       "has_accents": false
     },
-    "B0681": {
-      "part_id": "HDX1IN_P005",
+    "B0888": {
+      "part_id": "HDX1IN_P007",
       "bar_num": 84,
       "lyrics": "",
       "audio": "",
       "has_accents": false
     },
-    "B0682": {
-      "part_id": "HDX1IN_P005",
+    "B0889": {
+      "part_id": "HDX1IN_P007",
       "bar_num": 85,
       "lyrics": "",
       "audio": "",
       "has_accents": false
     },
-    "B0683": {
+    "B0896": {
+      "part_id": "HDX1IN_P008",
+      "bar_num": 93,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0912": {
+      "part_id": "HDX1IN_P010",
+      "bar_num": 111,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0913": {
+      "part_id": "HDX1IN_P010",
+      "bar_num": 112,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0914": {
+      "part_id": "HDX1IN_P010",
+      "bar_num": 113,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0915": {
+      "part_id": "HDX1IN_P010",
+      "bar_num": 114,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0916": {
+      "part_id": "HDX1IN_P010",
+      "bar_num": 115,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0917": {
+      "part_id": "HDX1IN_P010",
+      "bar_num": 116,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0918": {
+      "part_id": "HDX1IN_P010",
+      "bar_num": 117,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0919": {
+      "part_id": "HDX1IN_P010",
+      "bar_num": 118,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0938": {
+      "part_id": "HDX1IN_P002",
+      "bar_num": 13,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0939": {
+      "part_id": "HDX1IN_P003",
+      "bar_num": 31,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0940": {
+      "part_id": "HDX1IN_P004",
+      "bar_num": 36,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0941": {
       "part_id": "HDX1IN_P005",
-      "bar_num": 86,
+      "bar_num": 46,
       "lyrics": "",
       "audio": "",
       "has_accents": false
     },
-    "B0684": {
-      "part_id": "HDX1IN_P005",
-      "bar_num": 87,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0685": {
-      "part_id": "HDX1IN_P005",
-      "bar_num": 88,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0686": {
+    "B0942": {
       "part_id": "HDX1IN_P006",
-      "bar_num": 99,
+      "bar_num": 65,
       "lyrics": "",
       "audio": "",
       "has_accents": false
     },
-    "B0687": {
-      "part_id": "HDX1IN_P006",
-      "bar_num": 100,
+    "B0943": {
+      "part_id": "HDX1IN_P007",
+      "bar_num": 74,
       "lyrics": "",
       "audio": "",
       "has_accents": false
     },
-    "B0688": {
-      "part_id": "HDX1IN_P006",
+    "B0944": {
+      "part_id": "HDX1IN_P008",
+      "bar_num": 92,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0945": {
+      "part_id": "HDX1IN_P009",
       "bar_num": 101,
       "lyrics": "",
       "audio": "",
       "has_accents": false
     },
-    "B0689": {
+    "B0946": {
+      "part_id": "HDX1IN_P010",
+      "bar_num": 110,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0948": {
+      "part_id": "HDX1IN_P003",
+      "bar_num": 30,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0949": {
+      "part_id": "HDX1IN_P004",
+      "bar_num": 34,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0950": {
+      "part_id": "HDX1IN_P004",
+      "bar_num": 35,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0951": {
+      "part_id": "HDX1IN_P005",
+      "bar_num": 43,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0952": {
+      "part_id": "HDX1IN_P005",
+      "bar_num": 44,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0953": {
+      "part_id": "HDX1IN_P005",
+      "bar_num": 45,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0954": {
       "part_id": "HDX1IN_P006",
+      "bar_num": 61,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0955": {
+      "part_id": "HDX1IN_P006",
+      "bar_num": 62,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0956": {
+      "part_id": "HDX1IN_P006",
+      "bar_num": 63,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0957": {
+      "part_id": "HDX1IN_P006",
+      "bar_num": 64,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0958": {
+      "part_id": "HDX1IN_P007",
+      "bar_num": 69,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0959": {
+      "part_id": "HDX1IN_P007",
+      "bar_num": 70,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0960": {
+      "part_id": "HDX1IN_P007",
+      "bar_num": 71,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0961": {
+      "part_id": "HDX1IN_P007",
+      "bar_num": 72,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0962": {
+      "part_id": "HDX1IN_P007",
+      "bar_num": 73,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0963": {
+      "part_id": "HDX1IN_P008",
+      "bar_num": 86,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0964": {
+      "part_id": "HDX1IN_P008",
+      "bar_num": 87,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0965": {
+      "part_id": "HDX1IN_P008",
+      "bar_num": 88,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0966": {
+      "part_id": "HDX1IN_P008",
+      "bar_num": 89,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0967": {
+      "part_id": "HDX1IN_P008",
+      "bar_num": 90,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0968": {
+      "part_id": "HDX1IN_P008",
+      "bar_num": 91,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0969": {
+      "part_id": "HDX1IN_P009",
+      "bar_num": 94,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0970": {
+      "part_id": "HDX1IN_P009",
+      "bar_num": 95,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0971": {
+      "part_id": "HDX1IN_P009",
+      "bar_num": 96,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0972": {
+      "part_id": "HDX1IN_P009",
+      "bar_num": 97,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0973": {
+      "part_id": "HDX1IN_P009",
+      "bar_num": 98,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0974": {
+      "part_id": "HDX1IN_P009",
+      "bar_num": 99,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0975": {
+      "part_id": "HDX1IN_P009",
+      "bar_num": 100,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0976": {
+      "part_id": "HDX1IN_P010",
       "bar_num": 102,
       "lyrics": "",
       "audio": "",
       "has_accents": false
     },
-    "B0690": {
-      "part_id": "HDX1IN_P006",
+    "B0977": {
+      "part_id": "HDX1IN_P010",
       "bar_num": 103,
       "lyrics": "",
       "audio": "",
       "has_accents": false
     },
-    "B0691": {
-      "part_id": "HDX1IN_P006",
+    "B0978": {
+      "part_id": "HDX1IN_P010",
       "bar_num": 104,
       "lyrics": "",
       "audio": "",
       "has_accents": false
     },
-    "B0692": {
-      "part_id": "HDX1IN_P006",
+    "B0979": {
+      "part_id": "HDX1IN_P010",
       "bar_num": 105,
       "lyrics": "",
       "audio": "",
       "has_accents": false
     },
-    "B0693": {
-      "part_id": "HDX1IN_P007",
+    "B0980": {
+      "part_id": "HDX1IN_P010",
+      "bar_num": 106,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0981": {
+      "part_id": "HDX1IN_P010",
+      "bar_num": 107,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0982": {
+      "part_id": "HDX1IN_P010",
+      "bar_num": 108,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0983": {
+      "part_id": "HDX1IN_P010",
+      "bar_num": 109,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0984": {
+      "part_id": "HDX1IN_P011",
+      "bar_num": 119,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0985": {
+      "part_id": "HDX1IN_P011",
+      "bar_num": 120,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0986": {
+      "part_id": "HDX1IN_P011",
+      "bar_num": 121,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0987": {
+      "part_id": "HDX1IN_P011",
+      "bar_num": 122,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0988": {
+      "part_id": "HDX1IN_P011",
       "bar_num": 123,
       "lyrics": "",
       "audio": "",
       "has_accents": false
     },
-    "B0694": {
-      "part_id": "HDX1IN_P007",
+    "B0989": {
+      "part_id": "HDX1IN_P011",
       "bar_num": 124,
       "lyrics": "",
       "audio": "",
       "has_accents": false
     },
-    "B0695": {
-      "part_id": "HDX1IN_P007",
+    "B0990": {
+      "part_id": "HDX1IN_P011",
       "bar_num": 125,
       "lyrics": "",
       "audio": "",
       "has_accents": false
     },
-    "B0696": {
-      "part_id": "HDX1IN_P007",
+    "B0991": {
+      "part_id": "HDX1IN_P011",
       "bar_num": 126,
       "lyrics": "",
       "audio": "",
       "has_accents": false
     },
-    "B0697": {
-      "part_id": "HDX1IN_P007",
+    "B0992": {
+      "part_id": "HDX1IN_P011",
       "bar_num": 127,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0698": {
-      "part_id": "HDX1IN_P007",
-      "bar_num": 128,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0699": {
-      "part_id": "HDX1IN_P007",
-      "bar_num": 129,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0700": {
-      "part_id": "HDX1IN_P007",
-      "bar_num": 130,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0701": {
-      "part_id": "HDX1IN_P008",
-      "bar_num": 140,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0702": {
-      "part_id": "HDX1IN_P008",
-      "bar_num": 141,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0703": {
-      "part_id": "HDX1IN_P008",
-      "bar_num": 142,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0704": {
-      "part_id": "HDX1IN_P008",
-      "bar_num": 143,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0705": {
-      "part_id": "HDX1IN_P008",
-      "bar_num": 144,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0706": {
-      "part_id": "HDX1IN_P008",
-      "bar_num": 145,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0707": {
-      "part_id": "HDX1IN_P009",
-      "bar_num": 151,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0708": {
-      "part_id": "HDX1IN_P009",
-      "bar_num": 152,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0709": {
-      "part_id": "HDX1IN_P009",
-      "bar_num": 153,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0710": {
-      "part_id": "HDX1IN_P009",
-      "bar_num": 154,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0711": {
-      "part_id": "HDX1IN_P009",
-      "bar_num": 155,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0712": {
-      "part_id": "HDX1IN_P009",
-      "bar_num": 156,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0713": {
-      "part_id": "HDX1IN_P009",
-      "bar_num": 157,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0714": {
-      "part_id": "HDX1IN_P009",
-      "bar_num": 158,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0715": {
-      "part_id": "HDX1IN_P010",
-      "bar_num": 159,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0716": {
-      "part_id": "HDX1IN_P010",
-      "bar_num": 160,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0717": {
-      "part_id": "HDX1IN_P010",
-      "bar_num": 161,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0718": {
-      "part_id": "HDX1IN_P010",
-      "bar_num": 162,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0719": {
-      "part_id": "HDX1IN_P010",
-      "bar_num": 163,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0720": {
-      "part_id": "HDX1IN_P010",
-      "bar_num": 164,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0721": {
-      "part_id": "HDX1IN_P010",
-      "bar_num": 165,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0722": {
-      "part_id": "HDX1IN_P010",
-      "bar_num": 166,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0723": {
-      "part_id": "HDX1IN_P010",
-      "bar_num": 167,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0724": {
-      "part_id": "HDX1IN_P010",
-      "bar_num": 168,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0725": {
-      "part_id": "HDX1IN_P010",
-      "bar_num": 169,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0726": {
-      "part_id": "HDX1IN_P010",
-      "bar_num": 170,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0727": {
-      "part_id": "HDX1IN_P010",
-      "bar_num": 171,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0728": {
-      "part_id": "HDX1IN_P010",
-      "bar_num": 172,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0729": {
-      "part_id": "HDX1IN_P010",
-      "bar_num": 173,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0730": {
-      "part_id": "HDX1IN_P010",
-      "bar_num": 174,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0731": {
-      "part_id": "HDX1IN_P010",
-      "bar_num": 175,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0732": {
-      "part_id": "HDX1IN_P011",
-      "bar_num": 176,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0733": {
-      "part_id": "HDX1IN_P011",
-      "bar_num": 177,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0734": {
-      "part_id": "HDX1IN_P011",
-      "bar_num": 178,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0735": {
-      "part_id": "HDX1IN_P011",
-      "bar_num": 179,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0736": {
-      "part_id": "HDX1IN_P011",
-      "bar_num": 180,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0737": {
-      "part_id": "HDX1IN_P011",
-      "bar_num": 181,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0738": {
-      "part_id": "HDX1IN_P011",
-      "bar_num": 182,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0739": {
-      "part_id": "HDX1IN_P011",
-      "bar_num": 183,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0740": {
-      "part_id": "HDX1IN_P011",
-      "bar_num": 184,
       "lyrics": "",
       "audio": "",
       "has_accents": false
@@ -19501,12 +19102,6 @@
       "bar_id": "B0278",
       "pos_16th": 1,
       "type": "st",
-      "notes": ""
-    },
-    "A0006": {
-      "bar_id": "B0632",
-      "pos_16th": 1,
-      "type": "fg",
       "notes": ""
     }
   },

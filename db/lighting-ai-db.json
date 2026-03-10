@@ -13870,7 +13870,7 @@
           "name": "Bridge",
           "bars": 9,
           "duration_sec": 14,
-          "light_template": "bridge_atmospheric",
+          "light_template": "Spot auf Pete",
           "notes": ""
         },
         "HDX1IN_P009": {

@@ -604,8 +604,127 @@ export function getPlaybackRate() {
  */
 export function reset() {
   stop();
+  stopClick();
   audioBuffer = null;
   pausedAt = 0;
   playing = false;
   onEndCallback = null;
+}
+
+/* ── Click Track (Metronome) ─────────────────────── */
+
+let _clickEnabled = false;
+let _clickBpm = 0;
+let _clickGain = null;       // GainNode for click volume
+let _clickTimerId = null;    // setTimeout handle for scheduler
+let _clickNextBeat = 0;      // next beat time in AudioContext time
+let _clickLookahead = 0.1;   // schedule 100ms ahead
+let _clickInterval = 25;     // scheduler runs every 25ms
+let _clickVolume = 0.35;     // default click volume
+
+/**
+ * Create a short click sound (high-pitched tick).
+ * @param {number} when - AudioContext time to play
+ * @param {boolean} [accent=false] - louder accent on beat 1
+ */
+function _scheduleClick(when, accent = false) {
+  const ac = getContext();
+  if (!_clickGain) {
+    _clickGain = ac.createGain();
+    _clickGain.connect(ac.destination);
+  }
+  _clickGain.gain.value = _clickVolume;
+
+  const osc = ac.createOscillator();
+  const env = ac.createGain();
+  osc.type = 'sine';
+  osc.frequency.value = accent ? 1200 : 880;
+  env.gain.setValueAtTime(accent ? 0.6 : 0.4, when);
+  env.gain.exponentialRampToValueAtTime(0.001, when + 0.04);
+  osc.connect(env);
+  env.connect(_clickGain);
+  osc.start(when);
+  osc.stop(when + 0.05);
+}
+
+/**
+ * Start the click track scheduler.
+ * Schedules clicks ahead using the Web Audio API clock for sample-accurate timing.
+ */
+function _clickScheduler() {
+  if (!_clickEnabled || _clickBpm <= 0 || !playing) return;
+  const ac = getContext();
+  const beatInterval = 60.0 / _clickBpm;
+
+  while (_clickNextBeat < ac.currentTime + _clickLookahead) {
+    if (_clickNextBeat >= ac.currentTime - 0.01) {
+      _scheduleClick(_clickNextBeat);
+    }
+    _clickNextBeat += beatInterval;
+  }
+  _clickTimerId = setTimeout(_clickScheduler, _clickInterval);
+}
+
+/**
+ * Start click track from a given audio position.
+ * @param {number} audioOffset - current position in audio (seconds)
+ */
+export function startClick(audioOffset) {
+  if (!_clickEnabled || _clickBpm <= 0) return;
+  const ac = getContext();
+  const beatInterval = 60.0 / _clickBpm;
+
+  // Calculate time of the next beat relative to audio position
+  const beatsElapsed = audioOffset / beatInterval;
+  const nextBeatNum = Math.ceil(beatsElapsed);
+  const nextBeatAudioTime = nextBeatNum * beatInterval;
+  const deltaFromNow = (nextBeatAudioTime - audioOffset) / _playbackRate;
+
+  _clickNextBeat = ac.currentTime + deltaFromNow;
+  if (_clickTimerId) clearTimeout(_clickTimerId);
+  _clickScheduler();
+}
+
+/**
+ * Stop the click track scheduler.
+ */
+export function stopClick() {
+  if (_clickTimerId) {
+    clearTimeout(_clickTimerId);
+    _clickTimerId = null;
+  }
+}
+
+/**
+ * Enable or disable click track.
+ * @param {boolean} enabled
+ */
+export function setClickEnabled(enabled) {
+  _clickEnabled = enabled;
+  if (!enabled) stopClick();
+}
+
+/**
+ * Is click track enabled?
+ * @returns {boolean}
+ */
+export function isClickEnabled() {
+  return _clickEnabled;
+}
+
+/**
+ * Set the BPM for the click track.
+ * @param {number} bpm
+ */
+export function setClickBpm(bpm) {
+  _clickBpm = bpm > 0 ? bpm : 0;
+}
+
+/**
+ * Set click volume (0.0 - 1.0).
+ * @param {number} vol
+ */
+export function setClickVolume(vol) {
+  _clickVolume = Math.max(0, Math.min(1, vol));
+  if (_clickGain) _clickGain.gain.value = _clickVolume;
 }

@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.3.10';
+const APP_VERSION = 'v1.3.12';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -58,6 +58,7 @@ let _dragMarker = null;        // { type: 'part'|'bar', index: number, originalT
 let _isDragging = false;       // true while actively dragging (moved > threshold)
 let _dragStartX = 0;           // mouse/touch start X for drag threshold
 let _dragSuppressClick = false; // prevent seek after drag ends
+let clickEnabled = false;        // click track on/off
 let _suppressAutoScroll = false; // prevent auto-scroll after drag finalize
 let _isTouchDrag = false;       // true when drag was initiated by touch (not mouse)
 
@@ -2341,6 +2342,8 @@ function buildTransport() {
   const pct = dur > 0 ? (cur / dur * 100) : 0;
   const speedLabel = playbackSpeed === 1 ? '1\u00d7' : playbackSpeed.toFixed(2).replace(/0$/, '') + '\u00d7';
   const zoomLabel = waveformZoom === 1 ? '1\u00d7' : waveformZoom.toFixed(1) + '\u00d7';
+  const songBpm = selectedSongId && db && db.songs[selectedSongId] ? db.songs[selectedSongId].bpm : 0;
+  const clickAvailable = songBpm > 0;
   return `
     <div class="transport-bar" id="transport-bar">
       <button class="t-btn" id="t-skip" title="Zum Anfang">&#9198;</button>
@@ -2356,6 +2359,9 @@ function buildTransport() {
         <span class="t-speed-label" id="t-speed-label">${speedLabel}</span>
         <button class="t-speed-btn" id="t-speed-up" title="Schneller">+</button>
       </div>
+      ${clickAvailable ? `<button class="t-click${clickEnabled ? ' active' : ''}" id="t-click" title="Click Track (${songBpm} BPM)">
+        <span class="t-click-icon">&#9834;</span><span class="t-click-bpm">${songBpm}</span>
+      </button>` : ''}
       <div class="t-zoom" id="t-zoom">
         <button class="t-zoom-btn" id="t-zoom-out" title="Zoom Out">&minus;</button>
         <span class="t-zoom-label" id="t-zoom-label">&#128269; ${zoomLabel}</span>
@@ -2672,7 +2678,7 @@ function drawWaveform() {
   const wrapRect = wrap.getBoundingClientRect();
   const baseW = wrapRect.width;
   const totalW = baseW * waveformZoom;  // virtual total width
-  const h = 120;
+  const h = wrapRect.height || 120;
 
   // Viewport-based rendering: canvas is always viewport-sized,
   // only the scroll container spans the full virtual width.
@@ -2684,7 +2690,7 @@ function drawWaveform() {
   canvas.width = viewW * dpr;
   canvas.height = h * dpr;
   canvas.style.width = viewW + 'px';
-  canvas.style.height = h + 'px';
+  canvas.style.height = '100%';
   // Pin canvas to viewport via CSS left offset inside scroll container
   canvas.style.position = 'sticky';
   canvas.style.left = '0px';
@@ -3815,6 +3821,7 @@ function handleWaveformClick(e) {
   const pct = x / totalW;
   const time = pct * audioMeta.duration;
   audio.seek(time);
+  if (audio.isPlaying()) audio.startClick(time);
   drawWaveform();
   updateTransportDisplay();
 }
@@ -3824,16 +3831,20 @@ function handlePlayPause() {
   audio.warmup(); // Ensure AudioContext is running (iOS gesture requirement)
   if (audio.isPlaying()) {
     audio.pause();
+    audio.stopClick();
     stopPlayheadAnimation();
     updateTapButtonStates();
   } else {
     // play() is synchronous — starts source immediately.
     // If AudioContext was suspended, audio + playhead sync via statechange listener.
     audio.play(() => {
+      audio.stopClick();
       stopPlayheadAnimation();
       updateTapButtonStates();
       updatePlayButton();
     });
+    syncClickToSong();
+    audio.startClick(audio.getCurrentTime());
     startPlayheadAnimation();
     updateTapButtonStates();
   }
@@ -3842,6 +3853,7 @@ function handlePlayPause() {
 
 function handleSkipToStart() {
   audio.seek(0);
+  if (audio.isPlaying()) audio.startClick(0);
   drawWaveform();
   updateTransportDisplay();
 }
@@ -3854,6 +3866,7 @@ function handleProgressClick(e) {
   const pct = (e.clientX - rect.left) / rect.width;
   const time = pct * audioMeta.duration;
   audio.seek(time);
+  if (audio.isPlaying()) audio.startClick(time);
   drawWaveform();
   updateTransportDisplay();
 }
@@ -4148,6 +4161,33 @@ async function handleDeleteAllBarMarkers() {
   renderAudioTab();
 }
 
+/* ── Click Track Toggle ──────────────────────────── */
+
+function handleClickToggle() {
+  clickEnabled = !clickEnabled;
+  audio.setClickEnabled(clickEnabled);
+  if (clickEnabled) {
+    const songBpm = selectedSongId && db && db.songs[selectedSongId] ? db.songs[selectedSongId].bpm : 0;
+    audio.setClickBpm(songBpm);
+    if (audio.isPlaying()) {
+      audio.startClick(audio.getCurrentTime());
+    }
+  } else {
+    audio.stopClick();
+  }
+  // Update button visual
+  const btn = document.getElementById('t-click');
+  if (btn) btn.classList.toggle('active', clickEnabled);
+}
+
+/**
+ * Sync click BPM when song BPM changes, and start/stop click on playback events.
+ */
+function syncClickToSong() {
+  const songBpm = selectedSongId && db && db.songs[selectedSongId] ? db.songs[selectedSongId].bpm : 0;
+  audio.setClickBpm(songBpm);
+}
+
 /* ── Speed / Zoom / Part-Seek / Marker Edit ─────── */
 
 const SPEED_STEPS = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5];
@@ -4159,6 +4199,8 @@ function handleSpeedChange(dir) {
   const newIdx = Math.max(0, Math.min(SPEED_STEPS.length - 1, idx + dir));
   playbackSpeed = SPEED_STEPS[newIdx];
   audio.setPlaybackRate(playbackSpeed);
+  // Restart click track with new speed timing
+  if (audio.isPlaying()) audio.startClick(audio.getCurrentTime());
   const label = document.getElementById('t-speed-label');
   if (label) label.textContent = (playbackSpeed === 1 ? '1\u00d7' : playbackSpeed.toFixed(2).replace(/0$/, '') + '\u00d7');
 }
@@ -4200,6 +4242,7 @@ function handleSplitRowClick(row) {
   const startTime = getPartStartTime(idx);
   if (startTime === null) return;
   audio.seek(startTime);
+  if (audio.isPlaying()) audio.startClick(startTime);
   drawWaveform();
   updateTransportDisplay();
 }
@@ -4460,6 +4503,9 @@ function handleAudioClick(e) {
   if (el.closest('#t-skip')) { handleSkipToStart(); return; }
   if (el.closest('#t-play')) { handlePlayPause(); return; }
   if (el.closest('#t-progress-wrap')) { handleProgressClick(e); return; }
+
+  // Click track toggle
+  if (el.closest('#t-click')) { handleClickToggle(); return; }
 
   // Speed control
   if (el.closest('#t-speed-down')) { handleSpeedChange(-1); return; }

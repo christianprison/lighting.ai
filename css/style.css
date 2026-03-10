@@ -1597,6 +1597,38 @@ label {
   user-select: none;
 }
 
+/* ── Click Track Toggle ──────────────────────────── */
+.t-click {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2px 8px;
+  color: var(--t3);
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: all 0.15s;
+  user-select: none;
+}
+.t-click:hover {
+  background: var(--bg4);
+  color: var(--t2);
+}
+.t-click.active {
+  background: rgba(0, 220, 130, 0.12);
+  border-color: var(--green);
+  color: var(--green);
+}
+.t-click-icon {
+  font-size: 0.9rem;
+}
+.t-click-bpm {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+}
+
 /* ── Tap Buttons ─────────────────────────────────── */
 .tap-row {
   display: flex;

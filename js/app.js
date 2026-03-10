@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.4.0';
+const APP_VERSION = 'v1.4.1';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -1482,6 +1482,7 @@ function renderContent() {
   else if (activeTab === 'lyrics') renderLyricsTab();
   else if (activeTab === 'accents') renderAccentsTab();
   else if (activeTab === 'setlist') renderSetlistTab();
+  updateDebugPanel();
 }
 
 /* ══════════════════════════════════════════════════════
@@ -8555,6 +8556,10 @@ let _saveInProgress = false;
 async function handleSave(showToast = true) {
   if (!db || !dirty) return true;
   if (_saveInProgress) return true; // prevent concurrent saves → 409
+  // Ensure audio split markers are persisted to the song object before saving
+  if (selectedSongId && markers.length > 0) {
+    saveMarkersToSong();
+  }
   if (readOnly) {
     const hasToken = !!getSettings().token;
     const msg = hasToken
@@ -8571,6 +8576,7 @@ async function handleSave(showToast = true) {
     dbSha = newSha;
     dirty = false;
     setSyncStatus('saved');
+    updateDebugPanel();
     if (showToast) toast('Gespeichert', 'success');
 
     // Auto-export audio segments only from the audio tab (not during lyrics/parts editing)
@@ -8631,6 +8637,8 @@ function markDirty() {
   if (selectedSongId) {
     checkProgressAndCelebrate(selectedSongId);
   }
+  // Update debug panel
+  updateDebugPanel();
 }
 
 /* ── Sidebar Toggle ────────────────────────────────── */
@@ -8723,6 +8731,11 @@ function wireEvents() {
     if (newId === selectedSongId) return;
     // Auto-save raw lyrics text before switching away
     saveLyricsRawText();
+    // Persist markers for the OLD song before switching away
+    if (selectedSongId && markers.length > 0) {
+      saveMarkersToSong();
+      markDirty();
+    }
     // Remember current tab — must be preserved across song switch
     const currentTab = activeTab;
     // Stop audio and reset split state when switching songs
@@ -8912,12 +8925,120 @@ function showTabTip(tab) {
   }, 400);
 }
 
+/* ── Debug Panel ───────────────────────────────────── */
+
+function initDebugPanel() {
+  const toggle = document.getElementById('debug-toggle');
+  const panel = document.getElementById('debug-panel');
+  if (!toggle || !panel) return;
+
+  toggle.addEventListener('click', () => {
+    panel.classList.toggle('collapsed');
+    if (!panel.classList.contains('collapsed')) updateDebugPanel();
+  });
+}
+
+function updateDebugPanel() {
+  const panel = document.getElementById('debug-panel');
+  const out = document.getElementById('debug-output');
+  if (!panel || !out || panel.classList.contains('collapsed')) return;
+  if (!db) { out.textContent = 'DB not loaded'; return; }
+
+  const sid = selectedSongId;
+  if (!sid || !db.songs[sid]) {
+    out.innerHTML = '<span class="dbg-dim">Kein Song ausgewählt</span>';
+    return;
+  }
+
+  const song = db.songs[sid];
+  const parts = getSortedParts(sid);
+  const sm = song.split_markers;
+  const lines = [];
+
+  lines.push(`<span class="dbg-section">── Song ──</span>`);
+  lines.push(`ID: ${sid}`);
+  lines.push(`Name: ${song.name}`);
+  lines.push(`BPM: ${song.bpm || '—'}`);
+
+  // In-memory markers[]
+  lines.push(`<span class="dbg-section">── markers[] (In-Memory) ──</span>`);
+  lines.push(`Gesamt: ${markers.length}`);
+  const partMarkerCount = markers.filter(m => m.partStart).length;
+  const barMarkerCount = markers.filter(m => !m.partStart).length;
+  lines.push(`  Part-Marker: ${partMarkerCount}`);
+  lines.push(`  Bar-Marker: ${barMarkerCount}`);
+  if (markers.length > 0) {
+    for (const p of parts) {
+      const pm = markers.filter(m => m.partId === p.id);
+      if (pm.length > 0) {
+        lines.push(`  ${p.name}: ${pm.length} marker`);
+      }
+    }
+  }
+
+  // song.split_markers (DB-Objekt, noch nicht gespeichert)
+  lines.push(`<span class="dbg-section">── song.split_markers (In-Memory DB) ──</span>`);
+  if (!sm) {
+    lines.push(`<span class="dbg-warn">NICHT VORHANDEN</span>`);
+  } else if (!Array.isArray(sm.markers) || sm.markers.length === 0) {
+    lines.push(`<span class="dbg-warn">Vorhanden aber LEER</span>`);
+  } else {
+    lines.push(`<span class="dbg-ok">Vorhanden: ${sm.markers.length} Einträge</span>`);
+    const smParts = sm.markers.filter(m => m.partStart).length;
+    const smBars = sm.markers.filter(m => !m.partStart).length;
+    lines.push(`  Part-Start: ${smParts}, Bars: ${smBars}`);
+  }
+
+  // parts[].bars vs markers vs db.bars
+  lines.push(`<span class="dbg-section">── Parts: bars-Vergleich ──</span>`);
+  lines.push(`${'Part'.padEnd(16)} ${'p.bars'.padStart(6)} ${'marker'.padStart(7)} ${'db.bars'.padStart(7)}`);
+  lines.push(`${'─'.repeat(40)}`);
+  let totalDeclared = 0, totalMarkers = 0, totalDbBars = 0;
+  let hasInconsistency = false;
+
+  for (const p of parts) {
+    const declared = p.bars || 0;
+    const fromMarkers = markers.filter(m => m.partId === p.id).length;
+    const fromDb = db.bars ? Object.values(db.bars).filter(b => b.part_id === p.id).length : 0;
+
+    totalDeclared += declared;
+    totalMarkers += fromMarkers;
+    totalDbBars += fromDb;
+
+    const consistent = declared === fromMarkers && declared === fromDb;
+    const cls = consistent ? 'dbg-ok' : 'dbg-err';
+    if (!consistent) hasInconsistency = true;
+
+    const name = (p.name || '?').substring(0, 15).padEnd(16);
+    lines.push(`<span class="${cls}">${name} ${String(declared).padStart(6)} ${String(fromMarkers).padStart(7)} ${String(fromDb).padStart(7)}</span>`);
+  }
+
+  lines.push(`${'─'.repeat(40)}`);
+  const totCls = (totalDeclared === totalMarkers && totalDeclared === totalDbBars) ? 'dbg-ok' : 'dbg-err';
+  lines.push(`<span class="${totCls}">${'TOTAL'.padEnd(16)} ${String(totalDeclared).padStart(6)} ${String(totalMarkers).padStart(7)} ${String(totalDbBars).padStart(7)}</span>`);
+
+  if (hasInconsistency) {
+    lines.push(`\n<span class="dbg-err">⚠ INKONSISTENZ GEFUNDEN!</span>`);
+  } else if (totalMarkers > 0) {
+    lines.push(`\n<span class="dbg-ok">✓ Alles konsistent</span>`);
+  }
+
+  // Dirty / Save status
+  lines.push(`<span class="dbg-section">── Status ──</span>`);
+  lines.push(`dirty: ${dirty ? '<span class="dbg-warn">true</span>' : '<span class="dbg-ok">false</span>'}`);
+  lines.push(`readOnly: ${readOnly}`);
+  lines.push(`activeTab: ${activeTab}`);
+
+  out.innerHTML = lines.join('\n');
+}
+
 /* ── Boot ──────────────────────────────────────────── */
 
 document.addEventListener('DOMContentLoaded', () => {
   cacheDom();
   wireEvents();
   initPartWaveEditor();
+  initDebugPanel();
   restoreSidebar();
   audio.installGestureListener();
   // Set version from JS constant (avoids merge conflicts in index.html)

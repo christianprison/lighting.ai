@@ -139,6 +139,38 @@ async def get_songs():
     }
 
 
+@app.get("/api/songs/{song_id}/bars")
+async def get_song_bars(song_id: str):
+    """Return bars grouped by part for a song, including lyrics."""
+    song = db.get("songs", {}).get(song_id)
+    if not song:
+        return JSONResponse({"error": "Song not found"}, status_code=404)
+    all_bars = db.get("bars", {})
+    # Group bars by part_id
+    bars_by_part: dict[str, list] = {}
+    for bid, b in all_bars.items():
+        pid = b.get("part_id", "")
+        if pid not in bars_by_part:
+            bars_by_part[pid] = []
+        bars_by_part[pid].append({"id": bid, **b})
+    # Build ordered result: parts with their bars
+    parts = song.get("parts", {})
+    result = []
+    for pid, p in sorted(parts.items(), key=lambda x: x[1].get("pos", 0)):
+        part_bars = sorted(bars_by_part.get(pid, []), key=lambda x: x.get("bar_num", 0))
+        result.append({
+            "part_id": pid,
+            "part_name": p.get("name", ""),
+            "part_pos": p.get("pos", 0),
+            "bar_count": p.get("bars", 0),
+            "bars": [
+                {"bar_num": b.get("bar_num", 0), "lyrics": b.get("lyrics", "")}
+                for b in part_bars
+            ],
+        })
+    return result
+
+
 @app.get("/api/setlist")
 async def get_setlist():
     """Return the active setlist."""

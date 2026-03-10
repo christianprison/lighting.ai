@@ -137,11 +137,12 @@ column-gap:12px;row-gap:0;padding:8px 16px 6px;border-top:1px solid var(--border
 .tl-part-name{font-family:'Sora',sans-serif;font-size:14px;font-weight:600;color:var(--green)}
 .tl-part-count{font-family:'DM Mono',monospace;font-size:10px;color:var(--t3)}
 .tl-track{grid-column:2;grid-row:1}
-.tl-bars{display:flex;gap:2px;height:32px;align-items:stretch}
-.tl-bar{flex:1;border-radius:3px;background:var(--bg3);border:1px solid var(--border);
+.tl-bars{display:flex;gap:2px;height:32px;align-items:stretch;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
+.tl-bars::-webkit-scrollbar{display:none}
+.tl-bar{flex:0 0 auto;min-width:18px;max-width:90px;padding:0 3px;border-radius:3px;background:var(--bg3);border:1px solid var(--border);
 display:flex;align-items:center;justify-content:center;position:relative;
 font-family:'DM Mono',monospace;font-size:8px;color:var(--t4);cursor:pointer;transition:all .12s;overflow:hidden;
-min-width:6px}
+white-space:nowrap;text-overflow:ellipsis}
 .tl-bar.done{background:var(--bg4);border-color:var(--border2)}
 .tl-bar.active{background:var(--green2);border-color:var(--green);box-shadow:0 0 10px #00dc8220;color:var(--green)}
 .tl-right{grid-column:3;grid-row:1/3;display:flex;flex-direction:column;align-items:flex-end;gap:4px;padding-top:4px}
@@ -342,6 +343,8 @@ var state = {};
 var setlist = [];
 var songs = {};
 var qlcMapping = {};
+var songBars = [];   // bars grouped by part for current song
+var lastBarsSongId = null;
 var ws = null;
 var wsReady = false;
 var reconnTimer = null;
@@ -396,6 +399,18 @@ async function loadInitialData() {
     renderAll();
   } catch (e) {
     console.error('Failed to load initial data:', e);
+  }
+}
+
+// ─── Bars loader ─────────────────────────────
+async function loadBarsForSong(songId) {
+  if (!songId || songId === lastBarsSongId) return;
+  try {
+    songBars = await fetchJSON('/api/songs/' + encodeURIComponent(songId) + '/bars');
+    lastBarsSongId = songId;
+  } catch (e) {
+    songBars = [];
+    lastBarsSongId = null;
   }
 }
 
@@ -487,6 +502,12 @@ function renderParts() {
 }
 
 // ─── Render: Timeline (bottom) ────────────────
+function truncLyrics(s, max) {
+  if (!s) return '';
+  if (s.length <= max) return s;
+  return s.substring(0, max - 1) + '\u2026';
+}
+
 function renderTimeline() {
   var sid = state.current_song_id;
   var partName = state.current_part_name || state.current_function_name || '-';
@@ -497,9 +518,35 @@ function renderTimeline() {
   document.getElementById('tlCount').textContent = totalSteps > 0
     ? 'Step ' + (curStep + 1) + ' / ' + totalSteps : '-';
 
-  // Step blocks in timeline
-  var bh = '';
+  // Determine which part name is currently active (from chaser step note)
+  var activePartName = '';
   if (sid && qlcMapping[sid]) {
+    var steps = qlcMapping[sid].steps || [];
+    if (steps[curStep]) {
+      activePartName = (steps[curStep].note || '').toLowerCase();
+    }
+  }
+
+  // Bar blocks in timeline — grouped by part, showing lyrics
+  var bh = '';
+  if (sid && songBars.length > 0) {
+    for (var p = 0; p < songBars.length; p++) {
+      var part = songBars[p];
+      var isActivePart = activePartName && part.part_name.toLowerCase() === activePartName;
+      var bars = part.bars;
+      // If no bars in DB, generate placeholder blocks from bar_count
+      var count = bars.length > 0 ? bars.length : part.bar_count;
+      for (var b = 0; b < count; b++) {
+        var lyrics = bars[b] ? bars[b].lyrics : '';
+        var cls = isActivePart ? 'active' : (p < songBars.findIndex(function(pp) { return pp.part_name.toLowerCase() === activePartName; }) ? 'done' : '');
+        // First bar of each part gets a left border accent
+        var style = b === 0 ? ' style="border-left:2px solid ' + (isActivePart ? 'var(--green)' : 'var(--border2)') + '"' : '';
+        var label = lyrics ? escHtml(truncLyrics(lyrics, 12)) : '';
+        bh += '<div class="tl-bar ' + cls + '" title="' + escHtml(part.part_name) + ' T' + (b + 1) + (lyrics ? ': ' + escHtml(lyrics) : '') + '"' + style + '>' + label + '</div>';
+      }
+    }
+  } else if (sid && qlcMapping[sid]) {
+    // Fallback: show steps if no bars data
     var steps = qlcMapping[sid].steps || [];
     for (var i = 0; i < steps.length; i++) {
       var cls = i < curStep ? 'done' : i === curStep ? 'active' : '';
@@ -507,6 +554,10 @@ function renderTimeline() {
     }
   }
   document.getElementById('tlBars').innerHTML = bh;
+
+  // Scroll active bar into view
+  var activeBar = document.querySelector('.tl-bars .tl-bar.active');
+  if (activeBar) activeBar.scrollIntoView({ inline: 'nearest', behavior: 'smooth', block: 'nearest' });
 
   // Current function name
   document.getElementById('tlInfo').textContent = state.current_function_name || '';
@@ -555,7 +606,13 @@ function renderAll() {
 
   renderSetlist();
   renderParts();
-  renderTimeline();
+
+  // Load bars if song changed, then render timeline
+  if (state.current_song_id && state.current_song_id !== lastBarsSongId) {
+    loadBarsForSong(state.current_song_id).then(function() { renderTimeline(); });
+  } else {
+    renderTimeline();
+  }
 }
 
 // ─── Beat visualization ───────────────────────

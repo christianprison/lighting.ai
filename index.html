@@ -81,7 +81,10 @@
   <aside id="debug-panel" class="debug-panel collapsed">
     <button class="debug-toggle" id="debug-toggle" title="Debug Panel">&#128027;</button>
     <div class="debug-content" id="debug-content">
-      <h3>Debug: Marker/Bar State</h3>
+      <div class="debug-header">
+        <h3>Debug: Marker/Bar State</h3>
+        <button class="btn btn-sm" id="btn-debug-copy" title="In Zwischenablage kopieren">Copy</button>
+      </div>
       <pre id="debug-output"></pre>
     </div>
   </aside>
@@ -105,6 +108,14 @@
     <div class="form-group">
       <label for="set-path">DB-Pfad</label>
       <input type="text" id="set-path" value="db/lighting-ai-db.json" placeholder="db/lighting-ai-db.json">
+    </div>
+
+    <div class="form-group" style="margin-top: 12px">
+      <label class="toggle-label" for="set-debug">
+        <span>Debug Panel anzeigen</span>
+        <input type="checkbox" id="set-debug">
+        <span class="toggle-switch"></span>
+      </label>
     </div>
 
     <div style="margin-top: 12px">

@@ -536,6 +536,46 @@ label {
   width: 100%;
 }
 
+/* Toggle Switch */
+.toggle-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--t1);
+}
+.toggle-label input[type="checkbox"] { display: none; }
+.toggle-switch {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  background: var(--bg4);
+  border-radius: 11px;
+  border: 1px solid var(--border);
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+.toggle-switch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background: var(--t3);
+  border-radius: 50%;
+  transition: transform 0.2s, background 0.2s;
+}
+.toggle-label input:checked + .toggle-switch {
+  background: var(--green);
+  border-color: var(--green);
+}
+.toggle-label input:checked + .toggle-switch::after {
+  transform: translateX(18px);
+  background: var(--bg);
+}
+
 .modal-actions {
   display: flex;
   gap: 8px;
@@ -3741,11 +3781,23 @@ label {
   padding: 12px;
 }
 
-.debug-content h3 {
-  margin: 0 0 8px;
+.debug-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.debug-header h3 {
+  margin: 0;
   font-size: 12px;
   color: var(--green);
   font-weight: 600;
+}
+
+.debug-header .btn-sm {
+  font-size: 10px;
+  padding: 2px 8px;
 }
 
 #debug-output {

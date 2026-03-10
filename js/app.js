@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.4.1';
+const APP_VERSION = 'v1.4.2';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -8386,6 +8386,8 @@ function openSettings() {
   els.inputRepo.value  = s.repo  || 'christianprison/lighting.ai';
   els.inputToken.value = s.token || '';
   els.inputPath.value  = s.path  || 'db/lighting-ai-db.json';
+  const debugCheckbox = document.getElementById('set-debug');
+  if (debugCheckbox) debugCheckbox.checked = !!s.debugPanel;
   els.testResult.textContent = '';
   els.modalOverlay.classList.add('open');
 }
@@ -8474,8 +8476,10 @@ function handleSaveSettings() {
   const repo  = els.inputRepo.value.trim();
   const token = els.inputToken.value.trim();
   const path  = els.inputPath.value.trim();
+  const debugPanel = document.getElementById('set-debug')?.checked || false;
   if (!path) { toast('DB-Pfad muss ausgef\u00fcllt sein.', 'error'); return; }
-  saveSettings({ repo, token, path });
+  saveSettings({ repo, token, path, debugPanel });
+  applyDebugPanelVisibility();
   closeSettings();
   toast(token ? 'Settings gespeichert (read/write)' : 'Settings gespeichert (read-only)', 'success');
   initDB();
@@ -8936,6 +8940,32 @@ function initDebugPanel() {
     panel.classList.toggle('collapsed');
     if (!panel.classList.contains('collapsed')) updateDebugPanel();
   });
+
+  // Copy button
+  document.getElementById('btn-debug-copy')?.addEventListener('click', () => {
+    const out = document.getElementById('debug-output');
+    if (!out) return;
+    const text = out.innerText || out.textContent;
+    navigator.clipboard.writeText(text).then(
+      () => toast('Debug-Daten kopiert', 'success'),
+      () => toast('Kopieren fehlgeschlagen', 'error')
+    );
+  });
+
+  applyDebugPanelVisibility();
+}
+
+/** Show/hide the debug panel toggle button based on settings */
+function applyDebugPanelVisibility() {
+  const panel = document.getElementById('debug-panel');
+  if (!panel) return;
+  const s = getSettings();
+  if (s.debugPanel) {
+    panel.classList.remove('hidden');
+  } else {
+    panel.classList.add('hidden');
+    panel.classList.add('collapsed');
+  }
 }
 
 function updateDebugPanel() {

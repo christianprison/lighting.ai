@@ -840,6 +840,23 @@ label {
   border-color: var(--green);
 }
 
+/* Field with inline action button */
+.field-with-action {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.field-with-action input {
+  flex: 1;
+  min-width: 0;
+}
+.btn-field-action {
+  flex-shrink: 0;
+  padding: 4px 8px !important;
+  font-size: 1rem;
+  line-height: 1;
+}
+
 /* ── Parts Header + Toolbar ───────────────────────── */
 .parts-header {
   display: flex;

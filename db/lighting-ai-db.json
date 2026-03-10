@@ -13814,7 +13814,8 @@
           "bars": 4,
           "duration_sec": 7,
           "light_template": "00 blackout",
-          "notes": ""
+          "notes": "",
+          "instrumental": true
         },
         "HDX1IN_P002": {
           "pos": 3,
@@ -13894,7 +13895,8 @@
           "bars": 10,
           "duration_sec": 0,
           "light_template": "",
-          "notes": ""
+          "notes": "",
+          "instrumental": true
         },
         "HDX1IN_P012": {
           "pos": 2,
@@ -13902,10 +13904,11 @@
           "bars": 0,
           "duration_sec": 0,
           "light_template": "",
-          "notes": ""
+          "notes": "",
+          "instrumental": true
         }
       },
-      "lyrics_raw": "[Intro](Ooh, ooh, ooh, ooh)\n\n[Verse 1]\nTrain this chaos, turn it into light\nI've gotta see you one last night\nBefore the lions take their share\nLeave us in pieces, scattered everywhere\n\n[Pre-Chorus]\nJust gimme a chance to hold on\nGimme a chance to hold on\nGimme a chance to hold on\nJust gimme somethin' to hold onto\n[Chorus]\nIt's so clear now that you are all that I have (Ooh)\nI have no fear 'cause you are all that I have (Ooh)\nIt's so clear now that you are all that I have (Ooh)\nI have no fear 'cause you are all that I have (Ooh)\n\n[Verse 2]\nYou're cinematic, razor-sharp\nA welcome arrow through the heart\nUnder your skin feels like home\nElectric shocks on achin' bones\n\n[Pre-Chorus]\nGive me a chance to hold on\nGimme a chance to hold on\nGimme a chance to hold on\nJust give me somethin' to hold onto\n\n[Chorus]\nIt's so clear now that you are all that I have (Ooh)\nI have no fear 'cause you are all that I have (Ooh)\nIt's so clear now that you are all that I have (Ooh)\nI have no fear 'cause you are all that I have (Ooh)\n\n[Bridge]\nThere is a darkness deep in you\nA frightening magic I cling to",
+      "lyrics_raw": "15 ContributorsYou’re All I Have Lyrics[Intro]\n(Ooh, ooh, ooh, ooh)\n\n[Verse 1]\nTrain this chaos, turn it into light\nI've gotta see you one last night\nBefore the lions take their share\nLeave us in pieces, scattered everywhere\n\n[Pre-Chorus]\nJust gimme a chance to hold on\nGimme a chance to hold on\nGimme a chance to hold on\nJust gimme somethin' to hold onto\n\n[Chorus]\nIt's so clear now that you are all that I have (Ooh)\nI have no fear 'cause you are all that I have (Ooh)\nIt's so clear now that you are all that I have (Ooh)\nI have no fear 'cause you are all that I have (Ooh)\n\n[Verse 2]\nYou're cinematic, razor-sharp\nA welcome arrow through the heart\nUnder your skin feels like home\nElectric shocks on achin' bones\n[Pre-Chorus]\nGive me a chance to hold on\nGimme a chance to hold on\nGimme a chance to hold on\nJust give me somethin' to hold onto\n\n[Chorus]\nIt's so clear now that you are all that I have (Ooh)\nI have no fear 'cause you are all that I have (Ooh)\nIt's so clear now that you are all that I have (Ooh)\nI have no fear 'cause you are all that I have (Ooh)\n\n[Bridge]\nThere is a darkness deep in you\nA frightening magic I cling to\n\n[Pre-Chorus]\nGimme a chance to hold on\nGimme a chance to hold on\nGimme a chance to hold on\nJust give me somethin' to hold onto\n\n[Chorus]\nIt's so clear now that you are all that I have (Ooh)\nI have no fear now you are all that I have (Ooh)\nIt's so clear now that you are all that I have (Ooh)\nI have no fear now you are all that I have (Ooh)\n[Outro]\n(Ooh, ooh, ooh, ooh)",
       "tms": {
         "manual_done": [],
         "user_tasks": [],
@@ -14633,7 +14636,8 @@
             "partId": "HDX1IN_P011"
           }
         ]
-      }
+      },
+      "instr_done": true
     },
     "FaAM01": {
       "name": "Fluorescent Adolescent",

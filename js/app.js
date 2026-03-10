@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.3.13';
+const APP_VERSION = 'v1.4.0';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -41,9 +41,8 @@ let _leClipboard = null;        // copied word block for paste
 /* ── Audio Split State ────────────────────────────── */
 let audioMeta = null;          // {duration, sampleRate, channels}
 let audioFileName = null;      // name of loaded file
-let partMarkers = [];          // [{time, partIndex}] sorted
-let barMarkers = [];           // [{time, partIndex}] sorted
-let tapHistory = [];           // [{type:'part'|'bar', time, partIndex}] for undo
+let markers = [];              // [{time, partId, partStart: bool}] sorted by time
+let tapHistory = [];           // [{partStart: bool, time, partId}] for undo
 let currentPartIndex = 0;      // next part to be tapped
 let currentBarInPart = 0;      // bar counter within current part
 let animFrameId = null;        // requestAnimationFrame for playhead
@@ -54,7 +53,7 @@ let _playingPartId = null;     // part ID currently being played in DB Editor
 const _audioRefCache = {};     // songId → ArrayBuffer (cached reference audio)
 
 /* ── Waveform Marker Drag State ──────────────────── */
-let _dragMarker = null;        // { type: 'part'|'bar', index: number, originalTime: number }
+let _dragMarker = null;        // { marker: ref, isPartStart: bool, originalTime: number }
 let _isDragging = false;       // true while actively dragging (moved > threshold)
 let _dragStartX = 0;           // mouse/touch start X for drag threshold
 let _dragSuppressClick = false; // prevent seek after drag ends
@@ -596,6 +595,35 @@ function getOrCreateBar(partId, barNum) {
   return [barId, db.bars[barId]];
 }
 
+/**
+ * Reconcile part.bars declarations with actual db.bars entries for a song.
+ * Fixes cases where part.bars says X but there are Y entries in db.bars.
+ * Prefers the higher count (doesn't delete data silently).
+ */
+function reconcileBars(songId) {
+  const song = db.songs[songId];
+  if (!song || !song.parts) return;
+  ensureCollections();
+  const parts = getSortedParts(songId);
+  let changed = false;
+
+  for (const p of parts) {
+    const actualBars = Object.values(db.bars).filter(b => b.part_id === p.id).length;
+    const declared = p.bars || 0;
+
+    if (actualBars > declared) {
+      // More bars exist than declared — update declared count to match reality
+      song.parts[p.id].bars = actualBars;
+      changed = true;
+    }
+  }
+
+  if (changed) {
+    recalcAbsoluteBarNums(songId);
+    recalcSongDurationFor(songId);
+  }
+}
+
 function nextId(prefix, collection) {
   const nums = Object.keys(collection)
     .map(k => parseInt(k.replace(prefix, ''), 10))
@@ -669,8 +697,10 @@ const SONG_CHECKLIST = [
     check: (s) => !!s.audio_ref },
   { id: 'part_markers', label: 'Part-Marker gesetzt (alle Parts)', cat: 'audio', tab: 'audio',
     check: (s, parts) => {
-      const pm = s.split_markers?.partMarkers;
-      return pm && pm.length >= parts.length && parts.length > 0;
+      const sm = s.split_markers?.markers;
+      if (!sm || parts.length === 0) return false;
+      const pmCount = sm.filter(m => m.partStart).length;
+      return pmCount >= parts.length;
     }},
   { id: 'bar_markers',  label: 'Alle Takte identifiziert', cat: 'audio', tab: 'audio',
     check: () => false },  // Manuell abhaken — kein Auto-Check
@@ -1409,6 +1439,11 @@ function switchTab(tab) {
   // Stop playhead animation when leaving audio tab
   if (activeTab === 'audio' && tab !== 'audio') {
     cancelAnimationFrame(animFrameId);
+    // Persist markers and sync db.bars when leaving Audio Split tab
+    if (selectedSongId && markers.length > 0) {
+      saveMarkersToSong();
+      markDirty();
+    }
   }
   // Stop lyrics part playback when leaving lyrics tab
   if (activeTab === 'lyrics' && tab !== 'lyrics') {
@@ -1417,6 +1452,11 @@ function switchTab(tab) {
   // Pre-warm AudioContext for tabs with playback
   if (tab === 'lyrics' || tab === 'audio' || tab === 'parts' || tab === 'takte' || tab === 'accents') {
     audio.warmup();
+  }
+  // Ensure bar data is consistent when entering data-dependent tabs
+  if ((tab === 'takte' || tab === 'parts' || tab === 'lyrics' || tab === 'accents') && selectedSongId) {
+    reconcileBars(selectedSongId);
+    recalcAbsoluteBarNums(selectedSongId);
   }
   activeTab = tab;
   els.tabEditor?.classList.toggle('active', tab === 'editor');
@@ -1978,7 +2018,6 @@ function handlePartAction(action) {
       const prev = song.parts[parts[idx - 1].id];
       [curr.pos, prev.pos] = [prev.pos, curr.pos];
       recalcAbsoluteBarNums(selectedSongId);
-      updateSplitMarkersAfterReorder(song);
       selectedBarNum = null;
       markDirty();
       renderPartsTable();
@@ -1994,7 +2033,6 @@ function handlePartAction(action) {
       const next = song.parts[parts[idx + 1].id];
       [curr.pos, next.pos] = [next.pos, curr.pos];
       recalcAbsoluteBarNums(selectedSongId);
-      updateSplitMarkersAfterReorder(song);
       selectedBarNum = null;
       markDirty();
       renderPartsTable();
@@ -2378,8 +2416,10 @@ function buildTapButtons(parts, isPlay) {
     ? parts[currentPartIndex].name
     : `Part ${currentPartIndex + 1}`;
   const allPartsDone = false; // Parts can always be added dynamically
-  const nextAbsBar = barMarkers.length + 1;
+  const nextAbsBar = markers.length + 1;
   const barLabel = `Bar ${nextAbsBar}`;
+  const pmCount = getPartMarkers().length;
+  const barOnlyCount = getBarOnlyMarkers().length;
 
   return `
     <div class="tap-row" id="tap-row">
@@ -2398,17 +2438,17 @@ function buildTapButtons(parts, isPlay) {
         <span class="tap-label">PARTS</span>
         <span class="tap-info">verteilen</span>
       </button>
-      <button class="tap-btn tap-btn-snap" id="tap-snap-peaks" ${(partMarkers.length + barMarkers.length) === 0 ? 'disabled' : ''} title="Alle Marker auf naechsten Audio-Peak verschieben">
+      <button class="tap-btn tap-btn-snap" id="tap-snap-peaks" ${markers.length === 0 ? 'disabled' : ''} title="Alle Marker auf naechsten Audio-Peak verschieben">
         <span class="tap-label">SNAP</span>
         <span class="tap-info">&#8614; Peak</span>
       </button>
-      <button class="tap-btn tap-btn-del" id="tap-delete-parts" ${partMarkers.length === 0 ? 'disabled' : ''}>
+      <button class="tap-btn tap-btn-del" id="tap-delete-parts" ${pmCount === 0 ? 'disabled' : ''}>
         <span class="tap-label">DEL PARTS</span>
-        <span class="tap-info">${partMarkers.length}</span>
+        <span class="tap-info">${pmCount}</span>
       </button>
-      <button class="tap-btn tap-btn-del" id="tap-delete-bars" ${barMarkers.length === 0 ? 'disabled' : ''}>
+      <button class="tap-btn tap-btn-del" id="tap-delete-bars" ${barOnlyCount === 0 ? 'disabled' : ''}>
         <span class="tap-label">DEL BARS</span>
-        <span class="tap-info">${barMarkers.length}</span>
+        <span class="tap-info">${barOnlyCount}</span>
       </button>
     </div>`;
 }
@@ -2434,7 +2474,8 @@ function buildSplitResult(parts) {
     const start = getPartStartTime(i);
     const end = getPartEndTime(i);
     const dur = (start !== null && end !== null) ? end - start : null;
-    const barCount = barMarkers.filter(m => m.partIndex === i).length;
+    const partId = parts[i] ? parts[i].id : null;
+    const barCount = partId ? markers.filter(m => m.partId === partId).length : 0;
     const cls = isCurrent ? 'current' : (isDone ? 'done' : '');
     const deleteBtn = isDone ? `<button class="marker-delete" data-type="part" data-time="${start}" data-part="${i}" title="Part-Marker loeschen">&#10005;</button>` : '';
 
@@ -2468,7 +2509,7 @@ function buildSplitResult(parts) {
 }
 
 function buildExportSection(parts) {
-  if (partMarkers.length === 0) return '';
+  if (getPartMarkers().length === 0) return '';
 
   if (exportInProgress) {
     return `
@@ -2481,6 +2522,7 @@ function buildExportSection(parts) {
       </div>`;
   }
 
+  const barOnlyCount = getBarOnlyMarkers().length;
   return `
     <div class="export-section" id="export-section">
       <div class="export-header">
@@ -2488,19 +2530,19 @@ function buildExportSection(parts) {
         <button class="btn btn-primary" id="btn-export">EXPORT</button>
       </div>
       <div style="font-size:0.8rem;color:var(--t3)">
-        ${barMarkers.length > 0
-          ? `${barMarkers.length} Bars als MP3-Segmente nach <span class="mono">audio/${sanitizePath(db.songs[selectedSongId]?.name || '')}/</span> hochladen.`
+        ${markers.length > 0
+          ? `${markers.length} Bars als MP3-Segmente nach <span class="mono">audio/${sanitizePath(db.songs[selectedSongId]?.name || '')}/</span> hochladen.`
           : `Part-Zeiten in DB speichern (keine Bar-Segmente zum Exportieren).`}
       </div>
     </div>`;
 }
 
 function buildAudioSummary(parts) {
-  const totalBars = barMarkers.length;
+  const totalBars = markers.length;
   const est = estimateBpm();
   return `
     <div class="summary-bar">
-      <span class="summary-item"><span class="summary-label">Parts</span><span class="mono">${partMarkers.length}</span></span>
+      <span class="summary-item"><span class="summary-label">Parts</span><span class="mono">${getPartMarkers().length}</span></span>
       <span class="summary-item"><span class="summary-label">Takte</span><span class="mono">${totalBars}</span></span>
       <span class="summary-item"><span class="summary-label">BPM (est.)</span><span class="mono">${est || '\u2014'}</span></span>
       <span class="summary-item"><span class="summary-label">Storage</span><span class="mono text-green">GitHub</span></span>
@@ -2517,26 +2559,34 @@ function fmtTime(sec) {
   return `${m}:${String(s).padStart(2, '0')}.${ms}`;
 }
 
+/** Get all part-start markers sorted by time. */
+function getPartMarkers() {
+  return markers.filter(m => m.partStart).sort((a, b) => a.time - b.time);
+}
+
+/** Get all bar markers (non-part-start) sorted by time. */
+function getBarOnlyMarkers() {
+  return markers.filter(m => !m.partStart).sort((a, b) => a.time - b.time);
+}
+
 function getPartStartTime(partIndex) {
-  const marker = partMarkers.find(m => m.partIndex === partIndex);
-  return marker ? marker.time : null;
+  const pm = getPartMarkers();
+  return pm[partIndex] ? pm[partIndex].time : null;
 }
 
 function getPartEndTime(partIndex) {
-  const nextMarker = partMarkers.find(m => m.partIndex === partIndex + 1);
-  if (nextMarker) return nextMarker.time;
-  // If this part has a marker and no higher marker exists, it's the last part → use audio end
-  const hasMarker = partMarkers.some(m => m.partIndex === partIndex);
-  const hasHigher = partMarkers.some(m => m.partIndex > partIndex);
-  if (hasMarker && !hasHigher && audioMeta) return audioMeta.duration;
+  const pm = getPartMarkers();
+  if (pm[partIndex + 1]) return pm[partIndex + 1].time;
+  if (pm[partIndex] && !pm[partIndex + 1] && audioMeta) return audioMeta.duration;
   return null;
 }
 
 function estimateBpm() {
-  if (barMarkers.length < 2) return null;
+  const sorted = [...markers].sort((a, b) => a.time - b.time);
+  if (sorted.length < 2) return null;
   const intervals = [];
-  for (let i = 1; i < barMarkers.length; i++) {
-    const dt = barMarkers[i].time - barMarkers[i - 1].time;
+  for (let i = 1; i < sorted.length; i++) {
+    const dt = sorted[i].time - sorted[i - 1].time;
     if (dt >= 0.3 && dt <= 4.0) intervals.push(dt);
   }
   if (intervals.length === 0) return null;
@@ -2545,8 +2595,7 @@ function estimateBpm() {
 }
 
 function resetAudioSplit() {
-  partMarkers = [];
-  barMarkers = [];
+  markers = [];
   tapHistory = [];
   currentPartIndex = 0;
   currentBarInPart = 0;
@@ -2557,44 +2606,54 @@ function resetAudioSplit() {
 }
 
 /**
- * Save current partMarkers + barMarkers into the song object in the DB.
+ * Save current markers[] into the song object in the DB.
  * Called after tapping is done (export) and can be restored on reload.
  */
 function saveMarkersToSong() {
   if (!selectedSongId || !db.songs[selectedSongId]) return;
   const song = db.songs[selectedSongId];
-  // Resolve partId from partIndex for each marker
   const parts = getSortedParts(selectedSongId);
-  const indexToId = (idx) => parts[idx] ? parts[idx].id : undefined;
+
   song.split_markers = {
-    partMarkers: partMarkers.map(m => ({ time: m.time, partIndex: m.partIndex, partId: m.partId || indexToId(m.partIndex) })),
-    barMarkers: barMarkers.map(m => ({ time: m.time, partIndex: m.partIndex, partId: m.partId || indexToId(m.partIndex) })),
+    markers: markers.map(m => ({ time: m.time, partId: m.partId, partStart: m.partStart })),
   };
 
-  // Update bars count per part from bar markers
-  for (let i = 0; i < parts.length; i++) {
-    const count = barMarkers.filter(m => m.partIndex === i).length;
-    if (song.parts[parts[i].id]) {
-      song.parts[parts[i].id].bars = count;
+  // Update bars count per part from markers and sync db.bars
+  ensureCollections();
+  let globalBarOffset = 0;
+  for (const part of parts) {
+    const count = markers.filter(m => m.partId === part.id).length;
+    if (song.parts[part.id]) {
+      const oldCount = song.parts[part.id].bars || 0;
+      song.parts[part.id].bars = count;
+
+      // Ensure db.bars entries exist for each bar in this part
+      for (let b = 1; b <= count; b++) {
+        getOrCreateBar(part.id, globalBarOffset + b);
+      }
+
+      // Remove excess bars if count decreased
+      if (count < oldCount) {
+        integrity.syncBarCount(db, part.id, count);
+      }
     }
+    globalBarOffset += count;
   }
+
+  // Renumber all bars to ensure absolute numbering is consistent
+  recalcAbsoluteBarNums(selectedSongId);
 }
 
 /**
- * Remove split_markers (part + bar) for a specific partId from a song.
+ * Remove split_markers for a specific partId from a song.
  * Also updates in-memory markers if the song is currently loaded in Audio tab.
  */
 function removeSplitMarkersForPart(song, partId) {
   if (!song || !song.split_markers) return;
   const sm = song.split_markers;
-  if (Array.isArray(sm.partMarkers)) {
-    sm.partMarkers = sm.partMarkers.filter(m => m.partId !== partId);
+  if (Array.isArray(sm.markers)) {
+    sm.markers = sm.markers.filter(m => m.partId !== partId);
   }
-  if (Array.isArray(sm.barMarkers)) {
-    sm.barMarkers = sm.barMarkers.filter(m => m.partId !== partId);
-  }
-  // Rebuild partIndex values after removal
-  rebuildSplitMarkerIndices(song);
   // Sync in-memory markers if this song is active in Audio tab
   if (selectedSongId && db.songs[selectedSongId] === song) {
     restoreMarkersFromSong();
@@ -2602,30 +2661,7 @@ function removeSplitMarkersForPart(song, partId) {
 }
 
 /**
- * Rebuild partIndex values in split_markers based on current part order.
- * Called after parts are deleted, moved, or reordered.
- */
-function rebuildSplitMarkerIndices(song) {
-  if (!song || !song.split_markers) return;
-  const sm = song.split_markers;
-  const parts = Object.entries(song.parts || {})
-    .map(([id, p]) => ({ id, pos: p.pos }))
-    .sort((a, b) => a.pos - b.pos);
-  const idToIndex = {};
-  parts.forEach((p, i) => { idToIndex[p.id] = i; });
-
-  for (const markers of [sm.partMarkers, sm.barMarkers]) {
-    if (!Array.isArray(markers)) continue;
-    for (const m of markers) {
-      if (m.partId && idToIndex[m.partId] !== undefined) {
-        m.partIndex = idToIndex[m.partId];
-      }
-    }
-  }
-}
-
-/**
- * Restore partMarkers + barMarkers from the song object in the DB.
+ * Restore markers[] from the song object in the DB.
  * Called after loading reference audio.
  */
 function restoreMarkersFromSong() {
@@ -2634,36 +2670,27 @@ function restoreMarkersFromSong() {
   if (!song.split_markers) return;
 
   const sm = song.split_markers;
-  // Rebuild index from partId if available (survives part reorder)
-  const parts = getSortedParts(selectedSongId);
-  const idToIndex = {};
-  parts.forEach((p, i) => { idToIndex[p.id] = i; });
+  if (!Array.isArray(sm.markers) || sm.markers.length === 0) return;
 
-  if (Array.isArray(sm.partMarkers) && sm.partMarkers.length > 0) {
-    partMarkers = sm.partMarkers.map(m => {
-      const idx = m.partId && idToIndex[m.partId] !== undefined ? idToIndex[m.partId] : m.partIndex;
-      return { time: m.time, partIndex: idx, partId: m.partId };
-    });
-    currentPartIndex = partMarkers.length;
+  markers = sm.markers
+    .map(m => ({ time: m.time, partId: m.partId, partStart: !!m.partStart }))
+    .sort((a, b) => a.time - b.time);
+
+  // Restore currentPartIndex (number of part-start markers)
+  currentPartIndex = getPartMarkers().length;
+
+  // Restore currentBarInPart from last bar marker
+  if (markers.length > 0) {
+    const lastMarker = markers[markers.length - 1];
+    currentBarInPart = markers.filter(m => m.partId === lastMarker.partId).length;
   }
-  if (Array.isArray(sm.barMarkers) && sm.barMarkers.length > 0) {
-    barMarkers = sm.barMarkers.map(m => {
-      const idx = m.partId && idToIndex[m.partId] !== undefined ? idToIndex[m.partId] : m.partIndex;
-      return { time: m.time, partIndex: idx, partId: m.partId };
-    });
-    const lastBar = barMarkers[barMarkers.length - 1];
-    currentBarInPart = barMarkers.filter(b => b.partIndex === lastBar.partIndex).length;
 
-    // Auto-correct: snap bars near part boundaries + reassign
-    snapFirstBarsToPartMarkers();
-    reassignBarMarkerParts();
-
-    // Sync bars count from markers (split_markers is source of truth)
-    for (let i = 0; i < parts.length; i++) {
-      const count = barMarkers.filter(m => m.partIndex === i).length;
-      if (count > 0 && song.parts[parts[i].id] && song.parts[parts[i].id].bars !== count) {
-        song.parts[parts[i].id].bars = count;
-      }
+  // Sync bars count from markers (split_markers is source of truth)
+  const parts = getSortedParts(selectedSongId);
+  for (const part of parts) {
+    const count = markers.filter(m => m.partId === part.id).length;
+    if (count > 0 && song.parts[part.id] && song.parts[part.id].bars !== count) {
+      song.parts[part.id].bars = count;
     }
   }
 }
@@ -2740,24 +2767,70 @@ function drawWaveform() {
   const margin = 80;
   const inView = (vx) => vx >= scrollLeft - margin && vx <= scrollLeft + viewW + margin;
 
-  // Bar markers (cyan lines with flag labels as drag handles)
-  for (let bi = 0; bi < barMarkers.length; bi++) {
-    const m = barMarkers[bi];
+  // Get parts for name lookups
+  const parts = getSortedParts(selectedSongId);
+  const partIdToName = {};
+  for (const p of parts) partIdToName[p.id] = p.name;
+
+  // Compute absolute bar number for each marker
+  let absBarNum = 0;
+  const sortedMarkers = [...markers].sort((a, b) => a.time - b.time);
+  const markerAbsBar = new Map();
+  for (const m of sortedMarkers) {
+    absBarNum++;
+    markerAbsBar.set(m, absBarNum);
+  }
+
+  // Draw all markers in a single pass — color by partStart
+  for (const m of sortedMarkers) {
     const vx = (m.time / duration) * totalW;
     if (!inView(vx)) continue;
     const x = vToC(vx);
-    const absBarNum = bi + 1;
-    const isDragTarget = _isDragging && _dragMarker && _dragMarker.type === 'bar' && _dragMarker.index === bi;
-    ctx.strokeStyle = isDragTarget ? 'rgba(56, 189, 248, 0.9)' : 'rgba(56, 189, 248, 0.4)';
-    ctx.lineWidth = isDragTarget ? 2 : 1;
-    ctx.beginPath();
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, h);
-    ctx.stroke();
-    // Flag label (skip if a part marker sits at same position — part flag takes priority)
-    const isPartStart = partMarkers.some(pm => Math.abs(pm.time - m.time) < 0.01);
-    if (!isPartStart) {
-      const label = String(absBarNum);
+    const isDragTarget = _isDragging && _dragMarker && _dragMarker.marker === m;
+
+    if (m.partStart) {
+      // Part-start marker (amber, thicker)
+      ctx.strokeStyle = isDragTarget ? 'rgba(240, 160, 48, 1.0)' : 'rgba(240, 160, 48, 0.8)';
+      ctx.lineWidth = isDragTarget ? 3 : 2;
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, h);
+      ctx.stroke();
+
+      const partName = partIdToName[m.partId] || '';
+      if (partName) {
+        ctx.font = 'bold 10px Sora, sans-serif';
+        const tw = ctx.measureText(partName).width;
+        const flagW = tw + 8;
+        const flagH = 16;
+        ctx.fillStyle = isDragTarget ? 'rgba(240, 160, 48, 1.0)' : 'rgba(240, 160, 48, 0.9)';
+        ctx.fillRect(x, 0, flagW, flagH);
+        ctx.fillStyle = '#08090d';
+        ctx.fillText(partName, x + 4, 12);
+      }
+
+      if (isDragTarget) {
+        ctx.font = '11px "DM Mono", monospace';
+        ctx.fillStyle = 'rgba(240, 160, 48, 1.0)';
+        ctx.fillText(fmtTime(m.time), x + 4, h / 2);
+      } else {
+        const num = markerAbsBar.get(m);
+        if (num !== undefined) {
+          ctx.font = '9px "DM Mono", monospace';
+          ctx.fillStyle = 'rgba(240, 160, 48, 0.7)';
+          ctx.fillText(String(num), x + 3, h - 4);
+        }
+      }
+    } else {
+      // Bar marker (cyan, thinner)
+      ctx.strokeStyle = isDragTarget ? 'rgba(56, 189, 248, 0.9)' : 'rgba(56, 189, 248, 0.4)';
+      ctx.lineWidth = isDragTarget ? 2 : 1;
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, h);
+      ctx.stroke();
+
+      const label = String(markerAbsBar.get(m) || '');
       ctx.font = '9px "DM Mono", monospace';
       const tw = ctx.measureText(label).width;
       const flagW = tw + 6;
@@ -2768,60 +2841,12 @@ function drawWaveform() {
       ctx.fillRect(flagX, flagY, flagW, flagH);
       ctx.fillStyle = '#08090d';
       ctx.fillText(label, flagX + 3, flagY + 10);
-    }
-    if (isDragTarget) {
-      ctx.font = '10px "DM Mono", monospace';
-      ctx.fillStyle = 'rgba(56, 189, 248, 0.95)';
-      ctx.fillText(fmtTime(m.time), x + 4, h / 2);
-    }
-  }
 
-  // Compute absolute bar offset per part from DB bar counts
-  const parts = getSortedParts(selectedSongId);
-  const partStartBar = {};
-  let absCounter = 1;
-  for (let pi = 0; pi < parts.length; pi++) {
-    partStartBar[pi] = absCounter;
-    absCounter += (parts[pi].bars || 0);
-  }
-
-
-  // Part markers (amber) with flag labels as drag handles
-  for (let pi2 = 0; pi2 < partMarkers.length; pi2++) {
-    const m = partMarkers[pi2];
-    const vx = (m.time / duration) * totalW;
-    if (!inView(vx)) continue;
-    const x = vToC(vx);
-    const isDragTarget = _isDragging && _dragMarker && _dragMarker.type === 'part' && _dragMarker.index === pi2;
-    ctx.strokeStyle = isDragTarget ? 'rgba(240, 160, 48, 1.0)' : 'rgba(240, 160, 48, 0.8)';
-    ctx.lineWidth = isDragTarget ? 3 : 2;
-    ctx.beginPath();
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, h);
-    ctx.stroke();
-
-    const partName = m.partIndex < parts.length ? parts[m.partIndex].name : '';
-    if (partName) {
-      ctx.font = 'bold 10px Sora, sans-serif';
-      const tw = ctx.measureText(partName).width;
-      const flagW = tw + 8;
-      const flagH = 16;
-      ctx.fillStyle = isDragTarget ? 'rgba(240, 160, 48, 1.0)' : 'rgba(240, 160, 48, 0.9)';
-      ctx.fillRect(x, 0, flagW, flagH);
-      ctx.fillStyle = '#08090d';
-      ctx.fillText(partName, x + 4, 12);
-    }
-
-    const firstBarIdx = barMarkers.findIndex(b => b.partIndex === m.partIndex);
-    const startBar = firstBarIdx >= 0 ? firstBarIdx + 1 : partStartBar[m.partIndex];
-    if (isDragTarget) {
-      ctx.font = '11px "DM Mono", monospace';
-      ctx.fillStyle = 'rgba(240, 160, 48, 1.0)';
-      ctx.fillText(fmtTime(m.time), x + 4, h / 2);
-    } else if (startBar !== undefined) {
-      ctx.font = '9px "DM Mono", monospace';
-      ctx.fillStyle = 'rgba(240, 160, 48, 0.7)';
-      ctx.fillText(String(startBar), x + 3, h - 4);
+      if (isDragTarget) {
+        ctx.font = '10px "DM Mono", monospace';
+        ctx.fillStyle = 'rgba(56, 189, 248, 0.95)';
+        ctx.fillText(fmtTime(m.time), x + 4, h / 2);
+      }
     }
   }
 
@@ -2954,19 +2979,18 @@ function drawMiniWaveformMarkers(canvas, startSec, endSec, partIndex) {
   const partDur = endSec - startSec;
   if (partDur <= 0) { ctx.restore(); return; }
 
-  // Bar markers (cyan vertical lines — no flags in overview, flags only in finetuning)
-  const bars = getBarMarkersForPart(partIndex);
-  if (bars.length > 0) {
-    for (let i = 0; i < bars.length; i++) {
-      const x = ((bars[i].time - startSec) / partDur) * w;
-      if (x < 1 || x > w - 1) continue;
-      ctx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, h);
-      ctx.stroke();
-    }
+  // All markers for this part (cyan for bars, amber for part-start handled by edge lines)
+  const partMarks = getBarMarkersForPart(partIndex);
+  for (const m of partMarks) {
+    if (m.partStart) continue; // part-start is drawn as amber edge line below
+    const x = ((m.time - startSec) / partDur) * w;
+    if (x < 1 || x > w - 1) continue;
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, h);
+    ctx.stroke();
   }
 
   // Start marker (amber, left edge — line only, no flag)
@@ -3022,7 +3046,7 @@ function hideDragBalloon() {
 
 /**
  * Find the nearest marker to a given x pixel position on the waveform.
- * Returns { type: 'part'|'bar', index, marker, distPx } or null.
+ * Returns { marker: ref, isPartStart: bool, distPx: number } or null.
  */
 function hitTestMarker(xPx, yPx) {
   if (!audioMeta) return null;
@@ -3034,46 +3058,48 @@ function hitTestMarker(xPx, yPx) {
   const canvasH = wrap ? wrap.getBoundingClientRect().height : 100;
   if (duration <= 0 || totalW <= 0) return null;
 
-  let best = null;
-  let bestDist = DRAG_HIT_PX + 1;
-
-  // Check part markers — ONLY draggable via top flag (part name label)
   const parts = getSortedParts(selectedSongId);
-  const FLAG_H_PART = 20; // generous top hit zone for part flags
-  for (let i = 0; i < partMarkers.length; i++) {
-    if (yPx === undefined || yPx > FLAG_H_PART) continue; // must touch top area
-    const mx = (partMarkers[i].time / duration) * totalW;
-    const partName = partMarkers[i].partIndex < parts.length ? parts[partMarkers[i].partIndex].name : '';
-    const flagW = partName ? partName.length * 7 + 8 : 0;
-    // Hit if within flag rect OR within DRAG_HIT_PX of the line (but still in top zone)
-    const inFlag = partName && xPx >= mx && xPx <= mx + flagW;
-    const nearLine = Math.abs(xPx - mx) <= DRAG_HIT_PX;
-    if (inFlag || nearLine) {
-      best = { type: 'part', index: i, marker: partMarkers[i], distPx: 0 };
-      bestDist = 0;
-      break; // flag hit is definitive
+  const partIdToName = {};
+  for (const p of parts) partIdToName[p.id] = p.name;
+
+  let best = null;
+
+  // Compute absolute bar numbers for flag label widths
+  const sorted = [...markers].sort((a, b) => a.time - b.time);
+  let absNum = 0;
+
+  for (const m of sorted) {
+    absNum++;
+    const mx = (m.time / duration) * totalW;
+
+    if (m.partStart) {
+      // Part-start markers — draggable via top flag
+      const FLAG_H_PART = 20;
+      if (yPx !== undefined && yPx > FLAG_H_PART) continue;
+      const partName = partIdToName[m.partId] || '';
+      const flagW = partName ? partName.length * 7 + 8 : 0;
+      const inFlag = partName && xPx >= mx && xPx <= mx + flagW;
+      const nearLine = Math.abs(xPx - mx) <= DRAG_HIT_PX;
+      if (inFlag || nearLine) {
+        best = { marker: m, isPartStart: true, distPx: 0 };
+        break;
+      }
+    } else {
+      // Bar markers — draggable via bottom flag
+      const FLAG_H_BAR = 18;
+      if (yPx !== undefined && yPx < canvasH - FLAG_H_BAR) continue;
+      const label = String(absNum);
+      const flagW = label.length * 7 + 6;
+      const inFlag = xPx >= mx && xPx <= mx + flagW;
+      const nearLine = Math.abs(xPx - mx) <= DRAG_HIT_PX;
+      if (inFlag || nearLine) {
+        best = { marker: m, isPartStart: false, distPx: 0 };
+        break;
+      }
     }
   }
 
-  // Check bar markers — ONLY draggable via bottom flag (bar number label)
-  const FLAG_H_BAR = 18; // generous bottom hit zone for bar flags
-  for (let i = 0; i < barMarkers.length; i++) {
-    if (yPx === undefined || yPx < canvasH - FLAG_H_BAR) continue; // must touch bottom area
-    const mx = (barMarkers[i].time / duration) * totalW;
-    const isPartStart = partMarkers.some(pm => Math.abs(pm.time - barMarkers[i].time) < 0.01);
-    if (isPartStart) continue; // skip bar markers co-located with part markers
-    const label = String(i + 1);
-    const flagW = label.length * 7 + 6;
-    const inFlag = xPx >= mx && xPx <= mx + flagW;
-    const nearLine = Math.abs(xPx - mx) <= DRAG_HIT_PX;
-    if (inFlag || nearLine) {
-      best = { type: 'bar', index: i, marker: barMarkers[i], distPx: 0 };
-      bestDist = 0;
-      break;
-    }
-  }
-
-  return best && best.distPx <= DRAG_HIT_PX ? best : null;
+  return best;
 }
 
 /**
@@ -3109,8 +3135,8 @@ function onWaveformPointerDown(e) {
 
   // Start potential drag
   _dragMarker = {
-    type: hit.type,
-    index: hit.index,
+    marker: hit.marker,
+    isPartStart: hit.isPartStart,
     originalTime: hit.marker.time,
   };
   _isDragging = false;
@@ -3126,22 +3152,22 @@ function onWaveformPointerDown(e) {
  * Returns { min, max } in seconds. Includes a small gap (MIN_MARKER_GAP) to prevent overlap.
  */
 const MIN_MARKER_GAP = 0.05; // 50ms minimum gap between markers
-function getDragBounds(type, index) {
+function getDragBounds(markerRef) {
   const duration = audioMeta ? audioMeta.duration : Infinity;
-  const markers = type === 'part' ? partMarkers : barMarkers;
   const sorted = [...markers].sort((a, b) => a.time - b.time);
-  const sortedIdx = sorted.findIndex(m => m === markers[index]);
-  const min = sortedIdx > 0 ? sorted[sortedIdx - 1].time + MIN_MARKER_GAP : 0;
-  const max = sortedIdx < sorted.length - 1 ? sorted[sortedIdx + 1].time - MIN_MARKER_GAP : duration;
+  const idx = sorted.indexOf(markerRef);
+  const min = idx > 0 ? sorted[idx - 1].time + MIN_MARKER_GAP : 0;
+  const max = idx < sorted.length - 1 ? sorted[idx + 1].time - MIN_MARKER_GAP : duration;
 
-  // For bar markers, also constrain to stay within the part boundaries
-  if (type === 'bar') {
-    const bm = markers[index];
-    const partStart = partMarkers.find(pm => pm.partIndex === bm.partIndex);
-    const nextPart = partMarkers.find(pm => pm.partIndex === bm.partIndex + 1);
+  // For non-part-start markers, also constrain to stay within the part boundaries
+  if (!markerRef.partStart) {
+    const pm = getPartMarkers();
+    const partIdx = pm.findIndex(m => m.partId === markerRef.partId);
+    const partStartTime = partIdx >= 0 ? pm[partIdx].time : 0;
+    const nextPartTime = partIdx < pm.length - 1 ? pm[partIdx + 1].time - MIN_MARKER_GAP : duration;
     return {
-      min: Math.max(min, partStart ? partStart.time : 0),
-      max: Math.min(max, nextPart ? nextPart.time - MIN_MARKER_GAP : duration),
+      min: Math.max(min, partStartTime),
+      max: Math.min(max, nextPartTime),
     };
   }
   return { min, max };
@@ -3177,28 +3203,11 @@ function onWaveformPointerMove(e) {
       const rawTime = (x / totalW) * duration;
 
       // Clamp to drag bounds so markers cannot cross neighbours
-      const bounds = getDragBounds(_dragMarker.type, _dragMarker.index);
+      const bounds = getDragBounds(_dragMarker.marker);
       const newTime = Math.max(bounds.min, Math.min(bounds.max, rawTime));
 
       // Update marker time
-      if (_dragMarker.type === 'part') {
-        const oldTime = partMarkers[_dragMarker.index].time;
-        partMarkers[_dragMarker.index].time = newTime;
-        // Move the nearest bar marker along with the part marker (0.2s tolerance)
-        // Search ALL bar markers regardless of partIndex — a bar just before
-        // the part marker belongs to the previous part but should still follow
-        let nearestBar = null;
-        let nearestDist = Infinity;
-        for (const bm of barMarkers) {
-          const d = Math.abs(bm.time - oldTime);
-          if (d < nearestDist) { nearestBar = bm; nearestDist = d; }
-        }
-        if (nearestBar && nearestDist < 0.2) {
-          nearestBar.time = newTime;
-        }
-      } else {
-        barMarkers[_dragMarker.index].time = newTime;
-      }
+      _dragMarker.marker.time = newTime;
 
       drawWaveform();
 
@@ -3206,13 +3215,16 @@ function onWaveformPointerMove(e) {
       if (_isTouchDrag) {
         const clientY = e.touches ? e.touches[0].clientY : e.clientY;
         const parts = getSortedParts(selectedSongId);
+        const partIdToName = {};
+        for (const p of parts) partIdToName[p.id] = p.name;
         let label, color;
-        if (_dragMarker.type === 'part') {
-          const pi = partMarkers[_dragMarker.index].partIndex;
-          label = pi < parts.length ? parts[pi].name : `Part ${pi + 1}`;
+        if (_dragMarker.isPartStart) {
+          label = partIdToName[_dragMarker.marker.partId] || 'Part';
           color = '#f0a030';
         } else {
-          label = `Bar ${_dragMarker.index + 1}`;
+          const sorted = [...markers].sort((a, b) => a.time - b.time);
+          const absNum = sorted.indexOf(_dragMarker.marker) + 1;
+          label = `Bar ${absNum}`;
           color = '#38bdf8';
         }
         showDragBalloon(label, newTime, color, clientX, clientY);
@@ -3231,11 +3243,7 @@ function onWaveformPointerMove(e) {
 function cancelDrag() {
   if (_dragMarker) {
     if (_isDragging) {
-      // Revert marker to original position
-      const markers = _dragMarker.type === 'part' ? partMarkers : barMarkers;
-      if (markers[_dragMarker.index]) {
-        markers[_dragMarker.index].time = _dragMarker.originalTime;
-      }
+      _dragMarker.marker.time = _dragMarker.originalTime;
       drawWaveform();
     }
   }
@@ -3258,46 +3266,40 @@ function onWaveformPointerUp(e) {
   }
 
   // Tap without drag on a bar marker → show context menu
-  if (_dragMarker && !_isDragging && _dragMarker.type === 'bar') {
+  if (_dragMarker && !_isDragging && !_dragMarker.isPartStart) {
     const clientX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
     const clientY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
-    showBarContextMenu(clientX, clientY, _dragMarker.index, 'split');
+    const globalIdx = markers.indexOf(_dragMarker.marker);
+    if (globalIdx >= 0) {
+      showBarContextMenu(clientX, clientY, globalIdx, 'split');
+    }
     _dragMarker = null;
     _isDragging = false;
     return;
   }
 
   if (_dragMarker && _isDragging) {
-    // If a part marker was dragged far enough, leave a bar marker at the original position
-    if (_dragMarker.type === 'part') {
+    // If a part-start marker was dragged far enough, leave a bar marker at the original position
+    if (_dragMarker.isPartStart) {
       const origTime = _dragMarker.originalTime;
-      const newTime = partMarkers[_dragMarker.index].time;
+      const newTime = _dragMarker.marker.time;
       const displacement = Math.abs(newTime - origTime);
       const song = db.songs[selectedSongId];
       const bpm = song ? (song.bpm || 120) : 120;
-      const quarterBar = 60 / bpm; // duration of one beat (quarter note)
+      const quarterBar = 60 / bpm;
       if (displacement > quarterBar * 0.25) {
-        // Check if there's already a bar marker near the original position
-        const hasBarAtOrig = barMarkers.some(bm => Math.abs(bm.time - origTime) < 0.05);
+        const hasBarAtOrig = markers.some(m => Math.abs(m.time - origTime) < 0.05 && m !== _dragMarker.marker);
         if (!hasBarAtOrig) {
-          // Determine which part the original position now belongs to
-          const origPartIdx = getPartIndexForTime(origTime);
-          barMarkers.push({ time: origTime, partIndex: origPartIdx });
+          const partId = getPartIdForTime(origTime);
+          if (partId) {
+            markers.push({ time: origTime, partId, partStart: false });
+          }
         }
       }
     }
 
-    // Finalize drag — snap first bar of each part to part marker
-    snapFirstBarsToPartMarkers();
-
     // Sort markers by time to maintain order
-    partMarkers.sort((a, b) => a.time - b.time);
-    barMarkers.sort((a, b) => a.time - b.time);
-
-    // Re-index part markers sequentially
-    partMarkers.forEach((m, i) => { m.partIndex = i; });
-    // Re-assign bar markers to correct parts based on time
-    reassignBarMarkerParts();
+    markers.sort((a, b) => a.time - b.time);
 
     // Persist and update UI — preserve scroll positions across re-render
     saveMarkersToSong();
@@ -3328,37 +3330,6 @@ function onWaveformPointerUp(e) {
   _isDragging = false;
 }
 
-/**
- * After dragging, re-assign each bar marker to the correct part based on time.
- * Uses proximity logic at part boundaries: if a bar is within BOUNDARY_TOLERANCE
- * of a part marker, it gets assigned to whichever part it's closer to the start of.
- */
-const BOUNDARY_TOLERANCE = 0.35; // seconds — bars within this range of a part boundary get smart-assigned
-function reassignBarMarkerParts() {
-  const sortedParts = [...partMarkers].sort((a, b) => a.time - b.time);
-  for (const bm of barMarkers) {
-    // Default: assign to the last part whose start is <= bar time
-    let assignedPart = 0;
-    for (const pm of sortedParts) {
-      if (pm.time <= bm.time) assignedPart = pm.partIndex;
-    }
-    // Proximity check: if bar is very close to the NEXT part boundary,
-    // assign it to the next part (it likely belongs there as bar 1)
-    const nextPart = sortedParts.find(pm => pm.time > bm.time);
-    if (nextPart) {
-      const distToNext = nextPart.time - bm.time;
-      if (distToNext <= BOUNDARY_TOLERANCE) {
-        // Bar is just before next part — assign to next part
-        assignedPart = nextPart.partIndex;
-      }
-    }
-    bm.partIndex = assignedPart;
-  }
-  // Update currentBarInPart
-  if (currentPartIndex > 0) {
-    currentBarInPart = barMarkers.filter(m => m.partIndex === currentPartIndex - 1).length;
-  }
-}
 
 /* ── Bar Marker Context Menu (Delete) ──────────────── */
 
@@ -3368,7 +3339,7 @@ let _barCtxMenu = null;
  * Show context menu near a tapped bar marker to allow deletion.
  * @param {number} clientX - screen X
  * @param {number} clientY - screen Y
- * @param {number} barIndex - index in barMarkers array
+ * @param {number} barIndex - index in markers array
  * @param {string} context - 'split' or 'pw' (part waveform editor)
  */
 function showBarContextMenu(clientX, clientY, barIndex, context) {
@@ -3411,13 +3382,9 @@ function hideBarContextMenu() {
  * Delete a bar marker and renumber remaining bars in that part.
  */
 function deleteBarMarker(barIndex, context) {
-  if (barIndex < 0 || barIndex >= barMarkers.length) return;
-  const removed = barMarkers[barIndex];
-  barMarkers.splice(barIndex, 1);
-
-  // Sort and reassign parts
-  barMarkers.sort((a, b) => a.time - b.time);
-  reassignBarMarkerParts();
+  if (barIndex < 0 || barIndex >= markers.length) return;
+  const removed = markers[barIndex];
+  markers.splice(barIndex, 1);
 
   // Persist to song and update bar counts
   saveMarkersToSong();
@@ -3449,60 +3416,6 @@ function deleteBarMarker(barIndex, context) {
   toast('Takt-Marker gelöscht', 'success');
 }
 
-/**
- * Ensure the first bar marker of each part is snapped to its part marker time.
- * Uses BOUNDARY_TOLERANCE for consistency with reassignBarMarkerParts().
- */
-function snapFirstBarsToPartMarkers() {
-  for (const pm of partMarkers) {
-    // Find the nearest bar marker across ALL bars (regardless of partIndex)
-    let nearest = null;
-    let nearestDist = Infinity;
-    for (const bm of barMarkers) {
-      const d = Math.abs(bm.time - pm.time);
-      if (d < nearestDist) { nearest = bm; nearestDist = d; }
-    }
-    if (nearest && nearestDist <= BOUNDARY_TOLERANCE) {
-      nearest.time = pm.time;
-    }
-  }
-}
-
-/**
- * After Part-Reorder in the editor, update split_markers partIndex values
- * to match the new part order. Uses partIndex → partId mapping before reorder
- * and rebuilds the mapping after.
- */
-function updateSplitMarkersAfterReorder(song) {
-  if (!song || !song.split_markers) return;
-  const parts = getSortedParts(song === db.songs[selectedSongId] ? selectedSongId : null);
-  if (!parts.length) return;
-
-  // Build new index map: pos (0-based) → partIndex should be sequential
-  // Reassign partIndex on both part and bar markers based on the new part order
-  const pm = song.split_markers.partMarkers || [];
-  const bm = song.split_markers.barMarkers || [];
-
-  // Sort part markers by time (their position doesn't change)
-  pm.sort((a, b) => a.time - b.time);
-  // Re-index sequentially
-  pm.forEach((m, i) => { m.partIndex = i; });
-
-  // Re-assign bar markers to parts by time
-  for (const b of bm) {
-    let assigned = 0;
-    for (const p of pm) {
-      if (p.time <= b.time) assigned = p.partIndex;
-    }
-    b.partIndex = assigned;
-  }
-
-  // Also update in-memory markers if this is the currently selected song
-  if (song === db.songs[selectedSongId]) {
-    partMarkers = pm.map(m => ({ ...m }));
-    barMarkers = bm.map(m => ({ ...m }));
-  }
-}
 
 /**
  * Attach drag event listeners to the waveform wrap element.
@@ -3895,8 +3808,8 @@ function updateTapButtonStates() {
   if (partBtn) partBtn.disabled = !isPlay;
   if (barBtn) barBtn.disabled = !isPlay || currentPartIndex === 0;
   if (undoBtn) undoBtn.disabled = tapHistory.length === 0;
-  if (delPartsBtn) delPartsBtn.disabled = partMarkers.length === 0;
-  if (delBarsBtn) delBarsBtn.disabled = barMarkers.length === 0;
+  if (delPartsBtn) delPartsBtn.disabled = getPartMarkers().length === 0;
+  if (delBarsBtn) delBarsBtn.disabled = getBarOnlyMarkers().length === 0;
 }
 
 function handlePartTap() {
@@ -3918,21 +3831,19 @@ function handlePartTap() {
     parts = getSortedParts(selectedSongId);
   }
 
-  // Compensate for audio output latency: user taps when they hear the beat,
-  // but getCurrentTime() is ahead by the output latency
+  // Compensate for audio output latency
   const time = Math.max(0, audio.getCurrentTime() - audio.getOutputLatency());
+  const partId = parts[currentPartIndex].id;
 
-  // Add part marker
-  partMarkers.push({ time, partIndex: currentPartIndex });
+  // Add part-start marker (which IS also bar 1)
+  markers.push({ time, partId, partStart: true });
+  markers.sort((a, b) => a.time - b.time);
 
-  // Automatically add first bar marker at the same position as the part marker
-  barMarkers.push({ time, partIndex: currentPartIndex });
-
-  // Record for undo (both part + auto-bar)
-  tapHistory.push({ type: 'part', time, partIndex: currentPartIndex, autoBar: true, autoCreatedPartId });
+  // Record for undo
+  tapHistory.push({ partStart: true, time, partId, autoCreatedPartId });
 
   currentPartIndex++;
-  currentBarInPart = 1; // first bar already added
+  currentBarInPart = 1; // part-start marker counts as bar 1
 
   // Persist markers to song object
   saveMarkersToSong();
@@ -3953,11 +3864,13 @@ function handleBarTap() {
   const time = Math.max(0, audio.getCurrentTime() - audio.getOutputLatency());
 
   // Determine which part this bar belongs to based on playback time
-  const activePartIdx = getPartIndexForTime(time);
+  const partId = getPartIdForTime(time);
+  if (!partId) return;
 
-  barMarkers.push({ time, partIndex: activePartIdx });
-  tapHistory.push({ type: 'bar', time, partIndex: activePartIdx });
-  currentBarInPart = barMarkers.filter(m => m.partIndex === activePartIdx).length;
+  markers.push({ time, partId, partStart: false });
+  markers.sort((a, b) => a.time - b.time);
+  tapHistory.push({ partStart: false, time, partId });
+  currentBarInPart = markers.filter(m => m.partId === partId).length;
 
   // Persist markers to song object
   saveMarkersToSong();
@@ -3970,13 +3883,26 @@ function handleBarTap() {
 }
 
 /**
- * Find the partIndex for a given time based on part markers.
- * Returns the index of the last part whose start time is <= the given time.
+ * Find the partId for a given time based on part-start markers.
+ * Returns the partId of the last part whose start time is <= the given time.
+ */
+function getPartIdForTime(time) {
+  const pm = getPartMarkers();
+  let partId = pm.length > 0 ? pm[0].partId : null;
+  for (const m of pm) {
+    if (m.time <= time) partId = m.partId;
+  }
+  return partId;
+}
+
+/**
+ * Find the partIndex for a given time based on part-start markers.
  */
 function getPartIndexForTime(time) {
+  const pm = getPartMarkers();
   let idx = 0;
-  for (const m of partMarkers) {
-    if (m.time <= time) idx = m.partIndex;
+  for (let i = 0; i < pm.length; i++) {
+    if (pm[i].time <= time) idx = i;
   }
   return idx;
 }
@@ -3985,13 +3911,12 @@ function handleUndoTap() {
   if (tapHistory.length === 0) return;
   const last = tapHistory.pop();
 
-  if (last.type === 'part') {
-    // Remove the part marker
-    partMarkers = partMarkers.filter(m => m.time !== last.time || m.partIndex !== last.partIndex);
-    // Also remove the auto-bar if it was added with the part tap
-    if (last.autoBar) {
-      barMarkers = barMarkers.filter(m => !(Math.abs(m.time - last.time) < 0.001 && m.partIndex === last.partIndex));
-    }
+  // Remove the marker (match by time + partId + partStart)
+  markers = markers.filter(m =>
+    !(Math.abs(m.time - last.time) < 0.001 && m.partId === last.partId && m.partStart === last.partStart)
+  );
+
+  if (last.partStart) {
     currentPartIndex--;
     // Remove dynamically created part if it was auto-created during tapping
     if (last.autoCreatedPartId) {
@@ -4002,15 +3927,14 @@ function handleUndoTap() {
     }
     // Recalculate currentBarInPart for previous part
     if (currentPartIndex > 0) {
-      const prevPartIdx = currentPartIndex - 1;
-      currentBarInPart = barMarkers.filter(m => m.partIndex === prevPartIdx).length;
+      const pm = getPartMarkers();
+      const prevPartId = pm[currentPartIndex - 1] ? pm[currentPartIndex - 1].partId : null;
+      currentBarInPart = prevPartId ? markers.filter(m => m.partId === prevPartId).length : 0;
     } else {
       currentBarInPart = 0;
     }
   } else {
-    // Remove the bar marker
-    barMarkers = barMarkers.filter(m => m.time !== last.time || m.partIndex !== last.partIndex);
-    currentBarInPart = barMarkers.filter(m => m.partIndex === last.partIndex).length;
+    currentBarInPart = markers.filter(m => m.partId === last.partId).length;
   }
 
   // Persist updated markers
@@ -4031,25 +3955,24 @@ function handleDistributeParts() {
   if (parts.length < 2) return;
   const duration = audioMeta.duration;
 
-  // Create part markers if they don't exist yet
-  if (partMarkers.length === 0) {
+  // Create part-start markers if they don't exist yet
+  let pm = getPartMarkers();
+  if (pm.length === 0) {
     for (let i = 0; i < parts.length; i++) {
-      partMarkers.push({ time: 0, partIndex: i });
+      markers.push({ time: 0, partId: parts[i].id, partStart: true });
     }
     currentPartIndex = parts.length;
+    pm = getPartMarkers();
   }
 
   // Distribute evenly: first part at 0, rest equally spaced
-  const count = partMarkers.length;
+  const count = pm.length;
   const gap = duration / count;
-  partMarkers.sort((a, b) => a.partIndex - b.partIndex);
   for (let i = 0; i < count; i++) {
-    partMarkers[i].time = i * gap;
+    pm[i].time = i * gap;
   }
 
-  partMarkers.sort((a, b) => a.time - b.time);
-  snapFirstBarsToPartMarkers();
-  reassignBarMarkerParts();
+  markers.sort((a, b) => a.time - b.time);
   saveMarkersToSong();
   markDirty();
   renderAudioTab();
@@ -4057,10 +3980,12 @@ function handleDistributeParts() {
 }
 
 async function handleDeleteAllParts() {
-  if (partMarkers.length === 0) return;
+  const pmCount = getPartMarkers().length;
+  if (pmCount === 0) return;
+  const barOnlyCount = getBarOnlyMarkers().length;
   const ok = await showConfirm(
     'Alle Parts löschen?',
-    `Alle <strong>${partMarkers.length} Part-Marker</strong> und <strong>${barMarkers.length} Bar-Marker</strong> werden entfernt.`,
+    `Alle <strong>${pmCount} Part-Marker</strong> und <strong>${barOnlyCount} Bar-Marker</strong> werden entfernt.`,
     'Löschen'
   );
   if (!ok) return;
@@ -4073,8 +3998,7 @@ async function handleDeleteAllParts() {
       }
     }
   }
-  partMarkers = [];
-  barMarkers = [];
+  markers = [];
   tapHistory = [];
   currentPartIndex = 0;
   currentBarInPart = 0;
@@ -4099,32 +4023,17 @@ async function handleDeleteAllParts() {
 
 function handleSnapToPeaks() {
   if (!audio.getBuffer()) return;
-  const totalMarkers = partMarkers.length + barMarkers.length;
-  if (totalMarkers === 0) return;
+  if (markers.length === 0) return;
 
   let snapped = 0;
-  // Snap part markers
-  for (const m of partMarkers) {
-    const newTime = audio.findPeakNear(m.time, 80);
-    if (Math.abs(newTime - m.time) > 0.001) { m.time = newTime; snapped++; }
-  }
-  // Snap bar markers, skip first bar of each part (it should follow its part marker)
-  for (const m of barMarkers) {
-    // Check if this is a first bar (same time as its part marker)
-    const isFirstBar = partMarkers.some(pm => pm.partIndex === m.partIndex && Math.abs(pm.time - m.time) < 0.01);
-    if (isFirstBar) {
-      // Sync first bar to its part marker
-      const pm = partMarkers.find(p => p.partIndex === m.partIndex);
-      if (pm && Math.abs(m.time - pm.time) > 0.001) { m.time = pm.time; snapped++; }
-      continue;
-    }
+  // Snap all markers to nearest audio peak
+  for (const m of markers) {
     const newTime = audio.findPeakNear(m.time, 80);
     if (Math.abs(newTime - m.time) > 0.001) { m.time = newTime; snapped++; }
   }
 
   // Re-sort
-  partMarkers.sort((a, b) => a.time - b.time);
-  barMarkers.sort((a, b) => a.time - b.time);
+  markers.sort((a, b) => a.time - b.time);
   saveMarkersToSong();
   markDirty();
   drawWaveform();
@@ -4135,15 +4044,16 @@ function handleSnapToPeaks() {
 }
 
 async function handleDeleteAllBarMarkers() {
-  if (barMarkers.length === 0) return;
+  const barOnlyCount = getBarOnlyMarkers().length;
+  if (barOnlyCount === 0) return;
   const ok = await showConfirm(
     'Alle Takte löschen?',
-    `Alle <strong>${barMarkers.length} Bar-Marker</strong> werden entfernt. Part-Marker bleiben erhalten.`,
+    `Alle <strong>${barOnlyCount} Bar-Marker</strong> werden entfernt. Part-Marker bleiben erhalten.`,
     'Löschen'
   );
   if (!ok) return;
-  barMarkers = [];
-  tapHistory = tapHistory.filter(h => h.type !== 'bar');
+  markers = markers.filter(m => m.partStart);
+  tapHistory = tapHistory.filter(h => h.partStart);
   currentBarInPart = 0;
   saveMarkersToSong();
   // Sync: also delete db.bars and db.accents for this song
@@ -4257,24 +4167,28 @@ function handleMarkerDelete(btn) {
   if (isNaN(time)) return;
 
   if (type === 'part') {
-    // Remove part marker and all bars belonging to this part
-    partMarkers = partMarkers.filter(m => m.partIndex !== partIdx);
-    barMarkers = barMarkers.filter(m => m.partIndex !== partIdx);
-    // Shift subsequent part indices down
-    partMarkers.forEach(m => { if (m.partIndex > partIdx) m.partIndex--; });
-    barMarkers.forEach(m => { if (m.partIndex > partIdx) m.partIndex--; });
+    // Remove part marker and all markers belonging to this part
+    const parts = getSortedParts(selectedSongId);
+    const partId = parts[partIdx] ? parts[partIdx].id : null;
+    if (partId) {
+      markers = markers.filter(m => m.partId !== partId);
+    }
     currentPartIndex = Math.max(0, currentPartIndex - 1);
     // Recalculate bar counter
     if (currentPartIndex > 0) {
-      currentBarInPart = barMarkers.filter(m => m.partIndex === currentPartIndex - 1).length;
+      const pm = getPartMarkers();
+      const prevPartId = pm[currentPartIndex - 1] ? pm[currentPartIndex - 1].partId : null;
+      currentBarInPart = prevPartId ? markers.filter(m => m.partId === prevPartId).length : 0;
     } else {
       currentBarInPart = 0;
     }
   } else {
     // Remove single bar marker
-    barMarkers = barMarkers.filter(m => !(Math.abs(m.time - time) < 0.001 && m.partIndex === partIdx));
-    if (partIdx === currentPartIndex - 1) {
-      currentBarInPart = barMarkers.filter(m => m.partIndex === partIdx).length;
+    const parts = getSortedParts(selectedSongId);
+    const partId = parts[partIdx] ? parts[partIdx].id : null;
+    markers = markers.filter(m => !(Math.abs(m.time - time) < 0.001 && m.partId === partId && !m.partStart));
+    if (partId && partIdx === currentPartIndex - 1) {
+      currentBarInPart = markers.filter(m => m.partId === partId).length;
     }
   }
 
@@ -4300,24 +4214,26 @@ function updateTapInfo(parts) {
   }
   if (barBtn) {
     const info = barBtn.querySelector('.tap-info');
-    if (info) info.textContent = `Bar ${barMarkers.length + 1}`;
+    if (info) info.textContent = `Bar ${markers.length + 1}`;
     barBtn.disabled = !audio.isPlaying() || currentPartIndex === 0;
   }
 
   const undoBtn = document.getElementById('tap-undo');
   if (undoBtn) undoBtn.disabled = tapHistory.length === 0;
 
+  const pmCount = getPartMarkers().length;
+  const barOnlyCount = getBarOnlyMarkers().length;
   const delPartsBtn = document.getElementById('tap-delete-parts');
   if (delPartsBtn) {
-    delPartsBtn.disabled = partMarkers.length === 0;
+    delPartsBtn.disabled = pmCount === 0;
     const info = delPartsBtn.querySelector('.tap-info');
-    if (info) info.textContent = `${partMarkers.length} Parts`;
+    if (info) info.textContent = `${pmCount} Parts`;
   }
   const delBarsBtn = document.getElementById('tap-delete-bars');
   if (delBarsBtn) {
-    delBarsBtn.disabled = barMarkers.length === 0;
+    delBarsBtn.disabled = barOnlyCount === 0;
     const info = delBarsBtn.querySelector('.tap-info');
-    if (info) info.textContent = `${barMarkers.length} Takte`;
+    if (info) info.textContent = `${barOnlyCount} Takte`;
   }
 
 }
@@ -4334,7 +4250,7 @@ function updateSplitResultLive(parts) {
     const start = getPartStartTime(i);
     const end = getPartEndTime(i);
     const dur = (start !== null && end !== null) ? end - start : null;
-    const barCount = barMarkers.filter(m => m.partIndex === i).length;
+    const barCount = markers.filter(m => m.partId === p.id).length;
 
     rows[i].className = isCurrent ? 'current' : (isDone ? 'done' : '');
     const tds = rows[i].querySelectorAll('td');
@@ -4349,8 +4265,8 @@ function updateAudioSummaryLive(parts) {
   const bar = document.querySelector('.audio-panel .summary-bar');
   if (!bar) return;
   const items = bar.querySelectorAll('.summary-item .mono');
-  if (items[0]) items[0].textContent = partMarkers.length;
-  if (items[1]) items[1].textContent = barMarkers.length;
+  if (items[0]) items[0].textContent = getPartMarkers().length;
+  if (items[1]) items[1].textContent = markers.length;
   if (items[2]) items[2].textContent = estimateBpm() || '\u2014';
 }
 
@@ -4370,11 +4286,15 @@ function handleBpmUpdate() {
 /* ── Audio Export to GitHub ─────────────────────────── */
 
 /**
- * Get sorted bar markers for a given partIndex.
+ * Get sorted markers for a given partId (or partIndex via parts lookup).
+ * Returns all markers belonging to this part (including the partStart marker).
  */
 function getBarMarkersForPart(partIndex) {
-  return barMarkers
-    .filter(m => m.partIndex === partIndex)
+  const parts = getSortedParts(selectedSongId);
+  const partId = parts[partIndex] ? parts[partIndex].id : null;
+  if (!partId) return [];
+  return markers
+    .filter(m => m.partId === partId)
     .sort((a, b) => a.time - b.time);
 }
 
@@ -4387,12 +4307,12 @@ async function handleAudioExport() {
   }
 
   const parts = getSortedParts(selectedSongId);
-  if (partMarkers.length === 0) return;
+  if (getPartMarkers().length === 0) return;
 
   exportInProgress = true;
 
   // Count total bars across all parts
-  const totalBars = barMarkers.length;
+  const totalBars = markers.length;
   let done = 0;
   toast(`Audio-Export: 0/${totalBars} Takte...`, 'info');
 
@@ -5646,17 +5566,18 @@ function leHandlePartTap(blockIdx) {
 
   // Try to get bar timing from split_markers
   const sm = song?.split_markers;
-  if (sm && sm.barMarkers && sm.partMarkers) {
-    const partStart = sm.partMarkers.find(m => m.partId === partId || m.partIndex === partIdx);
-    const partBars = sm.barMarkers
-      .filter(m => m.partId === partId || m.partIndex === partIdx)
-      .sort((a, b) => a.time - b.time);
+  if (sm && Array.isArray(sm.markers)) {
+    const partMarks = sm.markers.filter(m => m.partId === partId).sort((a, b) => a.time - b.time);
+    const partStartMark = partMarks.find(m => m.partStart);
 
-    if (partStart && partBars.length > 0) {
-      const pStartTime = partStart.time;
-      // Find part end time
-      const nextPart = sm.partMarkers.find(m => m.partIndex === partIdx + 1);
-      const pEndTime = nextPart ? nextPart.time : (audio.getBuffer() ? audio.getBuffer().duration : partBars[partBars.length - 1].time + 5);
+    if (partStartMark && partMarks.length > 0) {
+      const pStartTime = partStartMark.time;
+      // Find part end time: next part-start marker after this part
+      const allPartStarts = sm.markers.filter(m => m.partStart).sort((a, b) => a.time - b.time);
+      const thisIdx = allPartStarts.indexOf(partStartMark);
+      const nextPartStart = thisIdx >= 0 && thisIdx < allPartStarts.length - 1 ? allPartStarts[thisIdx + 1] : null;
+      const pEndTime = nextPartStart ? nextPartStart.time : (audio.getBuffer() ? audio.getBuffer().duration : partMarks[partMarks.length - 1].time + 5);
+      const partBars = partMarks;
 
       for (let i = 0; i < partBars.length; i++) {
         const absBar = absBarOffset + i + 1;
@@ -6919,6 +6840,9 @@ function getAllPartsFlat() {
 function renderPartsTab() {
   const filterSong = selectedSongId;
 
+  // Reconcile bar data before rendering
+  if (filterSong) reconcileBars(filterSong);
+
   // Auto-load reference audio if available and not yet loaded
   if (filterSong) {
     const s = db.songs[filterSong];
@@ -7357,8 +7281,7 @@ function handlePartsTabAction(action) {
       const curr = song.parts[parts[idx].id];
       const other = song.parts[parts[swapIdx].id];
       [curr.pos, other.pos] = [other.pos, curr.pos];
-      // Sync: update partIndex in split_markers after reorder
-      rebuildSplitMarkerIndices(song);
+      // partId-based markers survive reorder — just reload in-memory if active
       if (selectedSongId === sel.songId) restoreMarkersFromSong();
       recalcSongDurationFor(sel.songId);
       markDirty();
@@ -7536,16 +7459,20 @@ function closePartWaveEditor(save) {
 
   if (save && (trimChanged || barsChanged)) {
     if (trimChanged) {
-      // Update the part marker
-      const marker = partMarkers.find(m => m.partIndex === _pw.partIndex);
-      if (marker) marker.time = _pw.trimStart;
-      // Update next part marker (= end of this part) if it exists
-      const nextMarker = partMarkers.find(m => m.partIndex === _pw.partIndex + 1);
-      if (nextMarker) nextMarker.time = _pw.trimEnd;
+      // Update the part-start marker
+      const parts = getSortedParts(selectedSongId);
+      const partId = parts[_pw.partIndex] ? parts[_pw.partIndex].id : null;
+      if (partId) {
+        const marker = markers.find(m => m.partId === partId && m.partStart);
+        if (marker) marker.time = _pw.trimStart;
+      }
+      // Update next part-start marker (= end of this part) if it exists
+      const nextPartId = parts[_pw.partIndex + 1] ? parts[_pw.partIndex + 1].id : null;
+      if (nextPartId) {
+        const nextMarker = markers.find(m => m.partId === nextPartId && m.partStart);
+        if (nextMarker) nextMarker.time = _pw.trimEnd;
+      }
     }
-    // Sync first bar markers to their part markers (fixes desync after trim changes)
-    snapFirstBarsToPartMarkers();
-    reassignBarMarkerParts();
     // Persist and re-render
     saveMarkersToSong();
     markDirty();
@@ -7820,8 +7747,8 @@ function _pwInstallDragListeners() {
       if (!_pwDrag.activated) {
         const cx = ev.changedTouches ? ev.changedTouches[0].clientX : ev.clientX;
         const cy = ev.changedTouches ? ev.changedTouches[0].clientY : ev.clientY;
-        // Find global barMarkers index for this marker
-        const globalIdx = barMarkers.indexOf(_pwDrag.barMarker);
+        // Find global markers index for this marker
+        const globalIdx = markers.indexOf(_pwDrag.barMarker);
         if (globalIdx >= 0) {
           showBarContextMenu(cx, cy, globalIdx, 'pw');
         }
@@ -7904,8 +7831,12 @@ function _pwTapBar() {
   // Only add within the trim range
   if (time < _pw.trimStart || time > _pw.trimEnd) return;
 
-  // Add bar marker to the global barMarkers array for this part
-  barMarkers.push({ time, partIndex: _pw.partIndex });
+  // Add bar marker to the global markers array for this part
+  const parts = getSortedParts(selectedSongId);
+  const partId = parts[_pw.partIndex] ? parts[_pw.partIndex].id : null;
+  if (!partId) return;
+  markers.push({ time, partId, partStart: false });
+  markers.sort((a, b) => a.time - b.time);
 
   // Update origBarTimes so the new marker is tracked
   const bars = getBarMarkersForPart(_pw.partIndex);
@@ -8031,17 +7962,32 @@ function initPartWaveEditor() {
 
 function getAllBarsFlat() {
   if (!db || !db.songs) return [];
+  ensureCollections();
   const rows = [];
+
+  // Pre-index all bars by part_id for fast lookup (avoids bar_num mismatch issues)
+  const barsByPart = {};
+  for (const [barId, bar] of Object.entries(db.bars)) {
+    if (!barsByPart[bar.part_id]) barsByPart[bar.part_id] = [];
+    barsByPart[bar.part_id].push({ barId, ...bar });
+  }
+  // Sort each part's bars by bar_num
+  for (const partId of Object.keys(barsByPart)) {
+    barsByPart[partId].sort((a, b) => a.bar_num - b.bar_num);
+  }
+
   for (const [songId, song] of Object.entries(db.songs)) {
     const parts = getSortedParts(songId);
     let cumBars = 0;
     for (const p of parts) {
       const barCount = p.bars || 0;
-      for (let n = 1; n <= barCount; n++) {
-        const absBar = cumBars + n;
-        const found = findBar(p.id, absBar);
-        const barData = found ? found[1] : {};
-        const barId = found ? found[0] : null;
+      const partBars = barsByPart[p.id] || [];
+      for (let n = 0; n < barCount; n++) {
+        const absBar = cumBars + n + 1;
+        // Match by index within part (more robust than relying on exact bar_num)
+        const barEntry = partBars[n] || null;
+        const barData = barEntry || {};
+        const barId = barEntry ? barEntry.barId : null;
         const accCount = barId ? getAccentsForBar(barId).length : 0;
         const bpm = song.bpm || 0;
         const barSec = bpm > 0 ? (absBar - 1) * 4 * 60 / bpm : 0;
@@ -8063,6 +8009,9 @@ function getAllBarsFlat() {
 function renderTakteTab() {
   const filterSong = selectedSongId;
   ensureCollections();
+
+  // Reconcile bar data before rendering
+  if (filterSong) reconcileBars(filterSong);
 
   // Auto-load reference audio if available and not yet loaded (skip during bar playback)
   if (filterSong && !_partPlayActive) {
@@ -8130,9 +8079,9 @@ function getBarTimeRange(partId, barNum) {
   }
   const localBarNum = barNum - cumBars;
 
-  // Get sorted bar markers for this part
-  const barsInPart = barMarkers
-    .filter(m => m.partIndex === partIdx)
+  // Get sorted markers for this part
+  const barsInPart = markers
+    .filter(m => m.partId === partId)
     .sort((a, b) => a.time - b.time);
 
   if (localBarNum < 1 || localBarNum > barsInPart.length) return null;
@@ -8274,13 +8223,14 @@ async function handleDeleteAllBars() {
     delete db.bars[barId];
   }
 
-  // Sync: clear split_markers.barMarkers and reset part.bars count
+  // Sync: clear split_markers and reset part.bars count
   if (filterSong) {
     const song = db.songs[filterSong];
     if (song) {
-      // Clear bar markers from split_markers
-      if (song.split_markers && Array.isArray(song.split_markers.barMarkers)) {
-        song.split_markers.barMarkers = [];
+      // Clear all markers from split_markers
+      if (song.split_markers && Array.isArray(song.split_markers.markers)) {
+        // Keep part-start markers, remove bar-only markers
+        song.split_markers.markers = song.split_markers.markers.filter(m => m.partStart);
       }
       // Reset bars count on all parts
       if (parts) {
@@ -8288,21 +8238,23 @@ async function handleDeleteAllBars() {
           if (song.parts[p.id]) song.parts[p.id].bars = 0;
         }
       }
-      // If this song is currently loaded in the Audio tab, clear in-memory barMarkers
+      // If this song is currently loaded in the Audio tab, clear in-memory bar markers
       if (selectedSongId === filterSong) {
-        barMarkers = [];
+        markers = markers.filter(m => m.partStart);
         currentBarInPart = 0;
       }
     }
   } else {
-    // All songs: clear all bar markers
+    // All songs: clear all bar markers (keep part-start markers)
     for (const [, song] of Object.entries(db.songs)) {
-      if (song.split_markers) song.split_markers.barMarkers = [];
+      if (song.split_markers && Array.isArray(song.split_markers.markers)) {
+        song.split_markers.markers = song.split_markers.markers.filter(m => m.partStart);
+      }
       if (song.parts) {
         for (const p of Object.values(song.parts)) p.bars = 0;
       }
     }
-    barMarkers = [];
+    markers = markers.filter(m => m.partStart);
     currentBarInPart = 0;
   }
 
@@ -8623,7 +8575,7 @@ async function handleSave(showToast = true) {
 
     // Auto-export audio segments only from the audio tab (not during lyrics/parts editing)
     if (activeTab === 'audio' && selectedSongId && audioMeta && !exportInProgress
-        && partMarkers.length > 0 && barMarkers.length > 0) {
+        && markers.length > 0 && getPartMarkers().length > 0) {
       handleAudioExport();
     }
 

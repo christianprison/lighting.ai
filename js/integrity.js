@@ -280,95 +280,91 @@ export function syncBarCount(db, partId, declaredCount) {
   return { removed };
 }
 
-/* ── Split-Marker Migration: partIndex → partId ───── */
+/* ── Split-Marker Migration: Legacy → Unified ───── */
 
 /**
- * Migrate split_markers from partIndex-based to partId-based references.
- * This makes markers independent of part order.
+ * Migrate split_markers from the old two-array format (partMarkers + barMarkers)
+ * to the new unified single-array format (markers[]).
  *
- * Before: { time: 5.2, partIndex: 0 }
- * After:  { time: 5.2, partIndex: 0, partId: "5Ij0Ns_P001" }
+ * Old: { partMarkers: [{time, partIndex, partId}], barMarkers: [{time, partIndex, partId}] }
+ * New: { markers: [{time, partId, partStart: true/false}] }
  *
- * The partIndex field is kept for backward compatibility but partId
- * becomes the authoritative reference.
+ * Also handles the even older format without partId by resolving from partIndex.
+ * The partIndex field is dropped — partId is the sole reference.
  */
-export function migrateSplitMarkers(db) {
+export function migrateToUnifiedMarkers(db) {
   let migrated = 0;
   for (const [songId, song] of Object.entries(db.songs || {})) {
     if (!song.split_markers) continue;
-    const parts = sortedParts(song);
-    if (!parts.length) continue;
+    const sm = song.split_markers;
 
-    for (const markers of [song.split_markers.partMarkers, song.split_markers.barMarkers]) {
-      if (!Array.isArray(markers)) continue;
-      for (const m of markers) {
-        // Only migrate if partId is not yet set
-        if (!m.partId && typeof m.partIndex === 'number') {
-          const part = parts[m.partIndex];
-          if (part) {
-            m.partId = part.id;
-            migrated++;
-          }
+    // Already migrated?
+    if (Array.isArray(sm.markers)) continue;
+
+    const parts = sortedParts(song);
+    const indexToId = (idx) => parts[idx] ? parts[idx].id : undefined;
+
+    const unified = [];
+
+    // Convert part markers → partStart: true
+    if (Array.isArray(sm.partMarkers)) {
+      for (const m of sm.partMarkers) {
+        const partId = m.partId || indexToId(m.partIndex);
+        if (partId) {
+          unified.push({ time: m.time, partId, partStart: true });
         }
       }
     }
-  }
-  return { migrated };
-}
 
-/**
- * Rebuild partIndex values from partId references.
- * Call this after part reorder to keep partIndex in sync.
- */
-export function rebuildPartIndexFromId(song) {
-  if (!song || !song.split_markers) return;
-  const parts = sortedParts(song);
-  const idToIndex = {};
-  parts.forEach((p, i) => { idToIndex[p.id] = i; });
-
-  for (const markers of [song.split_markers.partMarkers, song.split_markers.barMarkers]) {
-    if (!Array.isArray(markers)) continue;
-    for (const m of markers) {
-      if (m.partId && idToIndex[m.partId] !== undefined) {
-        m.partIndex = idToIndex[m.partId];
+    // Convert bar markers → partStart: false (skip those co-located with a part marker)
+    if (Array.isArray(sm.barMarkers)) {
+      for (const m of sm.barMarkers) {
+        const partId = m.partId || indexToId(m.partIndex);
+        if (!partId) continue;
+        // Skip if a part marker sits at the same time (within tolerance)
+        const isPartStart = unified.some(u => u.partStart && Math.abs(u.time - m.time) < 0.01);
+        if (!isPartStart) {
+          unified.push({ time: m.time, partId, partStart: false });
+        }
       }
     }
+
+    // Sort by time
+    unified.sort((a, b) => a.time - b.time);
+
+    // Replace old format with unified
+    song.split_markers = { markers: unified };
+    migrated++;
   }
+  return { migrated };
 }
 
 /* ── Sync bars count from split_markers ───────────── */
 
 /**
- * Ensure part.bars matches the number of barMarkers for that part.
- * split_markers.barMarkers is the source of truth when present.
+ * Ensure part.bars matches the number of markers for that part.
+ * split_markers.markers is the source of truth when present.
  * Returns the number of parts that were fixed.
  */
 export function syncBarsFromMarkers(db) {
   let fixed = 0;
   for (const [, song] of Object.entries(db.songs || {})) {
     const sm = song.split_markers;
-    if (!sm || !Array.isArray(sm.barMarkers) || sm.barMarkers.length === 0) continue;
+    if (!sm || !Array.isArray(sm.markers) || sm.markers.length === 0) continue;
 
-    const parts = sortedParts(song);
-    const idToIndex = {};
-    parts.forEach((p, i) => { idToIndex[p.id] = i; });
-
-    // Count bars per partIndex from markers
-    const barsByIdx = {};
-    for (const m of sm.barMarkers) {
-      const idx = (m.partId && idToIndex[m.partId] !== undefined)
-        ? idToIndex[m.partId]
-        : m.partIndex;
-      barsByIdx[idx] = (barsByIdx[idx] || 0) + 1;
+    // Count all markers (part starts count as bar 1) per partId
+    const barsByPartId = {};
+    for (const m of sm.markers) {
+      if (!m.partId) continue;
+      barsByPartId[m.partId] = (barsByPartId[m.partId] || 0) + 1;
     }
 
-    for (let i = 0; i < parts.length; i++) {
-      const markerCount = barsByIdx[i] || 0;
-      if (markerCount > 0 && song.parts[parts[i].id]) {
-        const part = song.parts[parts[i].id];
-        if (part.bars !== markerCount) {
-          console.log(`[integrity] Fixed bars: ${song.name} / ${part.name}: ${part.bars} → ${markerCount}`);
-          part.bars = markerCount;
+    for (const [partId, count] of Object.entries(barsByPartId)) {
+      if (count > 0 && song.parts && song.parts[partId]) {
+        const part = song.parts[partId];
+        if (part.bars !== count) {
+          console.log(`[integrity] Fixed bars: ${song.name} / ${part.name}: ${part.bars} → ${count}`);
+          part.bars = count;
           fixed++;
         }
       }
@@ -394,10 +390,10 @@ export function checkOnLoad(db, autoClean = false) {
     }
   }
 
-  // Migrate split markers to partId-based
-  const migration = migrateSplitMarkers(db);
+  // Migrate split markers to unified single-array format
+  const migration = migrateToUnifiedMarkers(db);
   if (migration.migrated > 0) {
-    console.log(`[integrity] Migrated ${migration.migrated} split markers to partId-based`);
+    console.log(`[integrity] Migrated ${migration.migrated} song(s) to unified markers`);
   }
 
   // Sync bars count from split_markers (source of truth)

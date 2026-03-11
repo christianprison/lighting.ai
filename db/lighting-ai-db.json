@@ -1263,7 +1263,7 @@
             "time": 44.72533333333334
           },
           {
-            "time": 46.25035416666667
+            "time": 46.29486676929573
           },
           {
             "time": 47.8636875
@@ -1558,6 +1558,60 @@
           },
           {
             "time": 205.2228417067951
+          }
+        ],
+        "part_starts": [
+          {
+            "bar_num": 1,
+            "name": "Intro"
+          },
+          {
+            "bar_num": 10,
+            "name": "Verse 1"
+          },
+          {
+            "bar_num": 26,
+            "name": "Stop"
+          },
+          {
+            "bar_num": 28,
+            "name": "Chorus"
+          },
+          {
+            "bar_num": 44,
+            "name": "Verse 2"
+          },
+          {
+            "bar_num": 60,
+            "name": "Chorus 2"
+          },
+          {
+            "bar_num": 74,
+            "name": "Interlude"
+          },
+          {
+            "bar_num": 84,
+            "name": "Thema"
+          },
+          {
+            "bar_num": 92,
+            "name": "Here we go again"
+          },
+          {
+            "bar_num": 96,
+            "name": "Chorus 3"
+          },
+          {
+            "bar_num": 110,
+            "name": "Solo Axel"
+          },
+          {
+            "bar_num": 118,
+            "name": "Chorus 4"
+          },
+          {
+            "bar_num": 126,
+            "name": "Ausklang"
           }
         ]
       },

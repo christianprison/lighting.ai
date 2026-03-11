@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.6.8';
+const APP_VERSION = 'v1.6.9';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -1644,6 +1644,7 @@ function handleAccentToggle(pos16) {
 let _barPlayId = null;        // currently playing bar ID
 let _partPlayActive = false;  // whether bar playback is active
 let _partPlaySources = [];    // active AudioBufferSourceNode(s)
+let _partPlayBuffers = [];    // decoded AudioBuffer(s) for current playback
 let _refLoadingFor = null; // songId currently loading reference for
 let _refLoadingPromise = null; // pending loadReferenceAudio promise
 

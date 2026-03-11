@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.6.5';
+const APP_VERSION = 'v1.6.6';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -1850,22 +1850,26 @@ function buildAudioSummary() {
 /* ── Audio Helper Functions ────────────────────────── */
 
 /**
- * Detect irregular bars: bars whose duration deviates > 5% from average.
- * Returns a Set of marker indices (in sorted order) whose *preceding* interval is irregular.
- * Index i means the interval between sorted[i-1] and sorted[i] is off.
+ * Detect irregular bars: bars whose duration deviates > 5% from median.
+ * Uses median instead of average to be robust against outliers (fewer false negatives).
+ * Returns a Set of marker references whose *preceding* interval is irregular.
  */
 function getIrregularBars() {
   const sorted = [...markers].sort((a, b) => a.time - b.time);
-  const irregular = new Set(); // Set of marker references
+  const irregular = new Set();
   if (sorted.length < 3) return irregular; // need at least 2 intervals
   const intervals = [];
   for (let i = 1; i < sorted.length; i++) {
     intervals.push(sorted[i].time - sorted[i - 1].time);
   }
-  const avg = intervals.reduce((s, v) => s + v, 0) / intervals.length;
-  if (avg <= 0) return irregular;
+  const sortedIntervals = [...intervals].sort((a, b) => a - b);
+  const mid = Math.floor(sortedIntervals.length / 2);
+  const median = sortedIntervals.length % 2 === 0
+    ? (sortedIntervals[mid - 1] + sortedIntervals[mid]) / 2
+    : sortedIntervals[mid];
+  if (median <= 0) return irregular;
   for (let i = 0; i < intervals.length; i++) {
-    if (Math.abs(intervals[i] - avg) / avg > 0.05) {
+    if (Math.abs(intervals[i] - median) / median > 0.05) {
       irregular.add(sorted[i + 1]); // the marker that ends the irregular interval
     }
   }

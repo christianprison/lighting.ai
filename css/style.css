@@ -760,6 +760,225 @@ label {
 .bar-ctx-menu button:hover {
   background: var(--bg4);
 }
+.bar-ctx-menu button.ctx-part {
+  color: var(--amber);
+}
+
+/* ── Parts Tab ─────────────────────────────────────── */
+.parts-tab {
+  padding: 16px;
+  max-width: 1100px;
+}
+.parts-tab-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.parts-tab-header h2 {
+  font-family: 'Sora', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--t1);
+  margin: 0;
+}
+.parts-tab-count {
+  font-size: 0.8rem;
+  color: var(--t3);
+  font-weight: 400;
+  margin-left: 8px;
+}
+.parts-qlc-btn {
+  padding: 7px 14px;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  color: var(--cyan);
+  font-family: 'Sora', sans-serif;
+  font-size: 0.82rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.parts-qlc-btn:hover {
+  background: var(--bg4);
+}
+.parts-tab-empty {
+  color: var(--t3);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  padding: 32px 0;
+  text-align: center;
+}
+.parts-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.82rem;
+}
+.parts-table th {
+  text-align: left;
+  color: var(--t3);
+  font-family: 'Sora', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border);
+}
+.parts-table td {
+  padding: 8px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+.parts-table tr:hover {
+  background: var(--bg3);
+}
+.pt-row-playing {
+  background: rgba(0, 220, 130, 0.06) !important;
+}
+td.pt-num { color: var(--t3); width: 32px; text-align: center; }
+td.pt-bars, td.pt-dur { color: var(--t2); text-align: center; width: 60px; }
+th.pt-bars, th.pt-dur { text-align: center; width: 60px; }
+th.pt-play, td.pt-play { width: 40px; text-align: center; }
+.pt-name-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  background: rgba(240, 160, 48, 0.12);
+  color: var(--amber);
+  border-radius: 4px;
+  font-family: 'Sora', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+.pt-play-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--border2);
+  background: var(--bg3);
+  color: var(--green);
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.pt-play-btn:hover:not(:disabled) { background: var(--bg4); }
+.pt-play-btn:disabled { opacity: 0.3; cursor: default; }
+.pt-play-btn.playing { color: var(--red); border-color: var(--red); }
+.pt-tpl-select {
+  width: 100%;
+  min-width: 160px;
+  padding: 5px 8px;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 5px;
+  color: var(--t1);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.78rem;
+}
+.pt-tpl-select:focus { border-color: var(--amber); outline: none; }
+td.pt-qlc { font-size: 0.78rem; white-space: nowrap; }
+.pt-qlc-none { color: var(--t4); }
+.pt-qlc-match { color: var(--cyan); }
+.pt-qlc-apply {
+  background: none;
+  border: 1px solid var(--cyan);
+  color: var(--cyan);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  margin-left: 4px;
+}
+.pt-qlc-apply:hover { background: rgba(56, 189, 248, 0.15); }
+.pt-qlc-ok { color: var(--green); margin-left: 4px; }
+
+/* ── Part Name Dialog ──────────────────────────────── */
+.part-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 4000;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.part-dialog {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 20px 24px;
+  min-width: 280px;
+  max-width: 360px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+}
+.part-dialog-title {
+  font-family: 'Sora', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--amber);
+  margin-bottom: 4px;
+}
+.part-dialog-subtitle {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.78rem;
+  color: var(--t3);
+  margin-bottom: 14px;
+}
+.part-dialog-input {
+  width: 100%;
+  padding: 8px 10px;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  color: var(--t1);
+  font-family: 'Sora', sans-serif;
+  font-size: 0.9rem;
+  outline: none;
+  box-sizing: border-box;
+}
+.part-dialog-input:focus {
+  border-color: var(--amber);
+}
+.part-dialog-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+.part-dialog-buttons button {
+  padding: 7px 16px;
+  border: none;
+  border-radius: 6px;
+  font-family: 'Sora', sans-serif;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.part-dialog-ok {
+  background: var(--amber);
+  color: #08090d;
+  font-weight: 600;
+}
+.part-dialog-ok:hover {
+  filter: brightness(1.1);
+}
+.part-dialog-cancel {
+  background: var(--bg4);
+  color: var(--t2);
+}
+.part-dialog-cancel:hover {
+  background: var(--border2);
+}
+.part-dialog-remove {
+  background: none;
+  color: var(--red);
+  margin-right: auto;
+}
+.part-dialog-remove:hover {
+  background: var(--bg4);
+}
 
 /* ── Toast / Notifications ─────────────────────────── */
 .toast-container {

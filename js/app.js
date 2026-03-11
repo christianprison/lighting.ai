@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.6.11';
+const APP_VERSION = 'v1.8.2';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -43,6 +43,7 @@ let exportInProgress = false;
 let playbackSpeed = 1.0;       // current playback speed multiplier
 let waveformZoom = 1.0;        // waveform zoom level (linked to speed)
 const _audioRefCache = {};     // songId → ArrayBuffer (cached reference audio)
+let _partsBackup = null;       // cached parts_backup.json data
 
 /* ── Waveform Marker Drag State ──────────────────── */
 let _dragMarker = null;        // { marker: ref, originalTime: number }
@@ -203,6 +204,7 @@ function cacheDom() {
     tabEditor:     document.getElementById('tab-editor'),
     tabTakte:      document.getElementById('tab-takte'),
     tabAudio:      document.getElementById('tab-audio'),
+    tabParts:      document.getElementById('tab-parts'),
     tabLyrics:     document.getElementById('tab-lyrics'),
     tabAccents:    document.getElementById('tab-accents'),
     tabSetlist:    document.getElementById('tab-setlist'),
@@ -1203,11 +1205,16 @@ function switchTab(tab) {
       markDirty();
     }
   }
-  // Stop lyrics part playback when leaving lyrics tab
+  // Stop lyrics karaoke playback when leaving lyrics tab
   if (activeTab === 'lyrics' && tab !== 'lyrics') {
+    leStopPartPlayback();
+  }
+  // Stop parts tab playback when leaving
+  if (activeTab === 'parts' && tab !== 'parts') {
+    partsTabStopPlay();
   }
   // Pre-warm AudioContext for tabs with playback
-  if (tab === 'lyrics' || tab === 'audio' || tab === 'takte' || tab === 'accents') {
+  if (tab === 'lyrics' || tab === 'audio' || tab === 'takte' || tab === 'accents' || tab === 'parts') {
     audio.warmup();
   }
   // Ensure bar data is consistent when entering data-dependent tabs
@@ -1218,6 +1225,7 @@ function switchTab(tab) {
   els.tabEditor?.classList.toggle('active', tab === 'editor');
   els.tabTakte?.classList.toggle('active', tab === 'takte');
   els.tabAudio?.classList.toggle('active', tab === 'audio');
+  els.tabParts?.classList.toggle('active', tab === 'parts');
   els.tabLyrics?.classList.toggle('active', tab === 'lyrics');
   els.tabAccents?.classList.toggle('active', tab === 'accents');
   els.tabSetlist?.classList.toggle('active', tab === 'setlist');
@@ -1233,6 +1241,7 @@ function renderContent() {
   if (activeTab === 'editor') renderEditorTab();
   else if (activeTab === 'takte') renderTakteTab();
   else if (activeTab === 'audio') renderAudioTab();
+  else if (activeTab === 'parts') renderPartsTab();
   else if (activeTab === 'lyrics') renderLyricsTab();
   else if (activeTab === 'accents') renderAccentsTab();
   else if (activeTab === 'setlist') renderSetlistTab();
@@ -1638,6 +1647,260 @@ function handleAccentToggle(pos16) {
 }
 
 /* ══════════════════════════════════════════════════════
+   PARTS TAB
+   ══════════════════════════════════════════════════════ */
+
+let _partsTabPlaying = null;    // bar_num of part currently playing
+let _partsTabSrc = null;        // AudioBufferSourceNode for part playback
+let _partsTabQlcSteps = null;   // matched chaser steps for current song
+let _partsTabQlcLoading = false;
+
+/**
+ * Derive parts list from a song's split_markers.part_starts.
+ * Returns [{name, light_template, barNum, barCount, startTime, endTime, duration}]
+ */
+function getPartsForSong(songId) {
+  const song = db?.songs?.[songId];
+  if (!song?.split_markers?.part_starts?.length) return [];
+  const sm = song.split_markers;
+  const allMarkers = (sm.markers || []).slice().sort((a, b) => a.time - b.time);
+  const starts = [...sm.part_starts].sort((a, b) => a.bar_num - b.bar_num);
+  const totalMarkers = allMarkers.length;
+  const audioDur = audioMeta ? audioMeta.duration : 0;
+
+  const parts = [];
+  for (let i = 0; i < starts.length; i++) {
+    const ps = starts[i];
+    const nextStart = starts[i + 1];
+    const startIdx = ps.bar_num - 1;
+    const endIdx = nextStart ? nextStart.bar_num - 1 : totalMarkers;
+    const barCount = endIdx - startIdx;
+    const startTime = startIdx < allMarkers.length ? allMarkers[startIdx].time : 0;
+    const endTime = endIdx < allMarkers.length ? allMarkers[endIdx].time : audioDur;
+
+    parts.push({
+      name: ps.name,
+      light_template: ps.light_template || '',
+      barNum: ps.bar_num,
+      barCount,
+      startTime,
+      endTime,
+      duration: endTime - startTime,
+    });
+  }
+  return parts;
+}
+
+function renderPartsTab() {
+  if (!selectedSongId || !db.songs[selectedSongId]) {
+    els.content.innerHTML = `<div class="empty-state"><div class="icon">&#127926;</div><p>Song auswählen</p></div>`;
+    return;
+  }
+  const song = db.songs[selectedSongId];
+  const parts = getPartsForSong(selectedSongId);
+  const hasBuf = !!audio.getBuffer();
+
+  // Auto-load reference audio
+  if (!hasBuf && song.audio_ref && !audioMeta) {
+    loadReferenceAudio().then(() => { if (activeTab === 'parts') renderPartsTab(); });
+  }
+
+  let html = `<div class="parts-tab">`;
+  html += `<div class="parts-tab-header">`;
+  html += `<h2>${song.name} <span class="parts-tab-count">${parts.length} Parts</span></h2>`;
+  html += `<button class="parts-qlc-btn" id="parts-qlc-btn">QLC+ Chaser laden</button>`;
+  html += `</div>`;
+
+  if (parts.length === 0) {
+    html += `<div class="parts-tab-empty">Keine Parts definiert.<br>Im <strong>Audio Split</strong> Tab Taktmarker antippen → Kontextmenü → <strong>Part</strong>.</div>`;
+    html += `</div>`;
+    els.content.innerHTML = html;
+    document.getElementById('parts-qlc-btn')?.addEventListener('click', () => partsTabLoadQlc());
+    return;
+  }
+
+  html += `<table class="parts-table"><thead><tr>`;
+  html += `<th class="pt-num">#</th><th class="pt-name">Part</th><th class="pt-bars">Takte</th>`;
+  html += `<th class="pt-dur">Dauer</th><th class="pt-play"></th>`;
+  html += `<th class="pt-tpl">Lichtprogramm</th>`;
+  html += `<th class="pt-qlc">QLC+</th>`;
+  html += `</tr></thead><tbody>`;
+
+  for (let i = 0; i < parts.length; i++) {
+    const p = parts[i];
+    const isPlaying = _partsTabPlaying === p.barNum;
+    const durStr = p.duration > 0 ? fmtDur(Math.round(p.duration)) : '—';
+
+    // QLC match: find a chaser step whose note matches this part's name
+    let qlcHtml = '<span class="pt-qlc-none">—</span>';
+    if (_partsTabQlcSteps) {
+      // Use matchStepToPart in reverse: find step whose note matches part name
+      const step = _partsTabQlcSteps.find(s => {
+        if (!s.note || s.isTitle) return false;
+        const matched = matchStepToPart(s.note, [{ name: p.name }]);
+        return !!matched;
+      });
+      if (step) {
+        const same = p.light_template === step.functionName;
+        qlcHtml = `<span class="pt-qlc-match">${step.functionName}</span>`;
+        if (!same) {
+          qlcHtml += ` <button class="pt-qlc-apply" data-idx="${i}" data-tpl="${step.functionName.replace(/"/g, '&quot;')}">&#10132;</button>`;
+        } else {
+          qlcHtml += ` <span class="pt-qlc-ok">&#10003;</span>`;
+        }
+      }
+    }
+
+    html += `<tr class="${isPlaying ? 'pt-row-playing' : ''}">`;
+    html += `<td class="pt-num">${i + 1}</td>`;
+    html += `<td class="pt-name"><span class="pt-name-badge">${p.name}</span></td>`;
+    html += `<td class="pt-bars">${p.barCount}</td>`;
+    html += `<td class="pt-dur">${durStr}</td>`;
+    html += `<td class="pt-play"><button class="pt-play-btn ${isPlaying ? 'playing' : ''}" data-idx="${i}" ${!hasBuf ? 'disabled' : ''}>${isPlaying ? '&#9724;' : '&#9654;'}</button></td>`;
+    html += `<td class="pt-tpl"><select class="pt-tpl-select" data-idx="${i}"><option value="">— kein —</option>${buildTemplateOptions(p.light_template)}</select></td>`;
+    html += `<td class="pt-qlc">${qlcHtml}</td>`;
+    html += `</tr>`;
+  }
+
+  html += `</tbody></table></div>`;
+  els.content.innerHTML = html;
+
+  // Wire events
+  document.getElementById('parts-qlc-btn')?.addEventListener('click', () => partsTabLoadQlc());
+
+  for (const btn of document.querySelectorAll('.pt-play-btn')) {
+    btn.addEventListener('click', () => {
+      const idx = parseInt(btn.dataset.idx);
+      partsTabTogglePlay(parts[idx]);
+    });
+  }
+
+  for (const sel of document.querySelectorAll('.pt-tpl-select')) {
+    sel.addEventListener('change', () => {
+      const idx = parseInt(sel.dataset.idx);
+      partsTabSetTemplate(parts[idx].barNum, sel.value);
+    });
+  }
+
+  for (const btn of document.querySelectorAll('.pt-qlc-apply')) {
+    btn.addEventListener('click', () => {
+      const idx = parseInt(btn.dataset.idx);
+      const tpl = btn.dataset.tpl;
+      partsTabSetTemplate(parts[idx].barNum, tpl);
+      renderPartsTab();
+    });
+  }
+}
+
+function partsTabTogglePlay(part) {
+  audio.warmup();
+  // Stop if already playing this part
+  if (_partsTabPlaying === part.barNum) {
+    partsTabStopPlay();
+    return;
+  }
+  partsTabStopPlay();
+
+  const refBuf = audio.getBuffer();
+  if (!refBuf) { toast('Kein Audio geladen', 'error'); return; }
+
+  const ac = audio.getContext();
+  if (ac.state === 'suspended') ac.resume();
+
+  const src = ac.createBufferSource();
+  src.buffer = refBuf;
+  src.connect(ac.destination);
+  const dur = part.endTime - part.startTime;
+  if (dur <= 0) return;
+  src.onended = () => {
+    if (_partsTabPlaying === part.barNum) {
+      _partsTabPlaying = null;
+      _partsTabSrc = null;
+      if (activeTab === 'parts') renderPartsTab();
+    }
+  };
+  src.start(0, part.startTime, dur);
+  _partsTabSrc = src;
+  _partsTabPlaying = part.barNum;
+  renderPartsTab();
+}
+
+function partsTabStopPlay() {
+  if (_partsTabSrc) {
+    try { _partsTabSrc.stop(); } catch {}
+    _partsTabSrc = null;
+  }
+  _partsTabPlaying = null;
+}
+
+function partsTabSetTemplate(barNum, templateName) {
+  if (!selectedSongId || !db.songs[selectedSongId]) return;
+  const song = db.songs[selectedSongId];
+  if (!song.split_markers?.part_starts) return;
+  const ps = song.split_markers.part_starts.find(p => p.bar_num === barNum);
+  if (!ps) return;
+  if (templateName) {
+    ps.light_template = templateName;
+  } else {
+    delete ps.light_template;
+  }
+  // Also update in-memory markers if loaded for this song
+  if (markers.length > 0) {
+    const idx = barNum - 1;
+    if (idx >= 0 && idx < markers.length && markers[idx].partName) {
+      if (templateName) {
+        markers[idx].lightTemplate = templateName;
+      } else {
+        delete markers[idx].lightTemplate;
+      }
+    }
+  }
+  markDirty();
+}
+
+async function partsTabLoadQlc() {
+  if (_partsTabQlcLoading) return;
+  _partsTabQlcLoading = true;
+  const btn = document.getElementById('parts-qlc-btn');
+  if (btn) btn.textContent = 'Lade...';
+
+  try {
+    // Try local fetch first (faster on GitHub Pages), then GitHub API
+    let chasers = _qxwCache?.chasers;
+    if (!chasers) {
+      try {
+        const resp = await fetch('db/ThePact.qxw');
+        if (resp.ok) {
+          const xmlStr = await resp.text();
+          chasers = parseQxwChasers(xmlStr);
+          _qxwCache = { xml: xmlStr, chasers };
+        }
+      } catch {}
+    }
+    if (!chasers) {
+      chasers = await loadQxwFile();
+    }
+    if (!chasers) { toast('QXW konnte nicht geladen werden', 'error'); return; }
+
+    const song = db.songs[selectedSongId];
+    const match = findChaserForSong(chasers, song.name);
+    if (!match) {
+      toast(`Kein Chaser für „${song.name}" gefunden`, 'error');
+      _partsTabQlcSteps = null;
+    } else {
+      // Filter out title/end steps
+      _partsTabQlcSteps = match.steps.filter(s => !s.isTitle);
+      toast(`Chaser „${match.chaserName}" geladen (${_partsTabQlcSteps.length} Steps)`, 'success');
+    }
+  } catch (e) {
+    toast(`QLC-Fehler: ${e.message}`, 'error');
+  } finally {
+    _partsTabQlcLoading = false;
+    if (activeTab === 'parts') renderPartsTab();
+  }
+}
+
+/* ══════════════════════════════════════════════════════
    AUDIO SPLIT TAB — Meilenstein 3
    ══════════════════════════════════════════════════════ */
 
@@ -1927,8 +2190,19 @@ function saveMarkersToSong() {
   if (!selectedSongId || !db.songs[selectedSongId]) return;
   const song = db.songs[selectedSongId];
 
+  // Build part_starts from markers that have a partName
+  const partStarts = [];
+  for (let i = 0; i < markers.length; i++) {
+    if (markers[i].partName) {
+      const ps = { bar_num: i + 1, name: markers[i].partName };
+      if (markers[i].lightTemplate) ps.light_template = markers[i].lightTemplate;
+      partStarts.push(ps);
+    }
+  }
+
   song.split_markers = {
     markers: markers.map(m => ({ time: m.time })),
+    part_starts: partStarts,
   };
 
   // Update total_bars from marker count
@@ -1956,6 +2230,17 @@ function restoreMarkersFromSong() {
   markers = sm.markers
     .map(m => ({ time: m.time }))
     .sort((a, b) => a.time - b.time);
+
+  // Restore part_starts onto markers
+  if (Array.isArray(sm.part_starts)) {
+    for (const ps of sm.part_starts) {
+      const idx = ps.bar_num - 1;
+      if (idx >= 0 && idx < markers.length && ps.name) {
+        markers[idx].partName = ps.name;
+        if (ps.light_template) markers[idx].lightTemplate = ps.light_template;
+      }
+    }
+  }
 }
 
 /* ── Waveform Drawing ──────────────────────────────── */
@@ -2036,23 +2321,31 @@ function drawWaveform() {
     toast('Wenn die Länge eines Taktes um mehr als 6,25\u202F% vom Median abweicht, wird er rot markiert.', 'info', 6000);
   }
 
-  // Draw all markers (cyan = normal, red = irregular)
+  // Draw all markers (cyan = normal, red = irregular, orange line = part start)
   for (const m of sortedMarkers) {
     const vx = (m.time / duration) * totalW;
     if (!inView(vx)) continue;
     const x = vToC(vx);
     const isDragTarget = _isDragging && _dragMarker && _dragMarker.marker === m;
     const isIrregular = irregularSet.has(m);
+    const isPartStart = !!m.partName;
 
-    const cyanLine = isDragTarget ? 'rgba(56, 189, 248, 0.9)' : 'rgba(56, 189, 248, 0.4)';
-    const redLine = isDragTarget ? 'rgba(255, 59, 92, 0.9)' : 'rgba(255, 59, 92, 0.5)';
-    ctx.strokeStyle = isIrregular ? redLine : cyanLine;
+    // Vertical line: orange for part starts, else cyan/red
+    if (isPartStart) {
+      const orangeLine = isDragTarget ? 'rgba(240, 160, 48, 0.95)' : 'rgba(240, 160, 48, 0.6)';
+      ctx.strokeStyle = orangeLine;
+    } else {
+      const cyanLine = isDragTarget ? 'rgba(56, 189, 248, 0.9)' : 'rgba(56, 189, 248, 0.4)';
+      const redLine = isDragTarget ? 'rgba(255, 59, 92, 0.9)' : 'rgba(255, 59, 92, 0.5)';
+      ctx.strokeStyle = isIrregular ? redLine : cyanLine;
+    }
     ctx.lineWidth = isDragTarget ? 2 : 1;
     ctx.beginPath();
     ctx.moveTo(x, 0);
     ctx.lineTo(x, h);
     ctx.stroke();
 
+    // Bottom flag: bar number (cyan/red — unchanged, even for part starts)
     const label = String(markerAbsBar.get(m) || '');
     ctx.font = '9px "DM Mono", monospace';
     const tw = ctx.measureText(label).width;
@@ -2066,6 +2359,21 @@ function drawWaveform() {
     ctx.fillRect(flagX, flagY, flagW, flagH);
     ctx.fillStyle = isIrregular ? '#fff' : '#08090d';
     ctx.fillText(label, flagX + 3, flagY + 10);
+
+    // Top flag: part name (orange) for part starts
+    if (isPartStart) {
+      ctx.font = '9px "Sora", sans-serif';
+      const ptw = ctx.measureText(m.partName).width;
+      const pFlagW = ptw + 8;
+      const pFlagH = 16;
+      const pFlagX = x;
+      const pFlagY = 0;
+      const orangeFlag = isDragTarget ? 'rgba(240, 160, 48, 1.0)' : 'rgba(240, 160, 48, 0.85)';
+      ctx.fillStyle = orangeFlag;
+      ctx.fillRect(pFlagX, pFlagY, pFlagW, pFlagH);
+      ctx.fillStyle = '#08090d';
+      ctx.fillText(m.partName, pFlagX + 4, pFlagY + 11);
+    }
 
     if (isDragTarget) {
       ctx.font = '10px "DM Mono", monospace';
@@ -2236,9 +2544,14 @@ function hitTestMarker(xPx, yPx) {
     absNum++;
     const mx = (m.time / duration) * totalW;
 
-    // Bar markers — draggable via bottom flag
+    // Hit zones: bottom bar-number flag + top part-name flag (if part start)
     const FLAG_H_BAR = 18;
-    if (yPx !== undefined && yPx < canvasH - FLAG_H_BAR) continue;
+    const inBottomFlag = yPx === undefined || yPx >= canvasH - FLAG_H_BAR;
+    const PART_FLAG_H = 20;
+    const inTopFlag = m.partName && yPx !== undefined && yPx <= PART_FLAG_H;
+
+    if (!inBottomFlag && !inTopFlag) continue;
+
     const label = String(absNum);
     const flagW = label.length * 7 + 6;
     const inFlag = xPx >= mx && xPx <= mx + flagW;
@@ -2474,9 +2787,22 @@ let _barCtxMenu = null;
 function showBarContextMenu(clientX, clientY, barIndex, context) {
   hideBarContextMenu();
   const barNum = barIndex + 1;
+  const marker = markers[barIndex];
+  const isPartStart = marker && marker.partName;
   const menu = document.createElement('div');
   menu.className = 'bar-ctx-menu';
-  menu.innerHTML = `<button data-action="delete">&#128465; Takt ${barNum} l&ouml;schen</button>`;
+
+  // Build menu items: Part entry (only in split context) + Delete
+  let html = '';
+  if (context === 'split') {
+    const partLabel = isPartStart
+      ? `&#9873; Part: ${marker.partName}`
+      : '&#9873; Part';
+    html += `<button data-action="part" class="ctx-part">${partLabel}</button>`;
+  }
+  html += `<button data-action="delete">&#128465; Takt ${barNum} l&ouml;schen</button>`;
+  menu.innerHTML = html;
+
   menu.style.left = clientX + 'px';
   menu.style.top = clientY + 'px';
   document.body.appendChild(menu);
@@ -2487,6 +2813,13 @@ function showBarContextMenu(clientX, clientY, barIndex, context) {
   if (r.right > window.innerWidth) menu.style.left = (window.innerWidth - r.width - 8) + 'px';
   if (r.bottom > window.innerHeight) menu.style.top = (window.innerHeight - r.height - 8) + 'px';
 
+  if (context === 'split') {
+    menu.querySelector('[data-action="part"]').onclick = () => {
+      hideBarContextMenu();
+      showPartNameDialog(barIndex, marker);
+    };
+  }
+
   menu.querySelector('[data-action="delete"]').onclick = () => {
     hideBarContextMenu();
     deleteBarMarker(barIndex, context);
@@ -2496,6 +2829,126 @@ function showBarContextMenu(clientX, clientY, barIndex, context) {
   setTimeout(() => {
     document.addEventListener('pointerdown', _barCtxOutside, { once: true });
   }, 50);
+}
+
+/**
+ * Show a dialog to set or edit the part name for a bar marker.
+ */
+/**
+ * Load parts_backup.json and cache it for part name suggestions.
+ */
+async function loadPartsBackup() {
+  if (_partsBackup) return _partsBackup;
+  try {
+    const resp = await fetch('db/parts_backup.json');
+    if (resp.ok) _partsBackup = await resp.json();
+  } catch (e) {
+    console.warn('parts_backup.json nicht geladen:', e);
+  }
+  return _partsBackup;
+}
+
+/**
+ * Look up the suggested part name for a bar number from backup data.
+ * Returns { name, isExactStart, light_template } or null.
+ */
+function getPartSuggestion(songId, barNum) {
+  if (!_partsBackup?.songs?.[songId]) return null;
+  const parts = Object.values(_partsBackup.songs[songId].parts)
+    .sort((a, b) => a.pos - b.pos);
+  let cumBars = 0;
+  for (const part of parts) {
+    const startBar = cumBars + 1;
+    const endBar = cumBars + (part.bars || 0);
+    if (barNum >= startBar && barNum <= endBar) {
+      return {
+        name: part.name,
+        isExactStart: barNum === startBar,
+        light_template: part.light_template || '',
+      };
+    }
+    cumBars = endBar;
+  }
+  return null;
+}
+
+async function showPartNameDialog(barIndex, marker) {
+  const existing = marker.partName || '';
+  const barNum = barIndex + 1;
+
+  // Load backup for suggestion (non-blocking, fast local fetch)
+  await loadPartsBackup();
+  const suggestion = !existing ? getPartSuggestion(selectedSongId, barNum) : null;
+
+  // Pre-fill: existing > exact backup match > empty
+  const prefill = existing || (suggestion?.isExactStart ? suggestion.name : '');
+  const placeholder = suggestion && !suggestion.isExactStart
+    ? `${suggestion.name} (Takt ${barNum})`
+    : 'z.B. Intro, Verse 1, Chorus';
+
+  // Subtitle hint
+  let subtitle = `Takt ${barNum} als Partstart`;
+  if (suggestion && !existing) {
+    subtitle += suggestion.isExactStart
+      ? ` — Backup: <strong>${suggestion.name}</strong>`
+      : ` — gehört zu: ${suggestion.name}`;
+  }
+
+  const overlay = document.createElement('div');
+  overlay.className = 'part-dialog-overlay';
+  overlay.innerHTML = `
+    <div class="part-dialog">
+      <div class="part-dialog-title">${existing ? 'Part bearbeiten' : 'Neuer Part'}</div>
+      <div class="part-dialog-subtitle">${subtitle}</div>
+      <input type="text" class="part-dialog-input" placeholder="${placeholder}" value="${prefill}" maxlength="40" />
+      <div class="part-dialog-buttons">
+        ${existing ? '<button class="part-dialog-remove">Entfernen</button>' : ''}
+        <button class="part-dialog-cancel">Abbrechen</button>
+        <button class="part-dialog-ok">OK</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  const input = overlay.querySelector('.part-dialog-input');
+  input.focus();
+  input.select();
+
+  const close = () => overlay.remove();
+
+  const save = () => {
+    const name = input.value.trim();
+    if (name) {
+      marker.partName = name;
+      saveMarkersToSong();
+      markDirty();
+      drawWaveform();
+      toast(`Part „${name}" gesetzt`, 'success');
+    }
+    close();
+  };
+
+  overlay.querySelector('.part-dialog-ok').onclick = save;
+  overlay.querySelector('.part-dialog-cancel').onclick = close;
+
+  if (existing) {
+    overlay.querySelector('.part-dialog-remove').onclick = () => {
+      delete marker.partName;
+      saveMarkersToSong();
+      markDirty();
+      drawWaveform();
+      toast('Part entfernt', 'success');
+      close();
+    };
+  }
+
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') save();
+    if (e.key === 'Escape') close();
+  });
+
+  overlay.addEventListener('pointerdown', (e) => {
+    if (e.target === overlay) close();
+  });
 }
 
 function _barCtxOutside(e) {
@@ -3297,16 +3750,37 @@ function leBuildBlocks(songId) {
   let blockId = 0;
   const totalBars = song.total_bars || 0;
 
+  // Build part start lookup: bar_num → part name
+  const partStartMap = new Map();
+  if (song.split_markers?.part_starts) {
+    for (const ps of song.split_markers.part_starts) {
+      partStartMap.set(ps.bar_num, ps.name);
+    }
+  }
+
   let nextBarNewline = false;
   for (let b = 1; b <= totalBars; b++) {
+    // Insert part block before bars that are part starts
+    if (partStartMap.has(b)) {
+      blocks.push({
+        type: 'part',
+        content: partStartMap.get(b),
+        barNum: b,
+        newline: b > 1, // line break before every part except the first
+        id: `lb_${blockId++}`
+      });
+    }
+
     const barBlock = {
       type: 'bar',
       content: String(b),
       barNum: b,
       id: `lb_${blockId++}`
     };
-    if (nextBarNewline) {
+    if (nextBarNewline && !partStartMap.has(b)) {
       barBlock.newline = true;
+      nextBarNewline = false;
+    } else {
       nextBarNewline = false;
     }
     blocks.push(barBlock);
@@ -3451,6 +3925,7 @@ function renderLyricsTab() {
 
   // Legend
   html += `<div class="le-legend">
+    <span class="le-legend-item"><span class="le-legend-swatch le-swatch-part"></span> Part</span>
     <span class="le-legend-item"><span class="le-legend-swatch le-swatch-bar"></span> Takt</span>
     <span class="le-legend-item"><span class="le-legend-swatch le-swatch-word"></span> Wort</span>
   </div>`;
@@ -3470,22 +3945,30 @@ function leRenderBlocks() {
   let html = '';
   for (let i = 0; i < _leBlocks.length; i++) {
     const b = _leBlocks[i];
-    // Line break before part blocks, before first bar of each part, and blocks with newline flag
+    // Line break before part blocks and blocks with newline flag
     if (b.newline) {
       html += '<span class="le-break"></span>';
     }
     const isIrreg = b.type === 'bar' && irregNums.has(b.barNum);
     let cls = `le-block le-block-${b.type}${isIrreg ? ' le-block-irregular' : ''}`;
+
+    let displayContent;
+    if (b.type === 'part') {
+      // Part block: show "T{barNum} {name}"
+      displayContent = `T${b.barNum} ${esc(b.content)}`;
+    } else {
+      displayContent = esc(b.content);
+    }
+
     // Mark last word before a newline bar with ↵ indicator
-    let displayContent = esc(b.content);
     if (b.type === 'word') {
       const next = i + 1 < _leBlocks.length ? _leBlocks[i + 1] : null;
-      if (next && next.type === 'bar' && next.newline) {
+      if (next && (next.type === 'bar' || next.type === 'part') && next.newline) {
         displayContent += '<span class="le-newline-marker">↵</span>';
       }
     }
-    const draggable = 'draggable="true"';
-    html += `<span class="${cls}" ${draggable} data-idx="${i}" data-type="${b.type}" data-id="${b.id}">${displayContent}</span>`;
+    const draggable = b.type === 'part' ? '' : 'draggable="true"';
+    html += `<span class="${cls}" ${draggable} data-idx="${i}" data-type="${b.type}" data-id="${b.id}" data-barnum="${b.barNum}">${displayContent}</span>`;
 
   }
   return html;
@@ -3500,11 +3983,157 @@ function leRefreshCanvas() {
   canvas.innerHTML = leRenderBlocks();
 }
 
+/* ── Lyrics Karaoke Playback ─────────────────────── */
+
+let _lePlaySrc = null;       // AudioBufferSourceNode
+let _lePlayPartBar = null;   // barNum of playing part
+let _lePlayTimer = null;     // setTimeout ID for highlight scheduling
+let _lePlayTimers = [];      // all scheduled timers
+
+function leStartPartPlayback(partBarNum) {
+  audio.warmup();
+  // Stop if already playing this part
+  if (_lePlayPartBar === partBarNum) {
+    leStopPartPlayback();
+    return;
+  }
+  leStopPartPlayback();
+
+  const refBuf = audio.getBuffer();
+  if (!refBuf) { toast('Kein Audio geladen', 'error'); return; }
+  if (!selectedSongId || !db.songs[selectedSongId]) return;
+
+  const song = db.songs[selectedSongId];
+  const sm = song.split_markers;
+  if (!sm?.markers?.length || !sm?.part_starts?.length) return;
+
+  const allMarkers = [...sm.markers].sort((a, b) => a.time - b.time);
+  const starts = [...sm.part_starts].sort((a, b) => a.bar_num - b.bar_num);
+  const partIdx = starts.findIndex(p => p.bar_num === partBarNum);
+  if (partIdx < 0) return;
+
+  const startBarIdx = starts[partIdx].bar_num - 1;
+  const endBarIdx = starts[partIdx + 1] ? starts[partIdx + 1].bar_num - 1 : allMarkers.length;
+  const startTime = allMarkers[startBarIdx]?.time ?? 0;
+  const endTime = endBarIdx < allMarkers.length ? allMarkers[endBarIdx].time : refBuf.duration;
+  const dur = endTime - startTime;
+  if (dur <= 0) return;
+
+  const ac = audio.getContext();
+  if (ac.state === 'suspended') ac.resume();
+
+  const src = ac.createBufferSource();
+  src.buffer = refBuf;
+  src.connect(ac.destination);
+  src.onended = () => {
+    if (_lePlayPartBar === partBarNum) leStopPartPlayback();
+  };
+  src.start(0, startTime, dur);
+  _lePlaySrc = src;
+  _lePlayPartBar = partBarNum;
+
+  // Highlight the part block
+  leHighlightPartBlock(partBarNum, true);
+
+  // Schedule bar/word highlights based on marker timings
+  for (let bi = startBarIdx; bi < endBarIdx; bi++) {
+    const barNum = bi + 1;
+    const barStart = (allMarkers[bi]?.time ?? 0) - startTime;
+    const barEnd = (bi + 1 < allMarkers.length ? allMarkers[bi + 1].time : endTime) - startTime;
+    const barDur = barEnd - barStart;
+
+    // Find word blocks for this bar
+    const wordBlocks = _leBlocks.filter(bl => bl.type === 'word' && bl.barNum === barNum);
+
+    if (wordBlocks.length === 0) {
+      // No lyrics: highlight the bar block itself
+      const t = setTimeout(() => leHighlightBlock(barNum, 'bar'), barStart * 1000);
+      _lePlayTimers.push(t);
+      const t2 = setTimeout(() => leUnhighlightBlock(barNum, 'bar'), barEnd * 1000);
+      _lePlayTimers.push(t2);
+    } else {
+      // Karaoke: highlight words sequentially, evenly spaced across bar duration
+      const wordDur = barDur / wordBlocks.length;
+      for (let wi = 0; wi < wordBlocks.length; wi++) {
+        const wordStart = barStart + wi * wordDur;
+        const t = setTimeout(() => leHighlightWord(wordBlocks[wi].id, barNum, wi), wordStart * 1000);
+        _lePlayTimers.push(t);
+      }
+      // Clear last word highlight at bar end
+      const t = setTimeout(() => leUnhighlightBar(barNum), barEnd * 1000);
+      _lePlayTimers.push(t);
+    }
+  }
+}
+
+function leStopPartPlayback() {
+  if (_lePlaySrc) {
+    try { _lePlaySrc.stop(); } catch {}
+    _lePlaySrc = null;
+  }
+  for (const t of _lePlayTimers) clearTimeout(t);
+  _lePlayTimers = [];
+  if (_lePlayPartBar !== null) {
+    leHighlightPartBlock(_lePlayPartBar, false);
+    _lePlayPartBar = null;
+  }
+  // Clear all highlights
+  document.querySelectorAll('.le-highlight, .le-highlight-past').forEach(el => {
+    el.classList.remove('le-highlight', 'le-highlight-past');
+  });
+}
+
+function leHighlightPartBlock(barNum, active) {
+  const el = document.querySelector(`.le-block-part[data-barnum="${barNum}"]`);
+  if (el) el.classList.toggle('le-playing', active);
+}
+
+function leHighlightBlock(barNum, type) {
+  const el = document.querySelector(`.le-block-${type}[data-barnum="${barNum}"]`);
+  if (el) {
+    el.classList.add('le-highlight');
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
+function leUnhighlightBlock(barNum, type) {
+  const el = document.querySelector(`.le-block-${type}[data-barnum="${barNum}"]`);
+  if (el) el.classList.remove('le-highlight');
+}
+
+function leHighlightWord(blockId, barNum, wordIdx) {
+  // Remove previous highlight in this bar, mark as past
+  document.querySelectorAll(`.le-block-word[data-barnum="${barNum}"].le-highlight`).forEach(el => {
+    el.classList.remove('le-highlight');
+    el.classList.add('le-highlight-past');
+  });
+  // Highlight current word
+  const el = document.querySelector(`.le-block[data-id="${blockId}"]`);
+  if (el) {
+    el.classList.add('le-highlight');
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
+function leUnhighlightBar(barNum) {
+  document.querySelectorAll(`.le-block[data-barnum="${barNum}"]`).forEach(el => {
+    el.classList.remove('le-highlight', 'le-highlight-past');
+  });
+}
+
 /* ── Lyrics Editor: Canvas Events (Drag & Drop + Context Menu) ── */
 
 function leWireCanvasEvents() {
   const canvas = document.getElementById('le-canvas');
   if (!canvas) return;
+
+  // Part block tap → karaoke playback
+  canvas.addEventListener('click', (e) => {
+    const block = e.target.closest('.le-block-part');
+    if (!block) return;
+    const barNum = parseInt(block.dataset.barnum, 10);
+    if (barNum > 0) leStartPartPlayback(barNum);
+  });
 
   // Drag start
   canvas.addEventListener('dragstart', (e) => {
@@ -3916,9 +4545,11 @@ function leSaveLyrics() {
   }
 
   for (const block of _leBlocks) {
-    if (block.type === 'bar') {
+    if (block.type === 'part') {
+      // Part blocks carry newline flag — flush preceding bar if needed
+      if (block.newline) flushWords(true);
+    } else if (block.type === 'bar') {
       flushWords(block.newline || false);
-
       currentBarNum = block.barNum;
     } else if (block.type === 'word') {
       currentWords.push(block.content);
@@ -4269,8 +4900,22 @@ function renderAccentsTab() {
 }
 
 function buildAccentsBarList(totalBars) {
+  // Part start lookup
+  const song = db.songs[selectedSongId];
+  const partStartMap = new Map();
+  if (song?.split_markers?.part_starts) {
+    for (const ps of song.split_markers.part_starts) {
+      partStartMap.set(ps.bar_num, ps.name);
+    }
+  }
+
   let html = '<div class="acc-blocks">';
   for (let b = 1; b <= totalBars; b++) {
+    // Insert orange part block before part starts
+    if (partStartMap.has(b)) {
+      if (b > 1) html += '<span class="le-break"></span>';
+      html += `<span class="le-block le-block-part">T${b} ${esc(partStartMap.get(b))}</span>`;
+    }
     const isBarSel = _accentsSelectedBar === b;
     const found = findBar(selectedSongId, b);
     const accCount = found ? getAccentsForBar(found[0]).length : 0;
@@ -6192,6 +6837,7 @@ function wireEvents() {
   els.tabEditor?.addEventListener('click', () => switchTab('editor'));
   els.tabTakte?.addEventListener('click',  () => switchTab('takte'));
   els.tabAudio?.addEventListener('click',  () => switchTab('audio'));
+  els.tabParts?.addEventListener('click',  () => switchTab('parts'));
   els.tabLyrics?.addEventListener('click', () => switchTab('lyrics'));
   els.tabAccents?.addEventListener('click', () => switchTab('accents'));
   els.tabSetlist?.addEventListener('click', () => switchTab('setlist'));

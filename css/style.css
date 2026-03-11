@@ -2270,6 +2270,7 @@ label {
 .takte-tab-table .ttt-lyrics { min-width: 160px; }
 .takte-tab-table .ttt-acc { width: 48px; text-align: center; font-size: 0.8rem; }
 .takte-tab-table .ttt-audio { width: 48px; text-align: center; }
+.ttt-irregular { border-left: 3px solid var(--red); }
 
 .ttt-song-name {
   font-size: 0.8rem;
@@ -2822,6 +2823,10 @@ label {
   font-weight: 700;
   padding: 0 6px;
   min-width: 28px;
+}
+.le-block-bar.le-block-irregular {
+  background: var(--red);
+  color: #fff;
 }
 
 /* ── Word Block: Dark with light text ──────────── */

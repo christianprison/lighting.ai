@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.6.6';
+const APP_VERSION = 'v1.6.7';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -52,6 +52,7 @@ let _dragSuppressClick = false; // prevent seek after drag ends
 let clickEnabled = false;        // click track on/off
 let _suppressAutoScroll = false; // prevent auto-scroll after drag finalize
 let _isTouchDrag = false;       // true when drag was initiated by touch (not mouse)
+let _irregTipShown = false;     // true after irregular-bars tip was shown once
 
 const SETTINGS_KEY = 'lightingai_settings';
 
@@ -1559,7 +1560,7 @@ async function handleBarPlay(songId, barNum) {
   _partPlayActive = true;
 
   try {
-    const ac = _getAudioCtx();
+    const ac = audio.getContext();
     if (ac.state === 'suspended') await ac.resume();
 
     // Strategy 1: Use split audio file if available
@@ -1671,7 +1672,7 @@ function renderAudioTab() {
         ${hasBuf ? buildTransport() : ''}
         ${hasBuf ? buildTapButtons(isPlay) : ''}
         ${hasBuf ? buildBpmBanner(song) : ''}
-        ${hasBuf ? buildExportSection() : ''}
+
       </div>
       ${hasBuf ? buildAudioSummary() : ''}
     </div>`;
@@ -1850,7 +1851,7 @@ function buildAudioSummary() {
 /* ── Audio Helper Functions ────────────────────────── */
 
 /**
- * Detect irregular bars: bars whose duration deviates > 5% from median.
+ * Detect irregular bars: bars whose duration deviates > 6.25% from median.
  * Uses median instead of average to be robust against outliers (fewer false negatives).
  * Returns a Set of marker references whose *preceding* interval is irregular.
  */
@@ -1869,11 +1870,25 @@ function getIrregularBars() {
     : sortedIntervals[mid];
   if (median <= 0) return irregular;
   for (let i = 0; i < intervals.length; i++) {
-    if (Math.abs(intervals[i] - median) / median > 0.05) {
+    if (Math.abs(intervals[i] - median) / median > 0.0625) {
       irregular.add(sorted[i + 1]); // the marker that ends the irregular interval
     }
   }
   return irregular;
+}
+
+/**
+ * Returns a Set of absolute bar numbers (1-based) that are irregular.
+ * Useful for highlighting bars in tabs outside the waveform canvas.
+ */
+function getIrregularBarNumbers() {
+  const sorted = [...markers].sort((a, b) => a.time - b.time);
+  const irregSet = getIrregularBars();
+  const nums = new Set();
+  for (let i = 0; i < sorted.length; i++) {
+    if (irregSet.has(sorted[i])) nums.add(i + 1); // 1-based bar number
+  }
+  return nums;
 }
 
 function fmtTime(sec) {
@@ -2017,6 +2032,12 @@ function drawWaveform() {
 
   // Detect irregular bars for red flag display
   const irregularSet = getIrregularBars();
+
+  // Show tip on first irregular detection (not during playback)
+  if (irregularSet.size > 0 && !_irregTipShown && !audio.isPlaying()) {
+    _irregTipShown = true;
+    toast('Wenn die Länge eines Taktes um mehr als 6,25\u202F% vom Median abweicht, wird er rot markiert.', 'info', 6000);
+  }
 
   // Draw all markers (cyan = normal, red = irregular)
   for (const m of sortedMarkers) {
@@ -3225,8 +3246,7 @@ function handleAudioClick(e) {
   // BPM update
   if (el.closest('#btn-update-bpm')) { handleBpmUpdate(); return; }
 
-  // Export
-  if (el.closest('#btn-export')) { handleAudioExport(); return; }
+
 }
 
 function handleAudioDragOver(e) {
@@ -3449,6 +3469,7 @@ function renderLyricsTab() {
  * Render all blocks as HTML elements in the canvas.
  */
 function leRenderBlocks() {
+  const irregNums = (markers.length >= 3) ? getIrregularBarNumbers() : new Set();
   let html = '';
   for (let i = 0; i < _leBlocks.length; i++) {
     const b = _leBlocks[i];
@@ -3456,7 +3477,8 @@ function leRenderBlocks() {
     if (b.newline) {
       html += '<span class="le-break"></span>';
     }
-    let cls = `le-block le-block-${b.type}`;
+    const isIrreg = b.type === 'bar' && irregNums.has(b.barNum);
+    let cls = `le-block le-block-${b.type}${isIrreg ? ' le-block-irregular' : ''}`;
     // Mark last word before a newline bar with ↵ indicator
     let displayContent = esc(b.content);
     if (b.type === 'word') {
@@ -4342,7 +4364,7 @@ async function handleAccentBarPlay(songId, barNum) {
   renderAccentsTab();
 
   try {
-    const ac = _getAudioCtx();
+    const ac = audio.getContext();
     if (ac.state === 'suspended') await ac.resume();
     const arrBuf = await fetchAudioUrl(barData.audio);
     if (!arrBuf) throw new Error(`Audio nicht gefunden: ${barData.audio}`);
@@ -5626,6 +5648,7 @@ function buildTakteTabTable(bars, filterSong) {
   const sel = takteTabSelectedBar;
   const hasBuf = !!audio.getBuffer();
   const showWave = hasBuf && filterSong === selectedSongId;
+  const irregNums = (markers.length >= 3 && filterSong === selectedSongId) ? getIrregularBarNumbers() : new Set();
 
   return `
     <table class="takte-tab-table takte-tab-table">
@@ -5658,11 +5681,12 @@ function buildTakteTabTable(bars, filterSong) {
           }
 
           const canPlay = b.audio || (hasBuf && waveCanvas);
-          return `<tr class="ttt-row${isActive ? ' active' : ''}" data-song-id="${b.songId}" data-bar-num="${b.barNum}">
-            <td class="ttt-nr mono text-t3">${showSongCol ? idx + 1 : b.absBar}</td>
+          const isIrreg = irregNums.has(b.absBar);
+          return `<tr class="ttt-row${isActive ? ' active' : ''}${isIrreg ? ' ttt-irregular' : ''}" data-song-id="${b.songId}" data-bar-num="${b.barNum}">
+            <td class="ttt-nr mono ${isIrreg ? 'text-red' : 'text-t3'}">${showSongCol ? idx + 1 : b.absBar}</td>
             <td class="ttt-play">${canPlay ? `<button class="btn-bar-play${isBarPlaying ? ' playing' : ''}" data-action="play-bar" data-play-song-id="${b.songId}" data-play-bar-num="${b.barNum}" title="${isBarPlaying ? 'Stop' : 'Takt abspielen'}">${isBarPlaying ? '&#9632;' : '&#9654;'}</button>` : ''}</td>
             ${showSongCol ? `<td class="ttt-song"><span class="ttt-song-name">${esc(b.songName)}</span></td>` : ''}
-            <td class="ttt-bar mono">${b.absBar}</td>
+            <td class="ttt-bar mono${isIrreg ? ' text-red' : ''}">${b.absBar}</td>
             ${showWave ? `<td class="ttt-wave">${waveCanvas}</td>` : ''}
             <td class="ttt-time mono text-t3">${fmtDur(Math.round(b.barSec))}</td>
             <td class="ttt-lyrics"><input type="text" value="${esc(b.lyrics)}" data-ttf="lyrics" class="takte-input" placeholder="\u2014"></td>

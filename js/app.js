@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.6.3';
+const APP_VERSION = 'v1.6.4';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -1640,6 +1640,9 @@ function handleAccentToggle(pos16) {
    AUDIO SPLIT TAB — Meilenstein 3
    ══════════════════════════════════════════════════════ */
 
+let _barPlayId = null;        // currently playing bar ID
+let _partPlayActive = false;  // whether bar playback is active
+let _partPlaySources = [];    // active AudioBufferSourceNode(s)
 let _refLoadingFor = null; // songId currently loading reference for
 let _refLoadingPromise = null; // pending loadReferenceAudio promise
 

@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.8.1';
+const APP_VERSION = 'v1.8.2';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4900,8 +4900,22 @@ function renderAccentsTab() {
 }
 
 function buildAccentsBarList(totalBars) {
+  // Part start lookup
+  const song = db.songs[selectedSongId];
+  const partStartMap = new Map();
+  if (song?.split_markers?.part_starts) {
+    for (const ps of song.split_markers.part_starts) {
+      partStartMap.set(ps.bar_num, ps.name);
+    }
+  }
+
   let html = '<div class="acc-blocks">';
   for (let b = 1; b <= totalBars; b++) {
+    // Insert orange part block before part starts
+    if (partStartMap.has(b)) {
+      if (b > 1) html += '<span class="le-break"></span>';
+      html += `<span class="le-block le-block-part">T${b} ${esc(partStartMap.get(b))}</span>`;
+    }
     const isBarSel = _accentsSelectedBar === b;
     const found = findBar(selectedSongId, b);
     const accCount = found ? getAccentsForBar(found[0]).length : 0;

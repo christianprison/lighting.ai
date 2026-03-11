@@ -2922,25 +2922,6 @@ function handleSnapToPeaks() {
   updateAudioSummaryLive();
   toast(`${snapped} Marker auf Peaks verschoben`, 'success');
 }
-  if (!audio.getBuffer()) return;
-  if (markers.length === 0) return;
-
-  let snapped = 0;
-  // Snap all markers to nearest audio peak
-  for (const m of markers) {
-    const newTime = audio.findPeakNear(m.time, 80);
-    if (Math.abs(newTime - m.time) > 0.001) { m.time = newTime; snapped++; }
-  }
-
-  // Re-sort
-  markers.sort((a, b) => a.time - b.time);
-  saveMarkersToSong();
-  markDirty();
-  drawWaveform();
-  updateSplitResultLive();
-  updateAudioSummaryLive();
-  toast(`${snapped} Marker auf Peaks verschoben`, 'success');
-}
 
 async function handleDeleteAllBarMarkers() {
   if (markers.length === 0) return;

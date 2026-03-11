@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.6.7';
+const APP_VERSION = 'v1.6.8';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -1585,7 +1585,7 @@ async function handleBarPlay(songId, barNum) {
     // Strategy 2: Play from reference audio buffer using bar time range
     const refBuffer = audio.getBuffer();
     if (refBuffer) {
-      // Bar time range from markers (simplified)
+      const range = getBarTimeRange(songId, barNum);
       if (range) {
         const src = ac.createBufferSource();
         src.buffer = refBuffer;
@@ -2093,7 +2093,7 @@ function drawWaveform() {
       ctx.stroke();
       ctx.shadowBlur = 0;
     }
-    if (waveformZoom > 1 && !_suppressAutoScroll) {
+    if (waveformZoom > 1 && !_suppressAutoScroll && audio.isPlaying()) {
       if (vpx < scrollLeft + 40 || vpx > scrollLeft + viewW - 40) {
         wrap.scrollLeft = vpx - viewW * 0.3;
       }

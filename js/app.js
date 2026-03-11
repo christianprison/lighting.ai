@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.6.0';
+const APP_VERSION = 'v1.6.1';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -355,6 +355,11 @@ async function fetchAudioUrl(url) {
   }
 
   return null;
+}
+
+function ensureCollections() {
+  if (!db.bars) db.bars = {};
+  if (!db.accents) db.accents = {};
 }
 
 /** Get all bars for a song, sorted by bar_num */

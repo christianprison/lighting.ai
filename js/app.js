@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.6.2';
+const APP_VERSION = 'v1.6.3';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -411,7 +411,11 @@ function reconcileBars(songId) {
   const actualBars = getBarsForSong(songId).length;
   if (actualBars !== (song.total_bars || 0)) {
     song.total_bars = actualBars;
-    recalcSongDurationFor(songId);
+    // recalcSongDuration uses selectedSongId – inline the logic for any songId
+    const _bpm = song.bpm || 0;
+    const _totalSec = calcBarsDuration(song.total_bars || 0, _bpm);
+    song.duration_sec = _totalSec;
+    song.duration = fmtDur(_totalSec);
   }
 }
 

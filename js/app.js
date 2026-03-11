@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.8.0';
+const APP_VERSION = 'v1.8.1';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -1205,8 +1205,9 @@ function switchTab(tab) {
       markDirty();
     }
   }
-  // Stop lyrics part playback when leaving lyrics tab
+  // Stop lyrics karaoke playback when leaving lyrics tab
   if (activeTab === 'lyrics' && tab !== 'lyrics') {
+    leStopPartPlayback();
   }
   // Stop parts tab playback when leaving
   if (activeTab === 'parts' && tab !== 'parts') {
@@ -3749,16 +3750,37 @@ function leBuildBlocks(songId) {
   let blockId = 0;
   const totalBars = song.total_bars || 0;
 
+  // Build part start lookup: bar_num → part name
+  const partStartMap = new Map();
+  if (song.split_markers?.part_starts) {
+    for (const ps of song.split_markers.part_starts) {
+      partStartMap.set(ps.bar_num, ps.name);
+    }
+  }
+
   let nextBarNewline = false;
   for (let b = 1; b <= totalBars; b++) {
+    // Insert part block before bars that are part starts
+    if (partStartMap.has(b)) {
+      blocks.push({
+        type: 'part',
+        content: partStartMap.get(b),
+        barNum: b,
+        newline: b > 1, // line break before every part except the first
+        id: `lb_${blockId++}`
+      });
+    }
+
     const barBlock = {
       type: 'bar',
       content: String(b),
       barNum: b,
       id: `lb_${blockId++}`
     };
-    if (nextBarNewline) {
+    if (nextBarNewline && !partStartMap.has(b)) {
       barBlock.newline = true;
+      nextBarNewline = false;
+    } else {
       nextBarNewline = false;
     }
     blocks.push(barBlock);
@@ -3903,6 +3925,7 @@ function renderLyricsTab() {
 
   // Legend
   html += `<div class="le-legend">
+    <span class="le-legend-item"><span class="le-legend-swatch le-swatch-part"></span> Part</span>
     <span class="le-legend-item"><span class="le-legend-swatch le-swatch-bar"></span> Takt</span>
     <span class="le-legend-item"><span class="le-legend-swatch le-swatch-word"></span> Wort</span>
   </div>`;
@@ -3922,22 +3945,30 @@ function leRenderBlocks() {
   let html = '';
   for (let i = 0; i < _leBlocks.length; i++) {
     const b = _leBlocks[i];
-    // Line break before part blocks, before first bar of each part, and blocks with newline flag
+    // Line break before part blocks and blocks with newline flag
     if (b.newline) {
       html += '<span class="le-break"></span>';
     }
     const isIrreg = b.type === 'bar' && irregNums.has(b.barNum);
     let cls = `le-block le-block-${b.type}${isIrreg ? ' le-block-irregular' : ''}`;
+
+    let displayContent;
+    if (b.type === 'part') {
+      // Part block: show "T{barNum} {name}"
+      displayContent = `T${b.barNum} ${esc(b.content)}`;
+    } else {
+      displayContent = esc(b.content);
+    }
+
     // Mark last word before a newline bar with ↵ indicator
-    let displayContent = esc(b.content);
     if (b.type === 'word') {
       const next = i + 1 < _leBlocks.length ? _leBlocks[i + 1] : null;
-      if (next && next.type === 'bar' && next.newline) {
+      if (next && (next.type === 'bar' || next.type === 'part') && next.newline) {
         displayContent += '<span class="le-newline-marker">↵</span>';
       }
     }
-    const draggable = 'draggable="true"';
-    html += `<span class="${cls}" ${draggable} data-idx="${i}" data-type="${b.type}" data-id="${b.id}">${displayContent}</span>`;
+    const draggable = b.type === 'part' ? '' : 'draggable="true"';
+    html += `<span class="${cls}" ${draggable} data-idx="${i}" data-type="${b.type}" data-id="${b.id}" data-barnum="${b.barNum}">${displayContent}</span>`;
 
   }
   return html;
@@ -3952,11 +3983,157 @@ function leRefreshCanvas() {
   canvas.innerHTML = leRenderBlocks();
 }
 
+/* ── Lyrics Karaoke Playback ─────────────────────── */
+
+let _lePlaySrc = null;       // AudioBufferSourceNode
+let _lePlayPartBar = null;   // barNum of playing part
+let _lePlayTimer = null;     // setTimeout ID for highlight scheduling
+let _lePlayTimers = [];      // all scheduled timers
+
+function leStartPartPlayback(partBarNum) {
+  audio.warmup();
+  // Stop if already playing this part
+  if (_lePlayPartBar === partBarNum) {
+    leStopPartPlayback();
+    return;
+  }
+  leStopPartPlayback();
+
+  const refBuf = audio.getBuffer();
+  if (!refBuf) { toast('Kein Audio geladen', 'error'); return; }
+  if (!selectedSongId || !db.songs[selectedSongId]) return;
+
+  const song = db.songs[selectedSongId];
+  const sm = song.split_markers;
+  if (!sm?.markers?.length || !sm?.part_starts?.length) return;
+
+  const allMarkers = [...sm.markers].sort((a, b) => a.time - b.time);
+  const starts = [...sm.part_starts].sort((a, b) => a.bar_num - b.bar_num);
+  const partIdx = starts.findIndex(p => p.bar_num === partBarNum);
+  if (partIdx < 0) return;
+
+  const startBarIdx = starts[partIdx].bar_num - 1;
+  const endBarIdx = starts[partIdx + 1] ? starts[partIdx + 1].bar_num - 1 : allMarkers.length;
+  const startTime = allMarkers[startBarIdx]?.time ?? 0;
+  const endTime = endBarIdx < allMarkers.length ? allMarkers[endBarIdx].time : refBuf.duration;
+  const dur = endTime - startTime;
+  if (dur <= 0) return;
+
+  const ac = audio.getContext();
+  if (ac.state === 'suspended') ac.resume();
+
+  const src = ac.createBufferSource();
+  src.buffer = refBuf;
+  src.connect(ac.destination);
+  src.onended = () => {
+    if (_lePlayPartBar === partBarNum) leStopPartPlayback();
+  };
+  src.start(0, startTime, dur);
+  _lePlaySrc = src;
+  _lePlayPartBar = partBarNum;
+
+  // Highlight the part block
+  leHighlightPartBlock(partBarNum, true);
+
+  // Schedule bar/word highlights based on marker timings
+  for (let bi = startBarIdx; bi < endBarIdx; bi++) {
+    const barNum = bi + 1;
+    const barStart = (allMarkers[bi]?.time ?? 0) - startTime;
+    const barEnd = (bi + 1 < allMarkers.length ? allMarkers[bi + 1].time : endTime) - startTime;
+    const barDur = barEnd - barStart;
+
+    // Find word blocks for this bar
+    const wordBlocks = _leBlocks.filter(bl => bl.type === 'word' && bl.barNum === barNum);
+
+    if (wordBlocks.length === 0) {
+      // No lyrics: highlight the bar block itself
+      const t = setTimeout(() => leHighlightBlock(barNum, 'bar'), barStart * 1000);
+      _lePlayTimers.push(t);
+      const t2 = setTimeout(() => leUnhighlightBlock(barNum, 'bar'), barEnd * 1000);
+      _lePlayTimers.push(t2);
+    } else {
+      // Karaoke: highlight words sequentially, evenly spaced across bar duration
+      const wordDur = barDur / wordBlocks.length;
+      for (let wi = 0; wi < wordBlocks.length; wi++) {
+        const wordStart = barStart + wi * wordDur;
+        const t = setTimeout(() => leHighlightWord(wordBlocks[wi].id, barNum, wi), wordStart * 1000);
+        _lePlayTimers.push(t);
+      }
+      // Clear last word highlight at bar end
+      const t = setTimeout(() => leUnhighlightBar(barNum), barEnd * 1000);
+      _lePlayTimers.push(t);
+    }
+  }
+}
+
+function leStopPartPlayback() {
+  if (_lePlaySrc) {
+    try { _lePlaySrc.stop(); } catch {}
+    _lePlaySrc = null;
+  }
+  for (const t of _lePlayTimers) clearTimeout(t);
+  _lePlayTimers = [];
+  if (_lePlayPartBar !== null) {
+    leHighlightPartBlock(_lePlayPartBar, false);
+    _lePlayPartBar = null;
+  }
+  // Clear all highlights
+  document.querySelectorAll('.le-highlight, .le-highlight-past').forEach(el => {
+    el.classList.remove('le-highlight', 'le-highlight-past');
+  });
+}
+
+function leHighlightPartBlock(barNum, active) {
+  const el = document.querySelector(`.le-block-part[data-barnum="${barNum}"]`);
+  if (el) el.classList.toggle('le-playing', active);
+}
+
+function leHighlightBlock(barNum, type) {
+  const el = document.querySelector(`.le-block-${type}[data-barnum="${barNum}"]`);
+  if (el) {
+    el.classList.add('le-highlight');
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
+function leUnhighlightBlock(barNum, type) {
+  const el = document.querySelector(`.le-block-${type}[data-barnum="${barNum}"]`);
+  if (el) el.classList.remove('le-highlight');
+}
+
+function leHighlightWord(blockId, barNum, wordIdx) {
+  // Remove previous highlight in this bar, mark as past
+  document.querySelectorAll(`.le-block-word[data-barnum="${barNum}"].le-highlight`).forEach(el => {
+    el.classList.remove('le-highlight');
+    el.classList.add('le-highlight-past');
+  });
+  // Highlight current word
+  const el = document.querySelector(`.le-block[data-id="${blockId}"]`);
+  if (el) {
+    el.classList.add('le-highlight');
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
+function leUnhighlightBar(barNum) {
+  document.querySelectorAll(`.le-block[data-barnum="${barNum}"]`).forEach(el => {
+    el.classList.remove('le-highlight', 'le-highlight-past');
+  });
+}
+
 /* ── Lyrics Editor: Canvas Events (Drag & Drop + Context Menu) ── */
 
 function leWireCanvasEvents() {
   const canvas = document.getElementById('le-canvas');
   if (!canvas) return;
+
+  // Part block tap → karaoke playback
+  canvas.addEventListener('click', (e) => {
+    const block = e.target.closest('.le-block-part');
+    if (!block) return;
+    const barNum = parseInt(block.dataset.barnum, 10);
+    if (barNum > 0) leStartPartPlayback(barNum);
+  });
 
   // Drag start
   canvas.addEventListener('dragstart', (e) => {
@@ -4368,9 +4545,11 @@ function leSaveLyrics() {
   }
 
   for (const block of _leBlocks) {
-    if (block.type === 'bar') {
+    if (block.type === 'part') {
+      // Part blocks carry newline flag — flush preceding bar if needed
+      if (block.newline) flushWords(true);
+    } else if (block.type === 'bar') {
       flushWords(block.newline || false);
-
       currentBarNum = block.barNum;
     } else if (block.type === 'word') {
       currentWords.push(block.content);

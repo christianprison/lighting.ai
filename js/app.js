@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.6.1';
+const APP_VERSION = 'v1.6.2';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -1204,7 +1204,6 @@ function switchTab(tab) {
   // Ensure bar data is consistent when entering data-dependent tabs
   if ((tab === 'takte' || tab === 'lyrics' || tab === 'accents') && selectedSongId) {
     reconcileBars(selectedSongId);
-    recalcAbsoluteBarNums(selectedSongId);
   }
   activeTab = tab;
   els.tabEditor?.classList.toggle('active', tab === 'editor');

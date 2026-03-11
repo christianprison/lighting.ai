@@ -1,11 +1,14 @@
 /**
  * js/integrity.js — Data Integrity Module for lighting.ai
  *
- * Provides validation, orphan cleanup, cascade delete/duplicate,
+ * Provides validation, orphan cleanup, cascade delete,
  * and bar-count synchronisation for the song database.
  *
  * All functions operate on the db object passed as first argument
  * and return mutation info so callers can decide on dirty-state.
+ *
+ * NOTE: Parts concept has been removed. Bars reference songs directly
+ * via song_id. Markers are simple {time} objects.
  */
 
 /* ── Helpers ──────────────────────────────────────── */
@@ -15,29 +18,12 @@ function ensureCollections(db) {
   if (!db.accents) db.accents = {};
 }
 
-function sortedParts(song) {
-  if (!song || !song.parts) return [];
-  return Object.entries(song.parts)
-    .map(([id, p]) => ({ id, ...p }))
-    .sort((a, b) => a.pos - b.pos);
-}
-
 function nextId(prefix, collection) {
   const nums = Object.keys(collection)
     .map(k => parseInt(k.replace(prefix, ''), 10))
     .filter(n => !isNaN(n));
   const max = nums.length ? Math.max(...nums) : 0;
   return `${prefix}${String(max + 1).padStart(4, '0')}`;
-}
-
-function nextPartId(songId, song) {
-  if (!song.parts) song.parts = {};
-  const nums = Object.keys(song.parts).map(k => {
-    const m = k.match(/_P(\d+)$/);
-    return m ? parseInt(m[1], 10) : 0;
-  });
-  const max = nums.length ? Math.max(...nums) : 0;
-  return `${songId}_P${String(max + 1).padStart(3, '0')}`;
 }
 
 /* ── Validation ───────────────────────────────────── */
@@ -52,20 +38,13 @@ export function validateDB(db) {
   const orphanAccents = [];
   ensureCollections(db);
 
-  // Collect all valid part IDs
-  const allPartIds = new Set();
-  for (const [songId, song] of Object.entries(db.songs || {})) {
-    if (song.parts) {
-      for (const partId of Object.keys(song.parts)) {
-        allPartIds.add(partId);
-      }
-    }
-  }
+  // Collect all valid song IDs
+  const allSongIds = new Set(Object.keys(db.songs || {}));
 
-  // Check bars → parts
+  // Check bars → songs
   for (const [barId, bar] of Object.entries(db.bars)) {
-    if (!bar.part_id || !allPartIds.has(bar.part_id)) {
-      errors.push(`Bar ${barId} references non-existent part ${bar.part_id}`);
+    if (!bar.song_id || !allSongIds.has(bar.song_id)) {
+      errors.push(`Bar ${barId} references non-existent song ${bar.song_id}`);
       orphanBars.push(barId);
     }
   }
@@ -115,50 +94,19 @@ export function cleanupOrphans(db) {
 /* ── Cascade Delete ───────────────────────────────── */
 
 /**
- * Delete a song and all its parts, bars, accents, and setlist references.
+ * Delete a song and all its bars, accents, and setlist references.
  */
 export function deleteSong(db, songId) {
   ensureCollections(db);
   const song = (db.songs || {})[songId];
   if (!song) return { deleted: false };
 
-  const deletedParts = [];
   const deletedBars = [];
   const deletedAccents = [];
 
-  // Delete all parts (and their bars/accents)
-  if (song.parts) {
-    for (const partId of Object.keys(song.parts)) {
-      const r = deletePart(db, songId, partId);
-      deletedParts.push(partId);
-      deletedBars.push(...r.deletedBars);
-      deletedAccents.push(...r.deletedAccents);
-    }
-  }
-
-  // Remove from setlist
-  if (db.setlist && Array.isArray(db.setlist.items)) {
-    db.setlist.items = db.setlist.items.filter(
-      item => !(item.type === 'song' && item.song_id === songId)
-    );
-  }
-
-  delete db.songs[songId];
-  return { deleted: true, deletedParts, deletedBars, deletedAccents };
-}
-
-/**
- * Delete a part and all its bars and accents.
- */
-export function deletePart(db, songId, partId) {
-  ensureCollections(db);
-  const song = (db.songs || {})[songId];
-  const deletedBars = [];
-  const deletedAccents = [];
-
-  // Delete bars and their accents
+  // Delete all bars and their accents for this song
   for (const [barId, bar] of Object.entries(db.bars)) {
-    if (bar.part_id === partId) {
+    if (bar.song_id === songId) {
       // Delete accents for this bar
       for (const [accId, acc] of Object.entries(db.accents)) {
         if (acc.bar_id === barId) {
@@ -171,13 +119,15 @@ export function deletePart(db, songId, partId) {
     }
   }
 
-  if (song && song.parts) {
-    delete song.parts[partId];
-    // Renumber remaining parts
-    sortedParts(song).forEach((p, i) => { song.parts[p.id].pos = i + 1; });
+  // Remove from setlist
+  if (db.setlist && Array.isArray(db.setlist.items)) {
+    db.setlist.items = db.setlist.items.filter(
+      item => !(item.type === 'song' && item.song_id === songId)
+    );
   }
 
-  return { deletedBars, deletedAccents };
+  delete db.songs[songId];
+  return { deleted: true, deletedBars, deletedAccents };
 }
 
 /**
@@ -196,85 +146,27 @@ export function deleteBar(db, barId) {
   return { deletedAccents };
 }
 
-/* ── Cascade Duplicate ────────────────────────────── */
-
-/**
- * Duplicate a part including all its bars and accents.
- * Returns the new partId.
- */
-export function duplicatePart(db, songId, partId) {
-  ensureCollections(db);
-  const song = (db.songs || {})[songId];
-  if (!song || !song.parts || !song.parts[partId]) return null;
-
-  const src = song.parts[partId];
-
-  // Shift positions of parts after current
-  for (const p of Object.values(song.parts)) {
-    if (p.pos > src.pos) p.pos += 1;
-  }
-
-  const newPartId = nextPartId(songId, song);
-  song.parts[newPartId] = {
-    pos: src.pos + 1,
-    name: src.name + ' (Copy)',
-    bars: src.bars,
-    duration_sec: src.duration_sec,
-    light_template: src.light_template,
-    notes: src.notes || '',
-  };
-
-  // Duplicate bars and accents
-  const barIdMap = {}; // oldBarId → newBarId
-  for (const [barId, bar] of Object.entries(db.bars)) {
-    if (bar.part_id === partId) {
-      const newBarId = nextId('B', db.bars);
-      barIdMap[barId] = newBarId;
-      db.bars[newBarId] = {
-        ...bar,
-        part_id: newPartId,
-        audio: '', // Audio paths need re-export
-      };
-    }
-  }
-
-  // Duplicate accents, mapping to new bar IDs
-  for (const [accId, acc] of Object.entries(db.accents)) {
-    if (barIdMap[acc.bar_id]) {
-      const newAccId = nextId('A', db.accents);
-      db.accents[newAccId] = {
-        ...acc,
-        bar_id: barIdMap[acc.bar_id],
-      };
-    }
-  }
-
-  return newPartId;
-}
-
 /* ── Bar-Count Sync ───────────────────────────────── */
 
 /**
- * Synchronise bars in db.bars with the declared part.bars count.
- * Removes excess bars (and their accents) when part.bars is reduced.
- * bar_num is absolute (song-wide), so we keep the first declaredCount bars
- * sorted by bar_num and remove the rest.
+ * Synchronise bars in db.bars with the declared song.total_bars count.
+ * Removes excess bars (and their accents) when total_bars is reduced.
  * Returns { removed: string[] } — list of removed bar IDs.
  */
-export function syncBarCount(db, partId, declaredCount) {
+export function syncBarCount(db, songId, declaredCount) {
   ensureCollections(db);
   const removed = [];
 
-  // Get all bars for this part, sorted by bar_num (absolute)
-  const barsForPart = Object.entries(db.bars)
-    .filter(([, b]) => b.part_id === partId)
+  // Get all bars for this song, sorted by bar_num
+  const barsForSong = Object.entries(db.bars)
+    .filter(([, b]) => b.song_id === songId)
     .map(([id, b]) => ({ id, ...b }))
     .sort((a, b) => a.bar_num - b.bar_num);
 
   // Keep first declaredCount bars, remove the rest
-  for (let i = declaredCount; i < barsForPart.length; i++) {
-    deleteBar(db, barsForPart[i].id);
-    removed.push(barsForPart[i].id);
+  for (let i = declaredCount; i < barsForSong.length; i++) {
+    deleteBar(db, barsForSong[i].id);
+    removed.push(barsForSong[i].id);
   }
 
   return { removed };
@@ -283,14 +175,8 @@ export function syncBarCount(db, partId, declaredCount) {
 /* ── Split-Marker Migration: Legacy → Unified ───── */
 
 /**
- * Migrate split_markers from the old two-array format (partMarkers + barMarkers)
- * to the new unified single-array format (markers[]).
- *
- * Old: { partMarkers: [{time, partIndex, partId}], barMarkers: [{time, partIndex, partId}] }
- * New: { markers: [{time, partId, partStart: true/false}] }
- *
- * Also handles the even older format without partId by resolving from partIndex.
- * The partIndex field is dropped — partId is the sole reference.
+ * Migrate split_markers from any old format to simple {time} markers.
+ * Old formats had partId, partStart fields — these are stripped.
  */
 export function migrateToUnifiedMarkers(db) {
   let migrated = 0;
@@ -298,43 +184,42 @@ export function migrateToUnifiedMarkers(db) {
     if (!song.split_markers) continue;
     const sm = song.split_markers;
 
-    // Already migrated?
-    if (Array.isArray(sm.markers)) continue;
-
-    const parts = sortedParts(song);
-    const indexToId = (idx) => parts[idx] ? parts[idx].id : undefined;
-
-    const unified = [];
-
-    // Convert part markers → partStart: true
-    if (Array.isArray(sm.partMarkers)) {
-      for (const m of sm.partMarkers) {
-        const partId = m.partId || indexToId(m.partIndex);
-        if (partId) {
-          unified.push({ time: m.time, partId, partStart: true });
+    // Already in new format (array of {time} only)?
+    if (Array.isArray(sm.markers) && sm.markers.length > 0) {
+      // Strip any legacy partId/partStart fields
+      let hadLegacy = false;
+      for (const m of sm.markers) {
+        if (m.partId !== undefined || m.partStart !== undefined) {
+          delete m.partId;
+          delete m.partStart;
+          hadLegacy = true;
         }
       }
+      if (hadLegacy) migrated++;
+      continue;
     }
 
-    // Convert bar markers → partStart: false (skip those co-located with a part marker)
-    if (Array.isArray(sm.barMarkers)) {
-      for (const m of sm.barMarkers) {
-        const partId = m.partId || indexToId(m.partIndex);
-        if (!partId) continue;
-        // Skip if a part marker sits at the same time (within tolerance)
-        const isPartStart = unified.some(u => u.partStart && Math.abs(u.time - m.time) < 0.01);
-        if (!isPartStart) {
-          unified.push({ time: m.time, partId, partStart: false });
+    // Old two-array format
+    if (Array.isArray(sm.partMarkers) || Array.isArray(sm.barMarkers)) {
+      const unified = [];
+      if (Array.isArray(sm.partMarkers)) {
+        for (const m of sm.partMarkers) {
+          unified.push({ time: m.time });
         }
       }
+      if (Array.isArray(sm.barMarkers)) {
+        for (const m of sm.barMarkers) {
+          // Skip if a marker sits at the same time (within tolerance)
+          const isDup = unified.some(u => Math.abs(u.time - m.time) < 0.01);
+          if (!isDup) {
+            unified.push({ time: m.time });
+          }
+        }
+      }
+      unified.sort((a, b) => a.time - b.time);
+      song.split_markers = { markers: unified };
+      migrated++;
     }
-
-    // Sort by time
-    unified.sort((a, b) => a.time - b.time);
-
-    // Replace old format with unified
-    song.split_markers = { markers: unified };
-    migrated++;
   }
   return { migrated };
 }
@@ -342,9 +227,9 @@ export function migrateToUnifiedMarkers(db) {
 /* ── Sync bars count from split_markers ───────────── */
 
 /**
- * Ensure part.bars matches the number of markers for that part.
+ * Ensure song.total_bars matches the number of markers.
  * split_markers.markers is the source of truth when present.
- * Returns the number of parts that were fixed.
+ * Returns the number of songs that were fixed.
  */
 export function syncBarsFromMarkers(db) {
   let fixed = 0;
@@ -352,22 +237,11 @@ export function syncBarsFromMarkers(db) {
     const sm = song.split_markers;
     if (!sm || !Array.isArray(sm.markers) || sm.markers.length === 0) continue;
 
-    // Count all markers (part starts count as bar 1) per partId
-    const barsByPartId = {};
-    for (const m of sm.markers) {
-      if (!m.partId) continue;
-      barsByPartId[m.partId] = (barsByPartId[m.partId] || 0) + 1;
-    }
-
-    for (const [partId, count] of Object.entries(barsByPartId)) {
-      if (count > 0 && song.parts && song.parts[partId]) {
-        const part = song.parts[partId];
-        if (part.bars !== count) {
-          console.log(`[integrity] Fixed bars: ${song.name} / ${part.name}: ${part.bars} → ${count}`);
-          part.bars = count;
-          fixed++;
-        }
-      }
+    const count = sm.markers.length;
+    if (song.total_bars !== count) {
+      console.log(`[integrity] Fixed total_bars: ${song.name}: ${song.total_bars} → ${count}`);
+      song.total_bars = count;
+      fixed++;
     }
   }
   return fixed;
@@ -390,7 +264,7 @@ export function checkOnLoad(db, autoClean = false) {
     }
   }
 
-  // Migrate split markers to unified single-array format
+  // Migrate split markers to unified format
   const migration = migrateToUnifiedMarkers(db);
   if (migration.migrated > 0) {
     console.log(`[integrity] Migrated ${migration.migrated} song(s) to unified markers`);
@@ -399,7 +273,7 @@ export function checkOnLoad(db, autoClean = false) {
   // Sync bars count from split_markers (source of truth)
   const barsFixed = syncBarsFromMarkers(db);
   if (barsFixed > 0) {
-    console.log(`[integrity] Fixed bars count for ${barsFixed} part(s) from split_markers`);
+    console.log(`[integrity] Fixed bars count for ${barsFixed} song(s) from split_markers`);
     result.valid = false; // trigger dirty flag so changes get saved
   }
 

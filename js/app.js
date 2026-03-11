@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.7.0';
+const APP_VERSION = 'v1.7.1';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -43,6 +43,7 @@ let exportInProgress = false;
 let playbackSpeed = 1.0;       // current playback speed multiplier
 let waveformZoom = 1.0;        // waveform zoom level (linked to speed)
 const _audioRefCache = {};     // songId → ArrayBuffer (cached reference audio)
+let _partsBackup = null;       // cached parts_backup.json data
 
 /* ── Waveform Marker Drag State ──────────────────── */
 let _dragMarker = null;        // { marker: ref, originalTime: number }
@@ -2568,15 +2569,73 @@ function showBarContextMenu(clientX, clientY, barIndex, context) {
 /**
  * Show a dialog to set or edit the part name for a bar marker.
  */
-function showPartNameDialog(barIndex, marker) {
+/**
+ * Load parts_backup.json and cache it for part name suggestions.
+ */
+async function loadPartsBackup() {
+  if (_partsBackup) return _partsBackup;
+  try {
+    const resp = await fetch('db/parts_backup.json');
+    if (resp.ok) _partsBackup = await resp.json();
+  } catch (e) {
+    console.warn('parts_backup.json nicht geladen:', e);
+  }
+  return _partsBackup;
+}
+
+/**
+ * Look up the suggested part name for a bar number from backup data.
+ * Returns { name, isExactStart, light_template } or null.
+ */
+function getPartSuggestion(songId, barNum) {
+  if (!_partsBackup?.songs?.[songId]) return null;
+  const parts = Object.values(_partsBackup.songs[songId].parts)
+    .sort((a, b) => a.pos - b.pos);
+  let cumBars = 0;
+  for (const part of parts) {
+    const startBar = cumBars + 1;
+    const endBar = cumBars + (part.bars || 0);
+    if (barNum >= startBar && barNum <= endBar) {
+      return {
+        name: part.name,
+        isExactStart: barNum === startBar,
+        light_template: part.light_template || '',
+      };
+    }
+    cumBars = endBar;
+  }
+  return null;
+}
+
+async function showPartNameDialog(barIndex, marker) {
   const existing = marker.partName || '';
+  const barNum = barIndex + 1;
+
+  // Load backup for suggestion (non-blocking, fast local fetch)
+  await loadPartsBackup();
+  const suggestion = !existing ? getPartSuggestion(selectedSongId, barNum) : null;
+
+  // Pre-fill: existing > exact backup match > empty
+  const prefill = existing || (suggestion?.isExactStart ? suggestion.name : '');
+  const placeholder = suggestion && !suggestion.isExactStart
+    ? `${suggestion.name} (Takt ${barNum})`
+    : 'z.B. Intro, Verse 1, Chorus';
+
+  // Subtitle hint
+  let subtitle = `Takt ${barNum} als Partstart`;
+  if (suggestion && !existing) {
+    subtitle += suggestion.isExactStart
+      ? ` — Backup: <strong>${suggestion.name}</strong>`
+      : ` — gehört zu: ${suggestion.name}`;
+  }
+
   const overlay = document.createElement('div');
   overlay.className = 'part-dialog-overlay';
   overlay.innerHTML = `
     <div class="part-dialog">
       <div class="part-dialog-title">${existing ? 'Part bearbeiten' : 'Neuer Part'}</div>
-      <div class="part-dialog-subtitle">Takt ${barIndex + 1} als Partstart</div>
-      <input type="text" class="part-dialog-input" placeholder="z.B. Intro, Verse 1, Chorus" value="${existing}" maxlength="40" />
+      <div class="part-dialog-subtitle">${subtitle}</div>
+      <input type="text" class="part-dialog-input" placeholder="${placeholder}" value="${prefill}" maxlength="40" />
       <div class="part-dialog-buttons">
         ${existing ? '<button class="part-dialog-remove">Entfernen</button>' : ''}
         <button class="part-dialog-cancel">Abbrechen</button>

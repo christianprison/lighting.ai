@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.7.1';
+const APP_VERSION = 'v1.8.0';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -204,6 +204,7 @@ function cacheDom() {
     tabEditor:     document.getElementById('tab-editor'),
     tabTakte:      document.getElementById('tab-takte'),
     tabAudio:      document.getElementById('tab-audio'),
+    tabParts:      document.getElementById('tab-parts'),
     tabLyrics:     document.getElementById('tab-lyrics'),
     tabAccents:    document.getElementById('tab-accents'),
     tabSetlist:    document.getElementById('tab-setlist'),
@@ -1207,8 +1208,12 @@ function switchTab(tab) {
   // Stop lyrics part playback when leaving lyrics tab
   if (activeTab === 'lyrics' && tab !== 'lyrics') {
   }
+  // Stop parts tab playback when leaving
+  if (activeTab === 'parts' && tab !== 'parts') {
+    partsTabStopPlay();
+  }
   // Pre-warm AudioContext for tabs with playback
-  if (tab === 'lyrics' || tab === 'audio' || tab === 'takte' || tab === 'accents') {
+  if (tab === 'lyrics' || tab === 'audio' || tab === 'takte' || tab === 'accents' || tab === 'parts') {
     audio.warmup();
   }
   // Ensure bar data is consistent when entering data-dependent tabs
@@ -1219,6 +1224,7 @@ function switchTab(tab) {
   els.tabEditor?.classList.toggle('active', tab === 'editor');
   els.tabTakte?.classList.toggle('active', tab === 'takte');
   els.tabAudio?.classList.toggle('active', tab === 'audio');
+  els.tabParts?.classList.toggle('active', tab === 'parts');
   els.tabLyrics?.classList.toggle('active', tab === 'lyrics');
   els.tabAccents?.classList.toggle('active', tab === 'accents');
   els.tabSetlist?.classList.toggle('active', tab === 'setlist');
@@ -1234,6 +1240,7 @@ function renderContent() {
   if (activeTab === 'editor') renderEditorTab();
   else if (activeTab === 'takte') renderTakteTab();
   else if (activeTab === 'audio') renderAudioTab();
+  else if (activeTab === 'parts') renderPartsTab();
   else if (activeTab === 'lyrics') renderLyricsTab();
   else if (activeTab === 'accents') renderAccentsTab();
   else if (activeTab === 'setlist') renderSetlistTab();
@@ -1639,6 +1646,260 @@ function handleAccentToggle(pos16) {
 }
 
 /* ══════════════════════════════════════════════════════
+   PARTS TAB
+   ══════════════════════════════════════════════════════ */
+
+let _partsTabPlaying = null;    // bar_num of part currently playing
+let _partsTabSrc = null;        // AudioBufferSourceNode for part playback
+let _partsTabQlcSteps = null;   // matched chaser steps for current song
+let _partsTabQlcLoading = false;
+
+/**
+ * Derive parts list from a song's split_markers.part_starts.
+ * Returns [{name, light_template, barNum, barCount, startTime, endTime, duration}]
+ */
+function getPartsForSong(songId) {
+  const song = db?.songs?.[songId];
+  if (!song?.split_markers?.part_starts?.length) return [];
+  const sm = song.split_markers;
+  const allMarkers = (sm.markers || []).slice().sort((a, b) => a.time - b.time);
+  const starts = [...sm.part_starts].sort((a, b) => a.bar_num - b.bar_num);
+  const totalMarkers = allMarkers.length;
+  const audioDur = audioMeta ? audioMeta.duration : 0;
+
+  const parts = [];
+  for (let i = 0; i < starts.length; i++) {
+    const ps = starts[i];
+    const nextStart = starts[i + 1];
+    const startIdx = ps.bar_num - 1;
+    const endIdx = nextStart ? nextStart.bar_num - 1 : totalMarkers;
+    const barCount = endIdx - startIdx;
+    const startTime = startIdx < allMarkers.length ? allMarkers[startIdx].time : 0;
+    const endTime = endIdx < allMarkers.length ? allMarkers[endIdx].time : audioDur;
+
+    parts.push({
+      name: ps.name,
+      light_template: ps.light_template || '',
+      barNum: ps.bar_num,
+      barCount,
+      startTime,
+      endTime,
+      duration: endTime - startTime,
+    });
+  }
+  return parts;
+}
+
+function renderPartsTab() {
+  if (!selectedSongId || !db.songs[selectedSongId]) {
+    els.content.innerHTML = `<div class="empty-state"><div class="icon">&#127926;</div><p>Song auswählen</p></div>`;
+    return;
+  }
+  const song = db.songs[selectedSongId];
+  const parts = getPartsForSong(selectedSongId);
+  const hasBuf = !!audio.getBuffer();
+
+  // Auto-load reference audio
+  if (!hasBuf && song.audio_ref && !audioMeta) {
+    loadReferenceAudio().then(() => { if (activeTab === 'parts') renderPartsTab(); });
+  }
+
+  let html = `<div class="parts-tab">`;
+  html += `<div class="parts-tab-header">`;
+  html += `<h2>${song.name} <span class="parts-tab-count">${parts.length} Parts</span></h2>`;
+  html += `<button class="parts-qlc-btn" id="parts-qlc-btn">QLC+ Chaser laden</button>`;
+  html += `</div>`;
+
+  if (parts.length === 0) {
+    html += `<div class="parts-tab-empty">Keine Parts definiert.<br>Im <strong>Audio Split</strong> Tab Taktmarker antippen → Kontextmenü → <strong>Part</strong>.</div>`;
+    html += `</div>`;
+    els.content.innerHTML = html;
+    document.getElementById('parts-qlc-btn')?.addEventListener('click', () => partsTabLoadQlc());
+    return;
+  }
+
+  html += `<table class="parts-table"><thead><tr>`;
+  html += `<th class="pt-num">#</th><th class="pt-name">Part</th><th class="pt-bars">Takte</th>`;
+  html += `<th class="pt-dur">Dauer</th><th class="pt-play"></th>`;
+  html += `<th class="pt-tpl">Lichtprogramm</th>`;
+  html += `<th class="pt-qlc">QLC+</th>`;
+  html += `</tr></thead><tbody>`;
+
+  for (let i = 0; i < parts.length; i++) {
+    const p = parts[i];
+    const isPlaying = _partsTabPlaying === p.barNum;
+    const durStr = p.duration > 0 ? fmtDur(Math.round(p.duration)) : '—';
+
+    // QLC match: find a chaser step whose note matches this part's name
+    let qlcHtml = '<span class="pt-qlc-none">—</span>';
+    if (_partsTabQlcSteps) {
+      // Use matchStepToPart in reverse: find step whose note matches part name
+      const step = _partsTabQlcSteps.find(s => {
+        if (!s.note || s.isTitle) return false;
+        const matched = matchStepToPart(s.note, [{ name: p.name }]);
+        return !!matched;
+      });
+      if (step) {
+        const same = p.light_template === step.functionName;
+        qlcHtml = `<span class="pt-qlc-match">${step.functionName}</span>`;
+        if (!same) {
+          qlcHtml += ` <button class="pt-qlc-apply" data-idx="${i}" data-tpl="${step.functionName.replace(/"/g, '&quot;')}">&#10132;</button>`;
+        } else {
+          qlcHtml += ` <span class="pt-qlc-ok">&#10003;</span>`;
+        }
+      }
+    }
+
+    html += `<tr class="${isPlaying ? 'pt-row-playing' : ''}">`;
+    html += `<td class="pt-num">${i + 1}</td>`;
+    html += `<td class="pt-name"><span class="pt-name-badge">${p.name}</span></td>`;
+    html += `<td class="pt-bars">${p.barCount}</td>`;
+    html += `<td class="pt-dur">${durStr}</td>`;
+    html += `<td class="pt-play"><button class="pt-play-btn ${isPlaying ? 'playing' : ''}" data-idx="${i}" ${!hasBuf ? 'disabled' : ''}>${isPlaying ? '&#9724;' : '&#9654;'}</button></td>`;
+    html += `<td class="pt-tpl"><select class="pt-tpl-select" data-idx="${i}"><option value="">— kein —</option>${buildTemplateOptions(p.light_template)}</select></td>`;
+    html += `<td class="pt-qlc">${qlcHtml}</td>`;
+    html += `</tr>`;
+  }
+
+  html += `</tbody></table></div>`;
+  els.content.innerHTML = html;
+
+  // Wire events
+  document.getElementById('parts-qlc-btn')?.addEventListener('click', () => partsTabLoadQlc());
+
+  for (const btn of document.querySelectorAll('.pt-play-btn')) {
+    btn.addEventListener('click', () => {
+      const idx = parseInt(btn.dataset.idx);
+      partsTabTogglePlay(parts[idx]);
+    });
+  }
+
+  for (const sel of document.querySelectorAll('.pt-tpl-select')) {
+    sel.addEventListener('change', () => {
+      const idx = parseInt(sel.dataset.idx);
+      partsTabSetTemplate(parts[idx].barNum, sel.value);
+    });
+  }
+
+  for (const btn of document.querySelectorAll('.pt-qlc-apply')) {
+    btn.addEventListener('click', () => {
+      const idx = parseInt(btn.dataset.idx);
+      const tpl = btn.dataset.tpl;
+      partsTabSetTemplate(parts[idx].barNum, tpl);
+      renderPartsTab();
+    });
+  }
+}
+
+function partsTabTogglePlay(part) {
+  audio.warmup();
+  // Stop if already playing this part
+  if (_partsTabPlaying === part.barNum) {
+    partsTabStopPlay();
+    return;
+  }
+  partsTabStopPlay();
+
+  const refBuf = audio.getBuffer();
+  if (!refBuf) { toast('Kein Audio geladen', 'error'); return; }
+
+  const ac = audio.getContext();
+  if (ac.state === 'suspended') ac.resume();
+
+  const src = ac.createBufferSource();
+  src.buffer = refBuf;
+  src.connect(ac.destination);
+  const dur = part.endTime - part.startTime;
+  if (dur <= 0) return;
+  src.onended = () => {
+    if (_partsTabPlaying === part.barNum) {
+      _partsTabPlaying = null;
+      _partsTabSrc = null;
+      if (activeTab === 'parts') renderPartsTab();
+    }
+  };
+  src.start(0, part.startTime, dur);
+  _partsTabSrc = src;
+  _partsTabPlaying = part.barNum;
+  renderPartsTab();
+}
+
+function partsTabStopPlay() {
+  if (_partsTabSrc) {
+    try { _partsTabSrc.stop(); } catch {}
+    _partsTabSrc = null;
+  }
+  _partsTabPlaying = null;
+}
+
+function partsTabSetTemplate(barNum, templateName) {
+  if (!selectedSongId || !db.songs[selectedSongId]) return;
+  const song = db.songs[selectedSongId];
+  if (!song.split_markers?.part_starts) return;
+  const ps = song.split_markers.part_starts.find(p => p.bar_num === barNum);
+  if (!ps) return;
+  if (templateName) {
+    ps.light_template = templateName;
+  } else {
+    delete ps.light_template;
+  }
+  // Also update in-memory markers if loaded for this song
+  if (markers.length > 0) {
+    const idx = barNum - 1;
+    if (idx >= 0 && idx < markers.length && markers[idx].partName) {
+      if (templateName) {
+        markers[idx].lightTemplate = templateName;
+      } else {
+        delete markers[idx].lightTemplate;
+      }
+    }
+  }
+  markDirty();
+}
+
+async function partsTabLoadQlc() {
+  if (_partsTabQlcLoading) return;
+  _partsTabQlcLoading = true;
+  const btn = document.getElementById('parts-qlc-btn');
+  if (btn) btn.textContent = 'Lade...';
+
+  try {
+    // Try local fetch first (faster on GitHub Pages), then GitHub API
+    let chasers = _qxwCache?.chasers;
+    if (!chasers) {
+      try {
+        const resp = await fetch('db/ThePact.qxw');
+        if (resp.ok) {
+          const xmlStr = await resp.text();
+          chasers = parseQxwChasers(xmlStr);
+          _qxwCache = { xml: xmlStr, chasers };
+        }
+      } catch {}
+    }
+    if (!chasers) {
+      chasers = await loadQxwFile();
+    }
+    if (!chasers) { toast('QXW konnte nicht geladen werden', 'error'); return; }
+
+    const song = db.songs[selectedSongId];
+    const match = findChaserForSong(chasers, song.name);
+    if (!match) {
+      toast(`Kein Chaser für „${song.name}" gefunden`, 'error');
+      _partsTabQlcSteps = null;
+    } else {
+      // Filter out title/end steps
+      _partsTabQlcSteps = match.steps.filter(s => !s.isTitle);
+      toast(`Chaser „${match.chaserName}" geladen (${_partsTabQlcSteps.length} Steps)`, 'success');
+    }
+  } catch (e) {
+    toast(`QLC-Fehler: ${e.message}`, 'error');
+  } finally {
+    _partsTabQlcLoading = false;
+    if (activeTab === 'parts') renderPartsTab();
+  }
+}
+
+/* ══════════════════════════════════════════════════════
    AUDIO SPLIT TAB — Meilenstein 3
    ══════════════════════════════════════════════════════ */
 
@@ -1932,7 +2193,9 @@ function saveMarkersToSong() {
   const partStarts = [];
   for (let i = 0; i < markers.length; i++) {
     if (markers[i].partName) {
-      partStarts.push({ bar_num: i + 1, name: markers[i].partName });
+      const ps = { bar_num: i + 1, name: markers[i].partName };
+      if (markers[i].lightTemplate) ps.light_template = markers[i].lightTemplate;
+      partStarts.push(ps);
     }
   }
 
@@ -1973,6 +2236,7 @@ function restoreMarkersFromSong() {
       const idx = ps.bar_num - 1;
       if (idx >= 0 && idx < markers.length && ps.name) {
         markers[idx].partName = ps.name;
+        if (ps.light_template) markers[idx].lightTemplate = ps.light_template;
       }
     }
   }
@@ -6380,6 +6644,7 @@ function wireEvents() {
   els.tabEditor?.addEventListener('click', () => switchTab('editor'));
   els.tabTakte?.addEventListener('click',  () => switchTab('takte'));
   els.tabAudio?.addEventListener('click',  () => switchTab('audio'));
+  els.tabParts?.addEventListener('click',  () => switchTab('parts'));
   els.tabLyrics?.addEventListener('click', () => switchTab('lyrics'));
   els.tabAccents?.addEventListener('click', () => switchTab('accents'));
   els.tabSetlist?.addEventListener('click', () => switchTab('setlist'));

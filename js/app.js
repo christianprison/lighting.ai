@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.6.9';
+const APP_VERSION = 'v1.6.11';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -53,6 +53,10 @@ let clickEnabled = false;        // click track on/off
 let _suppressAutoScroll = false; // prevent auto-scroll after drag finalize
 let _isTouchDrag = false;       // true when drag was initiated by touch (not mouse)
 let _irregTipShown = false;     // true after irregular-bars tip was shown once
+
+/* ── Bar Playback State ────────────────────────────── */
+let _barPlayId = null;        // currently playing bar ID
+let _partPlayActive = false;  // whether bar playback is active
 
 const SETTINGS_KEY = 'lightingai_settings';
 
@@ -1575,8 +1579,6 @@ async function handleBarPlay(songId, barNum) {
           if (_barPlayId === barId) { _barPlayId = null; _partPlayActive = false; renderTakteTab(); }
         };
         src.start(0);
-        _partPlaySources = [src];
-        _partPlayBuffers = [decoded];
         renderTakteTab();
         return;
       }
@@ -1595,8 +1597,6 @@ async function handleBarPlay(songId, barNum) {
           if (_barPlayId === barId) { _barPlayId = null; _partPlayActive = false; renderTakteTab(); }
         };
         src.start(0, range.start, dur);
-        _partPlaySources = [src];
-        _partPlayBuffers = [refBuffer];
         renderTakteTab();
         return;
       }
@@ -1641,10 +1641,6 @@ function handleAccentToggle(pos16) {
    AUDIO SPLIT TAB — Meilenstein 3
    ══════════════════════════════════════════════════════ */
 
-let _barPlayId = null;        // currently playing bar ID
-let _partPlayActive = false;  // whether bar playback is active
-let _partPlaySources = [];    // active AudioBufferSourceNode(s)
-let _partPlayBuffers = [];    // decoded AudioBuffer(s) for current playback
 let _refLoadingFor = null; // songId currently loading reference for
 let _refLoadingPromise = null; // pending loadReferenceAudio promise
 
@@ -4377,8 +4373,6 @@ async function handleAccentBarPlay(songId, barNum) {
       if (_barPlayId === barId) { _barPlayId = null; _partPlayActive = false; renderAccentsTab(); }
     };
     src.start(0);
-    _partPlaySources = [src];
-    _partPlayBuffers = [decoded];
   } catch (err) {
     console.error('Bar playback error (accents):', err);
     toast(`Wiedergabe-Fehler: ${err.message}`, 'error');

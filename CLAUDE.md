@@ -208,6 +208,21 @@ lighting.ai/
 }
 ```
 
+### Parts-Konzept (ab v1.7.0)
+
+Ein **Part** entsteht durch die Qualifizierung eines Taktes als **Partstart**. Das Partende ist definiert durch entweder den nächsten Takt, der ebenfalls als Partstart qualifiziert ist, oder — falls es keinen nachfolgenden Takt gibt, der als Partstart qualifiziert ist — durch das Ende des Songs.
+
+**Redundanzvermeidung:** Keine Information, die sich auch aus dieser Vorgabe ableiten ließe, darf redundant am Part gespeichert werden, um Inkonsistenzen zu vermeiden. Insbesondere werden folgende Werte **nicht** am Part gespeichert, sondern zur Laufzeit berechnet:
+
+- Anzahl der Takte (ergibt sich aus den Takten zwischen diesem Partstart und dem nächsten)
+- Dauer (ergibt sich aus den zugehörigen Takten)
+- Position/Reihenfolge (ergibt sich aus der Position des Starttaktes)
+
+**Exklusive Parteigenschaften**, die mit dem Part gespeichert oder assoziiert werden dürfen:
+
+- Name (z.B. „Intro", „Verse 1", „Chorus")
+- Light Template (zugeordnetes Lichtprogramm)
+
 ### 16th-Note Position System
 
 Accents werden auf 16tel-Noten-Ebene pro Takt positioniert (1-16):

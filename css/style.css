@@ -760,6 +760,94 @@ label {
 .bar-ctx-menu button:hover {
   background: var(--bg4);
 }
+.bar-ctx-menu button.ctx-part {
+  color: var(--amber);
+}
+
+/* ── Part Name Dialog ──────────────────────────────── */
+.part-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 4000;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.part-dialog {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 20px 24px;
+  min-width: 280px;
+  max-width: 360px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+}
+.part-dialog-title {
+  font-family: 'Sora', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--amber);
+  margin-bottom: 4px;
+}
+.part-dialog-subtitle {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.78rem;
+  color: var(--t3);
+  margin-bottom: 14px;
+}
+.part-dialog-input {
+  width: 100%;
+  padding: 8px 10px;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  color: var(--t1);
+  font-family: 'Sora', sans-serif;
+  font-size: 0.9rem;
+  outline: none;
+  box-sizing: border-box;
+}
+.part-dialog-input:focus {
+  border-color: var(--amber);
+}
+.part-dialog-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+.part-dialog-buttons button {
+  padding: 7px 16px;
+  border: none;
+  border-radius: 6px;
+  font-family: 'Sora', sans-serif;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.part-dialog-ok {
+  background: var(--amber);
+  color: #08090d;
+  font-weight: 600;
+}
+.part-dialog-ok:hover {
+  filter: brightness(1.1);
+}
+.part-dialog-cancel {
+  background: var(--bg4);
+  color: var(--t2);
+}
+.part-dialog-cancel:hover {
+  background: var(--border2);
+}
+.part-dialog-remove {
+  background: none;
+  color: var(--red);
+  margin-right: auto;
+}
+.part-dialog-remove:hover {
+  background: var(--bg4);
+}
 
 /* ── Toast / Notifications ─────────────────────────── */
 .toast-container {

@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.6.11';
+const APP_VERSION = 'v1.7.0';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -1927,8 +1927,17 @@ function saveMarkersToSong() {
   if (!selectedSongId || !db.songs[selectedSongId]) return;
   const song = db.songs[selectedSongId];
 
+  // Build part_starts from markers that have a partName
+  const partStarts = [];
+  for (let i = 0; i < markers.length; i++) {
+    if (markers[i].partName) {
+      partStarts.push({ bar_num: i + 1, name: markers[i].partName });
+    }
+  }
+
   song.split_markers = {
     markers: markers.map(m => ({ time: m.time })),
+    part_starts: partStarts,
   };
 
   // Update total_bars from marker count
@@ -1956,6 +1965,16 @@ function restoreMarkersFromSong() {
   markers = sm.markers
     .map(m => ({ time: m.time }))
     .sort((a, b) => a.time - b.time);
+
+  // Restore part_starts onto markers
+  if (Array.isArray(sm.part_starts)) {
+    for (const ps of sm.part_starts) {
+      const idx = ps.bar_num - 1;
+      if (idx >= 0 && idx < markers.length && ps.name) {
+        markers[idx].partName = ps.name;
+      }
+    }
+  }
 }
 
 /* ── Waveform Drawing ──────────────────────────────── */
@@ -2036,23 +2055,31 @@ function drawWaveform() {
     toast('Wenn die Länge eines Taktes um mehr als 6,25\u202F% vom Median abweicht, wird er rot markiert.', 'info', 6000);
   }
 
-  // Draw all markers (cyan = normal, red = irregular)
+  // Draw all markers (cyan = normal, red = irregular, orange line = part start)
   for (const m of sortedMarkers) {
     const vx = (m.time / duration) * totalW;
     if (!inView(vx)) continue;
     const x = vToC(vx);
     const isDragTarget = _isDragging && _dragMarker && _dragMarker.marker === m;
     const isIrregular = irregularSet.has(m);
+    const isPartStart = !!m.partName;
 
-    const cyanLine = isDragTarget ? 'rgba(56, 189, 248, 0.9)' : 'rgba(56, 189, 248, 0.4)';
-    const redLine = isDragTarget ? 'rgba(255, 59, 92, 0.9)' : 'rgba(255, 59, 92, 0.5)';
-    ctx.strokeStyle = isIrregular ? redLine : cyanLine;
+    // Vertical line: orange for part starts, else cyan/red
+    if (isPartStart) {
+      const orangeLine = isDragTarget ? 'rgba(240, 160, 48, 0.95)' : 'rgba(240, 160, 48, 0.6)';
+      ctx.strokeStyle = orangeLine;
+    } else {
+      const cyanLine = isDragTarget ? 'rgba(56, 189, 248, 0.9)' : 'rgba(56, 189, 248, 0.4)';
+      const redLine = isDragTarget ? 'rgba(255, 59, 92, 0.9)' : 'rgba(255, 59, 92, 0.5)';
+      ctx.strokeStyle = isIrregular ? redLine : cyanLine;
+    }
     ctx.lineWidth = isDragTarget ? 2 : 1;
     ctx.beginPath();
     ctx.moveTo(x, 0);
     ctx.lineTo(x, h);
     ctx.stroke();
 
+    // Bottom flag: bar number (cyan/red — unchanged, even for part starts)
     const label = String(markerAbsBar.get(m) || '');
     ctx.font = '9px "DM Mono", monospace';
     const tw = ctx.measureText(label).width;
@@ -2066,6 +2093,21 @@ function drawWaveform() {
     ctx.fillRect(flagX, flagY, flagW, flagH);
     ctx.fillStyle = isIrregular ? '#fff' : '#08090d';
     ctx.fillText(label, flagX + 3, flagY + 10);
+
+    // Top flag: part name (orange) for part starts
+    if (isPartStart) {
+      ctx.font = '9px "Sora", sans-serif';
+      const ptw = ctx.measureText(m.partName).width;
+      const pFlagW = ptw + 8;
+      const pFlagH = 16;
+      const pFlagX = x;
+      const pFlagY = 0;
+      const orangeFlag = isDragTarget ? 'rgba(240, 160, 48, 1.0)' : 'rgba(240, 160, 48, 0.85)';
+      ctx.fillStyle = orangeFlag;
+      ctx.fillRect(pFlagX, pFlagY, pFlagW, pFlagH);
+      ctx.fillStyle = '#08090d';
+      ctx.fillText(m.partName, pFlagX + 4, pFlagY + 11);
+    }
 
     if (isDragTarget) {
       ctx.font = '10px "DM Mono", monospace';
@@ -2236,9 +2278,14 @@ function hitTestMarker(xPx, yPx) {
     absNum++;
     const mx = (m.time / duration) * totalW;
 
-    // Bar markers — draggable via bottom flag
+    // Hit zones: bottom bar-number flag + top part-name flag (if part start)
     const FLAG_H_BAR = 18;
-    if (yPx !== undefined && yPx < canvasH - FLAG_H_BAR) continue;
+    const inBottomFlag = yPx === undefined || yPx >= canvasH - FLAG_H_BAR;
+    const PART_FLAG_H = 20;
+    const inTopFlag = m.partName && yPx !== undefined && yPx <= PART_FLAG_H;
+
+    if (!inBottomFlag && !inTopFlag) continue;
+
     const label = String(absNum);
     const flagW = label.length * 7 + 6;
     const inFlag = xPx >= mx && xPx <= mx + flagW;
@@ -2474,9 +2521,22 @@ let _barCtxMenu = null;
 function showBarContextMenu(clientX, clientY, barIndex, context) {
   hideBarContextMenu();
   const barNum = barIndex + 1;
+  const marker = markers[barIndex];
+  const isPartStart = marker && marker.partName;
   const menu = document.createElement('div');
   menu.className = 'bar-ctx-menu';
-  menu.innerHTML = `<button data-action="delete">&#128465; Takt ${barNum} l&ouml;schen</button>`;
+
+  // Build menu items: Part entry (only in split context) + Delete
+  let html = '';
+  if (context === 'split') {
+    const partLabel = isPartStart
+      ? `&#9873; Part: ${marker.partName}`
+      : '&#9873; Part';
+    html += `<button data-action="part" class="ctx-part">${partLabel}</button>`;
+  }
+  html += `<button data-action="delete">&#128465; Takt ${barNum} l&ouml;schen</button>`;
+  menu.innerHTML = html;
+
   menu.style.left = clientX + 'px';
   menu.style.top = clientY + 'px';
   document.body.appendChild(menu);
@@ -2487,6 +2547,13 @@ function showBarContextMenu(clientX, clientY, barIndex, context) {
   if (r.right > window.innerWidth) menu.style.left = (window.innerWidth - r.width - 8) + 'px';
   if (r.bottom > window.innerHeight) menu.style.top = (window.innerHeight - r.height - 8) + 'px';
 
+  if (context === 'split') {
+    menu.querySelector('[data-action="part"]').onclick = () => {
+      hideBarContextMenu();
+      showPartNameDialog(barIndex, marker);
+    };
+  }
+
   menu.querySelector('[data-action="delete"]').onclick = () => {
     hideBarContextMenu();
     deleteBarMarker(barIndex, context);
@@ -2496,6 +2563,68 @@ function showBarContextMenu(clientX, clientY, barIndex, context) {
   setTimeout(() => {
     document.addEventListener('pointerdown', _barCtxOutside, { once: true });
   }, 50);
+}
+
+/**
+ * Show a dialog to set or edit the part name for a bar marker.
+ */
+function showPartNameDialog(barIndex, marker) {
+  const existing = marker.partName || '';
+  const overlay = document.createElement('div');
+  overlay.className = 'part-dialog-overlay';
+  overlay.innerHTML = `
+    <div class="part-dialog">
+      <div class="part-dialog-title">${existing ? 'Part bearbeiten' : 'Neuer Part'}</div>
+      <div class="part-dialog-subtitle">Takt ${barIndex + 1} als Partstart</div>
+      <input type="text" class="part-dialog-input" placeholder="z.B. Intro, Verse 1, Chorus" value="${existing}" maxlength="40" />
+      <div class="part-dialog-buttons">
+        ${existing ? '<button class="part-dialog-remove">Entfernen</button>' : ''}
+        <button class="part-dialog-cancel">Abbrechen</button>
+        <button class="part-dialog-ok">OK</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  const input = overlay.querySelector('.part-dialog-input');
+  input.focus();
+  input.select();
+
+  const close = () => overlay.remove();
+
+  const save = () => {
+    const name = input.value.trim();
+    if (name) {
+      marker.partName = name;
+      saveMarkersToSong();
+      markDirty();
+      drawWaveform();
+      toast(`Part „${name}" gesetzt`, 'success');
+    }
+    close();
+  };
+
+  overlay.querySelector('.part-dialog-ok').onclick = save;
+  overlay.querySelector('.part-dialog-cancel').onclick = close;
+
+  if (existing) {
+    overlay.querySelector('.part-dialog-remove').onclick = () => {
+      delete marker.partName;
+      saveMarkersToSong();
+      markDirty();
+      drawWaveform();
+      toast('Part entfernt', 'success');
+      close();
+    };
+  }
+
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') save();
+    if (e.key === 'Escape') close();
+  });
+
+  overlay.addEventListener('pointerdown', (e) => {
+    if (e.target === overlay) close();
+  });
 }
 
 function _barCtxOutside(e) {

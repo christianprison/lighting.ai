@@ -42,7 +42,6 @@
       <button class="tab-btn" id="tab-setlist">SETLIST</button>
       <button class="tab-btn active" id="tab-editor">SONGS</button>
       <button class="tab-btn" id="tab-audio">AUDIO SPLIT</button>
-      <button class="tab-btn" id="tab-parts">PARTS</button>
       <button class="tab-btn" id="tab-lyrics">LYRICS</button>
       <button class="tab-btn" id="tab-takte">TAKTE</button>
       <button class="tab-btn" id="tab-accents">ACCENTS</button>
@@ -143,7 +142,6 @@
       <button class="help-tab" data-help="general">Allgemein</button>
       <button class="help-tab" data-help="setlist">Setlist</button>
       <button class="help-tab" data-help="editor">Songs</button>
-      <button class="help-tab" data-help="parts">Parts</button>
       <button class="help-tab" data-help="takte">Takte</button>
       <button class="help-tab" data-help="lyrics">Lyrics</button>
       <button class="help-tab" data-help="accents">Accents</button>
@@ -154,7 +152,7 @@
     <!-- Allgemein -->
     <div class="help-page" id="help-general">
       <h3>Was ist lighting.ai?</h3>
-      <p>Lichtsteuerungs-App fuer die Coverband <strong>THE PACT</strong>. Du verwaltest hier die komplette Songdatenbank mit Songstruktur, Parts, Takten, Lyrics und Licht-Cues. Die App laeuft komplett im Browser &mdash; alle Daten werden direkt auf GitHub gespeichert.</p>
+      <p>Lichtsteuerungs-App fuer die Coverband <strong>THE PACT</strong>. Du verwaltest hier die komplette Songdatenbank mit Takten, Lyrics und Licht-Cues. Die App laeuft komplett im Browser &mdash; alle Daten werden direkt auf GitHub gespeichert.</p>
 
       <h3>Erste Schritte</h3>
       <div class="help-steps">
@@ -168,7 +166,7 @@
         </div>
         <div class="help-step">
           <span class="help-step-nr">3</span>
-          <div><strong>Tab waehlen</strong><br>Die Tabs oben fuehren zu den verschiedenen Bereichen: Songs, Parts, Takte, Lyrics, Accents, Audio Split, Setlist.</div>
+          <div><strong>Tab waehlen</strong><br>Die Tabs oben fuehren zu den verschiedenen Bereichen: Songs, Takte, Lyrics, Accents, Audio Split, Setlist.</div>
         </div>
       </div>
 
@@ -179,8 +177,8 @@
       <h3>Sidebar</h3>
       <div class="help-table">
         <div class="help-row"><span class="help-key">Suche</span><span>Tippe in das Suchfeld, um Songs nach Name oder Artist zu filtern.</span></div>
-        <div class="help-row"><span class="help-key">Alle Songs</span><span>Klick auf &laquo;Alle Songs&raquo; zeigt im Parts-, Takte- und Accents-Tab alle Songs gleichzeitig.</span></div>
-        <div class="help-row"><span class="help-key">Fortschrittsring</span><span>Der farbige Ring links neben jedem Song zeigt den Bearbeitungsfortschritt (Parts, Lyrics, Accents, Audio).</span></div>
+        <div class="help-row"><span class="help-key">Alle Songs</span><span>Klick auf &laquo;Alle Songs&raquo; zeigt im Takte- und Accents-Tab alle Songs gleichzeitig.</span></div>
+        <div class="help-row"><span class="help-key">Fortschrittsring</span><span>Der farbige Ring links neben jedem Song zeigt den Bearbeitungsfortschritt (Lyrics, Accents, Audio).</span></div>
         <div class="help-row"><span class="help-key">Ein-/Ausklappen</span><span>Der Pfeil-Button oben rechts in der Sidebar klappt sie ein/aus. Auf schmalen Screens schliesst sie automatisch nach Song-Auswahl.</span></div>
       </div>
     </div>
@@ -213,38 +211,6 @@
         <div class="help-row"><span class="help-key">Notes</span><span>Freitext-Notizen</span></div>
       </div>
 
-      <h3>Parts-Tabelle</h3>
-      <p>Unterhalb der Stammdaten die Parts-Uebersicht. Fuer die Detail-Bearbeitung (Name, Takte, Template) wechsle in den <strong>Parts-Tab</strong>.</p>
-      <div class="help-table">
-        <div class="help-row"><span class="help-key">+ Add Part</span><span>Neuen Part am Ende anfuegen</span></div>
-        <div class="help-row"><span class="help-key">DUP</span><span>Ausgewaehlten Part duplizieren</span></div>
-        <div class="help-row"><span class="help-key">DEL</span><span>Ausgewaehlten Part loeschen</span></div>
-        <div class="help-row"><span class="help-key">&#9650; &#9660;</span><span>Part nach oben/unten verschieben</span></div>
-        <div class="help-row"><span class="help-key">Drag &amp; Drop</span><span>Reihenfolge per Grip-Handle (links) aendern</span></div>
-      </div>
-    </div>
-
-    <!-- Parts -->
-    <div class="help-page" id="help-parts">
-      <h3>Parts bearbeiten</h3>
-      <p>Alle Parts des aktuell ausgewaehlten Songs. Waehle <em>Alle Songs</em> in der Sidebar, um Parts aller Songs zu sehen.</p>
-
-      <h3>Felder</h3>
-      <div class="help-table">
-        <div class="help-row"><span class="help-key">Name</span><span>Part-Name (z.B. Intro, Verse 1, Chorus). Platzhalter-Namen (&laquo;Part 1&raquo;) werden bei Fokus automatisch geleert.</span></div>
-        <div class="help-row"><span class="help-key">Bars</span><span>Anzahl Takte. Aendern erzeugt/entfernt automatisch Takt-Eintraege in der DB.</span></div>
-        <div class="help-row"><span class="help-key">Light Template</span><span>Lichtprogramm-Vorlage (Dropdown mit QLC+ Szenen)</span></div>
-        <div class="help-row"><span class="help-key">Notes</span><span>Freitext-Notizen zum Part</span></div>
-      </div>
-
-      <h3>Mini-Waveform</h3>
-      <p>Ist Referenz-Audio geladen und der Song hat Part-/Bar-Marker (aus dem Audio Split), zeigt die Tabelle eine <strong>Waveform-Spalte</strong> (<span class="text-green">gruen</span> pro Part). Klick auf die Waveform oeffnet den Part-Waveform-Editor zum Feintuning der Grenzen.</p>
-
-      <h3>Part-Playback</h3>
-      <p>Der <span class="text-green">&#9654;</span> Play-Button spielt alle Takte des Parts hintereinander ab &mdash; entweder aus gesplitteten Audio-Segmenten oder direkt aus dem Referenz-Audio.</p>
-
-      <h3>Bar-Bloecke</h3>
-      <p>Klicke auf einen Part, um die Takt-Bloecke darunter aufzuklappen. Klick auf einen Takt oeffnet den Bar-Editor mit Lyrics-Feld und 16tel-Accent-Raster.</p>
     </div>
 
     <!-- Takte -->
@@ -255,8 +221,7 @@
       <h3>Spalten</h3>
       <div class="help-table">
         <div class="help-row"><span class="help-key">&#9654;</span><span>Takt abspielen. Nutzt gesplittetes Audio-Segment, oder (wenn nicht vorhanden) den entsprechenden Abschnitt aus dem Referenz-Audio.</span></div>
-        <div class="help-row"><span class="help-key">Part</span><span>Zugehoeriger Part-Name</span></div>
-        <div class="help-row"><span class="help-key">Takt</span><span>Taktnummer innerhalb des Parts</span></div>
+        <div class="help-row"><span class="help-key">Takt</span><span>Taktnummer im Song</span></div>
         <div class="help-row"><span class="help-key">Waveform</span><span>Mini-Huellkurve des Takts (<span class="text-cyan">cyan</span>). Erscheint wenn Referenz-Audio geladen ist und Bar-Marker im Audio Split gesetzt wurden.</span></div>
         <div class="help-row"><span class="help-key">Zeit</span><span>Zeitposition des Takts im Song</span></div>
         <div class="help-row"><span class="help-key">Lyrics</span><span>Direkt editierbare Textzeile. Wird aus dem Lyrics-Tab befuellt.</span></div>
@@ -274,7 +239,7 @@
     <!-- Accents -->
     <div class="help-page" id="help-accents">
       <h3>Accents setzen</h3>
-      <p>Der Accents-Tab zeigt alle Parts des aktuell ausgewaehlten Songs. Klicke auf einen Part, um die Takte zu sehen. Waehle einen Takt, um das 16tel-Raster zu oeffnen.</p>
+      <p>Der Accents-Tab zeigt alle Takte des aktuell ausgewaehlten Songs. Waehle einen Takt, um das 16tel-Raster zu oeffnen.</p>
 
       <h3>Accent-Typen</h3>
       <div class="help-table">
@@ -300,7 +265,7 @@
       <div class="help-steps">
         <div class="help-step">
           <span class="help-step-nr">1</span>
-          <div><strong>Song auswaehlen</strong> in der Sidebar (muss Parts haben)</div>
+          <div><strong>Song auswaehlen</strong> in der Sidebar</div>
         </div>
         <div class="help-step">
           <span class="help-step-nr">2</span>
@@ -316,18 +281,14 @@
         </div>
         <div class="help-step">
           <span class="help-step-nr">5</span>
-          <div><strong>Parts tappen</strong> &mdash; Bei jedem Part-Beginn <span class="text-amber">PART TAP</span> oder <kbd>P</kbd>. Setzt automatisch auch den ersten Bar-Marker.</div>
-        </div>
-        <div class="help-step">
-          <span class="help-step-nr">6</span>
           <div><strong>Bars tappen</strong> &mdash; Bei jedem Takt <span class="text-cyan">BAR TAP</span> oder <kbd>B</kbd>.</div>
         </div>
         <div class="help-step">
-          <span class="help-step-nr">7</span>
+          <span class="help-step-nr">6</span>
           <div><strong>Marker korrigieren</strong> &mdash; Faehnchengriffe ziehen (Drag &amp; Drop, Touch). Zoom erhoehen fuer Praezision.</div>
         </div>
         <div class="help-step">
-          <span class="help-step-nr">8</span>
+          <span class="help-step-nr">7</span>
           <div><strong>Exportieren</strong> &mdash; Audio-Segmente werden pro Bar als MP3 auf GitHub hochgeladen.</div>
         </div>
       </div>
@@ -342,16 +303,13 @@
 
       <h3>Tap-Buttons</h3>
       <div class="help-table">
-        <div class="help-row"><span class="help-key text-amber">PART TAP</span><span>Markiert Part-Grenze <strong>und setzt automatisch den ersten Bar-Marker</strong>. Nur aktiv bei Playback.</span></div>
-        <div class="help-row"><span class="help-key text-cyan">BAR TAP</span><span>Markiert Taktgrenze im aktuellen Part. Nur aktiv bei Playback.</span></div>
-        <div class="help-row"><span class="help-key text-red">UNDO</span><span>Entfernt den letzten Tap. War es ein Part-Tap, wird auch der automatisch gesetzte erste Bar-Marker entfernt.</span></div>
+        <div class="help-row"><span class="help-key text-cyan">BAR TAP</span><span>Markiert Taktgrenze. Nur aktiv bei Playback.</span></div>
+        <div class="help-row"><span class="help-key text-red">UNDO</span><span>Entfernt den letzten Tap.</span></div>
       </div>
 
       <h3>Marker bearbeiten</h3>
       <div class="help-table">
-        <div class="help-row"><span class="help-key">Faehnchengriff</span><span>Jeder Marker hat ein Faehnchengriff: <span class="text-amber">Part-Namen oben</span>, <span class="text-cyan">Taktnummern unten</span>. Per Drag verschieben (Maus + Touch).</span></div>
-        <div class="help-row"><span class="help-key">Mitwandern</span><span>Beim Verschieben eines Part-Markers wandert der erste Bar-Marker automatisch mit.</span></div>
-        <div class="help-row"><span class="help-key text-red">&times; Button</span><span>Loescht Part-Marker samt aller Bar-Marker des Parts.</span></div>
+        <div class="help-row"><span class="help-key">Faehnchengriff</span><span>Jeder Marker hat ein Faehnchengriff mit <span class="text-cyan">Taktnummern</span>. Per Drag verschieben (Maus + Touch).</span></div>
       </div>
 
       <h3>BPM-Schaetzung</h3>
@@ -361,13 +319,13 @@
     <!-- Lyrics -->
     <div class="help-page" id="help-lyrics">
       <h3>Wozu der Lyrics-Tab?</h3>
-      <p>Hier verknuepfst du den Songtext mit der Songstruktur: Jeder Takt bekommt seinen Textabschnitt zugewiesen. Das passiert <em>grafisch</em> &mdash; du positionierst Part- und Takt-Marker im Fliesstext und die App schneidet den Text automatisch an den Markern.</p>
+      <p>Hier verknuepfst du den Songtext mit der Songstruktur: Jeder Takt bekommt seinen Textabschnitt zugewiesen. Das passiert <em>grafisch</em> &mdash; du positionierst Takt-Marker im Fliesstext und die App schneidet den Text automatisch an den Markern.</p>
 
       <h3>Workflow</h3>
       <div class="help-steps">
         <div class="help-step">
           <span class="help-step-nr">1</span>
-          <div><strong>Song auswaehlen</strong> in der Sidebar (muss Parts mit Takten haben)</div>
+          <div><strong>Song auswaehlen</strong> in der Sidebar (muss Takte haben)</div>
         </div>
         <div class="help-step">
           <span class="help-step-nr">2</span>
@@ -375,21 +333,16 @@
         </div>
         <div class="help-step">
           <span class="help-step-nr">3</span>
-          <div><strong>Part-Marker positionieren</strong> &mdash; Orange Boxen werden automatisch platziert (Section-Header wie [Verse 1] werden erkannt). Per Drag an die richtige Stelle ziehen. &laquo;Verteilen&raquo; verteilt sie gleichmaessig (mit Sicherheitsabfrage). Dann &laquo;Fertig&raquo;.</div>
+          <div><strong>Takt-Marker anpassen</strong> &mdash; Cyan-Badges zeigen die Taktnummern. Per Drag verschieben, Doppelklick spielt den Takt ab.</div>
         </div>
         <div class="help-step">
           <span class="help-step-nr">4</span>
-          <div><strong>Takt-Marker anpassen</strong> &mdash; Im Bars-Schritt wird der Text automatisch vergroessert fuer besseres Tapping. Cyan-Badges zeigen die Taktnummern. Per Drag verschieben, Doppelklick spielt den Takt ab.</div>
-        </div>
-        <div class="help-step">
-          <span class="help-step-nr">5</span>
           <div><strong>Fertig</strong> &mdash; Text wird an den Markern aufgeteilt und pro Takt als Lyrics in der DB gespeichert.</div>
         </div>
       </div>
 
       <h3>Marker-Typen</h3>
       <div class="help-table">
-        <div class="help-row"><span class="help-key" style="background:var(--amber);color:var(--bg);padding:2px 8px;border-radius:4px;font-weight:700">Verse 1</span><span>Part-Marker: Orange Box mit Part-Name. Per Drag verschieben.</span></div>
         <div class="help-row"><span class="help-key" style="background:var(--cyan);color:var(--bg);padding:1px 5px;border-radius:3px;font-weight:700;font-size:0.7rem">3</span><span>Takt-Marker: Cyan-Badge mit Taktnummer. Per Drag verschieben. Doppelklick spielt den Takt ab.</span></div>
       </div>
 
@@ -398,16 +351,12 @@
         <div class="help-row"><span class="help-key">&#127925; Genius</span><span>Oeffnet Genius.com mit dem Song vorausgefuellt &mdash; zum Kopieren des Songtexts.</span></div>
         <div class="help-row"><span class="help-key">&#9998; Text</span><span>Oeffnet den Rohtext-Editor als Overlay. Hier kannst du den Text nachtraeglich bearbeiten (Werbung entfernen, Woerter trennen, Teilenamen anpassen). Marker werden beim Speichern best-effort neu zugeordnet.</span></div>
         <div class="help-row"><span class="help-key text-red">Loeschen</span><span>Entfernt Text und alle Marker.</span></div>
-        <div class="help-row"><span class="help-key">&#8646; Verteilen</span><span>Verteilt Part-Marker gleichmaessig im Text (mit Sicherheitsabfrage). Nuetzlich als Startpunkt.</span></div>
-        <div class="help-row"><span class="help-key">Zurueck</span><span>Im Bars-Schritt: Zurueck zum Part-Schritt.</span></div>
+        <div class="help-row"><span class="help-key">&#8646; Verteilen</span><span>Verteilt Takt-Marker gleichmaessig im Text (mit Sicherheitsabfrage). Nuetzlich als Startpunkt.</span></div>
       </div>
 
       <h3>Hinweise</h3>
       <div class="help-table">
-        <div class="help-row"><span class="help-key">Section-Header</span><span>[Verse 1], [Chorus] etc. werden erkannt und fuer die automatische Part-Zuordnung genutzt.</span></div>
-        <div class="help-row"><span class="help-key">Bars-Zoom</span><span>Im Takt-Schritt wird der Text automatisch vergroessert, damit Marker ohne Browser-Zoom praezise positioniert werden koennen.</span></div>
         <div class="help-row"><span class="help-key">Rekonstruktion</span><span>Wenn bereits Lyrics pro Takt gespeichert sind, werden die Marker beim Oeffnen automatisch rekonstruiert.</span></div>
-        <div class="help-row"><span class="help-key">Instrumental</span><span>Parts ohne Text (z.B. Intro, Solo) werden uebersprungen &mdash; sie brauchen keine Lyrics.</span></div>
       </div>
     </div>
 
@@ -424,8 +373,7 @@
       <h3>Audio Split Tab</h3>
       <div class="help-table">
         <div class="help-row"><kbd>Space</kbd><span>Play / Pause</span></div>
-        <div class="help-row"><kbd>P</kbd><span><span class="text-amber">Part Tap</span> &mdash; setzt Marker am aktuellen Part-Beginn</span></div>
-        <div class="help-row"><kbd>B</kbd><span><span class="text-cyan">Bar Tap</span> &mdash; setzt Taktgrenze im aktuellen Part</span></div>
+        <div class="help-row"><kbd>B</kbd><span><span class="text-cyan">Bar Tap</span> &mdash; setzt Taktgrenze</span></div>
         <div class="help-row"><kbd>Z</kbd><span>Undo &mdash; letzten Tap rueckgaengig machen</span></div>
         <div class="help-row"><kbd>[</kbd><span>Speed langsamer</span></div>
         <div class="help-row"><kbd>]</kbd><span>Speed schneller</span></div>
@@ -447,50 +395,6 @@
     <div class="modal-actions">
       <button class="btn" id="confirm-cancel">Abbrechen</button>
       <button class="btn btn-danger" id="confirm-ok">Ersetzen</button>
-    </div>
-  </div>
-</div>
-
-<!-- ── Part Waveform Editor Modal ─────────────────── -->
-<div class="modal-overlay" id="part-wave-modal">
-  <div class="modal part-wave-modal">
-    <div class="pw-header">
-      <div class="pw-nav-group">
-        <button class="btn btn-sm" id="pw-prev" title="Vorheriger Part">&larr;</button>
-        <h2 id="pw-title">Part bearbeiten</h2>
-        <button class="btn btn-sm" id="pw-next" title="N&auml;chster Part">&rarr;</button>
-      </div>
-      <button class="btn btn-sm" id="pw-close" title="Schliessen">&times;</button>
-    </div>
-    <div class="pw-waveform-wrap">
-      <canvas id="pw-canvas"></canvas>
-      <div class="pw-handle pw-handle-start" id="pw-handle-start"></div>
-      <div class="pw-handle pw-handle-end" id="pw-handle-end"></div>
-      <div class="pw-playhead" id="pw-playhead"></div>
-      <div class="pw-dim pw-dim-left" id="pw-dim-left"></div>
-      <div class="pw-dim pw-dim-right" id="pw-dim-right"></div>
-    </div>
-    <div class="pw-times">
-      <span class="pw-time-label">Start <span class="mono" id="pw-time-start">0:00.0</span></span>
-      <span class="pw-time-label">Dauer <span class="mono" id="pw-time-dur">0:00.0</span></span>
-      <span class="pw-time-label">Ende <span class="mono" id="pw-time-end">0:00.0</span></span>
-    </div>
-    <div class="pw-controls">
-      <div class="pw-nudge-group">
-        <button class="btn btn-sm" data-pw="nudge-start-left" title="Start -50ms">&larr; S</button>
-        <button class="btn btn-sm" data-pw="nudge-start-right" title="Start +50ms">S &rarr;</button>
-        <span class="pw-sep"></span>
-        <button class="btn btn-sm" data-pw="nudge-end-left" title="Ende -50ms">&larr; E</button>
-        <button class="btn btn-sm" data-pw="nudge-end-right" title="Ende +50ms">E &rarr;</button>
-      </div>
-      <div class="pw-play-group">
-        <button class="btn btn-sm btn-primary" id="pw-play" title="Play/Pause">&#9654; Play</button>
-        <button class="btn btn-sm pw-tap-bar" id="pw-tap-bar" title="Takt-Marker an Wiedergabeposition setzen (T)">+ Takt</button>
-      </div>
-    </div>
-    <div class="modal-actions">
-      <button class="btn" id="pw-cancel">Abbrechen</button>
-      <button class="btn btn-primary" id="pw-save">Speichern</button>
     </div>
   </div>
 </div>

@@ -3043,7 +3043,6 @@ function updateTapInfo() {
     if (info) info.textContent = `${markers.length} Takte`;
   }
 }
-}
 
 function updateSplitResultLive() {
 }
@@ -6228,16 +6227,12 @@ function wireEvents() {
     else if (activeTab === 'setlist') handleSetlistClick(e);
   });
   els.content.addEventListener('change', (e) => {
-    else if (activeTab === 'takte') handleTakteTabChange(e);
+    if (activeTab === 'takte') handleTakteTabChange(e);
     else if (activeTab === 'lyrics') handleLyricsChange(e);
     else if (activeTab === 'setlist') handleSetlistChange(e);
   });
   // + scroll focused input into view after iOS keyboard opens
   els.content.addEventListener('focus', (e) => {
-      if (/^(Part \d+|New Part)$/i.test(e.target.value.trim())) {
-        e.target.value = '';
-      }
-    }
     // iOS keyboard scroll fix: after keyboard animates open, ensure field is visible
     if (e.target.matches('input, textarea, select')) {
       setTimeout(() => {

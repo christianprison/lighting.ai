@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.6.4';
+const APP_VERSION = 'v1.6.5';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -1834,15 +1834,43 @@ function buildExportSection() {
 function buildAudioSummary() {
   const totalBars = markers.length;
   const est = estimateBpm();
+  const irregCount = getIrregularBars().size;
+  const irregHtml = irregCount > 0
+    ? `<span class="summary-item"><span class="summary-label">Unregelmäßig</span><span class="mono text-red">${irregCount}</span></span>`
+    : '';
   return `
     <div class="summary-bar">
       <span class="summary-item"><span class="summary-label">Takte</span><span class="mono">${totalBars}</span></span>
       <span class="summary-item"><span class="summary-label">BPM (est.)</span><span class="mono">${est || '\u2014'}</span></span>
+      ${irregHtml}
       <span class="summary-item"><span class="summary-label">Storage</span><span class="mono text-green">GitHub</span></span>
     </div>`;
 }
 
 /* ── Audio Helper Functions ────────────────────────── */
+
+/**
+ * Detect irregular bars: bars whose duration deviates > 5% from average.
+ * Returns a Set of marker indices (in sorted order) whose *preceding* interval is irregular.
+ * Index i means the interval between sorted[i-1] and sorted[i] is off.
+ */
+function getIrregularBars() {
+  const sorted = [...markers].sort((a, b) => a.time - b.time);
+  const irregular = new Set(); // Set of marker references
+  if (sorted.length < 3) return irregular; // need at least 2 intervals
+  const intervals = [];
+  for (let i = 1; i < sorted.length; i++) {
+    intervals.push(sorted[i].time - sorted[i - 1].time);
+  }
+  const avg = intervals.reduce((s, v) => s + v, 0) / intervals.length;
+  if (avg <= 0) return irregular;
+  for (let i = 0; i < intervals.length; i++) {
+    if (Math.abs(intervals[i] - avg) / avg > 0.05) {
+      irregular.add(sorted[i + 1]); // the marker that ends the irregular interval
+    }
+  }
+  return irregular;
+}
 
 function fmtTime(sec) {
   if (sec == null || isNaN(sec)) return '0:00';
@@ -1983,14 +2011,20 @@ function drawWaveform() {
     markerAbsBar.set(m, absBarNum);
   }
 
-  // Draw all markers (cyan bar markers)
+  // Detect irregular bars for red flag display
+  const irregularSet = getIrregularBars();
+
+  // Draw all markers (cyan = normal, red = irregular)
   for (const m of sortedMarkers) {
     const vx = (m.time / duration) * totalW;
     if (!inView(vx)) continue;
     const x = vToC(vx);
     const isDragTarget = _isDragging && _dragMarker && _dragMarker.marker === m;
+    const isIrregular = irregularSet.has(m);
 
-    ctx.strokeStyle = isDragTarget ? 'rgba(56, 189, 248, 0.9)' : 'rgba(56, 189, 248, 0.4)';
+    const cyanLine = isDragTarget ? 'rgba(56, 189, 248, 0.9)' : 'rgba(56, 189, 248, 0.4)';
+    const redLine = isDragTarget ? 'rgba(255, 59, 92, 0.9)' : 'rgba(255, 59, 92, 0.5)';
+    ctx.strokeStyle = isIrregular ? redLine : cyanLine;
     ctx.lineWidth = isDragTarget ? 2 : 1;
     ctx.beginPath();
     ctx.moveTo(x, 0);
@@ -2004,9 +2038,11 @@ function drawWaveform() {
     const flagH = 14;
     const flagX = x;
     const flagY = h - flagH;
-    ctx.fillStyle = isDragTarget ? 'rgba(56, 189, 248, 1.0)' : 'rgba(56, 189, 248, 0.7)';
+    const cyanFlag = isDragTarget ? 'rgba(56, 189, 248, 1.0)' : 'rgba(56, 189, 248, 0.7)';
+    const redFlag = isDragTarget ? 'rgba(255, 59, 92, 1.0)' : 'rgba(255, 59, 92, 0.8)';
+    ctx.fillStyle = isIrregular ? redFlag : cyanFlag;
     ctx.fillRect(flagX, flagY, flagW, flagH);
-    ctx.fillStyle = '#08090d';
+    ctx.fillStyle = isIrregular ? '#fff' : '#08090d';
     ctx.fillText(label, flagX + 3, flagY + 10);
 
     if (isDragTarget) {

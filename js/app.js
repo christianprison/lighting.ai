@@ -2826,6 +2826,7 @@ function showBarContextMenu(clientX, clientY, barIndex, context) {
 
   menu.querySelector('[data-action="delete"]').onclick = () => {
     hideBarContextMenu();
+    if (!confirm(`Takt ${barNum} wirklich löschen?`)) return;
     deleteBarMarker(barIndex, context);
   };
 
@@ -2895,7 +2896,7 @@ async function showPartNameDialog(barIndex, marker) {
   if (suggestion && !existing) {
     subtitle += suggestion.isExactStart
       ? ` — Backup: <strong>${suggestion.name}</strong>`
-      : ` — gehört zu: ${suggestion.name}`;
+      : ` — gehörte in einer früheren Version zu: ${suggestion.name}`;
   }
 
   const overlay = document.createElement('div');
@@ -3764,7 +3765,7 @@ function leBuildBlocks(songId) {
 
   let nextBarNewline = false;
   for (let b = 1; b <= totalBars; b++) {
-    // Insert part block before bars that are part starts
+    // Insert part block for part starts (replaces the separate bar block)
     if (partStartMap.has(b)) {
       blocks.push({
         type: 'part',
@@ -3773,21 +3774,23 @@ function leBuildBlocks(songId) {
         newline: b > 1, // line break before every part except the first
         id: `lb_${blockId++}`
       });
-    }
-
-    const barBlock = {
-      type: 'bar',
-      content: String(b),
-      barNum: b,
-      id: `lb_${blockId++}`
-    };
-    if (nextBarNewline && !partStartMap.has(b)) {
-      barBlock.newline = true;
       nextBarNewline = false;
+      // Part block replaces the bar block — no separate bar block needed
     } else {
-      nextBarNewline = false;
+      const barBlock = {
+        type: 'bar',
+        content: String(b),
+        barNum: b,
+        id: `lb_${blockId++}`
+      };
+      if (nextBarNewline) {
+        barBlock.newline = true;
+        nextBarNewline = false;
+      } else {
+        nextBarNewline = false;
+      }
+      blocks.push(barBlock);
     }
-    blocks.push(barBlock);
 
     // Word blocks from bar lyrics
     const found = findBar(songId, b);
@@ -3834,20 +3837,38 @@ function leDistributeText(songId, rawText) {
   const totalBars = song.total_bars || 0;
   if (totalBars === 0) return _leBlocks;
 
+  // Part start lookup
+  const partStartMap = new Map();
+  if (song.split_markers?.part_starts) {
+    for (const ps of song.split_markers.part_starts) {
+      partStartMap.set(ps.bar_num, ps.name);
+    }
+  }
+
   // Distribute words evenly
-  const wordsPerBar = Math.ceil(allWords.length / bars.length);
+  const wordsPerBar = Math.ceil(allWords.length / totalBars);
   let wordIdx = 0;
 
   const blocks = [];
   let blockId = 0;
 
   for (let b = 1; b <= totalBars; b++) {
-    blocks.push({
-      type: 'bar',
-      content: String(b),
-      barNum: b,
-      id: `lb_${blockId++}`
-    });
+    if (partStartMap.has(b)) {
+      blocks.push({
+        type: 'part',
+        content: partStartMap.get(b),
+        barNum: b,
+        newline: b > 1,
+        id: `lb_${blockId++}`
+      });
+    } else {
+      blocks.push({
+        type: 'bar',
+        content: String(b),
+        barNum: b,
+        id: `lb_${blockId++}`
+      });
+    }
 
     const barWords = allWords.slice(wordIdx, wordIdx + wordsPerBar);
     wordIdx += wordsPerBar;
@@ -3904,8 +3925,6 @@ function renderLyricsTab() {
   const hasWords = _leBlocks.some(b => b.type === 'word');
   const searchQ = encodeURIComponent(song.name + ' ' + song.artist);
   const geniusUrl = `https://genius.com/search?q=${searchQ}`;
-  const musixUrl = `https://www.musixmatch.com/search/${searchQ}`;
-
   let html = `<div class="lyrics-panel le-panel">
     <div class="audio-song-header">
       <div>
@@ -3915,7 +3934,6 @@ function renderLyricsTab() {
       <div class="le-header-actions">
         <button class="btn btn-sm lyrics-genius-link" id="le-genius-quick" title="Lyrics direkt von Genius laden">&#127925; Genius Auto</button>
         <a href="${geniusUrl}" target="_blank" rel="noopener" class="btn btn-sm" title="Genius-Suche &ouml;ffnen">&#128269; Genius</a>
-        <a href="${musixUrl}" target="_blank" rel="noopener" class="btn btn-sm lyrics-musix-link" title="Musixmatch-Suche &ouml;ffnen">&#128269; Musixmatch</a>
         <button class="btn btn-sm" id="le-paste-btn" title="Text einfügen und auf Takte verteilen">&#128203; Text einf&uuml;gen</button>
         ${hasWords ? '<button class="btn btn-sm le-btn-save" id="le-save-lyrics">&#128190; Speichern</button>' : ''}
         ${hasWords ? '<button class="btn btn-sm le-btn-danger" id="le-clear-words" title="Alle Wörter entfernen">W&ouml;rter l&ouml;schen</button>' : ''}
@@ -3958,8 +3976,8 @@ function leRenderBlocks() {
 
     let displayContent;
     if (b.type === 'part') {
-      // Part block: show "T{barNum} {name}"
-      displayContent = `T${b.barNum} ${esc(b.content)}`;
+      // Part block: show just the name (the part IS the bar)
+      displayContent = esc(b.content);
     } else {
       displayContent = esc(b.content);
     }
@@ -3995,6 +4013,7 @@ let _lePlayTimer = null;     // setTimeout ID for highlight scheduling
 let _lePlayTimers = [];      // all scheduled timers
 
 function leStartPartPlayback(partBarNum) {
+  try {
   audio.warmup();
   // Stop if already playing this part
   if (_lePlayPartBar === partBarNum) {
@@ -4067,6 +4086,11 @@ function leStartPartPlayback(partBarNum) {
       const t = setTimeout(() => leUnhighlightBar(barNum), barEnd * 1000);
       _lePlayTimers.push(t);
     }
+  }
+  } catch (err) {
+    console.error('Part playback error:', err);
+    leStopPartPlayback();
+    toast('Audio-Fehler: ' + err.message, 'error');
   }
 }
 
@@ -4582,7 +4606,7 @@ function leSaveLyrics() {
 
 /**
  * Fetch lyrics from a URL via CORS proxy.
- * Supports Genius, AZLyrics, Musixmatch and generic extraction.
+ * Supports Genius, AZLyrics and generic extraction.
  */
 /**
  * Fetch first song URL from Genius search API.
@@ -4632,16 +4656,6 @@ async function leFetchLyricsFromUrl(url) {
     return azDiv.textContent.trim();
   }
 
-  // Musixmatch: lyrics body
-  const mxm = doc.querySelectorAll('[class*="Lyrics__Container"], .lyrics__content__ok, .mxm-lyrics span');
-  if (mxm.length > 0) {
-    for (const el of mxm) {
-      const text = el.textContent.trim();
-      if (text) lines.push(text);
-    }
-    return lines.join('\n');
-  }
-
   // Generic fallback: look for common lyrics containers
   const fallbackSelectors = [
     '.lyrics', '.lyric-body', '.song-text', '[class*="lyric"]',
@@ -4686,7 +4700,6 @@ async function leShowPasteDialog() {
         <div class="le-paste-links">
           <button class="btn btn-sm lyrics-genius-link" id="le-genius-auto" title="Ersten Genius-Treffer suchen &amp; Lyrics laden">&#127925; Genius Auto-Fetch</button>
           <a href="https://genius.com/search?q=${searchQ}" target="_blank" rel="noopener" class="btn btn-sm" title="Genius-Suche manuell &ouml;ffnen">&#128269; Genius</a>
-          <a href="https://www.musixmatch.com/search/${searchQ}" target="_blank" rel="noopener" class="btn btn-sm lyrics-musix-link" title="Musixmatch-Suche manuell &ouml;ffnen">&#128269; Musixmatch</a>
         </div>
         <div class="le-url-row">
           <input type="url" id="le-url-input" class="le-url-input" placeholder="Lyrics-URL einf&uuml;gen (z.B. genius.com/...)" />
@@ -4987,6 +5000,13 @@ function handleAccentsTabClick(e) {
     const barNum = parseInt(barBlock.dataset.accentBar, 10);
     _accentsSelectedBar = (_accentsSelectedBar === barNum) ? null : barNum;
     renderAccentsTab();
+    // Scroll editor into view after render
+    if (_accentsSelectedBar !== null) {
+      requestAnimationFrame(() => {
+        const editor = document.querySelector('.acc-editor');
+        if (editor) editor.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
+    }
     return;
   }
 }

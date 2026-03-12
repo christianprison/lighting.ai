@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.8.3';
+const APP_VERSION = 'v1.8.4';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -5743,20 +5743,36 @@ function renderChaserModalContent(modal, songId, chaserName, steps, parts) {
       <button class="btn btn-sm tms-close-btn" title="Schliessen">&times;</button>
     </div>
     <div class="tms-body">
+      <div class="chaser-col-header">
+        <span class="chaser-step-num"></span>
+        <span class="chaser-col-qlc text-t3">QLC+ Cue</span>
+        <span class="chaser-map-arrow"></span>
+        <span class="chaser-col-part text-t3">Lighting AI Part</span>
+        <span class="chaser-step-hold text-t3">Hold</span>
+      </div>
       <div class="chaser-step-list">
         ${stepMatches.map((s, idx) => {
-          const matchInfo = s.matchedPart
-            ? `<span class="chaser-match text-green" title="Matched: ${esc(s.matchedPart.name)}">&#10003; ${esc(s.matchedPart.name)}</span>`
-            : (s.note ? `<span class="chaser-match text-amber" title="Kein Part-Match">&#63; kein Match</span>` : `<span class="chaser-match text-t4">kein Part</span>`);
+          let partCell;
+          if (s.matchedPart) {
+            partCell = s.assigned
+              ? `<span class="pt-name-badge chaser-badge-done">&#10003; ${esc(s.matchedPart.name)}</span>`
+              : `<span class="pt-name-badge">${esc(s.matchedPart.name)}</span>`;
+          } else if (s.note) {
+            partCell = `<span class="chaser-part-nomatch">? zuordnen</span>`;
+          } else {
+            partCell = `<span class="text-t4" style="font-size:0.75rem">kein Name</span>`;
+          }
+          const noAction = !s.note && !s.matchedPart;
           return `
-          <div class="chaser-step-item" data-chaser-idx="${idx}">
+          <div class="chaser-step-item${s.assigned ? ' chaser-item-done' : ''}${noAction ? ' chaser-item-muted' : ''}" data-chaser-idx="${idx}">
             <span class="chaser-step-num mono text-t3">${idx + 1}</span>
-            <div class="chaser-step-info">
-              <div class="chaser-step-note">${s.note ? esc(s.note) : '<span class="text-t4">(kein Name)</span>'}</div>
+            <div class="chaser-step-qlc">
+              <div class="chaser-step-note">${s.note ? esc(s.note) : '<span class="text-t4">—</span>'}</div>
               <div class="chaser-step-func text-t2">${esc(s.functionName)}</div>
             </div>
+            <span class="chaser-map-arrow text-t3">&#8594;</span>
+            <div class="chaser-part-cell">${partCell}</div>
             <span class="chaser-step-hold mono text-t3">${fmtHold(s.holdMs)}</span>
-            ${matchInfo}
           </div>`;
         }).join('')}
       </div>
@@ -5864,9 +5880,8 @@ function openPartAssignDialog(chaserModal, stepIdx) {
     <div class="tms-body">
       ${data.parts.map(p => `
         <div class="chaser-assign-part" data-assign-part="${p.id}">
-          <span class="chaser-step-num mono text-t3">${p.pos}</span>
-          <span>${esc(p.name)}</span>
-          <span class="text-t3 mono" style="margin-left:auto">${p.light_template || '\u2014'}</span>
+          <span class="pt-name-badge">${esc(p.name)}</span>
+          <span class="text-t3 mono" style="margin-left:auto; font-size:0.72rem">${p.light_template || '\u2014'}</span>
         </div>
       `).join('')}
     </div>`;

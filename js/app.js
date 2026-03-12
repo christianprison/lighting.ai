@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.8.2';
+const APP_VERSION = 'v1.8.3';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -1679,6 +1679,8 @@ function getPartsForSong(songId) {
     const endTime = endIdx < allMarkers.length ? allMarkers[endIdx].time : audioDur;
 
     parts.push({
+      id: String(ps.bar_num),
+      pos: i + 1,
       name: ps.name,
       light_template: ps.light_template || '',
       barNum: ps.bar_num,
@@ -1888,9 +1890,11 @@ async function partsTabLoadQlc() {
       toast(`Kein Chaser für „${song.name}" gefunden`, 'error');
       _partsTabQlcSteps = null;
     } else {
-      // Filter out title/end steps
+      // Filter out title/end steps, cache for table column
       _partsTabQlcSteps = match.steps.filter(s => !s.isTitle);
-      toast(`Chaser „${match.chaserName}" geladen (${_partsTabQlcSteps.length} Steps)`, 'success');
+      // Open modal to display steps and offer acceptance
+      // _qxwCache is already set so openChaserModal will be instant
+      await openChaserModal(selectedSongId);
     }
   } catch (e) {
     toast(`QLC-Fehler: ${e.message}`, 'error');
@@ -5671,10 +5675,9 @@ async function loadQxwFile() {
 async function openChaserModal(songId) {
   if (!songId || !db?.songs[songId]) return;
   const song = db.songs[songId];
-  const parts = [];
+  const parts = getPartsForSong(songId);
   if (parts.length === 0) { toast('Keine Parts vorhanden', 'error'); return; }
 
-  toast('QXW wird geladen...', 'info', 2000);
   const chasers = await loadQxwFile();
   if (!chasers) return;
 
@@ -5828,8 +5831,7 @@ function handleChaserBatch(modal) {
 }
 
 function applyChaserTemplate(songId, partId, templateName) {
-  // Parts concept removed - this function is a no-op
-  return;
+  partsTabSetTemplate(parseInt(partId), templateName);
 }
 
 /** Open a dialog to manually assign a chaser step to a part */

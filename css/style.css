@@ -846,6 +846,7 @@ th.pt-play, td.pt-play { width: 40px; text-align: center; }
   padding: 2px 8px;
   background: rgba(240, 160, 48, 0.12);
   color: var(--amber);
+  border: 1px solid rgba(240, 160, 48, 0.25);
   border-radius: 4px;
   font-family: 'Sora', sans-serif;
   font-size: 0.82rem;
@@ -3541,6 +3542,28 @@ td.pt-qlc { font-size: 0.78rem; white-space: nowrap; }
   grid-template-columns: 1fr;
 }
 
+.chaser-col-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 10px 6px;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
+}
+
+.chaser-col-qlc {
+  flex: 1;
+  min-width: 0;
+}
+
+.chaser-col-part {
+  width: 130px;
+  flex-shrink: 0;
+}
+
 .chaser-step-list {
   display: flex;
   flex-direction: column;
@@ -3551,12 +3574,16 @@ td.pt-qlc { font-size: 0.78rem; white-space: nowrap; }
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 8px 10px;
+  padding: 7px 10px;
   border-radius: var(--radius);
   cursor: pointer;
   transition: background 0.15s;
 }
 .chaser-step-item:hover { background: var(--bg4); }
+.chaser-item-done { opacity: 0.55; cursor: default; }
+.chaser-item-done:hover { background: transparent; }
+.chaser-item-muted { opacity: 0.4; cursor: default; }
+.chaser-item-muted:hover { background: transparent; }
 
 .chaser-step-num {
   width: 22px;
@@ -3565,7 +3592,7 @@ td.pt-qlc { font-size: 0.78rem; white-space: nowrap; }
   flex-shrink: 0;
 }
 
-.chaser-step-info {
+.chaser-step-qlc {
   flex: 1;
   min-width: 0;
 }
@@ -3579,18 +3606,39 @@ td.pt-qlc { font-size: 0.78rem; white-space: nowrap; }
   font-size: 0.72rem;
 }
 
-.chaser-step-hold {
-  font-size: 0.7rem;
+.chaser-map-arrow {
+  font-size: 0.75rem;
+  flex-shrink: 0;
+  color: var(--t3);
+}
+
+.chaser-part-cell {
+  width: 130px;
   flex-shrink: 0;
 }
 
-.chaser-match {
+.chaser-badge-done {
+  background: rgba(0, 220, 130, 0.1);
+  color: var(--green);
+  border-color: rgba(0, 220, 130, 0.3);
+}
+
+.chaser-part-nomatch {
+  display: inline-block;
+  padding: 2px 8px;
+  background: transparent;
+  color: var(--amber);
+  border: 1px dashed rgba(240, 160, 48, 0.45);
+  border-radius: 4px;
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.chaser-step-hold {
   font-size: 0.7rem;
   flex-shrink: 0;
-  max-width: 120px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  width: 52px;
+  text-align: right;
 }
 
 .chaser-assign-modal {
@@ -3607,10 +3655,9 @@ td.pt-qlc { font-size: 0.78rem; white-space: nowrap; }
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 8px 12px;
+  padding: 6px 12px;
   border-radius: var(--radius);
   cursor: pointer;
-  font-size: 0.85rem;
   transition: background 0.15s;
 }
 .chaser-assign-part:hover { background: var(--bg4); }

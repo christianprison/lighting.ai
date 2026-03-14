@@ -3154,6 +3154,13 @@ td.pt-qlc { font-size: 0.78rem; white-space: nowrap; }
   border-radius: 3px;
 }
 
+.le-legend-hint {
+  margin-left: auto;
+  font-size: 0.7rem;
+  color: var(--t3);
+  font-style: italic;
+}
+
 .le-swatch-part {
   background: var(--amber);
 }

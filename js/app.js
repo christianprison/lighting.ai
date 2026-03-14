@@ -4312,11 +4312,13 @@ function leWireCanvasEvents() {
         leRefreshCanvas();
       }
     } else {
-      // Tap (no drag) → context menu for words/bars
+      // Tap (no drag) → play part / context menu for words/bars
       const block = touchDrag.el;
       if (block.dataset.type === 'part') {
         e.preventDefault();
-        } else if (block.dataset.type === 'word' || block.dataset.type === 'bar') {
+        const barNum = parseInt(block.dataset.barnum, 10);
+        if (barNum > 0) leStartPartPlayback(barNum);
+      } else if (block.dataset.type === 'word' || block.dataset.type === 'bar') {
         e.preventDefault();
         leShowContextMenu(parseInt(block.dataset.idx, 10), block);
       }
@@ -4324,12 +4326,15 @@ function leWireCanvasEvents() {
     touchDrag = null;
   });
 
-  // Click → context menu for words/bars (desktop)
+  // Click → play part / context menu for words/bars (desktop)
   canvas.addEventListener('click', (e) => {
     leCloseContextMenu();
     const block = e.target.closest('.le-block');
     if (!block) return;
-    if (block.dataset.type === 'word' || block.dataset.type === 'bar') {
+    if (block.dataset.type === 'part') {
+      const barNum = parseInt(block.dataset.barnum, 10);
+      if (barNum > 0) leStartPartPlayback(barNum);
+    } else if (block.dataset.type === 'word' || block.dataset.type === 'bar') {
       leShowContextMenu(parseInt(block.dataset.idx, 10), block);
     }
   });
@@ -4650,7 +4655,26 @@ async function leGeniusFirstUrl(query) {
 }
 
 async function leFetchLyricsFromUrl(url) {
-  const html = await leFetchViaProxy(url);
+  const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
+  const resp = await fetch(proxyUrl);
+  if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+  const html = await resp.text();
+
+  // Genius: extract lyrics from __NEXT_DATA__ JSON (Next.js SSR, most reliable)
+  const nextDataMatch = html.match(/<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/);
+  if (nextDataMatch) {
+    try {
+      const nextData = JSON.parse(nextDataMatch[1]);
+      const lyricsHtml = nextData?.props?.pageProps?.songPage?.lyricsData?.body?.html;
+      if (lyricsHtml) {
+        const tmp = new DOMParser().parseFromString(lyricsHtml, 'text/html');
+        tmp.querySelectorAll('br').forEach(br => br.replaceWith('\n'));
+        const text = tmp.body.textContent.trim();
+        if (text && text.length > 20) return text;
+      }
+    } catch {}
+  }
+
   const doc = new DOMParser().parseFromString(html, 'text/html');
 
   // Genius: try __NEXT_DATA__ JSON first (most reliable)
@@ -4675,7 +4699,7 @@ async function leFetchLyricsFromUrl(url) {
 
   let lines = [];
 
-  // Genius: data-lyrics-container divs
+  // Genius: data-lyrics-container divs (fallback for older page format)
   const geniusEls = doc.querySelectorAll('[data-lyrics-container="true"]');
   if (geniusEls.length > 0) {
     for (const el of geniusEls) {

@@ -8835,14 +8835,14 @@
     "B1007": {
       "song_id": "UNIriZ",
       "bar_num": 16,
-      "lyrics": "Here we go again, We're sick",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B1008": {
       "song_id": "UNIriZ",
       "bar_num": 17,
-      "lyrics": "",
+      "lyrics": "Here we go again, We're sick",
       "audio": "",
       "has_accents": false,
       "instrumental": true

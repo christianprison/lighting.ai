@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.8.5';
+const APP_VERSION = 'v1.8.6';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -3950,6 +3950,7 @@ function renderLyricsTab() {
     <span class="le-legend-item"><span class="le-legend-swatch le-swatch-part"></span> Part</span>
     <span class="le-legend-item"><span class="le-legend-swatch le-swatch-bar"></span> Takt</span>
     <span class="le-legend-item"><span class="le-legend-swatch le-swatch-word"></span> Wort</span>
+    <span class="le-legend-tip">&#9654; Part antippen = Abspielen</span>
   </div>`;
 
   html += '</div>';
@@ -3975,9 +3976,11 @@ function leRenderBlocks() {
     let cls = `le-block le-block-${b.type}${isIrreg ? ' le-block-irregular' : ''}`;
 
     let displayContent;
+    let titleAttr = '';
     if (b.type === 'part') {
-      // Part block: show just the name (the part IS the bar)
-      displayContent = esc(b.content);
+      // Part block: play icon + name, tap hint as tooltip
+      displayContent = '&#9654; ' + esc(b.content);
+      titleAttr = ' title="Tippen zum Abspielen"';
     } else {
       displayContent = esc(b.content);
     }
@@ -3990,7 +3993,7 @@ function leRenderBlocks() {
       }
     }
     const draggable = b.type === 'part' ? '' : 'draggable="true"';
-    html += `<span class="${cls}" ${draggable} data-idx="${i}" data-type="${b.type}" data-id="${b.id}" data-barnum="${b.barNum}">${displayContent}</span>`;
+    html += `<span class="${cls}" ${draggable}${titleAttr} data-idx="${i}" data-type="${b.type}" data-id="${b.id}" data-barnum="${b.barNum}">${displayContent}</span>`;
 
   }
   return html;
@@ -4028,7 +4031,10 @@ function leStartPartPlayback(partBarNum) {
 
   const song = db.songs[selectedSongId];
   const sm = song.split_markers;
-  if (!sm?.markers?.length || !sm?.part_starts?.length) return;
+  if (!sm?.markers?.length || !sm?.part_starts?.length) {
+    toast('Kein Audio-Split vorhanden – zuerst im Audio-Tab aufteilen', 'error');
+    return;
+  }
 
   const allMarkers = [...sm.markers].sort((a, b) => a.time - b.time);
   const starts = [...sm.part_starts].sort((a, b) => a.bar_num - b.bar_num);
@@ -4612,13 +4618,30 @@ function leSaveLyrics() {
  * Fetch first song URL from Genius search API.
  * Returns the URL string or null.
  */
+/** Try fetching a URL through multiple CORS proxies in order. */
+async function leFetchViaProxy(targetUrl) {
+  const proxies = [
+    u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
+    u => 'https://corsproxy.io/?' + encodeURIComponent(u),
+    u => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u),
+  ];
+  let lastErr;
+  for (const makeProxy of proxies) {
+    try {
+      const resp = await fetch(makeProxy(targetUrl), { signal: AbortSignal.timeout(10000) });
+      if (resp.ok) return await resp.text();
+      lastErr = new Error(`HTTP ${resp.status}`);
+    } catch (e) {
+      lastErr = e;
+    }
+  }
+  throw lastErr || new Error('Alle Proxies fehlgeschlagen');
+}
+
 async function leGeniusFirstUrl(query) {
-  const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(
-    'https://genius.com/api/search?q=' + encodeURIComponent(query)
-  );
-  const resp = await fetch(proxyUrl);
-  if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-  const data = await resp.json();
+  const apiUrl = 'https://genius.com/api/search?q=' + encodeURIComponent(query);
+  const text = await leFetchViaProxy(apiUrl);
+  const data = JSON.parse(text);
   const hits = data?.response?.hits;
   if (hits && hits.length > 0) {
     return hits[0].result?.url || null;
@@ -4627,13 +4650,27 @@ async function leGeniusFirstUrl(query) {
 }
 
 async function leFetchLyricsFromUrl(url) {
-  const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
-  const resp = await fetch(proxyUrl);
-  if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-  const html = await resp.text();
+  const html = await leFetchViaProxy(url);
   const doc = new DOMParser().parseFromString(html, 'text/html');
 
-  // Remove script/style tags
+  // Genius: try __NEXT_DATA__ JSON first (most reliable)
+  const nextDataScript = doc.querySelector('script#__NEXT_DATA__');
+  if (nextDataScript) {
+    try {
+      const nextData = JSON.parse(nextDataScript.textContent);
+      const lyricsHtml =
+        nextData?.props?.pageProps?.songPage?.lyricsData?.body?.html ||
+        nextData?.props?.pageProps?.lyrics?.html;
+      if (lyricsHtml) {
+        const lyricsDoc = new DOMParser().parseFromString(lyricsHtml, 'text/html');
+        lyricsDoc.querySelectorAll('script, style').forEach(el => el.remove());
+        const text = lyricsDoc.body.textContent.trim();
+        if (text.length > 20) return text;
+      }
+    } catch {}
+  }
+
+  // Remove script/style tags from main doc
   doc.querySelectorAll('script, style, noscript').forEach(el => el.remove());
 
   let lines = [];
@@ -4642,7 +4679,6 @@ async function leFetchLyricsFromUrl(url) {
   const geniusEls = doc.querySelectorAll('[data-lyrics-container="true"]');
   if (geniusEls.length > 0) {
     for (const el of geniusEls) {
-      // Replace <br> with newlines before extracting text
       el.innerHTML = el.innerHTML.replace(/<br\s*\/?>/gi, '\n');
       const text = el.textContent.trim();
       if (text) lines.push(text);

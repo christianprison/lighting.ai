@@ -3128,6 +3128,15 @@ td.pt-qlc { font-size: 0.78rem; white-space: nowrap; }
   display: flex;
   gap: 16px;
   padding: 8px 0 4px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.le-legend-tip {
+  margin-left: auto;
+  font-size: 0.7rem;
+  color: var(--amber);
+  opacity: 0.75;
 }
 
 .le-legend-item {

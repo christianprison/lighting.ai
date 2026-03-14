@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.9.1';
+const APP_VERSION = 'v1.9.2';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -6512,11 +6512,13 @@ function getAllBarsFlat() {
   for (const [songId, song] of Object.entries(db.songs)) {
     const totalBars = song.total_bars || 0;
     const songBars = getBarsForSong(songId);
+    // Build a map for O(1) lookup by bar_num (avoids index-based drift when gaps exist)
+    const barsByNum = new Map(songBars.map(b => [b.bar_num, b]));
     const bpm = song.bpm || 0;
     const instrBars = buildInstrumentalBarsSet(songId);
     for (let n = 0; n < totalBars; n++) {
       const absBar = n + 1;
-      const barEntry = songBars[n] || null;
+      const barEntry = barsByNum.get(absBar) || null;
       const barData = barEntry || {};
       const barId = barEntry ? barEntry.id : null;
       const accCount = barId ? getAccentsForBar(barId).length : 0;
@@ -6537,9 +6539,6 @@ function getAllBarsFlat() {
 function renderTakteTab() {
   const filterSong = selectedSongId;
   ensureCollections();
-
-  // Reconcile bar data before rendering
-  if (filterSong) reconcileBars(filterSong);
 
   // Auto-load reference audio if available and not yet loaded (skip during bar playback)
   if (filterSong && !_partPlayActive) {

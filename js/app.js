@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.8.6';
+const APP_VERSION = 'v1.8.7';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4655,10 +4655,7 @@ async function leGeniusFirstUrl(query) {
 }
 
 async function leFetchLyricsFromUrl(url) {
-  const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
-  const resp = await fetch(proxyUrl);
-  if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-  const html = await resp.text();
+  const html = await leFetchViaProxy(url);
 
   // Genius: extract lyrics from __NEXT_DATA__ JSON (Next.js SSR, most reliable)
   const nextDataMatch = html.match(/<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/);
@@ -4906,18 +4903,40 @@ async function leGeniusQuickFetch() {
   if (btn) { btn.disabled = true; btn.textContent = 'Suche...'; }
   toast('Genius wird durchsucht...', 'info');
   try {
-    const gUrl = await leGeniusFirstUrl(song.name + ' ' + song.artist);
-    if (!gUrl) throw new Error('Kein Treffer auf Genius');
-    toast('Treffer gefunden, lade Lyrics...', 'info');
-    const lyrics = await leFetchLyricsFromUrl(gUrl);
-    if (!lyrics || lyrics.length < 20) throw new Error('Keine Lyrics gefunden');
+    let lyrics = null;
+    let source = '';
+
+    // Strategy 1: Genius scraping via proxy
+    try {
+      const gUrl = await leGeniusFirstUrl(song.name + ' ' + song.artist);
+      if (gUrl) {
+        toast('Treffer gefunden, lade Lyrics...', 'info');
+        const fetched = await leFetchLyricsFromUrl(gUrl);
+        if (fetched && fetched.length > 20) { lyrics = fetched; source = 'Genius'; }
+      }
+    } catch (e) { /* fall through to next strategy */ }
+
+    // Strategy 2: lyrics.ovh (direct CORS-friendly API, no proxy needed)
+    if (!lyrics) {
+      toast('Genius nicht verfügbar, versuche Fallback...', 'info');
+      try {
+        const lovhUrl = `https://api.lyrics.ovh/v1/${encodeURIComponent(song.artist)}/${encodeURIComponent(song.name)}`;
+        const resp = await fetch(lovhUrl, { signal: AbortSignal.timeout(10000) });
+        if (resp.ok) {
+          const data = await resp.json();
+          if (data.lyrics && data.lyrics.length > 20) { lyrics = data.lyrics; source = 'lyrics.ovh'; }
+        }
+      } catch (e) { /* fall through */ }
+    }
+
+    if (!lyrics || lyrics.length < 20) throw new Error('Keine Lyrics gefunden (Genius + Fallback fehlgeschlagen)');
     _leBlocks = leDistributeText(selectedSongId, lyrics);
     song.lyrics_raw = lyrics;
     markDirty();
     leRefreshCanvas();
-    toast('Lyrics von Genius geladen & verteilt', 'success');
+    toast(`Lyrics von ${source} geladen & verteilt`, 'success');
   } catch (err) {
-    toast('Genius: ' + err.message, 'error');
+    toast('Lyrics Auto: ' + err.message, 'error');
   } finally {
     if (btn) { btn.disabled = false; btn.textContent = '\u{1F3B5} Genius Auto'; }
   }

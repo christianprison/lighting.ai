@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.8.9';
+const APP_VERSION = 'v1.9.0';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4255,14 +4255,6 @@ function leUnhighlightBar(barNum) {
 function leWireCanvasEvents() {
   const canvas = document.getElementById('le-canvas');
   if (!canvas) return;
-
-  // Part block tap → karaoke playback
-  canvas.addEventListener('click', (e) => {
-    const block = e.target.closest('.le-block-part');
-    if (!block) return;
-    const barNum = parseInt(block.dataset.barnum, 10);
-    if (barNum > 0) leStartPartPlayback(barNum);
-  });
 
   // Drag start
   canvas.addEventListener('dragstart', (e) => {

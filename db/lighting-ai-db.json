@@ -1614,7 +1614,7 @@
           }
         ]
       },
-      "lyrics_raw": "Here we go again I kinda wanna be more than friends So take it easy on me I'm afraid you're never satisfied Here we go again We're sick like animals, we play pretend You're just a cannibal And I'm afraid I won't get out alive I won't sleep tonight Oh-oh, I want some more Oh-oh, what are you waiting for? Take a bite of my heart tonight Oh-oh, I want some more Oh-oh, what are you waiting for? What are you waiting for? Say Here we are again I feel the chemicals kickin' in It's getting more heavy and I wanna run and hide I wanna run and hide I do it every time You're killin' me now And I won't be denied my by you The animal inside of you Oh-oh, I want some Oh-oh, what are you waiting for? Take a bite of heart tonight Oh-oh, I some more Oh-oh, what are you waiting for? What are you waiting for? Say goodbye to my heart tonight Hush, hush, the world is quiet Hush, hush, we both can't fight it It's us that made this understand? want Whoa, I won't sleep tonight (I won't sleep tonight) Here we go again (Here we go again) Here we go again Oh-oh, I want some more Oh-oh, what are you waiting for? Take a bite of my heart tonight Oh-oh, I want some more Oh-oh, what are you waiting for? What What are you waiting— Here we go again (Oh-oh, oh) Here we go again (Oh-oh, oh) Here we go again (Oh-oh, oh) Say goodbye to my heart tonight Oh-oh, I want some more Oh-oh, what are you waiting for? What are you waiting for? Say goodbye to my heart tonight",
+      "lyrics_raw": "here we go again i kinda wanna be more then friends So take it easy on me I'm afraid you're never satisfied Here we go again, We're sick like animals we play pretend You're just a cannibal and I'm afraid I won't get out alive No I won't sleep tonight Oh oh I want some more Oh oh what are you waiting for Take a bite of my heart tonight Oh oh I want some more Oh oh what are you waiting for, what are you waiting for Take a bite of my heart tonight Here we are again, I feel the chemicals kicking in Its getting heavy and I want run and hide, I want to run and hide I do it every time You're killing me now, And I won't be denied by you, The animal inside of you Oh oh I want some more Oh oh what are you waiting for Take a bite of my heart tonight Oh oh I want some more Oh oh what are you waiting for, what are you waiting for Take a bite of my heart tonight Hush hush the world is quiet Hush hush we both can't fight it Its us that made this mess Why can't you understand Oh I won't sleep tonight, I won?t sleep tonight Here we go again (here we go again) Oh oh I want some more Oh oh what are you waiting for Take a bite of my heart tonight Oh oh I want some more Oh oh what are you waiting for, what are you waiting for, what are you waiting Here we go again, oh oh here we go again, oh oh here we go again, Say goodbye to my heart tonight Oh oh I want some more Oh oh what are you waiting for What are you wait for Say goodbye to my heart tonight",
       "tms": {
         "manual_done": [],
         "user_tasks": [],
@@ -6027,7 +6027,7 @@
     },
     "B0282": {
       "bar_num": 12,
-      "lyrics": "more than friends",
+      "lyrics": "more then friends So",
       "audio": "",
       "has_accents": false,
       "song_id": "UNIriZ"
@@ -8793,7 +8793,7 @@
     "B1001": {
       "song_id": "UNIriZ",
       "bar_num": 9,
-      "lyrics": "Here we go again",
+      "lyrics": "here we go again",
       "audio": "",
       "has_accents": false
     },
@@ -8807,14 +8807,14 @@
     "B1003": {
       "song_id": "UNIriZ",
       "bar_num": 11,
-      "lyrics": "I kinda wanna be",
+      "lyrics": "i kinda wanna be",
       "audio": "",
       "has_accents": false
     },
     "B1004": {
       "song_id": "UNIriZ",
       "bar_num": 13,
-      "lyrics": "So take it easy on me",
+      "lyrics": "take it easy on me",
       "audio": "",
       "has_accents": false
     },
@@ -8828,14 +8828,14 @@
     "B1006": {
       "song_id": "UNIriZ",
       "bar_num": 15,
-      "lyrics": "never satisfied",
+      "lyrics": "never satisfied Here we",
       "audio": "",
       "has_accents": false
     },
     "B1007": {
       "song_id": "UNIriZ",
       "bar_num": 16,
-      "lyrics": "",
+      "lyrics": "go again, We're sick",
       "audio": "",
       "has_accents": false
     },
@@ -8850,56 +8850,56 @@
     "B1009": {
       "song_id": "UNIriZ",
       "bar_num": 18,
-      "lyrics": "Here we go again",
+      "lyrics": "like animals we play",
       "audio": "",
       "has_accents": false
     },
     "B1010": {
       "song_id": "UNIriZ",
       "bar_num": 19,
-      "lyrics": "We're sick like animals, we",
+      "lyrics": "pretend You're just a",
       "audio": "",
       "has_accents": false
     },
     "B1011": {
       "song_id": "UNIriZ",
       "bar_num": 20,
-      "lyrics": "play pretend",
+      "lyrics": "cannibal and I'm afraid",
       "audio": "",
       "has_accents": false
     },
     "B1012": {
       "song_id": "UNIriZ",
       "bar_num": 21,
-      "lyrics": "You're just a cannibal And",
+      "lyrics": "I won't get out",
       "audio": "",
       "has_accents": false
     },
     "B1013": {
       "song_id": "UNIriZ",
       "bar_num": 22,
-      "lyrics": "I'm afraid I",
+      "lyrics": "alive No I won't",
       "audio": "",
       "has_accents": false
     },
     "B1014": {
       "song_id": "UNIriZ",
       "bar_num": 23,
-      "lyrics": "won't get out alive",
+      "lyrics": "sleep tonight Oh oh",
       "audio": "",
       "has_accents": false
     },
     "B1015": {
       "song_id": "UNIriZ",
       "bar_num": 24,
-      "lyrics": "",
+      "lyrics": "I want some more",
       "audio": "",
       "has_accents": false
     },
     "B1016": {
       "song_id": "UNIriZ",
       "bar_num": 25,
-      "lyrics": "I won't sleep tonight",
+      "lyrics": "you waiting for Take",
       "audio": "",
       "has_accents": false
     },
@@ -8913,7 +8913,7 @@
     "B1018": {
       "song_id": "UNIriZ",
       "bar_num": 27,
-      "lyrics": "Oh-oh,",
+      "lyrics": "heart tonight Oh oh",
       "audio": "",
       "has_accents": false
     },
@@ -8934,98 +8934,98 @@
     "B1021": {
       "song_id": "UNIriZ",
       "bar_num": 30,
-      "lyrics": "Oh-oh,",
+      "lyrics": "Oh oh what are",
       "audio": "",
       "has_accents": false
     },
     "B1022": {
       "song_id": "UNIriZ",
       "bar_num": 31,
-      "lyrics": "what are you waiting for?",
+      "lyrics": "you waiting for, what",
       "audio": "",
       "has_accents": false
     },
     "B1023": {
       "song_id": "UNIriZ",
       "bar_num": 32,
-      "lyrics": "Take a",
+      "lyrics": "are you waiting for",
       "audio": "",
       "has_accents": false
     },
     "B1024": {
       "song_id": "UNIriZ",
       "bar_num": 33,
-      "lyrics": "bite of my heart tonight",
+      "lyrics": "Take a bite of",
       "audio": "",
       "has_accents": false
     },
     "B1025": {
       "song_id": "UNIriZ",
       "bar_num": 34,
-      "lyrics": "Oh-oh,",
+      "lyrics": "my heart tonight Here",
       "audio": "",
       "has_accents": false
     },
     "B1026": {
       "song_id": "UNIriZ",
       "bar_num": 35,
-      "lyrics": "I want some more",
+      "lyrics": "we are again, I",
       "audio": "",
       "has_accents": false
     },
     "B1027": {
       "song_id": "UNIriZ",
       "bar_num": 36,
-      "lyrics": "Oh-oh,",
+      "lyrics": "feel the chemicals kicking",
       "audio": "",
       "has_accents": false
     },
     "B1028": {
       "song_id": "UNIriZ",
       "bar_num": 37,
-      "lyrics": "what are you waiting",
+      "lyrics": "in Its getting heavy",
       "audio": "",
       "has_accents": false
     },
     "B1029": {
       "song_id": "UNIriZ",
       "bar_num": 38,
-      "lyrics": "for?",
+      "lyrics": "and I want run",
       "audio": "",
       "has_accents": false
     },
     "B1030": {
       "song_id": "UNIriZ",
       "bar_num": 39,
-      "lyrics": "What are you waiting",
+      "lyrics": "and hide, I want",
       "audio": "",
       "has_accents": false
     },
     "B1031": {
       "song_id": "UNIriZ",
       "bar_num": 40,
-      "lyrics": "for? Say",
+      "lyrics": "to run and hide",
       "audio": "",
       "has_accents": false
     },
     "B1032": {
       "song_id": "UNIriZ",
       "bar_num": 41,
-      "lyrics": "Here we are again",
+      "lyrics": "I do it every",
       "audio": "",
       "has_accents": false
     },
     "B1033": {
       "song_id": "UNIriZ",
       "bar_num": 42,
-      "lyrics": "I feel the chemicals",
+      "lyrics": "time You're killing me",
       "audio": "",
       "has_accents": false
     },
     "B1034": {
       "song_id": "UNIriZ",
       "bar_num": 43,
-      "lyrics": "kickin' in It's getting more heavy and I wanna run and hide I wanna run and hide I do it every time You're killin' me now And I won't be denied my by you The animal inside of you Oh-oh, I",
+      "lyrics": "be denied by you,",
       "audio": "",
       "has_accents": false
     },
@@ -9039,105 +9039,105 @@
     "B1036": {
       "song_id": "UNIriZ",
       "bar_num": 45,
-      "lyrics": "want some Oh-oh,",
+      "lyrics": "The animal inside of",
       "audio": "",
       "has_accents": false
     },
     "B1037": {
       "song_id": "UNIriZ",
       "bar_num": 46,
-      "lyrics": "what are you waiting",
+      "lyrics": "you Oh oh I",
       "audio": "",
       "has_accents": false
     },
     "B1038": {
       "song_id": "UNIriZ",
       "bar_num": 47,
-      "lyrics": "for? Take a bite",
+      "lyrics": "want some more Oh",
       "audio": "",
       "has_accents": false
     },
     "B1039": {
       "song_id": "UNIriZ",
       "bar_num": 48,
-      "lyrics": "of heart tonight",
+      "lyrics": "oh what are you",
       "audio": "",
       "has_accents": false
     },
     "B1040": {
       "song_id": "UNIriZ",
       "bar_num": 49,
-      "lyrics": "Oh-oh, I some",
+      "lyrics": "waiting for Take a",
       "audio": "",
       "has_accents": false
     },
     "B1041": {
       "song_id": "UNIriZ",
       "bar_num": 50,
-      "lyrics": "more Oh-oh, what are",
+      "lyrics": "bite of my heart",
       "audio": "",
       "has_accents": false
     },
     "B1042": {
       "song_id": "UNIriZ",
       "bar_num": 51,
-      "lyrics": "you waiting for? What",
+      "lyrics": "tonight Oh oh I",
       "audio": "",
       "has_accents": false
     },
     "B1043": {
       "song_id": "UNIriZ",
       "bar_num": 52,
-      "lyrics": "are you waiting for?",
+      "lyrics": "want some more Oh",
       "audio": "",
       "has_accents": false
     },
     "B1044": {
       "song_id": "UNIriZ",
       "bar_num": 53,
-      "lyrics": "Say goodbye to my",
+      "lyrics": "oh what are you",
       "audio": "",
       "has_accents": false
     },
     "B1045": {
       "song_id": "UNIriZ",
       "bar_num": 54,
-      "lyrics": "heart tonight Hush, hush,",
+      "lyrics": "waiting for, what are",
       "audio": "",
       "has_accents": false
     },
     "B1046": {
       "song_id": "UNIriZ",
       "bar_num": 55,
-      "lyrics": "the world is quiet",
+      "lyrics": "you waiting for Take",
       "audio": "",
       "has_accents": false
     },
     "B1047": {
       "song_id": "UNIriZ",
       "bar_num": 56,
-      "lyrics": "Hush, hush, we both",
+      "lyrics": "a bite of my",
       "audio": "",
       "has_accents": false
     },
     "B1048": {
       "song_id": "UNIriZ",
       "bar_num": 57,
-      "lyrics": "can't fight it It's",
+      "lyrics": "heart tonight Hush hush",
       "audio": "",
       "has_accents": false
     },
     "B1049": {
       "song_id": "UNIriZ",
       "bar_num": 58,
-      "lyrics": "us that made this",
+      "lyrics": "the world is quiet",
       "audio": "",
       "has_accents": false
     },
     "B1050": {
       "song_id": "UNIriZ",
       "bar_num": 59,
-      "lyrics": "understand? want Whoa, I won't\n",
+      "lyrics": "can't fight it Its",
       "audio": "",
       "has_accents": false
     },
@@ -9151,91 +9151,91 @@
     "B1052": {
       "song_id": "UNIriZ",
       "bar_num": 61,
-      "lyrics": "sleep tonight (I won't",
+      "lyrics": "us that made this",
       "audio": "",
       "has_accents": false
     },
     "B1053": {
       "song_id": "UNIriZ",
       "bar_num": 62,
-      "lyrics": "sleep tonight) Here we",
+      "lyrics": "mess Why can't you",
       "audio": "",
       "has_accents": false
     },
     "B1054": {
       "song_id": "UNIriZ",
       "bar_num": 63,
-      "lyrics": "go again (Here we",
+      "lyrics": "understand Oh I won't",
       "audio": "",
       "has_accents": false
     },
     "B1055": {
       "song_id": "UNIriZ",
       "bar_num": 64,
-      "lyrics": "go again) Here we",
+      "lyrics": "sleep tonight, I won?t",
       "audio": "",
       "has_accents": false
     },
     "B1056": {
       "song_id": "UNIriZ",
       "bar_num": 65,
-      "lyrics": "go again Oh-oh, I",
+      "lyrics": "sleep tonight Here we",
       "audio": "",
       "has_accents": false
     },
     "B1057": {
       "song_id": "UNIriZ",
       "bar_num": 66,
-      "lyrics": "want some more Oh-oh,",
+      "lyrics": "go again (here we",
       "audio": "",
       "has_accents": false
     },
     "B1058": {
       "song_id": "UNIriZ",
       "bar_num": 67,
-      "lyrics": "what are you waiting",
+      "lyrics": "go again) Oh oh",
       "audio": "",
       "has_accents": false
     },
     "B1059": {
       "song_id": "UNIriZ",
       "bar_num": 68,
-      "lyrics": "for? Take a bite",
+      "lyrics": "I want some more",
       "audio": "",
       "has_accents": false
     },
     "B1060": {
       "song_id": "UNIriZ",
       "bar_num": 69,
-      "lyrics": "of my heart tonight",
+      "lyrics": "Oh oh what are",
       "audio": "",
       "has_accents": false
     },
     "B1061": {
       "song_id": "UNIriZ",
       "bar_num": 70,
-      "lyrics": "Oh-oh, I want some",
+      "lyrics": "you waiting for Take",
       "audio": "",
       "has_accents": false
     },
     "B1062": {
       "song_id": "UNIriZ",
       "bar_num": 71,
-      "lyrics": "more Oh-oh, what are",
+      "lyrics": "a bite of my",
       "audio": "",
       "has_accents": false
     },
     "B1063": {
       "song_id": "UNIriZ",
       "bar_num": 72,
-      "lyrics": "you waiting for? What",
+      "lyrics": "heart tonight Oh oh",
       "audio": "",
       "has_accents": false
     },
     "B1064": {
       "song_id": "UNIriZ",
       "bar_num": 73,
-      "lyrics": "What are you waiting—\n",
+      "lyrics": "Oh oh what are",
       "audio": "",
       "has_accents": false
     },
@@ -9249,63 +9249,63 @@
     "B1066": {
       "song_id": "UNIriZ",
       "bar_num": 75,
-      "lyrics": "Here we go again",
+      "lyrics": "you waiting for, what",
       "audio": "",
       "has_accents": false
     },
     "B1067": {
       "song_id": "UNIriZ",
       "bar_num": 76,
-      "lyrics": "(Oh-oh, oh) Here we",
+      "lyrics": "are you waiting for,",
       "audio": "",
       "has_accents": false
     },
     "B1068": {
       "song_id": "UNIriZ",
       "bar_num": 77,
-      "lyrics": "go again (Oh-oh, oh)",
+      "lyrics": "what are you waiting",
       "audio": "",
       "has_accents": false
     },
     "B1069": {
       "song_id": "UNIriZ",
       "bar_num": 78,
-      "lyrics": "Here we go again",
+      "lyrics": "Here we go again,",
       "audio": "",
       "has_accents": false
     },
     "B1070": {
       "song_id": "UNIriZ",
       "bar_num": 79,
-      "lyrics": "(Oh-oh, oh) Say goodbye",
+      "lyrics": "oh oh here we",
       "audio": "",
       "has_accents": false
     },
     "B1071": {
       "song_id": "UNIriZ",
       "bar_num": 80,
-      "lyrics": "to my heart tonight",
+      "lyrics": "go again, oh oh",
       "audio": "",
       "has_accents": false
     },
     "B1072": {
       "song_id": "UNIriZ",
       "bar_num": 81,
-      "lyrics": "Oh-oh, I want some",
+      "lyrics": "here we go again,",
       "audio": "",
       "has_accents": false
     },
     "B1073": {
       "song_id": "UNIriZ",
       "bar_num": 82,
-      "lyrics": "more Oh-oh, what are",
+      "lyrics": "Say goodbye to my",
       "audio": "",
       "has_accents": false
     },
     "B1074": {
       "song_id": "UNIriZ",
       "bar_num": 83,
-      "lyrics": "you waiting for? What\n",
+      "lyrics": "heart tonight Oh oh\n",
       "audio": "",
       "has_accents": false
     },
@@ -9361,7 +9361,7 @@
     "B1082": {
       "song_id": "UNIriZ",
       "bar_num": 91,
-      "lyrics": "are you waiting for?\n",
+      "lyrics": "I want some more",
       "audio": "",
       "has_accents": false
     },
@@ -9375,21 +9375,21 @@
     "B1084": {
       "song_id": "UNIriZ",
       "bar_num": 93,
-      "lyrics": "Say goodbye to my",
+      "lyrics": "Oh oh what are",
       "audio": "",
       "has_accents": false
     },
     "B1085": {
       "song_id": "UNIriZ",
       "bar_num": 94,
-      "lyrics": "heart tonight",
+      "lyrics": "you waiting for What",
       "audio": "",
       "has_accents": false
     },
     "B1086": {
       "song_id": "UNIriZ",
       "bar_num": 95,
-      "lyrics": "",
+      "lyrics": "Say goodbye to my",
       "audio": "",
       "has_accents": false
     },
@@ -9403,7 +9403,7 @@
     "B1088": {
       "song_id": "UNIriZ",
       "bar_num": 97,
-      "lyrics": "",
+      "lyrics": "heart tonight",
       "audio": "",
       "has_accents": false
     },

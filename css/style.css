@@ -895,6 +895,10 @@ td.pt-qlc { font-size: 0.78rem; white-space: nowrap; }
 }
 .pt-qlc-apply:hover { background: rgba(56, 189, 248, 0.15); }
 .pt-qlc-ok { color: var(--green); margin-left: 4px; }
+th.pt-instr, td.pt-instr { width: 48px; text-align: center; }
+td.pt-instr input[type="checkbox"] { accent-color: var(--amber); width: 16px; height: 16px; cursor: pointer; }
+.pt-row-instrumental td { color: var(--t3); }
+.pt-row-instrumental .pt-name-badge { border-color: var(--amber); color: var(--amber); opacity: 0.7; }
 
 /* ── Part Name Dialog ──────────────────────────────── */
 .part-dialog-overlay {
@@ -2491,6 +2495,12 @@ td.pt-qlc { font-size: 0.78rem; white-space: nowrap; }
 .takte-tab-table .ttt-acc { width: 48px; text-align: center; font-size: 0.8rem; }
 .takte-tab-table .ttt-audio { width: 48px; text-align: center; }
 .ttt-irregular { border-left: 3px solid var(--red); }
+.ttt-instrumental { opacity: 0.6; }
+.takte-tab-table .ttt-instr { width: 44px; text-align: center; }
+.ttt-instr input[type="checkbox"] { accent-color: var(--amber); width: 15px; height: 15px; cursor: pointer; }
+.bar-editor-instr-row { display: flex; align-items: center; }
+.bar-instr-label { display: flex; align-items: center; gap: 6px; cursor: pointer; color: var(--t2); font-size: 0.9rem; }
+.bar-instr-label input[type="checkbox"] { accent-color: var(--amber); width: 16px; height: 16px; cursor: pointer; }
 
 .ttt-song-name {
   font-size: 0.8rem;
@@ -3049,6 +3059,22 @@ td.pt-qlc { font-size: 0.78rem; white-space: nowrap; }
   color: #fff;
 }
 
+.le-block-instrumental {
+  opacity: 0.5;
+  font-style: italic;
+}
+.le-instr-badge {
+  font-size: 0.7em;
+  background: rgba(240, 160, 48, 0.2);
+  color: var(--amber);
+  border: 1px solid rgba(240, 160, 48, 0.4);
+  border-radius: 3px;
+  padding: 0 3px;
+  margin-left: 3px;
+  font-style: normal;
+  vertical-align: middle;
+}
+
 /* ── Word Block: Dark with light text ──────────── */
 .le-block-word {
   background: var(--bg3);
@@ -3172,6 +3198,11 @@ td.pt-qlc { font-size: 0.78rem; white-space: nowrap; }
 .le-swatch-word {
   background: var(--bg3);
   border: 1px solid var(--border2);
+}
+
+.le-swatch-instr {
+  background: rgba(240, 160, 48, 0.2);
+  border: 1px solid rgba(240, 160, 48, 0.4);
 }
 
 

@@ -1555,6 +1555,24 @@ async function handleDeleteSong() {
 }
 
 
+/**
+ * Update only the play button states in the Takte Tab without re-rendering the whole list.
+ * Prevents scroll position reset during bar playback.
+ */
+function updateTakteTabPlayButtons() {
+  if (activeTab !== 'takte') return;
+  document.querySelectorAll('.btn-bar-play').forEach(btn => {
+    const bSongId = btn.dataset.playSongId;
+    const bBarNum = parseInt(btn.dataset.playBarNum, 10);
+    const found = findBar(bSongId, bBarNum);
+    const bId = found ? found[0] : null;
+    const isPlaying = _barPlayId === bId && _partPlayActive;
+    btn.classList.toggle('playing', isPlaying);
+    btn.innerHTML = isPlaying ? '&#9632;' : '&#9654;';
+    btn.title = isPlaying ? 'Stop' : 'Takt abspielen';
+  });
+}
+
 async function handleBarPlay(songId, barNum) {
   audio.warmup(); // iOS: resume AudioContext in gesture handler
   ensureCollections();
@@ -1565,12 +1583,14 @@ async function handleBarPlay(songId, barNum) {
   // If already playing this bar → stop
   if (_barPlayId === barId && _partPlayActive) {
     _barPlayId = null;
-    renderTakteTab();
+    _partPlayActive = false;
+    updateTakteTabPlayButtons();
     return;
   }
 
   _barPlayId = barId;
   _partPlayActive = true;
+  updateTakteTabPlayButtons();
 
   try {
     const ac = audio.getContext();
@@ -1585,10 +1605,9 @@ async function handleBarPlay(songId, barNum) {
         src.buffer = decoded;
         src.connect(ac.destination);
         src.onended = () => {
-          if (_barPlayId === barId) { _barPlayId = null; _partPlayActive = false; renderTakteTab(); }
+          if (_barPlayId === barId) { _barPlayId = null; _partPlayActive = false; updateTakteTabPlayButtons(); }
         };
         src.start(0);
-        renderTakteTab();
         return;
       }
     }
@@ -1603,10 +1622,9 @@ async function handleBarPlay(songId, barNum) {
         src.connect(ac.destination);
         const dur = range.end - range.start;
         src.onended = () => {
-          if (_barPlayId === barId) { _barPlayId = null; _partPlayActive = false; renderTakteTab(); }
+          if (_barPlayId === barId) { _barPlayId = null; _partPlayActive = false; updateTakteTabPlayButtons(); }
         };
         src.start(0, range.start, dur);
-        renderTakteTab();
         return;
       }
     }
@@ -4125,12 +4143,17 @@ function leStartPartPlayback(partBarNum) {
   // Highlight the part block
   leHighlightPartBlock(partBarNum, true);
 
-  // Schedule bar/word highlights based on marker timings
+  // Schedule bar/word highlights with uniform bar duration
+  // (part duration divided equally across all bars — bars always equal length)
+  const barCount = endBarIdx - startBarIdx;
+  const uniformBarDur = barCount > 0 ? dur / barCount : 0;
+
   for (let bi = startBarIdx; bi < endBarIdx; bi++) {
     const barNum = bi + 1;
-    const barStart = (allMarkers[bi]?.time ?? 0) - startTime;
-    const barEnd = (bi + 1 < allMarkers.length ? allMarkers[bi + 1].time : endTime) - startTime;
-    const barDur = barEnd - barStart;
+    const localIdx = bi - startBarIdx;
+    const barStart = localIdx * uniformBarDur;
+    const barEnd = (localIdx + 1) * uniformBarDur;
+    const barDur = uniformBarDur;
 
     // Find word blocks for this bar
     const wordBlocks = _leBlocks.filter(bl => bl.type === 'word' && bl.barNum === barNum);

@@ -3801,20 +3801,7 @@ function leBuildBlocks(songId) {
     }
   }
 
-  // Build set of instrumental bar numbers (from parts + individual bars)
-  const instrBars = new Set();
-  if (song.split_markers?.part_starts) {
-    const starts = [...song.split_markers.part_starts].sort((a, b) => a.bar_num - b.bar_num);
-    for (let i = 0; i < starts.length; i++) {
-      if (starts[i].instrumental) {
-        const endBar = starts[i + 1] ? starts[i + 1].bar_num : totalBars + 1;
-        for (let b = starts[i].bar_num; b < endBar; b++) instrBars.add(b);
-      }
-    }
-  }
-  for (const [, bar] of Object.entries(db.bars)) {
-    if (bar.song_id === songId && bar.instrumental) instrBars.add(bar.bar_num);
-  }
+  const instrBars = buildInstrumentalBarsSet(songId);
 
   let nextBarNewline = false;
   for (let b = 1; b <= totalBars; b++) {
@@ -3893,20 +3880,7 @@ function leDistributeText(songId, rawText) {
   const totalBars = song.total_bars || 0;
   if (totalBars === 0) return _leBlocks;
 
-  // Build set of instrumental bar numbers (part-level + individual bar-level)
-  const instrBars = new Set();
-  if (song.split_markers?.part_starts) {
-    const starts = [...song.split_markers.part_starts].sort((a, b) => a.bar_num - b.bar_num);
-    for (let i = 0; i < starts.length; i++) {
-      if (starts[i].instrumental) {
-        const endBar = starts[i + 1] ? starts[i + 1].bar_num : totalBars + 1;
-        for (let b = starts[i].bar_num; b < endBar; b++) instrBars.add(b);
-      }
-    }
-  }
-  for (const [, bar] of Object.entries(db.bars)) {
-    if (bar.song_id === songId && bar.instrumental) instrBars.add(bar.bar_num);
-  }
+  const instrBars = buildInstrumentalBarsSet(songId);
 
   // Part start lookup
   const partStartMap = new Map();
@@ -6383,6 +6357,30 @@ function updateQlcImportPlayState() {
    TAKTE TAB
    ══════════════════════════════════════════════════════ */
 
+/**
+ * Build a Set of bar numbers (1-based) that are instrumental for a song.
+ * Combines part-level instrumental flags and individual bar-level flags.
+ */
+function buildInstrumentalBarsSet(songId) {
+  const song = db.songs[songId];
+  if (!song) return new Set();
+  const totalBars = song.total_bars || 0;
+  const instrBars = new Set();
+  if (song.split_markers?.part_starts) {
+    const starts = [...song.split_markers.part_starts].sort((a, b) => a.bar_num - b.bar_num);
+    for (let i = 0; i < starts.length; i++) {
+      if (starts[i].instrumental) {
+        const endBar = starts[i + 1] ? starts[i + 1].bar_num : totalBars + 1;
+        for (let b = starts[i].bar_num; b < endBar; b++) instrBars.add(b);
+      }
+    }
+  }
+  for (const [, bar] of Object.entries(db.bars)) {
+    if (bar.song_id === songId && bar.instrumental) instrBars.add(bar.bar_num);
+  }
+  return instrBars;
+}
+
 function getAllBarsFlat() {
   if (!db || !db.songs) return [];
   ensureCollections();
@@ -6392,6 +6390,7 @@ function getAllBarsFlat() {
     const totalBars = song.total_bars || 0;
     const songBars = getBarsForSong(songId);
     const bpm = song.bpm || 0;
+    const instrBars = buildInstrumentalBarsSet(songId);
     for (let n = 0; n < totalBars; n++) {
       const absBar = n + 1;
       const barEntry = songBars[n] || null;
@@ -6404,7 +6403,7 @@ function getAllBarsFlat() {
         barNum: absBar, absBar, barSec,
         lyrics: barData.lyrics || '',
         audio: barData.audio || '',
-        instrumental: barData.instrumental || false,
+        instrumental: instrBars.has(absBar),
         accCount, barId
       });
     }

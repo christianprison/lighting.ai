@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.9.0';
+const APP_VERSION = 'v1.9.1';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4098,6 +4098,8 @@ let _lePlaySrc = null;       // AudioBufferSourceNode
 let _lePlayPartBar = null;   // barNum of playing part
 let _lePlayTimer = null;     // setTimeout ID for highlight scheduling
 let _lePlayTimers = [];      // all scheduled timers
+let _lePlayStartTime = 0;    // Date.now() when current playback started
+let _lePlayParams = null;    // { startBarIdx, endBarIdx, uniformBarDur } for rescheduling
 
 function leStartPartPlayback(partBarNum) {
   try {
@@ -4144,6 +4146,7 @@ function leStartPartPlayback(partBarNum) {
   src.start(0, startTime, dur);
   _lePlaySrc = src;
   _lePlayPartBar = partBarNum;
+  _lePlayStartTime = Date.now();
 
   // Highlight the part block
   leHighlightPartBlock(partBarNum, true);
@@ -4152,6 +4155,7 @@ function leStartPartPlayback(partBarNum) {
   // (part duration divided equally across all bars — bars always equal length)
   const barCount = endBarIdx - startBarIdx;
   const uniformBarDur = barCount > 0 ? dur / barCount : 0;
+  _lePlayParams = { startBarIdx, endBarIdx, uniformBarDur };
 
   // Helper: schedule or call immediately if delay is 0
   const schedule = (fn, delayMs) => {
@@ -4206,6 +4210,8 @@ function leStopPartPlayback() {
     leHighlightPartBlock(_lePlayPartBar, false);
     _lePlayPartBar = null;
   }
+  _lePlayStartTime = 0;
+  _lePlayParams = null;
   // Clear all highlights
   document.querySelectorAll('.le-highlight, .le-highlight-past').forEach(el => {
     el.classList.remove('le-highlight', 'le-highlight-past');
@@ -4248,6 +4254,66 @@ function leUnhighlightBar(barNum) {
   document.querySelectorAll(`.le-block[data-barnum="${barNum}"]`).forEach(el => {
     el.classList.remove('le-highlight', 'le-highlight-past');
   });
+}
+
+/**
+ * Reschedule karaoke highlight timers from the current playback position.
+ * Called after every block mutation so moving words during playback updates highlights immediately.
+ */
+function leRescheduleHighlights() {
+  if (_lePlayPartBar === null || !_lePlayParams) return;
+
+  // Cancel all pending timers
+  for (const t of _lePlayTimers) clearTimeout(t);
+  _lePlayTimers = [];
+
+  // Clear stale highlights — will be re-applied below for current position
+  document.querySelectorAll('.le-highlight, .le-highlight-past').forEach(el => {
+    el.classList.remove('le-highlight', 'le-highlight-past');
+  });
+
+  const { startBarIdx, endBarIdx, uniformBarDur } = _lePlayParams;
+  const elapsed = (Date.now() - _lePlayStartTime) / 1000; // seconds into playback
+
+  for (let bi = startBarIdx; bi < endBarIdx; bi++) {
+    const barNum = bi + 1;
+    const localIdx = bi - startBarIdx;
+    const isFirstBar = localIdx === 0;
+    const barStart = localIdx * uniformBarDur;
+    const barEnd = (localIdx + 1) * uniformBarDur;
+    const barDur = uniformBarDur;
+
+    // Skip bars that have fully passed
+    if (elapsed >= barEnd) continue;
+
+    const wordBlocks = _leBlocks.filter(bl => bl.type === 'word' && bl.barNum === barNum);
+
+    if (wordBlocks.length === 0) {
+      if (!isFirstBar) {
+        const delay = (barStart - elapsed) * 1000;
+        if (delay <= 0) {
+          leHighlightBlock(barNum, 'bar');
+        } else {
+          _lePlayTimers.push(setTimeout(() => leHighlightBlock(barNum, 'bar'), delay));
+        }
+        _lePlayTimers.push(setTimeout(() => leUnhighlightBlock(barNum, 'bar'), (barEnd - elapsed) * 1000));
+      }
+    } else {
+      const wordDur = barDur / wordBlocks.length;
+      for (let wi = 0; wi < wordBlocks.length; wi++) {
+        const wordStart = barStart + wi * wordDur;
+        const delay = (wordStart - elapsed) * 1000;
+        if (delay <= 0) {
+          // Word is past or current — calling leHighlightWord in order correctly
+          // marks previous words as le-highlight-past and this one as le-highlight
+          leHighlightWord(wordBlocks[wi].id, barNum, wi);
+        } else {
+          _lePlayTimers.push(setTimeout(() => leHighlightWord(wordBlocks[wi].id, barNum, wi), delay));
+        }
+      }
+      _lePlayTimers.push(setTimeout(() => leUnhighlightBar(barNum), (barEnd - elapsed) * 1000));
+    }
+  }
 }
 
 /* ── Lyrics Editor: Canvas Events (Drag & Drop + Context Menu) ── */
@@ -4729,6 +4795,7 @@ function leCommitLyrics() {
     song.lyrics_raw = _leBlocks.filter(b => b.type === 'word').map(b => b.content).join(' ');
   }
   markDirty();
+  leRescheduleHighlights();
 }
 
 /**

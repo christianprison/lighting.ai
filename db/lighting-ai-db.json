@@ -35,17 +35,14 @@
       "year": "1999",
       "pick": "🔻",
       "gema_nr": "5005294-001",
-      "duration": "2:26",
-      "duration_sec": 146,
+      "duration": "2:28",
+      "duration_sec": 148,
       "notes": "nach 2. ref. direkt interlude; ; Intro; Verse 1; Bridge; Chorus; Intro; Verse 2; Bridge; Chorus; Interlude; Power-Bridge; Ende",
       "qlc_id": 88,
       "split_markers": {
         "markers": [
           {
-            "time": 2.725333333333334
-          },
-          {
-            "time": 2.799687499999999
+            "time": 2.73438202247191
           },
           {
             "time": 4.247687500000007
@@ -57,7 +54,7 @@
             "time": 7.146354166666663
           },
           {
-            "time": 8.733020833333336
+            "time": 8.671565504180585
           },
           {
             "time": 10.215687499999996
@@ -70,9 +67,6 @@
           },
           {
             "time": 14.656333333333333
-          },
-          {
-            "time": 14.685020833333335
           },
           {
             "time": 16.178354166666676
@@ -111,7 +105,7 @@
             "time": 32.66102083333333
           },
           {
-            "time": 34.045020833333346
+            "time": 34.10996906050687
           },
           {
             "time": 35.58368750000002
@@ -156,13 +150,10 @@
             "time": 54.967687500000004
           },
           {
-            "time": 56.4316875
+            "time": 56.42333333333334
           },
           {
-            "time": 56.473333333333336
-          },
-          {
-            "time": 57.999687499999986
+            "time": 57.98493141834357
           },
           {
             "time": 59.479687500000004
@@ -219,9 +210,6 @@
             "time": 84.81035416666668
           },
           {
-            "time": 86.27033333333334
-          },
-          {
             "time": 86.29835416666668
           },
           {
@@ -243,7 +231,7 @@
             "time": 95.19968750000004
           },
           {
-            "time": 96.7276875
+            "time": 96.65426966292135
           },
           {
             "time": 98.113
@@ -321,7 +309,7 @@
             "time": 133.83333333333334
           },
           {
-            "time": 135.41302083333335
+            "time": 135.35629213483145
           },
           {
             "time": 136.8983541666667
@@ -346,9 +334,16 @@
           },
           {
             "time": 147.17835416666668
+          }
+        ],
+        "part_starts": [
+          {
+            "bar_num": 1,
+            "name": "Thema 1"
           },
           {
-            "time": 147.3453125
+            "bar_num": 9,
+            "name": "Verse 1"
           }
         ]
       },
@@ -366,7 +361,7 @@
         "manual_undone": []
       },
       "_lrclib_synced": "[00:13.91] All the small things\n[00:17.33] True care, truth brings\n[00:20.70] I'll take one lift\n[00:23.63] Your ride, best trip\n[00:26.95] Always, I know\n[00:30.20] You'll be at my show\n[00:33.42] Watching, waiting\n[00:36.63] Commiserating\n[00:39.75] Say it ain't so\n[00:41.62] I will not go\n[00:43.16] Turn the lights off\n[00:44.70] Carry me home\n[00:45.69] Na-na, na-na, na-na, na-na, na, na\n[00:48.75] Na-na, na-na, na-na, na-na, na, na\n[00:52.18] Na-na, na-na, na-na, na-na, na, na\n[00:55.29] Na-na, na-na, na-na, na-na, na, na\n[00:59.49] \n[01:12.36] Late night, come home\n[01:15.54] Work sucks, I know\n[01:18.64] She left me roses by the stairs\n[01:22.84] Surprises let me know she cares\n[01:25.34] Just say it ain't so\n[01:27.08] I will not go\n[01:28.74] Turn the lights off\n[01:30.31] Carry me home\n[01:31.27] Na-na, na-na, na-na, na-na, na, na\n[01:34.52] Na-na, na-na, na-na, na-na, na, na\n[01:37.72] Na-na, na-na, na-na, na-na, na, na\n[01:40.84] Na-na, na-na, na-na, na-na, na, na\n[01:45.33] \n[02:10.47] Just say it ain't so\n[02:12.47] I will not go\n[02:13.99] Turn the lights off\n[02:15.78] Carry me home\n[02:17.13] Keep your head still\n[02:18.92] I'll be your thrill\n[02:20.58] The night will go on\n[02:22.18] My little windmill\n[02:23.80] Say it ain't so\n[02:25.40] I will not go\n[02:27.06] Turn the lights off\n[02:28.84] Carry me home\n[02:30.36] Keep your head still\n[02:32.12] I'll be your thrill\n[02:33.65] The night will go on\n[02:35.15] The night will go on\n[02:36.88] My little windmill\n[02:37.83] ",
-      "total_bars": 103
+      "total_bars": 98
     },
     "tdyEcs": {
       "name": "Along comes Mary",
@@ -1151,7 +1146,8 @@
           {
             "time": 165.38036606546416
           }
-        ]
+        ],
+        "part_starts": []
       },
       "audio_ref": "audio/Always Where I Need to Be/Always Where I Need to Be - Full Song.mp3",
       "audio_ref_name": "Always Where I Need to Be - Full Song.mp3",
@@ -9645,6 +9641,55 @@
     "B1122": {
       "song_id": "UNIriZ",
       "bar_num": 131,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1123": {
+      "song_id": "5iZfKj",
+      "bar_num": 100,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1124": {
+      "song_id": "5iZfKj",
+      "bar_num": 101,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1125": {
+      "song_id": "5iZfKj",
+      "bar_num": 102,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1126": {
+      "song_id": "5iZfKj",
+      "bar_num": 103,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1127": {
+      "song_id": "CC9FBm",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1128": {
+      "song_id": "CC9FBm",
+      "bar_num": 25,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1129": {
+      "song_id": "CC9FBm",
+      "bar_num": 26,
       "lyrics": "",
       "audio": "",
       "has_accents": false

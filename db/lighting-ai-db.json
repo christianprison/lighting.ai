@@ -1614,7 +1614,7 @@
           }
         ]
       },
-      "lyrics_raw": "here we go again i kinda wanna be more then friends So take it easy on me I'm afraid you're never satisfied Here we go again, We're sick like animals we play pretend You're just a cannibal and I'm afraid I won't get out alive No I won't sleep tonight Oh oh I want some more Oh oh what are you waiting for Take a bite of my heart tonight Oh oh I want some more Oh oh what are you waiting for, what are you waiting for Take a bite of my heart tonight Here we are again, I feel the chemicals kicking in Its getting heavy and I want run and hide, I want to run and hide I do it every time You're killing me now, And I won't be denied by you, The animal inside of you Oh oh I want some more Oh oh what are you waiting for Take a bite of my heart tonight Oh oh I want some more Oh oh what are you waiting for, what are you waiting for Take a bite of my heart tonight Hush hush the world is quiet Hush hush we both can't fight it Its us that made this mess Why can't you understand Oh I won't sleep tonight, I won?t sleep tonight Here we go again (here we go again) Oh oh I want some more Oh oh what are you waiting for Take a bite of my heart tonight Oh oh I want some more Oh oh what are you waiting for, what are you waiting for, what are you waiting Here we go again, oh oh here we go again, oh oh here we go again, Say goodbye to my heart tonight Oh oh I want some more Oh oh what are you waiting for What are you wait for Say goodbye to my heart tonight",
+      "lyrics_raw": "here we go again i kinda wanna be more then friends So take it easy on me I'm afraid you're never satisfied Here we go again, We're sick like animals we play pretend You're just a cannibal and I'm afraid I won't get out alive No Oh oh I want some more Oh oh what are you waiting for Take heart tonight Oh oh I want some more Oh oh what are you waiting for, what are you waiting for Take a bite of my heart tonight Here we are again, I feel the chemicals kicking in Its getting heavy and I want run and hide, I want to run and hide I do it every time You're killing me be denied by you, The animal inside of you Oh oh I want some more Oh oh what are you waiting for Take a bite of my heart tonight Oh oh I want some more Oh oh what are you waiting for, what are you waiting for Take a bite of my heart tonight Hush hush the world is quiet can't fight it Its us that made this mess Why can't you understand Oh I won't sleep tonight, I won?t sleep tonight Here we go again (here we go again) Oh oh I want some more Oh oh what are you waiting for Take a bite of my heart tonight Oh oh Oh oh what are you waiting for, what are you waiting for, what are you waiting Here we go again, oh oh here we go again, oh oh here we go again, Say goodbye to my heart tonight Oh oh I want some more Oh oh what are you waiting for What Say goodbye to my heart tonight",
       "tms": {
         "manual_done": [],
         "user_tasks": [],
@@ -8899,7 +8899,7 @@
     "B1016": {
       "song_id": "UNIriZ",
       "bar_num": 25,
-      "lyrics": "Oh oh what are you waiting for Take",
+      "lyrics": "Oh oh what are you waiting for Take\n",
       "audio": "",
       "has_accents": false
     },
@@ -8913,7 +8913,7 @@
     "B1018": {
       "song_id": "UNIriZ",
       "bar_num": 27,
-      "lyrics": "heart tonight Oh oh",
+      "lyrics": "heart tonight Oh oh\n",
       "audio": "",
       "has_accents": false
     },
@@ -9025,7 +9025,7 @@
     "B1034": {
       "song_id": "UNIriZ",
       "bar_num": 43,
-      "lyrics": "be denied by you,",
+      "lyrics": "be denied by you,\n",
       "audio": "",
       "has_accents": false
     },
@@ -9137,7 +9137,7 @@
     "B1050": {
       "song_id": "UNIriZ",
       "bar_num": 59,
-      "lyrics": "can't fight it Its",
+      "lyrics": "can't fight it Its\n",
       "audio": "",
       "has_accents": false
     },
@@ -9235,7 +9235,7 @@
     "B1064": {
       "song_id": "UNIriZ",
       "bar_num": 73,
-      "lyrics": "Oh oh what are",
+      "lyrics": "Oh oh what are\n",
       "audio": "",
       "has_accents": false
     },
@@ -9361,7 +9361,7 @@
     "B1082": {
       "song_id": "UNIriZ",
       "bar_num": 91,
-      "lyrics": "I want some more",
+      "lyrics": "I want some more\n",
       "audio": "",
       "has_accents": false
     },
@@ -9389,7 +9389,7 @@
     "B1086": {
       "song_id": "UNIriZ",
       "bar_num": 95,
-      "lyrics": "Say goodbye to my",
+      "lyrics": "Say goodbye to my\n",
       "audio": "",
       "has_accents": false
     },

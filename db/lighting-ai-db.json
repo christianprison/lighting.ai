@@ -8793,7 +8793,7 @@
     "B1001": {
       "song_id": "UNIriZ",
       "bar_num": 9,
-      "lyrics": "Here we go again",
+      "lyrics": "Here we go again\n",
       "audio": "",
       "has_accents": false
     },
@@ -8899,7 +8899,7 @@
     "B1016": {
       "song_id": "UNIriZ",
       "bar_num": 25,
-      "lyrics": "I won't sleep tonight\n",
+      "lyrics": "I won't sleep tonight",
       "audio": "",
       "has_accents": false
     },

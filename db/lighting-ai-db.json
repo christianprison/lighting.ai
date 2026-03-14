@@ -1563,7 +1563,8 @@
         "part_starts": [
           {
             "bar_num": 1,
-            "name": "Intro"
+            "name": "Intro",
+            "instrumental": true
           },
           {
             "bar_num": 10,
@@ -1591,7 +1592,8 @@
           },
           {
             "bar_num": 84,
-            "name": "Thema"
+            "name": "Thema",
+            "instrumental": true
           },
           {
             "bar_num": 92,
@@ -1603,7 +1605,8 @@
           },
           {
             "bar_num": 110,
-            "name": "Solo Axel"
+            "name": "Solo Axel",
+            "instrumental": true
           },
           {
             "bar_num": 118,

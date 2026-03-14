@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.8.7';
+const APP_VERSION = 'v1.8.8';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -1683,6 +1683,7 @@ function getPartsForSong(songId) {
       pos: i + 1,
       name: ps.name,
       light_template: ps.light_template || '',
+      instrumental: ps.instrumental || false,
       barNum: ps.bar_num,
       barCount,
       startTime,
@@ -1724,6 +1725,7 @@ function renderPartsTab() {
   html += `<table class="parts-table"><thead><tr>`;
   html += `<th class="pt-num">#</th><th class="pt-name">Part</th><th class="pt-bars">Takte</th>`;
   html += `<th class="pt-dur">Dauer</th><th class="pt-play"></th>`;
+  html += `<th class="pt-instr" title="Instrumental — Takte werden beim Lyrics-Import übersprungen">Instr.</th>`;
   html += `<th class="pt-tpl">Lichtprogramm</th>`;
   html += `<th class="pt-qlc">QLC+</th>`;
   html += `</tr></thead><tbody>`;
@@ -1753,12 +1755,13 @@ function renderPartsTab() {
       }
     }
 
-    html += `<tr class="${isPlaying ? 'pt-row-playing' : ''}">`;
+    html += `<tr class="${isPlaying ? 'pt-row-playing' : ''}${p.instrumental ? ' pt-row-instrumental' : ''}">`;
     html += `<td class="pt-num">${i + 1}</td>`;
     html += `<td class="pt-name"><span class="pt-name-badge">${p.name}</span></td>`;
     html += `<td class="pt-bars">${p.barCount}</td>`;
     html += `<td class="pt-dur">${durStr}</td>`;
     html += `<td class="pt-play"><button class="pt-play-btn ${isPlaying ? 'playing' : ''}" data-idx="${i}" ${!hasBuf ? 'disabled' : ''}>${isPlaying ? '&#9724;' : '&#9654;'}</button></td>`;
+    html += `<td class="pt-instr"><input type="checkbox" class="pt-instr-cb" data-idx="${i}" ${p.instrumental ? 'checked' : ''} title="Instrumental (alle Takte dieses Parts beim Lyrics-Import überspringen)"></td>`;
     html += `<td class="pt-tpl"><select class="pt-tpl-select" data-idx="${i}"><option value="">— kein —</option>${buildTemplateOptions(p.light_template)}</select></td>`;
     html += `<td class="pt-qlc">${qlcHtml}</td>`;
     html += `</tr>`;
@@ -1774,6 +1777,14 @@ function renderPartsTab() {
     btn.addEventListener('click', () => {
       const idx = parseInt(btn.dataset.idx);
       partsTabTogglePlay(parts[idx]);
+    });
+  }
+
+  for (const cb of document.querySelectorAll('.pt-instr-cb')) {
+    cb.addEventListener('change', () => {
+      const idx = parseInt(cb.dataset.idx);
+      partsTabSetInstrumental(parts[idx].barNum, cb.checked);
+      renderPartsTab();
     });
   }
 
@@ -1854,6 +1865,31 @@ function partsTabSetTemplate(barNum, templateName) {
         markers[idx].lightTemplate = templateName;
       } else {
         delete markers[idx].lightTemplate;
+      }
+    }
+  }
+  markDirty();
+}
+
+function partsTabSetInstrumental(barNum, value) {
+  if (!selectedSongId || !db.songs[selectedSongId]) return;
+  const song = db.songs[selectedSongId];
+  if (!song.split_markers?.part_starts) return;
+  const ps = song.split_markers.part_starts.find(p => p.bar_num === barNum);
+  if (!ps) return;
+  if (value) {
+    ps.instrumental = true;
+  } else {
+    delete ps.instrumental;
+  }
+  // Sync in-memory marker
+  if (markers.length > 0) {
+    const idx = barNum - 1;
+    if (idx >= 0 && idx < markers.length) {
+      if (value) {
+        markers[idx].instrumental = true;
+      } else {
+        delete markers[idx].instrumental;
       }
     }
   }
@@ -2200,6 +2236,7 @@ function saveMarkersToSong() {
     if (markers[i].partName) {
       const ps = { bar_num: i + 1, name: markers[i].partName };
       if (markers[i].lightTemplate) ps.light_template = markers[i].lightTemplate;
+      if (markers[i].instrumental) ps.instrumental = true;
       partStarts.push(ps);
     }
   }
@@ -2242,6 +2279,7 @@ function restoreMarkersFromSong() {
       if (idx >= 0 && idx < markers.length && ps.name) {
         markers[idx].partName = ps.name;
         if (ps.light_template) markers[idx].lightTemplate = ps.light_template;
+        if (ps.instrumental) markers[idx].instrumental = true;
       }
     }
   }
@@ -3755,23 +3793,41 @@ function leBuildBlocks(songId) {
   let blockId = 0;
   const totalBars = song.total_bars || 0;
 
-  // Build part start lookup: bar_num → part name
+  // Build part start lookup: bar_num → {name, instrumental}
   const partStartMap = new Map();
   if (song.split_markers?.part_starts) {
     for (const ps of song.split_markers.part_starts) {
-      partStartMap.set(ps.bar_num, ps.name);
+      partStartMap.set(ps.bar_num, { name: ps.name, instrumental: ps.instrumental || false });
     }
+  }
+
+  // Build set of instrumental bar numbers (from parts + individual bars)
+  const instrBars = new Set();
+  if (song.split_markers?.part_starts) {
+    const starts = [...song.split_markers.part_starts].sort((a, b) => a.bar_num - b.bar_num);
+    for (let i = 0; i < starts.length; i++) {
+      if (starts[i].instrumental) {
+        const endBar = starts[i + 1] ? starts[i + 1].bar_num : totalBars + 1;
+        for (let b = starts[i].bar_num; b < endBar; b++) instrBars.add(b);
+      }
+    }
+  }
+  for (const [, bar] of Object.entries(db.bars)) {
+    if (bar.song_id === songId && bar.instrumental) instrBars.add(bar.bar_num);
   }
 
   let nextBarNewline = false;
   for (let b = 1; b <= totalBars; b++) {
+    const isInstr = instrBars.has(b);
     // Insert part block for part starts (replaces the separate bar block)
     if (partStartMap.has(b)) {
+      const { name } = partStartMap.get(b);
       blocks.push({
         type: 'part',
-        content: partStartMap.get(b),
+        content: name,
         barNum: b,
         newline: b > 1, // line break before every part except the first
+        instrumental: isInstr,
         id: `lb_${blockId++}`
       });
       nextBarNewline = false;
@@ -3781,6 +3837,7 @@ function leBuildBlocks(songId) {
         type: 'bar',
         content: String(b),
         barNum: b,
+        instrumental: isInstr,
         id: `lb_${blockId++}`
       };
       if (nextBarNewline) {
@@ -3833,9 +3890,23 @@ function leDistributeText(songId, rawText) {
   const allWords = cleanText.split(/\s+/).filter(w => w.length > 0);
   if (allWords.length === 0) return _leBlocks;
 
-  // All bars
   const totalBars = song.total_bars || 0;
   if (totalBars === 0) return _leBlocks;
+
+  // Build set of instrumental bar numbers (part-level + individual bar-level)
+  const instrBars = new Set();
+  if (song.split_markers?.part_starts) {
+    const starts = [...song.split_markers.part_starts].sort((a, b) => a.bar_num - b.bar_num);
+    for (let i = 0; i < starts.length; i++) {
+      if (starts[i].instrumental) {
+        const endBar = starts[i + 1] ? starts[i + 1].bar_num : totalBars + 1;
+        for (let b = starts[i].bar_num; b < endBar; b++) instrBars.add(b);
+      }
+    }
+  }
+  for (const [, bar] of Object.entries(db.bars)) {
+    if (bar.song_id === songId && bar.instrumental) instrBars.add(bar.bar_num);
+  }
 
   // Part start lookup
   const partStartMap = new Map();
@@ -3845,20 +3916,29 @@ function leDistributeText(songId, rawText) {
     }
   }
 
-  // Distribute words evenly
-  const wordsPerBar = Math.ceil(allWords.length / totalBars);
+  // Count non-instrumental bars for even distribution
+  let nonInstrCount = 0;
+  for (let b = 1; b <= totalBars; b++) {
+    if (!instrBars.has(b)) nonInstrCount++;
+  }
+  if (nonInstrCount === 0) return _leBlocks;
+
+  // Distribute words evenly across non-instrumental bars only
+  const wordsPerBar = Math.ceil(allWords.length / nonInstrCount);
   let wordIdx = 0;
 
   const blocks = [];
   let blockId = 0;
 
   for (let b = 1; b <= totalBars; b++) {
+    const isInstr = instrBars.has(b);
     if (partStartMap.has(b)) {
       blocks.push({
         type: 'part',
         content: partStartMap.get(b),
         barNum: b,
         newline: b > 1,
+        instrumental: isInstr,
         id: `lb_${blockId++}`
       });
     } else {
@@ -3866,19 +3946,22 @@ function leDistributeText(songId, rawText) {
         type: 'bar',
         content: String(b),
         barNum: b,
+        instrumental: isInstr,
         id: `lb_${blockId++}`
       });
     }
 
-    const barWords = allWords.slice(wordIdx, wordIdx + wordsPerBar);
-    wordIdx += wordsPerBar;
-    for (const w of barWords) {
-      blocks.push({
-        type: 'word',
-        content: w,
-        barNum: b,
-        id: `lb_${blockId++}`
-      });
+    if (!isInstr) {
+      const barWords = allWords.slice(wordIdx, wordIdx + wordsPerBar);
+      wordIdx += wordsPerBar;
+      for (const w of barWords) {
+        blocks.push({
+          type: 'word',
+          content: w,
+          barNum: b,
+          id: `lb_${blockId++}`
+        });
+      }
     }
   }
 
@@ -3950,6 +4033,7 @@ function renderLyricsTab() {
     <span class="le-legend-item"><span class="le-legend-swatch le-swatch-part"></span> Part</span>
     <span class="le-legend-item"><span class="le-legend-swatch le-swatch-bar"></span> Takt</span>
     <span class="le-legend-item"><span class="le-legend-swatch le-swatch-word"></span> Wort</span>
+    <span class="le-legend-item"><span class="le-legend-swatch le-swatch-instr"></span> Instrumental</span>
     <span class="le-legend-tip">&#9654; Part antippen = Abspielen</span>
   </div>`;
 
@@ -3973,14 +4057,17 @@ function leRenderBlocks() {
       html += '<span class="le-break"></span>';
     }
     const isIrreg = b.type === 'bar' && irregNums.has(b.barNum);
-    let cls = `le-block le-block-${b.type}${isIrreg ? ' le-block-irregular' : ''}`;
+    const isInstr = b.instrumental;
+    let cls = `le-block le-block-${b.type}${isIrreg ? ' le-block-irregular' : ''}${isInstr ? ' le-block-instrumental' : ''}`;
 
     let displayContent;
     let titleAttr = '';
     if (b.type === 'part') {
       // Part block: play icon + name, tap hint as tooltip
-      displayContent = '&#9654; ' + esc(b.content);
+      displayContent = '&#9654; ' + esc(b.content) + (isInstr ? ' <span class="le-instr-badge">Instr.</span>' : '');
       titleAttr = ' title="Tippen zum Abspielen"';
+    } else if (b.type === 'bar' && isInstr) {
+      displayContent = esc(b.content) + ' <span class="le-instr-badge">♪</span>';
     } else {
       displayContent = esc(b.content);
     }
@@ -6317,6 +6404,7 @@ function getAllBarsFlat() {
         barNum: absBar, absBar, barSec,
         lyrics: barData.lyrics || '',
         audio: barData.audio || '',
+        instrumental: barData.instrumental || false,
         accCount, barId
       });
     }
@@ -6415,6 +6503,7 @@ function buildTakteTabTable(bars, filterSong) {
         ${showWave ? '<th class="ttt-wave">Waveform</th>' : ''}
         <th class="ttt-time">Zeit</th>
         <th class="ttt-lyrics">Lyrics</th>
+        <th class="ttt-instr" title="Instrumental — Takt wird beim Lyrics-Import übersprungen">Instr.</th>
         <th class="ttt-acc">Acc.</th>
         <th class="ttt-audio">Audio</th>
       </tr></thead>
@@ -6437,7 +6526,7 @@ function buildTakteTabTable(bars, filterSong) {
 
           const canPlay = b.audio || (hasBuf && waveCanvas);
           const isIrreg = irregNums.has(b.absBar);
-          return `<tr class="ttt-row${isActive ? ' active' : ''}${isIrreg ? ' ttt-irregular' : ''}" data-song-id="${b.songId}" data-bar-num="${b.barNum}">
+          return `<tr class="ttt-row${isActive ? ' active' : ''}${isIrreg ? ' ttt-irregular' : ''}${b.instrumental ? ' ttt-instrumental' : ''}" data-song-id="${b.songId}" data-bar-num="${b.barNum}">
             <td class="ttt-nr mono ${isIrreg ? 'text-red' : 'text-t3'}">${showSongCol ? idx + 1 : b.absBar}</td>
             <td class="ttt-play">${canPlay ? `<button class="btn-bar-play${isBarPlaying ? ' playing' : ''}" data-action="play-bar" data-play-song-id="${b.songId}" data-play-bar-num="${b.barNum}" title="${isBarPlaying ? 'Stop' : 'Takt abspielen'}">${isBarPlaying ? '&#9632;' : '&#9654;'}</button>` : ''}</td>
             ${showSongCol ? `<td class="ttt-song"><span class="ttt-song-name">${esc(b.songName)}</span></td>` : ''}
@@ -6445,6 +6534,7 @@ function buildTakteTabTable(bars, filterSong) {
             ${showWave ? `<td class="ttt-wave">${waveCanvas}</td>` : ''}
             <td class="ttt-time mono text-t3">${fmtDur(Math.round(b.barSec))}</td>
             <td class="ttt-lyrics"><input type="text" value="${esc(b.lyrics)}" data-ttf="lyrics" class="takte-input" placeholder="\u2014"></td>
+            <td class="ttt-instr"><input type="checkbox" data-ttf="instrumental" ${b.instrumental ? 'checked' : ''} title="Instrumental"></td>
             <td class="ttt-acc mono text-t3">${b.accCount || '\u2014'}</td>
             <td class="ttt-audio">${b.audio ? '<span class="text-green">\u2713</span>' : '<span class="text-t4">\u2014</span>'}</td>
           </tr>`;
@@ -6490,6 +6580,13 @@ function renderTakteEditorSection() {
       <div style="margin-bottom: 12px">
         <label>Lyrics</label>
         <input type="text" class="bar-lyrics-input" value="${esc(barData.lyrics || '')}" data-tt-bar-lyrics="1" placeholder="Textzeile...">
+      </div>
+      <div style="margin-bottom: 12px" class="bar-editor-instr-row">
+        <label class="bar-instr-label">
+          <input type="checkbox" data-tt-bar-instr="1" ${barData.instrumental ? 'checked' : ''}>
+          <span>Instrumental</span>
+          <span class="text-t3" style="font-size:0.8rem;margin-left:6px;">— Takt wird beim Lyrics-Import übersprungen</span>
+        </label>
       </div>
       <div class="accent-grid">${cells}</div>
     </div>`;
@@ -6631,6 +6728,22 @@ function handleTakteTabChange(e) {
     return;
   }
 
+  // Instrumental checkbox in table row
+  if (el.dataset.ttf === 'instrumental' && el.type === 'checkbox') {
+    const row = el.closest('.ttt-row');
+    if (!row) return;
+    const barNum = parseInt(row.dataset.barNum, 10);
+    const [, barData] = getOrCreateBar(row.dataset.songId || selectedSongId, barNum);
+    if (el.checked) {
+      barData.instrumental = true;
+    } else {
+      delete barData.instrumental;
+    }
+    row.classList.toggle('ttt-instrumental', el.checked);
+    markDirty();
+    return;
+  }
+
   // Lyrics in editor
   if (el.hasAttribute('data-tt-bar-lyrics')) {
     const sel = takteTabSelectedBar;
@@ -6642,6 +6755,25 @@ function handleTakteTabChange(e) {
     const row = document.querySelector(`.ttt-row[data-bar-num="${sel.barNum}"]`);
     const inp = row?.querySelector('[data-ttf="lyrics"]');
     if (inp && inp !== el) inp.value = el.value;
+    return;
+  }
+
+  // Instrumental checkbox in bar editor
+  if (el.hasAttribute('data-tt-bar-instr') && el.type === 'checkbox') {
+    const sel = takteTabSelectedBar;
+    if (!sel) return;
+    const [, barData] = getOrCreateBar(sel.songId || selectedSongId, sel.barNum);
+    if (el.checked) {
+      barData.instrumental = true;
+    } else {
+      delete barData.instrumental;
+    }
+    // Sync table row checkbox
+    const row = document.querySelector(`.ttt-row[data-bar-num="${sel.barNum}"]`);
+    const cb = row?.querySelector('[data-ttf="instrumental"]');
+    if (cb) cb.checked = el.checked;
+    row?.classList.toggle('ttt-instrumental', el.checked);
+    markDirty();
     return;
   }
 }

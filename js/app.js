@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.8.8';
+const APP_VERSION = 'v1.8.9';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -28,6 +28,8 @@ let takteTabSelectedBar = null;  // {songId, barNum}
 
 /* ── Lyrics Editor State (Block-based Canvas) ──── */
 let _leBlocks = [];             // [{type:'bar'|'word', id, content, barNum}]
+let _leUndoStack = [];          // snapshots of _leBlocks for undo
+let _leRedoStack = [];          // snapshots of _leBlocks for redo
 let _leInitSongId = null;       // songId for which blocks were built
 let _leDrag = null;             // active drag state
 let _leContextMenu = null;      // active context menu element
@@ -3966,6 +3968,7 @@ function leDistributeText(songId, rawText) {
 function leInitFromSong(song) {
   _leInitSongId = selectedSongId;
   _leBlocks = leBuildBlocks(selectedSongId);
+  leClearUndoHistory();
 }
 
 /* ── Lyrics Editor: Rendering ────────────────────── */
@@ -4010,7 +4013,8 @@ function renderLyricsTab() {
         <button class="btn btn-sm lyrics-genius-link" id="le-genius-quick" title="Lyrics direkt von Genius laden">&#127925; Genius Auto</button>
         <a href="${geniusUrl}" target="_blank" rel="noopener" class="btn btn-sm" title="Genius-Suche &ouml;ffnen">&#128269; Genius</a>
         <button class="btn btn-sm" id="le-paste-btn" title="Text einfügen und auf Takte verteilen">&#128203; Text einf&uuml;gen</button>
-        ${hasWords ? '<button class="btn btn-sm le-btn-save" id="le-save-lyrics">&#128190; Speichern</button>' : ''}
+        <button class="btn btn-sm" id="le-undo" title="Undo" disabled>&#8630; Undo</button>
+        <button class="btn btn-sm" id="le-redo" title="Redo" disabled>&#8631; Redo</button>
         ${hasWords ? '<button class="btn btn-sm le-btn-danger" id="le-clear-words" title="Alle Wörter entfernen">W&ouml;rter l&ouml;schen</button>' : ''}
       </div>
     </div>`;
@@ -4034,6 +4038,7 @@ function renderLyricsTab() {
 
   // Wire canvas events
   leWireCanvasEvents();
+  leUpdateUndoRedoButtons();
 }
 
 /**
@@ -4148,9 +4153,16 @@ function leStartPartPlayback(partBarNum) {
   const barCount = endBarIdx - startBarIdx;
   const uniformBarDur = barCount > 0 ? dur / barCount : 0;
 
+  // Helper: schedule or call immediately if delay is 0
+  const schedule = (fn, delayMs) => {
+    if (delayMs === 0) { fn(); return; }
+    _lePlayTimers.push(setTimeout(fn, delayMs));
+  };
+
   for (let bi = startBarIdx; bi < endBarIdx; bi++) {
     const barNum = bi + 1;
     const localIdx = bi - startBarIdx;
+    const isFirstBar = localIdx === 0;
     const barStart = localIdx * uniformBarDur;
     const barEnd = (localIdx + 1) * uniformBarDur;
     const barDur = uniformBarDur;
@@ -4159,22 +4171,21 @@ function leStartPartPlayback(partBarNum) {
     const wordBlocks = _leBlocks.filter(bl => bl.type === 'word' && bl.barNum === barNum);
 
     if (wordBlocks.length === 0) {
-      // No lyrics: highlight the bar block itself
-      const t = setTimeout(() => leHighlightBlock(barNum, 'bar'), barStart * 1000);
-      _lePlayTimers.push(t);
-      const t2 = setTimeout(() => leUnhighlightBlock(barNum, 'bar'), barEnd * 1000);
-      _lePlayTimers.push(t2);
+      // First bar is already shown via le-playing on the part block — skip redundant highlight
+      if (!isFirstBar) {
+        schedule(() => leHighlightBlock(barNum, 'bar'), barStart * 1000);
+        _lePlayTimers.push(setTimeout(() => leUnhighlightBlock(barNum, 'bar'), barEnd * 1000));
+      }
     } else {
       // Karaoke: highlight words sequentially, evenly spaced across bar duration
       const wordDur = barDur / wordBlocks.length;
       for (let wi = 0; wi < wordBlocks.length; wi++) {
         const wordStart = barStart + wi * wordDur;
-        const t = setTimeout(() => leHighlightWord(wordBlocks[wi].id, barNum, wi), wordStart * 1000);
-        _lePlayTimers.push(t);
+        // Use schedule() so first word of first bar fires synchronously (no perceived delay)
+        schedule(() => leHighlightWord(wordBlocks[wi].id, barNum, wi), wordStart * 1000);
       }
       // Clear last word highlight at bar end
-      const t = setTimeout(() => leUnhighlightBar(barNum), barEnd * 1000);
-      _lePlayTimers.push(t);
+      _lePlayTimers.push(setTimeout(() => leUnhighlightBar(barNum), barEnd * 1000));
     }
   }
   } catch (err) {
@@ -4322,12 +4333,13 @@ function leWireCanvasEvents() {
     }
 
     // Move the block
+    lePushUndo();
     const [block] = _leBlocks.splice(fromIdx, 1);
     if (toIdx > fromIdx) toIdx--;
     _leBlocks.splice(toIdx, 0, block);
 
     _leDrag = null;
-    markDirty();
+    leCommitLyrics();
     leRefreshCanvas();
   });
 
@@ -4389,10 +4401,11 @@ function leWireCanvasEvents() {
           if (!leIsValidDrop(fromIdx, toIdx, blockData.type)) { touchDrag = null; return; }
         }
 
+        lePushUndo();
         const [block] = _leBlocks.splice(fromIdx, 1);
         if (toIdx > fromIdx) toIdx--;
         _leBlocks.splice(toIdx, 0, block);
-        markDirty();
+        leCommitLyrics();
         leRefreshCanvas();
       }
     } else {
@@ -4524,14 +4537,16 @@ async function leHandleContextAction(action, idx) {
   if (action === 'edit') {
     const newVal = prompt(`Wort bearbeiten:`, block.content);
     if (newVal === null || !newVal.trim() || newVal.trim() === block.content) return;
+    lePushUndo();
     block.content = newVal.trim();
-    markDirty();
+    leCommitLyrics();
     leRefreshCanvas();
   }
 
   else if (action === 'delete') {
+    lePushUndo();
     _leBlocks.splice(idx, 1);
-    markDirty();
+    leCommitLyrics();
     leRefreshCanvas();
   }
 
@@ -4539,7 +4554,6 @@ async function leHandleContextAction(action, idx) {
     const word = block.content;
     const input = prompt(`Trennen mit Bindestrich (-) oder Leerzeichen in "${word}":`, word);
     if (!input || input === word) return;
-    // Split by spaces first, then by hyphens (keeping hyphens attached)
     const tokens = [];
     input.split(/\s+/).filter(s => s.length > 0).forEach(chunk => {
       if (chunk.includes('-')) {
@@ -4550,45 +4564,45 @@ async function leHandleContextAction(action, idx) {
       }
     });
     if (tokens.length < 2) return;
+    lePushUndo();
     const newBlocks = tokens.map((t, i) => ({
       type: 'word',
       content: t,
-      
       barNum: block.barNum,
       id: `lb_${Date.now()}_${i}`
     }));
     _leBlocks.splice(idx, 1, ...newBlocks);
-    markDirty();
+    leCommitLyrics();
     leRefreshCanvas();
   }
 
   else if (action === 'merge') {
-    // Merge with next word block
     let nextWordIdx = -1;
     for (let i = idx + 1; i < _leBlocks.length; i++) {
       if (_leBlocks[i].type === 'word') { nextWordIdx = i; break; }
-      if (_leBlocks[i].type === 'bar' || _leBlocks[i].type === 'part') break; // don't cross structural blocks
+      if (_leBlocks[i].type === 'bar' || _leBlocks[i].type === 'part') break;
     }
     if (nextWordIdx < 0) {
       toast('Kein Wort dahinter zum Zusammensetzen', 'warn');
       return;
     }
+    lePushUndo();
     block.content = block.content + ' ' + _leBlocks[nextWordIdx].content;
     _leBlocks.splice(nextWordIdx, 1);
-    markDirty();
+    leCommitLyrics();
     leRefreshCanvas();
   }
 
   else if (action === 'duplicate') {
+    lePushUndo();
     const dup = {
       type: 'word',
       content: block.content,
-      
       barNum: block.barNum,
       id: `lb_${Date.now()}_dup`
     };
     _leBlocks.splice(idx + 1, 0, dup);
-    markDirty();
+    leCommitLyrics();
     leRefreshCanvas();
   }
 
@@ -4599,102 +4613,137 @@ async function leHandleContextAction(action, idx) {
 
   else if (action === 'paste') {
     if (!_leClipboard) { toast('Nichts kopiert', 'warn'); return; }
+    lePushUndo();
     const pasted = {
       type: 'word',
       content: _leClipboard.content,
-      
       barNum: block.barNum,
       id: `lb_${Date.now()}_paste`
     };
     _leBlocks.splice(idx, 0, pasted);
-    markDirty();
+    leCommitLyrics();
     leRefreshCanvas();
   }
 
   else if (action === 'insert') {
     const newWord = prompt('Neues Wort eingeben:');
     if (!newWord || !newWord.trim()) return;
+    lePushUndo();
     const words = newWord.trim().split(/\s+/);
     const newBlocks = words.map((w, i) => ({
       type: 'word',
       content: w,
-      
       barNum: block.barNum,
       id: `lb_${Date.now()}_ins_${i}`
     }));
     _leBlocks.splice(idx + 1, 0, ...newBlocks);
-    markDirty();
+    leCommitLyrics();
     leRefreshCanvas();
   }
 
   else if (action === 'newline') {
-    // Toggle line break before this bar block
+    lePushUndo();
     block.newline = !block.newline;
-    markDirty();
+    leCommitLyrics();
     leRefreshCanvas();
   }
+}
+
+/* ── Lyrics Editor: Undo / Redo ──────────────────── */
+
+/** Save a deep-copy snapshot of _leBlocks onto the undo stack. */
+function lePushUndo() {
+  _leUndoStack.push(JSON.parse(JSON.stringify(_leBlocks)));
+  _leRedoStack = [];
+  leUpdateUndoRedoButtons();
+}
+
+/** Undo last action. */
+function leUndo() {
+  if (_leUndoStack.length === 0) return;
+  _leRedoStack.push(JSON.parse(JSON.stringify(_leBlocks)));
+  _leBlocks = _leUndoStack.pop();
+  leCommitLyrics();
+  leRefreshCanvas();
+  leUpdateUndoRedoButtons();
+}
+
+/** Redo last undone action. */
+function leRedo() {
+  if (_leRedoStack.length === 0) return;
+  _leUndoStack.push(JSON.parse(JSON.stringify(_leBlocks)));
+  _leBlocks = _leRedoStack.pop();
+  leCommitLyrics();
+  leRefreshCanvas();
+  leUpdateUndoRedoButtons();
+}
+
+/** Clear undo/redo history (call after save or song switch). */
+function leClearUndoHistory() {
+  _leUndoStack = [];
+  _leRedoStack = [];
+  leUpdateUndoRedoButtons();
+}
+
+/** Enable/disable Undo/Redo buttons based on stack state. */
+function leUpdateUndoRedoButtons() {
+  const u = document.getElementById('le-undo');
+  const r = document.getElementById('le-redo');
+  if (u) u.disabled = _leUndoStack.length === 0;
+  if (r) r.disabled = _leRedoStack.length === 0;
 }
 
 /* ── Lyrics Editor: Save Logic ───────────────────── */
 
 /**
- * Save lyrics from block positions back to bar DB entries.
- * Words between two bar blocks belong to the first bar.
+ * Commit _leBlocks → db.bars (in-memory only, no GitHub upload).
+ * Called after every block mutation and after undo/redo.
  */
-function leSaveLyrics() {
+function leCommitLyrics() {
   if (!selectedSongId) return;
   ensureCollections();
 
-  // First, clear all existing bar lyrics for this song
   for (const [, b] of Object.entries(db.bars)) {
     if (b.song_id === selectedSongId) b.lyrics = '';
   }
 
-  // Walk through blocks, collect words per bar
   let currentBarNum = null;
   let currentWords = [];
-  let filledBars = 0;
 
-  function flushWords(nextBarHasNewline) {
+  function flush(nextBarHasNewline) {
     if (currentBarNum && currentWords.length > 0) {
       const [, barData] = getOrCreateBar(selectedSongId, currentBarNum);
       let text = currentWords.join(' ');
-      // Persist newline: append \n to last word if next bar starts a new line
       if (nextBarHasNewline) text += '\n';
       barData.lyrics = text;
-      filledBars++;
     }
     currentWords = [];
   }
 
   for (const block of _leBlocks) {
     if (block.type === 'part') {
-      // Part blocks carry newline flag — flush preceding bar if needed
-      if (block.newline) flushWords(true);
+      if (block.newline) flush(true);
     } else if (block.type === 'bar') {
-      flushWords(block.newline || false);
+      flush(block.newline || false);
       currentBarNum = block.barNum;
     } else if (block.type === 'word') {
       currentWords.push(block.content);
     }
   }
-  flushWords(false);
+  flush(false);
 
-  // Also save lyrics_raw from all words in order
   const song = db.songs[selectedSongId];
   if (song) {
-    const rawWords = [];
-    for (const block of _leBlocks) {
-      if (block.type === 'word') {
-        rawWords.push(block.content + ' ');
-      }
-    }
-    song.lyrics_raw = rawWords.join('').trim();
+    song.lyrics_raw = _leBlocks.filter(b => b.type === 'word').map(b => b.content).join(' ');
   }
-
   markDirty();
-  handleSave(false);
-  toast(`Lyrics f\u00fcr ${filledBars} Takte gespeichert`, 'success');
+}
+
+/**
+ * @deprecated Use leCommitLyrics() — kept for compatibility if called externally.
+ */
+function leSaveLyrics() {
+  leCommitLyrics();
 }
 
 /* ── Lyrics Editor: Text Paste / Import ──────────── */
@@ -4931,9 +4980,9 @@ async function leShowPasteDialog() {
     const text = textarea.value.trim();
     if (!text) { toast('Kein Text eingegeben', 'error'); return; }
 
+    lePushUndo();
     _leBlocks = leDistributeText(selectedSongId, text);
-    if (song) song.lyrics_raw = text;
-    markDirty();
+    leCommitLyrics();
     leRefreshCanvas();
     close();
     toast('Text auf Takte verteilt', 'success');
@@ -4943,18 +4992,9 @@ async function leShowPasteDialog() {
 /* ── Lyrics Editor: Clear Words ──────────────────── */
 
 function leClearWords() {
+  lePushUndo();
   _leBlocks = _leBlocks.filter(b => b.type !== 'word');
-
-  // Clear bar lyrics in DB
-  ensureCollections();
-  for (const [, b] of Object.entries(db.bars)) {
-    if (b.song_id === selectedSongId) b.lyrics = '';
-  }
-
-  const song = db.songs[selectedSongId];
-  if (song) song.lyrics_raw = '';
-
-  markDirty();
+  leCommitLyrics();
   renderLyricsTab();
 }
 
@@ -4967,7 +5007,8 @@ function handleLyricsClick(e) {
 
   if (id === 'le-paste-btn') leShowPasteDialog();
   else if (id === 'le-genius-quick') leGeniusQuickFetch();
-  else if (id === 'le-save-lyrics') leSaveLyrics();
+  else if (id === 'le-undo') leUndo();
+  else if (id === 'le-redo') leRedo();
   else if (id === 'le-clear-words') {
     if (confirm('Alle W\u00f6rter entfernen?')) leClearWords();
   }
@@ -5014,9 +5055,9 @@ async function leGeniusQuickFetch() {
     }
 
     if (!lyrics || lyrics.length < 20) throw new Error('Keine Lyrics gefunden (Genius + Fallback fehlgeschlagen)');
+    lePushUndo();
     _leBlocks = leDistributeText(selectedSongId, lyrics);
-    song.lyrics_raw = lyrics;
-    markDirty();
+    leCommitLyrics();
     leRefreshCanvas();
     toast(`Lyrics von ${source} geladen & verteilt`, 'success');
   } catch (err) {
@@ -7024,6 +7065,7 @@ async function handleSave(showToast = true) {
     setSyncStatus('saved');
     updateDebugPanel();
     if (showToast) toast('Gespeichert', 'success');
+    leClearUndoHistory();
 
     // Auto-export audio segments only from the audio tab
 

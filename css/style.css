@@ -1529,6 +1529,20 @@ td.pt-instr input[type="checkbox"] { accent-color: var(--amber); width: 16px; he
 .accent-cell.fg .accent-tag { color: var(--t3); }
 
 /* ── Summary Bar ──────────────────────────────────── */
+.takte-tab-panel {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+  height: 100%;
+}
+
+.takte-tab-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
 .summary-bar {
   display: flex;
   align-items: center;

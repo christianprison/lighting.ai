@@ -4143,12 +4143,17 @@ function leStartPartPlayback(partBarNum) {
   // Highlight the part block
   leHighlightPartBlock(partBarNum, true);
 
-  // Schedule bar/word highlights based on marker timings
+  // Schedule bar/word highlights with uniform bar duration
+  // (part duration divided equally across all bars — bars always equal length)
+  const barCount = endBarIdx - startBarIdx;
+  const uniformBarDur = barCount > 0 ? dur / barCount : 0;
+
   for (let bi = startBarIdx; bi < endBarIdx; bi++) {
     const barNum = bi + 1;
-    const barStart = (allMarkers[bi]?.time ?? 0) - startTime;
-    const barEnd = (bi + 1 < allMarkers.length ? allMarkers[bi + 1].time : endTime) - startTime;
-    const barDur = barEnd - barStart;
+    const localIdx = bi - startBarIdx;
+    const barStart = localIdx * uniformBarDur;
+    const barEnd = (localIdx + 1) * uniformBarDur;
+    const barDur = uniformBarDur;
 
     // Find word blocks for this bar
     const wordBlocks = _leBlocks.filter(bl => bl.type === 'word' && bl.barNum === barNum);

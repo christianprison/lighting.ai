@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.8.4';
+const APP_VERSION = 'v1.8.5';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -5633,16 +5633,19 @@ function findChaserForSong(chasers, songName) {
 /** Try to match a chaser step note to a part name */
 function matchStepToPart(stepNote, parts) {
   if (!stepNote) return null;
-  const normNote = _qxwNormalize(stepNote);
+  // Strip QLC+ timestamps like "0:02", "1:38", "2:30" from the end of the note
+  const stripped = stepNote.replace(/\s+\d+:\d+\s*$/, '').trim();
+  const normNote = _qxwNormalize(stripped);
+  if (!normNote) return null;
   // Exact match
   for (const p of parts) {
     if (_qxwNormalize(p.name) === normNote) return p;
   }
-  // Base name match (strip trailing numbers and parenthetical)
-  const noteBase = normNote.replace(/\s*(\(.*?\)\s*|\d+\s*)*$/, '').trim();
+  // Base name match (strip trailing numbers like "Chorus 1" → "Chorus")
+  const noteBase = normNote.replace(/\s+\d+\s*$/, '').trim();
   if (!noteBase) return null;
   for (const p of parts) {
-    const partBase = _qxwNormalize(p.name).replace(/\s*(\(.*?\)\s*|\d+\s*)*$/, '').trim();
+    const partBase = _qxwNormalize(p.name).replace(/\s+\d+\s*$/, '').trim();
     if (partBase === noteBase) return p;
   }
   return null;
@@ -5740,10 +5743,11 @@ function closeChaserModal() {
 }
 
 function renderChaserModalContent(modal, songId, chaserName, steps, parts) {
-  // Pre-match each step
+  // Re-match each step; preserve manually assigned matchedPart and assigned flag
   const stepMatches = steps.map(s => {
-    const matched = matchStepToPart(s.note, parts);
-    return { ...s, matchedPart: matched, assigned: false };
+    const matched = s.assigned ? s.matchedPart : (matchStepToPart(s.note, parts) ?? s.matchedPart ?? null);
+    return { ...s, matchedPart: matched };
+    // Note: assigned is preserved from s via spread (not reset to false)
   });
 
   const fmtHold = (ms) => {
@@ -5801,23 +5805,18 @@ function renderChaserModalContent(modal, songId, chaserName, steps, parts) {
   // Store step data on the modal for access
   modal._chaserData = { songId, steps: stepMatches, parts, chaserName };
 
-  // Event handlers
-  modal.addEventListener('click', (e) => {
-    if (e.target.closest('.tms-close-btn')) { closeChaserModal(); return; }
-
-    // Batch button
-    if (e.target.closest('#chaser-batch-btn')) {
-      handleChaserBatch(modal);
-      return;
-    }
-
-    // Single step click
-    const stepEl = e.target.closest('[data-chaser-idx]');
-    if (stepEl) {
-      const idx = parseInt(stepEl.dataset.chaserIdx);
-      handleChaserStepClick(modal, idx);
-    }
-  });
+  // Attach click handler only once (re-renders must not stack listeners)
+  if (!modal._clickListenerAdded) {
+    modal._clickListenerAdded = true;
+    modal.addEventListener('click', (e) => {
+      if (e.target.closest('.tms-close-btn')) { closeChaserModal(); return; }
+      if (e.target.closest('#chaser-batch-btn')) { handleChaserBatch(modal); return; }
+      const stepEl = e.target.closest('[data-chaser-idx]');
+      if (stepEl && !stepEl.classList.contains('chaser-item-done') && !stepEl.classList.contains('chaser-item-muted')) {
+        handleChaserStepClick(modal, parseInt(stepEl.dataset.chaserIdx));
+      }
+    });
+  }
 }
 
 function handleChaserStepClick(modal, idx) {

@@ -1627,7 +1627,7 @@
       },
       "audio_ref": "audio/Always Where I Need to Be/Always Where I Need to Be - Full Song.mp3",
       "audio_ref_name": "Always Where I Need to Be - Full Song.mp3",
-      "lyrics_raw": "She don't know who she is Oh, I can take her anywhere Do whatever comes naturally to you You know she just don't care You know she just don't care Because I am always where I need to be And I always thought end up with you eventually Do, do, do-do-do, do-do Do, do, do-do-do, do-do do, do-do-do, do-do And now I see her again I ask to be her hummingbird Whisper ear Oh, now you know I just know she just don't care Because I am always where I need to be And I always thought end up with you eventually Do, do, do-do-do, do-do Do, do, do-do-do, do-do do, do-do-do, do-do I'm a man, I'm a man, oh, oh, I'm a man on the scene and I can be so obscene Because I always think that I know how to be But I always end up with you eventually Do, do, do-do-do, do-do Do, do, do-do-do, do-do do, do-do-do, do-do I'm a man, I'm a man on the scene I'm a man, I'm a man, I can be so obscene",
+      "lyrics_raw": "She don't know who she is Oh, I can take her anywhere Do what- ever comes naturally to you You know she just don't care You know she just don't care Because I am always where I need to be And I always thought end up with you eventually Do, do, do-do-do, do-do Do, do, do-do-do, do-do do, do-do-do, do-do And now I see her again I ask to be her hummingbird Whisper ear Oh, now you know I just know she just don't care Because I am always where I need to be And I always thought end up with you eventually Do, do, do-do-do, do-do Do, do, do-do-do, do-do do, do-do-do, do-do I'm a man, I'm a man, oh, oh, I'm a man on the scene and I can be so obscene Because I always think that I know how to be But I always end up with you eventually Do, do, do-do-do, do-do Do, do, do-do-do, do-do do, do-do-do, do-do I'm a man, I'm a man on the scene I'm a man, I'm a man, I can be so obscene",
       "tms": {
         "manual_done": [
           "bar_markers"
@@ -5940,21 +5940,21 @@
     },
     "B0173": {
       "bar_num": 17,
-      "lyrics": "Do whatever",
+      "lyrics": "Do what-",
       "audio": "audio/Always Where I Need to Be/03 Verse 1/017 Always Where I Need to Be Verse 1.mp3",
       "has_accents": false,
       "song_id": "CC9FBm"
     },
     "B0174": {
       "bar_num": 18,
-      "lyrics": "comes naturally to you",
+      "lyrics": "ever comes",
       "audio": "audio/Always Where I Need to Be/03 Verse 1/018 Always Where I Need to Be Verse 1.mp3",
       "has_accents": false,
       "song_id": "CC9FBm"
     },
     "B0175": {
       "bar_num": 19,
-      "lyrics": "",
+      "lyrics": "naturally to you",
       "audio": "audio/Always Where I Need to Be/03 Verse 1/019 Always Where I Need to Be Verse 1.mp3",
       "has_accents": false,
       "song_id": "CC9FBm"

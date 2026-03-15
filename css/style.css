@@ -2375,6 +2375,29 @@ td.pt-instr input[type="checkbox"] { accent-color: var(--amber); width: 16px; he
   padding: 20px;
 }
 
+/* ── Parts Tab Tip ────────────────────────────────── */
+.parts-tip {
+  font-size: 0.82rem;
+  color: var(--t2);
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 12px;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+.parts-tip strong { color: var(--t1); }
+.parts-tip-warn {
+  border-color: var(--amber);
+  color: var(--amber);
+}
+.parts-tip-warn strong { color: var(--amber); }
+.parts-tip-ok {
+  border-color: var(--green);
+  color: var(--green);
+}
+.parts-tip-ok strong { color: var(--green); }
+
 /* ── Parts Tab Header (Filter + Toolbar) ──────────── */
 .parts-tab-header {
   display: flex;

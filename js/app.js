@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.9.3';
+const APP_VERSION = 'v1.9.4';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -1743,12 +1743,25 @@ function renderPartsTab() {
     return;
   }
 
+  // Tip: context-sensitive hint above the table
+  if (!_partsTabQlcSteps) {
+    html += `<div class="parts-tip">&#128161; <strong>Workflow:</strong> &bdquo;QLC+ Chaser laden&ldquo; &rarr; App gleicht Part-Namen automatisch mit den Step-Notes im Chaser ab &rarr; Lichtprogramm per <strong>&rarr;</strong> in einer Zeile übernehmen.</div>`;
+  } else {
+    const matchCount = parts.filter(p => _partsTabQlcSteps.find(s => !s.isTitle && s.note && matchStepToPart(s.note, [{ name: p.name }]))).length;
+    const unmatched = parts.length - matchCount;
+    if (unmatched > 0) {
+      html += `<div class="parts-tip parts-tip-warn">&#9888; ${matchCount} von ${parts.length} Parts gematcht. ${unmatched} ohne Treffer &mdash; Part-Namen im <strong>Audio Split</strong>-Tab an die Step-Notes im QLC+-Chaser angleichen.</div>`;
+    } else {
+      html += `<div class="parts-tip parts-tip-ok">&#10003; Alle ${parts.length} Parts gematcht &mdash; Lichtprogramme per <strong>&rarr;</strong> übernehmen.</div>`;
+    }
+  }
+
   html += `<table class="parts-table"><thead><tr>`;
   html += `<th class="pt-num">#</th><th class="pt-name">Part</th><th class="pt-bars">Takte</th>`;
   html += `<th class="pt-dur">Dauer</th><th class="pt-play"></th>`;
   html += `<th class="pt-instr" title="Instrumental — Takte werden beim Lyrics-Import übersprungen">Instr.</th>`;
   html += `<th class="pt-tpl">Lichtprogramm</th>`;
-  html += `<th class="pt-qlc">QLC+</th>`;
+  html += `<th class="pt-qlc" title="Vorgeschlagenes Lichtprogramm aus QLC+-Chaser. Voraussetzung: Part-Name stimmt (ungefähr) mit der Step-Note im Chaser überein.">QLC+</th>`;
   html += `</tr></thead><tbody>`;
 
   for (let i = 0; i < parts.length; i++) {

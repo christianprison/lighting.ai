@@ -1541,67 +1541,87 @@
         "part_starts": [
           {
             "bar_num": 1,
-            "name": "Intro (nur Axel)"
+            "name": "Intro (nur Axel)",
+            "light_template": "Spot auf Axel",
+            "instrumental": true
           },
           {
             "bar_num": 5,
-            "name": "Thema 1"
+            "name": "Thema 1",
+            "light_template": "09 Alarm",
+            "instrumental": true
           },
           {
             "bar_num": 13,
-            "name": "Verse 1"
+            "name": "Verse 1",
+            "light_template": "03 walking"
           },
           {
             "bar_num": 21,
-            "name": "Bridge 1"
+            "name": "Bridge 1",
+            "light_template": "07 round'n'round"
           },
           {
             "bar_num": 25,
-            "name": "Chorus 1"
+            "name": "Chorus 1",
+            "light_template": "06 blinking"
           },
           {
             "bar_num": 33,
-            "name": "Thema 2 (dudup)"
+            "name": "Thema 2 (dudup)",
+            "light_template": "09 Alarm"
           },
           {
             "bar_num": 41,
-            "name": "Verse 2"
+            "name": "Verse 2",
+            "light_template": "03 walking"
           },
           {
             "bar_num": 49,
-            "name": "Bridge 2"
+            "name": "Bridge 2",
+            "light_template": "07 round'n'round"
           },
           {
             "bar_num": 53,
-            "name": "Chorus 2"
+            "name": "Chorus 2",
+            "light_template": "06 blinking"
           },
           {
             "bar_num": 61,
-            "name": "Thema 3 (dudup)"
+            "name": "Thema 3 (dudup)",
+            "light_template": "09 Alarm"
           },
           {
             "bar_num": 69,
-            "name": "Solo Axel"
+            "name": "Solo Axel",
+            "light_template": "Spot auf Axel",
+            "instrumental": true
           },
           {
             "bar_num": 85,
-            "name": "Interlude"
+            "name": "Interlude",
+            "light_template": "06 blinking"
           },
           {
             "bar_num": 93,
-            "name": "Stop"
+            "name": "Stop",
+            "light_template": "Spot auf Pete"
           },
           {
             "bar_num": 101,
-            "name": "Thema 4 (dudup)"
+            "name": "Thema 4 (dudup)",
+            "light_template": "09 Alarm"
           },
           {
             "bar_num": 109,
-            "name": "Thema 5 (Finale)"
+            "name": "Thema 5 (Finale)",
+            "light_template": "10 Alarm 🔔🔔"
           },
           {
             "bar_num": 117,
-            "name": "Ausklang"
+            "name": "Ausklang",
+            "light_template": "01 statisch bunt",
+            "instrumental": true
           }
         ]
       },
@@ -1615,7 +1635,99 @@
         "user_tasks": [],
         "manual_undone": []
       },
-      "total_bars": 117
+      "total_bars": 117,
+      "qlc_parts": {
+        "CC9FBm_QP001": {
+          "pos": 1,
+          "name": "Intro (nur Axel)",
+          "light_template": "Spot auf Axel",
+          "notes": ""
+        },
+        "CC9FBm_QP002": {
+          "pos": 2,
+          "name": "Intro (alle)",
+          "light_template": "09 Alarm",
+          "notes": ""
+        },
+        "CC9FBm_QP003": {
+          "pos": 3,
+          "name": "Verse 1",
+          "light_template": "03 walking",
+          "notes": ""
+        },
+        "CC9FBm_QP004": {
+          "pos": 4,
+          "name": "Chorus 1",
+          "light_template": "06 blinking",
+          "notes": ""
+        },
+        "CC9FBm_QP005": {
+          "pos": 5,
+          "name": "Dudup 1",
+          "light_template": "09 Alarm",
+          "notes": ""
+        },
+        "CC9FBm_QP006": {
+          "pos": 6,
+          "name": "Verse 2",
+          "light_template": "03 walking",
+          "notes": ""
+        },
+        "CC9FBm_QP007": {
+          "pos": 7,
+          "name": "Chorus 2",
+          "light_template": "06 blinking",
+          "notes": ""
+        },
+        "CC9FBm_QP008": {
+          "pos": 8,
+          "name": "Dudup 2",
+          "light_template": "09 Alarm",
+          "notes": ""
+        },
+        "CC9FBm_QP009": {
+          "pos": 9,
+          "name": "Solo Axel",
+          "light_template": "Spot auf Axel",
+          "notes": ""
+        },
+        "CC9FBm_QP010": {
+          "pos": 10,
+          "name": "Interlude 1",
+          "light_template": "06 blinking",
+          "notes": ""
+        },
+        "CC9FBm_QP011": {
+          "pos": 11,
+          "name": "Interlude 2 (stop)",
+          "light_template": "01 statisch bunt",
+          "notes": ""
+        },
+        "CC9FBm_QP012": {
+          "pos": 12,
+          "name": "\"eventually\"",
+          "light_template": "10 Strobe",
+          "notes": ""
+        },
+        "CC9FBm_QP013": {
+          "pos": 13,
+          "name": "Dudup 3",
+          "light_template": "09 Alarm",
+          "notes": ""
+        },
+        "CC9FBm_QP014": {
+          "pos": 14,
+          "name": "Dudup 4",
+          "light_template": "10 Strobe",
+          "notes": ""
+        },
+        "CC9FBm_QP015": {
+          "pos": 15,
+          "name": "Ausklang",
+          "light_template": "01 statisch bunt",
+          "notes": ""
+        }
+      }
     },
     "UNIriZ": {
       "name": "Animal",

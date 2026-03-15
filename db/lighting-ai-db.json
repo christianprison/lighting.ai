@@ -35,8 +35,8 @@
       "year": "1999",
       "pick": "🔻",
       "gema_nr": "5005294-001",
-      "duration": "2:28",
-      "duration_sec": 148,
+      "duration": "2:34",
+      "duration_sec": 154,
       "notes": "nach 2. ref. direkt interlude; ; Intro; Verse 1; Bridge; Chorus; Intro; Verse 2; Bridge; Chorus; Interlude; Power-Bridge; Ende",
       "qlc_id": 88,
       "split_markers": {
@@ -344,6 +344,50 @@
           {
             "bar_num": 9,
             "name": "Verse 1"
+          },
+          {
+            "bar_num": 25,
+            "name": "Bridge 1"
+          },
+          {
+            "bar_num": 29,
+            "name": "Chorus 1 (nana)"
+          },
+          {
+            "bar_num": 37,
+            "name": "Thema 2"
+          },
+          {
+            "bar_num": 45,
+            "name": "Verse 2"
+          },
+          {
+            "bar_num": 53,
+            "name": "Bridge 2"
+          },
+          {
+            "bar_num": 57,
+            "name": "Chorus 2"
+          },
+          {
+            "bar_num": 65,
+            "name": "Interlude"
+          },
+          {
+            "bar_num": 73,
+            "name": "Crescendo"
+          },
+          {
+            "bar_num": 81,
+            "name": "Bridge 3 (Power)"
+          },
+          {
+            "bar_num": 89,
+            "name": "Chorus 3"
+          },
+          {
+            "bar_num": 98,
+            "name": "Ausklang"
           }
         ]
       },

@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.9.8';
+const APP_VERSION = 'v2.0.2';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -2731,7 +2731,7 @@ function onWaveformPointerMove(e) {
         const sorted = [...markers].sort((a, b) => a.time - b.time);
         const absNum = sorted.indexOf(_dragMarker.marker) + 1;
         const label = `Bar ${absNum}`;
-        const color = '#38bdf8';
+        const color = _dragMarker.isPartStart ? '#f0a030' : '#38bdf8';
         showDragBalloon(label, newTime, color, clientX, clientY);
       }
     }
@@ -4762,13 +4762,18 @@ function leCommitLyrics() {
   if (!selectedSongId) return;
   ensureCollections();
 
-  // Reassign barNum on all word/bar blocks based on current array order.
-  // Drag-drop only splices _leBlocks without updating barNum properties,
-  // so without this step playback highlights use stale bar assignments.
-  let _assignBarNum = null;
+  // Reassign barNums sequentially to all bar/part blocks (in current array order),
+  // then cascade to following word blocks. This corrects stale barNums after any
+  // drag-drop, including moved part blocks whose barNum would otherwise be stale.
+  let _barSeq = 0;
+  let _lastBarNum = null;
   for (const block of _leBlocks) {
-    if (block.type === 'bar') { _assignBarNum = block.barNum; }
-    else if (block.type === 'word') { block.barNum = _assignBarNum; }
+    if (block.type === 'bar' || block.type === 'part') {
+      block.barNum = ++_barSeq;
+      _lastBarNum = block.barNum;
+    } else if (block.type === 'word') {
+      block.barNum = _lastBarNum;
+    }
   }
 
   for (const [, b] of Object.entries(db.bars)) {
@@ -4788,10 +4793,9 @@ function leCommitLyrics() {
     currentWords = [];
   }
 
+  // Both 'bar' and 'part' blocks act as bar markers for lyrics assignment
   for (const block of _leBlocks) {
-    if (block.type === 'part') {
-      if (block.newline) flush(true);
-    } else if (block.type === 'bar') {
+    if (block.type === 'bar' || block.type === 'part') {
       flush(block.newline || false);
       currentBarNum = block.barNum;
     } else if (block.type === 'word') {
@@ -4803,6 +4807,26 @@ function leCommitLyrics() {
   const song = db.songs[selectedSongId];
   if (song) {
     song.lyrics_raw = _leBlocks.filter(b => b.type === 'word').map(b => b.content).join(' ');
+
+    // Rebuild split_markers.part_starts from the current positions of part blocks.
+    // Without this, dragging a part block visually moves it but the saved bar_num
+    // stays at the old value → after reload the part snaps back to its old position.
+    if (song.split_markers) {
+      const oldPartMap = new Map(
+        (song.split_markers.part_starts || []).map(ps => [ps.name, ps])
+      );
+      song.split_markers.part_starts = _leBlocks
+        .filter(b => b.type === 'part')
+        .map(b => {
+          const old = oldPartMap.get(b.content);
+          return {
+            bar_num: b.barNum,
+            name: b.content,
+            instrumental: b.instrumental || false,
+            ...(old?.light_template ? { light_template: old.light_template } : {}),
+          };
+        });
+    }
   }
   markDirty();
   leRescheduleHighlights();
@@ -5151,6 +5175,7 @@ let _leHighlightMode = null;    // 'segment' | 'bars'
    ══════════════════════════════════════════════════════ */
 
 let _accentsSelectedBar = null;   // barNum
+let _accKaraokeTimers = [];       // scheduled timeout IDs for 16th highlights
 
 function renderAccentsTab() {
   if (!selectedSongId || !db.songs[selectedSongId]) {
@@ -5224,7 +5249,7 @@ function buildAccentsBarList(totalBars) {
 function buildAccentsBarEditor(songId, barNum) {
   const [barId, barData] = getOrCreateBar(songId, barNum);
   const accents = getAccentsForBar(barId);
-  const hasAudio = barData?.audio ? true : false;
+  const hasAudio = !!(barData?.audio) || !!(audio.getBuffer() && getBarTimeRange(songId, barNum));
   const isBarPlaying = _barPlayId === barId && _partPlayActive;
 
   const blocks = Array.from({ length: 16 }, (_, i) => {
@@ -5288,12 +5313,13 @@ async function handleAccentBarPlay(songId, barNum) {
   audio.warmup();
   ensureCollections();
   const found = findBar(songId, barNum);
-  if (!found) return;
-  const [barId, barData] = found;
-  if (!barData.audio) return;
+  const barId = found ? found[0] : null;
+  const barData = found ? found[1] : {};
 
   if (_barPlayId === barId && _partPlayActive) {
     _barPlayId = null;
+    _partPlayActive = false;
+    accStopKaraoke();
     renderAccentsTab();
     return;
   }
@@ -5305,22 +5331,88 @@ async function handleAccentBarPlay(songId, barNum) {
   try {
     const ac = audio.getContext();
     if (ac.state === 'suspended') await ac.resume();
-    const arrBuf = await fetchAudioUrl(barData.audio);
-    if (!arrBuf) throw new Error(`Audio nicht gefunden: ${barData.audio}`);
-    const decoded = await ac.decodeAudioData(arrBuf);
-    const src = ac.createBufferSource();
-    src.buffer = decoded;
-    src.connect(ac.destination);
-    src.onended = () => {
-      if (_barPlayId === barId) { _barPlayId = null; _partPlayActive = false; renderAccentsTab(); }
-    };
-    src.start(0);
+
+    // Strategy 1: split audio file
+    if (barData.audio) {
+      const arrBuf = await fetchAudioUrl(barData.audio);
+      if (arrBuf) {
+        const decoded = await ac.decodeAudioData(arrBuf);
+        const src = ac.createBufferSource();
+        src.buffer = decoded;
+        src.connect(ac.destination);
+        src.onended = () => {
+          if (_barPlayId === barId) { _barPlayId = null; _partPlayActive = false; accStopKaraoke(); renderAccentsTab(); }
+        };
+        src.start(0);
+        accStartKaraoke(db.songs[songId]?.bpm);
+        return;
+      }
+    }
+
+    // Strategy 2: slice from reference audio buffer
+    const refBuffer = audio.getBuffer();
+    if (refBuffer) {
+      const range = getBarTimeRange(songId, barNum);
+      if (range) {
+        const src = ac.createBufferSource();
+        src.buffer = refBuffer;
+        src.connect(ac.destination);
+        const dur = range.end - range.start;
+        src.onended = () => {
+          if (_barPlayId === barId) { _barPlayId = null; _partPlayActive = false; accStopKaraoke(); renderAccentsTab(); }
+        };
+        src.start(0, range.start, dur);
+        accStartKaraoke(db.songs[songId]?.bpm);
+        return;
+      }
+    }
+
+    toast('Kein Audio verfügbar', 'error');
+    _barPlayId = null;
+    _partPlayActive = false;
+    renderAccentsTab();
   } catch (err) {
     console.error('Bar playback error (accents):', err);
     toast(`Wiedergabe-Fehler: ${err.message}`, 'error');
     _barPlayId = null;
+    _partPlayActive = false;
+    accStopKaraoke();
     renderAccentsTab();
   }
+}
+
+function accStopKaraoke() {
+  for (const t of _accKaraokeTimers) clearTimeout(t);
+  _accKaraokeTimers = [];
+  document.querySelectorAll('.acc-16.acc-16-active').forEach(el => el.classList.remove('acc-16-active'));
+}
+
+/**
+ * Schedule 16th-note step highlights for the currently visible acc-16 row.
+ * Accent positions (any acc-16-* type class) get an additional pulse animation.
+ * @param {number} bpm
+ */
+function accStartKaraoke(bpm) {
+  accStopKaraoke();
+  const dur16ms = (60 / (bpm || 120)) / 4 * 1000; // ms per 16th note
+
+  for (let i = 0; i < 16; i++) {
+    const pos = i + 1;
+    _accKaraokeTimers.push(setTimeout(() => {
+      document.querySelectorAll('.acc-16.acc-16-active').forEach(el => el.classList.remove('acc-16-active'));
+      const el = document.querySelector(`.acc-16[data-accent-pos16="${pos}"]`);
+      if (!el) return;
+      el.classList.add('acc-16-active');
+      const hasAccent = ACCENT_TYPES.some(t => el.classList.contains(`acc-16-${t}`));
+      if (hasAccent) {
+        el.classList.remove('acc-16-pulse'); // reset to retrigger animation
+        void el.offsetWidth;                 // force reflow
+        el.classList.add('acc-16-pulse');
+      }
+    }, i * dur16ms));
+  }
+  // Clear last highlight when bar ends
+  _accKaraokeTimers.push(setTimeout(() => accStopKaraoke(), 16 * dur16ms));
 }
 
 function handleAccentsTabToggle(songId, barNum, pos16) {

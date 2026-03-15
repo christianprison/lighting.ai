@@ -895,19 +895,24 @@
         "part_starts": [
           {
             "bar_num": 1,
-            "name": "Theme 1"
+            "name": "Theme 1",
+            "light_template": "10 Strobe",
+            "instrumental": true
           },
           {
             "bar_num": 9,
-            "name": "Verse 1"
+            "name": "Verse 1",
+            "light_template": "05 left'n'right"
           },
           {
             "bar_num": 17,
-            "name": "Bridge A 1"
+            "name": "Bridge A 1",
+            "light_template": "blind (accent)"
           },
           {
             "bar_num": 21,
-            "name": "Bridge B 1"
+            "name": "Bridge B 1",
+            "light_template": "07 round'n'round"
           },
           {
             "bar_num": 29,
@@ -915,7 +920,8 @@
           },
           {
             "bar_num": 32,
-            "name": "Thema 2"
+            "name": "Thema 2",
+            "instrumental": true
           },
           {
             "bar_num": 41,
@@ -935,7 +941,8 @@
           },
           {
             "bar_num": 65,
-            "name": "Thema 3"
+            "name": "Thema 3",
+            "instrumental": true
           },
           {
             "bar_num": 73,
@@ -988,7 +995,165 @@
         "user_tasks": [],
         "manual_undone": []
       },
-      "total_bars": 128
+      "total_bars": 128,
+      "qlc_parts": {
+        "tdyEcs_QP001": {
+          "pos": 1,
+          "name": "Theme 1",
+          "light_template": "10 Strobe",
+          "notes": ""
+        },
+        "tdyEcs_QP002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "light_template": "05 left'n'right",
+          "notes": ""
+        },
+        "tdyEcs_QP003": {
+          "pos": 3,
+          "name": "\"Mary Mary\"",
+          "light_template": "blind (accent)",
+          "notes": ""
+        },
+        "tdyEcs_QP004": {
+          "pos": 4,
+          "name": "\"Mary Mary\"",
+          "light_template": "blind (accent)",
+          "notes": ""
+        },
+        "tdyEcs_QP005": {
+          "pos": 5,
+          "name": "Bridge 1",
+          "light_template": "07 round'n'round",
+          "notes": ""
+        },
+        "tdyEcs_QP006": {
+          "pos": 6,
+          "name": "Chorus 1",
+          "light_template": "06 blinking",
+          "notes": ""
+        },
+        "tdyEcs_QP007": {
+          "pos": 7,
+          "name": "Punch",
+          "light_template": "11 Stop",
+          "notes": ""
+        },
+        "tdyEcs_QP008": {
+          "pos": 8,
+          "name": "Theme 2",
+          "light_template": "10 Strobe",
+          "notes": ""
+        },
+        "tdyEcs_QP009": {
+          "pos": 9,
+          "name": "Verse 2",
+          "light_template": "05 left'n'right",
+          "notes": ""
+        },
+        "tdyEcs_QP010": {
+          "pos": 10,
+          "name": "\"Mary Mary\"",
+          "light_template": "blind (accent)",
+          "notes": ""
+        },
+        "tdyEcs_QP011": {
+          "pos": 11,
+          "name": "\"Mary Mary\"",
+          "light_template": "blind (accent)",
+          "notes": ""
+        },
+        "tdyEcs_QP012": {
+          "pos": 12,
+          "name": "Bridge 2",
+          "light_template": "07 round'n'round",
+          "notes": ""
+        },
+        "tdyEcs_QP013": {
+          "pos": 13,
+          "name": "Chorus 2",
+          "light_template": "06 blinking",
+          "notes": ""
+        },
+        "tdyEcs_QP014": {
+          "pos": 14,
+          "name": "Punch",
+          "light_template": "11 Stop",
+          "notes": ""
+        },
+        "tdyEcs_QP015": {
+          "pos": 15,
+          "name": "Theme 2",
+          "light_template": "10 Strobe",
+          "notes": ""
+        },
+        "tdyEcs_QP016": {
+          "pos": 16,
+          "name": "Verse 3",
+          "light_template": "05 left'n'right",
+          "notes": ""
+        },
+        "tdyEcs_QP017": {
+          "pos": 17,
+          "name": "\"Mary Mary\"",
+          "light_template": "blind (accent)",
+          "notes": ""
+        },
+        "tdyEcs_QP018": {
+          "pos": 18,
+          "name": "\"Mary Mary\"",
+          "light_template": "blind (accent)",
+          "notes": ""
+        },
+        "tdyEcs_QP019": {
+          "pos": 19,
+          "name": "Bridge 3",
+          "light_template": "07 round'n'round",
+          "notes": ""
+        },
+        "tdyEcs_QP020": {
+          "pos": 20,
+          "name": "Chorus 3",
+          "light_template": "06 blinking",
+          "notes": ""
+        },
+        "tdyEcs_QP021": {
+          "pos": 21,
+          "name": "Punch",
+          "light_template": "11 Stop",
+          "notes": ""
+        },
+        "tdyEcs_QP022": {
+          "pos": 22,
+          "name": "Theme 1",
+          "light_template": "10 Strobe",
+          "notes": ""
+        },
+        "tdyEcs_QP023": {
+          "pos": 23,
+          "name": "Chorus 4",
+          "light_template": "06 blinking",
+          "notes": ""
+        },
+        "tdyEcs_QP024": {
+          "pos": 24,
+          "name": "Chorus 5",
+          "light_template": "02 slow blue",
+          "notes": ""
+        },
+        "tdyEcs_QP025": {
+          "pos": 25,
+          "name": "Chorus 6",
+          "light_template": "10 Strobe",
+          "notes": ""
+        },
+        "tdyEcs_QP026": {
+          "pos": 26,
+          "name": "\"Punch\"",
+          "light_template": "11 Stop",
+          "notes": ""
+        }
+      }
     },
     "CC9FBm": {
       "name": "Always Where I Need to Be",

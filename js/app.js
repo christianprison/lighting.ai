@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.9.4';
+const APP_VERSION = 'v1.9.5';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -1741,19 +1741,6 @@ function renderPartsTab() {
     els.content.innerHTML = html;
     document.getElementById('parts-qlc-btn')?.addEventListener('click', () => partsTabLoadQlc());
     return;
-  }
-
-  // Tip: context-sensitive hint above the table
-  if (!_partsTabQlcSteps) {
-    html += `<div class="parts-tip">&#128161; <strong>Workflow:</strong> &bdquo;QLC+ Chaser laden&ldquo; &rarr; App gleicht Part-Namen automatisch mit den Step-Notes im Chaser ab &rarr; Lichtprogramm per <strong>&rarr;</strong> in einer Zeile übernehmen.</div>`;
-  } else {
-    const matchCount = parts.filter(p => _partsTabQlcSteps.find(s => !s.isTitle && s.note && matchStepToPart(s.note, [{ name: p.name }]))).length;
-    const unmatched = parts.length - matchCount;
-    if (unmatched > 0) {
-      html += `<div class="parts-tip parts-tip-warn">&#9888; ${matchCount} von ${parts.length} Parts gematcht. ${unmatched} ohne Treffer &mdash; Part-Namen im <strong>Audio Split</strong>-Tab an die Step-Notes im QLC+-Chaser angleichen.</div>`;
-    } else {
-      html += `<div class="parts-tip parts-tip-ok">&#10003; Alle ${parts.length} Parts gematcht &mdash; Lichtprogramme per <strong>&rarr;</strong> übernehmen.</div>`;
-    }
   }
 
   html += `<table class="parts-table"><thead><tr>`;
@@ -7384,6 +7371,20 @@ const TAB_TIPS = [
     text: 'Tippe auf den Fortschrittskreis um offene Aufgaben zu sehen',
     anchor: () => document.querySelector('.song-progress-mini'),
     arrow: 'left'    // bubble right of circle, arrow points left
+  },
+  {
+    id: 'parts-qlc-workflow',
+    tab: 'parts',
+    text: 'QLC+-Chaser laden → App gleicht Part-Namen mit den Step-Notes im Chaser ab → Lichtprogramm per → in einer Zeile übernehmen',
+    anchor: () => document.getElementById('parts-qlc-btn'),
+    arrow: 'up'
+  },
+  {
+    id: 'parts-qlc-naming',
+    tab: 'parts',
+    text: 'Kein Match? Part-Namen im Audio-Split-Tab an die Step-Notes im QLC+-Chaser angleichen — exakte Übereinstimmung ist nicht nötig',
+    anchor: () => document.querySelector('.pt-qlc'),
+    arrow: 'up'
   }
 ];
 

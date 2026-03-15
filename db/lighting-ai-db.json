@@ -4800,7 +4800,7 @@
     },
     "B0016": {
       "bar_num": 16,
-      "lyrics": "long comes Mary,",
+      "lyrics": "long comes Mary,\n",
       "audio": "audio/Along comes Mary/02 Verse 1/016 Along comes Mary Verse 1.mp3",
       "has_accents": false,
       "song_id": "tdyEcs"
@@ -4821,7 +4821,7 @@
     },
     "B0020": {
       "bar_num": 20,
-      "lyrics": "wanna give me kicks and be my",
+      "lyrics": "wanna give me kicks and be my\n",
       "audio": "audio/Along comes Mary/03 Bridge A 1/020 Along comes Mary Bridge A 1.mp3",
       "has_accents": true,
       "song_id": "tdyEcs"
@@ -4870,7 +4870,7 @@
     },
     "B0028": {
       "bar_num": 28,
-      "lyrics": "met I was sure out to lunch",
+      "lyrics": "met I was sure out to lunch\n",
       "audio": "audio/Along comes Mary/04 Bridge B 1/028 Along comes Mary Bridge B 1.mp3",
       "has_accents": false,
       "song_id": "tdyEcs"

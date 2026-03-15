@@ -2817,9 +2817,6 @@
             "time": 203.2140942354966
           },
           {
-            "time": 204.33777414169782
-          },
-          {
             "time": 204.38556957964607
           },
           {
@@ -2947,10 +2944,22 @@
           {
             "bar_num": 129,
             "name": "Solo Axel"
+          },
+          {
+            "bar_num": 169,
+            "name": "Chorus 3"
+          },
+          {
+            "bar_num": 185,
+            "name": "Chorus 4 (halb)"
+          },
+          {
+            "bar_num": 193,
+            "name": "Ausklang"
           }
         ]
       },
-      "total_bars": 194
+      "total_bars": 193
     },
     "CEGcgc": {
       "name": "Basket Case",

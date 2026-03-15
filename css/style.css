@@ -4149,6 +4149,28 @@ td.pt-instr input[type="checkbox"] { accent-color: var(--amber); width: 16px; he
 .acc-16.acc-16-st { background: var(--cyan); color: var(--bg); border-color: var(--cyan); }
 .acc-16.acc-16-fg { background: var(--t3); color: var(--bg); border-color: var(--t3); }
 
+/* ── Accents Karaoke Highlighting ─────────────────── */
+.acc-16.acc-16-active {
+  box-shadow: 0 0 0 2px var(--cyan), 0 0 10px rgba(56, 189, 248, 0.45);
+  border-color: var(--cyan) !important;
+  color: var(--cyan) !important;
+}
+/* Accent positions override the active glow with their own color */
+.acc-16.acc-16-active.acc-16-bl { box-shadow: 0 0 0 2px var(--amber), 0 0 10px rgba(240, 160, 48, 0.5); border-color: var(--amber) !important; color: var(--bg) !important; }
+.acc-16.acc-16-active.acc-16-bo { box-shadow: 0 0 0 2px var(--red),   0 0 10px rgba(255, 59, 92, 0.5);  border-color: var(--red)   !important; color: var(--bg) !important; }
+.acc-16.acc-16-active.acc-16-hl { box-shadow: 0 0 0 2px var(--green), 0 0 10px rgba(0, 220, 130, 0.5);  border-color: var(--green) !important; color: var(--bg) !important; }
+.acc-16.acc-16-active.acc-16-st { box-shadow: 0 0 0 2px var(--cyan),  0 0 10px rgba(56, 189, 248, 0.6); border-color: var(--cyan)  !important; color: var(--bg) !important; }
+.acc-16.acc-16-active.acc-16-fg { box-shadow: 0 0 0 2px var(--t3),    0 0 10px rgba(92, 96, 128, 0.5);  border-color: var(--t3)    !important; color: var(--bg) !important; }
+
+.acc-16-pulse {
+  animation: acc-pulse 0.28s ease-out;
+}
+@keyframes acc-pulse {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.28); }
+  100% { transform: scale(1); }
+}
+
 /* ── Tip Bubble (Tutorial System) ─────────────────── */
 
 .tip-bubble {

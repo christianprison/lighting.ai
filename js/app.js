@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.9.8';
+const APP_VERSION = 'v1.9.9';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -5151,6 +5151,7 @@ let _leHighlightMode = null;    // 'segment' | 'bars'
    ══════════════════════════════════════════════════════ */
 
 let _accentsSelectedBar = null;   // barNum
+let _accKaraokeTimers = [];       // scheduled timeout IDs for 16th highlights
 
 function renderAccentsTab() {
   if (!selectedSongId || !db.songs[selectedSongId]) {
@@ -5294,6 +5295,7 @@ async function handleAccentBarPlay(songId, barNum) {
 
   if (_barPlayId === barId && _partPlayActive) {
     _barPlayId = null;
+    accStopKaraoke();
     renderAccentsTab();
     return;
   }
@@ -5312,15 +5314,51 @@ async function handleAccentBarPlay(songId, barNum) {
     src.buffer = decoded;
     src.connect(ac.destination);
     src.onended = () => {
-      if (_barPlayId === barId) { _barPlayId = null; _partPlayActive = false; renderAccentsTab(); }
+      if (_barPlayId === barId) { _barPlayId = null; _partPlayActive = false; accStopKaraoke(); renderAccentsTab(); }
     };
     src.start(0);
+    accStartKaraoke(db.songs[songId]?.bpm);
   } catch (err) {
     console.error('Bar playback error (accents):', err);
     toast(`Wiedergabe-Fehler: ${err.message}`, 'error');
     _barPlayId = null;
+    accStopKaraoke();
     renderAccentsTab();
   }
+}
+
+function accStopKaraoke() {
+  for (const t of _accKaraokeTimers) clearTimeout(t);
+  _accKaraokeTimers = [];
+  document.querySelectorAll('.acc-16.acc-16-active').forEach(el => el.classList.remove('acc-16-active'));
+}
+
+/**
+ * Schedule 16th-note step highlights for the currently visible acc-16 row.
+ * Accent positions (any acc-16-* type class) get an additional pulse animation.
+ * @param {number} bpm
+ */
+function accStartKaraoke(bpm) {
+  accStopKaraoke();
+  const dur16ms = (60 / (bpm || 120)) / 4 * 1000; // ms per 16th note
+
+  for (let i = 0; i < 16; i++) {
+    const pos = i + 1;
+    _accKaraokeTimers.push(setTimeout(() => {
+      document.querySelectorAll('.acc-16.acc-16-active').forEach(el => el.classList.remove('acc-16-active'));
+      const el = document.querySelector(`.acc-16[data-accent-pos16="${pos}"]`);
+      if (!el) return;
+      el.classList.add('acc-16-active');
+      const hasAccent = ACCENT_TYPES.some(t => el.classList.contains(`acc-16-${t}`));
+      if (hasAccent) {
+        el.classList.remove('acc-16-pulse'); // reset to retrigger animation
+        void el.offsetWidth;                 // force reflow
+        el.classList.add('acc-16-pulse');
+      }
+    }, i * dur16ms));
+  }
+  // Clear last highlight when bar ends
+  _accKaraokeTimers.push(setTimeout(() => accStopKaraoke(), 16 * dur16ms));
 }
 
 function handleAccentsTabToggle(songId, barNum, pos16) {

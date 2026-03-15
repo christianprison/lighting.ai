@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.9.9';
+const APP_VERSION = 'v2.0.0';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -5225,7 +5225,7 @@ function buildAccentsBarList(totalBars) {
 function buildAccentsBarEditor(songId, barNum) {
   const [barId, barData] = getOrCreateBar(songId, barNum);
   const accents = getAccentsForBar(barId);
-  const hasAudio = barData?.audio ? true : false;
+  const hasAudio = !!(barData?.audio) || !!(audio.getBuffer() && getBarTimeRange(songId, barNum));
   const isBarPlaying = _barPlayId === barId && _partPlayActive;
 
   const blocks = Array.from({ length: 16 }, (_, i) => {
@@ -5289,12 +5289,12 @@ async function handleAccentBarPlay(songId, barNum) {
   audio.warmup();
   ensureCollections();
   const found = findBar(songId, barNum);
-  if (!found) return;
-  const [barId, barData] = found;
-  if (!barData.audio) return;
+  const barId = found ? found[0] : null;
+  const barData = found ? found[1] : {};
 
   if (_barPlayId === barId && _partPlayActive) {
     _barPlayId = null;
+    _partPlayActive = false;
     accStopKaraoke();
     renderAccentsTab();
     return;
@@ -5307,21 +5307,51 @@ async function handleAccentBarPlay(songId, barNum) {
   try {
     const ac = audio.getContext();
     if (ac.state === 'suspended') await ac.resume();
-    const arrBuf = await fetchAudioUrl(barData.audio);
-    if (!arrBuf) throw new Error(`Audio nicht gefunden: ${barData.audio}`);
-    const decoded = await ac.decodeAudioData(arrBuf);
-    const src = ac.createBufferSource();
-    src.buffer = decoded;
-    src.connect(ac.destination);
-    src.onended = () => {
-      if (_barPlayId === barId) { _barPlayId = null; _partPlayActive = false; accStopKaraoke(); renderAccentsTab(); }
-    };
-    src.start(0);
-    accStartKaraoke(db.songs[songId]?.bpm);
+
+    // Strategy 1: split audio file
+    if (barData.audio) {
+      const arrBuf = await fetchAudioUrl(barData.audio);
+      if (arrBuf) {
+        const decoded = await ac.decodeAudioData(arrBuf);
+        const src = ac.createBufferSource();
+        src.buffer = decoded;
+        src.connect(ac.destination);
+        src.onended = () => {
+          if (_barPlayId === barId) { _barPlayId = null; _partPlayActive = false; accStopKaraoke(); renderAccentsTab(); }
+        };
+        src.start(0);
+        accStartKaraoke(db.songs[songId]?.bpm);
+        return;
+      }
+    }
+
+    // Strategy 2: slice from reference audio buffer
+    const refBuffer = audio.getBuffer();
+    if (refBuffer) {
+      const range = getBarTimeRange(songId, barNum);
+      if (range) {
+        const src = ac.createBufferSource();
+        src.buffer = refBuffer;
+        src.connect(ac.destination);
+        const dur = range.end - range.start;
+        src.onended = () => {
+          if (_barPlayId === barId) { _barPlayId = null; _partPlayActive = false; accStopKaraoke(); renderAccentsTab(); }
+        };
+        src.start(0, range.start, dur);
+        accStartKaraoke(db.songs[songId]?.bpm);
+        return;
+      }
+    }
+
+    toast('Kein Audio verfügbar', 'error');
+    _barPlayId = null;
+    _partPlayActive = false;
+    renderAccentsTab();
   } catch (err) {
     console.error('Bar playback error (accents):', err);
     toast(`Wiedergabe-Fehler: ${err.message}`, 'error');
     _barPlayId = null;
+    _partPlayActive = false;
     accStopKaraoke();
     renderAccentsTab();
   }

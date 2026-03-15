@@ -1007,7 +1007,8 @@
         "manual_done": [
           "accents_any",
           "in_setlist",
-          "bar_markers"
+          "bar_markers",
+          "templates_set"
         ],
         "user_tasks": [],
         "manual_undone": []
@@ -4808,7 +4809,7 @@
       "bar_num": 18,
       "lyrics": "(Mary, Mary) And a-",
       "audio": "audio/Along comes Mary/03 Bridge A 1/018 Along comes Mary Bridge A 1.mp3",
-      "has_accents": false,
+      "has_accents": true,
       "song_id": "tdyEcs"
     },
     "B0019": {
@@ -10618,6 +10619,18 @@
       "bar_id": "B0278",
       "pos_16th": 1,
       "type": "st",
+      "notes": ""
+    },
+    "A0006": {
+      "bar_id": "B0018",
+      "pos_16th": 1,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0007": {
+      "bar_id": "B0018",
+      "pos_16th": 7,
+      "type": "hl",
       "notes": ""
     }
   },

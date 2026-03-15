@@ -916,7 +916,8 @@
           },
           {
             "bar_num": 29,
-            "name": "Chorus 1"
+            "name": "Chorus 1",
+            "light_template": "06 blinking"
           },
           {
             "bar_num": 32,
@@ -925,7 +926,8 @@
           },
           {
             "bar_num": 41,
-            "name": "Verse 2"
+            "name": "Verse 2",
+            "light_template": "05 left'n'right"
           },
           {
             "bar_num": 49,
@@ -937,7 +939,8 @@
           },
           {
             "bar_num": 61,
-            "name": "Chorus 2"
+            "name": "Chorus 2",
+            "light_template": "06 blinking"
           },
           {
             "bar_num": 65,
@@ -946,7 +949,8 @@
           },
           {
             "bar_num": 73,
-            "name": "Verse 3"
+            "name": "Verse 3",
+            "light_template": "05 left'n'right"
           },
           {
             "bar_num": 81,

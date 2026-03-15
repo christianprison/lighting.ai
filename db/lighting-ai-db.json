@@ -907,21 +907,22 @@
           {
             "bar_num": 17,
             "name": "Bridge A 1",
-            "light_template": "blind (accent)"
+            "light_template": "05 left'n'right"
           },
           {
             "bar_num": 21,
             "name": "Bridge B 1",
-            "light_template": "07 round'n'round"
+            "light_template": "05 left'n'right"
           },
           {
             "bar_num": 29,
             "name": "Chorus 1",
-            "light_template": "06 blinking"
+            "light_template": "10 Strobe"
           },
           {
             "bar_num": 32,
             "name": "Thema 2",
+            "light_template": "10 Strobe",
             "instrumental": true
           },
           {
@@ -931,11 +932,13 @@
           },
           {
             "bar_num": 49,
-            "name": "Bridge A 2"
+            "name": "Bridge A 2",
+            "light_template": "05 left'n'right"
           },
           {
             "bar_num": 53,
-            "name": "Bridge B 2"
+            "name": "Bridge B 2",
+            "light_template": "05 left'n'right"
           },
           {
             "bar_num": 61,
@@ -945,6 +948,7 @@
           {
             "bar_num": 65,
             "name": "Thema 3",
+            "light_template": "10 Strobe",
             "instrumental": true
           },
           {
@@ -954,41 +958,50 @@
           },
           {
             "bar_num": 81,
-            "name": "Bridge A 3"
+            "name": "Bridge A 3",
+            "light_template": "05 left'n'right"
           },
           {
             "bar_num": 85,
-            "name": "Bridge B 3"
+            "name": "Bridge B 3",
+            "light_template": "05 left'n'right"
           },
           {
             "bar_num": 93,
-            "name": "Chorus 3"
+            "name": "Chorus 3",
+            "light_template": "06 blinking"
           },
           {
             "bar_num": 97,
-            "name": "Thema 4"
+            "name": "Thema 4",
+            "light_template": "10 Strobe",
+            "instrumental": true
           },
           {
             "bar_num": 105,
-            "name": "Chorus 5 (stops)"
+            "name": "Chorus 5 (stops)",
+            "light_template": "06 blinking"
           },
           {
             "bar_num": 113,
-            "name": "Chorus 6 (muted)"
+            "name": "Chorus 6 (muted)",
+            "light_template": "12 slow red"
           },
           {
             "bar_num": 121,
-            "name": "Chorus 7 (power)"
+            "name": "Chorus 7 (power)",
+            "light_template": "10 Strobe"
           },
           {
             "bar_num": 128,
-            "name": "Punch (stop)"
+            "name": "Punch (stop)",
+            "light_template": "01 statisch bunt"
           }
         ]
       },
       "audio_ref": "audio/Along comes Mary/Along comes Mary - Full Song.mp3",
       "audio_ref_name": "Along Comes Mary (original).mp3",
-      "lyrics_raw": "Every time I think that I'm The only one who's lonely someone calls on me - - - and every now and then I spend my time and rhyme and verse and curse those faults - - in me and then a- long comes Mary, (Mary, Mary) And a- long comes Mary, (Mary, Mary) And does she wanna give me kicks and be my steady chick and give me pick sees? of memories? - - - or maybe rather gather tales from all the Fails and tribulations no one ever - - - When we met I was sure out to lunch - - now my empty cup tastes as sweet as the punch - - sweet as the punch When vague desire is the fire in the eyes of chicks Whose sickness is the games - - they play - - And when the then masquerade is played an neibhours folks Make jokes as who is most to blame today. And a- long comes Mary (Mary, Mary) And a- long comes Mary (Mary, Mary) And does she wanna set them free And let them see reality from where she got her name And will she struggle much when told that such a tender touch of hers will make them not the same - - - When we met I was sure out to lunch - - now my empty cup tastes as sweet as the punch, sweet as the punch And when the morning of the warning's passed The gassed and flaccid kids are flung a- cross - - the stars - - the psycho- dramas and the traumas gone the songs are left unsung and hung up- long comes Mary (Mary, Mary) And then a- wanna see the stains the dead re- mains of all the all the pains she left the night before? - - Or will the wakin‘ eyes reflect the lies and make them realize their urgent cry for met I was sure out to lunch - - now my empty",
+      "lyrics_raw": "Every time I think that I'm The only one who's lonely someone calls on me - - - and every now and then I spend my time and rhyme and verse and curse those faults - - in long comes Mary, (Mary, Mary) And a- long comes Mary, wanna give me kicks and be my steady chick and give me pick sees? of memories? - - - or maybe rather gather tales from all the Fails and tribulations no one ever met I was sure out to lunch - - now my empty cup tastes as sweet as the punch - - sweet as the punch When vague desire is the fire in the eyes of chicks Whose sickness is the games - - they play - - And when the then masquerade is played an neibhours folks Make jokes as who is most to blame today. And a- long comes Mary (Mary, Mary) And a- long comes Mary (Mary, Mary) And does she wanna set them free And let them see reality from where she got her name And will she struggle much when told that such a tender touch of hers will make them not the same - - - When we met I was sure out to lunch - - now my empty cup tastes as sweet as the punch, sweet as the punch And when the morning of the warning's passed The gassed and flaccid kids are flung a- cross - - the stars - - the psycho- dramas and the traumas gone the songs are left unsung and hung up- long comes Mary (Mary, Mary) And then a- wanna see the stains the dead re- mains of all the all the pains she left the night before? - - Or will the wakin‘ eyes reflect the lies and make them realize their urgent cry for met I was sure out to lunch - - now my empty",
       "_lrclib_synced": "[00:12.76] Every time I think that I'm\n[00:14.19] The only one who's lonely someone calls on me\n[00:18.84] And every now and then I spend\n[00:20.17] My time at rhyme and verse and curse those faults in me\n[00:24.55] And then along comes Mary\n[00:26.60] Mary, Mary\n[00:27.73] Then along comes Mary\n[00:29.76] Mary, Mary\n[00:30.68] And does she wanna give me kicks\n[00:32.35] And be my steady chick and give me pick of memories?\n[00:36.97] Or maybe rather gather tales from all the\n[00:39.11] Fails and tribulations no one ever sees?\n[00:43.17] When we met I was sure out to lunch\n[00:45.83] Now my empty cup tastes as sweet as the punch\n[00:48.90] Sweet as the punch\n[00:50.48] \n[01:01.68] When vague desire is the fire in the eyes of chicks\n[01:04.45] Whose sickness is the games they play\n[01:07.92] And when the masquerade is played and neighbor folks\n[01:10.30] Make jokes as who is most to blame today\n[01:13.96] And then along comes Mary\n[01:16.11] Mary, Mary\n[01:17.37] Then along comes Mary\n[01:19.11] Mary, Mary\n[01:20.36] And does she wanna set them free\n[01:21.88] And let them see reality from where she got her name?\n[01:26.39] And will they struggle much when told that such\n[01:28.38] A tender touch of hers will make them not the same?\n[01:32.71] When we met I was sure out to lunch\n[01:35.44] Now my empty cup tastes as sweet as the punch\n[01:38.42] Sweet as the punch\n[01:39.99] \n[01:51.21] And when the morning of the warning's passed\n[01:53.28] The gassed and flaccid kids are flung across the stars\n[01:57.40] The psychodramas and the traumas gone\n[01:59.35] The songs are left unsung and hung upon the scars\n[02:03.66] And then along comes Mary\n[02:05.86] Mary, Mary\n[02:06.76] Then along comes Mary\n[02:08.88] Mary, Mary\n[02:09.93] And does she wanna see the stains the dead remains\n[02:12.02] Of all the pains she left the night before?\n[02:15.63] Or will their wakin' eyes reflect the lies\n[02:17.68] And make them realize their urgent cry for sight no more?\n[02:22.24] When we met I was sure out to lunch\n[02:24.91] Now my empty cup tastes as sweet as the punch\n[02:27.93] Sweet as the punch\n[02:29.49] \n[02:40.93] When we met I was sure out to lunch\n[02:43.59] Now my empty cup tastes as sweet as the punch\n[02:47.28] When we met I was sure out to lunch\n[02:49.95] Now my empty cup tastes as sweet as the punch\n[02:53.29] When we met I was sure out to lunch\n[02:56.14] Now my empty cup tastes as sweet as the punch\n[02:59.57] When we met I was sure out to lunch\n[03:02.26] Now my empty cup tastes as sweet as the punch\n[03:05.76] When we met I was sure out to lunch\n[03:08.53] Now my empty cup tastes as sweet as the punch\n[03:11.75] When we met I was sure out to lunch\n[03:14.74] Now my empty cup tastes as sweet as the punch\n[03:17.60] Sweet as the punch\n[03:19.56] ",
       "tms": {
         "manual_done": [
@@ -4612,7 +4625,7 @@
     },
     "B0016": {
       "bar_num": 16,
-      "lyrics": "long comes Mary,",
+      "lyrics": "long comes Mary,\n",
       "audio": "audio/Along comes Mary/02 Verse 1/016 Along comes Mary Verse 1.mp3",
       "has_accents": false,
       "song_id": "tdyEcs"
@@ -4633,7 +4646,7 @@
     },
     "B0020": {
       "bar_num": 20,
-      "lyrics": "wanna give me kicks and be my",
+      "lyrics": "wanna give me kicks and be my\n",
       "audio": "audio/Along comes Mary/03 Bridge A 1/020 Along comes Mary Bridge A 1.mp3",
       "has_accents": false,
       "song_id": "tdyEcs"
@@ -4682,7 +4695,7 @@
     },
     "B0028": {
       "bar_num": 28,
-      "lyrics": "met I was sure out to lunch",
+      "lyrics": "met I was sure out to lunch\n",
       "audio": "audio/Along comes Mary/04 Bridge B 1/028 Along comes Mary Bridge B 1.mp3",
       "has_accents": false,
       "song_id": "tdyEcs"
@@ -4752,7 +4765,7 @@
     },
     "B0040": {
       "bar_num": 48,
-      "lyrics": "today. And a-",
+      "lyrics": "long comes Mary",
       "audio": "audio/Along comes Mary/07 Verse 2/048 Along comes Mary Verse 2.mp3",
       "has_accents": false,
       "song_id": "tdyEcs"
@@ -4773,7 +4786,7 @@
     },
     "Bmmg3yasl_3": {
       "bar_num": 52,
-      "lyrics": "(Mary, Mary) And does she",
+      "lyrics": "wanna set them free And let them",
       "audio": "audio/Along comes Mary/08 Bridge A 2/052 Along comes Mary Bridge A 2.mp3",
       "has_accents": false,
       "song_id": "tdyEcs"
@@ -4822,7 +4835,7 @@
     },
     "B0048": {
       "bar_num": 60,
-      "lyrics": "- - - When we",
+      "lyrics": "met I was sure out to lunch -",
       "audio": "audio/Along comes Mary/09 Bridge B 2/060 Along comes Mary Bridge B 2.mp3",
       "has_accents": false,
       "song_id": "tdyEcs"
@@ -7909,7 +7922,7 @@
     },
     "B0484": {
       "bar_num": 41,
-      "lyrics": "When vague desire is the fire in the",
+      "lyrics": "",
       "audio": "audio/Along comes Mary/07 Verse 2/041 Along comes Mary Verse 2.mp3",
       "has_accents": false,
       "song_id": "tdyEcs"
@@ -7979,7 +7992,7 @@
     },
     "B0493": {
       "bar_num": 40,
-      "lyrics": "",
+      "lyrics": "When vague desire is the fire in the",
       "audio": "audio/Along comes Mary/06 Theme 2/040 Along comes Mary Theme 2.mp3",
       "has_accents": false,
       "song_id": "tdyEcs",
@@ -7987,21 +8000,21 @@
     },
     "B0494": {
       "bar_num": 49,
-      "lyrics": "long comes Mary",
+      "lyrics": "",
       "audio": "audio/Along comes Mary/08 Bridge A 2/049 Along comes Mary Bridge A 2.mp3",
       "has_accents": false,
       "song_id": "tdyEcs"
     },
     "B0495": {
       "bar_num": 53,
-      "lyrics": "wanna set them free And let them",
+      "lyrics": "",
       "audio": "audio/Along comes Mary/09 Bridge B 2/053 Along comes Mary Bridge B 2.mp3",
       "has_accents": false,
       "song_id": "tdyEcs"
     },
     "B0496": {
       "bar_num": 61,
-      "lyrics": "met I was sure out to lunch -",
+      "lyrics": "",
       "audio": "audio/Along comes Mary/10 Chorus 2/061 Along comes Mary Chorus 2.mp3",
       "has_accents": false,
       "song_id": "tdyEcs"

@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.0.1';
+const APP_VERSION = 'v2.0.2';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -2731,7 +2731,7 @@ function onWaveformPointerMove(e) {
         const sorted = [...markers].sort((a, b) => a.time - b.time);
         const absNum = sorted.indexOf(_dragMarker.marker) + 1;
         const label = `Bar ${absNum}`;
-        const color = '#38bdf8';
+        const color = _dragMarker.isPartStart ? '#f0a030' : '#38bdf8';
         showDragBalloon(label, newTime, color, clientX, clientY);
       }
     }

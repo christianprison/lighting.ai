@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.9.6';
+const APP_VERSION = 'v1.9.8';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4761,6 +4761,15 @@ function leUpdateUndoRedoButtons() {
 function leCommitLyrics() {
   if (!selectedSongId) return;
   ensureCollections();
+
+  // Reassign barNum on all word/bar blocks based on current array order.
+  // Drag-drop only splices _leBlocks without updating barNum properties,
+  // so without this step playback highlights use stale bar assignments.
+  let _assignBarNum = null;
+  for (const block of _leBlocks) {
+    if (block.type === 'bar') { _assignBarNum = block.barNum; }
+    else if (block.type === 'word') { block.barNum = _assignBarNum; }
+  }
 
   for (const [, b] of Object.entries(db.bars)) {
     if (b.song_id === selectedSongId) b.lyrics = '';

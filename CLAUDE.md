@@ -276,7 +276,7 @@ Zählweise: 1   e   +   e   2   e   +   e   3   e   +   e   4   e   +   e
 - [x] Bar-Tap: Markiert Taktgrenzen innerhalb Parts
 - [x] BPM-Schätzung aus Bar-Intervallen
 - [x] Undo-Funktion für Taps
-- [x] Audio-Schnipsel extrahieren (OfflineAudioContext) und auf GitHub speichern
+- [x] alle Parts identifiziert
 - [x] Referenz-Audio automatisch aus DB laden (`audio_ref`)
 - [x] Part-Tap setzt automatisch ersten Bar-Marker (Takt 1 = Part-Start)
 - [x] Marker per Drag & Drop verschiebbar (Part + Bar, Maus + Touch/iPad)

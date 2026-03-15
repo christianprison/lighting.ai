@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.0.2';
+const APP_VERSION = 'v2.0.3';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -1201,10 +1201,11 @@ function switchTab(tab) {
   // Stop playhead animation when leaving audio tab
   if (activeTab === 'audio' && tab !== 'audio') {
     cancelAnimationFrame(animFrameId);
-    // Persist markers and sync db.bars when leaving Audio Split tab
+    // Persist markers and sync db.bars when leaving Audio Split tab, then save immediately
     if (selectedSongId && markers.length > 0) {
       saveMarkersToSong();
       markDirty();
+      handleSave(false);
     }
   }
   // Stop lyrics karaoke playback when leaving lyrics tab
@@ -7374,10 +7375,11 @@ function wireEvents() {
     if (newId === selectedSongId) return;
     // Auto-save raw lyrics text before switching away
     saveLyricsRawText();
-    // Persist markers for the OLD song before switching away
+    // Persist markers for the OLD song before switching away, then save immediately
     if (selectedSongId && markers.length > 0) {
       saveMarkersToSong();
       markDirty();
+      handleSave(false);
     }
     // Remember current tab — must be preserved across song switch
     const currentTab = activeTab;

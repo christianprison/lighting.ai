@@ -416,7 +416,8 @@
           "accents_any",
           "in_setlist",
           "bar_markers",
-          "lyrics_saved"
+          "lyrics_saved",
+          "templates_set"
         ],
         "user_tasks": [],
         "manual_undone": []
@@ -822,7 +823,7 @@
             "time": 161.614375
           },
           {
-            "time": 163.25929911504426
+            "time": 163.21897228464417
           },
           {
             "time": 164.77537935103246
@@ -876,7 +877,7 @@
             "time": 189.40710416666667
           },
           {
-            "time": 191.05705014749262
+            "time": 190.98707415730337
           },
           {
             "time": 192.62175103244837

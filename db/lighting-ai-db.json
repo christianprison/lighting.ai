@@ -2313,6 +2313,18 @@
       "split_markers": {
         "markers": [
           {
+            "time": 5.383725196629214
+          },
+          {
+            "time": 6.557870964419476
+          },
+          {
+            "time": 7.75870186329588
+          },
+          {
+            "time": 8.96620404494382
+          },
+          {
             "time": 10.168941024612092
           },
           {
@@ -2334,16 +2346,13 @@
             "time": 17.380377470501397
           },
           {
-            "time": 18.631044137167972
-          },
-          {
-            "time": 19.753973142946332
+            "time": 18.56617995318352
           },
           {
             "time": 19.767044137168167
           },
           {
-            "time": 20.999044137168138
+            "time": 20.961170468164795
           },
           {
             "time": 22.15104413716818
@@ -2358,16 +2367,10 @@
             "time": 25.732377470501486
           },
           {
-            "time": 26.87130647627958
-          },
-          {
             "time": 26.897710803834624
           },
           {
-            "time": 28.13237747050135
-          },
-          {
-            "time": 29.236639809612992
+            "time": 28.099443033707864
           },
           {
             "time": 29.28171080383464
@@ -2376,7 +2379,7 @@
             "time": 30.417710803834833
           },
           {
-            "time": 31.665710803834653
+            "time": 31.60853777153558
           },
           {
             "time": 32.78304413716801
@@ -2913,9 +2916,26 @@
             "time": 231.70023624631273
           }
         ],
-        "part_starts": []
+        "part_starts": [
+          {
+            "bar_num": 1,
+            "name": "Tambourine"
+          },
+          {
+            "bar_num": 5,
+            "name": "Bass Solo mit Tambourine"
+          },
+          {
+            "bar_num": 13,
+            "name": "+ Drums"
+          },
+          {
+            "bar_num": 19,
+            "name": "Stop + Gitarrenlick"
+          }
+        ]
       },
-      "total_bars": 200
+      "total_bars": 201
     },
     "CEGcgc": {
       "name": "Basket Case",
@@ -10585,6 +10605,34 @@
     "B1159": {
       "song_id": "tdyEcs",
       "bar_num": 128,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1160": {
+      "song_id": "5D6dZO",
+      "bar_num": 201,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1161": {
+      "song_id": "5D6dZO",
+      "bar_num": 202,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1162": {
+      "song_id": "5D6dZO",
+      "bar_num": 203,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1163": {
+      "song_id": "5D6dZO",
+      "bar_num": 204,
       "lyrics": "",
       "audio": "",
       "has_accents": false

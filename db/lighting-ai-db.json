@@ -339,55 +339,68 @@
         "part_starts": [
           {
             "bar_num": 1,
-            "name": "Thema 1"
+            "name": "Thema 1",
+            "light_template": "09 Alarm"
           },
           {
             "bar_num": 9,
-            "name": "Verse 1"
+            "name": "Verse 1",
+            "light_template": "08 swimming"
           },
           {
             "bar_num": 25,
-            "name": "Bridge 1"
+            "name": "Bridge 1",
+            "light_template": "02 slow blue"
           },
           {
             "bar_num": 29,
-            "name": "Chorus 1 (nana)"
+            "name": "Chorus 1 (nana)",
+            "light_template": "10 Strobe"
           },
           {
             "bar_num": 37,
-            "name": "Thema 2"
+            "name": "Thema 2",
+            "light_template": "09 Alarm"
           },
           {
             "bar_num": 45,
-            "name": "Verse 2"
+            "name": "Verse 2",
+            "light_template": "08 swimming"
           },
           {
             "bar_num": 53,
-            "name": "Bridge 2"
+            "name": "Bridge 2",
+            "light_template": "02 slow blue"
           },
           {
             "bar_num": 57,
-            "name": "Chorus 2"
+            "name": "Chorus 2",
+            "light_template": "10 Strobe"
           },
           {
             "bar_num": 65,
-            "name": "Interlude"
+            "name": "Interlude",
+            "light_template": "Spot auf Tim"
           },
           {
             "bar_num": 73,
-            "name": "Crescendo"
+            "name": "Crescendo",
+            "light_template": "Spot auf Tim hot"
           },
           {
             "bar_num": 81,
-            "name": "Bridge 3 (Power)"
+            "name": "Bridge 3 (Power)",
+            "light_template": "09 Alarm"
           },
           {
             "bar_num": 89,
-            "name": "Chorus 3"
+            "name": "Chorus 3",
+            "light_template": "10 Strobe"
           },
           {
             "bar_num": 98,
-            "name": "Ausklang"
+            "name": "Ausklang",
+            "light_template": "01 statisch bunt"
           }
         ]
       },
@@ -405,7 +418,75 @@
         "manual_undone": []
       },
       "_lrclib_synced": "[00:13.91] All the small things\n[00:17.33] True care, truth brings\n[00:20.70] I'll take one lift\n[00:23.63] Your ride, best trip\n[00:26.95] Always, I know\n[00:30.20] You'll be at my show\n[00:33.42] Watching, waiting\n[00:36.63] Commiserating\n[00:39.75] Say it ain't so\n[00:41.62] I will not go\n[00:43.16] Turn the lights off\n[00:44.70] Carry me home\n[00:45.69] Na-na, na-na, na-na, na-na, na, na\n[00:48.75] Na-na, na-na, na-na, na-na, na, na\n[00:52.18] Na-na, na-na, na-na, na-na, na, na\n[00:55.29] Na-na, na-na, na-na, na-na, na, na\n[00:59.49] \n[01:12.36] Late night, come home\n[01:15.54] Work sucks, I know\n[01:18.64] She left me roses by the stairs\n[01:22.84] Surprises let me know she cares\n[01:25.34] Just say it ain't so\n[01:27.08] I will not go\n[01:28.74] Turn the lights off\n[01:30.31] Carry me home\n[01:31.27] Na-na, na-na, na-na, na-na, na, na\n[01:34.52] Na-na, na-na, na-na, na-na, na, na\n[01:37.72] Na-na, na-na, na-na, na-na, na, na\n[01:40.84] Na-na, na-na, na-na, na-na, na, na\n[01:45.33] \n[02:10.47] Just say it ain't so\n[02:12.47] I will not go\n[02:13.99] Turn the lights off\n[02:15.78] Carry me home\n[02:17.13] Keep your head still\n[02:18.92] I'll be your thrill\n[02:20.58] The night will go on\n[02:22.18] My little windmill\n[02:23.80] Say it ain't so\n[02:25.40] I will not go\n[02:27.06] Turn the lights off\n[02:28.84] Carry me home\n[02:30.36] Keep your head still\n[02:32.12] I'll be your thrill\n[02:33.65] The night will go on\n[02:35.15] The night will go on\n[02:36.88] My little windmill\n[02:37.83] ",
-      "total_bars": 98
+      "total_bars": 98,
+      "qlc_parts": {
+        "5iZfKj_QP001": {
+          "pos": 1,
+          "name": "Thema 1",
+          "light_template": "09 Alarm",
+          "notes": ""
+        },
+        "5iZfKj_QP002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "light_template": "08 swimming",
+          "notes": ""
+        },
+        "5iZfKj_QP003": {
+          "pos": 3,
+          "name": "Bridge 1",
+          "light_template": "02 slow blue",
+          "notes": ""
+        },
+        "5iZfKj_QP004": {
+          "pos": 4,
+          "name": "Chorus 1 (nanana)",
+          "light_template": "10 Strobe",
+          "notes": ""
+        },
+        "5iZfKj_QP005": {
+          "pos": 5,
+          "name": "Thema 2",
+          "light_template": "09 Alarm",
+          "notes": ""
+        },
+        "5iZfKj_QP006": {
+          "pos": 6,
+          "name": "Verse 2",
+          "light_template": "08 swimming",
+          "notes": ""
+        },
+        "5iZfKj_QP007": {
+          "pos": 7,
+          "name": "Bridge 2",
+          "light_template": "02 slow blue",
+          "notes": ""
+        },
+        "5iZfKj_QP008": {
+          "pos": 8,
+          "name": "Chorus 2 (nanana)",
+          "light_template": "10 Strobe",
+          "notes": ""
+        },
+        "5iZfKj_QP009": {
+          "pos": 9,
+          "name": "Stop",
+          "light_template": "Spot auf Tim",
+          "notes": ""
+        },
+        "5iZfKj_QP010": {
+          "pos": 10,
+          "name": "Bridge 3 (schnell)",
+          "light_template": "09 Alarm",
+          "notes": ""
+        },
+        "5iZfKj_QP011": {
+          "pos": 11,
+          "name": "Chorus 3 (nanana)",
+          "light_template": "10 Strobe",
+          "notes": ""
+        }
+      }
     },
     "tdyEcs": {
       "name": "Along comes Mary",

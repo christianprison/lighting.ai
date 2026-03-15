@@ -928,6 +928,50 @@
           {
             "bar_num": 53,
             "name": "Bridge B 2"
+          },
+          {
+            "bar_num": 61,
+            "name": "Chorus 2"
+          },
+          {
+            "bar_num": 65,
+            "name": "Thema 3"
+          },
+          {
+            "bar_num": 73,
+            "name": "Verse 3"
+          },
+          {
+            "bar_num": 81,
+            "name": "Bridge A 3"
+          },
+          {
+            "bar_num": 85,
+            "name": "Bridge B 3"
+          },
+          {
+            "bar_num": 93,
+            "name": "Chorus 3"
+          },
+          {
+            "bar_num": 97,
+            "name": "Thema 4"
+          },
+          {
+            "bar_num": 105,
+            "name": "Chorus 5 (stops)"
+          },
+          {
+            "bar_num": 113,
+            "name": "Chorus 6 (muted)"
+          },
+          {
+            "bar_num": 121,
+            "name": "Chorus 7 (power)"
+          },
+          {
+            "bar_num": 128,
+            "name": "Punch (stop)"
           }
         ]
       },

@@ -4823,7 +4823,7 @@
       "bar_num": 20,
       "lyrics": "wanna give me kicks and be my",
       "audio": "audio/Along comes Mary/03 Bridge A 1/020 Along comes Mary Bridge A 1.mp3",
-      "has_accents": false,
+      "has_accents": true,
       "song_id": "tdyEcs"
     },
     "B0022": {
@@ -4949,7 +4949,7 @@
       "bar_num": 50,
       "lyrics": "(Mary, Mary) And a-",
       "audio": "audio/Along comes Mary/08 Bridge A 2/050 Along comes Mary Bridge A 2.mp3",
-      "has_accents": false,
+      "has_accents": true,
       "song_id": "tdyEcs"
     },
     "Bmmg3yasl_2": {
@@ -4963,7 +4963,7 @@
       "bar_num": 52,
       "lyrics": "wanna set them free And let them\n",
       "audio": "audio/Along comes Mary/08 Bridge A 2/052 Along comes Mary Bridge A 2.mp3",
-      "has_accents": false,
+      "has_accents": true,
       "song_id": "tdyEcs"
     },
     "B0042": {
@@ -5117,7 +5117,7 @@
       "bar_num": 82,
       "lyrics": "long comes Mary",
       "audio": "audio/Along comes Mary/13 Bridge A 3/082 Along comes Mary Bridge A 3.mp3",
-      "has_accents": false,
+      "has_accents": true,
       "song_id": "tdyEcs"
     },
     "Bmmg4jtyx_2": {
@@ -8282,7 +8282,7 @@
       "bar_num": 84,
       "lyrics": "",
       "audio": "audio/Along comes Mary/14 Bridge B 3/084 Along comes Mary Bridge B 3.mp3",
-      "has_accents": false,
+      "has_accents": true,
       "song_id": "tdyEcs"
     },
     "B0510": {
@@ -10621,16 +10621,76 @@
       "type": "st",
       "notes": ""
     },
-    "A0006": {
-      "bar_id": "B0018",
+    "A0008": {
+      "bar_id": "B0020",
       "pos_16th": 1,
       "type": "hl",
       "notes": ""
     },
-    "A0007": {
-      "bar_id": "B0018",
+    "A0009": {
+      "bar_id": "B0020",
       "pos_16th": 7,
       "type": "hl",
+      "notes": ""
+    },
+    "A0014": {
+      "bar_id": "Bmmg3yasl_3",
+      "pos_16th": 1,
+      "type": "bl",
+      "notes": ""
+    },
+    "A0015": {
+      "bar_id": "Bmmg3yasl_3",
+      "pos_16th": 7,
+      "type": "bl",
+      "notes": ""
+    },
+    "A0016": {
+      "bar_id": "Bmmg3yasl_1",
+      "pos_16th": 1,
+      "type": "bl",
+      "notes": ""
+    },
+    "A0017": {
+      "bar_id": "Bmmg3yasl_1",
+      "pos_16th": 7,
+      "type": "bl",
+      "notes": ""
+    },
+    "A0018": {
+      "bar_id": "B0018",
+      "pos_16th": 1,
+      "type": "bl",
+      "notes": ""
+    },
+    "A0019": {
+      "bar_id": "B0018",
+      "pos_16th": 7,
+      "type": "bl",
+      "notes": ""
+    },
+    "A0020": {
+      "bar_id": "Bmmg4jtyx_1",
+      "pos_16th": 1,
+      "type": "bl",
+      "notes": ""
+    },
+    "A0021": {
+      "bar_id": "Bmmg4jtyx_1",
+      "pos_16th": 7,
+      "type": "bl",
+      "notes": ""
+    },
+    "A0022": {
+      "bar_id": "B0509",
+      "pos_16th": 1,
+      "type": "bl",
+      "notes": ""
+    },
+    "A0023": {
+      "bar_id": "B0509",
+      "pos_16th": 7,
+      "type": "bl",
       "notes": ""
     }
   },

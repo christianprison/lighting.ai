@@ -340,7 +340,8 @@
           {
             "bar_num": 1,
             "name": "Thema 1",
-            "light_template": "09 Alarm"
+            "light_template": "09 Alarm",
+            "instrumental": true
           },
           {
             "bar_num": 9,
@@ -360,7 +361,8 @@
           {
             "bar_num": 37,
             "name": "Thema 2",
-            "light_template": "09 Alarm"
+            "light_template": "09 Alarm",
+            "instrumental": true
           },
           {
             "bar_num": 45,
@@ -380,12 +382,14 @@
           {
             "bar_num": 65,
             "name": "Interlude",
-            "light_template": "Spot auf Tim"
+            "light_template": "Spot auf Tim",
+            "instrumental": true
           },
           {
             "bar_num": 73,
             "name": "Crescendo",
-            "light_template": "Spot auf Tim hot"
+            "light_template": "Spot auf Tim hot",
+            "instrumental": true
           },
           {
             "bar_num": 81,

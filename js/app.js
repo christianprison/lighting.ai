@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.0.3';
+const APP_VERSION = 'v2.0.4';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -479,10 +479,8 @@ const SONG_CHECKLIST = [
     check: (s) => !!s.audio_ref },
   { id: 'bar_markers',  label: 'Alle Takte identifiziert', cat: 'audio', tab: 'audio',
     check: () => false },  // Manuell abhaken — kein Auto-Check
-  { id: 'audio_exported', label: 'Audio-Segmente exportiert', cat: 'audio', tab: 'audio',
-    check: (s, barIds, theDb) => {
-      return barIds.some(bId => theDb.bars[bId]?.audio);
-    }},
+  { id: 'parts_identified', label: 'Alle Parts identifiziert', cat: 'audio', tab: 'audio',
+    check: () => false },  // Manuell abhaken — kein Auto-Check
 
   // ── Lyrics ──
   { id: 'lyrics_raw',    label: 'Rohtext eingefuegt',     cat: 'lyrics', tab: 'lyrics',
@@ -3207,7 +3205,7 @@ function handleAudioFileLoad(file) {
       }
       // Reset audio-dependent TMS tasks when replacing reference audio
       const tms = getSongTms(selectedSongId);
-      const audioDepTasks = ['bar_markers', 'audio_exported'];
+      const audioDepTasks = ['bar_markers', 'parts_identified'];
       const before = tms.manual_done.length;
       tms.manual_done = tms.manual_done.filter(id => !audioDepTasks.includes(id));
       if (tms.manual_done.length < before) {

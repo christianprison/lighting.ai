@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.9.2';
+const APP_VERSION = 'v1.9.5';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -1728,15 +1728,16 @@ function renderPartsTab() {
     loadReferenceAudio().then(() => { if (activeTab === 'parts') renderPartsTab(); });
   }
 
-  let html = `<div class="parts-tab">`;
+  let html = `<div class="parts-tab-panel">`;
   html += `<div class="parts-tab-header">`;
   html += `<h2>${song.name} <span class="parts-tab-count">${parts.length} Parts</span></h2>`;
   html += `<button class="parts-qlc-btn" id="parts-qlc-btn">QLC+ Chaser laden</button>`;
   html += `</div>`;
+  html += `<div class="parts-tab-scroll">`;
 
   if (parts.length === 0) {
     html += `<div class="parts-tab-empty">Keine Parts definiert.<br>Im <strong>Audio Split</strong> Tab Taktmarker antippen → Kontextmenü → <strong>Part</strong>.</div>`;
-    html += `</div>`;
+    html += `</div></div>`;
     els.content.innerHTML = html;
     document.getElementById('parts-qlc-btn')?.addEventListener('click', () => partsTabLoadQlc());
     return;
@@ -1747,7 +1748,7 @@ function renderPartsTab() {
   html += `<th class="pt-dur">Dauer</th><th class="pt-play"></th>`;
   html += `<th class="pt-instr" title="Instrumental — Takte werden beim Lyrics-Import übersprungen">Instr.</th>`;
   html += `<th class="pt-tpl">Lichtprogramm</th>`;
-  html += `<th class="pt-qlc">QLC+</th>`;
+  html += `<th class="pt-qlc" title="Vorgeschlagenes Lichtprogramm aus QLC+-Chaser. Voraussetzung: Part-Name stimmt (ungefähr) mit der Step-Note im Chaser überein.">QLC+</th>`;
   html += `</tr></thead><tbody>`;
 
   for (let i = 0; i < parts.length; i++) {
@@ -1787,7 +1788,7 @@ function renderPartsTab() {
     html += `</tr>`;
   }
 
-  html += `</tbody></table></div>`;
+  html += `</tbody></table></div></div>`;
   els.content.innerHTML = html;
 
   // Wire events
@@ -7370,6 +7371,20 @@ const TAB_TIPS = [
     text: 'Tippe auf den Fortschrittskreis um offene Aufgaben zu sehen',
     anchor: () => document.querySelector('.song-progress-mini'),
     arrow: 'left'    // bubble right of circle, arrow points left
+  },
+  {
+    id: 'parts-qlc-workflow',
+    tab: 'parts',
+    text: 'QLC+-Chaser laden → App gleicht Part-Namen mit den Step-Notes im Chaser ab → Lichtprogramm per → in einer Zeile übernehmen',
+    anchor: () => document.getElementById('parts-qlc-btn'),
+    arrow: 'up'
+  },
+  {
+    id: 'parts-qlc-naming',
+    tab: 'parts',
+    text: 'Kein Match? Part-Namen im Audio-Split-Tab an die Step-Notes im QLC+-Chaser angleichen — exakte Übereinstimmung ist nicht nötig',
+    anchor: () => document.querySelector('.pt-qlc'),
+    arrow: 'up'
   }
 ];
 

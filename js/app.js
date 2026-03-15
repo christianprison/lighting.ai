@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v1.9.2';
+const APP_VERSION = 'v1.9.3';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -1728,15 +1728,16 @@ function renderPartsTab() {
     loadReferenceAudio().then(() => { if (activeTab === 'parts') renderPartsTab(); });
   }
 
-  let html = `<div class="parts-tab">`;
+  let html = `<div class="parts-tab-panel">`;
   html += `<div class="parts-tab-header">`;
   html += `<h2>${song.name} <span class="parts-tab-count">${parts.length} Parts</span></h2>`;
   html += `<button class="parts-qlc-btn" id="parts-qlc-btn">QLC+ Chaser laden</button>`;
   html += `</div>`;
+  html += `<div class="parts-tab-scroll">`;
 
   if (parts.length === 0) {
     html += `<div class="parts-tab-empty">Keine Parts definiert.<br>Im <strong>Audio Split</strong> Tab Taktmarker antippen → Kontextmenü → <strong>Part</strong>.</div>`;
-    html += `</div>`;
+    html += `</div></div>`;
     els.content.innerHTML = html;
     document.getElementById('parts-qlc-btn')?.addEventListener('click', () => partsTabLoadQlc());
     return;
@@ -1787,7 +1788,7 @@ function renderPartsTab() {
     html += `</tr>`;
   }
 
-  html += `</tbody></table></div>`;
+  html += `</tbody></table></div></div>`;
   els.content.innerHTML = html;
 
   // Wire events

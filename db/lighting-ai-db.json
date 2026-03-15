@@ -1180,8 +1180,8 @@
       "year": "2008",
       "pick": "",
       "gema_nr": "9963288-001",
-      "duration": "—",
-      "duration_sec": 0,
+      "duration": "3:01",
+      "duration_sec": 181,
       "notes": "nach solo 4 Takte rhythmisch, dann erst stops; ; 12 Intro 4 git, 8 alle; 8   Verse; 12 Bridge; 8   Chorus Du-dup; 8   Verse; 12 Bridge; 8  Chorus Du-dup; 16 Guitar Solo (wie Intro) statt 8 im original; 16 Bridge 8 normal, 8 ohne drums, letzter akkord = Dominante mit Rhythmik; 8   Chorus Du-dup; 8   Vox solo; Abschlag auf 1; ;",
       "qlc_id": 64,
       "split_markers": {
@@ -1627,7 +1627,7 @@
       },
       "audio_ref": "audio/Always Where I Need to Be/Always Where I Need to Be - Full Song.mp3",
       "audio_ref_name": "Always Where I Need to Be - Full Song.mp3",
-      "lyrics_raw": "She don't know who she is\nOh, I can take her anywhere\nDo whatever comes naturally to you\nYou know she just don't care\nYou know she just don't care\n\nBecause I am always where I need to be\nAnd I always thought I would end up with you eventually\nDo, do, do-do-do, do-do\nDo, do, do-do-do, do-do\nDo, do, do-do-do, do-do\n\nAnd now I see her again\nI ask to be her hummingbird\nWhisper words in her ear\nOh, now you know I just don't care\nYou know she just don't care\n\nBecause I am always where I need to be\nAnd I always thought I would end up with you eventually\nDo, do, do-do-do, do-do\nDo, do, do-do-do, do-do\nDo, do, do-do-do, do-do\n\nI'm a man, I'm a man, oh, oh, I'm a man on the scene\nI'm a man and I can be so obscene\n\nBecause I always think that I know how to be\nBut I always thought I would end up with you eventually\nDo, do, do-do-do, do-do\nDo, do, do-do-do, do-do\nDo, do, do-do-do, do-do\n\nI'm a man, I'm a man on the scene\nI'm a man, I'm a man, I can be so obscene",
+      "lyrics_raw": "She don't know who she is Oh, I can take her anywhere Do whatever comes naturally to you You know she just don't care You know she just don't care Because I am always where I need to be And I always thought I would end up with you eventually Do, do, do-do-do, do-do Do, do, do-do-do, do-do Do, do, do-do-do, do-do And now I see her again I ask to be her hummingbird Whisper words in her ear Oh, now you know I just don't care You know she just don't care Because I am always where I need to be And I always thought I would end up with you eventually Do, do, do-do-do, do-do Do, do, do-do-do, do-do Do, do, do-do-do, do-do I'm a man, I'm a man, oh, oh, I'm a man on the scene I'm a man and I can be so obscene Because I always think that I know how to be But I always thought I would end up with you eventually Do, do, do-do-do, do-do Do, do, do-do-do, do-do Do, do, do-do-do, do-do I'm a man, I'm a man on the scene I'm a man, I'm a man, I can be so obscene",
       "tms": {
         "manual_done": [
           "bar_markers"
@@ -5905,7 +5905,7 @@
     },
     "B0168": {
       "bar_num": 12,
-      "lyrics": "",
+      "lyrics": "She don't",
       "audio": "audio/Always Where I Need to Be/02 Intro (alle)/012 Always Where I Need to Be Intro (alle).mp3",
       "has_accents": false,
       "song_id": "CC9FBm"
@@ -5919,56 +5919,56 @@
     },
     "B0170": {
       "bar_num": 14,
-      "lyrics": "She don't",
+      "lyrics": "know who she is",
       "audio": "audio/Always Where I Need to Be/03 Verse 1/014 Always Where I Need to Be Verse 1.mp3",
       "has_accents": false,
       "song_id": "CC9FBm"
     },
     "B0171": {
       "bar_num": 15,
-      "lyrics": "know who she is",
+      "lyrics": "Oh,",
       "audio": "audio/Always Where I Need to Be/03 Verse 1/015 Always Where I Need to Be Verse 1.mp3",
       "has_accents": false,
       "song_id": "CC9FBm"
     },
     "B0172": {
       "bar_num": 16,
-      "lyrics": "Oh,",
+      "lyrics": "I can take her anywhere",
       "audio": "audio/Always Where I Need to Be/03 Verse 1/016 Always Where I Need to Be Verse 1.mp3",
       "has_accents": false,
       "song_id": "CC9FBm"
     },
     "B0173": {
       "bar_num": 17,
-      "lyrics": "I can take her anywhere",
+      "lyrics": "Do whatever",
       "audio": "audio/Always Where I Need to Be/03 Verse 1/017 Always Where I Need to Be Verse 1.mp3",
       "has_accents": false,
       "song_id": "CC9FBm"
     },
     "B0174": {
       "bar_num": 18,
-      "lyrics": "Do whatever",
+      "lyrics": "comes",
       "audio": "audio/Always Where I Need to Be/03 Verse 1/018 Always Where I Need to Be Verse 1.mp3",
       "has_accents": false,
       "song_id": "CC9FBm"
     },
     "B0175": {
       "bar_num": 19,
-      "lyrics": "comes",
+      "lyrics": "",
       "audio": "audio/Always Where I Need to Be/03 Verse 1/019 Always Where I Need to Be Verse 1.mp3",
       "has_accents": false,
       "song_id": "CC9FBm"
     },
     "B0176": {
       "bar_num": 20,
-      "lyrics": "naturally to you",
+      "lyrics": "You know she just don't",
       "audio": "audio/Always Where I Need to Be/03 Verse 1/020 Always Where I Need to Be Verse 1.mp3",
       "has_accents": false,
       "song_id": "CC9FBm"
     },
     "B0177": {
       "bar_num": 21,
-      "lyrics": "You know she just don't",
+      "lyrics": "",
       "audio": "audio/Always Where I Need to Be/03 Verse 1/021 Always Where I Need to Be Verse 1.mp3",
       "has_accents": false,
       "song_id": "CC9FBm"
@@ -5989,7 +5989,7 @@
     },
     "B0180": {
       "bar_num": 24,
-      "lyrics": "You know she just don't care",
+      "lyrics": "You know she just don't care\n",
       "audio": "audio/Always Where I Need to Be/03 Verse 1/024 Always Where I Need to Be Verse 1.mp3",
       "has_accents": false,
       "song_id": "CC9FBm"
@@ -6031,14 +6031,14 @@
     },
     "B0186": {
       "bar_num": 32,
-      "lyrics": "I would",
+      "lyrics": "end up with",
       "audio": "audio/Always Where I Need to Be/04 Chorus 1/032 Always Where I Need to Be Chorus 1.mp3",
       "has_accents": false,
       "song_id": "CC9FBm"
     },
     "B0187": {
       "bar_num": 33,
-      "lyrics": "end up with",
+      "lyrics": "",
       "audio": "audio/Always Where I Need to Be/04 Chorus 1/033 Always Where I Need to Be Chorus 1.mp3",
       "has_accents": false,
       "song_id": "CC9FBm"
@@ -6087,14 +6087,14 @@
     },
     "B0194": {
       "bar_num": 40,
-      "lyrics": "Do,",
+      "lyrics": "do, do-do-do,",
       "audio": "audio/Always Where I Need to Be/05 Dudup 1/040 Always Where I Need to Be Dudup 1.mp3",
       "has_accents": false,
       "song_id": "CC9FBm"
     },
     "B0195": {
       "bar_num": 41,
-      "lyrics": "do, do-do-do,",
+      "lyrics": "",
       "audio": "audio/Always Where I Need to Be/05 Dudup 1/041 Always Where I Need to Be Dudup 1.mp3",
       "has_accents": false,
       "song_id": "CC9FBm"
@@ -6143,14 +6143,14 @@
     },
     "B0202": {
       "bar_num": 48,
-      "lyrics": "words in her",
+      "lyrics": "ear Oh,",
       "audio": "audio/Always Where I Need to Be/06 Verse 2/048 Always Where I Need to Be Verse 2.mp3",
       "has_accents": false,
       "song_id": "CC9FBm"
     },
     "B0203": {
       "bar_num": 49,
-      "lyrics": "ear Oh,",
+      "lyrics": "",
       "audio": "audio/Always Where I Need to Be/06 Verse 2/049 Always Where I Need to Be Verse 2.mp3",
       "has_accents": false,
       "song_id": "CC9FBm"
@@ -6171,14 +6171,14 @@
     },
     "B0206": {
       "bar_num": 52,
-      "lyrics": "don't care You",
+      "lyrics": "know she",
       "audio": "audio/Always Where I Need to Be/06 Verse 2/052 Always Where I Need to Be Verse 2.mp3",
       "has_accents": false,
       "song_id": "CC9FBm"
     },
     "B0207": {
       "bar_num": 53,
-      "lyrics": "know she",
+      "lyrics": "",
       "audio": "audio/Always Where I Need to Be/06 Verse 2/053 Always Where I Need to Be Verse 2.mp3",
       "has_accents": false,
       "song_id": "CC9FBm"
@@ -6227,14 +6227,14 @@
     },
     "B0214": {
       "bar_num": 60,
-      "lyrics": "I would",
+      "lyrics": "end up with",
       "audio": "audio/Always Where I Need to Be/07 Chorus 2/060 Always Where I Need to Be Chorus 2.mp3",
       "has_accents": false,
       "song_id": "CC9FBm"
     },
     "B0215": {
       "bar_num": 61,
-      "lyrics": "end up with",
+      "lyrics": "",
       "audio": "audio/Always Where I Need to Be/07 Chorus 2/061 Always Where I Need to Be Chorus 2.mp3",
       "has_accents": false,
       "song_id": "CC9FBm"
@@ -6283,14 +6283,14 @@
     },
     "B0222": {
       "bar_num": 68,
-      "lyrics": "Do,",
+      "lyrics": "do, do-do-do,",
       "audio": "audio/Always Where I Need to Be/08 Dudup 2/068 Always Where I Need to Be Dudup 2.mp3",
       "has_accents": false,
       "song_id": "CC9FBm"
     },
     "B0223": {
       "bar_num": 69,
-      "lyrics": "do, do-do-do,",
+      "lyrics": "",
       "audio": "audio/Always Where I Need to Be/08 Dudup 2/069 Always Where I Need to Be Dudup 2.mp3",
       "has_accents": false,
       "song_id": "CC9FBm"
@@ -6451,14 +6451,14 @@
     },
     "B0246": {
       "bar_num": 92,
-      "lyrics": "I'm a man",
+      "lyrics": "and I can",
       "audio": "audio/Always Where I Need to Be/10 Interlude 1/092 Always Where I Need to Be Interlude 1.mp3",
       "has_accents": false,
       "song_id": "CC9FBm"
     },
     "B0247": {
       "bar_num": 93,
-      "lyrics": "and I can",
+      "lyrics": "",
       "audio": "audio/Always Where I Need to Be/10 Interlude 1/093 Always Where I Need to Be Interlude 1.mp3",
       "has_accents": false,
       "song_id": "CC9FBm"
@@ -6563,14 +6563,14 @@
     },
     "B0262": {
       "bar_num": 116,
-      "lyrics": "Do,",
+      "lyrics": "do, do-do-do,",
       "audio": "audio/Always Where I Need to Be/12 Dudup 3/116 Always Where I Need to Be Dudup 3.mp3",
       "has_accents": false,
       "song_id": "CC9FBm"
     },
     "B0263": {
       "bar_num": 117,
-      "lyrics": "do, do-do-do,",
+      "lyrics": "",
       "audio": "audio/Always Where I Need to Be/12 Dudup 3/117 Always Where I Need to Be Dudup 3.mp3",
       "has_accents": false,
       "song_id": "CC9FBm"
@@ -6668,7 +6668,7 @@
     },
     "B0277": {
       "bar_num": 109,
-      "lyrics": "end up",
+      "lyrics": "",
       "audio": "",
       "has_accents": true,
       "song_id": "CC9FBm"
@@ -6696,7 +6696,7 @@
     },
     "B0281": {
       "bar_num": 108,
-      "lyrics": "thought I would",
+      "lyrics": "end up",
       "audio": "",
       "has_accents": false,
       "song_id": "CC9FBm"

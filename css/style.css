@@ -2819,7 +2819,7 @@ td.pt-instr input[type="checkbox"] { accent-color: var(--amber); width: 16px; he
   height: 100%;
   min-height: 0;
   overflow: hidden;
-  padding: 12px 16px;
+  padding: 12px 20px;
 }
 
 .le-toolbar {
@@ -2962,7 +2962,7 @@ td.pt-instr input[type="checkbox"] { accent-color: var(--amber); width: 16px; he
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--bg2);
-  padding: 12px;
+  padding: 12px 20px;
   display: flex;
   flex-wrap: wrap;
   align-content: flex-start;

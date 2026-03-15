@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.0.0';
+const APP_VERSION = 'v2.0.1';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4762,13 +4762,18 @@ function leCommitLyrics() {
   if (!selectedSongId) return;
   ensureCollections();
 
-  // Reassign barNum on all word/bar blocks based on current array order.
-  // Drag-drop only splices _leBlocks without updating barNum properties,
-  // so without this step playback highlights use stale bar assignments.
-  let _assignBarNum = null;
+  // Reassign barNums sequentially to all bar/part blocks (in current array order),
+  // then cascade to following word blocks. This corrects stale barNums after any
+  // drag-drop, including moved part blocks whose barNum would otherwise be stale.
+  let _barSeq = 0;
+  let _lastBarNum = null;
   for (const block of _leBlocks) {
-    if (block.type === 'bar') { _assignBarNum = block.barNum; }
-    else if (block.type === 'word') { block.barNum = _assignBarNum; }
+    if (block.type === 'bar' || block.type === 'part') {
+      block.barNum = ++_barSeq;
+      _lastBarNum = block.barNum;
+    } else if (block.type === 'word') {
+      block.barNum = _lastBarNum;
+    }
   }
 
   for (const [, b] of Object.entries(db.bars)) {
@@ -4788,10 +4793,9 @@ function leCommitLyrics() {
     currentWords = [];
   }
 
+  // Both 'bar' and 'part' blocks act as bar markers for lyrics assignment
   for (const block of _leBlocks) {
-    if (block.type === 'part') {
-      if (block.newline) flush(true);
-    } else if (block.type === 'bar') {
+    if (block.type === 'bar' || block.type === 'part') {
       flush(block.newline || false);
       currentBarNum = block.barNum;
     } else if (block.type === 'word') {
@@ -4803,6 +4807,26 @@ function leCommitLyrics() {
   const song = db.songs[selectedSongId];
   if (song) {
     song.lyrics_raw = _leBlocks.filter(b => b.type === 'word').map(b => b.content).join(' ');
+
+    // Rebuild split_markers.part_starts from the current positions of part blocks.
+    // Without this, dragging a part block visually moves it but the saved bar_num
+    // stays at the old value → after reload the part snaps back to its old position.
+    if (song.split_markers) {
+      const oldPartMap = new Map(
+        (song.split_markers.part_starts || []).map(ps => [ps.name, ps])
+      );
+      song.split_markers.part_starts = _leBlocks
+        .filter(b => b.type === 'part')
+        .map(b => {
+          const old = oldPartMap.get(b.content);
+          return {
+            bar_num: b.barNum,
+            name: b.content,
+            instrumental: b.instrumental || false,
+            ...(old?.light_template ? { light_template: old.light_template } : {}),
+          };
+        });
+    }
   }
   markDirty();
   leRescheduleHighlights();

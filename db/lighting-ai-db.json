@@ -2908,78 +2908,318 @@
           {
             "bar_num": 1,
             "name": "Tambourine",
+            "light_template": "Spot auf Pete",
             "instrumental": true
           },
           {
             "bar_num": 5,
             "name": "Bass Solo mit Tambourine",
+            "light_template": "Spot auf Bibo",
             "instrumental": true
           },
           {
             "bar_num": 13,
             "name": "+ Drums",
+            "light_template": "Spot auf Tim",
             "instrumental": true
           },
           {
             "bar_num": 19,
             "name": "Stop + Gitarrenlick",
+            "light_template": "Spot auf Axel",
             "instrumental": true
           },
           {
             "bar_num": 21,
             "name": "Thema 1",
+            "light_template": "09 Alarm",
             "instrumental": true
           },
           {
             "bar_num": 29,
-            "name": "Verse 1"
+            "name": "Verse 1",
+            "light_template": "09 Alarm"
           },
           {
             "bar_num": 47,
-            "name": "Bridge 1"
+            "name": "Bridge 1",
+            "light_template": "09 Alarm"
           },
           {
             "bar_num": 55,
-            "name": "Chorus 1"
+            "name": "Chorus 1",
+            "light_template": "10 Alarm 🔔🔔"
           },
           {
             "bar_num": 75,
             "name": "Thema 2",
+            "light_template": "09 Alarm",
             "instrumental": true
           },
           {
             "bar_num": 83,
-            "name": "Verse 2"
+            "name": "Verse 2",
+            "light_template": "09 Alarm"
           },
           {
             "bar_num": 101,
-            "name": "Bridge 2"
+            "name": "Bridge 2",
+            "light_template": "09 Alarm"
           },
           {
             "bar_num": 109,
-            "name": "Chorus 2"
+            "name": "Chorus 2",
+            "light_template": "10 Alarm 🔔🔔"
           },
           {
             "bar_num": 129,
             "name": "Solo Axel",
+            "light_template": "Spot auf Axel",
             "instrumental": true
           },
           {
             "bar_num": 169,
-            "name": "Chorus 3"
+            "name": "Chorus 3",
+            "light_template": "10 Alarm 🔔🔔"
           },
           {
             "bar_num": 185,
-            "name": "Chorus 4 (halb)"
+            "name": "Chorus 4 (halb)",
+            "light_template": "10 Strobe"
           },
           {
             "bar_num": 193,
             "name": "Ausklang",
+            "light_template": "01 statisch bunt",
             "instrumental": true
           }
         ]
       },
-      "total_bars": 193
+      "total_bars": 193,
+      "qlc_parts": {
+        "5D6dZO_QP001": {
+          "pos": 1,
+          "name": "Bass Solo mit Tambourine",
+          "light_template": "Spot auf Bibo",
+          "notes": ""
+        },
+        "5D6dZO_QP002": {
+          "pos": 2,
+          "name": "+ Drums",
+          "light_template": "Spot auf Tim",
+          "notes": ""
+        },
+        "5D6dZO_QP003": {
+          "pos": 3,
+          "name": "Solo Axel",
+          "light_template": "Spot auf Axel hot",
+          "notes": ""
+        },
+        "5D6dZO_QP004": {
+          "pos": 4,
+          "name": "Thema",
+          "light_template": "09 Alarm",
+          "notes": ""
+        },
+        "5D6dZO_QP005": {
+          "pos": 5,
+          "name": "Verse 1",
+          "light_template": "Spot auf Pete",
+          "notes": ""
+        },
+        "5D6dZO_QP006": {
+          "pos": 6,
+          "name": "Bridge (big)",
+          "light_template": "blind (accent)",
+          "notes": ""
+        },
+        "5D6dZO_QP007": {
+          "pos": 7,
+          "name": "black",
+          "light_template": "blind (accent)",
+          "notes": ""
+        },
+        "5D6dZO_QP008": {
+          "pos": 8,
+          "name": "boots",
+          "light_template": "01 statisch bunt",
+          "notes": ""
+        },
+        "5D6dZO_QP009": {
+          "pos": 9,
+          "name": "long",
+          "light_template": "blind (accent)",
+          "notes": ""
+        },
+        "5D6dZO_QP010": {
+          "pos": 10,
+          "name": "brown",
+          "light_template": "blind (accent)",
+          "notes": ""
+        },
+        "5D6dZO_QP011": {
+          "pos": 11,
+          "name": "hair",
+          "light_template": "01 statisch bunt",
+          "notes": ""
+        },
+        "5D6dZO_QP012": {
+          "pos": 12,
+          "name": "she's",
+          "light_template": "blind (accent)",
+          "notes": ""
+        },
+        "5D6dZO_QP013": {
+          "pos": 13,
+          "name": "so",
+          "light_template": "blind (accent)",
+          "notes": ""
+        },
+        "5D6dZO_QP014": {
+          "pos": 14,
+          "name": "sweet ",
+          "light_template": "01 statisch bunt",
+          "notes": ""
+        },
+        "5D6dZO_QP015": {
+          "pos": 15,
+          "name": "with her",
+          "light_template": "blackout (scene)",
+          "notes": ""
+        },
+        "5D6dZO_QP016": {
+          "pos": 16,
+          "name": "get ",
+          "light_template": "blind (accent)",
+          "notes": ""
+        },
+        "5D6dZO_QP017": {
+          "pos": 17,
+          "name": "back",
+          "light_template": "blind (accent)",
+          "notes": ""
+        },
+        "5D6dZO_QP018": {
+          "pos": 18,
+          "name": "stare",
+          "light_template": "01 statisch bunt",
+          "notes": ""
+        },
+        "5D6dZO_QP019": {
+          "pos": 19,
+          "name": "Chorus 1",
+          "light_template": "09 Alarm",
+          "notes": ""
+        },
+        "5D6dZO_QP020": {
+          "pos": 20,
+          "name": "Verse 2",
+          "light_template": "Spot auf Pete",
+          "notes": ""
+        },
+        "5D6dZO_QP021": {
+          "pos": 21,
+          "name": "Bridge (big)",
+          "light_template": "blind (accent)",
+          "notes": ""
+        },
+        "5D6dZO_QP022": {
+          "pos": 22,
+          "name": "black",
+          "light_template": "blind (accent)",
+          "notes": ""
+        },
+        "5D6dZO_QP023": {
+          "pos": 23,
+          "name": "boots",
+          "light_template": "01 statisch bunt",
+          "notes": ""
+        },
+        "5D6dZO_QP024": {
+          "pos": 24,
+          "name": "long",
+          "light_template": "blind (accent)",
+          "notes": ""
+        },
+        "5D6dZO_QP025": {
+          "pos": 25,
+          "name": "brown",
+          "light_template": "blind (accent)",
+          "notes": ""
+        },
+        "5D6dZO_QP026": {
+          "pos": 26,
+          "name": "hair",
+          "light_template": "01 statisch bunt",
+          "notes": ""
+        },
+        "5D6dZO_QP027": {
+          "pos": 27,
+          "name": "she's",
+          "light_template": "blind (accent)",
+          "notes": ""
+        },
+        "5D6dZO_QP028": {
+          "pos": 28,
+          "name": "so",
+          "light_template": "blind (accent)",
+          "notes": ""
+        },
+        "5D6dZO_QP029": {
+          "pos": 29,
+          "name": "sweet ",
+          "light_template": "01 statisch bunt",
+          "notes": ""
+        },
+        "5D6dZO_QP030": {
+          "pos": 30,
+          "name": "with her",
+          "light_template": "blackout (scene)",
+          "notes": ""
+        },
+        "5D6dZO_QP031": {
+          "pos": 31,
+          "name": "get ",
+          "light_template": "blind (accent)",
+          "notes": ""
+        },
+        "5D6dZO_QP032": {
+          "pos": 32,
+          "name": "back",
+          "light_template": "blind (accent)",
+          "notes": ""
+        },
+        "5D6dZO_QP033": {
+          "pos": 33,
+          "name": "stare",
+          "light_template": "01 statisch bunt",
+          "notes": ""
+        },
+        "5D6dZO_QP034": {
+          "pos": 34,
+          "name": "Chorus 2",
+          "light_template": "09 Alarm",
+          "notes": ""
+        },
+        "5D6dZO_QP035": {
+          "pos": 35,
+          "name": "Guitar Solo",
+          "light_template": "Spot auf Axel",
+          "notes": ""
+        },
+        "5D6dZO_QP036": {
+          "pos": 36,
+          "name": "Chorus 3",
+          "light_template": "09 Alarm",
+          "notes": ""
+        },
+        "5D6dZO_QP037": {
+          "pos": 37,
+          "name": "Chorus 4",
+          "light_template": "10 Strobe",
+          "notes": ""
+        }
+      }
     },
     "CEGcgc": {
       "name": "Basket Case",

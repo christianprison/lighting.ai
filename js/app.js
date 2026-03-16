@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.1.3';
+const APP_VERSION = 'v2.1.4';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4580,6 +4580,7 @@ function leShowContextMenu(idx, blockEl) {
   menu.addEventListener('click', (e) => {
     const btn = e.target.closest('[data-action]');
     if (!btn) return;
+    e.stopPropagation(); // Verhindert Bubbling zum Canvas-Handler (würde shift-mode sofort abbrechen)
     const action = btn.dataset.action;
     leCloseContextMenu();
     leHandleContextAction(action, idx);

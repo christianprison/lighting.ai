@@ -2201,7 +2201,7 @@
           }
         ]
       },
-      "lyrics_raw": "here we go again i kinda wanna be more then friends So take it easy on me I'm afraid you're never satisfied Here we go again, We're sick like animals we play pretend You're just a cannibal and I'm afraid I won't get out alive No Oh oh I want some more Oh oh what are you waiting for Take heart tonight Oh oh I want some more Oh oh what are you waiting for, what are you waiting for Take a bite of my heart tonight Here we are again, I feel the chemicals kicking in Its getting heavy and I want run and hide, I want to run and hide I do it every time You're killing me be denied by you, The animal inside of you Oh oh I want some more Oh oh what are you waiting for Take a bite of my heart tonight Oh oh I want some more Oh oh what are you waiting for, what are you waiting for Take a bite of my heart tonight Hush hush the world is quiet can't fight it Its us that made this mess Why can't you understand Oh I won't sleep tonight, I won?t sleep tonight Here we go again (here we go again) Oh oh I want some more Oh oh what are you waiting for Take a bite of my heart tonight Oh oh Oh oh what are you waiting for, what are you waiting for, what are you waiting Here we go again, oh oh here we go again, oh oh here we go again, Say goodbye to my heart tonight Oh oh I want some more Oh oh what are you waiting for What Say goodbye to my heart tonight",
+      "lyrics_raw": "here we go again i kinda wanna be more then friends So take it easy on me I'm afraid you're never satis- fied Here we go again, We're sick like animals we play pretend You're just a cannibal and I'm afraid I won't get out alive No I won‘t sleep tonight Oh oh I want some more Oh oh what are you waiting for Take heart tonight Oh oh I want some more Oh oh what are you waiting for, what are you waiting for Take a bite of my heart tonight Here we are again, I feel the chemicals kicking in Its getting heavy and I want run and hide, I want to run and hide I do it every time You're killing me be denied by you, The animal inside of you Oh oh I want some more Oh oh what are you waiting for Take a bite of my heart tonight Oh oh I want some more Oh oh what are you waiting for, what are you waiting for Take a bite of my heart tonight Hush hush the world is quiet can't fight it Its us that made this mess Why can't you understand Oh I won't sleep tonight, I won?t sleep tonight Here we go again (here we go again) Oh oh I want some more Oh oh what are you waiting for Take a bite of my heart tonight Oh oh Oh oh what are you waiting for, what are you waiting for, what are you waiting Here we go again, oh oh here we go again, oh oh here we go again, Say goodbye to my heart tonight Oh oh I want some more Oh oh what are you waiting for What Say goodbye to my heart tonight",
       "tms": {
         "manual_done": [
           "bar_markers",
@@ -9615,14 +9615,14 @@
     "B1006": {
       "song_id": "UNIriZ",
       "bar_num": 15,
-      "lyrics": "never satisfied",
+      "lyrics": "never satis-",
       "audio": "",
       "has_accents": false
     },
     "B1007": {
       "song_id": "UNIriZ",
       "bar_num": 16,
-      "lyrics": "",
+      "lyrics": "fied",
       "audio": "",
       "has_accents": false
     },
@@ -9672,14 +9672,14 @@
     "B1014": {
       "song_id": "UNIriZ",
       "bar_num": 23,
-      "lyrics": "No\n",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B1015": {
       "song_id": "UNIriZ",
       "bar_num": 24,
-      "lyrics": "",
+      "lyrics": "No I won‘t sleep tonight\n",
       "audio": "",
       "has_accents": false
     },

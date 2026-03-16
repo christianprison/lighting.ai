@@ -10157,7 +10157,8 @@
       "bar_num": 92,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B1084": {
       "song_id": "UNIriZ",

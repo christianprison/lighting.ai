@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.1.8';
+const APP_VERSION = 'v2.1.9';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -6826,6 +6826,10 @@ function getAllBarsFlat() {
     const barsByNum = new Map(songBars.map(b => [b.bar_num, b]));
     const bpm = song.bpm || 0;
     const instrBars = buildInstrumentalBarsSet(songId);
+    const partMap = new Map();
+    if (song.split_markers?.part_starts) {
+      for (const ps of song.split_markers.part_starts) partMap.set(ps.bar_num, ps.name || '');
+    }
     for (let n = 0; n < totalBars; n++) {
       const absBar = n + 1;
       const barEntry = barsByNum.get(absBar) || null;
@@ -6839,6 +6843,7 @@ function getAllBarsFlat() {
         lyrics: barData.lyrics || '',
         audio: barData.audio || '',
         instrumental: instrBars.has(absBar),
+        partName: partMap.get(absBar) || '',
         accCount, barId
       });
     }
@@ -6931,6 +6936,7 @@ function buildTakteTabTable(bars, filterSong) {
         <th class="ttt-play"></th>
         ${showSongCol ? '<th class="ttt-song">Song</th>' : ''}
         <th class="ttt-bar">Takt</th>
+        <th class="ttt-part"></th>
         ${showWave ? '<th class="ttt-wave">Waveform</th>' : ''}
         <th class="ttt-time">Zeit</th>
         <th class="ttt-lyrics">Lyrics</th>
@@ -6962,6 +6968,7 @@ function buildTakteTabTable(bars, filterSong) {
             <td class="ttt-play">${canPlay ? `<button class="btn-bar-play${isBarPlaying ? ' playing' : ''}" data-action="play-bar" data-play-song-id="${b.songId}" data-play-bar-num="${b.barNum}" title="${isBarPlaying ? 'Stop' : 'Takt abspielen'}">${isBarPlaying ? '&#9632;' : '&#9654;'}</button>` : ''}</td>
             ${showSongCol ? `<td class="ttt-song"><span class="ttt-song-name">${esc(b.songName)}</span></td>` : ''}
             <td class="ttt-bar mono${isIrreg ? ' text-red' : ''}">${b.absBar}</td>
+            <td class="ttt-part">${b.partName ? `<span class="ttt-part-chip">${esc(b.partName)}</span>` : ''}</td>
             ${showWave ? `<td class="ttt-wave">${waveCanvas}</td>` : ''}
             <td class="ttt-time mono text-t3">${fmtDur(Math.round(b.barSec))}</td>
             <td class="ttt-lyrics"><input type="text" value="${esc(b.lyrics)}" data-ttf="lyrics" class="takte-input" placeholder="\u2014"></td>

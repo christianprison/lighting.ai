@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.2.3';
+const APP_VERSION = 'v2.2.4';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -7739,8 +7739,11 @@ function wireEvents() {
   });
   // + scroll focused input into view after iOS keyboard opens
   els.content.addEventListener('focus', (e) => {
-    // iOS keyboard scroll fix: after keyboard animates open, ensure field is visible
-    if (e.target.matches('input, textarea, select')) {
+    // iOS keyboard scroll fix: after keyboard animates open, ensure field is visible.
+    // Only for text inputs / textareas that actually open the virtual keyboard —
+    // NOT for checkboxes or selects (those don't open the keyboard and the
+    // scrollIntoView would cause unexpected scroll jumps in the Takte tab).
+    if (e.target.matches('input[type="text"], input[type="search"], input[type="number"], input:not([type]), textarea')) {
       setTimeout(() => {
         e.target.scrollIntoView({ block: 'center', behavior: 'smooth' });
       }, 350); // wait for iOS keyboard animation

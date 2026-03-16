@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.2.4';
+const APP_VERSION = 'v2.2.5';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -413,14 +413,22 @@ function getOrCreateBar(songId, barNum) {
   return [barId, db.bars[barId]];
 }
 
-/** Reconcile total_bars with actual db.bars entries for a song */
+/** Reconcile total_bars with the authoritative bar count for a song.
+ *  Priority: split_markers.markers (set by saveMarkersToSong) > db.bars count.
+ *  Songs that went through the Audio-Split have their marker count as truth;
+ *  overwriting it with db.bars.length would cause the Takte-Tab to silently
+ *  drop bars that were tapped but whose db.bars entry was never explicitly saved.
+ */
 function reconcileBars(songId) {
   const song = db.songs[songId];
   if (!song) return;
-  ensureCollections();
-  const actualBars = getBarsForSong(songId).length;
-  if (actualBars !== (song.total_bars || 0)) {
-    song.total_bars = actualBars;
+
+  // If split markers exist they are the single source of truth (set by saveMarkersToSong).
+  const markerCount = song.split_markers?.markers?.length;
+  const correctTotal = markerCount !== undefined ? markerCount : getBarsForSong(songId).length;
+
+  if (correctTotal !== (song.total_bars || 0)) {
+    song.total_bars = correctTotal;
     // recalcSongDuration uses selectedSongId – inline the logic for any songId
     const _bpm = song.bpm || 0;
     const _totalSec = calcBarsDuration(song.total_bars || 0, _bpm);

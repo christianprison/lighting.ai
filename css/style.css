@@ -2511,7 +2511,22 @@ td.pt-instr input[type="checkbox"] { accent-color: var(--amber); width: 16px; he
 
 .takte-tab-table .ttt-nr { width: 36px; text-align: center; font-size: 0.8rem; }
 .takte-tab-table .ttt-song { min-width: 120px; max-width: 180px; }
-.takte-tab-table .ttt-part { width: 110px; font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.takte-tab-table .ttt-part { width: 110px; }
+.ttt-part-chip {
+  display: inline-block;
+  background: rgba(240, 160, 48, 0.15);
+  color: var(--amber);
+  border: 1px solid rgba(240, 160, 48, 0.35);
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-family: var(--font-ui);
+  font-weight: 600;
+  padding: 1px 6px;
+  white-space: nowrap;
+  max-width: 104px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .takte-tab-table .ttt-bar { width: 48px; text-align: center; }
 .takte-tab-table .ttt-time { width: 56px; text-align: center; font-size: 0.8rem; }
 .takte-tab-table .ttt-lyrics { min-width: 160px; }

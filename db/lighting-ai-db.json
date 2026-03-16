@@ -2313,7 +2313,7 @@
       "qlc_id": 175,
       "audio_ref": "audio/Are You Gonna Be My Girl/Are You Gonna Be My Girl - Full Song.mp3",
       "audio_ref_name": "20190905 Are you gonna be my girl - QWNPrZ.mp3",
-      "lyrics_raw": "Go! one, two, three, take my hand and come with me Because you look so fine that I really wanna make you mine look so fine that I really wanna make you mine four, five, six, c'mon and get your kicks Now you don't need that money when you look like that, do you honey? Big black boots, long brown hair She's so sweet with her get back stare I could see, you home with me But you were with another man, yeah I know we ain't got much to say Before I let you get away, yeah I said, \"Are you gonna be my girl?\" Well so one, two, three, take my hand and come with me Because you look so fine that I really wanna make you mine I say you look so fine that I really wanna make you mine Oh four, five, six, c'mon and get your kicks Now you don't need that money with a face like that, do you? Big black boots, long brown hair She's so sweet with her get back stare Well I could see, you home with me But you were with another man, yeah I know we ain't got much to say Before I let you get away, yeah I said, \"Are you gonna be my girl?\" Oh yeah, oh yeah, c'mon I could see, you home with me But you were with another man, yeah I know we ain't got much to say Before I let you get away, yeah Uh, be my girl, be my girl Are you gonna be my girl? Yeah Ooh!",
+      "lyrics_raw": "Go! one, two, three, take my hand and come with me Because you look so fine that I really wanna make you mine look so fine that I really wanna make you mine four, five, six, c'mon and get your kicks Now you don't need that money when you look like that, do you honey? Big black boots, long brown hair She's so sweet with her get back stare I could see, you home with me But you were with another man, yeah I know we ain't got so much to say Before I let you get a way, yeah I said, \"Are you gonna be my girl?\" Well so one, two, three, take my hand and come with me Because you look so fine that I really wanna make you mine I say you look so fine that I really wanna make you mine Oh four, five, six, c'mon and get your kicks Now you don't need that money with a face like that, do you? Big black boots, long brown hair She's so sweet with her get back stare Well I could see, you home with me But you were with another man, yeah I know we ain't got much to say Before I let you get away, yeah I said, \"Are you gonna be my girl?\" Oh yeah, oh yeah, c'mon I could see, you home with me But you were with another man, yeah I know we ain't got much to say Before I let you get away, yeah Uh, be my girl, be my girl Are you gonna be my girl? Yeah Ooh!",
       "tms": {
         "manual_done": [
           "bar_markers",
@@ -7473,119 +7473,119 @@
     },
     "B0343": {
       "bar_num": 58,
-      "lyrics": "But you were with another man,",
+      "lyrics": "But you were",
       "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/058 Are You Gonna Be My Girl Chorus 1.mp3",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0344": {
       "bar_num": 59,
-      "lyrics": "yeah I know",
+      "lyrics": "with another",
       "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/059 Are You Gonna Be My Girl Chorus 1.mp3",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0345": {
       "bar_num": 60,
-      "lyrics": "we ain't got",
+      "lyrics": "man,",
       "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/060 Are You Gonna Be My Girl Chorus 1.mp3",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0346": {
       "bar_num": 61,
-      "lyrics": "much to say",
+      "lyrics": "yeah",
       "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/061 Are You Gonna Be My Girl Chorus 1.mp3",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0347": {
       "bar_num": 62,
-      "lyrics": "Before I let",
+      "lyrics": "I know",
       "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/062 Are You Gonna Be My Girl Chorus 1.mp3",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0348": {
       "bar_num": 63,
-      "lyrics": "you get away,",
+      "lyrics": "we ain't got",
       "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/063 Are You Gonna Be My Girl Chorus 1.mp3",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0349": {
       "bar_num": 64,
-      "lyrics": "yeah I said,",
+      "lyrics": "so much to say",
       "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/064 Are You Gonna Be My Girl Chorus 1.mp3",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0350": {
       "bar_num": 65,
-      "lyrics": "\"Are you gonna",
+      "lyrics": "Before",
       "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/065 Are You Gonna Be My Girl Chorus 1.mp3",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0351": {
       "bar_num": 66,
-      "lyrics": "be my girl?\"",
+      "lyrics": "I let you get a",
       "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/066 Are You Gonna Be My Girl Chorus 1.mp3",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0352": {
       "bar_num": 67,
-      "lyrics": "Well so one,",
+      "lyrics": "way,",
       "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/067 Are You Gonna Be My Girl Chorus 1.mp3",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0353": {
       "bar_num": 68,
-      "lyrics": "two, three, take",
+      "lyrics": "yeah",
       "audio": "audio/Are You Gonna Be My Girl/08 Thema 2/068 Are You Gonna Be My Girl Thema 2.mp3",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0354": {
       "bar_num": 69,
-      "lyrics": "my hand and",
+      "lyrics": "",
       "audio": "audio/Are You Gonna Be My Girl/08 Thema 2/069 Are You Gonna Be My Girl Thema 2.mp3",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0355": {
       "bar_num": 70,
-      "lyrics": "come with me",
+      "lyrics": "",
       "audio": "audio/Are You Gonna Be My Girl/08 Thema 2/070 Are You Gonna Be My Girl Thema 2.mp3",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0356": {
       "bar_num": 71,
-      "lyrics": "Because you look",
+      "lyrics": "I said, \"Are you gonna be my girl?\"",
       "audio": "audio/Are You Gonna Be My Girl/08 Thema 2/071 Are You Gonna Be My Girl Thema 2.mp3",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0357": {
       "bar_num": 72,
-      "lyrics": "so fine that",
+      "lyrics": "",
       "audio": "audio/Are You Gonna Be My Girl/08 Thema 2/072 Are You Gonna Be My Girl Thema 2.mp3",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0358": {
       "bar_num": 73,
-      "lyrics": "I really wanna",
+      "lyrics": "",
       "audio": "audio/Are You Gonna Be My Girl/08 Thema 2/073 Are You Gonna Be My Girl Thema 2.mp3",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0359": {
       "bar_num": 74,
-      "lyrics": "make you mine\n",
+      "lyrics": "",
       "audio": "audio/Are You Gonna Be My Girl/08 Thema 2/074 Are You Gonna Be My Girl Thema 2.mp3",
       "has_accents": false,
       "song_id": "5D6dZO"
@@ -7648,7 +7648,7 @@
     },
     "B0368": {
       "bar_num": 83,
-      "lyrics": "I say you",
+      "lyrics": "Well so one, two, three, take my hand and come with me Because you look so fine that I really wanna make you mine I say you",
       "audio": "audio/Are You Gonna Be My Girl/09 Verse 2/083 Are You Gonna Be My Girl Verse 2.mp3",
       "has_accents": false,
       "song_id": "5D6dZO"

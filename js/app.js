@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.1.1';
+const APP_VERSION = 'v2.1.2';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4780,6 +4780,7 @@ function leShowShiftModal(fromBarNum, label) {
 /**
  * Shift only the lyrics (words) from fromBar onwards to start at toBar.
  * Bar and part markers are NOT moved — only lyric content shifts between bars.
+ * Works entirely on _leBlocks, then commits via leCommitLyrics().
  * Undo-able via the existing undo stack.
  * @param {number} fromBar - first bar whose lyrics to shift (inclusive)
  * @param {number} toBar   - new starting bar for those lyrics
@@ -4793,29 +4794,51 @@ function leShiftWordsFrom(fromBar, toBar) {
 
   lePushUndo();
 
-  // Collect lyrics for bars >= fromBar in order, then clear them
-  const lyricsToShift = new Map();
-  for (const [, b] of Object.entries(db.bars)) {
-    if (b.song_id === selectedSongId && b.bar_num >= fromBar) {
-      lyricsToShift.set(b.bar_num, b.lyrics || '');
-      b.lyrics = '';
+  // Step 1: Collect words per bar from _leBlocks
+  const wordsByBar = new Map(); // barNum -> [word content, ...]
+  let curBar = null;
+  for (const block of _leBlocks) {
+    if (block.type === 'bar' || block.type === 'part') {
+      curBar = block.barNum;
+      if (!wordsByBar.has(curBar)) wordsByBar.set(curBar, []);
+    } else if (block.type === 'word' && curBar !== null) {
+      wordsByBar.get(curBar).push(block.content);
     }
   }
 
-  // Write lyrics to shifted positions (words beyond totalBars are dropped)
-  for (const [barNum, lyrics] of lyricsToShift) {
-    const newBarNum = barNum + delta;
-    if (newBarNum >= 1 && newBarNum <= totalBars) {
-      const [, barData] = getOrCreateBar(selectedSongId, newBarNum);
-      barData.lyrics = lyrics;
+  // Step 2: Build new word map — bars < fromBar stay, bars >= fromBar shift by delta
+  const newWordsByBar = new Map();
+  for (const [barNum, words] of wordsByBar) {
+    if (barNum < fromBar) {
+      newWordsByBar.set(barNum, words);
+    } else {
+      const targetBar = barNum + delta;
+      if (targetBar >= 1 && targetBar <= totalBars) {
+        if (!newWordsByBar.has(targetBar)) newWordsByBar.set(targetBar, []);
+        newWordsByBar.get(targetBar).push(...words);
+      }
+      // words beyond totalBars are dropped (unavoidable)
     }
   }
 
-  // NOTE: part_starts are intentionally NOT touched — bars never move, only words.
+  // Step 3: Rebuild _leBlocks — keep all bar/part markers, replace word blocks
+  let wordId = 0;
+  const newBlocks = [];
+  for (const block of _leBlocks) {
+    if (block.type === 'bar' || block.type === 'part') {
+      newBlocks.push(block);
+      const words = newWordsByBar.get(block.barNum) || [];
+      for (const w of words) {
+        newBlocks.push({ type: 'word', content: w, barNum: block.barNum, id: `lb_sh_${wordId++}` });
+      }
+    }
+    // original word blocks are dropped and replaced from newWordsByBar
+  }
+  _leBlocks = newBlocks;
 
-  // Rebuild _leBlocks from updated DB without clearing the undo stack
+  // Step 4: Write to db.bars and rebuild
+  leCommitLyrics();
   _leBlocks = leBuildBlocks(selectedSongId);
-  markDirty();
   leRefreshCanvas();
 }
 

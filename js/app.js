@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.1.4';
+const APP_VERSION = 'v2.1.5';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4057,7 +4057,11 @@ function leRenderBlocks() {
     }
     const isIrreg = b.type === 'bar' && irregNums.has(b.barNum);
     const isInstr = b.instrumental;
-    let cls = `le-block le-block-${b.type}${isIrreg ? ' le-block-irregular' : ''}${isInstr ? ' le-block-instrumental' : ''}`;
+    const isShiftStart    = _leShiftStart?.phase === 1 && i === _leShiftStart.idx;
+    const isShiftSelected = _leShiftStart?.phase === 2 && b.type === 'word' && i >= _leShiftStart.fromIdx && i <= _leShiftStart.toIdx;
+    const isShiftTarget   = _leShiftStart?.phase === 2 && (b.type === 'bar' || b.type === 'part') && b.barNum !== _leShiftStart.sourceBar;
+    const isShiftSource   = _leShiftStart?.phase === 2 && (b.type === 'bar' || b.type === 'part') && b.barNum === _leShiftStart.sourceBar;
+    let cls = `le-block le-block-${b.type}${isIrreg ? ' le-block-irregular' : ''}${isInstr ? ' le-block-instrumental' : ''}${isShiftStart ? ' le-block-shift-start' : ''}${isShiftSelected ? ' le-shift-selected' : ''}${isShiftTarget ? ' le-shift-target' : ''}${isShiftSource ? ' le-shift-source' : ''}`;
 
     let displayContent;
     let titleAttr = '';
@@ -4469,12 +4473,22 @@ function leWireCanvasEvents() {
         leRefreshCanvas();
       }
     } else {
-      // Tap (no drag) → shift-end selection or context menu
+      // Tap (no drag) → shift-end/target selection or context menu
       const block = touchDrag.el;
-      if (_leShiftStart) {
+      if (_leShiftStart?.phase === 1) {
         e.preventDefault();
         if (block.dataset.type === 'word') {
           leSelectShiftEnd(parseInt(block.dataset.idx, 10));
+        } else {
+          leCancelShiftMode();
+        }
+      } else if (_leShiftStart?.phase === 2) {
+        e.preventDefault();
+        if (block.dataset.type === 'bar' || block.dataset.type === 'part') {
+          const barNum = parseInt(block.dataset.barnum, 10);
+          const { fromIdx, toIdx, sourceBar } = _leShiftStart;
+          leCancelShiftMode();
+          if (barNum !== sourceBar) leShiftWordRange(fromIdx, toIdx, barNum);
         } else {
           leCancelShiftMode();
         }
@@ -4486,12 +4500,23 @@ function leWireCanvasEvents() {
     touchDrag = null;
   });
 
-  // Click → shift-end selection or context menu (desktop)
+  // Click → shift-end/target selection or context menu (desktop)
   canvas.addEventListener('click', (e) => {
     const block = e.target.closest('.le-block');
-    if (_leShiftStart) {
+    if (_leShiftStart?.phase === 1) {
       if (block && block.dataset.type === 'word') {
         leSelectShiftEnd(parseInt(block.dataset.idx, 10));
+      } else {
+        leCancelShiftMode();
+      }
+      return;
+    }
+    if (_leShiftStart?.phase === 2) {
+      if (block && (block.dataset.type === 'bar' || block.dataset.type === 'part')) {
+        const barNum = parseInt(block.dataset.barnum, 10);
+        const { fromIdx, toIdx, sourceBar } = _leShiftStart;
+        leCancelShiftMode();
+        if (barNum !== sourceBar) leShiftWordRange(fromIdx, toIdx, barNum);
       } else {
         leCancelShiftMode();
       }
@@ -4736,11 +4761,8 @@ async function leHandleContextAction(action, idx) {
 
 /** Enter shift mode: highlight the start word, show banner. */
 function leStartShiftMode(idx) {
-  _leShiftStart = { idx };
-  leRefreshCanvas();
-  // Highlight start word
-  const startEl = document.querySelector(`#le-canvas [data-idx="${idx}"]`);
-  if (startEl) startEl.classList.add('le-block-shift-start');
+  _leShiftStart = { phase: 1, idx };
+  leRefreshCanvas(); // leRenderBlocks setzt le-block-shift-start via State
   // Show instruction banner
   let banner = document.getElementById('le-shift-banner');
   if (!banner) {
@@ -4761,7 +4783,8 @@ function leCancelShiftMode() {
   _leShiftStart = null;
   const banner = document.getElementById('le-shift-banner');
   if (banner) banner.remove();
-  document.querySelectorAll('.le-block-shift-start').forEach(el => el.classList.remove('le-block-shift-start'));
+  document.querySelectorAll('.le-block-shift-start, .le-shift-target, .le-shift-selected, .le-shift-source')
+    .forEach(el => el.classList.remove('le-block-shift-start', 'le-shift-target', 'le-shift-selected', 'le-shift-source'));
 }
 
 /**
@@ -4770,17 +4793,26 @@ function leCancelShiftMode() {
  */
 function leSelectShiftEnd(endIdx) {
   const startIdx = _leShiftStart.idx;
-  leCancelShiftMode();
 
-  // Collect the word blocks in the selected range (in order, words only)
   const fromIdx = Math.min(startIdx, endIdx);
   const toIdx   = Math.max(startIdx, endIdx);
   const wordBlocks = _leBlocks.slice(fromIdx, toIdx + 1).filter(b => b.type === 'word');
-  if (wordBlocks.length === 0) return;
+  if (wordBlocks.length === 0) { leCancelShiftMode(); return; }
 
   const startWord = wordBlocks[0].content;
   const endWord   = wordBlocks[wordBlocks.length - 1].content;
-  leShowShiftModal(fromIdx, toIdx, startWord, endWord);
+  const sourceBar = _leBlocks[fromIdx]?.barNum;
+
+  // Phase 2: Ziel-Takt direkt im Canvas auswählen (kein Modal)
+  _leShiftStart = { phase: 2, fromIdx, toIdx, sourceBar, startWord, endWord };
+  leRefreshCanvas(); // re-rendert mit le-shift-target auf Bar/Part-Markern
+
+  const banner = document.getElementById('le-shift-banner');
+  if (banner) {
+    banner.innerHTML = `<span>&#8594; Ziel-Takt antippen &mdash; <em>${esc(startWord)}</em> &hellip; <em>${esc(endWord)}</em></span>
+      <button class="le-shift-banner-cancel btn-icon" title="Abbrechen">&#10005;</button>`;
+    banner.querySelector('.le-shift-banner-cancel').addEventListener('click', leCancelShiftMode);
+  }
 }
 
 /**

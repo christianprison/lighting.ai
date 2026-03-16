@@ -3626,55 +3626,116 @@
         "part_starts": [
           {
             "bar_num": 1,
-            "name": "Intro Axel"
+            "name": "Intro Axel",
+            "light_template": "08 swimming",
+            "instrumental": true
           },
           {
             "bar_num": 3,
-            "name": "Verse 1 (nur mit Gitarre)"
+            "name": "Verse 1 (nur mit Gitarre)",
+            "light_template": "Spot auf Pete"
           },
           {
             "bar_num": 19,
-            "name": "Chorus 1"
+            "name": "Chorus 1",
+            "light_template": "05 left'n'right"
           },
           {
             "bar_num": 33,
-            "name": "Mini-Solo Axel"
+            "name": "Mini-Solo Axel",
+            "light_template": "Spot auf Axel",
+            "instrumental": true
           },
           {
             "bar_num": 37,
-            "name": "Verse 2"
+            "name": "Verse 2",
+            "light_template": "08 swimming"
           },
           {
             "bar_num": 53,
-            "name": "Chorus 2"
+            "name": "Chorus 2",
+            "light_template": "05 left'n'right"
           },
           {
             "bar_num": 67,
-            "name": "Interlude"
+            "name": "Interlude",
+            "light_template": "06 blinking",
+            "instrumental": true
           },
           {
             "bar_num": 75,
-            "name": "grasping to control"
+            "name": "grasping to control",
+            "light_template": "06 blinking"
           },
           {
             "bar_num": 79,
-            "name": "Solo Axel"
+            "name": "Solo Axel",
+            "light_template": "Spot auf Axel",
+            "instrumental": true
           },
           {
             "bar_num": 95,
-            "name": "Chorus 3"
+            "name": "Chorus 3",
+            "light_template": "05 left'n'right"
           },
           {
             "bar_num": 109,
-            "name": "Finale"
+            "name": "Finale",
+            "light_template": "09 Alarm",
+            "instrumental": true
           },
           {
             "bar_num": 125,
-            "name": "Kadenz, Lärm + Abschlag"
+            "name": "Kadenz, Lärm + Abschlag",
+            "instrumental": true
           }
         ]
       },
-      "total_bars": 126
+      "total_bars": 126,
+      "qlc_parts": {
+        "CEGcgc_QP001": {
+          "pos": 1,
+          "name": "Intro, Band vorstellen, Verse 1",
+          "light_template": "08 swimming",
+          "notes": ""
+        },
+        "CEGcgc_QP002": {
+          "pos": 2,
+          "name": "Verse 2",
+          "light_template": "08 swimming",
+          "notes": ""
+        },
+        "CEGcgc_QP003": {
+          "pos": 3,
+          "name": "Chorus 1",
+          "light_template": "05 left'n'right",
+          "notes": ""
+        },
+        "CEGcgc_QP004": {
+          "pos": 4,
+          "name": "grasping to ",
+          "light_template": "06 blinking",
+          "notes": ""
+        },
+        "CEGcgc_QP005": {
+          "pos": 5,
+          "name": "control",
+          "light_template": "Alarm neu",
+          "notes": ""
+        },
+        "CEGcgc_QP006": {
+          "pos": 6,
+          "name": "Solo Axel",
+          "light_template": "Spot auf Axel",
+          "notes": ""
+        },
+        "CEGcgc_QP007": {
+          "pos": 7,
+          "name": "Chorus 2",
+          "light_template": "05 left'n'right",
+          "notes": ""
+        }
+      }
     },
     "dgSleW": {
       "name": "Bitter End",

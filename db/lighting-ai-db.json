@@ -2488,7 +2488,7 @@
             "time": 67.19904413716796
           },
           {
-            "time": 68.34863980961296
+            "time": 68.2595616740413
           },
           {
             "time": 69.44971080383476
@@ -7463,21 +7463,21 @@
     },
     "B0342": {
       "bar_num": 57,
-      "lyrics": "you home with me",
+      "lyrics": "you home with",
       "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/057 Are You Gonna Be My Girl Chorus 1.mp3",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0343": {
       "bar_num": 58,
-      "lyrics": "But you were",
+      "lyrics": "me",
       "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/058 Are You Gonna Be My Girl Chorus 1.mp3",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0344": {
       "bar_num": 59,
-      "lyrics": "with another",
+      "lyrics": "But you were with another",
       "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/059 Are You Gonna Be My Girl Chorus 1.mp3",
       "has_accents": false,
       "song_id": "5D6dZO"
@@ -7757,14 +7757,14 @@
     },
     "B0384": {
       "bar_num": 99,
-      "lyrics": "stare Well I",
+      "lyrics": "stare Well I\n",
       "audio": "audio/Are You Gonna Be My Girl/10 Bridge 2/099 Are You Gonna Be My Girl Bridge 2.mp3",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0385": {
       "bar_num": 100,
-      "lyrics": "could see, you\n",
+      "lyrics": "could see, you",
       "audio": "audio/Are You Gonna Be My Girl/10 Bridge 2/100 Are You Gonna Be My Girl Bridge 2.mp3",
       "has_accents": false,
       "song_id": "5D6dZO"
@@ -7813,14 +7813,14 @@
     },
     "B0392": {
       "bar_num": 107,
-      "lyrics": "Before I let",
+      "lyrics": "Before I let\n",
       "audio": "audio/Are You Gonna Be My Girl/11 Chorus 2/107 Are You Gonna Be My Girl Chorus 2.mp3",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0393": {
       "bar_num": 108,
-      "lyrics": "you get away,\n",
+      "lyrics": "you get away,",
       "audio": "audio/Are You Gonna Be My Girl/11 Chorus 2/108 Are You Gonna Be My Girl Chorus 2.mp3",
       "has_accents": false,
       "song_id": "5D6dZO"
@@ -7932,14 +7932,14 @@
     },
     "B0409": {
       "bar_num": 127,
-      "lyrics": "my girl? Yeah",
+      "lyrics": "my girl? Yeah\n",
       "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/127 Are You Gonna Be My Girl Solo Axel.mp3",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0410": {
       "bar_num": 128,
-      "lyrics": "Ooh!\n",
+      "lyrics": "Ooh!",
       "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/128 Are You Gonna Be My Girl Solo Axel.mp3",
       "has_accents": false,
       "song_id": "5D6dZO"

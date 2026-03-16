@@ -1,27 +1,53 @@
-name: Replace Main with Source Branch
+name: Auto-PR und Merge nach Main
 
 on:
   push:
-    branches:
-      - claude/db-pflege-app-lyrics-drag-0b8up
+    branches-ignore:
+      - main
 
 jobs:
-  replace:
+  auto-merge:
     runs-on: ubuntu-latest
 
     permissions:
       contents: write
+      pull-requests: write
 
     steps:
-      - name: Checkout source branch (claude/db-pflege-app-lyrics-drag-0b8up)
-        uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
-          ref: claude/db-pflege-app-lyrics-drag-0b8up
+          fetch-depth: 0
 
-      - name: Force push to main
+      - name: PR erstellen (falls noch nicht vorhanden)
+        id: create-pr
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git branch -M main  # Umbenennen zum Ziel-Branch
-          git push origin main --force  # Erzwingt Überschreibung des Ziel-Branches
+          BRANCH="${{ github.ref_name }}"
 
-      - name: Delete source branch
-        run: git push origin --delete claude/db-pflege-app-lyrics-drag-0b8up
+          # Prüfen ob PR bereits existiert
+          EXISTING=$(gh pr list --head "$BRANCH" --base main --json number --jq '.[0].number')
+
+          if [ -n "$EXISTING" ]; then
+            echo "PR #$EXISTING existiert bereits"
+            echo "pr_number=$EXISTING" >> "$GITHUB_OUTPUT"
+          else
+            PR_URL=$(gh pr create \
+              --base main \
+              --head "$BRANCH" \
+              --title "Auto-Merge: $BRANCH → main" \
+              --body "Automatisch erstellt durch GitHub Action bei Push auf \`$BRANCH\`.")
+            PR_NUMBER=$(echo "$PR_URL" | grep -oE '[0-9]+$')
+            echo "PR #$PR_NUMBER erstellt: $PR_URL"
+            echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: PR mergen
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr merge ${{ steps.create-pr.outputs.pr_number }} \
+            --merge \
+            --delete-branch \
+            --admin

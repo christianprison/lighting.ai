@@ -3180,7 +3180,7 @@ td.pt-instr input[type="checkbox"] { accent-color: var(--amber); width: 16px; he
 }
 
 .le-ctx-item.le-ctx-delete {
-  color: var(--red);
+  color: #ff6070;
 }
 
 .le-ctx-item.le-ctx-delete:hover {

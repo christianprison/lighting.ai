@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.1.9';
+const APP_VERSION = 'v2.2.0';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4583,10 +4583,10 @@ function leShowContextMenu(idx, blockEl) {
       <button data-action="duplicate" class="le-ctx-item">&#10697; Duplizieren</button>
       <button data-action="copy" class="le-ctx-item">&#128203; Kopieren</button>
       <button data-action="paste" class="le-ctx-item"${_leClipboard ? '' : ' disabled'}>&#128203; Einf&uuml;gen</button>
-      <button data-action="delete" class="le-ctx-item le-ctx-delete">&#128465; L&ouml;schen</button>
       <button data-action="split" class="le-ctx-item">&#9986; Trennen</button>
       <button data-action="merge" class="le-ctx-item">&#128279; Zusammensetzen</button>
       <button data-action="insert" class="le-ctx-item">&#10133; Neues Wort</button>
+      <button data-action="delete" class="le-ctx-item le-ctx-delete">&#128465; L&ouml;schen</button>
     `;
   } else if (block.type === 'bar') {
     const nlLabel = block.newline ? '&#8629; Neue Zeile entfernen' : '&#8629; Neue Zeile';

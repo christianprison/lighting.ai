@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.2.2';
+const APP_VERSION = 'v2.2.3';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4000,6 +4000,12 @@ function renderLyricsTab() {
   // Initialize blocks if needed
   if (_leInitSongId !== selectedSongId) {
     leInitFromSong(song);
+  } else {
+    // Sync instrumental flags from DB (may have changed in Takte/Parts tab without triggering a full rebuild)
+    const instrBars = buildInstrumentalBarsSet(selectedSongId);
+    for (const b of _leBlocks) {
+      b.instrumental = instrBars.has(b.barNum);
+    }
   }
 
   const hasWords = _leBlocks.some(b => b.type === 'word');

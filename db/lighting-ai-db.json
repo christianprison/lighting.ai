@@ -2317,7 +2317,8 @@
       "tms": {
         "manual_done": [
           "bar_markers",
-          "parts_identified"
+          "parts_identified",
+          "templates_set"
         ],
         "user_tasks": [],
         "manual_undone": []

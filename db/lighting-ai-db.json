@@ -7293,14 +7293,16 @@
       "lyrics": "",
       "audio": "audio/Are You Gonna Be My Girl/05 Verse 1/033 Are You Gonna Be My Girl Verse 1.mp3",
       "has_accents": false,
-      "song_id": "5D6dZO"
+      "song_id": "5D6dZO",
+      "instrumental": true
     },
     "B0317": {
       "bar_num": 34,
       "lyrics": "",
       "audio": "audio/Are You Gonna Be My Girl/05 Verse 1/034 Are You Gonna Be My Girl Verse 1.mp3",
       "has_accents": false,
-      "song_id": "5D6dZO"
+      "song_id": "5D6dZO",
+      "instrumental": true
     },
     "B0318": {
       "bar_num": 35,

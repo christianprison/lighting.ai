@@ -3760,7 +3760,9 @@
         "user_tasks": [],
         "manual_undone": []
       },
-      "total_bars": 0
+      "total_bars": 0,
+      "audio_ref": "audio/Bitter End/Bitter End - Full Song.mp3",
+      "audio_ref_name": "BitterEnd - 76mDoQ.mp3"
     },
     "F71u8Z": {
       "name": "Black Chandelier",

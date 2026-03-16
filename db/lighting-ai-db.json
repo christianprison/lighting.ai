@@ -2203,7 +2203,10 @@
       },
       "lyrics_raw": "here we go again i kinda wanna be more then friends So take it easy on me I'm afraid you're never satisfied Here we go again, We're sick like animals we play pretend You're just a cannibal and I'm afraid I won't get out alive No Oh oh I want some more Oh oh what are you waiting for Take heart tonight Oh oh I want some more Oh oh what are you waiting for, what are you waiting for Take a bite of my heart tonight Here we are again, I feel the chemicals kicking in Its getting heavy and I want run and hide, I want to run and hide I do it every time You're killing me be denied by you, The animal inside of you Oh oh I want some more Oh oh what are you waiting for Take a bite of my heart tonight Oh oh I want some more Oh oh what are you waiting for, what are you waiting for Take a bite of my heart tonight Hush hush the world is quiet can't fight it Its us that made this mess Why can't you understand Oh I won't sleep tonight, I won?t sleep tonight Here we go again (here we go again) Oh oh I want some more Oh oh what are you waiting for Take a bite of my heart tonight Oh oh Oh oh what are you waiting for, what are you waiting for, what are you waiting Here we go again, oh oh here we go again, oh oh here we go again, Say goodbye to my heart tonight Oh oh I want some more Oh oh what are you waiting for What Say goodbye to my heart tonight",
       "tms": {
-        "manual_done": [],
+        "manual_done": [
+          "bar_markers",
+          "parts_identified"
+        ],
         "user_tasks": [],
         "manual_undone": []
       },

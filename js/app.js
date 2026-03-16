@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.2.0';
+const APP_VERSION = 'v2.2.1';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -5434,15 +5434,16 @@ function buildAccentsBarList(totalBars) {
 
   let html = '<div class="acc-blocks">';
   for (let b = 1; b <= totalBars; b++) {
-    // Insert orange part block before part starts
-    if (partStartMap.has(b)) {
-      if (b > 1) html += '<span class="le-break"></span>';
-      html += `<span class="le-block le-block-part">T${b} ${esc(partStartMap.get(b))}</span>`;
-    }
     const isBarSel = _accentsSelectedBar === b;
     const found = findBar(selectedSongId, b);
     const accCount = found ? getAccentsForBar(found[0]).length : 0;
     const hasAccents = accCount > 0;
+    // Insert orange part block before part starts — it also acts as the bar block for that bar
+    if (partStartMap.has(b)) {
+      if (b > 1) html += '<span class="le-break"></span>';
+      html += `<span class="le-block le-block-part${hasAccents ? ' has-acc' : ''}${isBarSel ? ' selected' : ''}" data-accent-bar="${b}">${b} ${esc(partStartMap.get(b))}</span>`;
+      continue; // skip separate acc-block for this bar — part header IS bar b
+    }
     html += `<span class="acc-block${hasAccents ? ' has-acc' : ''}${isBarSel ? ' selected' : ''}" data-accent-bar="${b}">${b}</span>`;
   }
   html += '</div>';
@@ -5476,7 +5477,7 @@ function buildAccentsBarEditor(songId, barNum) {
       <div class="acc-editor-head">
         <span class="acc-editor-title mono">Takt ${barNum}</span>
         ${barData.lyrics ? `<span class="acc-editor-lyrics text-t2">${esc(barData.lyrics)}</span>` : ''}
-        ${hasAudio ? `<button class="btn-bar-play${isBarPlaying ? ' playing' : ''}" data-action="accent-play-bar" data-play-song-id="${songId}" data-play-bar-num="${barNum}" title="${isBarPlaying ? 'Stop' : 'Takt abspielen'}">${isBarPlaying ? '&#9632;' : '&#9654;'}</button>` : ''}
+        <button class="btn-bar-play${isBarPlaying ? ' playing' : ''}" data-action="accent-play-bar" data-play-song-id="${songId}" data-play-bar-num="${barNum}" title="${isBarPlaying ? 'Stop' : hasAudio ? 'Takt abspielen' : 'Kein Audio verfügbar'}"${hasAudio ? '' : ' disabled'}>${isBarPlaying ? '&#9632;' : '&#9654;'}</button>
       </div>
       <div class="acc-16-row">${blocks}</div>
     </div>`;

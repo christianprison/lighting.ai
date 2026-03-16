@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.1.7';
+const APP_VERSION = 'v2.1.8';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -7399,9 +7399,15 @@ function updateSaveButton() {
       ? 'Read-only \u2014 GitHub-Verbindung fehlgeschlagen. Token pr\u00fcfen!'
       : 'Read-only \u2014 Token in Settings eingeben';
     els.btnSave.style.opacity = '0.4';
+    els.btnSave.classList.remove('btn-save-dirty');
+  } else if (dirty) {
+    els.btnSave.title = 'Ungespeicherte \u00c4nderungen \u2014 Save (Ctrl+S)';
+    els.btnSave.style.opacity = '1';
+    els.btnSave.classList.add('btn-save-dirty');
   } else {
     els.btnSave.title = 'Save (Ctrl+S)';
     els.btnSave.style.opacity = '1';
+    els.btnSave.classList.remove('btn-save-dirty');
   }
 }
 
@@ -7431,6 +7437,7 @@ async function handleSave(showToast = true) {
     dbSha = newSha;
     dirty = false;
     setSyncStatus('saved');
+    updateSaveButton();
     updateDebugPanel();
     if (showToast) toast('Gespeichert', 'success');
     leClearUndoHistory();
@@ -7483,6 +7490,7 @@ function markDirty() {
   if (!dirty) {
     dirty = true;
     setSyncStatus('unsaved');
+    updateSaveButton();
   }
   // Check if any progress step was newly completed → confetti
   if (selectedSongId) {

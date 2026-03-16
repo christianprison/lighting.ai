@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.0.4';
+const APP_VERSION = 'v2.1.0';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4467,13 +4467,9 @@ function leWireCanvasEvents() {
         leRefreshCanvas();
       }
     } else {
-      // Tap (no drag) → play part / context menu for words/bars
+      // Tap (no drag) → context menu for all block types
       const block = touchDrag.el;
-      if (block.dataset.type === 'part') {
-        e.preventDefault();
-        const barNum = parseInt(block.dataset.barnum, 10);
-        if (barNum > 0) leStartPartPlayback(barNum);
-      } else if (block.dataset.type === 'word' || block.dataset.type === 'bar') {
+      if (block.dataset.type === 'part' || block.dataset.type === 'word' || block.dataset.type === 'bar') {
         e.preventDefault();
         leShowContextMenu(parseInt(block.dataset.idx, 10), block);
       }
@@ -4486,10 +4482,7 @@ function leWireCanvasEvents() {
     leCloseContextMenu();
     const block = e.target.closest('.le-block');
     if (!block) return;
-    if (block.dataset.type === 'part') {
-      const barNum = parseInt(block.dataset.barnum, 10);
-      if (barNum > 0) leStartPartPlayback(barNum);
-    } else if (block.dataset.type === 'word' || block.dataset.type === 'bar') {
+    if (block.dataset.type === 'part' || block.dataset.type === 'word' || block.dataset.type === 'bar') {
       leShowContextMenu(parseInt(block.dataset.idx, 10), block);
     }
   });
@@ -4509,17 +4502,18 @@ function leWireCanvasEvents() {
 function leIsValidDrop(fromIdx, toIdx, type) {
   if (fromIdx === toIdx || fromIdx + 1 === toIdx) return false; // no-op
 
-  if (type === 'bar') {
-    // Find previous and next bar blocks
-    let prevBar = -1, nextBar = _leBlocks.length;
+  if (type === 'bar' || type === 'part') {
+    // Bar/part markers may only move within the word-space between their
+    // immediate neighboring bar/part blocks — they cannot cross each other.
+    let prevBoundary = -1, nextBoundary = _leBlocks.length;
     for (let i = fromIdx - 1; i >= 0; i--) {
-      if (_leBlocks[i].type === 'bar') { prevBar = i; break; }
+      if (_leBlocks[i].type === 'bar' || _leBlocks[i].type === 'part') { prevBoundary = i; break; }
     }
     for (let i = fromIdx + 1; i < _leBlocks.length; i++) {
-      if (_leBlocks[i].type === 'bar') { nextBar = i; break; }
+      if (_leBlocks[i].type === 'bar' || _leBlocks[i].type === 'part') { nextBoundary = i; break; }
     }
     const effectiveToIdx = toIdx > fromIdx ? toIdx - 1 : toIdx;
-    return effectiveToIdx > prevBar && effectiveToIdx < nextBar;
+    return effectiveToIdx > prevBoundary && effectiveToIdx < nextBoundary;
   }
 
   return true;
@@ -4550,6 +4544,12 @@ function leShowContextMenu(idx, blockEl) {
     const nlLabel = block.newline ? '&#8629; Neue Zeile entfernen' : '&#8629; Neue Zeile';
     menu.innerHTML = `
       <button data-action="newline" class="le-ctx-item">${nlLabel}</button>
+      <button data-action="shift" class="le-ctx-item">&#8596; Verschieben nach&hellip;</button>
+    `;
+  } else if (block.type === 'part') {
+    menu.innerHTML = `
+      <button data-action="play-part" class="le-ctx-item">&#9654; Wiedergabe</button>
+      <button data-action="shift" class="le-ctx-item">&#8596; Verschieben nach&hellip;</button>
     `;
   } else {
     return;
@@ -4705,6 +4705,124 @@ async function leHandleContextAction(action, idx) {
     leCommitLyrics();
     leRefreshCanvas();
   }
+
+  else if (action === 'play-part') {
+    leStartPartPlayback(block.barNum);
+  }
+
+  else if (action === 'shift') {
+    const label = block.type === 'part' ? block.content : `T${block.barNum}`;
+    leShowShiftModal(block.barNum, label);
+  }
+}
+
+/* ── Lyrics Editor: Shift Modal ─────────────────── */
+
+/**
+ * Show the "Verschieben nach" modal for a bar/part block.
+ * Renders all bars as tiles; user taps the target bar.
+ * @param {number} fromBarNum - source bar (all words from here shift)
+ * @param {string} label      - display label for the source (part name or "T8")
+ */
+function leShowShiftModal(fromBarNum, label) {
+  if (!selectedSongId) return;
+  const song = db.songs[selectedSongId];
+  if (!song) return;
+  const totalBars = song.total_bars || 0;
+  if (totalBars === 0) return;
+
+  const partMap = new Map();
+  if (song.split_markers?.part_starts) {
+    for (const ps of song.split_markers.part_starts) {
+      partMap.set(ps.bar_num, ps.name);
+    }
+  }
+
+  let tilesHtml = '';
+  for (let b = 1; b <= totalBars; b++) {
+    const isSource = b === fromBarNum;
+    const isPart = partMap.has(b);
+    const cls = [
+      'le-shift-tile',
+      isPart ? 'le-shift-tile-part' : 'le-shift-tile-bar',
+      isSource ? 'le-shift-tile-source' : '',
+    ].filter(Boolean).join(' ');
+    const inner = isPart
+      ? `<span class="lst-name">${esc(partMap.get(b))}</span><span class="lst-num">T${b}</span>`
+      : `<span class="lst-num">T${b}</span>`;
+    tilesHtml += `<button class="${cls}" data-bar="${b}"${isSource ? ' disabled' : ''}>${inner}</button>`;
+  }
+
+  const overlay = document.createElement('div');
+  overlay.className = 'le-shift-overlay';
+  overlay.innerHTML = `
+    <div class="le-shift-modal">
+      <div class="le-shift-header">
+        <span class="le-shift-title">&#8596; Wörter ab <em>${esc(label)}</em> verschieben nach:</span>
+        <button class="le-shift-close btn-icon" title="Abbrechen">&#10005;</button>
+      </div>
+      <div class="le-shift-grid">${tilesHtml}</div>
+    </div>`;
+
+  overlay.querySelector('.le-shift-close').addEventListener('click', () => overlay.remove());
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) { overlay.remove(); return; }
+    const tile = e.target.closest('.le-shift-tile:not([disabled])');
+    if (!tile) return;
+    const toBar = parseInt(tile.dataset.bar, 10);
+    overlay.remove();
+    leShiftWordsFrom(fromBarNum, toBar);
+  });
+
+  document.body.appendChild(overlay);
+}
+
+/**
+ * Shift all words (and part labels) from fromBar onwards to start at toBar.
+ * Undo-able via the existing undo stack.
+ * @param {number} fromBar - first bar to shift (inclusive)
+ * @param {number} toBar   - new starting bar
+ */
+function leShiftWordsFrom(fromBar, toBar) {
+  if (!selectedSongId || fromBar === toBar) return;
+  const song = db.songs[selectedSongId];
+  if (!song) return;
+  const delta = toBar - fromBar;
+  const totalBars = song.total_bars || 0;
+
+  lePushUndo();
+
+  // Collect lyrics for bars >= fromBar, clear them
+  const lyricsToShift = new Map();
+  for (const [, b] of Object.entries(db.bars)) {
+    if (b.song_id === selectedSongId && b.bar_num >= fromBar) {
+      lyricsToShift.set(b.bar_num, b.lyrics || '');
+      b.lyrics = '';
+    }
+  }
+
+  // Write lyrics to shifted positions
+  for (const [barNum, lyrics] of lyricsToShift) {
+    const newBarNum = barNum + delta;
+    if (newBarNum >= 1 && newBarNum <= totalBars) {
+      const [, barData] = getOrCreateBar(selectedSongId, newBarNum);
+      barData.lyrics = lyrics;
+    }
+  }
+
+  // Shift part_starts >= fromBar
+  if (song.split_markers?.part_starts) {
+    for (const ps of song.split_markers.part_starts) {
+      if (ps.bar_num >= fromBar) {
+        ps.bar_num = Math.max(1, Math.min(totalBars, ps.bar_num + delta));
+      }
+    }
+  }
+
+  // Rebuild _leBlocks from updated DB without clearing the undo stack
+  _leBlocks = leBuildBlocks(selectedSongId);
+  markDirty();
+  leRefreshCanvas();
 }
 
 /* ── Lyrics Editor: Undo / Redo ──────────────────── */
@@ -4761,14 +4879,12 @@ function leCommitLyrics() {
   if (!selectedSongId) return;
   ensureCollections();
 
-  // Reassign barNums sequentially to all bar/part blocks (in current array order),
-  // then cascade to following word blocks. This corrects stale barNums after any
-  // drag-drop, including moved part blocks whose barNum would otherwise be stale.
-  let _barSeq = 0;
+  // Cascade barNum from bar/part markers to their following word blocks.
+  // Bar/part block barNums are fixed (defined by the Audio Split tab) and must
+  // not be renumbered here — only word blocks get reassigned.
   let _lastBarNum = null;
   for (const block of _leBlocks) {
     if (block.type === 'bar' || block.type === 'part') {
-      block.barNum = ++_barSeq;
       _lastBarNum = block.barNum;
     } else if (block.type === 'word') {
       block.barNum = _lastBarNum;

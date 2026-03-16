@@ -3162,6 +3162,121 @@ td.pt-instr input[type="checkbox"] { accent-color: var(--amber); width: 16px; he
   background: rgba(255, 59, 92, 0.1);
 }
 
+/* ── Shift Modal ─────────────────────────────── */
+.le-shift-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: rgba(0, 0, 0, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.le-shift-modal {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  width: min(700px, 100%);
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+}
+
+.le-shift-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.le-shift-title {
+  flex: 1;
+  font-size: 0.85rem;
+  color: var(--t1);
+}
+
+.le-shift-title em {
+  font-style: normal;
+  color: var(--amber);
+  font-weight: 700;
+}
+
+.le-shift-close {
+  background: none;
+  border: none;
+  color: var(--t3);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  line-height: 1;
+}
+.le-shift-close:hover { color: var(--t1); background: var(--bg4); }
+
+.le-shift-grid {
+  padding: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  overflow-y: auto;
+  align-content: flex-start;
+}
+
+.le-shift-tile {
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: var(--font-ui);
+  font-weight: 700;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 38px;
+  min-height: 38px;
+  padding: 4px 7px;
+  gap: 1px;
+  transition: opacity 0.1s, transform 0.1s;
+}
+.le-shift-tile:hover:not([disabled]) {
+  opacity: 0.8;
+  transform: scale(1.1);
+}
+.le-shift-tile-bar {
+  background: var(--cyan);
+  color: var(--bg);
+}
+.le-shift-tile-part {
+  background: var(--amber);
+  color: var(--bg);
+  min-width: 58px;
+}
+.le-shift-tile-source {
+  opacity: 0.35;
+  cursor: default;
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
+}
+.le-shift-tile .lst-num {
+  font-size: 0.62rem;
+  opacity: 0.8;
+  font-family: var(--font-mono);
+}
+.le-shift-tile .lst-name {
+  font-size: 0.7rem;
+  line-height: 1.1;
+  white-space: nowrap;
+  max-width: 76px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* ── Legend ────────────────────────────────────── */
 .le-legend {
   display: flex;

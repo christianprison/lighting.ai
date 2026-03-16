@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.1.5';
+const APP_VERSION = 'v2.1.6';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4492,7 +4492,10 @@ function leWireCanvasEvents() {
         } else {
           leCancelShiftMode();
         }
-      } else if (block.dataset.type === 'part' || block.dataset.type === 'word' || block.dataset.type === 'bar') {
+      } else if (block.dataset.type === 'part') {
+        e.preventDefault();
+        leStartPartPlayback(parseInt(block.dataset.barnum, 10));
+      } else if (block.dataset.type === 'word' || block.dataset.type === 'bar') {
         e.preventDefault();
         leShowContextMenu(parseInt(block.dataset.idx, 10), block);
       }
@@ -4524,7 +4527,9 @@ function leWireCanvasEvents() {
     }
     leCloseContextMenu();
     if (!block) return;
-    if (block.dataset.type === 'part' || block.dataset.type === 'word' || block.dataset.type === 'bar') {
+    if (block.dataset.type === 'part') {
+      leStartPartPlayback(parseInt(block.dataset.barnum, 10));
+    } else if (block.dataset.type === 'word' || block.dataset.type === 'bar') {
       leShowContextMenu(parseInt(block.dataset.idx, 10), block);
     }
   });
@@ -4587,10 +4592,6 @@ function leShowContextMenu(idx, blockEl) {
     const nlLabel = block.newline ? '&#8629; Neue Zeile entfernen' : '&#8629; Neue Zeile';
     menu.innerHTML = `
       <button data-action="newline" class="le-ctx-item">${nlLabel}</button>
-    `;
-  } else if (block.type === 'part') {
-    menu.innerHTML = `
-      <button data-action="play-part" class="le-ctx-item">&#9654; Wiedergabe</button>
     `;
   } else {
     return;

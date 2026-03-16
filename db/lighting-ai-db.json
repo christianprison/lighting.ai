@@ -2201,7 +2201,7 @@
           }
         ]
       },
-      "lyrics_raw": "here we go again i kinda wanna be more then friends So take it easy on me I'm afraid you're never satis- fied Here we go again, We're sick like animals we play pretend You're just a cannibal and I'm afraid I won't get out alive No I won‘t sleep tonight Oh oh I want some more Oh oh what are you waiting for Take heart tonight Oh oh I want some more Oh oh what are you waiting for, what are you waiting for Take a bite of my heart tonight Here we are again, I feel the chemicals kicking in Its getting heavy and I want run and hide, I want to run and hide I do it every time You're killing me be denied by you, The animal inside of you Oh oh I want some more Oh oh what are you waiting for Take a bite of my heart tonight Oh oh I want some more Oh oh what are you waiting for, what are you waiting for Take a bite of my heart tonight Hush hush the world is quiet can't fight it Its us that made this mess Why can't you understand Oh I won't sleep tonight, I won?t sleep tonight Here we go again (here we go again) Oh oh I want some more Oh oh what are you waiting for Take a bite of my heart tonight Oh oh Oh oh what are you waiting for, what are you waiting for, what are you waiting Here we go again, oh oh here we go again, oh oh here we go again, Say goodbye to my heart tonight Oh oh I want some more Oh oh what are you waiting for What Say goodbye to my heart tonight",
+      "lyrics_raw": "here we go again i kinda wanna be more then friends So take it easy on me I'm afraid you're never satis- fied Here we go again, We're sick like animals we play pretend You're just a cannibal and I'm afraid I won't get out a- live No Oh oh I want some more Oh oh what are you waiting for Take heart tonight Oh oh I want some more Oh oh what are you waiting for, what are you waiting for Take a bite of my heart tonight Here we are again, I feel the chemicals kicking in Its getting heavy and I want run and hide, I want to run and hide I do it every time You're killing me be denied by you, The animal inside of you Oh oh I want some more Oh oh what are you waiting for Take a bite of my heart tonight Oh oh I want some more Oh oh what are you waiting for, what are you waiting for Take a bite of my heart tonight Hush hush the world is quiet can't fight it Its us that made this mess Why can't you understand Oh I won't sleep tonight, I won?t sleep tonight Here we go again (here we we go again) Oh oh I want some more Oh oh what are you waiting for Take a bite of my heart tonight Oh oh Oh oh what are you waiting for, what are you waiting for, what are you waiting Here go again, oh oh here we go again, oh oh here we go again, Say goodbye to my heart tonight Oh oh I want some more Oh oh what are you waiting for What Say goodbye to my heart to- night",
       "tms": {
         "manual_done": [
           "bar_markers",
@@ -9686,7 +9686,7 @@
     "B1016": {
       "song_id": "UNIriZ",
       "bar_num": 25,
-      "lyrics": "No",
+      "lyrics": "No\n",
       "audio": "",
       "has_accents": false
     },
@@ -9700,7 +9700,7 @@
     "B1018": {
       "song_id": "UNIriZ",
       "bar_num": 27,
-      "lyrics": "Oh oh what are you waiting for Take",
+      "lyrics": "Oh oh what are you waiting for Take\n",
       "audio": "",
       "has_accents": false
     },
@@ -9973,7 +9973,7 @@
     "B1057": {
       "song_id": "UNIriZ",
       "bar_num": 66,
-      "lyrics": "go again (here we",
+      "lyrics": "go again (here we we",
       "audio": "",
       "has_accents": false
     },
@@ -10057,7 +10057,7 @@
     "B1069": {
       "song_id": "UNIriZ",
       "bar_num": 78,
-      "lyrics": "Here we go again,",
+      "lyrics": "Here go again,",
       "audio": "",
       "has_accents": false
     },
@@ -10190,7 +10190,7 @@
     "B1088": {
       "song_id": "UNIriZ",
       "bar_num": 97,
-      "lyrics": "heart tonight",
+      "lyrics": "heart to-",
       "audio": "",
       "has_accents": false
     },
@@ -10393,7 +10393,7 @@
     "B1117": {
       "song_id": "UNIriZ",
       "bar_num": 126,
-      "lyrics": "",
+      "lyrics": "night",
       "audio": "",
       "has_accents": false
     },

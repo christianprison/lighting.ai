@@ -3235,7 +3235,9 @@
       "audio_ref_name": "Basket Case - Full Song.mp3",
       "lyrics_raw": "Verse 1]\nDo you have the time to listen to me whine\nAbout nothin' and everything all at once?\nI am one of those melodramatic fools\nNeurotic to the bone, no doubt about it\n\n[Chorus]\nSometimes, I give myself the creeps\nSometimes, my mind plays tricks on me\nIt all keeps adding up\nI think I'm cracking up\nAm I just paranoid?\nAm I just stoned?\n\n\n\n\n[Verse 2]\nI went to a shrink to analyze my dreams\nShe says it's lack of sex that's bringin' me down\nI went to a whore, he said my life's a bore\nSo quit my whinin' 'cause it's bringin' her down\n\n[Chorus]\nSometimes, I give myself the creeps\nSometimes, my mind plays tricks on me\nIt all keeps adding up\nI think I'm cracking up\nAm I just paranoid?\nUh-yuh-yuh-yuh\n(Ooh, ooh)\n\n[Bridge]\nGrasping to control\nSo I better hold on\n\n[Chorus]\nSometimes, I give myself the creeps\nSometimes, my mind plays tricks on me\nIt all keeps adding up\nI think I'm cracking up\nAm I just paranoid?\nAm I just stoned?",
       "tms": {
-        "manual_done": [],
+        "manual_done": [
+          "bar_markers"
+        ],
         "user_tasks": [],
         "manual_undone": []
       },
@@ -3245,10 +3247,10 @@
             "time": 0
           },
           {
-            "time": 1.645020833333371
+            "time": 1.4487179487179487
           },
           {
-            "time": 3.117020833333351
+            "time": 3.073717948717949
           },
           {
             "time": 4.5836874999998205

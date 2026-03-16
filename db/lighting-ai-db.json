@@ -2307,13 +2307,13 @@
       "year": "2003",
       "pick": "🔻",
       "gema_nr": "7944469-001",
-      "duration": "3:35",
-      "duration_sec": 215,
+      "duration": "3:58",
+      "duration_sec": 238,
       "notes": "Intro; Verse 1; ; Bridge; ; Chorus; ; Thema; Verse 2; Bridge; Chorus; rest 8/4; Guitar+Clap; Guitar Solo; Chorus; End",
       "qlc_id": 175,
       "audio_ref": "audio/Are You Gonna Be My Girl/Are You Gonna Be My Girl - Full Song.mp3",
       "audio_ref_name": "20190905 Are you gonna be my girl - QWNPrZ.mp3",
-      "lyrics_raw": "[Intro]\nGo!\n\n[Verse 1]\nSo one, two, three\nTake my hand and come with me\nBecause you look so fine\nThat I really wanna make you mine\nI said, you look so fine\nThat I really wanna make you mine\n\n\n\n\n[Verse 2]\nOh, four, five, six\nCome on and get your kicks\nNow you don't need that money\nWhen you look like that, do ya, honey?\n\n[Pre-Chorus]\nBig black boots, long brown hair\nShe's so sweet with her get-back stare\n\n[Chorus]\nWell, I could see you home with me\nBut you were with another man, yeah\nI know we ain't got much to say\nBefore I let you get away, yeah\n\n[Post-Chorus]\nI said, are you gonna be my girl?\n\n[Verse 1]\nSo one, two, three\nTake my hand and come with me\nBecause you look so fine\nThat I really wanna make you mine\nI said, you look so fine\nThat I really wanna make you mine\n\n[Verse 3]\nOh, four, five, six\nCome on and get your kicks\nNow you don't need that money\nWith a face like that, do ya?\n\n[Pre-Chorus]\nBig black boots, long brown hair\nShe's so sweet with her get-back stare\n\n[Chorus]\nWell, I could see you home with me\nBut you were with another man, yeah\nI know we ain't got much to say\nBefore I let you get away, yeah\n\n[Post-Chorus]\nI said, are you gonna be my girl?\n\n[Bridge]\nOh yeah\nOh yeah\nCome on\n\n[Chorus]\nI could see you home with me\nBut you were with another man, yeah\nI know we ain't got much to say\nBefore I let you get away, yeah\nUh, be my girl\nBe my girl\nAre you gonna be my girl?\nYeah!",
+      "lyrics_raw": "",
       "tms": {
         "manual_done": [
           "bar_markers",
@@ -2907,23 +2907,28 @@
         "part_starts": [
           {
             "bar_num": 1,
-            "name": "Tambourine"
+            "name": "Tambourine",
+            "instrumental": true
           },
           {
             "bar_num": 5,
-            "name": "Bass Solo mit Tambourine"
+            "name": "Bass Solo mit Tambourine",
+            "instrumental": true
           },
           {
             "bar_num": 13,
-            "name": "+ Drums"
+            "name": "+ Drums",
+            "instrumental": true
           },
           {
             "bar_num": 19,
-            "name": "Stop + Gitarrenlick"
+            "name": "Stop + Gitarrenlick",
+            "instrumental": true
           },
           {
             "bar_num": 21,
-            "name": "Thema 1"
+            "name": "Thema 1",
+            "instrumental": true
           },
           {
             "bar_num": 29,
@@ -2939,7 +2944,8 @@
           },
           {
             "bar_num": 75,
-            "name": "Thema 2"
+            "name": "Thema 2",
+            "instrumental": true
           },
           {
             "bar_num": 83,
@@ -2955,7 +2961,8 @@
           },
           {
             "bar_num": 129,
-            "name": "Solo Axel"
+            "name": "Solo Axel",
+            "instrumental": true
           },
           {
             "bar_num": 169,
@@ -2967,7 +2974,8 @@
           },
           {
             "bar_num": 193,
-            "name": "Ausklang"
+            "name": "Ausklang",
+            "instrumental": true
           }
         ]
       },

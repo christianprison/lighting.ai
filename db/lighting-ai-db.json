@@ -417,7 +417,8 @@
           "in_setlist",
           "bar_markers",
           "lyrics_saved",
-          "templates_set"
+          "templates_set",
+          "parts_identified"
         ],
         "user_tasks": [],
         "manual_undone": []
@@ -1008,7 +1009,8 @@
           "accents_any",
           "in_setlist",
           "bar_markers",
-          "templates_set"
+          "templates_set",
+          "parts_identified"
         ],
         "user_tasks": [],
         "manual_undone": []
@@ -1631,7 +1633,10 @@
       "lyrics_raw": "She don't know who she is Oh, I can take her anywhere Do what- ever comes naturally to you You know she just don't care You know she just don't care Because I am always where I need to be And I always thought end up with you eventually Do, do, do-do-do, do-do Do, do, do-do-do, do-do do, do-do-do, do-do And now I see her again I ask to be her hummingbird Whisper ear Oh, now you know I just know she just don't care Because I am always where I need to be And I always thought end up with you eventually Do, do, do-do-do, do-do Do, do, do-do-do, do-do do, do-do-do, do-do I'm a man, I'm a man, oh, oh, I'm a man on the scene and I can be so obscene Because I always think that I know how to be But I always end up with you eventually Do, do, do-do-do, do-do Do, do, do-do-do, do-do do, do-do-do, do-do I'm a man, I'm a man on the scene I'm a man, I'm a man, I can be so obscene",
       "tms": {
         "manual_done": [
-          "bar_markers"
+          "bar_markers",
+          "parts_identified",
+          "templates_set",
+          "in_setlist"
         ],
         "user_tasks": [],
         "manual_undone": []

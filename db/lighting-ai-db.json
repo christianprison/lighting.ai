@@ -9580,14 +9580,14 @@
     "B1001": {
       "song_id": "UNIriZ",
       "bar_num": 9,
-      "lyrics": "here we go again",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B1002": {
       "song_id": "UNIriZ",
       "bar_num": 10,
-      "lyrics": "",
+      "lyrics": "here we go again",
       "audio": "",
       "has_accents": false
     },

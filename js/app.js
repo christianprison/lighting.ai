@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.2.1';
+const APP_VERSION = 'v2.2.2';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -5682,6 +5682,7 @@ function renderSetlistTab() {
           <div class="setlist-actions">
             <button class="btn btn-sm" id="sl-add-song">+ SONG</button>
             <button class="btn btn-sm" id="sl-add-pause">+ PAUSE</button>
+            <button class="btn btn-sm" id="sl-export-gema">GEMA PDF</button>
             <button class="btn btn-sm btn-primary" id="sl-export">EXPORT</button>
           </div>
         </div>
@@ -5925,6 +5926,12 @@ function handleSetlistClick(e) {
     return;
   }
 
+  // GEMA PDF export button
+  if (el.closest('#sl-export-gema')) {
+    exportSetlistGema();
+    return;
+  }
+
   // Export button
   if (el.closest('#sl-export')) {
     exportSetlist();
@@ -6129,6 +6136,87 @@ function exportSetlist() {
   </div>
   <div class="no-print" style="margin-top:24px;text-align:center">
     <button onclick="window.print()" style="font-family:'Sora',sans-serif;padding:8px 24px;font-size:0.9rem;cursor:pointer;border:1px solid #ccc;border-radius:6px;background:#fff">Drucken / PDF</button>
+  </div>
+</body>
+</html>`;
+
+  const win = window.open('', '_blank');
+  win.document.write(html);
+  win.document.close();
+}
+
+/* ── Setlist GEMA Export (für Veranstalter) ──────────── */
+
+function exportSetlistGema() {
+  ensureSetlist();
+  const sl = db.setlist;
+  const items = sl.items || [];
+  const band = db.band || 'The Pact';
+  const date = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+  let num = 1;
+  let rows = '';
+  for (const item of items) {
+    if (item.type === 'pause') continue; // Pausen weglassen
+    const song = db.songs[item.song_id];
+    if (!song) continue;
+    rows += `<tr>
+      <td class="nr">${num}</td>
+      <td class="artist">${esc(song.artist || '')}</td>
+      <td class="name">${esc(song.name)}</td>
+      <td class="gema">${esc(song.gema_nr || '—')}</td>
+    </tr>\n`;
+    num++;
+  }
+
+  const html = `<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>GEMA-Meldung &mdash; ${esc(band)}</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@300;400;500;600&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Sora', sans-serif; font-size: 13px; color: #111; padding: 28px 32px; max-width: 740px; margin: 0 auto; }
+    h1 { font-size: 1.3rem; font-weight: 600; margin-bottom: 2px; }
+    .subtitle { font-size: 0.82rem; color: #555; margin-bottom: 6px; }
+    .meta { font-size: 0.78rem; color: #888; margin-bottom: 20px; font-family: 'DM Mono', monospace; }
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.07em; color: #999; padding: 5px 8px 6px; border-bottom: 2px solid #222; }
+    td { padding: 6px 8px; border-bottom: 1px solid #ddd; vertical-align: top; }
+    .nr { width: 28px; text-align: right; font-family: 'DM Mono', monospace; color: #bbb; padding-right: 12px; }
+    .artist { width: 30%; color: #444; }
+    .name { font-weight: 500; }
+    .gema { width: 160px; font-family: 'DM Mono', monospace; font-size: 0.8rem; color: #555; text-align: right; }
+    .footer { margin-top: 20px; font-size: 0.72rem; color: #aaa; font-family: 'DM Mono', monospace; }
+    .no-print { margin-top: 28px; text-align: center; }
+    @media print {
+      body { padding: 12px 16px; font-size: 11px; }
+      .no-print { display: none; }
+      td { padding: 4px 6px; }
+    }
+  </style>
+</head>
+<body>
+  <h1>${esc(band)}</h1>
+  <div class="subtitle">GEMA-Meldung &mdash; ${esc(sl.name || 'Setlist')}</div>
+  <div class="meta">${date} &nbsp;|&nbsp; ${num - 1} Titel</div>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Interpret</th>
+        <th>Titel</th>
+        <th style="text-align:right">GEMA-Werknummer</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${rows}
+    </tbody>
+  </table>
+  <div class="footer">Erstellt mit lighting.ai &mdash; ${date}</div>
+  <div class="no-print">
+    <button onclick="window.print()" style="font-family:'Sora',sans-serif;padding:8px 24px;font-size:0.9rem;cursor:pointer;border:1px solid #ccc;border-radius:6px;background:#fff">Drucken / Als PDF speichern</button>
   </div>
 </body>
 </html>`;

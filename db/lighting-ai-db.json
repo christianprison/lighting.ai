@@ -2539,22 +2539,19 @@
             "time": 86.48437747050144
           },
           {
-            "time": 87.5483774705013
+            "time": 87.6001008974359
           },
           {
             "time": 88.76704413716817
           },
           {
-            "time": 89.98304413716806
+            "time": 93.93337200854701
           },
           {
-            "time": 93.99904413716814
+            "time": 95.12086034188034
           },
           {
-            "time": 95.08171080383482
-          },
-          {
-            "time": 96.24971080383472
+            "time": 96.20939131410256
           },
           {
             "time": 97.41504413716808
@@ -2952,51 +2949,51 @@
             "light_template": "10 Alarm 🔔🔔"
           },
           {
-            "bar_num": 75,
+            "bar_num": 74,
             "name": "Thema 2",
             "light_template": "09 Alarm",
             "instrumental": true
           },
           {
-            "bar_num": 83,
+            "bar_num": 82,
             "name": "Verse 2",
             "light_template": "09 Alarm"
           },
           {
-            "bar_num": 101,
+            "bar_num": 100,
             "name": "Bridge 2",
             "light_template": "09 Alarm"
           },
           {
-            "bar_num": 109,
+            "bar_num": 108,
             "name": "Chorus 2",
             "light_template": "10 Alarm 🔔🔔"
           },
           {
-            "bar_num": 129,
+            "bar_num": 128,
             "name": "Solo Axel",
             "light_template": "Spot auf Axel",
             "instrumental": true
           },
           {
-            "bar_num": 169,
+            "bar_num": 168,
             "name": "Chorus 3",
             "light_template": "10 Alarm 🔔🔔"
           },
           {
-            "bar_num": 185,
+            "bar_num": 184,
             "name": "Chorus 4 (halb)",
             "light_template": "10 Strobe"
           },
           {
-            "bar_num": 193,
+            "bar_num": 192,
             "name": "Ausklang",
             "light_template": "01 statisch bunt",
             "instrumental": true
           }
         ]
       },
-      "total_bars": 193,
+      "total_bars": 192,
       "qlc_parts": {
         "5D6dZO_QP001": {
           "pos": 1,

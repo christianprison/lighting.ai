@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.1.6';
+const APP_VERSION = 'v2.1.7';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -7663,7 +7663,10 @@ function wireEvents() {
       if (e.key === 'z' || e.key === 'Z') { if (!e.ctrlKey && !e.metaKey) handleUndoTap(); }
     }
 
-    // Lyrics tab: no keyboard shortcuts needed (per-part play via buttons)
+    // Lyrics tab: Space stoppt laufende Wiedergabe
+    if (activeTab === 'lyrics') {
+      if (e.code === 'Space' && _lePlayPartBar !== null) { e.preventDefault(); leStopPartPlayback(); }
+    }
   });
 }
 

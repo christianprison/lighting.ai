@@ -2313,7 +2313,7 @@
       "qlc_id": 175,
       "audio_ref": "audio/Are You Gonna Be My Girl/Are You Gonna Be My Girl - Full Song.mp3",
       "audio_ref_name": "20190905 Are you gonna be my girl - QWNPrZ.mp3",
-      "lyrics_raw": "Go! one, two, three, take my hand and come with me Because you look so fine that I really wanna make you mine look so fine that I really wanna make you mine four, five, six, c'mon and get your kicks Now you don't need that money when you look like that, do you honey? Big black boots, long brown hair She's so sweet with her get back stare I could see, you home with me But you were with another man, yeah I know we ain't got so much to say Before I let you get a way, yeah I said, \"Are you gonna be my girl?\" Well so one, two, three, take my hand and come with me Because you look so fine that I really wanna make you mine I say you look so fine that I really wanna make you mine Oh four, five, six, c'mon and get your kicks Now you don't need that money with a face like that, do you? Big black boots, long brown hair She's so sweet with her get back stare Well I could see, you home with me But you were with another man, yeah I know we ain't got much to say Before I let you get away, yeah I said, \"Are you gonna be my girl?\" Oh yeah, oh yeah, c'mon I could see, you home with me But you were with another man, yeah I know we ain't got much to say Before I let you get away, yeah Uh, be my girl, be my girl Are you gonna be my girl? Yeah Ooh!",
+      "lyrics_raw": "Go! one, two, three, take my hand and come with me Because you look so fine that I really wanna make you mine look so fine that I really wanna make you mine four, five, six, c'mon and get your kicks Now you don't need that money when you look like that, do you honey? Big black boots, long brown hair She's so sweet with her get back stare I could see, - you home with me But you were with another man, yeah I know we ain't got so much to say Before I let you get a way, yeah I said, \"Are you gonna be my girl?\" Well so one, two, three, take my hand and come with me Because you look so fine that I really wanna make you mine I say you look so fine that I really wanna make you mine Oh four, five, six, c'mon and get your kicks Now you don't need that money with a face like that, do you? Big black boots, long brown hair She's so sweet with her get back stare Well I could see, you home with me But you were with another man, yeah I know we ain't got much to say Before I let you get away, yeah I said, \"Are you gonna be my girl?\" Oh yeah, oh yeah, c'mon I could see, you home with me But you were with another man, yeah I know we ain't got much to say Before I let you get away, yeah Uh, be my girl, be my girl Are you gonna be my girl? Yeah Ooh!",
       "tms": {
         "manual_done": [
           "bar_markers",
@@ -7463,21 +7463,21 @@
     },
     "B0342": {
       "bar_num": 57,
-      "lyrics": "you home with",
+      "lyrics": "- you home with",
       "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/057 Are You Gonna Be My Girl Chorus 1.mp3",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0343": {
       "bar_num": 58,
-      "lyrics": "me",
+      "lyrics": "",
       "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/058 Are You Gonna Be My Girl Chorus 1.mp3",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0344": {
       "bar_num": 59,
-      "lyrics": "But you were with another",
+      "lyrics": "me But you were with another",
       "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/059 Are You Gonna Be My Girl Chorus 1.mp3",
       "has_accents": false,
       "song_id": "5D6dZO"

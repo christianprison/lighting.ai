@@ -2205,7 +2205,8 @@
       "tms": {
         "manual_done": [
           "bar_markers",
-          "parts_identified"
+          "parts_identified",
+          "templates_set"
         ],
         "user_tasks": [],
         "manual_undone": []
@@ -10179,7 +10180,7 @@
       "bar_num": 95,
       "lyrics": "gain,\n",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B1087": {
       "song_id": "UNIriZ",
@@ -11493,6 +11494,30 @@
     "A0023": {
       "bar_id": "B0509",
       "pos_16th": 7,
+      "type": "bl",
+      "notes": ""
+    },
+    "A0024": {
+      "bar_id": "B1086",
+      "pos_16th": 13,
+      "type": "bl",
+      "notes": ""
+    },
+    "A0025": {
+      "bar_id": "B1086",
+      "pos_16th": 14,
+      "type": "bl",
+      "notes": ""
+    },
+    "A0026": {
+      "bar_id": "B1086",
+      "pos_16th": 15,
+      "type": "bl",
+      "notes": ""
+    },
+    "A0027": {
+      "bar_id": "B1086",
+      "pos_16th": 16,
       "type": "bl",
       "notes": ""
     }

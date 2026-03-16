@@ -3687,6 +3687,7 @@
           {
             "bar_num": 125,
             "name": "Kadenz, Lärm + Abschlag",
+            "light_template": "01 statisch bunt",
             "instrumental": true
           }
         ]

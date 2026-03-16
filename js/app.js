@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.1.2';
+const APP_VERSION = 'v2.1.3';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -34,6 +34,7 @@ let _leInitSongId = null;       // songId for which blocks were built
 let _leDrag = null;             // active drag state
 let _leContextMenu = null;      // active context menu element
 let _leClipboard = null;        // copied word block for paste
+let _leShiftStart = null;       // { idx } when waiting for end-word selection in shift mode
 
 /* ── Audio Split State ────────────────────────────── */
 let audioMeta = null;          // {duration, sampleRate, channels}
@@ -3966,6 +3967,7 @@ function leDistributeText(songId, rawText) {
  * Initialize the block canvas for a song.
  */
 function leInitFromSong(song) {
+  leCancelShiftMode();
   _leInitSongId = selectedSongId;
   _leBlocks = leBuildBlocks(selectedSongId);
   leClearUndoHistory();
@@ -4467,9 +4469,16 @@ function leWireCanvasEvents() {
         leRefreshCanvas();
       }
     } else {
-      // Tap (no drag) → context menu for all block types
+      // Tap (no drag) → shift-end selection or context menu
       const block = touchDrag.el;
-      if (block.dataset.type === 'part' || block.dataset.type === 'word' || block.dataset.type === 'bar') {
+      if (_leShiftStart) {
+        e.preventDefault();
+        if (block.dataset.type === 'word') {
+          leSelectShiftEnd(parseInt(block.dataset.idx, 10));
+        } else {
+          leCancelShiftMode();
+        }
+      } else if (block.dataset.type === 'part' || block.dataset.type === 'word' || block.dataset.type === 'bar') {
         e.preventDefault();
         leShowContextMenu(parseInt(block.dataset.idx, 10), block);
       }
@@ -4477,10 +4486,18 @@ function leWireCanvasEvents() {
     touchDrag = null;
   });
 
-  // Click → play part / context menu for words/bars (desktop)
+  // Click → shift-end selection or context menu (desktop)
   canvas.addEventListener('click', (e) => {
-    leCloseContextMenu();
     const block = e.target.closest('.le-block');
+    if (_leShiftStart) {
+      if (block && block.dataset.type === 'word') {
+        leSelectShiftEnd(parseInt(block.dataset.idx, 10));
+      } else {
+        leCancelShiftMode();
+      }
+      return;
+    }
+    leCloseContextMenu();
     if (!block) return;
     if (block.dataset.type === 'part' || block.dataset.type === 'word' || block.dataset.type === 'bar') {
       leShowContextMenu(parseInt(block.dataset.idx, 10), block);
@@ -4532,6 +4549,7 @@ function leShowContextMenu(idx, blockEl) {
   if (block.type === 'word') {
     menu.innerHTML = `
       <button data-action="edit" class="le-ctx-item">&#9998; Editieren</button>
+      <button data-action="shift-start" class="le-ctx-item">&#8594; Ab hier verschieben&hellip;</button>
       <button data-action="duplicate" class="le-ctx-item">&#10697; Duplizieren</button>
       <button data-action="copy" class="le-ctx-item">&#128203; Kopieren</button>
       <button data-action="paste" class="le-ctx-item"${_leClipboard ? '' : ' disabled'}>&#128203; Einf&uuml;gen</button>
@@ -4544,12 +4562,10 @@ function leShowContextMenu(idx, blockEl) {
     const nlLabel = block.newline ? '&#8629; Neue Zeile entfernen' : '&#8629; Neue Zeile';
     menu.innerHTML = `
       <button data-action="newline" class="le-ctx-item">${nlLabel}</button>
-      <button data-action="shift" class="le-ctx-item">&#8596; Verschieben nach&hellip;</button>
     `;
   } else if (block.type === 'part') {
     menu.innerHTML = `
       <button data-action="play-part" class="le-ctx-item">&#9654; Wiedergabe</button>
-      <button data-action="shift" class="le-ctx-item">&#8596; Verschieben nach&hellip;</button>
     `;
   } else {
     return;
@@ -4710,21 +4726,70 @@ async function leHandleContextAction(action, idx) {
     leStartPartPlayback(block.barNum);
   }
 
-  else if (action === 'shift') {
-    const label = block.type === 'part' ? block.content : String(block.barNum);
-    leShowShiftModal(block.barNum, label);
+  else if (action === 'shift-start') {
+    leStartShiftMode(idx);
   }
 }
 
-/* ── Lyrics Editor: Shift Modal ─────────────────── */
+/* ── Lyrics Editor: Shift Mode ───────────────────── */
+
+/** Enter shift mode: highlight the start word, show banner. */
+function leStartShiftMode(idx) {
+  _leShiftStart = { idx };
+  leRefreshCanvas();
+  // Highlight start word
+  const startEl = document.querySelector(`#le-canvas [data-idx="${idx}"]`);
+  if (startEl) startEl.classList.add('le-block-shift-start');
+  // Show instruction banner
+  let banner = document.getElementById('le-shift-banner');
+  if (!banner) {
+    banner = document.createElement('div');
+    banner.id = 'le-shift-banner';
+    banner.className = 'le-shift-banner';
+    const canvas = document.getElementById('le-canvas');
+    canvas.parentElement.insertBefore(banner, canvas);
+  }
+  const startWord = _leBlocks[idx]?.content || '';
+  banner.innerHTML = `<span>&#8594; Letztes Wort der Auswahl antippen &mdash; Start: <em>${esc(startWord)}</em></span>
+    <button class="le-shift-banner-cancel btn-icon" title="Abbrechen">&#10005;</button>`;
+  banner.querySelector('.le-shift-banner-cancel').addEventListener('click', leCancelShiftMode);
+}
+
+/** Cancel shift mode: clear state, remove banner and highlight. */
+function leCancelShiftMode() {
+  _leShiftStart = null;
+  const banner = document.getElementById('le-shift-banner');
+  if (banner) banner.remove();
+  document.querySelectorAll('.le-block-shift-start').forEach(el => el.classList.remove('le-block-shift-start'));
+}
 
 /**
- * Show the "Verschieben nach" modal for a bar/part block.
- * Renders all bars as tiles; user taps the target bar.
- * @param {number} fromBarNum - source bar (all words from here shift)
- * @param {string} label      - display label for the source (part name or "T8")
+ * User tapped the end word — show the target-bar modal.
+ * @param {number} endIdx - _leBlocks index of the last word to move
  */
-function leShowShiftModal(fromBarNum, label) {
+function leSelectShiftEnd(endIdx) {
+  const startIdx = _leShiftStart.idx;
+  leCancelShiftMode();
+
+  // Collect the word blocks in the selected range (in order, words only)
+  const fromIdx = Math.min(startIdx, endIdx);
+  const toIdx   = Math.max(startIdx, endIdx);
+  const wordBlocks = _leBlocks.slice(fromIdx, toIdx + 1).filter(b => b.type === 'word');
+  if (wordBlocks.length === 0) return;
+
+  const startWord = wordBlocks[0].content;
+  const endWord   = wordBlocks[wordBlocks.length - 1].content;
+  leShowShiftModal(fromIdx, toIdx, startWord, endWord);
+}
+
+/**
+ * Show the target-bar modal.
+ * @param {number} fromIdx  - start index in _leBlocks (inclusive)
+ * @param {number} toIdx    - end index in _leBlocks (inclusive)
+ * @param {string} startWord - label for first word
+ * @param {string} endWord   - label for last word
+ */
+function leShowShiftModal(fromIdx, toIdx, startWord, endWord) {
   if (!selectedSongId) return;
   const song = db.songs[selectedSongId];
   if (!song) return;
@@ -4738,9 +4803,12 @@ function leShowShiftModal(fromBarNum, label) {
     }
   }
 
+  // Source bar of the first word
+  const sourceBarNum = _leBlocks[fromIdx]?.barNum;
+
   let tilesHtml = '';
   for (let b = 1; b <= totalBars; b++) {
-    const isSource = b === fromBarNum;
+    const isSource = b === sourceBarNum;
     const isPart = partMap.has(b);
     const cls = [
       'le-shift-tile',
@@ -4758,7 +4826,7 @@ function leShowShiftModal(fromBarNum, label) {
   overlay.innerHTML = `
     <div class="le-shift-modal">
       <div class="le-shift-header">
-        <span class="le-shift-title">&#8596; Wörter ab <em>${esc(label)}</em> verschieben nach:</span>
+        <span class="le-shift-title">&#8594; <em>${esc(startWord)}</em> &hellip; <em>${esc(endWord)}</em> verschieben nach:</span>
         <button class="le-shift-close btn-icon" title="Abbrechen">&#10005;</button>
       </div>
       <div class="le-shift-grid">${tilesHtml}</div>
@@ -4769,74 +4837,48 @@ function leShowShiftModal(fromBarNum, label) {
     if (e.target === overlay) { overlay.remove(); return; }
     const tile = e.target.closest('.le-shift-tile:not([disabled])');
     if (!tile) return;
-    const toBar = parseInt(tile.dataset.bar, 10);
+    const targetBar = parseInt(tile.dataset.bar, 10);
     overlay.remove();
-    leShiftWordsFrom(fromBarNum, toBar);
+    leShiftWordRange(fromIdx, toIdx, targetBar);
   });
 
   document.body.appendChild(overlay);
 }
 
 /**
- * Shift only the lyrics (words) from fromBar onwards to start at toBar.
- * Bar and part markers are NOT moved — only lyric content shifts between bars.
- * Works entirely on _leBlocks, then commits via leCommitLyrics().
- * Undo-able via the existing undo stack.
- * @param {number} fromBar - first bar whose lyrics to shift (inclusive)
- * @param {number} toBar   - new starting bar for those lyrics
+ * Move word blocks [fromIdx..toIdx] to start at targetBar.
+ * Bar and part markers stay fixed. Undo-able.
+ * @param {number} fromIdx   - start index in _leBlocks
+ * @param {number} toIdx     - end index in _leBlocks (inclusive)
+ * @param {number} targetBar - destination bar number
  */
-function leShiftWordsFrom(fromBar, toBar) {
-  if (!selectedSongId || fromBar === toBar) return;
-  const song = db.songs[selectedSongId];
-  if (!song) return;
-  const delta = toBar - fromBar;
-  const totalBars = song.total_bars || 0;
-
+function leShiftWordRange(fromIdx, toIdx, targetBar) {
   lePushUndo();
 
-  // Step 1: Collect words per bar from _leBlocks
-  const wordsByBar = new Map(); // barNum -> [word content, ...]
-  let curBar = null;
-  for (const block of _leBlocks) {
-    if (block.type === 'bar' || block.type === 'part') {
-      curBar = block.barNum;
-      if (!wordsByBar.has(curBar)) wordsByBar.set(curBar, []);
-    } else if (block.type === 'word' && curBar !== null) {
-      wordsByBar.get(curBar).push(block.content);
-    }
+  // Extract only word blocks in the range
+  const wordsToMove = _leBlocks.slice(fromIdx, toIdx + 1).filter(b => b.type === 'word');
+  if (wordsToMove.length === 0) return;
+
+  // Remove those word blocks from _leBlocks (by id, safe regardless of index shifts)
+  const moveIds = new Set(wordsToMove.map(b => b.id));
+  _leBlocks = _leBlocks.filter(b => !moveIds.has(b.id));
+
+  // Find insertion point: right after the bar/part marker for targetBar
+  const markerIdx = _leBlocks.findIndex(
+    b => (b.type === 'bar' || b.type === 'part') && b.barNum === targetBar
+  );
+  if (markerIdx === -1) {
+    // targetBar not found — restore undo and bail
+    leUndo();
+    return;
   }
 
-  // Step 2: Build new word map — bars < fromBar stay, bars >= fromBar shift by delta
-  const newWordsByBar = new Map();
-  for (const [barNum, words] of wordsByBar) {
-    if (barNum < fromBar) {
-      newWordsByBar.set(barNum, words);
-    } else {
-      const targetBar = barNum + delta;
-      if (targetBar >= 1 && targetBar <= totalBars) {
-        if (!newWordsByBar.has(targetBar)) newWordsByBar.set(targetBar, []);
-        newWordsByBar.get(targetBar).push(...words);
-      }
-      // words beyond totalBars are dropped (unavoidable)
-    }
-  }
+  // Insert after the marker (before any existing words of that bar)
+  const updatedWords = wordsToMove.map((w, i) => ({
+    ...w, barNum: targetBar, id: `lb_sh_${Date.now()}_${i}`
+  }));
+  _leBlocks.splice(markerIdx + 1, 0, ...updatedWords);
 
-  // Step 3: Rebuild _leBlocks — keep all bar/part markers, replace word blocks
-  let wordId = 0;
-  const newBlocks = [];
-  for (const block of _leBlocks) {
-    if (block.type === 'bar' || block.type === 'part') {
-      newBlocks.push(block);
-      const words = newWordsByBar.get(block.barNum) || [];
-      for (const w of words) {
-        newBlocks.push({ type: 'word', content: w, barNum: block.barNum, id: `lb_sh_${wordId++}` });
-      }
-    }
-    // original word blocks are dropped and replaced from newWordsByBar
-  }
-  _leBlocks = newBlocks;
-
-  // Step 4: Write to db.bars and rebuild
   leCommitLyrics();
   _leBlocks = leBuildBlocks(selectedSongId);
   leRefreshCanvas();

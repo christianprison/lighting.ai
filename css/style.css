@@ -3162,6 +3162,45 @@ td.pt-instr input[type="checkbox"] { accent-color: var(--amber); width: 16px; he
   background: rgba(255, 59, 92, 0.1);
 }
 
+/* ── Shift Mode Banner ───────────────────────── */
+.le-shift-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(240, 160, 48, 0.15);
+  border: 1px solid var(--amber);
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+  font-size: 0.82rem;
+  color: var(--amber);
+}
+.le-shift-banner em {
+  font-style: normal;
+  font-weight: 700;
+  color: var(--t1);
+}
+.le-shift-banner span { flex: 1; }
+.le-shift-banner-cancel {
+  background: none;
+  border: none;
+  color: var(--amber);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.le-shift-banner-cancel:hover { background: var(--bg4); color: var(--t1); }
+
+/* Start-word highlight during shift selection */
+.le-block-shift-start {
+  outline: 2px solid var(--amber) !important;
+  outline-offset: 2px;
+  background: rgba(240, 160, 48, 0.25) !important;
+}
+
 /* ── Shift Modal ─────────────────────────────── */
 .le-shift-overlay {
   position: fixed;

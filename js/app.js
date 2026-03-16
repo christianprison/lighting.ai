@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.1.0';
+const APP_VERSION = 'v2.1.1';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4711,7 +4711,7 @@ async function leHandleContextAction(action, idx) {
   }
 
   else if (action === 'shift') {
-    const label = block.type === 'part' ? block.content : `T${block.barNum}`;
+    const label = block.type === 'part' ? block.content : String(block.barNum);
     leShowShiftModal(block.barNum, label);
   }
 }
@@ -4748,8 +4748,8 @@ function leShowShiftModal(fromBarNum, label) {
       isSource ? 'le-shift-tile-source' : '',
     ].filter(Boolean).join(' ');
     const inner = isPart
-      ? `<span class="lst-name">${esc(partMap.get(b))}</span><span class="lst-num">T${b}</span>`
-      : `<span class="lst-num">T${b}</span>`;
+      ? `<span class="lst-name">${esc(partMap.get(b))}</span><span class="lst-num">${b}</span>`
+      : `<span class="lst-num">${b}</span>`;
     tilesHtml += `<button class="${cls}" data-bar="${b}"${isSource ? ' disabled' : ''}>${inner}</button>`;
   }
 
@@ -4778,10 +4778,11 @@ function leShowShiftModal(fromBarNum, label) {
 }
 
 /**
- * Shift all words (and part labels) from fromBar onwards to start at toBar.
+ * Shift only the lyrics (words) from fromBar onwards to start at toBar.
+ * Bar and part markers are NOT moved — only lyric content shifts between bars.
  * Undo-able via the existing undo stack.
- * @param {number} fromBar - first bar to shift (inclusive)
- * @param {number} toBar   - new starting bar
+ * @param {number} fromBar - first bar whose lyrics to shift (inclusive)
+ * @param {number} toBar   - new starting bar for those lyrics
  */
 function leShiftWordsFrom(fromBar, toBar) {
   if (!selectedSongId || fromBar === toBar) return;
@@ -4792,7 +4793,7 @@ function leShiftWordsFrom(fromBar, toBar) {
 
   lePushUndo();
 
-  // Collect lyrics for bars >= fromBar, clear them
+  // Collect lyrics for bars >= fromBar in order, then clear them
   const lyricsToShift = new Map();
   for (const [, b] of Object.entries(db.bars)) {
     if (b.song_id === selectedSongId && b.bar_num >= fromBar) {
@@ -4801,7 +4802,7 @@ function leShiftWordsFrom(fromBar, toBar) {
     }
   }
 
-  // Write lyrics to shifted positions
+  // Write lyrics to shifted positions (words beyond totalBars are dropped)
   for (const [barNum, lyrics] of lyricsToShift) {
     const newBarNum = barNum + delta;
     if (newBarNum >= 1 && newBarNum <= totalBars) {
@@ -4810,14 +4811,7 @@ function leShiftWordsFrom(fromBar, toBar) {
     }
   }
 
-  // Shift part_starts >= fromBar
-  if (song.split_markers?.part_starts) {
-    for (const ps of song.split_markers.part_starts) {
-      if (ps.bar_num >= fromBar) {
-        ps.bar_num = Math.max(1, Math.min(totalBars, ps.bar_num + delta));
-      }
-    }
-  }
+  // NOTE: part_starts are intentionally NOT touched — bars never move, only words.
 
   // Rebuild _leBlocks from updated DB without clearing the undo stack
   _leBlocks = leBuildBlocks(selectedSongId);

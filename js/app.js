@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.2.6';
+const APP_VERSION = 'v2.2.7';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -5212,6 +5212,7 @@ function leShowPasteDialog() {
       </div>
     </div>`;
   document.body.appendChild(overlay);
+  requestAnimationFrame(() => overlay.classList.add('open'));
 
   const textarea = overlay.querySelector('#le-paste-textarea');
   const urlInput = overlay.querySelector('#le-url-input');

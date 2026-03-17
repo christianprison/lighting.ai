@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.2.8';
+const APP_VERSION = 'v2.2.9';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4649,30 +4649,63 @@ async function leHandleContextAction(action, idx) {
   if (!block) return;
 
   if (action === 'edit') {
-    const newVal = prompt(`Wort bearbeiten (Leerzeichen/Bindestrich trennt):`, block.content);
-    if (newVal === null || !newVal.trim() || newVal.trim() === block.content) return;
-    const trimmed = newVal.trim();
-    // Automatically split at spaces and hyphens (same logic as old 'split' action)
-    const tokens = [];
-    trimmed.split(/\s+/).filter(s => s.length > 0).forEach(chunk => {
-      if (chunk.includes('-')) {
-        const hParts = chunk.split('-').filter(s => s.length > 0);
-        hParts.forEach((p, i) => tokens.push(i < hParts.length - 1 ? p + '-' : p));
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.innerHTML = `
+      <div class="modal" style="max-width:360px">
+        <div class="modal-header">
+          <h3>Wort bearbeiten</h3>
+          <button class="modal-close" id="le-edit-close">&times;</button>
+        </div>
+        <div style="padding:16px 0 0">
+          <input id="le-edit-input" class="le-edit-input" type="text" value="${esc(block.content)}" autocomplete="off" spellcheck="false" />
+          <p class="le-edit-hint">Verwende Leerzeichen oder Bindestriche um mehrere W&ouml;rter oder Silben zu erstellen.</p>
+          <div class="le-paste-footer">
+            <button class="btn" id="le-edit-cancel">Abbrechen</button>
+            <button class="btn btn-primary" id="le-edit-apply">Übernehmen</button>
+          </div>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+    requestAnimationFrame(() => overlay.classList.add('open'));
+
+    const input = overlay.querySelector('#le-edit-input');
+    input.focus();
+    input.select();
+
+    const applyEdit = () => {
+      const trimmed = input.value.trim();
+      if (!trimmed || trimmed === block.content) { overlay.remove(); return; }
+      const tokens = [];
+      trimmed.split(/\s+/).filter(s => s.length > 0).forEach(chunk => {
+        if (chunk.includes('-')) {
+          const hParts = chunk.split('-').filter(s => s.length > 0);
+          hParts.forEach((p, i) => tokens.push(i < hParts.length - 1 ? p + '-' : p));
+        } else {
+          tokens.push(chunk);
+        }
+      });
+      lePushUndo();
+      if (tokens.length > 1) {
+        const newBlocks = tokens.map((t, i) => ({
+          type: 'word', content: t, barNum: block.barNum, id: `lb_${Date.now()}_${i}`
+        }));
+        _leBlocks.splice(idx, 1, ...newBlocks);
       } else {
-        tokens.push(chunk);
+        block.content = trimmed;
       }
+      leCommitLyrics();
+      leRefreshCanvas();
+      overlay.remove();
+    };
+
+    overlay.querySelector('#le-edit-apply').onclick = applyEdit;
+    overlay.querySelector('#le-edit-cancel').onclick = () => overlay.remove();
+    overlay.querySelector('#le-edit-close').onclick = () => overlay.remove();
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') applyEdit();
+      if (e.key === 'Escape') overlay.remove();
     });
-    lePushUndo();
-    if (tokens.length > 1) {
-      const newBlocks = tokens.map((t, i) => ({
-        type: 'word', content: t, barNum: block.barNum, id: `lb_${Date.now()}_${i}`
-      }));
-      _leBlocks.splice(idx, 1, ...newBlocks);
-    } else {
-      block.content = trimmed;
-    }
-    leCommitLyrics();
-    leRefreshCanvas();
   }
 
   else if (action === 'delete') {

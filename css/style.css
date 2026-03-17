@@ -2979,6 +2979,29 @@ td.pt-instr input[type="checkbox"] { accent-color: var(--amber); width: 16px; he
   margin-top: 12px;
 }
 
+/* ── Word Edit Modal ───────────────────────────── */
+.le-edit-input {
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  color: var(--t1);
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  padding: 8px 10px;
+}
+.le-edit-input:focus {
+  outline: none;
+  border-color: var(--green);
+}
+.le-edit-hint {
+  margin: 10px 0 16px;
+  font-size: 0.78rem;
+  color: var(--t3);
+  line-height: 1.4;
+}
+
 /* ── Block Canvas ──────────────────────────────── */
 .le-canvas {
   flex: 1;

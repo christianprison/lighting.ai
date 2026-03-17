@@ -3068,6 +3068,15 @@ td.pt-instr input[type="checkbox"] { accent-color: var(--amber); width: 16px; he
 }
 
 /* ── Part Block: Orange ────────────────────────── */
+.le-part-barnum {
+  display: inline-block;
+  font-size: 0.7em;
+  font-family: var(--font-mono);
+  font-weight: 400;
+  opacity: 0.6;
+  margin-right: 4px;
+  vertical-align: middle;
+}
 .le-block-part {
   background: var(--amber);
   color: var(--bg);

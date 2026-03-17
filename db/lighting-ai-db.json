@@ -8333,7 +8333,8 @@
       "lyrics": "",
       "audio": "audio/Basket Case/02 Verse 1 (Pete+Axel)/009 Basket Case Verse 1 (Pete+Axel).mp3",
       "has_accents": false,
-      "song_id": "CEGcgc"
+      "song_id": "CEGcgc",
+      "instrumental": true
     },
     "B0466": {
       "bar_num": 10,
@@ -8382,14 +8383,16 @@
       "lyrics": "",
       "audio": "audio/Basket Case/02 Verse 1 (Pete+Axel)/016 Basket Case Verse 1 (Pete+Axel).mp3",
       "has_accents": false,
-      "song_id": "CEGcgc"
+      "song_id": "CEGcgc",
+      "instrumental": true
     },
     "B0473": {
       "bar_num": 17,
       "lyrics": "",
       "audio": "audio/Basket Case/02 Verse 1 (Pete+Axel)/017 Basket Case Verse 1 (Pete+Axel).mp3",
       "has_accents": false,
-      "song_id": "CEGcgc"
+      "song_id": "CEGcgc",
+      "instrumental": true
     },
     "B0474": {
       "bar_num": 18,

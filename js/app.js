@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.2.5';
+const APP_VERSION = 'v2.2.6';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -5179,19 +5179,12 @@ async function leFetchLyricsFromUrl(url) {
   throw new Error('Keine Lyrics gefunden');
 }
 
-async function leShowPasteDialog() {
-  // Try to pre-fill from clipboard
-  let clipText = '';
-  try { clipText = await navigator.clipboard.readText(); } catch {}
-
-  // Pre-fill from existing lyrics_raw if available
+function leShowPasteDialog() {
   const song = db.songs[selectedSongId];
   const existing = song ? (song.lyrics_raw || '') : '';
-  const prefill = clipText || existing;
+  const searchQ = encodeURIComponent((song?.name || '') + ' ' + (song?.artist || ''));
 
-  const searchQ = encodeURIComponent(song.name + ' ' + song.artist);
-
-  // Modal overlay
+  // Modal sofort öffnen (kein await vor appendChild)
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
   overlay.innerHTML = `
@@ -5211,7 +5204,7 @@ async function leShowPasteDialog() {
           <button class="btn btn-primary btn-sm" id="le-url-fetch">Lyrics holen</button>
         </div>
         <div id="le-url-status" class="le-url-status"></div>
-        <textarea id="le-paste-textarea" class="le-paste-textarea" rows="15" placeholder="Songtext hier einf&uuml;gen...">${esc(prefill)}</textarea>
+        <textarea id="le-paste-textarea" class="le-paste-textarea" rows="15" placeholder="Songtext hier einf&uuml;gen...">${esc(existing)}</textarea>
         <div class="le-paste-footer">
           <button class="btn" id="le-paste-cancel">Abbrechen</button>
           <button class="btn btn-primary" id="le-paste-apply">&Uuml;bernehmen &amp; verteilen</button>
@@ -5224,14 +5217,22 @@ async function leShowPasteDialog() {
   const urlInput = overlay.querySelector('#le-url-input');
   const urlStatus = overlay.querySelector('#le-url-status');
   textarea.focus();
-  // Select all if pre-filled from clipboard so user can easily replace
-  if (clipText) textarea.select();
 
-  // If clipboard contains a URL, put it in the URL field instead
-  if (clipText && /^https?:\/\/.+/i.test(clipText.trim())) {
-    textarea.value = existing;
-    urlInput.value = clipText.trim();
-    urlInput.focus();
+  // Clipboard asynchron nachladen – Dialog ist schon sichtbar
+  if (navigator.clipboard && navigator.clipboard.readText) {
+    Promise.race([
+      navigator.clipboard.readText(),
+      new Promise(r => setTimeout(() => r(''), 800)),
+    ]).then(clipText => {
+      if (!clipText) return;
+      if (/^https?:\/\/.+/i.test(clipText.trim())) {
+        urlInput.value = clipText.trim();
+        urlInput.focus();
+      } else if (!textarea.value) {
+        textarea.value = clipText;
+        textarea.select();
+      }
+    }).catch(() => {});
   }
 
   // Fetch lyrics from URL

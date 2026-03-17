@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.2.7';
+const APP_VERSION = 'v2.2.8';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4597,7 +4597,6 @@ function leShowContextMenu(idx, blockEl) {
       <button data-action="duplicate" class="le-ctx-item">&#10697; Duplizieren</button>
       <button data-action="copy" class="le-ctx-item">&#128203; Kopieren</button>
       <button data-action="paste" class="le-ctx-item"${_leClipboard ? '' : ' disabled'}>&#128203; Einf&uuml;gen</button>
-      <button data-action="split" class="le-ctx-item">&#9986; Trennen</button>
       <button data-action="merge" class="le-ctx-item">&#128279; Zusammensetzen</button>
       <button data-action="insert" class="le-ctx-item">&#10133; Neues Wort</button>
       <button data-action="delete" class="le-ctx-item le-ctx-delete">&#128465; L&ouml;schen</button>
@@ -4650,27 +4649,12 @@ async function leHandleContextAction(action, idx) {
   if (!block) return;
 
   if (action === 'edit') {
-    const newVal = prompt(`Wort bearbeiten:`, block.content);
+    const newVal = prompt(`Wort bearbeiten (Leerzeichen/Bindestrich trennt):`, block.content);
     if (newVal === null || !newVal.trim() || newVal.trim() === block.content) return;
-    lePushUndo();
-    block.content = newVal.trim();
-    leCommitLyrics();
-    leRefreshCanvas();
-  }
-
-  else if (action === 'delete') {
-    lePushUndo();
-    _leBlocks.splice(idx, 1);
-    leCommitLyrics();
-    leRefreshCanvas();
-  }
-
-  else if (action === 'split') {
-    const word = block.content;
-    const input = prompt(`Trennen mit Bindestrich (-) oder Leerzeichen in "${word}":`, word);
-    if (!input || input === word) return;
+    const trimmed = newVal.trim();
+    // Automatically split at spaces and hyphens (same logic as old 'split' action)
     const tokens = [];
-    input.split(/\s+/).filter(s => s.length > 0).forEach(chunk => {
+    trimmed.split(/\s+/).filter(s => s.length > 0).forEach(chunk => {
       if (chunk.includes('-')) {
         const hParts = chunk.split('-').filter(s => s.length > 0);
         hParts.forEach((p, i) => tokens.push(i < hParts.length - 1 ? p + '-' : p));
@@ -4678,15 +4662,22 @@ async function leHandleContextAction(action, idx) {
         tokens.push(chunk);
       }
     });
-    if (tokens.length < 2) return;
     lePushUndo();
-    const newBlocks = tokens.map((t, i) => ({
-      type: 'word',
-      content: t,
-      barNum: block.barNum,
-      id: `lb_${Date.now()}_${i}`
-    }));
-    _leBlocks.splice(idx, 1, ...newBlocks);
+    if (tokens.length > 1) {
+      const newBlocks = tokens.map((t, i) => ({
+        type: 'word', content: t, barNum: block.barNum, id: `lb_${Date.now()}_${i}`
+      }));
+      _leBlocks.splice(idx, 1, ...newBlocks);
+    } else {
+      block.content = trimmed;
+    }
+    leCommitLyrics();
+    leRefreshCanvas();
+  }
+
+  else if (action === 'delete') {
+    lePushUndo();
+    _leBlocks.splice(idx, 1);
     leCommitLyrics();
     leRefreshCanvas();
   }

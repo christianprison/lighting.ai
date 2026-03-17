@@ -3233,7 +3233,7 @@
       "qlc_id": 91,
       "audio_ref": "audio/Basket Case/Basket Case - Full Song.mp3",
       "audio_ref_name": "Basket Case - Full Song.mp3",
-      "lyrics_raw": "Verse 1]\nDo you have the time to listen to me whine\nAbout nothin' and everything all at once?\nI am one of those melodramatic fools\nNeurotic to the bone, no doubt about it\n\n[Chorus]\nSometimes, I give myself the creeps\nSometimes, my mind plays tricks on me\nIt all keeps adding up\nI think I'm cracking up\nAm I just paranoid?\nAm I just stoned?\n\n\n\n\n[Verse 2]\nI went to a shrink to analyze my dreams\nShe says it's lack of sex that's bringin' me down\nI went to a whore, he said my life's a bore\nSo quit my whinin' 'cause it's bringin' her down\n\n[Chorus]\nSometimes, I give myself the creeps\nSometimes, my mind plays tricks on me\nIt all keeps adding up\nI think I'm cracking up\nAm I just paranoid?\nUh-yuh-yuh-yuh\n(Ooh, ooh)\n\n[Bridge]\nGrasping to control\nSo I better hold on\n\n[Chorus]\nSometimes, I give myself the creeps\nSometimes, my mind plays tricks on me\nIt all keeps adding up\nI think I'm cracking up\nAm I just paranoid?\nAm I just stoned?",
+      "lyrics_raw": "",
       "tms": {
         "manual_done": [],
         "user_tasks": [],
@@ -3623,7 +3623,8 @@
         "part_starts": [
           {
             "bar_num": 1,
-            "name": "Intro Axel"
+            "name": "Intro Axel",
+            "instrumental": true
           },
           {
             "bar_num": 3,
@@ -3635,7 +3636,8 @@
           },
           {
             "bar_num": 33,
-            "name": "Mini-Solo Axel"
+            "name": "Mini-Solo Axel",
+            "instrumental": true
           },
           {
             "bar_num": 37,
@@ -3647,7 +3649,8 @@
           },
           {
             "bar_num": 67,
-            "name": "Interlude"
+            "name": "Interlude",
+            "instrumental": true
           },
           {
             "bar_num": 75,
@@ -3655,7 +3658,8 @@
           },
           {
             "bar_num": 79,
-            "name": "Solo Axel"
+            "name": "Solo Axel",
+            "instrumental": true
           },
           {
             "bar_num": 95,
@@ -3663,11 +3667,13 @@
           },
           {
             "bar_num": 109,
-            "name": "Finale"
+            "name": "Finale",
+            "instrumental": true
           },
           {
             "bar_num": 125,
-            "name": "Kadenz, Lärm + Abschlag"
+            "name": "Kadenz, Lärm + Abschlag",
+            "instrumental": true
           }
         ]
       },

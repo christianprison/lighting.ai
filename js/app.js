@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.2.9';
+const APP_VERSION = 'v2.2.10';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4080,8 +4080,8 @@ function leRenderBlocks() {
     let displayContent;
     let titleAttr = '';
     if (b.type === 'part') {
-      // Part block: play icon + name, tap hint as tooltip
-      displayContent = '&#9654; ' + esc(b.content) + (isInstr ? ' <span class="le-instr-badge">Instr.</span>' : '');
+      // Part block: bar number chip + play icon + name, tap hint as tooltip
+      displayContent = `<span class="le-part-barnum">${b.barNum}</span>&#9654; ` + esc(b.content) + (isInstr ? ' <span class="le-instr-badge">Instr.</span>' : '');
       titleAttr = ' title="Tippen zum Abspielen"';
     } else if (b.type === 'bar' && isInstr) {
       displayContent = esc(b.content) + ' <span class="le-instr-badge">♪</span>';

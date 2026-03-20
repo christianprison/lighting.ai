@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.2.10';
+const APP_VERSION = 'v2.2.11';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4407,7 +4407,11 @@ function leWireCanvasEvents() {
 
     // Validate
     if (_leDrag.type === 'part' || _leDrag.type === 'bar') {
-      if (!leIsValidDrop(fromIdx, toIdx, _leDrag.type)) return;
+      if (!leIsValidDrop(fromIdx, toIdx, _leDrag.type)) {
+        toast('Takt kann nur innerhalb seiner Grenzen verschoben werden.', 'error', 3000);
+        lePlayErrorBeep();
+        return;
+      }
     }
 
     // Move the block
@@ -4476,7 +4480,12 @@ function leWireCanvasEvents() {
         let toIdx = targetIdx; // always drop BEFORE target
 
         if (blockData.type === 'part' || blockData.type === 'bar') {
-          if (!leIsValidDrop(fromIdx, toIdx, blockData.type)) { touchDrag = null; return; }
+          if (!leIsValidDrop(fromIdx, toIdx, blockData.type)) {
+            toast('Takt kann nur innerhalb seiner Grenzen verschoben werden.', 'error', 3000);
+            lePlayErrorBeep();
+            touchDrag = null;
+            return;
+          }
         }
 
         lePushUndo();
@@ -4554,6 +4563,26 @@ function leWireCanvasEvents() {
       leCloseContextMenu();
     }
   }, { once: false });
+}
+
+/**
+ * Play a short error beep via Web Audio API.
+ */
+function lePlayErrorBeep() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(220, ctx.currentTime);
+    gain.gain.setValueAtTime(0.25, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.18);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.18);
+    osc.onended = () => ctx.close();
+  } catch (_) { /* AudioContext not available */ }
 }
 
 /**

@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.2.11';
+const APP_VERSION = 'v2.2.12';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -31,6 +31,7 @@ let _leBlocks = [];             // [{type:'bar'|'word', id, content, barNum}]
 let _leUndoStack = [];          // snapshots of _leBlocks for undo
 let _leRedoStack = [];          // snapshots of _leBlocks for redo
 let _leInitSongId = null;       // songId for which blocks were built
+let _leInitTotalBars = 0;      // total_bars when blocks were last built
 let _leDrag = null;             // active drag state
 let _leContextMenu = null;      // active context menu element
 let _leClipboard = null;        // copied word block for paste
@@ -2259,6 +2260,25 @@ function saveMarkersToSong() {
   if (!selectedSongId || !db.songs[selectedSongId]) return;
   const song = db.songs[selectedSongId];
 
+  // Detect if bar positions have shifted (bars inserted/removed in the middle or at the start).
+  // If the earliest marker time changes by more than 0.5s the existing split-audio files no longer
+  // align with the bar numbers in db.bars → clear them so the Takte-Tab falls back to reference audio.
+  const oldMarkers = song.split_markers?.markers;
+  if (oldMarkers?.length && markers.length) {
+    const oldFirst = Math.min(...oldMarkers.map(m => m.time));
+    const newFirst = Math.min(...markers.map(m => m.time));
+    if (Math.abs(oldFirst - newFirst) > 0.5) {
+      const songBars = getBarsForSong(selectedSongId);
+      let cleared = 0;
+      for (const bar of songBars) {
+        if (bar.audio) { db.bars[bar.id].audio = ''; cleared++; }
+      }
+      if (cleared > 0) {
+        toast(`Taktpositionen verschoben: ${cleared} veraltete Audio-Referenzen bereinigt. Bitte Audio-Split neu exportieren.`, 'info', 5000);
+      }
+    }
+  }
+
   // Build part_starts from markers that have a partName
   const partStarts = [];
   for (let i = 0; i < markers.length; i++) {
@@ -3977,6 +3997,7 @@ function leDistributeText(songId, rawText) {
 function leInitFromSong(song) {
   leCancelShiftMode();
   _leInitSongId = selectedSongId;
+  _leInitTotalBars = song.total_bars || 0;
   _leBlocks = leBuildBlocks(selectedSongId);
   leClearUndoHistory();
 }
@@ -4005,8 +4026,8 @@ function renderLyricsTab() {
     _refLoadingPromise = loadReferenceAudio().finally(() => { _refLoadingFor = null; _refLoadingPromise = null; });
   }
 
-  // Initialize blocks if needed
-  if (_leInitSongId !== selectedSongId) {
+  // Initialize blocks if needed — rebuild when song or bar structure changed
+  if (_leInitSongId !== selectedSongId || _leInitTotalBars !== (song.total_bars || 0)) {
     leInitFromSong(song);
   } else {
     // Sync instrumental flags from DB (may have changed in Takte/Parts tab without triggering a full rebuild)
@@ -7066,10 +7087,13 @@ function renderTakteTab() {
  * Returns { start, end } in seconds or null.
  */
 function getBarTimeRange(songId, barNum) {
-  if (!audioMeta || !selectedSongId) return null;
+  // Read authoritative marker times directly from the DB (song.split_markers.markers),
+  // NOT from the global markers[] which may be stale or belong to a different song.
+  const song = db.songs[songId];
+  const markerArr = song?.split_markers?.markers;
+  if (!markerArr || markerArr.length === 0) return null;
 
-  // Get sorted markers
-  const sorted = [...markers].sort((a, b) => a.time - b.time);
+  const sorted = [...markerArr].sort((a, b) => a.time - b.time);
   const idx = barNum - 1;
 
   if (idx < 0 || idx >= sorted.length) return null;
@@ -7109,8 +7133,9 @@ function buildTakteTabTable(bars, filterSong) {
 
           let waveCanvas = '';
           if (showWave) {
-            // Compute bar time range from sorted markers
-            const sortedM = [...markers].sort((a, b) => a.time - b.time);
+            // Compute bar time range from the authoritative DB markers, not in-memory markers[]
+            const dbMarkers = db.songs[filterSong]?.split_markers?.markers;
+            const sortedM = dbMarkers ? [...dbMarkers].sort((a, b) => a.time - b.time) : [];
             const mIdx = b.absBar - 1;
             if (mIdx >= 0 && mIdx < sortedM.length) {
               const mStart = sortedM[mIdx].time;

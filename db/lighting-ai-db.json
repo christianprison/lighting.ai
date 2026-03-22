@@ -6897,23 +6897,28 @@
         "part_starts": [
           {
             "bar_num": 1,
-            "name": "Intro"
+            "name": "Intro",
+            "light_template": "Spot auf Axel"
           },
           {
             "bar_num": 5,
-            "name": "Thema 1"
+            "name": "Thema 1",
+            "light_template": "05 left'n'right"
           },
           {
             "bar_num": 9,
-            "name": "Verse 1"
+            "name": "Verse 1",
+            "light_template": "Spot auf Pete"
           },
           {
             "bar_num": 17,
-            "name": "Bridge 1"
+            "name": "Bridge 1",
+            "light_template": "01 statisch bunt"
           },
           {
             "bar_num": 26,
-            "name": "Chorus 1"
+            "name": "Chorus 1",
+            "light_template": "07 round'n'round"
           },
           {
             "bar_num": 34,

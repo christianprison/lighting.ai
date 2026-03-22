@@ -3838,7 +3838,11 @@
       "notes": "",
       "lyrics_raw": "[Verse 1]\nWords like violence break the silence\nCome crashing in into my little world\nPainful to me, pierce right through me\nCan't you understand? Oh, my little girl\n\n[Chorus]\nAll I ever wanted\nAll I ever needed is here in my arms\nWords are very unnecessary\nThey can only do harm\n[Instrumental Break]\n\n[Verse 2]\nVows are spoken to be broken\nFeelings are intense, words are trivial\nPleasures remain, so does the pain\nWords are meaningless and forgettable\n\n[Chorus]\nAll I ever wanted\nAll I ever needed is here in my arms\nWords are very unnecessary\nThey can only do harm\n\n[Instrumental Break]\n\n[Chorus]\nAll I ever wanted\nAll I ever needed is here in my arms\nWords are very unnecessary\nThey can only do harm\nAll I ever wanted\nAll I ever needed is here in my arms\nWords are very unnecessary\nThey can only do harm\n\n[Instrumental Break]\n\n[Outro]\nEnjoy the silence",
       "tms": {
-        "manual_done": [],
+        "manual_done": [
+          "bar_markers",
+          "templates_set",
+          "parts_identified"
+        ],
         "user_tasks": [],
         "manual_undone": []
       },
@@ -13260,56 +13264,56 @@
       "bar_num": 9,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B1274": {
       "song_id": "QeOWYg",
       "bar_num": 10,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B1275": {
       "song_id": "QeOWYg",
       "bar_num": 11,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B1276": {
       "song_id": "QeOWYg",
       "bar_num": 12,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B1277": {
       "song_id": "QeOWYg",
       "bar_num": 13,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B1278": {
       "song_id": "QeOWYg",
       "bar_num": 14,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B1279": {
       "song_id": "QeOWYg",
       "bar_num": 15,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B1280": {
       "song_id": "QeOWYg",
       "bar_num": 16,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B1281": {
       "song_id": "QeOWYg",
@@ -13435,56 +13439,56 @@
       "bar_num": 34,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B1299": {
       "song_id": "QeOWYg",
       "bar_num": 35,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B1300": {
       "song_id": "QeOWYg",
       "bar_num": 36,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B1301": {
       "song_id": "QeOWYg",
       "bar_num": 37,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B1302": {
       "song_id": "QeOWYg",
       "bar_num": 38,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B1303": {
       "song_id": "QeOWYg",
       "bar_num": 39,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B1304": {
       "song_id": "QeOWYg",
       "bar_num": 40,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B1305": {
       "song_id": "QeOWYg",
       "bar_num": 41,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B1306": {
       "song_id": "QeOWYg",
@@ -16762,6 +16766,294 @@
       "bar_id": "B1086",
       "pos_16th": 16,
       "type": "bl",
+      "notes": ""
+    },
+    "A0028": {
+      "bar_id": "B1274",
+      "pos_16th": 1,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0029": {
+      "bar_id": "B1274",
+      "pos_16th": 4,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0030": {
+      "bar_id": "B1274",
+      "pos_16th": 7,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0031": {
+      "bar_id": "B1275",
+      "pos_16th": 1,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0032": {
+      "bar_id": "B1275",
+      "pos_16th": 4,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0033": {
+      "bar_id": "B1275",
+      "pos_16th": 7,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0034": {
+      "bar_id": "B1276",
+      "pos_16th": 1,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0035": {
+      "bar_id": "B1276",
+      "pos_16th": 4,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0036": {
+      "bar_id": "B1276",
+      "pos_16th": 7,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0037": {
+      "bar_id": "B1277",
+      "pos_16th": 1,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0038": {
+      "bar_id": "B1277",
+      "pos_16th": 4,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0039": {
+      "bar_id": "B1277",
+      "pos_16th": 7,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0040": {
+      "bar_id": "B1278",
+      "pos_16th": 1,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0041": {
+      "bar_id": "B1278",
+      "pos_16th": 4,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0042": {
+      "bar_id": "B1278",
+      "pos_16th": 7,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0043": {
+      "bar_id": "B1279",
+      "pos_16th": 1,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0044": {
+      "bar_id": "B1279",
+      "pos_16th": 4,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0045": {
+      "bar_id": "B1279",
+      "pos_16th": 7,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0046": {
+      "bar_id": "B1280",
+      "pos_16th": 1,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0047": {
+      "bar_id": "B1280",
+      "pos_16th": 4,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0048": {
+      "bar_id": "B1280",
+      "pos_16th": 7,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0049": {
+      "bar_id": "B1273",
+      "pos_16th": 1,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0050": {
+      "bar_id": "B1273",
+      "pos_16th": 4,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0051": {
+      "bar_id": "B1273",
+      "pos_16th": 7,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0052": {
+      "bar_id": "B1298",
+      "pos_16th": 1,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0053": {
+      "bar_id": "B1298",
+      "pos_16th": 4,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0054": {
+      "bar_id": "B1298",
+      "pos_16th": 7,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0055": {
+      "bar_id": "B1299",
+      "pos_16th": 1,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0056": {
+      "bar_id": "B1299",
+      "pos_16th": 4,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0057": {
+      "bar_id": "B1299",
+      "pos_16th": 7,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0061": {
+      "bar_id": "B1300",
+      "pos_16th": 1,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0062": {
+      "bar_id": "B1300",
+      "pos_16th": 4,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0063": {
+      "bar_id": "B1300",
+      "pos_16th": 7,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0064": {
+      "bar_id": "B1301",
+      "pos_16th": 1,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0065": {
+      "bar_id": "B1301",
+      "pos_16th": 4,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0066": {
+      "bar_id": "B1301",
+      "pos_16th": 7,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0067": {
+      "bar_id": "B1302",
+      "pos_16th": 1,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0068": {
+      "bar_id": "B1302",
+      "pos_16th": 4,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0069": {
+      "bar_id": "B1302",
+      "pos_16th": 7,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0070": {
+      "bar_id": "B1303",
+      "pos_16th": 1,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0071": {
+      "bar_id": "B1303",
+      "pos_16th": 4,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0072": {
+      "bar_id": "B1303",
+      "pos_16th": 7,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0073": {
+      "bar_id": "B1304",
+      "pos_16th": 1,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0074": {
+      "bar_id": "B1304",
+      "pos_16th": 4,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0075": {
+      "bar_id": "B1304",
+      "pos_16th": 7,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0076": {
+      "bar_id": "B1305",
+      "pos_16th": 1,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0077": {
+      "bar_id": "B1305",
+      "pos_16th": 4,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0078": {
+      "bar_id": "B1305",
+      "pos_16th": 7,
+      "type": "hl",
       "notes": ""
     }
   },

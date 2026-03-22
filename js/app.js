@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.2.20';
+const APP_VERSION = 'v2.2.21';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -1186,8 +1186,6 @@ function playFireworksSound() {
 
 /* ── Song List ─────────────────────────────────────── */
 
-let _slFilterActive = false;
-
 function getSortedSongs() {
   if (!db || !db.songs) return [];
   return Object.entries(db.songs)
@@ -1204,18 +1202,13 @@ function getSetlistSongs() {
 
 function renderSongList(filter = '') {
   const allSongs = getSortedSongs();
-  const base = _slFilterActive ? getSetlistSongs() : allSongs;
+  const base = getSetlistSongs();
   const q = filter.toLowerCase().trim();
   const filtered = q
-    ? base.filter(s => s.name.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q))
+    ? base.filter(s => s.name.toLowerCase().includes(q) || (s.artist || '').toLowerCase().includes(q))
     : base;
 
-  const btn = document.getElementById('sl-filter-btn');
-  if (btn) btn.classList.toggle('active', _slFilterActive);
-
-  els.songCount.textContent = _slFilterActive
-    ? `${filtered.length} von ${allSongs.length} Songs (Setlist)`
-    : `${filtered.length} / ${allSongs.length} Songs`;
+  els.songCount.textContent = `${filtered.length} / ${allSongs.length} Songs`;
   const allActive = selectedSongId === null && !q;
   els.songList.innerHTML =
     (!q ? `<div class="song-item song-item-all${allActive ? ' active' : ''}" data-id="__all__">
@@ -8037,11 +8030,6 @@ function wireEvents() {
 
   // Search
   els.searchBox.addEventListener('input', () => renderSongList(els.searchBox.value));
-
-  document.getElementById('sl-filter-btn')?.addEventListener('click', () => {
-    _slFilterActive = !_slFilterActive;
-    renderSongList(els.searchBox.value);
-  });
 
   // Song selection
   els.songList.addEventListener('click', (e) => {

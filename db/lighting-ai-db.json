@@ -18112,7 +18112,8 @@
       "bar_num": 70,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B1826": {
       "song_id": "pVmkRc",

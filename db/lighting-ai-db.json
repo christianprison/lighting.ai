@@ -4654,7 +4654,7 @@
       "qlc_id": 96,
       "audio_ref": "audio/Fight for your Right/Fight for your Right - Full Song.mp3",
       "audio_ref_name": "Fight for your Right - Full Song.mp3",
-      "lyrics_raw": "Kick it\n\n[Verse 1: Ad-Rock, Mike D, Mike D & Ad-Rock, MCA & *MCA & Ad-Rock*]\nYou wake up late for school, man, you don't wanna go\nYou ask your mom, \"Please?\", but she still says, \"No\"\nYou missed two classes and no homework\nBut your teacher preaches class like you're some kind of *jerk*\n\n[Chorus: All]\nYou gotta fight\nFor your right\nTo party\n[Verse 2: Mike D, Mike D & MCA, MCA & Ad-Rock]\nYour pop's caught you smokin', man, he says, \"No way!\"\nThat hypocrite smokes two packs a day\nMan, livin' at home is such a drag\nNow your mom threw away your best porno mag (Busted)\n\n[Chorus: All]\nYou gotta fight\nFor your right\nTo party\nYou gotta fight\n\n[Guitar Solo]\n\n[Verse 3: Ad-Rock, Mike D, MCA & All]\nDon't step out of this house if that's the clothes you're gonna wear\nI'll kick you out of my home if you don't cut that hair\nYour mom busted in and said, \"What's that noise?\"\nAw, Mom, you're just jealous, it's the Bea- -stie Boys\n\n[Chorus: All]\nYou gotta fight\nFor your right\nTo party\nYou gotta fight\nFor your right\nTo party",
+      "lyrics_raw": "Scrrrr!! Sorry, we have to make sure you're a human before we can show you this page. Follow @genius",
       "tms": {
         "manual_done": [
           "bar_markers",
@@ -5035,12 +5035,14 @@
           {
             "bar_num": 1,
             "name": "Geschraddel bis „Kick it“",
-            "light_template": "16 Searchlight"
+            "light_template": "16 Searchlight",
+            "instrumental": true
           },
           {
             "bar_num": 2,
             "name": "Thema 1 (Intro)",
-            "light_template": "10 Alarm 🔔🔔"
+            "light_template": "10 Alarm 🔔🔔",
+            "instrumental": true
           },
           {
             "bar_num": 10,
@@ -5089,7 +5091,8 @@
           {
             "bar_num": 64,
             "name": "Solo Axel",
-            "light_template": "01 statisch bunt"
+            "light_template": "01 statisch bunt",
+            "instrumental": true
           },
           {
             "bar_num": 72,
@@ -15095,133 +15098,133 @@
     "B1475": {
       "song_id": "BfbgVC",
       "bar_num": 1,
-      "lyrics": "",
+      "lyrics": "Scrrrr!!\n",
       "audio": "",
       "has_accents": false
     },
     "B1476": {
       "song_id": "BfbgVC",
       "bar_num": 2,
-      "lyrics": "",
+      "lyrics": "Sorry,",
       "audio": "",
       "has_accents": false
     },
     "B1477": {
       "song_id": "BfbgVC",
       "bar_num": 3,
-      "lyrics": "",
+      "lyrics": "we",
       "audio": "",
       "has_accents": false
     },
     "B1478": {
       "song_id": "BfbgVC",
       "bar_num": 4,
-      "lyrics": "",
+      "lyrics": "have",
       "audio": "",
       "has_accents": false
     },
     "B1479": {
       "song_id": "BfbgVC",
       "bar_num": 5,
-      "lyrics": "",
+      "lyrics": "to",
       "audio": "",
       "has_accents": false
     },
     "B1480": {
       "song_id": "BfbgVC",
       "bar_num": 6,
-      "lyrics": "",
+      "lyrics": "make",
       "audio": "",
       "has_accents": false
     },
     "B1481": {
       "song_id": "BfbgVC",
       "bar_num": 7,
-      "lyrics": "",
+      "lyrics": "sure",
       "audio": "",
       "has_accents": false
     },
     "B1482": {
       "song_id": "BfbgVC",
       "bar_num": 8,
-      "lyrics": "",
+      "lyrics": "you're",
       "audio": "",
       "has_accents": false
     },
     "B1483": {
       "song_id": "BfbgVC",
       "bar_num": 9,
-      "lyrics": "",
+      "lyrics": "a\n",
       "audio": "",
       "has_accents": false
     },
     "B1484": {
       "song_id": "BfbgVC",
       "bar_num": 10,
-      "lyrics": "",
+      "lyrics": "human",
       "audio": "",
       "has_accents": false
     },
     "B1485": {
       "song_id": "BfbgVC",
       "bar_num": 11,
-      "lyrics": "",
+      "lyrics": "before",
       "audio": "",
       "has_accents": false
     },
     "B1486": {
       "song_id": "BfbgVC",
       "bar_num": 12,
-      "lyrics": "",
+      "lyrics": "we",
       "audio": "",
       "has_accents": true
     },
     "B1487": {
       "song_id": "BfbgVC",
       "bar_num": 13,
-      "lyrics": "",
+      "lyrics": "can",
       "audio": "",
       "has_accents": true
     },
     "B1488": {
       "song_id": "BfbgVC",
       "bar_num": 14,
-      "lyrics": "",
+      "lyrics": "show",
       "audio": "",
       "has_accents": false
     },
     "B1489": {
       "song_id": "BfbgVC",
       "bar_num": 15,
-      "lyrics": "",
+      "lyrics": "you",
       "audio": "",
       "has_accents": false
     },
     "B1490": {
       "song_id": "BfbgVC",
       "bar_num": 16,
-      "lyrics": "",
+      "lyrics": "this",
       "audio": "",
       "has_accents": true
     },
     "B1491": {
       "song_id": "BfbgVC",
       "bar_num": 17,
-      "lyrics": "",
+      "lyrics": "page.",
       "audio": "",
       "has_accents": true
     },
     "B1492": {
       "song_id": "BfbgVC",
       "bar_num": 18,
-      "lyrics": "",
+      "lyrics": "Follow",
       "audio": "",
       "has_accents": false
     },
     "B1493": {
       "song_id": "BfbgVC",
       "bar_num": 19,
-      "lyrics": "",
+      "lyrics": "@genius",
       "audio": "",
       "has_accents": false
     },

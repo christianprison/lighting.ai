@@ -15320,14 +15320,14 @@
       "bar_num": 42,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B1517": {
       "song_id": "BfbgVC",
       "bar_num": 43,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B1518": {
       "song_id": "BfbgVC",
@@ -15348,28 +15348,28 @@
       "bar_num": 46,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B1521": {
       "song_id": "BfbgVC",
       "bar_num": 47,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B1522": {
       "song_id": "BfbgVC",
       "bar_num": 48,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B1523": {
       "song_id": "BfbgVC",
       "bar_num": 49,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B1524": {
       "song_id": "BfbgVC",
@@ -15404,14 +15404,14 @@
       "bar_num": 54,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B1529": {
       "song_id": "BfbgVC",
       "bar_num": 55,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B1530": {
       "song_id": "BfbgVC",
@@ -15642,14 +15642,14 @@
       "bar_num": 88,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B1563": {
       "song_id": "BfbgVC",
       "bar_num": 89,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B1564": {
       "song_id": "BfbgVC",
@@ -15684,14 +15684,14 @@
       "bar_num": 94,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B1569": {
       "song_id": "BfbgVC",
       "bar_num": 95,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B1570": {
       "song_id": "BfbgVC",
@@ -17618,6 +17618,288 @@
     "A0114": {
       "bar_id": "B1513",
       "pos_16th": 9,
+      "type": "st",
+      "notes": ""
+    },
+    "A0115": {
+      "bar_id": "B1516",
+      "pos_16th": 1,
+      "type": "st",
+      "notes": ""
+    },
+    "A0116": {
+      "bar_id": "B1516",
+      "pos_16th": 9,
+      "type": "st",
+      "notes": ""
+    },
+    "A0117": {
+      "bar_id": "B1517",
+      "pos_16th": 1,
+      "type": "st",
+      "notes": ""
+    },
+    "A0118": {
+      "bar_id": "B1517",
+      "pos_16th": 9,
+      "type": "st",
+      "notes": ""
+    },
+    "A0119": {
+      "bar_id": "B1520",
+      "pos_16th": 1,
+      "type": "st",
+      "notes": ""
+    },
+    "A0120": {
+      "bar_id": "B1520",
+      "pos_16th": 9,
+      "type": "st",
+      "notes": ""
+    },
+    "A0121": {
+      "bar_id": "B1521",
+      "pos_16th": 1,
+      "type": "bo",
+      "notes": ""
+    },
+    "A0122": {
+      "bar_id": "B1522",
+      "pos_16th": 5,
+      "type": "bl",
+      "notes": ""
+    },
+    "A0123": {
+      "bar_id": "B1522",
+      "pos_16th": 9,
+      "type": "bl",
+      "notes": ""
+    },
+    "A0124": {
+      "bar_id": "B1523",
+      "pos_16th": 9,
+      "type": "st",
+      "notes": ""
+    },
+    "A0125": {
+      "bar_id": "B1523",
+      "pos_16th": 10,
+      "type": "st",
+      "notes": ""
+    },
+    "A0126": {
+      "bar_id": "B1523",
+      "pos_16th": 11,
+      "type": "st",
+      "notes": ""
+    },
+    "A0127": {
+      "bar_id": "B1523",
+      "pos_16th": 12,
+      "type": "st",
+      "notes": ""
+    },
+    "A0128": {
+      "bar_id": "B1523",
+      "pos_16th": 13,
+      "type": "st",
+      "notes": ""
+    },
+    "A0129": {
+      "bar_id": "B1523",
+      "pos_16th": 14,
+      "type": "st",
+      "notes": ""
+    },
+    "A0130": {
+      "bar_id": "B1523",
+      "pos_16th": 15,
+      "type": "st",
+      "notes": ""
+    },
+    "A0131": {
+      "bar_id": "B1523",
+      "pos_16th": 16,
+      "type": "st",
+      "notes": ""
+    },
+    "A0132": {
+      "bar_id": "B1528",
+      "pos_16th": 5,
+      "type": "bl",
+      "notes": ""
+    },
+    "A0133": {
+      "bar_id": "B1528",
+      "pos_16th": 9,
+      "type": "bl",
+      "notes": ""
+    },
+    "A0134": {
+      "bar_id": "B1529",
+      "pos_16th": 9,
+      "type": "st",
+      "notes": ""
+    },
+    "A0135": {
+      "bar_id": "B1529",
+      "pos_16th": 10,
+      "type": "st",
+      "notes": ""
+    },
+    "A0136": {
+      "bar_id": "B1529",
+      "pos_16th": 11,
+      "type": "st",
+      "notes": ""
+    },
+    "A0137": {
+      "bar_id": "B1529",
+      "pos_16th": 12,
+      "type": "st",
+      "notes": ""
+    },
+    "A0138": {
+      "bar_id": "B1529",
+      "pos_16th": 13,
+      "type": "st",
+      "notes": ""
+    },
+    "A0139": {
+      "bar_id": "B1529",
+      "pos_16th": 14,
+      "type": "st",
+      "notes": ""
+    },
+    "A0140": {
+      "bar_id": "B1529",
+      "pos_16th": 15,
+      "type": "st",
+      "notes": ""
+    },
+    "A0141": {
+      "bar_id": "B1529",
+      "pos_16th": 16,
+      "type": "st",
+      "notes": ""
+    },
+    "A0142": {
+      "bar_id": "B1562",
+      "pos_16th": 5,
+      "type": "bl",
+      "notes": ""
+    },
+    "A0143": {
+      "bar_id": "B1562",
+      "pos_16th": 9,
+      "type": "bl",
+      "notes": ""
+    },
+    "A0144": {
+      "bar_id": "B1563",
+      "pos_16th": 9,
+      "type": "st",
+      "notes": ""
+    },
+    "A0145": {
+      "bar_id": "B1563",
+      "pos_16th": 13,
+      "type": "st",
+      "notes": ""
+    },
+    "A0146": {
+      "bar_id": "B1563",
+      "pos_16th": 10,
+      "type": "st",
+      "notes": ""
+    },
+    "A0147": {
+      "bar_id": "B1563",
+      "pos_16th": 11,
+      "type": "st",
+      "notes": ""
+    },
+    "A0148": {
+      "bar_id": "B1563",
+      "pos_16th": 12,
+      "type": "st",
+      "notes": ""
+    },
+    "A0149": {
+      "bar_id": "B1563",
+      "pos_16th": 14,
+      "type": "st",
+      "notes": ""
+    },
+    "A0150": {
+      "bar_id": "B1563",
+      "pos_16th": 15,
+      "type": "st",
+      "notes": ""
+    },
+    "A0151": {
+      "bar_id": "B1563",
+      "pos_16th": 16,
+      "type": "st",
+      "notes": ""
+    },
+    "A0152": {
+      "bar_id": "B1568",
+      "pos_16th": 5,
+      "type": "bl",
+      "notes": ""
+    },
+    "A0153": {
+      "bar_id": "B1568",
+      "pos_16th": 9,
+      "type": "bl",
+      "notes": ""
+    },
+    "A0154": {
+      "bar_id": "B1569",
+      "pos_16th": 9,
+      "type": "st",
+      "notes": ""
+    },
+    "A0155": {
+      "bar_id": "B1569",
+      "pos_16th": 10,
+      "type": "st",
+      "notes": ""
+    },
+    "A0156": {
+      "bar_id": "B1569",
+      "pos_16th": 11,
+      "type": "st",
+      "notes": ""
+    },
+    "A0157": {
+      "bar_id": "B1569",
+      "pos_16th": 12,
+      "type": "st",
+      "notes": ""
+    },
+    "A0158": {
+      "bar_id": "B1569",
+      "pos_16th": 13,
+      "type": "st",
+      "notes": ""
+    },
+    "A0159": {
+      "bar_id": "B1569",
+      "pos_16th": 14,
+      "type": "st",
+      "notes": ""
+    },
+    "A0160": {
+      "bar_id": "B1569",
+      "pos_16th": 15,
+      "type": "st",
+      "notes": ""
+    },
+    "A0161": {
+      "bar_id": "B1569",
+      "pos_16th": 16,
       "type": "st",
       "notes": ""
     }

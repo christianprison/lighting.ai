@@ -4309,11 +4309,13 @@
           },
           {
             "bar_num": 87,
-            "name": "Verse 3"
+            "name": "Verse 3",
+            "light_template": "05 left'n'right"
           },
           {
             "bar_num": 103,
-            "name": "Chorus 3"
+            "name": "Chorus 3",
+            "light_template": "04 up'n'down"
           },
           {
             "bar_num": 115,

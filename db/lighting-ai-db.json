@@ -18502,49 +18502,49 @@
       "bar_num": 124,
       "lyrics": "sweat",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B1880": {
       "song_id": "pVmkRc",
       "bar_num": 125,
       "lyrics": "sweat",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B1881": {
       "song_id": "pVmkRc",
       "bar_num": 126,
       "lyrics": "sweat",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B1882": {
       "song_id": "pVmkRc",
       "bar_num": 127,
       "lyrics": "sweat",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B1883": {
       "song_id": "pVmkRc",
       "bar_num": 128,
       "lyrics": "sweat",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B1884": {
       "song_id": "pVmkRc",
       "bar_num": 129,
       "lyrics": "sweat",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B1885": {
       "song_id": "pVmkRc",
       "bar_num": 130,
       "lyrics": "sweat\n",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B1886": {
       "song_id": "pVmkRc",
@@ -19790,6 +19790,90 @@
     "A0197": {
       "bar_id": "B1855",
       "pos_16th": 16,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0198": {
+      "bar_id": "B1879",
+      "pos_16th": 1,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0199": {
+      "bar_id": "B1879",
+      "pos_16th": 9,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0200": {
+      "bar_id": "B1880",
+      "pos_16th": 1,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0201": {
+      "bar_id": "B1880",
+      "pos_16th": 9,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0202": {
+      "bar_id": "B1881",
+      "pos_16th": 1,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0203": {
+      "bar_id": "B1881",
+      "pos_16th": 9,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0204": {
+      "bar_id": "B1882",
+      "pos_16th": 1,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0205": {
+      "bar_id": "B1882",
+      "pos_16th": 9,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0206": {
+      "bar_id": "B1883",
+      "pos_16th": 1,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0207": {
+      "bar_id": "B1883",
+      "pos_16th": 9,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0208": {
+      "bar_id": "B1884",
+      "pos_16th": 1,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0209": {
+      "bar_id": "B1884",
+      "pos_16th": 9,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0210": {
+      "bar_id": "B1885",
+      "pos_16th": 1,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0211": {
+      "bar_id": "B1885",
+      "pos_16th": 9,
       "type": "hl",
       "notes": ""
     }

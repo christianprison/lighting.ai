@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.2.12';
+const APP_VERSION = 'v2.2.13';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -62,6 +62,14 @@ let _irregTipShown = false;     // true after irregular-bars tip was shown once
 /* ── Bar Playback State ────────────────────────────── */
 let _barPlayId = null;        // currently playing bar ID
 let _partPlayActive = false;  // whether bar playback is active
+let _barPlaySrc = null;       // active AudioBufferSourceNode (for manual loop stop)
+let _barPlayLoopDur = 0;      // duration of current loop region (seconds)
+let _barPlayCtxStart = 0;     // AudioContext.currentTime when loop was started
+let _barPlaySongId = null;    // songId of the looping bar
+let _barPlayBarNum = 0;       // barNum of the looping bar
+let _takteRaf = null;         // rAF id for playhead/flash animation
+let _takteFlashes = [];       // [{x, color, age}] flash bursts on waveform canvas
+let _takteCanvas = null;      // waveform canvas element being animated
 
 const SETTINGS_KEY = 'lightingai_settings';
 
@@ -156,6 +164,8 @@ function buildTemplateOptions(selected) {
 }
 
 const ACCENT_TYPES = ['bl', 'bo', 'hl', 'st', 'fg'];
+// Accent type → CSS color (matches accent-cell colors in style.css)
+const ACCENT_COLORS = { bl: '#f0a030', bo: '#ff3b5c', hl: '#00dc82', st: '#38bdf8', fg: '#8b8fa8' };
 
 const ACCENT_INFO = {
   bl: 'Blinder', bo: 'Blackout', hl: 'Highlight', st: 'Strobe', fg: 'Fog'
@@ -1216,6 +1226,14 @@ function switchTab(tab) {
       handleSave(false);
     }
   }
+  // Stop takte tab loop playback when leaving
+  if (activeTab === 'takte' && tab !== 'takte') {
+    try { _barPlaySrc?.stop(0); } catch (_) {}
+    _barPlaySrc = null;
+    _barPlayId = null;
+    _partPlayActive = false;
+    stopTakteAnimation();
+  }
   // Stop lyrics karaoke playback when leaving lyrics tab
   if (activeTab === 'lyrics' && tab !== 'lyrics') {
     leStopPartPlayback();
@@ -1584,6 +1602,134 @@ function updateTakteTabPlayButtons() {
   });
 }
 
+/* ── Takte Tab: Loop Animation (playhead + accent flashes) ─── */
+
+/**
+ * Stop the loop animation and restore the waveform canvas to its static state.
+ */
+function stopTakteAnimation() {
+  if (_takteRaf) { cancelAnimationFrame(_takteRaf); _takteRaf = null; }
+  _takteFlashes = [];
+  if (_takteCanvas) {
+    const start = parseFloat(_takteCanvas.dataset.waveStart);
+    const end   = parseFloat(_takteCanvas.dataset.waveEnd);
+    if (!isNaN(start) && !isNaN(end)) drawMiniWaveform(_takteCanvas, start, end, 'rgb(56, 189, 248)');
+    _takteCanvas = null;
+  }
+}
+
+/**
+ * Start the loop animation for the currently playing bar.
+ * Draws a moving playhead and accent flashes on the bar's mini waveform.
+ * @param {string} barId
+ */
+function startTakteAnimation(barId) {
+  if (!_barPlayLoopDur || _barPlayLoopDur <= 0) return;
+
+  // Find the waveform canvas for this bar's row
+  const btn = document.querySelector(
+    `.btn-bar-play[data-play-song-id="${_barPlaySongId}"][data-play-bar-num="${_barPlayBarNum}"].playing`
+  );
+  const canvas = btn?.closest('.ttt-row')?.querySelector('canvas[data-wave-start]');
+  if (!canvas) return;
+
+  _takteCanvas = canvas;
+  const waveStart = parseFloat(canvas.dataset.waveStart);
+  const waveEnd   = parseFloat(canvas.dataset.waveEnd);
+  if (isNaN(waveStart) || isNaN(waveEnd)) return;
+
+  // Draw waveform once and cache the pixel data for cheap per-frame restore
+  drawMiniWaveform(canvas, waveStart, waveEnd, 'rgb(56, 189, 248)');
+  const ctx  = canvas.getContext('2d');
+  const W    = canvas.width;   // physical pixels
+  const H    = canvas.height;
+  const dpr  = window.devicePixelRatio || 1;
+  const waveCache = ctx.getImageData(0, 0, W, H);
+
+  // Precompute accent x positions in physical pixels
+  const accents = getAccentsForBar(barId).map(a => ({
+    x:     ((a.pos_16th - 0.5) / 16) * W,
+    color: ACCENT_COLORS[a.type] || '#00dc82',
+  }));
+
+  let prevProgress = -1;
+
+  function tick() {
+    if (!_partPlayActive || !_barPlaySrc) return;
+
+    const ac       = audio.getContext();
+    const elapsed  = ac.currentTime - _barPlayCtxStart;
+    const progress = (elapsed % _barPlayLoopDur) / _barPlayLoopDur; // 0..1
+
+    // Detect accent crossings (handles loop wrap-around)
+    if (prevProgress >= 0) {
+      for (const acc of accents) {
+        const ap = acc.x / W;
+        const crossed = prevProgress <= progress
+          ? prevProgress <= ap && ap < progress
+          : ap >= prevProgress || ap < progress; // wrapped
+        if (crossed) _takteFlashes.push({ x: acc.x, color: acc.color, age: 0 });
+      }
+    }
+    prevProgress = progress;
+
+    // Restore base waveform
+    ctx.putImageData(waveCache, 0, 0);
+
+    // Accent tick marks (always-visible thin lines)
+    for (const acc of accents) {
+      ctx.globalAlpha = 0.55;
+      ctx.strokeStyle = acc.color;
+      ctx.lineWidth   = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(acc.x, 0);
+      ctx.lineTo(acc.x, H);
+      ctx.stroke();
+    }
+
+    // Flash bursts when playhead crosses an accent
+    _takteFlashes = _takteFlashes.filter(f => f.age < 1);
+    for (const f of _takteFlashes) {
+      const t = 1 - f.age;
+      // Expanding column streak (bright center, fading to sides)
+      const colW = Math.max(2, H * 0.55) * t;
+      ctx.globalAlpha = t * 0.85;
+      ctx.fillStyle   = f.color;
+      ctx.fillRect(f.x - colW / 2, 0, colW, H);
+      // White hot core
+      ctx.globalAlpha = t * 0.95;
+      ctx.fillStyle   = '#ffffff';
+      ctx.fillRect(f.x - colW * 0.2, 0, colW * 0.4, H);
+      // Radial outer glow (expands beyond column)
+      const r = f.age * H * 2.2;
+      ctx.globalAlpha = t * 0.45;
+      ctx.fillStyle   = f.color;
+      ctx.beginPath();
+      ctx.arc(f.x, H / 2, r || 0.1, 0, Math.PI * 2);
+      ctx.fill();
+      f.age += 0.055; // ~0.35 s fade at 60 fps
+    }
+
+    // Playhead — white line with soft glow
+    const headX = progress * W;
+    ctx.globalAlpha  = 1;
+    ctx.strokeStyle  = 'rgba(255,255,255,0.95)';
+    ctx.lineWidth    = dpr * 1.5;
+    ctx.shadowColor  = 'rgba(255,255,255,0.8)';
+    ctx.shadowBlur   = 5 * dpr;
+    ctx.beginPath();
+    ctx.moveTo(headX, 0);
+    ctx.lineTo(headX, H);
+    ctx.stroke();
+    ctx.shadowBlur  = 0;
+    ctx.globalAlpha = 1;
+
+    _takteRaf = requestAnimationFrame(tick);
+  }
+
+  _takteRaf = requestAnimationFrame(tick);
+}
+
 async function handleBarPlay(songId, barNum) {
   audio.warmup(); // iOS: resume AudioContext in gesture handler
   ensureCollections();
@@ -1593,11 +1739,19 @@ async function handleBarPlay(songId, barNum) {
 
   // If already playing this bar → stop
   if (_barPlayId === barId && _partPlayActive) {
+    try { _barPlaySrc?.stop(0); } catch (_) {}
+    _barPlaySrc = null;
     _barPlayId = null;
     _partPlayActive = false;
+    stopTakteAnimation();
     updateTakteTabPlayButtons();
     return;
   }
+
+  // Stop any previously playing bar
+  try { _barPlaySrc?.stop(0); } catch (_) {}
+  _barPlaySrc = null;
+  stopTakteAnimation();
 
   _barPlayId = barId;
   _partPlayActive = true;
@@ -1607,35 +1761,44 @@ async function handleBarPlay(songId, barNum) {
     const ac = audio.getContext();
     if (ac.state === 'suspended') await ac.resume();
 
-    // Strategy 1: Use split audio file if available
+    // Strategy 1: Use split audio file — loop it
     if (barData.audio) {
       const arrBuf = await fetchAudioUrl(barData.audio);
       if (arrBuf) {
         const decoded = await ac.decodeAudioData(arrBuf);
         const src = ac.createBufferSource();
         src.buffer = decoded;
+        src.loop = true;
         src.connect(ac.destination);
-        src.onended = () => {
-          if (_barPlayId === barId) { _barPlayId = null; _partPlayActive = false; updateTakteTabPlayButtons(); }
-        };
         src.start(0);
+        _barPlaySrc = src;
+        _barPlayLoopDur = decoded.duration;
+        _barPlayCtxStart = ac.currentTime;
+        _barPlaySongId = songId;
+        _barPlayBarNum = barNum;
+        startTakteAnimation(barId);
         return;
       }
     }
 
-    // Strategy 2: Play from reference audio buffer using bar time range
+    // Strategy 2: Play from reference audio buffer using bar time range — loop the region
     const refBuffer = audio.getBuffer();
     if (refBuffer) {
       const range = getBarTimeRange(songId, barNum);
-      if (range) {
+      if (range?.end) {
         const src = ac.createBufferSource();
         src.buffer = refBuffer;
+        src.loop = true;
+        src.loopStart = range.start;
+        src.loopEnd = range.end;
         src.connect(ac.destination);
-        const dur = range.end - range.start;
-        src.onended = () => {
-          if (_barPlayId === barId) { _barPlayId = null; _partPlayActive = false; updateTakteTabPlayButtons(); }
-        };
-        src.start(0, range.start, dur);
+        src.start(0, range.start);
+        _barPlaySrc = src;
+        _barPlayLoopDur = range.end - range.start;
+        _barPlayCtxStart = ac.currentTime;
+        _barPlaySongId = songId;
+        _barPlayBarNum = barNum;
+        startTakteAnimation(barId);
         return;
       }
     }
@@ -1644,7 +1807,10 @@ async function handleBarPlay(songId, barNum) {
   } catch (err) {
     console.error('Bar playback error:', err);
     toast(`Wiedergabe-Fehler: ${err.message}`, 'error');
+    _barPlaySrc = null;
     _barPlayId = null;
+    _partPlayActive = false;
+    stopTakteAnimation();
   }
 }
 
@@ -7789,6 +7955,11 @@ function wireEvents() {
     // Remember current tab — must be preserved across song switch
     const currentTab = activeTab;
     // Stop audio and reset split state when switching songs
+    try { _barPlaySrc?.stop(0); } catch (_) {}
+    _barPlaySrc = null;
+    _barPlayId = null;
+    _partPlayActive = false;
+    stopTakteAnimation();
     audio.reset();
     audioMeta = null;
     audioFileName = null;

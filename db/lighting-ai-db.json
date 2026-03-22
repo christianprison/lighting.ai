@@ -4255,21 +4255,25 @@
           {
             "bar_num": 1,
             "name": "Intro (nur Drums)",
+            "light_template": "Spot auf Tim",
             "instrumental": true
           },
           {
             "bar_num": 5,
             "name": "+ Guitar",
+            "light_template": "Inside Spot auf Axel und Tim",
             "instrumental": true
           },
           {
             "bar_num": 9,
             "name": "+ Bass",
+            "light_template": "05 left'n'right",
             "instrumental": true
           },
           {
             "bar_num": 13,
-            "name": "Verse 1"
+            "name": "Verse 1",
+            "light_template": "05 left'n'right"
           },
           {
             "bar_num": 29,

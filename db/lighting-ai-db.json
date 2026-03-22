@@ -4147,7 +4147,366 @@
         "user_tasks": [],
         "manual_undone": []
       },
-      "total_bars": 0
+      "total_bars": 118,
+      "split_markers": {
+        "markers": [
+          {
+            "time": 6.500528089887595
+          },
+          {
+            "time": 8.339232209737801
+          },
+          {
+            "time": 9.931232209737843
+          },
+          {
+            "time": 11.504565543071166
+          },
+          {
+            "time": 13.149898876404492
+          },
+          {
+            "time": 14.720565543071174
+          },
+          {
+            "time": 16.37123220973784
+          },
+          {
+            "time": 17.981898876404486
+          },
+          {
+            "time": 19.58723220973785
+          },
+          {
+            "time": 21.221898876404495
+          },
+          {
+            "time": 22.8058988764045
+          },
+          {
+            "time": 24.467232209737844
+          },
+          {
+            "time": 26.08323220973783
+          },
+          {
+            "time": 27.720565543071174
+          },
+          {
+            "time": 29.283232209737818
+          },
+          {
+            "time": 30.904565543071143
+          },
+          {
+            "time": 32.504565543071166
+          },
+          {
+            "time": 34.14989887640449
+          },
+          {
+            "time": 35.7312322097378
+          },
+          {
+            "time": 37.3872322097378
+          },
+          {
+            "time": 38.923232209737805
+          },
+          {
+            "time": 40.57123220973783
+          },
+          {
+            "time": 42.08856554307117
+          },
+          {
+            "time": 43.733898876404496
+          },
+          {
+            "time": 45.33123220973782
+          },
+          {
+            "time": 47.01656554307117
+          },
+          {
+            "time": 48.67256554307117
+          },
+          {
+            "time": 50.3152322097378
+          },
+          {
+            "time": 51.92056554307116
+          },
+          {
+            "time": 53.58189887640451
+          },
+          {
+            "time": 55.216565543071155
+          },
+          {
+            "time": 56.8032322097378
+          },
+          {
+            "time": 58.448565543071126
+          },
+          {
+            "time": 60.14989887640449
+          },
+          {
+            "time": 61.8032322097378
+          },
+          {
+            "time": 63.499232209737826
+          },
+          {
+            "time": 65.10456554307113
+          },
+          {
+            "time": 66.84856554307116
+          },
+          {
+            "time": 68.50456554307117
+          },
+          {
+            "time": 70.16589887640451
+          },
+          {
+            "time": 71.81656554307118
+          },
+          {
+            "time": 73.45389887640447
+          },
+          {
+            "time": 75.14989887640449
+          },
+          {
+            "time": 76.8032322097378
+          },
+          {
+            "time": 78.3658988764045
+          },
+          {
+            "time": 79.9978988764045
+          },
+          {
+            "time": 81.64856554307117
+          },
+          {
+            "time": 83.29923220973784
+          },
+          {
+            "time": 84.8992322097378
+          },
+          {
+            "time": 86.56589887640449
+          },
+          {
+            "time": 88.18723220973781
+          },
+          {
+            "time": 89.91523220973782
+          },
+          {
+            "time": 91.58189887640451
+          },
+          {
+            "time": 93.29923220973784
+          },
+          {
+            "time": 94.88323220973784
+          },
+          {
+            "time": 96.54989887640447
+          },
+          {
+            "time": 98.14989887640449
+          },
+          {
+            "time": 99.8538988764045
+          },
+          {
+            "time": 101.42189887640448
+          },
+          {
+            "time": 103.06456554307117
+          },
+          {
+            "time": 104.69923220973781
+          },
+          {
+            "time": 106.29923220973784
+          },
+          {
+            "time": 108.01656554307111
+          },
+          {
+            "time": 109.68856554307114
+          },
+          {
+            "time": 111.2725655430712
+          },
+          {
+            "time": 113.03789887640447
+          },
+          {
+            "time": 114.52056554307113
+          },
+          {
+            "time": 116.1712322097378
+          },
+          {
+            "time": 117.82189887640446
+          },
+          {
+            "time": 119.44856554307113
+          },
+          {
+            "time": 121.13656554307111
+          },
+          {
+            "time": 122.78723220973778
+          },
+          {
+            "time": 124.4832322097378
+          },
+          {
+            "time": 126.13923220973787
+          },
+          {
+            "time": 127.8005655430711
+          },
+          {
+            "time": 129.43256554307115
+          },
+          {
+            "time": 131.04856554307113
+          },
+          {
+            "time": 132.76589887640452
+          },
+          {
+            "time": 134.37123220973783
+          },
+          {
+            "time": 135.98189887640453
+          },
+          {
+            "time": 137.66989887640452
+          },
+          {
+            "time": 139.35523220973786
+          },
+          {
+            "time": 140.93656554307117
+          },
+          {
+            "time": 142.60056554307116
+          },
+          {
+            "time": 144.2378988764045
+          },
+          {
+            "time": 145.8725655430711
+          },
+          {
+            "time": 147.51523220973783
+          },
+          {
+            "time": 149.1658988764045
+          },
+          {
+            "time": 150.8538988764045
+          },
+          {
+            "time": 152.4538988764045
+          },
+          {
+            "time": 154.10456554307117
+          },
+          {
+            "time": 155.66723220973776
+          },
+          {
+            "time": 157.26723220973778
+          },
+          {
+            "time": 158.88323220973777
+          },
+          {
+            "time": 160.56589887640448
+          },
+          {
+            "time": 162.22189887640442
+          },
+          {
+            "time": 163.86456554307117
+          },
+          {
+            "time": 165.5552322097378
+          },
+          {
+            "time": 167.18723220973786
+          },
+          {
+            "time": 168.83256554307113
+          },
+          {
+            "time": 170.4645655430712
+          },
+          {
+            "time": 172.1658988764045
+          },
+          {
+            "time": 173.78723220973777
+          },
+          {
+            "time": 175.43256554307115
+          },
+          {
+            "time": 177.0885655430711
+          },
+          {
+            "time": 178.73389887640448
+          },
+          {
+            "time": 180.4165655430712
+          },
+          {
+            "time": 182.05389887640442
+          },
+          {
+            "time": 183.68856554307112
+          },
+          {
+            "time": 185.36589887640443
+          },
+          {
+            "time": 187.03256554307117
+          },
+          {
+            "time": 188.68323220973784
+          },
+          {
+            "time": 190.26723220973778
+          },
+          {
+            "time": 191.9392322097378
+          },
+          {
+            "time": 193.53389887640444
+          },
+          {
+            "time": 195.21656554307114
+          },
+          {
+            "time": 196.8725655430711
+          },
+          {
+            "time": 198.53389887640444
+          }
+        ],
+        "part_starts": []
+      }
     },
     "BfbgVC": {
       "name": "Fight for your Right",
@@ -12582,6 +12941,832 @@
     "B1356": {
       "song_id": "QeOWYg",
       "bar_num": 92,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1357": {
+      "song_id": "EfmiXn",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1358": {
+      "song_id": "EfmiXn",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1359": {
+      "song_id": "EfmiXn",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1360": {
+      "song_id": "EfmiXn",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1361": {
+      "song_id": "EfmiXn",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1362": {
+      "song_id": "EfmiXn",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1363": {
+      "song_id": "EfmiXn",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1364": {
+      "song_id": "EfmiXn",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1365": {
+      "song_id": "EfmiXn",
+      "bar_num": 9,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1366": {
+      "song_id": "EfmiXn",
+      "bar_num": 10,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1367": {
+      "song_id": "EfmiXn",
+      "bar_num": 11,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1368": {
+      "song_id": "EfmiXn",
+      "bar_num": 12,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1369": {
+      "song_id": "EfmiXn",
+      "bar_num": 13,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1370": {
+      "song_id": "EfmiXn",
+      "bar_num": 14,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1371": {
+      "song_id": "EfmiXn",
+      "bar_num": 15,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1372": {
+      "song_id": "EfmiXn",
+      "bar_num": 16,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1373": {
+      "song_id": "EfmiXn",
+      "bar_num": 17,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1374": {
+      "song_id": "EfmiXn",
+      "bar_num": 18,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1375": {
+      "song_id": "EfmiXn",
+      "bar_num": 19,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1376": {
+      "song_id": "EfmiXn",
+      "bar_num": 20,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1377": {
+      "song_id": "EfmiXn",
+      "bar_num": 21,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1378": {
+      "song_id": "EfmiXn",
+      "bar_num": 22,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1379": {
+      "song_id": "EfmiXn",
+      "bar_num": 23,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1380": {
+      "song_id": "EfmiXn",
+      "bar_num": 24,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1381": {
+      "song_id": "EfmiXn",
+      "bar_num": 25,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1382": {
+      "song_id": "EfmiXn",
+      "bar_num": 26,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1383": {
+      "song_id": "EfmiXn",
+      "bar_num": 27,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1384": {
+      "song_id": "EfmiXn",
+      "bar_num": 28,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1385": {
+      "song_id": "EfmiXn",
+      "bar_num": 29,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1386": {
+      "song_id": "EfmiXn",
+      "bar_num": 30,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1387": {
+      "song_id": "EfmiXn",
+      "bar_num": 31,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1388": {
+      "song_id": "EfmiXn",
+      "bar_num": 32,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1389": {
+      "song_id": "EfmiXn",
+      "bar_num": 33,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1390": {
+      "song_id": "EfmiXn",
+      "bar_num": 34,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1391": {
+      "song_id": "EfmiXn",
+      "bar_num": 35,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1392": {
+      "song_id": "EfmiXn",
+      "bar_num": 36,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1393": {
+      "song_id": "EfmiXn",
+      "bar_num": 37,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1394": {
+      "song_id": "EfmiXn",
+      "bar_num": 38,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1395": {
+      "song_id": "EfmiXn",
+      "bar_num": 39,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1396": {
+      "song_id": "EfmiXn",
+      "bar_num": 40,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1397": {
+      "song_id": "EfmiXn",
+      "bar_num": 41,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1398": {
+      "song_id": "EfmiXn",
+      "bar_num": 42,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1399": {
+      "song_id": "EfmiXn",
+      "bar_num": 43,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1400": {
+      "song_id": "EfmiXn",
+      "bar_num": 44,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1401": {
+      "song_id": "EfmiXn",
+      "bar_num": 45,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1402": {
+      "song_id": "EfmiXn",
+      "bar_num": 46,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1403": {
+      "song_id": "EfmiXn",
+      "bar_num": 47,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1404": {
+      "song_id": "EfmiXn",
+      "bar_num": 48,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1405": {
+      "song_id": "EfmiXn",
+      "bar_num": 49,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1406": {
+      "song_id": "EfmiXn",
+      "bar_num": 50,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1407": {
+      "song_id": "EfmiXn",
+      "bar_num": 51,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1408": {
+      "song_id": "EfmiXn",
+      "bar_num": 52,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1409": {
+      "song_id": "EfmiXn",
+      "bar_num": 53,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1410": {
+      "song_id": "EfmiXn",
+      "bar_num": 54,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1411": {
+      "song_id": "EfmiXn",
+      "bar_num": 55,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1412": {
+      "song_id": "EfmiXn",
+      "bar_num": 56,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1413": {
+      "song_id": "EfmiXn",
+      "bar_num": 57,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1414": {
+      "song_id": "EfmiXn",
+      "bar_num": 58,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1415": {
+      "song_id": "EfmiXn",
+      "bar_num": 59,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1416": {
+      "song_id": "EfmiXn",
+      "bar_num": 60,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1417": {
+      "song_id": "EfmiXn",
+      "bar_num": 61,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1418": {
+      "song_id": "EfmiXn",
+      "bar_num": 62,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1419": {
+      "song_id": "EfmiXn",
+      "bar_num": 63,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1420": {
+      "song_id": "EfmiXn",
+      "bar_num": 64,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1421": {
+      "song_id": "EfmiXn",
+      "bar_num": 65,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1422": {
+      "song_id": "EfmiXn",
+      "bar_num": 66,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1423": {
+      "song_id": "EfmiXn",
+      "bar_num": 67,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1424": {
+      "song_id": "EfmiXn",
+      "bar_num": 68,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1425": {
+      "song_id": "EfmiXn",
+      "bar_num": 69,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1426": {
+      "song_id": "EfmiXn",
+      "bar_num": 70,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1427": {
+      "song_id": "EfmiXn",
+      "bar_num": 71,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1428": {
+      "song_id": "EfmiXn",
+      "bar_num": 72,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1429": {
+      "song_id": "EfmiXn",
+      "bar_num": 73,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1430": {
+      "song_id": "EfmiXn",
+      "bar_num": 74,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1431": {
+      "song_id": "EfmiXn",
+      "bar_num": 75,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1432": {
+      "song_id": "EfmiXn",
+      "bar_num": 76,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1433": {
+      "song_id": "EfmiXn",
+      "bar_num": 77,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1434": {
+      "song_id": "EfmiXn",
+      "bar_num": 78,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1435": {
+      "song_id": "EfmiXn",
+      "bar_num": 79,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1436": {
+      "song_id": "EfmiXn",
+      "bar_num": 80,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1437": {
+      "song_id": "EfmiXn",
+      "bar_num": 81,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1438": {
+      "song_id": "EfmiXn",
+      "bar_num": 82,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1439": {
+      "song_id": "EfmiXn",
+      "bar_num": 83,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1440": {
+      "song_id": "EfmiXn",
+      "bar_num": 84,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1441": {
+      "song_id": "EfmiXn",
+      "bar_num": 85,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1442": {
+      "song_id": "EfmiXn",
+      "bar_num": 86,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1443": {
+      "song_id": "EfmiXn",
+      "bar_num": 87,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1444": {
+      "song_id": "EfmiXn",
+      "bar_num": 88,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1445": {
+      "song_id": "EfmiXn",
+      "bar_num": 89,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1446": {
+      "song_id": "EfmiXn",
+      "bar_num": 90,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1447": {
+      "song_id": "EfmiXn",
+      "bar_num": 91,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1448": {
+      "song_id": "EfmiXn",
+      "bar_num": 92,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1449": {
+      "song_id": "EfmiXn",
+      "bar_num": 93,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1450": {
+      "song_id": "EfmiXn",
+      "bar_num": 94,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1451": {
+      "song_id": "EfmiXn",
+      "bar_num": 95,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1452": {
+      "song_id": "EfmiXn",
+      "bar_num": 96,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1453": {
+      "song_id": "EfmiXn",
+      "bar_num": 97,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1454": {
+      "song_id": "EfmiXn",
+      "bar_num": 98,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1455": {
+      "song_id": "EfmiXn",
+      "bar_num": 99,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1456": {
+      "song_id": "EfmiXn",
+      "bar_num": 100,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1457": {
+      "song_id": "EfmiXn",
+      "bar_num": 101,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1458": {
+      "song_id": "EfmiXn",
+      "bar_num": 102,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1459": {
+      "song_id": "EfmiXn",
+      "bar_num": 103,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1460": {
+      "song_id": "EfmiXn",
+      "bar_num": 104,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1461": {
+      "song_id": "EfmiXn",
+      "bar_num": 105,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1462": {
+      "song_id": "EfmiXn",
+      "bar_num": 106,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1463": {
+      "song_id": "EfmiXn",
+      "bar_num": 107,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1464": {
+      "song_id": "EfmiXn",
+      "bar_num": 108,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1465": {
+      "song_id": "EfmiXn",
+      "bar_num": 109,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1466": {
+      "song_id": "EfmiXn",
+      "bar_num": 110,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1467": {
+      "song_id": "EfmiXn",
+      "bar_num": 111,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1468": {
+      "song_id": "EfmiXn",
+      "bar_num": 112,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1469": {
+      "song_id": "EfmiXn",
+      "bar_num": 113,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1470": {
+      "song_id": "EfmiXn",
+      "bar_num": 114,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1471": {
+      "song_id": "EfmiXn",
+      "bar_num": 115,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1472": {
+      "song_id": "EfmiXn",
+      "bar_num": 116,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1473": {
+      "song_id": "EfmiXn",
+      "bar_num": 117,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1474": {
+      "song_id": "EfmiXn",
+      "bar_num": 118,
       "lyrics": "",
       "audio": "",
       "has_accents": false

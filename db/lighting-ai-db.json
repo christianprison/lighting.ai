@@ -6639,14 +6639,16 @@
       "key": "E dur",
       "year": "2007",
       "pick": "",
-      "gema_nr": "",
+      "gema_nr": "9714554-001",
       "duration": "3:04",
       "duration_sec": 184,
       "notes": "",
       "audio_ref": "audio/Fluorescent Adolescent/Fluorescent Adolescent - Full Song.mp3",
       "audio_ref_name": "Fluorescent Adolescent - Full Song.mp3",
       "tms": {
-        "manual_done": [],
+        "manual_done": [
+          "bar_markers"
+        ],
         "user_tasks": [],
         "manual_undone": []
       },

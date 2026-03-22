@@ -15110,14 +15110,14 @@
       "bar_num": 12,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B1487": {
       "song_id": "BfbgVC",
       "bar_num": 13,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B1488": {
       "song_id": "BfbgVC",
@@ -15138,14 +15138,14 @@
       "bar_num": 16,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B1491": {
       "song_id": "BfbgVC",
       "bar_num": 17,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B1492": {
       "song_id": "BfbgVC",
@@ -15166,14 +15166,14 @@
       "bar_num": 20,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B1495": {
       "song_id": "BfbgVC",
       "bar_num": 21,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B1496": {
       "song_id": "BfbgVC",
@@ -15194,28 +15194,28 @@
       "bar_num": 24,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B1499": {
       "song_id": "BfbgVC",
       "bar_num": 25,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B1500": {
       "song_id": "BfbgVC",
       "bar_num": 26,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B1501": {
       "song_id": "BfbgVC",
       "bar_num": 27,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B1502": {
       "song_id": "BfbgVC",
@@ -17415,6 +17415,162 @@
       "bar_id": "B1465",
       "pos_16th": 1,
       "type": "fg",
+      "notes": ""
+    },
+    "A0080": {
+      "bar_id": "B1486",
+      "pos_16th": 1,
+      "type": "st",
+      "notes": ""
+    },
+    "A0081": {
+      "bar_id": "B1486",
+      "pos_16th": 9,
+      "type": "st",
+      "notes": ""
+    },
+    "A0082": {
+      "bar_id": "B1487",
+      "pos_16th": 1,
+      "type": "st",
+      "notes": ""
+    },
+    "A0083": {
+      "bar_id": "B1487",
+      "pos_16th": 9,
+      "type": "st",
+      "notes": ""
+    },
+    "A0084": {
+      "bar_id": "B1490",
+      "pos_16th": 1,
+      "type": "st",
+      "notes": ""
+    },
+    "A0085": {
+      "bar_id": "B1490",
+      "pos_16th": 9,
+      "type": "st",
+      "notes": ""
+    },
+    "A0086": {
+      "bar_id": "B1491",
+      "pos_16th": 1,
+      "type": "st",
+      "notes": ""
+    },
+    "A0087": {
+      "bar_id": "B1491",
+      "pos_16th": 9,
+      "type": "st",
+      "notes": ""
+    },
+    "A0088": {
+      "bar_id": "B1494",
+      "pos_16th": 1,
+      "type": "st",
+      "notes": ""
+    },
+    "A0089": {
+      "bar_id": "B1494",
+      "pos_16th": 9,
+      "type": "st",
+      "notes": ""
+    },
+    "A0090": {
+      "bar_id": "B1495",
+      "pos_16th": 1,
+      "type": "st",
+      "notes": ""
+    },
+    "A0091": {
+      "bar_id": "B1495",
+      "pos_16th": 9,
+      "type": "st",
+      "notes": ""
+    },
+    "A0092": {
+      "bar_id": "B1498",
+      "pos_16th": 1,
+      "type": "st",
+      "notes": ""
+    },
+    "A0093": {
+      "bar_id": "B1498",
+      "pos_16th": 9,
+      "type": "st",
+      "notes": ""
+    },
+    "A0094": {
+      "bar_id": "B1498",
+      "pos_16th": 16,
+      "type": "bl",
+      "notes": ""
+    },
+    "A0095": {
+      "bar_id": "B1499",
+      "pos_16th": 1,
+      "type": "bo",
+      "notes": ""
+    },
+    "A0096": {
+      "bar_id": "B1500",
+      "pos_16th": 5,
+      "type": "bl",
+      "notes": ""
+    },
+    "A0097": {
+      "bar_id": "B1500",
+      "pos_16th": 9,
+      "type": "bl",
+      "notes": ""
+    },
+    "A0098": {
+      "bar_id": "B1501",
+      "pos_16th": 9,
+      "type": "st",
+      "notes": ""
+    },
+    "A0100": {
+      "bar_id": "B1501",
+      "pos_16th": 10,
+      "type": "st",
+      "notes": ""
+    },
+    "A0101": {
+      "bar_id": "B1501",
+      "pos_16th": 11,
+      "type": "st",
+      "notes": ""
+    },
+    "A0102": {
+      "bar_id": "B1501",
+      "pos_16th": 12,
+      "type": "st",
+      "notes": ""
+    },
+    "A0103": {
+      "bar_id": "B1501",
+      "pos_16th": 14,
+      "type": "st",
+      "notes": ""
+    },
+    "A0104": {
+      "bar_id": "B1501",
+      "pos_16th": 13,
+      "type": "st",
+      "notes": ""
+    },
+    "A0105": {
+      "bar_id": "B1501",
+      "pos_16th": 15,
+      "type": "st",
+      "notes": ""
+    },
+    "A0106": {
+      "bar_id": "B1501",
+      "pos_16th": 16,
+      "type": "st",
       "notes": ""
     }
   },

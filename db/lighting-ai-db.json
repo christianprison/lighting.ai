@@ -4528,7 +4528,201 @@
         "user_tasks": [],
         "manual_undone": []
       },
-      "total_bars": 0
+      "total_bars": 63,
+      "split_markers": {
+        "markers": [
+          {
+            "time": 0.004999999999981186
+          },
+          {
+            "time": 10.701000000000008
+          },
+          {
+            "time": 12.500999999999962
+          },
+          {
+            "time": 14.28766666666671
+          },
+          {
+            "time": 16.052999999999983
+          },
+          {
+            "time": 17.919666666666657
+          },
+          {
+            "time": 19.73833333333333
+          },
+          {
+            "time": 21.503666666666717
+          },
+          {
+            "time": 23.319666666666635
+          },
+          {
+            "time": 25.18633333333331
+          },
+          {
+            "time": 26.901000000000053
+          },
+          {
+            "time": 28.701000000000008
+          },
+          {
+            "time": 30.535666666666643
+          },
+          {
+            "time": 32.30100000000003
+          },
+          {
+            "time": 34.103666666666626
+          },
+          {
+            "time": 35.869000000000014
+          },
+          {
+            "time": 37.719666666666726
+          },
+          {
+            "time": 39.50099999999996
+          },
+          {
+            "time": 41.26899999999999
+          },
+          {
+            "time": 43.1196666666667
+          },
+          {
+            "time": 44.98633333333338
+          },
+          {
+            "time": 46.78633333333333
+          },
+          {
+            "time": 48.60233333333336
+          },
+          {
+            "time": 50.40233333333332
+          },
+          {
+            "time": 52.26899999999999
+          },
+          {
+            "time": 54.0183333333333
+          },
+          {
+            "time": 55.70366666666665
+          },
+          {
+            "time": 57.40233333333332
+          },
+          {
+            "time": 59.23699999999995
+          },
+          {
+            "time": 61.08500000000002
+          },
+          {
+            "time": 62.93566666666662
+          },
+          {
+            "time": 64.70366666666665
+          },
+          {
+            "time": 66.50099999999996
+          },
+          {
+            "time": 68.31966666666663
+          },
+          {
+            "time": 70.18633333333331
+          },
+          {
+            "time": 71.9516666666667
+          },
+          {
+            "time": 73.82100000000001
+          },
+          {
+            "time": 75.60233333333336
+          },
+          {
+            "time": 77.42100000000003
+          },
+          {
+            "time": 79.21833333333335
+          },
+          {
+            "time": 81.02100000000006
+          },
+          {
+            "time": 82.8503333333333
+          },
+          {
+            "time": 84.66899999999997
+          },
+          {
+            "time": 86.50099999999996
+          },
+          {
+            "time": 88.28766666666671
+          },
+          {
+            "time": 90.05299999999998
+          },
+          {
+            "time": 91.81833333333337
+          },
+          {
+            "time": 93.68500000000004
+          },
+          {
+            "time": 95.4183333333334
+          },
+          {
+            "time": 97.21230337078651
+          },
+          {
+            "time": 99.01067415730337
+          },
+          {
+            "time": 100.78633333333333
+          },
+          {
+            "time": 102.68766666666669
+          },
+          {
+            "time": 104.4458988764045
+          },
+          {
+            "time": 106.14398876404495
+          },
+          {
+            "time": 107.92898876404495
+          },
+          {
+            "time": 109.74741573033708
+          },
+          {
+            "time": 111.53030337078654
+          },
+          {
+            "time": 113.34097003745318
+          },
+          {
+            "time": 115.1569700374532
+          },
+          {
+            "time": 116.99697003745324
+          },
+          {
+            "time": 118.74630337078655
+          },
+          {
+            "time": 120.55101123595506
+          }
+        ],
+        "part_starts": []
+      }
     },
     "ZhSlyd": {
       "name": "Flourescent Adolescent",
@@ -13767,6 +13961,447 @@
     "B1474": {
       "song_id": "EfmiXn",
       "bar_num": 118,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1475": {
+      "song_id": "BfbgVC",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1476": {
+      "song_id": "BfbgVC",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1477": {
+      "song_id": "BfbgVC",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1478": {
+      "song_id": "BfbgVC",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1479": {
+      "song_id": "BfbgVC",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1480": {
+      "song_id": "BfbgVC",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1481": {
+      "song_id": "BfbgVC",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1482": {
+      "song_id": "BfbgVC",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1483": {
+      "song_id": "BfbgVC",
+      "bar_num": 9,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1484": {
+      "song_id": "BfbgVC",
+      "bar_num": 10,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1485": {
+      "song_id": "BfbgVC",
+      "bar_num": 11,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1486": {
+      "song_id": "BfbgVC",
+      "bar_num": 12,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1487": {
+      "song_id": "BfbgVC",
+      "bar_num": 13,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1488": {
+      "song_id": "BfbgVC",
+      "bar_num": 14,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1489": {
+      "song_id": "BfbgVC",
+      "bar_num": 15,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1490": {
+      "song_id": "BfbgVC",
+      "bar_num": 16,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1491": {
+      "song_id": "BfbgVC",
+      "bar_num": 17,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1492": {
+      "song_id": "BfbgVC",
+      "bar_num": 18,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1493": {
+      "song_id": "BfbgVC",
+      "bar_num": 19,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1494": {
+      "song_id": "BfbgVC",
+      "bar_num": 20,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1495": {
+      "song_id": "BfbgVC",
+      "bar_num": 21,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1496": {
+      "song_id": "BfbgVC",
+      "bar_num": 22,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1497": {
+      "song_id": "BfbgVC",
+      "bar_num": 23,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1498": {
+      "song_id": "BfbgVC",
+      "bar_num": 24,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1499": {
+      "song_id": "BfbgVC",
+      "bar_num": 25,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1500": {
+      "song_id": "BfbgVC",
+      "bar_num": 26,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1501": {
+      "song_id": "BfbgVC",
+      "bar_num": 27,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1502": {
+      "song_id": "BfbgVC",
+      "bar_num": 28,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1503": {
+      "song_id": "BfbgVC",
+      "bar_num": 29,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1504": {
+      "song_id": "BfbgVC",
+      "bar_num": 30,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1505": {
+      "song_id": "BfbgVC",
+      "bar_num": 31,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1506": {
+      "song_id": "BfbgVC",
+      "bar_num": 32,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1507": {
+      "song_id": "BfbgVC",
+      "bar_num": 33,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1508": {
+      "song_id": "BfbgVC",
+      "bar_num": 34,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1509": {
+      "song_id": "BfbgVC",
+      "bar_num": 35,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1510": {
+      "song_id": "BfbgVC",
+      "bar_num": 36,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1511": {
+      "song_id": "BfbgVC",
+      "bar_num": 37,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1512": {
+      "song_id": "BfbgVC",
+      "bar_num": 38,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1513": {
+      "song_id": "BfbgVC",
+      "bar_num": 39,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1514": {
+      "song_id": "BfbgVC",
+      "bar_num": 40,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1515": {
+      "song_id": "BfbgVC",
+      "bar_num": 41,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1516": {
+      "song_id": "BfbgVC",
+      "bar_num": 42,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1517": {
+      "song_id": "BfbgVC",
+      "bar_num": 43,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1518": {
+      "song_id": "BfbgVC",
+      "bar_num": 44,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1519": {
+      "song_id": "BfbgVC",
+      "bar_num": 45,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1520": {
+      "song_id": "BfbgVC",
+      "bar_num": 46,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1521": {
+      "song_id": "BfbgVC",
+      "bar_num": 47,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1522": {
+      "song_id": "BfbgVC",
+      "bar_num": 48,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1523": {
+      "song_id": "BfbgVC",
+      "bar_num": 49,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1524": {
+      "song_id": "BfbgVC",
+      "bar_num": 50,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1525": {
+      "song_id": "BfbgVC",
+      "bar_num": 51,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1526": {
+      "song_id": "BfbgVC",
+      "bar_num": 52,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1527": {
+      "song_id": "BfbgVC",
+      "bar_num": 53,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1528": {
+      "song_id": "BfbgVC",
+      "bar_num": 54,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1529": {
+      "song_id": "BfbgVC",
+      "bar_num": 55,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1530": {
+      "song_id": "BfbgVC",
+      "bar_num": 56,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1531": {
+      "song_id": "BfbgVC",
+      "bar_num": 57,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1532": {
+      "song_id": "BfbgVC",
+      "bar_num": 58,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1533": {
+      "song_id": "BfbgVC",
+      "bar_num": 59,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1534": {
+      "song_id": "BfbgVC",
+      "bar_num": 60,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1535": {
+      "song_id": "BfbgVC",
+      "bar_num": 61,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1536": {
+      "song_id": "BfbgVC",
+      "bar_num": 62,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1537": {
+      "song_id": "BfbgVC",
+      "bar_num": 63,
       "lyrics": "",
       "audio": "",
       "has_accents": false

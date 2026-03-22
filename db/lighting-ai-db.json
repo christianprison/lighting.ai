@@ -4898,24 +4898,6 @@
         "part_starts": []
       }
     },
-    "ZhSlyd": {
-      "name": "Flourescent Adolescent",
-      "artist": "Arctic Monkeys",
-      "bpm": 110,
-      "key": "E dur",
-      "year": "2007",
-      "pick": "",
-      "gema_nr": "9714554-001",
-      "duration": "3:08",
-      "duration_sec": 188,
-      "notes": "end-akkord = cis moll; ; 4 Intro alle mit Stops; 4 Intro alle mit Beat ; 4 Verse ohne Git; 4 Verse alle; 9 Bridge (erst Pausen dann Beat); 8 Verse (letzte 2 Takte Pause); 8 Bridge (erst Beat dann Pausen); 8 Interlude; 4 Intro alle mit Stops; 4 Intro alle mit Stops + Vocals; 5 Intro Stops anders + Vocals; 16 Refrain; Abschlag auf 1 in Cis moll; ;",
-      "tms": {
-        "manual_done": [],
-        "user_tasks": [],
-        "manual_undone": []
-      },
-      "total_bars": 0
-    },
     "E3pvFC": {
       "name": "Goodbye",
       "artist": "Die Happy",
@@ -6028,7 +6010,249 @@
         "user_tasks": [],
         "manual_undone": []
       },
-      "total_bars": 0
+      "total_bars": 79,
+      "split_markers": {
+        "markers": [
+          {
+            "time": 3.415666666666695
+          },
+          {
+            "time": 5.527666666666661
+          },
+          {
+            "time": 7.6636666666666855
+          },
+          {
+            "time": 9.79433333333337
+          },
+          {
+            "time": 11.879666666666694
+          },
+          {
+            "time": 13.895666666666656
+          },
+          {
+            "time": 15.978333333333339
+          },
+          {
+            "time": 18.02900000000004
+          },
+          {
+            "time": 20.06100000000002
+          },
+          {
+            "time": 22.213000000000008
+          },
+          {
+            "time": 24.29566666666669
+          },
+          {
+            "time": 26.343666666666692
+          },
+          {
+            "time": 28.362333333333353
+          },
+          {
+            "time": 30.477000000000018
+          },
+          {
+            "time": 32.581
+          },
+          {
+            "time": 34.698333333333366
+          },
+          {
+            "time": 36.89380530973452
+          },
+          {
+            "time": 39.01300000000002
+          },
+          {
+            "time": 41.111666666666665
+          },
+          {
+            "time": 43.34778761061947
+          },
+          {
+            "time": 45.56725663716814
+          },
+          {
+            "time": 47.6650825958702
+          },
+          {
+            "time": 49.787749262536906
+          },
+          {
+            "time": 51.937082595870194
+          },
+          {
+            "time": 54.1530825958702
+          },
+          {
+            "time": 56.32108259587021
+          },
+          {
+            "time": 58.38774926253687
+          },
+          {
+            "time": 60.58774926253686
+          },
+          {
+            "time": 62.64641592920354
+          },
+          {
+            "time": 64.81974926253689
+          },
+          {
+            "time": 66.96908259587023
+          },
+          {
+            "time": 69.06241592920354
+          },
+          {
+            "time": 71.23574926253688
+          },
+          {
+            "time": 73.40374926253689
+          },
+          {
+            "time": 75.57974926253688
+          },
+          {
+            "time": 77.70241592920353
+          },
+          {
+            "time": 79.83041592920357
+          },
+          {
+            "time": 81.92108259587023
+          },
+          {
+            "time": 84.06241592920354
+          },
+          {
+            "time": 86.16374926253688
+          },
+          {
+            "time": 88.27041592920357
+          },
+          {
+            "time": 90.35308259587019
+          },
+          {
+            "time": 92.60374926253688
+          },
+          {
+            "time": 94.77974926253687
+          },
+          {
+            "time": 97.01441592920354
+          },
+          {
+            "time": 99.23574926253688
+          },
+          {
+            "time": 101.50241592920354
+          },
+          {
+            "time": 103.6650825958702
+          },
+          {
+            "time": 105.89708259587023
+          },
+          {
+            "time": 108.1317492625369
+          },
+          {
+            "time": 110.28108259587019
+          },
+          {
+            "time": 112.41441592920357
+          },
+          {
+            "time": 114.47041592920355
+          },
+          {
+            "time": 116.72908259587022
+          },
+          {
+            "time": 118.83574926253691
+          },
+          {
+            "time": 120.95308259587021
+          },
+          {
+            "time": 123.07041592920358
+          },
+          {
+            "time": 125.21974926253687
+          },
+          {
+            "time": 127.40374926253689
+          },
+          {
+            "time": 129.56908259587019
+          },
+          {
+            "time": 131.7024159292035
+          },
+          {
+            "time": 133.87041592920352
+          },
+          {
+            "time": 136.1530825958702
+          },
+          {
+            "time": 138.36374926253686
+          },
+          {
+            "time": 140.47041592920354
+          },
+          {
+            "time": 142.63574926253685
+          },
+          {
+            "time": 144.72108259587023
+          },
+          {
+            "time": 146.79841592920351
+          },
+          {
+            "time": 148.96908259587022
+          },
+          {
+            "time": 151.10241592920354
+          },
+          {
+            "time": 153.24641592920355
+          },
+          {
+            "time": 155.43041592920358
+          },
+          {
+            "time": 157.51308259587026
+          },
+          {
+            "time": 159.57974926253686
+          },
+          {
+            "time": 161.67041592920359
+          },
+          {
+            "time": 163.78774926253683
+          },
+          {
+            "time": 165.89708259587016
+          },
+          {
+            "time": 168.01974926253692
+          },
+          {
+            "time": 170.1210825958702
+          }
+        ],
+        "part_starts": []
+      }
     },
     "I8M2A8": {
       "name": "Seven Nation Army + Sweet Dreams",
@@ -14982,6 +15206,559 @@
     "B1595": {
       "song_id": "BfbgVC",
       "bar_num": 121,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1596": {
+      "song_id": "FaAM01",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1597": {
+      "song_id": "FaAM01",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1598": {
+      "song_id": "FaAM01",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1599": {
+      "song_id": "FaAM01",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1600": {
+      "song_id": "FaAM01",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1601": {
+      "song_id": "FaAM01",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1602": {
+      "song_id": "FaAM01",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1603": {
+      "song_id": "FaAM01",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1604": {
+      "song_id": "FaAM01",
+      "bar_num": 9,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1605": {
+      "song_id": "FaAM01",
+      "bar_num": 10,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1606": {
+      "song_id": "FaAM01",
+      "bar_num": 11,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1607": {
+      "song_id": "FaAM01",
+      "bar_num": 12,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1608": {
+      "song_id": "FaAM01",
+      "bar_num": 13,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1609": {
+      "song_id": "FaAM01",
+      "bar_num": 14,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1610": {
+      "song_id": "FaAM01",
+      "bar_num": 15,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1611": {
+      "song_id": "FaAM01",
+      "bar_num": 16,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1612": {
+      "song_id": "FaAM01",
+      "bar_num": 17,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1613": {
+      "song_id": "FaAM01",
+      "bar_num": 18,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1614": {
+      "song_id": "FaAM01",
+      "bar_num": 19,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1615": {
+      "song_id": "FaAM01",
+      "bar_num": 20,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1616": {
+      "song_id": "FaAM01",
+      "bar_num": 21,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1617": {
+      "song_id": "FaAM01",
+      "bar_num": 22,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1618": {
+      "song_id": "FaAM01",
+      "bar_num": 23,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1619": {
+      "song_id": "FaAM01",
+      "bar_num": 24,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1620": {
+      "song_id": "FaAM01",
+      "bar_num": 25,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1621": {
+      "song_id": "FaAM01",
+      "bar_num": 26,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1622": {
+      "song_id": "FaAM01",
+      "bar_num": 27,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1623": {
+      "song_id": "FaAM01",
+      "bar_num": 28,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1624": {
+      "song_id": "FaAM01",
+      "bar_num": 29,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1625": {
+      "song_id": "FaAM01",
+      "bar_num": 30,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1626": {
+      "song_id": "FaAM01",
+      "bar_num": 31,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1627": {
+      "song_id": "FaAM01",
+      "bar_num": 32,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1628": {
+      "song_id": "FaAM01",
+      "bar_num": 33,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1629": {
+      "song_id": "FaAM01",
+      "bar_num": 34,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1630": {
+      "song_id": "FaAM01",
+      "bar_num": 35,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1631": {
+      "song_id": "FaAM01",
+      "bar_num": 36,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1632": {
+      "song_id": "FaAM01",
+      "bar_num": 37,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1633": {
+      "song_id": "FaAM01",
+      "bar_num": 38,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1634": {
+      "song_id": "FaAM01",
+      "bar_num": 39,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1635": {
+      "song_id": "FaAM01",
+      "bar_num": 40,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1636": {
+      "song_id": "FaAM01",
+      "bar_num": 41,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1637": {
+      "song_id": "FaAM01",
+      "bar_num": 42,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1638": {
+      "song_id": "FaAM01",
+      "bar_num": 43,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1639": {
+      "song_id": "FaAM01",
+      "bar_num": 44,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1640": {
+      "song_id": "FaAM01",
+      "bar_num": 45,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1641": {
+      "song_id": "FaAM01",
+      "bar_num": 46,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1642": {
+      "song_id": "FaAM01",
+      "bar_num": 47,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1643": {
+      "song_id": "FaAM01",
+      "bar_num": 48,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1644": {
+      "song_id": "FaAM01",
+      "bar_num": 49,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1645": {
+      "song_id": "FaAM01",
+      "bar_num": 50,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1646": {
+      "song_id": "FaAM01",
+      "bar_num": 51,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1647": {
+      "song_id": "FaAM01",
+      "bar_num": 52,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1648": {
+      "song_id": "FaAM01",
+      "bar_num": 53,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1649": {
+      "song_id": "FaAM01",
+      "bar_num": 54,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1650": {
+      "song_id": "FaAM01",
+      "bar_num": 55,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1651": {
+      "song_id": "FaAM01",
+      "bar_num": 56,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1652": {
+      "song_id": "FaAM01",
+      "bar_num": 57,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1653": {
+      "song_id": "FaAM01",
+      "bar_num": 58,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1654": {
+      "song_id": "FaAM01",
+      "bar_num": 59,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1655": {
+      "song_id": "FaAM01",
+      "bar_num": 60,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1656": {
+      "song_id": "FaAM01",
+      "bar_num": 61,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1657": {
+      "song_id": "FaAM01",
+      "bar_num": 62,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1658": {
+      "song_id": "FaAM01",
+      "bar_num": 63,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1659": {
+      "song_id": "FaAM01",
+      "bar_num": 64,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1660": {
+      "song_id": "FaAM01",
+      "bar_num": 65,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1661": {
+      "song_id": "FaAM01",
+      "bar_num": 66,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1662": {
+      "song_id": "FaAM01",
+      "bar_num": 67,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1663": {
+      "song_id": "FaAM01",
+      "bar_num": 68,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1664": {
+      "song_id": "FaAM01",
+      "bar_num": 69,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1665": {
+      "song_id": "FaAM01",
+      "bar_num": 70,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1666": {
+      "song_id": "FaAM01",
+      "bar_num": 71,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1667": {
+      "song_id": "FaAM01",
+      "bar_num": 72,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1668": {
+      "song_id": "FaAM01",
+      "bar_num": 73,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1669": {
+      "song_id": "FaAM01",
+      "bar_num": 74,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1670": {
+      "song_id": "FaAM01",
+      "bar_num": 75,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1671": {
+      "song_id": "FaAM01",
+      "bar_num": 76,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1672": {
+      "song_id": "FaAM01",
+      "bar_num": 77,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1673": {
+      "song_id": "FaAM01",
+      "bar_num": 78,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B1674": {
+      "song_id": "FaAM01",
+      "bar_num": 79,
       "lyrics": "",
       "audio": "",
       "has_accents": false

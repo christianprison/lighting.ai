@@ -10,6 +10,7 @@ Values: float 255 → 0 (toggle trigger)
 
 from __future__ import annotations
 
+import asyncio
 import logging
 import time
 
@@ -99,9 +100,18 @@ class QlcOsc:
         self.client.send_message(path, float(value))
 
     def _trigger(self, channel: int) -> None:
-        """Trigger a button: send 255 then 0 (QLC+ needs the 0→255 transition)."""
+        """Trigger a button: send 255 then 0 (QLC+ needs the 0→255 transition).
+
+        Sync version — nur für Threads außerhalb des asyncio-Event-Loops.
+        """
         self._send(channel, 255.0)
         time.sleep(0.05)
+        self._send(channel, 0.0)
+
+    async def _trigger_async(self, channel: int) -> None:
+        """Async-Version von _trigger — blockiert den Event-Loop nicht."""
+        self._send(channel, 255.0)
+        await asyncio.sleep(0.05)
         self._send(channel, 0.0)
 
     # --- Collection trigger (Hauptsteuerung) ---
@@ -126,6 +136,7 @@ class QlcOsc:
         """Trigger a QLC+ function by looking up its collection_id.
 
         Returns True if the function was found and triggered.
+        Sync version — blockiert den aufrufenden Thread für ~50ms.
         """
         collection_id = FUNCTION_TO_COLLECTION.get(function_id)
         if collection_id is not None:
@@ -134,6 +145,20 @@ class QlcOsc:
             return True
         log.warning("No collection mapping for function %d", function_id)
         return False
+
+    async def trigger_function_async(self, function_id: int) -> bool:
+        """Async-Version von trigger_function — blockiert den Event-Loop nicht."""
+        collection_id = FUNCTION_TO_COLLECTION.get(function_id)
+        if collection_id is None:
+            log.warning("No collection mapping for function %d", function_id)
+            return False
+        if self._last_collection_id is not None and self._last_collection_id != collection_id:
+            await self._trigger_async(self._last_collection_id)
+            log.info("Collection %d deactivated (previous)", self._last_collection_id)
+        await self._trigger_async(collection_id)
+        self._last_collection_id = collection_id
+        log.info("Function %d → Collection %d triggered", function_id, collection_id)
+        return True
 
     # --- Accent triggers ---
 
@@ -146,7 +171,21 @@ class QlcOsc:
         self._trigger(ch)
         log.info("Accent '%s' triggered (ch %d)", accent_type, ch)
 
+    async def trigger_accent_async(self, accent_type: str) -> None:
+        """Async-Version von trigger_accent."""
+        ch = self.accent_map.get(accent_type)
+        if ch is None:
+            log.warning("Unknown accent type: %s", accent_type)
+            return
+        await self._trigger_async(ch)
+        log.info("Accent '%s' triggered (ch %d)", accent_type, ch)
+
     def tap_tempo(self) -> None:
         """Send a tap tempo pulse."""
         ch = self.accent_map.get("tap_tempo", 20)
         self._trigger(ch)
+
+    async def tap_tempo_async(self) -> None:
+        """Async-Version von tap_tempo."""
+        ch = self.accent_map.get("tap_tempo", 20)
+        await self._trigger_async(ch)

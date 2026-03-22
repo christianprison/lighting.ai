@@ -5032,35 +5032,43 @@
         "part_starts": [
           {
             "bar_num": 1,
-            "name": "Geschraddel bis „Kick it“"
+            "name": "Geschraddel bis „Kick it“",
+            "light_template": "16 Searchlight"
           },
           {
             "bar_num": 2,
-            "name": "Thema 1 (Intro)"
+            "name": "Thema 1 (Intro)",
+            "light_template": "10 Alarm 🔔🔔"
           },
           {
             "bar_num": 10,
-            "name": "Verse 1"
+            "name": "Verse 1",
+            "light_template": "08 swimming"
           },
           {
             "bar_num": 26,
-            "name": "Chorus 1"
+            "name": "Chorus 1",
+            "light_template": "blind (accent)"
           },
           {
             "bar_num": 28,
-            "name": "Thema 2"
+            "name": "Thema 2",
+            "light_template": "10 Alarm 🔔🔔"
           },
           {
             "bar_num": 32,
-            "name": "Verse 2"
+            "name": "Verse 2",
+            "light_template": "08 swimming"
           },
           {
             "bar_num": 48,
-            "name": "Chorus 2"
+            "name": "Chorus 2",
+            "light_template": "01 statisch bunt"
           },
           {
             "bar_num": 50,
-            "name": "Thema 3"
+            "name": "Thema 3",
+            "light_template": "10 Alarm 🔔🔔"
           },
           {
             "bar_num": 54,
@@ -5068,65 +5076,214 @@
           },
           {
             "bar_num": 56,
-            "name": "Thema 4"
+            "name": "Thema 4",
+            "light_template": "10 Alarm 🔔🔔"
           },
           {
             "bar_num": 60,
-            "name": "Interlude 1"
+            "name": "Interlude 1",
+            "light_template": "02 slow blue"
           },
           {
             "bar_num": 64,
-            "name": "Solo Axel"
+            "name": "Solo Axel",
+            "light_template": "01 statisch bunt"
           },
           {
             "bar_num": 72,
-            "name": "Verse 3"
+            "name": "Verse 3",
+            "light_template": "08 swimming"
           },
           {
             "bar_num": 88,
-            "name": "Chorus 4"
+            "name": "Chorus 4",
+            "light_template": "01 statisch bunt"
           },
           {
             "bar_num": 90,
-            "name": "Thema 5"
+            "name": "Thema 5",
+            "light_template": "10 Alarm 🔔🔔"
           },
           {
             "bar_num": 94,
-            "name": "Chorus 5"
+            "name": "Chorus 5",
+            "light_template": "01 statisch bunt"
           },
           {
             "bar_num": 96,
-            "name": "Thema 6"
+            "name": "Thema 6",
+            "light_template": "10 Alarm 🔔🔔"
           },
           {
             "bar_num": 100,
-            "name": "Interlude 2"
+            "name": "Interlude 2",
+            "light_template": "02 slow blue"
           },
           {
             "bar_num": 104,
-            "name": "Thema 7 (Party)"
+            "name": "Thema 7 (Party)",
+            "light_template": "10 Alarm 🔔🔔"
           },
           {
             "bar_num": 108,
-            "name": "Thema 8 (Party)"
+            "name": "Thema 8 (Party)",
+            "light_template": "10 Alarm 🔔🔔"
           },
           {
             "bar_num": 112,
-            "name": "Thema 9 (Party)"
+            "name": "Thema 9 (Party)",
+            "light_template": "10 Alarm 🔔🔔"
           },
           {
             "bar_num": 116,
-            "name": "Thema 10 (Party)"
+            "name": "Thema 10 (Party)",
+            "light_template": "10 Alarm 🔔🔔"
           },
           {
             "bar_num": 120,
-            "name": "Ausklang"
+            "name": "Ausklang",
+            "light_template": "09 Alarm"
           },
           {
             "bar_num": 121,
-            "name": "Abschlag"
+            "name": "Abschlag",
+            "light_template": "22 blind"
           }
         ]
+      },
+      "qlc_parts": {
+        "BfbgVC_QP001": {
+          "pos": 1,
+          "name": "Einstieg auf \"Kick it\"",
+          "light_template": "01 statisch bunt",
+          "notes": ""
+        },
+        "BfbgVC_QP002": {
+          "pos": 2,
+          "name": "Thema",
+          "light_template": "09 Alarm",
+          "notes": ""
+        },
+        "BfbgVC_QP003": {
+          "pos": 3,
+          "name": "Verse 1",
+          "light_template": "08 swimming",
+          "notes": ""
+        },
+        "BfbgVC_QP004": {
+          "pos": 4,
+          "name": "Chorus 1",
+          "light_template": "blind (accent)",
+          "notes": ""
+        },
+        "BfbgVC_QP005": {
+          "pos": 5,
+          "name": "Verse 2",
+          "light_template": "08 swimming",
+          "notes": ""
+        },
+        "BfbgVC_QP006": {
+          "pos": 6,
+          "name": "you got to fight",
+          "light_template": "blackout (scene)",
+          "notes": ""
+        },
+        "BfbgVC_QP007": {
+          "pos": 7,
+          "name": "for your right",
+          "light_template": "blackout (scene)",
+          "notes": ""
+        },
+        "BfbgVC_QP008": {
+          "pos": 8,
+          "name": "to party",
+          "light_template": "10 Strobe",
+          "notes": ""
+        },
+        "BfbgVC_QP009": {
+          "pos": 9,
+          "name": "for your right",
+          "light_template": "blackout (scene)",
+          "notes": ""
+        },
+        "BfbgVC_QP010": {
+          "pos": 10,
+          "name": "to party",
+          "light_template": "10 Strobe",
+          "notes": ""
+        },
+        "BfbgVC_QP011": {
+          "pos": 11,
+          "name": "Interlude",
+          "light_template": "02 slow blue",
+          "notes": ""
+        },
+        "BfbgVC_QP012": {
+          "pos": 12,
+          "name": "Solo Axel",
+          "light_template": "Spot auf Axel hot",
+          "notes": ""
+        },
+        "BfbgVC_QP013": {
+          "pos": 13,
+          "name": "Verse 3",
+          "light_template": "08 swimming",
+          "notes": ""
+        },
+        "BfbgVC_QP014": {
+          "pos": 14,
+          "name": "You got to fight",
+          "light_template": "blackout (scene)",
+          "notes": ""
+        },
+        "BfbgVC_QP015": {
+          "pos": 15,
+          "name": "for your right",
+          "light_template": "blackout (scene)",
+          "notes": ""
+        },
+        "BfbgVC_QP016": {
+          "pos": 16,
+          "name": "to party",
+          "light_template": "10 Strobe",
+          "notes": ""
+        },
+        "BfbgVC_QP017": {
+          "pos": 17,
+          "name": "Interlude",
+          "light_template": "02 slow blue",
+          "notes": ""
+        },
+        "BfbgVC_QP018": {
+          "pos": 18,
+          "name": "\"Party\"",
+          "light_template": "10 Strobe",
+          "notes": ""
+        },
+        "BfbgVC_QP019": {
+          "pos": 19,
+          "name": "\"Party\"",
+          "light_template": "10 Strobe",
+          "notes": ""
+        },
+        "BfbgVC_QP020": {
+          "pos": 20,
+          "name": "\"Party\"",
+          "light_template": "10 Strobe",
+          "notes": ""
+        },
+        "BfbgVC_QP021": {
+          "pos": 21,
+          "name": "\"Party\"",
+          "light_template": "10 Strobe",
+          "notes": ""
+        },
+        "BfbgVC_QP022": {
+          "pos": 22,
+          "name": "Lärm mit Abschlag",
+          "light_template": "01 statisch bunt",
+          "notes": ""
+        }
       }
     },
     "E3pvFC": {

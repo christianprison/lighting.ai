@@ -4319,19 +4319,23 @@
           },
           {
             "bar_num": 115,
-            "name": "Prä-Finale 1 (oh-oh-oh)"
+            "name": "Prä-Finale 1 (oh-oh-oh)",
+            "light_template": "Spot auf Axel & Bibo"
           },
           {
             "bar_num": 123,
-            "name": "Prä-Finale 2 (Sweat, sweat)"
+            "name": "Prä-Finale 2 (Sweat, sweat)",
+            "light_template": "Spot auf PAC"
           },
           {
             "bar_num": 131,
-            "name": "Finale"
+            "name": "Finale",
+            "light_template": "10 Alarm 🔔🔔"
           },
           {
             "bar_num": 147,
             "name": "Ausklang",
+            "light_template": "01 statisch bunt",
             "instrumental": true
           }
         ]

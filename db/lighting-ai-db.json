@@ -7194,7 +7194,9 @@
           "bar_markers"
         ],
         "user_tasks": [],
-        "manual_undone": []
+        "manual_undone": [
+          "lyrics_raw"
+        ]
       },
       "audio_ref": "audio/You're all I have/You're all I have - Full Song.mp3",
       "audio_ref_name": "You're All I Have - 9GTEyj.mp3",

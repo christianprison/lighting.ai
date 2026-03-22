@@ -15177,7 +15177,8 @@
       "bar_num": 12,
       "lyrics": "",
       "audio": "",
-      "has_accents": true
+      "has_accents": true,
+      "instrumental": true
     },
     "B1487": {
       "song_id": "BfbgVC",
@@ -15189,14 +15190,14 @@
     "B1488": {
       "song_id": "BfbgVC",
       "bar_num": 14,
-      "lyrics": "",
+      "lyrics": "ask your mom, \"Please?\", but she",
       "audio": "",
       "has_accents": false
     },
     "B1489": {
       "song_id": "BfbgVC",
       "bar_num": 15,
-      "lyrics": "",
+      "lyrics": "still says,",
       "audio": "",
       "has_accents": false
     },
@@ -15210,28 +15211,28 @@
     "B1491": {
       "song_id": "BfbgVC",
       "bar_num": 17,
-      "lyrics": "ask your",
+      "lyrics": "",
       "audio": "",
       "has_accents": true
     },
     "B1492": {
       "song_id": "BfbgVC",
       "bar_num": 18,
-      "lyrics": "mom, \"Please?\",",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B1493": {
       "song_id": "BfbgVC",
       "bar_num": 19,
-      "lyrics": "but she",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B1494": {
       "song_id": "BfbgVC",
       "bar_num": 20,
-      "lyrics": "still says,",
+      "lyrics": "",
       "audio": "",
       "has_accents": true
     },
@@ -15266,70 +15267,70 @@
     "B1499": {
       "song_id": "BfbgVC",
       "bar_num": 25,
-      "lyrics": "But your\n",
+      "lyrics": "But your teacher preaches class like you're some kind of *jerk*\n",
       "audio": "",
       "has_accents": true
     },
     "B1500": {
       "song_id": "BfbgVC",
       "bar_num": 26,
-      "lyrics": "teacher preaches",
+      "lyrics": "You gotta fight",
       "audio": "",
       "has_accents": true
     },
     "B1501": {
       "song_id": "BfbgVC",
       "bar_num": 27,
-      "lyrics": "class like\n",
+      "lyrics": "For your right To\n",
       "audio": "",
       "has_accents": true
     },
     "B1502": {
       "song_id": "BfbgVC",
       "bar_num": 28,
-      "lyrics": "you're some",
+      "lyrics": "party",
       "audio": "",
       "has_accents": false
     },
     "B1503": {
       "song_id": "BfbgVC",
       "bar_num": 29,
-      "lyrics": "kind of",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B1504": {
       "song_id": "BfbgVC",
       "bar_num": 30,
-      "lyrics": "*jerk* You",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B1505": {
       "song_id": "BfbgVC",
       "bar_num": 31,
-      "lyrics": "gotta fight\n",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B1506": {
       "song_id": "BfbgVC",
       "bar_num": 32,
-      "lyrics": "For your",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B1507": {
       "song_id": "BfbgVC",
       "bar_num": 33,
-      "lyrics": "right To",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B1508": {
       "song_id": "BfbgVC",
       "bar_num": 34,
-      "lyrics": "party Your",
+      "lyrics": "Your",
       "audio": "",
       "has_accents": true
     },

@@ -6794,7 +6794,7 @@
             "time": 99.23574926253688
           },
           {
-            "time": 101.50241592920354
+            "time": 101.49662921348315
           },
           {
             "time": 103.6650825958702
@@ -6842,7 +6842,7 @@
             "time": 133.87041592920352
           },
           {
-            "time": 136.1530825958702
+            "time": 136.12455858747995
           },
           {
             "time": 138.36374926253686
@@ -6893,7 +6893,56 @@
             "time": 170.1210825958702
           }
         ],
-        "part_starts": []
+        "part_starts": [
+          {
+            "bar_num": 1,
+            "name": "Intro"
+          },
+          {
+            "bar_num": 5,
+            "name": "Thema 1"
+          },
+          {
+            "bar_num": 9,
+            "name": "Verse 1"
+          },
+          {
+            "bar_num": 17,
+            "name": "Bridge 1"
+          },
+          {
+            "bar_num": 26,
+            "name": "Chorus 1"
+          },
+          {
+            "bar_num": 34,
+            "name": "Bridge 2"
+          },
+          {
+            "bar_num": 42,
+            "name": "Interlude"
+          },
+          {
+            "bar_num": 50,
+            "name": "Intro Reprise"
+          },
+          {
+            "bar_num": 61,
+            "name": "Crescendo"
+          },
+          {
+            "bar_num": 63,
+            "name": "Chorus 3"
+          },
+          {
+            "bar_num": 71,
+            "name": "Chorus 4"
+          },
+          {
+            "bar_num": 79,
+            "name": "Ausklang"
+          }
+        ]
       }
     },
     "I8M2A8": {

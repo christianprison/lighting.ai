@@ -4656,7 +4656,9 @@
       "audio_ref_name": "Fight for your Right - Full Song.mp3",
       "lyrics_raw": "Kick it\n\n[Verse 1: Ad-Rock, Mike D, Mike D & Ad-Rock, MCA & *MCA & Ad-Rock*]\nYou wake up late for school, man, you don't wanna go\nYou ask your mom, \"Please?\", but she still says, \"No\"\nYou missed two classes and no homework\nBut your teacher preaches class like you're some kind of *jerk*\n\n[Chorus: All]\nYou gotta fight\nFor your right\nTo party\n[Verse 2: Mike D, Mike D & MCA, MCA & Ad-Rock]\nYour pop's caught you smokin', man, he says, \"No way!\"\nThat hypocrite smokes two packs a day\nMan, livin' at home is such a drag\nNow your mom threw away your best porno mag (Busted)\n\n[Chorus: All]\nYou gotta fight\nFor your right\nTo party\nYou gotta fight\n\n[Guitar Solo]\n\n[Verse 3: Ad-Rock, Mike D, MCA & All]\nDon't step out of this house if that's the clothes you're gonna wear\nI'll kick you out of my home if you don't cut that hair\nYour mom busted in and said, \"What's that noise?\"\nAw, Mom, you're just jealous, it's the Bea- -stie Boys\n\n[Chorus: All]\nYou gotta fight\nFor your right\nTo party\nYou gotta fight\nFor your right\nTo party",
       "tms": {
-        "manual_done": [],
+        "manual_done": [
+          "bar_markers"
+        ],
         "user_tasks": [],
         "manual_undone": []
       },
@@ -4889,7 +4891,7 @@
             "time": 141.9503687315634
           },
           {
-            "time": 143.86770206489672
+            "time": 143.8429213483146
           },
           {
             "time": 145.6463687315634
@@ -5051,6 +5053,78 @@
           {
             "bar_num": 32,
             "name": "Verse 2"
+          },
+          {
+            "bar_num": 48,
+            "name": "Chorus 2"
+          },
+          {
+            "bar_num": 50,
+            "name": "Thema 3"
+          },
+          {
+            "bar_num": 54,
+            "name": "Chorus 3"
+          },
+          {
+            "bar_num": 56,
+            "name": "Thema 4"
+          },
+          {
+            "bar_num": 60,
+            "name": "Interlude 1"
+          },
+          {
+            "bar_num": 64,
+            "name": "Solo Axel"
+          },
+          {
+            "bar_num": 72,
+            "name": "Verse 3"
+          },
+          {
+            "bar_num": 88,
+            "name": "Chorus 4"
+          },
+          {
+            "bar_num": 90,
+            "name": "Thema 5"
+          },
+          {
+            "bar_num": 94,
+            "name": "Chorus 5"
+          },
+          {
+            "bar_num": 96,
+            "name": "Thema 6"
+          },
+          {
+            "bar_num": 100,
+            "name": "Interlude 2"
+          },
+          {
+            "bar_num": 104,
+            "name": "Thema 7 (Party)"
+          },
+          {
+            "bar_num": 108,
+            "name": "Thema 8 (Party)"
+          },
+          {
+            "bar_num": 112,
+            "name": "Thema 9 (Party)"
+          },
+          {
+            "bar_num": 116,
+            "name": "Thema 10 (Party)"
+          },
+          {
+            "bar_num": 120,
+            "name": "Ausklang"
+          },
+          {
+            "bar_num": 121,
+            "name": "Abschlag"
           }
         ]
       }

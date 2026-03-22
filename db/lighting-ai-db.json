@@ -4659,7 +4659,9 @@
         "manual_done": [
           "bar_markers",
           "parts_identified",
-          "templates_set"
+          "templates_set",
+          "instr_parts_identified",
+          "instr_bars_identified"
         ],
         "user_tasks": [],
         "manual_undone": []

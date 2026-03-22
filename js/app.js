@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.2.21';
+const APP_VERSION = 'v2.2.22';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -1616,9 +1616,7 @@ function updateTakteTabPlayButtons() {
   document.querySelectorAll('.btn-bar-play').forEach(btn => {
     const bSongId = btn.dataset.playSongId;
     const bBarNum = parseInt(btn.dataset.playBarNum, 10);
-    const found = findBar(bSongId, bBarNum);
-    const bId = found ? found[0] : null;
-    const isPlaying = _barPlayId === bId && _partPlayActive;
+    const isPlaying = _partPlayActive && bSongId === _barPlaySongId && bBarNum === _barPlayBarNum;
     btn.classList.toggle('playing', isPlaying);
     btn.innerHTML = isPlaying ? '&#9632;' : '&#9654;';
     btn.title = isPlaying ? 'Stop' : 'Takt abspielen';
@@ -1761,10 +1759,12 @@ async function handleBarPlay(songId, barNum) {
   const barData = found ? found[1] : {};
 
   // If already playing this bar → stop
-  if (_barPlayId === barId && _partPlayActive) {
+  if (_partPlayActive && _barPlaySongId === songId && _barPlayBarNum === barNum) {
     try { _barPlaySrc?.stop(0); } catch (_) {}
     _barPlaySrc = null;
     _barPlayId = null;
+    _barPlaySongId = null;
+    _barPlayBarNum = 0;
     _partPlayActive = false;
     stopTakteAnimation();
     updateTakteTabPlayButtons();
@@ -1777,6 +1777,8 @@ async function handleBarPlay(songId, barNum) {
   stopTakteAnimation();
 
   _barPlayId = barId;
+  _barPlaySongId = songId;
+  _barPlayBarNum = barNum;
   _partPlayActive = true;
   updateTakteTabPlayButtons();
 

@@ -6927,15 +6927,18 @@
           },
           {
             "bar_num": 42,
-            "name": "Interlude"
+            "name": "Interlude",
+            "light_template": "02 slow blue"
           },
           {
             "bar_num": 50,
-            "name": "Intro Reprise"
+            "name": "Intro Reprise",
+            "light_template": "Spot auf Axel"
           },
           {
             "bar_num": 61,
-            "name": "Crescendo"
+            "name": "Crescendo",
+            "light_template": "Heads Publikum"
           },
           {
             "bar_num": 63,

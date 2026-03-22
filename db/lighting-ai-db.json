@@ -6922,7 +6922,8 @@
           },
           {
             "bar_num": 34,
-            "name": "Bridge 2"
+            "name": "Bridge 2",
+            "light_template": "01 statisch bunt"
           },
           {
             "bar_num": 42,
@@ -6938,15 +6939,18 @@
           },
           {
             "bar_num": 63,
-            "name": "Chorus 2"
+            "name": "Chorus 2",
+            "light_template": "07 round'n'round"
           },
           {
             "bar_num": 71,
-            "name": "Chorus 3"
+            "name": "Chorus 3",
+            "light_template": "07 round'n'round"
           },
           {
             "bar_num": 79,
-            "name": "Ausklang"
+            "name": "Ausklang",
+            "light_template": "01 statisch bunt"
           }
         ]
       }

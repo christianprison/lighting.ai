@@ -15301,187 +15301,197 @@
       "bar_num": 29,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B1504": {
       "song_id": "BfbgVC",
       "bar_num": 30,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B1505": {
       "song_id": "BfbgVC",
       "bar_num": 31,
-      "lyrics": "",
+      "lyrics": "Your\n",
       "audio": "",
       "has_accents": false
     },
     "B1506": {
       "song_id": "BfbgVC",
       "bar_num": 32,
-      "lyrics": "",
+      "lyrics": "pop's caught you smokin', man, he",
       "audio": "",
       "has_accents": false
     },
     "B1507": {
       "song_id": "BfbgVC",
       "bar_num": 33,
-      "lyrics": "",
+      "lyrics": "says, \"No way!\"",
       "audio": "",
       "has_accents": false
     },
     "B1508": {
       "song_id": "BfbgVC",
       "bar_num": 34,
-      "lyrics": "Your",
+      "lyrics": "",
       "audio": "",
-      "has_accents": true
+      "has_accents": true,
+      "instrumental": true
     },
     "B1509": {
       "song_id": "BfbgVC",
       "bar_num": 35,
-      "lyrics": "pop's caught",
+      "lyrics": "That",
       "audio": "",
       "has_accents": true
     },
     "B1510": {
       "song_id": "BfbgVC",
       "bar_num": 36,
-      "lyrics": "you smokin',",
+      "lyrics": "hypocrite smokes",
       "audio": "",
       "has_accents": false
     },
     "B1511": {
       "song_id": "BfbgVC",
       "bar_num": 37,
-      "lyrics": "man, he",
+      "lyrics": "two packs a day",
       "audio": "",
       "has_accents": false
     },
     "B1512": {
       "song_id": "BfbgVC",
       "bar_num": 38,
-      "lyrics": "says, \"No",
+      "lyrics": "",
       "audio": "",
-      "has_accents": true
+      "has_accents": true,
+      "instrumental": true
     },
     "B1513": {
       "song_id": "BfbgVC",
       "bar_num": 39,
-      "lyrics": "way!\" That",
+      "lyrics": "Man,",
       "audio": "",
       "has_accents": true
     },
     "B1514": {
       "song_id": "BfbgVC",
       "bar_num": 40,
-      "lyrics": "hypocrite smokes",
+      "lyrics": "livin' at home is",
       "audio": "",
       "has_accents": false
     },
     "B1515": {
       "song_id": "BfbgVC",
       "bar_num": 41,
-      "lyrics": "two packs",
+      "lyrics": "such a drag",
       "audio": "",
       "has_accents": false
     },
     "B1516": {
       "song_id": "BfbgVC",
       "bar_num": 42,
-      "lyrics": "a day",
+      "lyrics": "",
       "audio": "",
-      "has_accents": true
+      "has_accents": true,
+      "instrumental": true
     },
     "B1517": {
       "song_id": "BfbgVC",
       "bar_num": 43,
-      "lyrics": "Man, livin'",
+      "lyrics": "Now your",
       "audio": "",
       "has_accents": true
     },
     "B1518": {
       "song_id": "BfbgVC",
       "bar_num": 44,
-      "lyrics": "at home",
+      "lyrics": "mom threw away your",
       "audio": "",
       "has_accents": false
     },
     "B1519": {
       "song_id": "BfbgVC",
       "bar_num": 45,
-      "lyrics": "is such",
+      "lyrics": "best porno mag",
       "audio": "",
       "has_accents": false
     },
     "B1520": {
       "song_id": "BfbgVC",
       "bar_num": 46,
-      "lyrics": "a drag",
+      "lyrics": "",
       "audio": "",
-      "has_accents": true
+      "has_accents": true,
+      "instrumental": true
     },
     "B1521": {
       "song_id": "BfbgVC",
       "bar_num": 47,
-      "lyrics": "Now your\n",
+      "lyrics": "You gotta fight\n",
       "audio": "",
       "has_accents": true
     },
     "B1522": {
       "song_id": "BfbgVC",
       "bar_num": 48,
-      "lyrics": "mom threw",
+      "lyrics": "For your right",
       "audio": "",
       "has_accents": true
     },
     "B1523": {
       "song_id": "BfbgVC",
       "bar_num": 49,
-      "lyrics": "away your\n",
+      "lyrics": "To\n",
       "audio": "",
       "has_accents": true
     },
     "B1524": {
       "song_id": "BfbgVC",
       "bar_num": 50,
-      "lyrics": "best porno",
+      "lyrics": "party",
       "audio": "",
       "has_accents": false
     },
     "B1525": {
       "song_id": "BfbgVC",
       "bar_num": 51,
-      "lyrics": "mag You",
+      "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B1526": {
       "song_id": "BfbgVC",
       "bar_num": 52,
-      "lyrics": "gotta fight",
+      "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B1527": {
       "song_id": "BfbgVC",
       "bar_num": 53,
-      "lyrics": "For your\n",
+      "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B1528": {
       "song_id": "BfbgVC",
       "bar_num": 54,
-      "lyrics": "right To",
+      "lyrics": "",
       "audio": "",
-      "has_accents": true
+      "has_accents": true,
+      "instrumental": true
     },
     "B1529": {
       "song_id": "BfbgVC",
       "bar_num": 55,
-      "lyrics": "party You\n",
+      "lyrics": "You\n",
       "audio": "",
       "has_accents": true
     },
@@ -15497,49 +15507,56 @@
       "bar_num": 57,
       "lyrics": "Don't step",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B1532": {
       "song_id": "BfbgVC",
       "bar_num": 58,
       "lyrics": "out of",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B1533": {
       "song_id": "BfbgVC",
       "bar_num": 59,
       "lyrics": "this house\n",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B1534": {
       "song_id": "BfbgVC",
       "bar_num": 60,
       "lyrics": "if that's",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B1535": {
       "song_id": "BfbgVC",
       "bar_num": 61,
       "lyrics": "the clothes",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B1536": {
       "song_id": "BfbgVC",
       "bar_num": 62,
       "lyrics": "you're gonna",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B1537": {
       "song_id": "BfbgVC",
       "bar_num": 63,
       "lyrics": "wear I'll\n",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B1538": {
       "song_id": "BfbgVC",
@@ -15616,7 +15633,8 @@
       "bar_num": 74,
       "lyrics": "my home",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B1549": {
       "song_id": "BfbgVC",
@@ -15644,7 +15662,8 @@
       "bar_num": 78,
       "lyrics": "Your mom",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B1553": {
       "song_id": "BfbgVC",
@@ -15672,7 +15691,8 @@
       "bar_num": 82,
       "lyrics": "noise?\" Aw,",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B1557": {
       "song_id": "BfbgVC",
@@ -15700,7 +15720,8 @@
       "bar_num": 86,
       "lyrics": "Bea- -stie",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B1561": {
       "song_id": "BfbgVC",
@@ -15735,14 +15756,16 @@
       "bar_num": 91,
       "lyrics": "party You",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B1566": {
       "song_id": "BfbgVC",
       "bar_num": 92,
       "lyrics": "gotta fight",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B1567": {
       "song_id": "BfbgVC",
@@ -15777,49 +15800,56 @@
       "bar_num": 97,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B1572": {
       "song_id": "BfbgVC",
       "bar_num": 98,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B1573": {
       "song_id": "BfbgVC",
       "bar_num": 99,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B1574": {
       "song_id": "BfbgVC",
       "bar_num": 100,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B1575": {
       "song_id": "BfbgVC",
       "bar_num": 101,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B1576": {
       "song_id": "BfbgVC",
       "bar_num": 102,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B1577": {
       "song_id": "BfbgVC",
       "bar_num": 103,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B1578": {
       "song_id": "BfbgVC",
@@ -15847,7 +15877,8 @@
       "bar_num": 107,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B1582": {
       "song_id": "BfbgVC",
@@ -15875,7 +15906,8 @@
       "bar_num": 111,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B1586": {
       "song_id": "BfbgVC",
@@ -15903,7 +15935,8 @@
       "bar_num": 115,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B1590": {
       "song_id": "BfbgVC",
@@ -15931,21 +15964,24 @@
       "bar_num": 119,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B1594": {
       "song_id": "BfbgVC",
       "bar_num": 120,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B1595": {
       "song_id": "BfbgVC",
       "bar_num": 121,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B1596": {
       "song_id": "FaAM01",

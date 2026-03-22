@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.2.18';
+const APP_VERSION = 'v2.2.19';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -1323,13 +1323,11 @@ function renderEditorTab() {
     <div class="editor-panel">
       <div class="editor-scroll" id="editor-scroll">
         <div id="song-fields-area"></div>
-        <div id="bar-area"></div>
       </div>
       <div id="summary-area"></div>
     </div>`;
 
   renderSongFields();
-  renderBarSection();
   renderSummary();
 
   // Initialize progress tracking for this song

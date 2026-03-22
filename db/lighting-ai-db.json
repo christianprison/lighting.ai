@@ -18324,14 +18324,14 @@
       "bar_num": 99,
       "lyrics": "had the chance I'd ask the",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B1855": {
       "song_id": "pVmkRc",
       "bar_num": 100,
       "lyrics": "world to dance And I'll be",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B1856": {
       "song_id": "pVmkRc",
@@ -19599,6 +19599,198 @@
       "bar_id": "B1569",
       "pos_16th": 16,
       "type": "st",
+      "notes": ""
+    },
+    "A0165": {
+      "bar_id": "B1854",
+      "pos_16th": 1,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0166": {
+      "bar_id": "B1854",
+      "pos_16th": 2,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0167": {
+      "bar_id": "B1854",
+      "pos_16th": 3,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0168": {
+      "bar_id": "B1854",
+      "pos_16th": 4,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0169": {
+      "bar_id": "B1854",
+      "pos_16th": 5,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0170": {
+      "bar_id": "B1854",
+      "pos_16th": 6,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0172": {
+      "bar_id": "B1854",
+      "pos_16th": 8,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0173": {
+      "bar_id": "B1854",
+      "pos_16th": 7,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0174": {
+      "bar_id": "B1854",
+      "pos_16th": 10,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0175": {
+      "bar_id": "B1854",
+      "pos_16th": 9,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0176": {
+      "bar_id": "B1854",
+      "pos_16th": 11,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0177": {
+      "bar_id": "B1854",
+      "pos_16th": 12,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0178": {
+      "bar_id": "B1854",
+      "pos_16th": 13,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0179": {
+      "bar_id": "B1854",
+      "pos_16th": 14,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0180": {
+      "bar_id": "B1854",
+      "pos_16th": 15,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0181": {
+      "bar_id": "B1854",
+      "pos_16th": 16,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0182": {
+      "bar_id": "B1855",
+      "pos_16th": 1,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0183": {
+      "bar_id": "B1855",
+      "pos_16th": 2,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0184": {
+      "bar_id": "B1855",
+      "pos_16th": 3,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0185": {
+      "bar_id": "B1855",
+      "pos_16th": 4,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0186": {
+      "bar_id": "B1855",
+      "pos_16th": 5,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0187": {
+      "bar_id": "B1855",
+      "pos_16th": 6,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0188": {
+      "bar_id": "B1855",
+      "pos_16th": 7,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0189": {
+      "bar_id": "B1855",
+      "pos_16th": 8,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0190": {
+      "bar_id": "B1855",
+      "pos_16th": 9,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0191": {
+      "bar_id": "B1855",
+      "pos_16th": 10,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0192": {
+      "bar_id": "B1855",
+      "pos_16th": 11,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0193": {
+      "bar_id": "B1855",
+      "pos_16th": 12,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0194": {
+      "bar_id": "B1855",
+      "pos_16th": 13,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0195": {
+      "bar_id": "B1855",
+      "pos_16th": 15,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0196": {
+      "bar_id": "B1855",
+      "pos_16th": 14,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0197": {
+      "bar_id": "B1855",
+      "pos_16th": 16,
+      "type": "hl",
       "notes": ""
     }
   },

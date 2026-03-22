@@ -4565,7 +4565,32 @@
             "time": 198.53389887640444
           }
         ],
-        "part_starts": []
+        "part_starts": [
+          {
+            "bar_num": 1,
+            "name": "Intro Guitar"
+          },
+          {
+            "bar_num": 17,
+            "name": "+ Drums"
+          },
+          {
+            "bar_num": 25,
+            "name": "Verse 1"
+          },
+          {
+            "bar_num": 34,
+            "name": "Bridge 1"
+          },
+          {
+            "bar_num": 41,
+            "name": "Verse 2"
+          },
+          {
+            "bar_num": 49,
+            "name": "Bridge 2"
+          }
+        ]
       }
     },
     "BfbgVC": {

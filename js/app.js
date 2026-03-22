@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.2.19';
+const APP_VERSION = 'v2.2.20';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -1221,7 +1221,7 @@ function renderSongList(filter = '') {
     (!q ? `<div class="song-item song-item-all${allActive ? ' active' : ''}" data-id="__all__">
       <div style="flex:1;min-width:0">
         <div class="song-name">Alle Songs</div>
-        <div class="song-artist">${songs.length} Songs</div>
+        <div class="song-artist">${allSongs.length} Songs</div>
       </div>
     </div>` : '') +
     filtered.map(s => {

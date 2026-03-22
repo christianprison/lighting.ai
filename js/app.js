@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.2.17';
+const APP_VERSION = 'v2.2.18';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -1186,6 +1186,8 @@ function playFireworksSound() {
 
 /* ── Song List ─────────────────────────────────────── */
 
+let _slFilterActive = false;
+
 function getSortedSongs() {
   if (!db || !db.songs) return [];
   return Object.entries(db.songs)
@@ -1193,14 +1195,27 @@ function getSortedSongs() {
     .sort((a, b) => a.name.localeCompare(b.name, 'de'));
 }
 
+function getSetlistSongs() {
+  if (!db?.setlist?.items) return [];
+  return (db.setlist.items)
+    .filter(i => i.type === 'song' && db.songs[i.song_id])
+    .map(i => ({ id: i.song_id, ...db.songs[i.song_id] }));
+}
+
 function renderSongList(filter = '') {
-  const songs = getSortedSongs();
+  const allSongs = getSortedSongs();
+  const base = _slFilterActive ? getSetlistSongs() : allSongs;
   const q = filter.toLowerCase().trim();
   const filtered = q
-    ? songs.filter(s => s.name.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q))
-    : songs;
+    ? base.filter(s => s.name.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q))
+    : base;
 
-  els.songCount.textContent = `${filtered.length} / ${songs.length} Songs`;
+  const btn = document.getElementById('sl-filter-btn');
+  if (btn) btn.classList.toggle('active', _slFilterActive);
+
+  els.songCount.textContent = _slFilterActive
+    ? `${filtered.length} von ${allSongs.length} Songs (Setlist)`
+    : `${filtered.length} / ${allSongs.length} Songs`;
   const allActive = selectedSongId === null && !q;
   els.songList.innerHTML =
     (!q ? `<div class="song-item song-item-all${allActive ? ' active' : ''}" data-id="__all__">
@@ -8024,6 +8039,11 @@ function wireEvents() {
 
   // Search
   els.searchBox.addEventListener('input', () => renderSongList(els.searchBox.value));
+
+  document.getElementById('sl-filter-btn')?.addEventListener('click', () => {
+    _slFilterActive = !_slFilterActive;
+    renderSongList(els.searchBox.value);
+  });
 
   // Song selection
   els.songList.addEventListener('click', (e) => {

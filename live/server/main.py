@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
 from pathlib import Path
 
@@ -16,6 +17,8 @@ from .db_cache import sync, load_db, load_qxw_path
 from .qlc_parser import parse, qlc_data_to_dict, QlcData, ACCENT_FUNCTIONS
 from .qlc_osc import QlcOsc
 from .ws_handler import WsHandler
+from .audio.reference_db import ReferenceDB, DEFAULT_DB_PATH
+from .audio.audio_process import AudioProcess, PositionUpdate, BeatUpdate, AudioStatus
 
 logging.basicConfig(
     level=logging.INFO,
@@ -30,6 +33,11 @@ db: dict = {}
 qlc_data: QlcData | None = None
 osc: QlcOsc | None = None
 ws_handler = WsHandler()
+
+# Audio engine
+ref_db: ReferenceDB | None = None
+audio_process: AudioProcess | None = None
+_audio_queue: asyncio.Queue = asyncio.Queue()
 
 app = FastAPI(title="lighting.ai Live Controller", version="1.0.0")
 
@@ -49,11 +57,15 @@ class OscSendRequest(BaseModel):
     collection_id: int
 
 
-# --- Startup ---
+class RehearsalSongRequest(BaseModel):
+    song_id: str | None = None  # None = Live Mode (alle Songs)
+
+
+# --- Startup / Shutdown ---
 
 @app.on_event("startup")
 async def startup():
-    global db, qlc_data, osc
+    global db, qlc_data, osc, ref_db, audio_process, _audio_queue
 
     # 1) Sync DB from GitHub / local repo
     log.info("=== lighting.ai Live Controller ===")
@@ -92,7 +104,48 @@ async def startup():
         qlc_connected=osc_ok,
     )
 
+    # 6) Referenz-DB + AudioProcess initialisieren
+    _audio_queue = asyncio.Queue()
+    ref_db = ReferenceDB(DEFAULT_DB_PATH)
+    stats = ref_db.stats()
+    log.info(
+        "Referenz-DB: %d Songs, %d Bars, %d Feature-Vektoren",
+        stats["songs"], stats["bars"], stats["feature_vectors"],
+    )
+
+    loop = asyncio.get_event_loop()
+    audio_device = getattr(cfg, "audio_device", None)
+    audio_process = AudioProcess(ref_db, _audio_queue, loop, device=audio_device)
+    audio_process.start()
+
+    # Background-Task: Audio-Queue → WebSocket broadcast
+    asyncio.create_task(_consume_audio_queue())
+
     log.info("Ready — http://%s:%d", cfg.server.host, cfg.server.port)
+
+
+@app.on_event("shutdown")
+async def shutdown():
+    if audio_process:
+        audio_process.stop()
+
+
+# --- Audio Queue Consumer ---
+
+async def _consume_audio_queue() -> None:
+    """Liest Ereignisse vom AudioProcess und broadcast sie per WebSocket."""
+    while True:
+        try:
+            event = await _audio_queue.get()
+        except asyncio.CancelledError:
+            break
+
+        if isinstance(event, PositionUpdate):
+            await ws_handler.broadcast(event.to_dict())
+        elif isinstance(event, BeatUpdate):
+            await ws_handler.broadcast(event.to_dict())
+        elif isinstance(event, AudioStatus):
+            await ws_handler.broadcast(event.to_dict())
 
 
 # --- Static files ---
@@ -239,7 +292,7 @@ async def manual_sync():
 async def trigger_function(func_id: int):
     """Trigger a QLC+ function's collection via OSC."""
     if osc:
-        ok = osc.trigger_function(func_id)
+        ok = await osc.trigger_function_async(func_id)
         if ok:
             return {"ok": True, "function_id": func_id}
         return JSONResponse({"error": f"No collection mapping for function {func_id}"}, status_code=404)
@@ -252,7 +305,7 @@ async def trigger_accent(accent_type: str):
     if accent_type not in ACCENT_FUNCTIONS:
         return JSONResponse({"error": f"Unknown accent: {accent_type}"}, status_code=400)
     if osc:
-        osc.trigger_accent(accent_type)
+        await osc.trigger_accent_async(accent_type)
         return {"ok": True, "accent": accent_type}
     return JSONResponse({"error": "OSC not connected"}, status_code=503)
 
@@ -261,7 +314,7 @@ async def trigger_accent(accent_type: str):
 async def qlc_tap():
     """Send a tap tempo pulse to QLC+."""
     if osc:
-        osc.tap_tempo()
+        await osc.tap_tempo_async()
         return {"ok": True}
     return JSONResponse({"error": "OSC not connected"}, status_code=503)
 
@@ -274,19 +327,67 @@ async def osc_send(req: OscSendRequest):
     (they may differ from the server's own QLC config).
     """
     from pythonosc.udp_client import SimpleUDPClient
-    import time as _time
 
     try:
         client = SimpleUDPClient(req.host, req.port)
         path = f"/{req.universe}/dmx/{req.collection_id}"
         client.send_message(path, 255.0)
-        _time.sleep(0.05)
+        await asyncio.sleep(0.05)  # non-blocking (ersetzt time.sleep)
         client.send_message(path, 0.0)
         log.info("OSC sent: %s = 255→0 (%s:%d)", path, req.host, req.port)
         return {"ok": True, "path": path}
     except Exception as exc:
         log.error("OSC send failed: %s", exc)
         return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# --- Audio Engine API ---
+
+@app.get("/api/audio/status")
+async def get_audio_status():
+    """Status des AudioProcess (läuft, Gerätename, Fehler)."""
+    if audio_process:
+        return audio_process.status()
+    return {"running": False, "device": "", "error": "AudioProcess not initialised"}
+
+
+@app.get("/api/audio/refdb/stats")
+async def get_refdb_stats():
+    """Statistiken der SQLite-Referenz-DB."""
+    if ref_db:
+        return ref_db.stats()
+    return {"songs": 0, "bars": 0, "feature_vectors": 0}
+
+
+@app.post("/api/audio/rehearsal/song")
+async def set_rehearsal_song(req: RehearsalSongRequest):
+    """Rehearsal Mode: aktiven Song setzen oder aufheben.
+
+    song_id=null → Live Mode (alle Songs im Suchraum).
+    song_id='5iZfKj' → Rehearsal Mode (nur dieser Song).
+    """
+    if not audio_process:
+        return JSONResponse({"error": "AudioProcess not initialised"}, status_code=503)
+
+    song_id = req.song_id
+    audio_process.set_active_song(song_id)
+
+    if song_id:
+        song = db.get("songs", {}).get(song_id, {})
+        bpm = float(song.get("bpm", 120))
+        audio_process.set_bpm(bpm)
+
+    mode = "rehearsal" if song_id else "live"
+    return {"ok": True, "mode": mode, "song_id": song_id}
+
+
+@app.post("/api/audio/reload")
+async def reload_audio_engine():
+    """Lädt alle Feature-Vektoren aus der Referenz-DB neu in den HMM."""
+    if not audio_process:
+        return JSONResponse({"error": "AudioProcess not initialised"}, status_code=503)
+    n = audio_process.hmm.load_all_states()
+    return {"ok": True, "states_loaded": n}
 
 
 # --- WebSocket ---
@@ -301,7 +402,6 @@ async def _handle_ws_action(action: str, msg: dict) -> dict | None:
         if not song:
             return {"error": f"Song not found: {song_id}"}
 
-        # Find the chaser for this song
         chaser = qlc_data.song_mapping.get(song_id) if qlc_data else None
 
         await ws_handler.update_state(
@@ -317,9 +417,11 @@ async def _handle_ws_action(action: str, msg: dict) -> dict | None:
             is_playing=False,
         )
 
-        # Trigger the first step's collection (pre-song Stopp)
         if osc and chaser and chaser.steps:
-            osc.trigger_function(chaser.steps[0].function_id)
+            await osc.trigger_function_async(chaser.steps[0].function_id)
+
+        if audio_process:
+            audio_process.set_bpm(float(song.get("bpm", 120)))
 
         return {"ok": True, "song_id": song_id, "has_chaser": chaser is not None}
 
@@ -338,7 +440,7 @@ async def _handle_ws_action(action: str, msg: dict) -> dict | None:
                 is_playing=True,
             )
             if osc:
-                osc.trigger_function(step.function_id)
+                await osc.trigger_function_async(step.function_id)
         return {"ok": True, "step": new_step}
 
     elif action == "prev":
@@ -355,7 +457,7 @@ async def _handle_ws_action(action: str, msg: dict) -> dict | None:
                 current_function_name=step.function_name,
             )
             if osc:
-                osc.trigger_function(step.function_id)
+                await osc.trigger_function_async(step.function_id)
         return {"ok": True, "step": new_step}
 
     elif action == "goto":
@@ -366,10 +468,8 @@ async def _handle_ws_action(action: str, msg: dict) -> dict | None:
 
         if chaser and 0 <= step_index < len(chaser.steps):
             step = chaser.steps[step_index]
-            # Direct collection trigger — no need to step through
             if osc:
-                osc.trigger_function(step.function_id)
-
+                await osc.trigger_function_async(step.function_id)
             await ws_handler.update_state(
                 current_step=step_index,
                 current_part_name=step.note,
@@ -380,14 +480,23 @@ async def _handle_ws_action(action: str, msg: dict) -> dict | None:
     elif action == "accent":
         accent_type = msg.get("type", "")
         if osc and accent_type in ACCENT_FUNCTIONS:
-            osc.trigger_accent(accent_type)
+            await osc.trigger_accent_async(accent_type)
             return {"ok": True, "accent": accent_type}
         return {"error": f"Unknown accent or OSC not connected: {accent_type}"}
 
     elif action == "tap":
         if osc:
-            osc.tap_tempo()
+            await osc.tap_tempo_async()
         return {"ok": True}
+
+    elif action == "set_rehearsal_song":
+        song_id = msg.get("song_id")  # None = Live Mode
+        if audio_process:
+            audio_process.set_active_song(song_id)
+            if song_id:
+                song = songs.get(song_id, {})
+                audio_process.set_bpm(float(song.get("bpm", 120)))
+        return {"ok": True, "mode": "rehearsal" if song_id else "live", "song_id": song_id}
 
     elif action == "get_state":
         return ws_handler.state.to_dict()

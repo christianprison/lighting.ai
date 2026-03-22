@@ -4565,59 +4565,73 @@
         "part_starts": [
           {
             "bar_num": 1,
-            "name": "Intro Guitar"
+            "name": "Intro Guitar",
+            "light_template": "Spot auf Axel"
           },
           {
             "bar_num": 17,
-            "name": "+ Drums"
+            "name": "+ Drums",
+            "light_template": "Spot auf Tim"
           },
           {
             "bar_num": 25,
-            "name": "Verse 1"
+            "name": "Verse 1",
+            "light_template": "07 round'n'round"
           },
           {
             "bar_num": 33,
-            "name": "Bridge 1"
+            "name": "Bridge 1",
+            "light_template": "09 Alarm"
           },
           {
             "bar_num": 41,
-            "name": "Verse 2"
+            "name": "Verse 2",
+            "light_template": "07 round'n'round"
           },
           {
             "bar_num": 49,
-            "name": "Bridge 2"
+            "name": "Bridge 2",
+            "light_template": "09 Alarm"
           },
           {
             "bar_num": 57,
-            "name": "Chorus 1"
+            "name": "Chorus 1",
+            "light_template": "06 blinking"
           },
           {
             "bar_num": 61,
-            "name": "Verse 3"
+            "name": "Verse 3",
+            "light_template": "07 round'n'round"
           },
           {
             "bar_num": 69,
-            "name": "Bridge 3"
+            "name": "Bridge 3",
+            "light_template": "09 Alarm"
           },
           {
             "bar_num": 77,
-            "name": "Chorus 2"
+            "name": "Chorus 2",
+            "light_template": "06 blinking"
           },
           {
             "bar_num": 85,
-            "name": "Verse 4"
+            "name": "Verse 4",
+            "light_template": "07 round'n'round"
           },
           {
             "bar_num": 93,
-            "name": "Bridge 4"
+            "name": "Bridge 4",
+            "light_template": "09 Alarm"
           },
           {
             "bar_num": 101,
-            "name": "Chorus 3"
+            "name": "Chorus 3",
+            "light_template": "06 blinking"
           },
           {
             "bar_num": 117,
-            "name": "Ausklang"
+            "name": "Ausklang",
+            "light_template": "01 statisch bunt"
           }
         ]
       }

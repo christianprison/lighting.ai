@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.2.13';
+const APP_VERSION = 'v2.2.14';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -687,6 +687,19 @@ function openTmsModal(songId) {
         tms.manual_undone = tms.manual_undone.filter(id => id !== stepId);
         if (!tms.manual_done.includes(stepId)) {
           tms.manual_done.push(stepId);
+        }
+        // Auto-set BPM when "Alle Takte identifiziert" is checked and BPM is missing
+        if (stepId === 'bar_markers') {
+          const song = db.songs[songId];
+          if (song && !song.bpm) {
+            const est = estimateBpmFromMarkers(songId);
+            if (est) {
+              song.bpm = est;
+              song.duration_sec = calcBarsDuration(song.total_bars || 0, est);
+              song.duration = fmtDur(song.duration_sec);
+              toast(`BPM automatisch auf ${est} gesetzt`, 'success');
+            }
+          }
         }
       }
       _suppressCelebration = true;
@@ -2335,10 +2348,16 @@ function buildAudioSummary() {
   const irregHtml = irregCount > 0
     ? `<span class="summary-item"><span class="summary-label">Unregelmäßig</span><span class="mono text-red">${irregCount}</span></span>`
     : '';
+  const song = selectedSongId ? db.songs[selectedSongId] : null;
+  const bpmDiffers = est && song?.bpm && Math.abs(est - song.bpm) > 3;
+  const bpmBtnHtml = est
+    ? `<button class="btn btn-xs${bpmDiffers ? ' btn-warn' : ''}" id="btn-set-bpm-audio" title="${bpmDiffers ? `Song-BPM: ${song.bpm} — Differenz: ${Math.abs(est - song.bpm)}` : ''}">BPM setzen (${est})</button>`
+    : '';
   return `
     <div class="summary-bar">
       <span class="summary-item"><span class="summary-label">Takte</span><span class="mono">${totalBars}</span></span>
       <span class="summary-item"><span class="summary-label">BPM (est.)</span><span class="mono">${est || '\u2014'}</span></span>
+      ${bpmBtnHtml}
       ${irregHtml}
       <span class="summary-item"><span class="summary-label">Storage</span><span class="mono text-green">GitHub</span></span>
     </div>`;
@@ -2399,6 +2418,25 @@ function fmtTime(sec) {
 function estimateBpm() {
   const sorted = [...markers].sort((a, b) => a.time - b.time);
   if (sorted.length < 2) return null;
+  const intervals = [];
+  for (let i = 1; i < sorted.length; i++) {
+    const dt = sorted[i].time - sorted[i - 1].time;
+    if (dt >= 0.3 && dt <= 4.0) intervals.push(dt);
+  }
+  if (intervals.length === 0) return null;
+  const avg = intervals.reduce((a, b) => a + b, 0) / intervals.length;
+  return Math.round(240 / avg);
+}
+
+/**
+ * Estimate BPM from stored split_markers in the DB (works from any tab).
+ * @param {string} songId
+ * @returns {number|null}
+ */
+function estimateBpmFromMarkers(songId) {
+  const markerArr = db?.songs?.[songId]?.split_markers?.markers;
+  if (!markerArr || markerArr.length < 2) return null;
+  const sorted = [...markerArr].sort((a, b) => a.time - b.time);
   const intervals = [];
   for (let i = 1; i < sorted.length; i++) {
     const dt = sorted[i].time - sorted[i - 1].time;
@@ -3848,6 +3886,29 @@ function handleBpmUpdate() {
   renderAudioTab();
 }
 
+/**
+ * Set BPM from stored bar markers (works from Takte tab or TMS auto-trigger).
+ * @param {string} [songId] defaults to selectedSongId
+ * @param {boolean} [silent] if true, no toast is shown (for auto-trigger)
+ */
+function handleBpmSetFromMarkers(songId = selectedSongId, silent = false) {
+  if (!songId) return false;
+  const est = estimateBpmFromMarkers(songId);
+  if (!est) { if (!silent) toast('Keine Takt-Marker für BPM-Berechnung vorhanden', 'error'); return false; }
+  const song = db.songs[songId];
+  if (!song) return false;
+  song.bpm = est;
+  song.duration_sec = calcBarsDuration(song.total_bars || 0, est);
+  song.duration = fmtDur(song.duration_sec);
+  markDirty();
+  if (!silent) toast(`BPM auf ${est} gesetzt`, 'success');
+  if (activeTab === 'takte') renderTakteTab();
+  else if (activeTab === 'audio') renderAudioTab();
+  else if (activeTab === 'editor') renderEditorTab();
+  renderSongList(els.searchBox.value);
+  return true;
+}
+
 /* ── Audio Export to GitHub ─────────────────────────── */
 
 async function handleAudioExport() {
@@ -3951,8 +4012,8 @@ function handleAudioClick(e) {
   if (el.closest('#tap-snap-peaks') && !el.closest('#tap-snap-peaks').disabled) { handleSnapToPeaks(); return; }
   if (el.closest('#tap-delete-bars') && !el.closest('#tap-delete-bars').disabled) { handleDeleteAllBarMarkers(); return; }
 
-  // BPM update
-  if (el.closest('#btn-update-bpm')) { handleBpmUpdate(); return; }
+  // BPM update (banner or summary bar)
+  if (el.closest('#btn-update-bpm') || el.closest('#btn-set-bpm-audio')) { handleBpmUpdate(); return; }
 
 
 }
@@ -7227,7 +7288,16 @@ function renderTakteTab() {
   els.content.innerHTML = `
     <div class="takte-tab-panel">
       <div class="takte-tab-scroll" id="takte-tab-scroll">
-        ${allBars.length > 0 ? `<div class="takte-toolbar"><button class="btn btn-small btn-danger" id="btn-delete-all-bars" title="Alle Takte l\u00f6schen">Alle Takte l\u00f6schen</button></div>` : ''}
+        ${allBars.length > 0 ? (() => {
+          const song = filterSong ? db.songs[filterSong] : null;
+          const est = filterSong ? estimateBpmFromMarkers(filterSong) : null;
+          const bpmBtnLabel = est ? `BPM setzen (${est})` : null;
+          const bpmDiffers = est && song?.bpm && Math.abs(est - song.bpm) > 3;
+          const bpmBtnHtml = bpmBtnLabel
+            ? `<button class="btn btn-small${bpmDiffers ? ' btn-warn' : ''}" id="btn-set-bpm-takte" title="${bpmDiffers ? `Song-BPM: ${song.bpm} — Differenz: ${Math.abs(est - song.bpm)}` : 'BPM aus Takt-Markern berechnen und setzen'}">${bpmBtnLabel}</button>`
+            : '';
+          return `<div class="takte-toolbar">${bpmBtnHtml}<button class="btn btn-small btn-danger" id="btn-delete-all-bars" title="Alle Takte l\u00f6schen">Alle Takte l\u00f6schen</button></div>`;
+        })() : ''}
         ${allBars.length === 0
           ? '<div class="empty-state" style="padding:60px 0"><div class="icon">&#9881;</div><p>Keine Takte gefunden.</p></div>'
           : buildTakteTabTable(allBars, filterSong)}
@@ -7446,6 +7516,9 @@ async function handleDeleteAllBars() {
 
 function handleTakteTabClick(e) {
   const el = e.target;
+
+  // BPM aus Takt-Markern setzen (Takte-Tab)
+  if (el.closest('#btn-set-bpm-takte')) { handleBpmSetFromMarkers(); return; }
 
   // Delete all bars button
   if (el.closest('#btn-delete-all-bars')) {

@@ -4252,15 +4252,18 @@
         "part_starts": [
           {
             "bar_num": 1,
-            "name": "Intro (nur Drums)"
+            "name": "Intro (nur Drums)",
+            "instrumental": true
           },
           {
             "bar_num": 5,
-            "name": "+ Guitar"
+            "name": "+ Guitar",
+            "instrumental": true
           },
           {
             "bar_num": 9,
-            "name": "+ Bass"
+            "name": "+ Bass",
+            "instrumental": true
           },
           {
             "bar_num": 13,
@@ -4272,7 +4275,8 @@
           },
           {
             "bar_num": 37,
-            "name": "Interlude 1"
+            "name": "Interlude 1",
+            "instrumental": true
           },
           {
             "bar_num": 39,
@@ -4288,7 +4292,8 @@
           },
           {
             "bar_num": 71,
-            "name": "Mittelteil"
+            "name": "Mittelteil",
+            "instrumental": true
           },
           {
             "bar_num": 87,
@@ -4312,7 +4317,8 @@
           },
           {
             "bar_num": 147,
-            "name": "Ausklang"
+            "name": "Ausklang",
+            "instrumental": true
           }
         ]
       }

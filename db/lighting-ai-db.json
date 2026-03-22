@@ -3797,7 +3797,10 @@
       "audio_ref_name": "Dancing with myself - Full Song.mp3",
       "lyrics_raw": "[Verse 1]\nOn the floors of Tokyo-o\nOr down in London town to go, go\nA-with the record selection and the mirror's reflection\nI'm a-dancing with myself\nOh, when there's no one else in sight\nA-in the crowded lonely night\nWell, I wait so long for my love vibration\nAnd I'm dancing with myself\n\n[Chorus]\nOh, oh, dancing with myself\nOh, oh, dancing with myself\nWhen there's nothing to lose, and there's nothing to prove\nAnd I'm dancing with myself, oh, oh, uh-oh\n[Verse 2]\nIf I looked all over the world\nAnd there's every type of girl\nBut your empty eyes seem to pass me by\nLeave me dancing with myself\nSo let's sink another drink\n'Cause it'll give me time to think\nIf I had the chance, I'd ask the world to dance\nAnd I'll be dancing with myself\n\n[Chorus]\nOh, oh, dancing with myself\nOh, oh, dancing with myself\nWhen there's nothing to lose, and there's nothing to prove\nAnd I'm dancing with myself, oh, oh, uh-oh\n\n[Bridge]\nOh, oh, uh-oh, oh\nOh, oh, uh-oh\nOh, uh-uh, oh, ow\n\n[Guitar Solo]\n\n[Verse 3]\nWell, if I looked all over the world\nAnd there's every type of girl\nBut your empty eyes seem to pass me by\nLeave me dancing with myself\nSo let's sink another drink\n'Cause it'll give me time to think\nIf I had the chance, I'd ask the world to dance\nAnd I'll be dancing with myself\n[Chorus]\nOh, oh, dancing with myself\nOh, oh, dancing with myself\nIf I had the chance, I'd ask the world to dance\nIf I had the chance, I'd ask the world to dance\nIf I had the chance, I'd ask the world to dance, ow\n\n[Bridge]\nOh, oh, uh-oh\nOh, oh, uh-oh\nOh, oh, uh-oh\nOh, oh, uh-oh\n\n[Outro]\n(Dancing with myself, oh, oh) Oh, it's all wet\n(Dancing with myself, oh, oh) And I'll sweat\n(Dancing with myself, oh, oh) And I'll sweat, sweat, sweat, sweat\n(Dancing with myself, oh, oh) Sweat, sweat, sweat, sweat\n(Dancing with myself, oh, oh) Sweat, sweat, sweat, sweat\n(Dancing with myself, oh, oh) Sweat, sweat, sweat, sweat, sweat\nOh\n(Dancing with myself, oh, oh)\n(Dancing with myself, oh, oh) Dancing with myself, oh\n(Dancing with myself, oh, oh)\n(Dancing with myself, oh, oh)\n(Dancing with myself, oh, oh) Wow\n(Dancing with myself, oh, oh)\n(Dancing with myself, oh, oh)",
       "tms": {
-        "manual_done": [],
+        "manual_done": [
+          "bar_markers",
+          "parts_identified"
+        ],
         "user_tasks": [],
         "manual_undone": []
       },
@@ -3820,7 +3823,7 @@
             "time": 6.295287854467645
           },
           {
-            "time": 7.745954521134294
+            "time": 7.631741573033708
           },
           {
             "time": 9.001954521134294
@@ -4099,7 +4102,7 @@
             "time": 133.0310139111824
           },
           {
-            "time": 134.28968057784908
+            "time": 134.3924157303371
           },
           {
             "time": 135.7074483681113
@@ -4201,7 +4204,7 @@
             "time": 179.00078170144465
           },
           {
-            "time": 180.27278170144464
+            "time": 180.33606741573035
           },
           {
             "time": 181.66744836811128
@@ -4246,7 +4249,72 @@
             "time": 199.2674483681113
           }
         ],
-        "part_starts": []
+        "part_starts": [
+          {
+            "bar_num": 1,
+            "name": "Intro (nur Drums)"
+          },
+          {
+            "bar_num": 5,
+            "name": "+ Guitar"
+          },
+          {
+            "bar_num": 9,
+            "name": "+ Bass"
+          },
+          {
+            "bar_num": 13,
+            "name": "Verse 1"
+          },
+          {
+            "bar_num": 29,
+            "name": "Chorus 1"
+          },
+          {
+            "bar_num": 37,
+            "name": "Interlude 1"
+          },
+          {
+            "bar_num": 39,
+            "name": "Verse 2"
+          },
+          {
+            "bar_num": 55,
+            "name": "Chorus 2"
+          },
+          {
+            "bar_num": 63,
+            "name": "Interlude 2"
+          },
+          {
+            "bar_num": 71,
+            "name": "Mittelteil"
+          },
+          {
+            "bar_num": 87,
+            "name": "Verse 3"
+          },
+          {
+            "bar_num": 103,
+            "name": "Chorus 3"
+          },
+          {
+            "bar_num": 115,
+            "name": "Prä-Finale 1 (oh-oh-oh)"
+          },
+          {
+            "bar_num": 123,
+            "name": "Prä-Finale 2 (Sweat, sweat)"
+          },
+          {
+            "bar_num": 131,
+            "name": "Finale"
+          },
+          {
+            "bar_num": 147,
+            "name": "Ausklang"
+          }
+        ]
       }
     },
     "9G8cU7": {

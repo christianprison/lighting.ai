@@ -4124,7 +4124,52 @@
             "time": 206.73841409176026
           }
         ],
-        "part_starts": []
+        "part_starts": [
+          {
+            "bar_num": 1,
+            "name": "Thema 1 (Intro)"
+          },
+          {
+            "bar_num": 9,
+            "name": "Verse 1"
+          },
+          {
+            "bar_num": 17,
+            "name": "Chorus 1"
+          },
+          {
+            "bar_num": 26,
+            "name": "Thema 2"
+          },
+          {
+            "bar_num": 34,
+            "name": "Verse 2"
+          },
+          {
+            "bar_num": 42,
+            "name": "Chorus 2"
+          },
+          {
+            "bar_num": 51,
+            "name": "Thema 3"
+          },
+          {
+            "bar_num": 59,
+            "name": "Thema 4"
+          },
+          {
+            "bar_num": 67,
+            "name": "Chorus 3"
+          },
+          {
+            "bar_num": 75,
+            "name": "Chorus 4"
+          },
+          {
+            "bar_num": 84,
+            "name": "Thema 5"
+          }
+        ]
       }
     },
     "EfmiXn": {

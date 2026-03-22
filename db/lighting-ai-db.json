@@ -4207,7 +4207,7 @@
         "user_tasks": [],
         "manual_undone": []
       },
-      "total_bars": 118,
+      "total_bars": 117,
       "split_markers": {
         "markers": [
           {
@@ -4560,9 +4560,6 @@
           },
           {
             "time": 196.8725655430711
-          },
-          {
-            "time": 198.53389887640444
           }
         ],
         "part_starts": [
@@ -4609,6 +4606,18 @@
           {
             "bar_num": 85,
             "name": "Verse 4"
+          },
+          {
+            "bar_num": 93,
+            "name": "Bridge 4"
+          },
+          {
+            "bar_num": 101,
+            "name": "Chorus 3"
+          },
+          {
+            "bar_num": 117,
+            "name": "Ausklang"
           }
         ]
       }

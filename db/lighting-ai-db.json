@@ -3795,7 +3795,7 @@
       "qlc_id": 177,
       "audio_ref": "audio/Dancing with myself/Dancing with myself - Full Song.mp3",
       "audio_ref_name": "Dancing with myself - Full Song.mp3",
-      "lyrics_raw": "On the floor of Toky- o- ho Or down in London town to go, go With the the record selection With the mirror reflection I'm dancing with myself For When there's no-one else in sight In the crowded lonely night Well I wait so long my love vibration And I'm dancing with myself Oh dancing with myself Oh dancing with myself Well there's nothing to lose And there's nothing to prove I'll be dancing with myself oh If I looked all over the world And there's every type of girl But your empty eyes Seem to pass me by Leave me dancing with myself So let's sink another drink 'Cause it'll give me time to think If I had the chance I'd ask the world to dance And I'll be dancing with myself Oh dancing with myself Oh dancing with myself Well there's nothing to lose And there's nothing to prove I'll be dancing with myself oh oh oh oh oh oh oh oh oh oh If I looked all over the world And there's every type of girl But your empty eyes Seem to pass me by Leave me dancing with myself So let's sink another drink 'Cause it'll give me time to think If I had the chance I'd ask the world to dance And I'll be dancing with myself Oh dancing with myself Oh dancing with myself If I had the chance I'd ask the world to dance If I had the chance I'd ask the world to dance If I had the chance I'd ask the world to dance",
+      "lyrics_raw": "On the floor of Toky- o- ho Or down in London town to go, go With the the record selection With the mirror reflection I'm dancing with myself For When there's no-one else in sight In the crowded lonely night Well I wait so long my love vibration And I'm dancing with myself Oh dancing with myself Oh dancing with myself Well there's nothing to lose And there's nothing to prove I'll be dancing with myself oh If I looked all over the world And there's every type of girl But your empty eyes Seem to pass me by Leave me dancing with myself So let's sink another drink 'Cause it'll give me time to think If I had the chance I'd ask the world to dance And I'll be dancing with myself Oh dancing with myself Oh dancing with myself Well there's nothing to lose And there's nothing to prove I'll be dancing with myself oh oh oh oh oh oh oh oh oh oh If I looked all over the world And there's every type of girl But your empty eyes Seem to pass me by Leave me dancing with myself So let's sink another drink 'Cause it'll give me time to think If I had the chance I'd ask the world to dance And I'll be dancing with myself Oh dancing with myself Oh dancing with myself If I had the chance I'd ask the world to dance If I had the chance I'd ask the world to dance If I had the chance I'd ask the world to dance oh oh oh oh oh oh oh oh oh oh oh sweat sweat sweat sweat sweat sweat sweat sweat oh oh oh oh oh oh oh oh oh oh oh oh oh oh oh",
       "tms": {
         "manual_done": [
           "bar_markers",
@@ -18450,7 +18450,7 @@
     "B1873": {
       "song_id": "pVmkRc",
       "bar_num": 118,
-      "lyrics": "oh oh ",
+      "lyrics": "oh oh",
       "audio": "",
       "has_accents": false
     },
@@ -18478,63 +18478,63 @@
     "B1877": {
       "song_id": "pVmkRc",
       "bar_num": 122,
-      "lyrics": "oh oh",
+      "lyrics": "oh oh\n",
       "audio": "",
       "has_accents": false
     },
     "B1878": {
       "song_id": "pVmkRc",
       "bar_num": 123,
-      "lyrics": "oh",
+      "lyrics": "sweat",
       "audio": "",
       "has_accents": false
     },
     "B1879": {
       "song_id": "pVmkRc",
       "bar_num": 124,
-      "lyrics": "oh oh",
+      "lyrics": "sweat",
       "audio": "",
       "has_accents": false
     },
     "B1880": {
       "song_id": "pVmkRc",
       "bar_num": 125,
-      "lyrics": "oh",
+      "lyrics": "sweat",
       "audio": "",
       "has_accents": false
     },
     "B1881": {
       "song_id": "pVmkRc",
       "bar_num": 126,
-      "lyrics": "oh oh",
+      "lyrics": "sweat",
       "audio": "",
       "has_accents": false
     },
     "B1882": {
       "song_id": "pVmkRc",
       "bar_num": 127,
-      "lyrics": "oh",
+      "lyrics": "sweat",
       "audio": "",
       "has_accents": false
     },
     "B1883": {
       "song_id": "pVmkRc",
       "bar_num": 128,
-      "lyrics": "oh oh",
+      "lyrics": "sweat",
       "audio": "",
       "has_accents": false
     },
     "B1884": {
       "song_id": "pVmkRc",
       "bar_num": 129,
-      "lyrics": "oh",
+      "lyrics": "sweat",
       "audio": "",
       "has_accents": false
     },
     "B1885": {
       "song_id": "pVmkRc",
       "bar_num": 130,
-      "lyrics": "oh oh",
+      "lyrics": "sweat\n",
       "audio": "",
       "has_accents": false
     },
@@ -18555,56 +18555,56 @@
     "B1888": {
       "song_id": "pVmkRc",
       "bar_num": 133,
-      "lyrics": "",
+      "lyrics": "oh",
       "audio": "",
       "has_accents": false
     },
     "B1889": {
       "song_id": "pVmkRc",
       "bar_num": 134,
-      "lyrics": "",
+      "lyrics": "oh oh",
       "audio": "",
       "has_accents": false
     },
     "B1890": {
       "song_id": "pVmkRc",
       "bar_num": 135,
-      "lyrics": "",
+      "lyrics": "oh",
       "audio": "",
       "has_accents": false
     },
     "B1891": {
       "song_id": "pVmkRc",
       "bar_num": 136,
-      "lyrics": "",
+      "lyrics": "oh oh",
       "audio": "",
       "has_accents": false
     },
     "B1892": {
       "song_id": "pVmkRc",
       "bar_num": 137,
-      "lyrics": "",
+      "lyrics": "oh",
       "audio": "",
       "has_accents": false
     },
     "B1893": {
       "song_id": "pVmkRc",
       "bar_num": 138,
-      "lyrics": "",
+      "lyrics": "oh oh",
       "audio": "",
       "has_accents": false
     },
     "B1894": {
       "song_id": "pVmkRc",
       "bar_num": 139,
-      "lyrics": "",
+      "lyrics": "oh",
       "audio": "",
       "has_accents": false
     },
     "B1895": {
       "song_id": "pVmkRc",
       "bar_num": 140,
-      "lyrics": "",
+      "lyrics": "oh oh",
       "audio": "",
       "has_accents": false
     },

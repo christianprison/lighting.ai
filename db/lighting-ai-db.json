@@ -4654,7 +4654,7 @@
       "qlc_id": 96,
       "audio_ref": "audio/Fight for your Right/Fight for your Right - Full Song.mp3",
       "audio_ref_name": "Fight for your Right - Full Song.mp3",
-      "lyrics_raw": "Kick it! You wake up late for school, man, you don't wanna go You ask your mom, \"Please?\", but she still says, \"No\" You missed two classes and no homework But your teacher preaches class like you're some kind of *jerk* You gotta fight For your right To party Your pop's caught you smokin', man, he says, \"No way!\" That hypocrite smokes two packs a day Man, livin' at home is such a drag Now your mom threw away your best porno mag You gotta fight For your right To party You gotta fight for your right to Don't step out of this house if that's the clothes you're gonna wear I'll kick you out of my home if you don't cut that hair Your mom busted in and said, \"What's that noise?\" Aw, Mom, you're just jealous, it's the Bea- -stie Boys You gotta fight For your right To party You gotta fight For your right To party",
+      "lyrics_raw": "Kick it! You wake up late for school, man, you don't wanna go You ask your mom, \"Please?\", but she still says, \"No\" You missed two classes and no homework But your teacher preaches class like you're some kind of *jerk* You gotta fight For your right To party Your pop's caught you smokin', man, he says, \"No way!\" That hypocrite smokes two packs a day Man, livin' at home is such a drag Now your mom threw away your best porno mag You gotta fight For your right To party You gotta fight for your right to party Don't step out of this house if that's the clothes you're gonna wear I'll kick you out of my home if you don't cut that hair Your mom busted in and said, \"What's that noise?\" Aw, Mom, you're just jealous, it's the Bea- -stie Boys You gotta fight For your right To party You gotta fight For your right To party",
       "tms": {
         "manual_done": [
           "bar_markers",
@@ -15496,14 +15496,14 @@
     "B1530": {
       "song_id": "BfbgVC",
       "bar_num": 56,
-      "lyrics": "",
+      "lyrics": "party",
       "audio": "",
       "has_accents": false
     },
     "B1531": {
       "song_id": "BfbgVC",
       "bar_num": 57,
-      "lyrics": "Don't step",
+      "lyrics": "",
       "audio": "",
       "has_accents": false,
       "instrumental": true
@@ -15511,7 +15511,7 @@
     "B1532": {
       "song_id": "BfbgVC",
       "bar_num": 58,
-      "lyrics": "out of",
+      "lyrics": "",
       "audio": "",
       "has_accents": false,
       "instrumental": true
@@ -15519,7 +15519,7 @@
     "B1533": {
       "song_id": "BfbgVC",
       "bar_num": 59,
-      "lyrics": "this house\n",
+      "lyrics": "",
       "audio": "",
       "has_accents": false,
       "instrumental": true
@@ -15527,7 +15527,7 @@
     "B1534": {
       "song_id": "BfbgVC",
       "bar_num": 60,
-      "lyrics": "if that's",
+      "lyrics": "",
       "audio": "",
       "has_accents": false,
       "instrumental": true
@@ -15535,7 +15535,7 @@
     "B1535": {
       "song_id": "BfbgVC",
       "bar_num": 61,
-      "lyrics": "the clothes",
+      "lyrics": "",
       "audio": "",
       "has_accents": false,
       "instrumental": true
@@ -15543,7 +15543,7 @@
     "B1536": {
       "song_id": "BfbgVC",
       "bar_num": 62,
-      "lyrics": "you're gonna",
+      "lyrics": "",
       "audio": "",
       "has_accents": false,
       "instrumental": true
@@ -15551,7 +15551,7 @@
     "B1537": {
       "song_id": "BfbgVC",
       "bar_num": 63,
-      "lyrics": "wear I'll\n",
+      "lyrics": "",
       "audio": "",
       "has_accents": false,
       "instrumental": true
@@ -15615,7 +15615,7 @@
     "B1546": {
       "song_id": "BfbgVC",
       "bar_num": 72,
-      "lyrics": "kick you",
+      "lyrics": "Don't step out of this house if that's the clothes you're gonna wear I'll kick you",
       "audio": "",
       "has_accents": false
     },

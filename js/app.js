@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.2.15';
+const APP_VERSION = 'v2.2.16';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -6042,6 +6042,8 @@ function buildSetlistItems(items) {
     if (!song) continue;
 
     const dur = song.duration || fmtDur(song.duration_sec || 0);
+    const prog = getSongProgress(item.song_id);
+    const progColor = prog.pct === 100 ? 'var(--green)' : 'var(--amber)';
     parts.push(`<div class="setlist-card" data-idx="${idx}" data-song-id="${item.song_id}" draggable="true">
       <span class="sl-grip" title="Verschieben">&#8942;&#8942;</span>
       <span class="sl-pos">${songNum}</span>
@@ -6050,6 +6052,15 @@ function buildSetlistItems(items) {
       <div class="sl-meta">
         <span>${song.bpm || '\u2014'} bpm</span>
         <span>${dur}</span>
+      </div>
+      <div class="song-progress-mini sl-tms" data-tms-open="${item.song_id}" title="${prog.pct}% — ${prog.next ? prog.next.label : 'Komplett'}">
+        <svg viewBox="0 0 24 24" width="20" height="20">
+          <circle cx="12" cy="12" r="10" fill="none" stroke="var(--border2)" stroke-width="2"/>
+          <circle cx="12" cy="12" r="10" fill="none" stroke="${progColor}" stroke-width="2"
+            stroke-dasharray="${Math.PI * 20}" stroke-dashoffset="${Math.PI * 20 * (1 - prog.pct / 100)}"
+            transform="rotate(-90 12 12)" stroke-linecap="round"/>
+        </svg>
+        ${prog.hasOpenUserTasks ? '<span class="song-tms-dot"></span>' : ''}
       </div>
       <div class="sl-btns">
         <button class="sl-btn sl-edit" title="Im DB Editor anzeigen" data-action="edit" data-idx="${idx}">&#9998;</button>
@@ -6227,6 +6238,13 @@ function renumberSetlist() {
 
 function handleSetlistClick(e) {
   const el = e.target;
+
+  // TMS progress circle
+  const tmsOpen = el.closest('[data-tms-open]');
+  if (tmsOpen) {
+    openTmsModal(tmsOpen.dataset.tmsOpen);
+    return;
+  }
 
   // Add Song button
   if (el.closest('#sl-add-song')) {

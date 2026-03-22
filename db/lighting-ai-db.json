@@ -4654,7 +4654,7 @@
       "qlc_id": 96,
       "audio_ref": "audio/Fight for your Right/Fight for your Right - Full Song.mp3",
       "audio_ref_name": "Fight for your Right - Full Song.mp3",
-      "lyrics_raw": "Kick it! You wake up late for school, man, you don't wanna go You ask your mom, \"Please?\", but she still says, \"No\" You missed two classes and no homework But your teacher preaches class like you're some kind of *jerk* You gotta fight For your right To party Your pop's caught you smokin', man, he says, \"No way!\" That hypocrite smokes two packs a day Man, livin' at home is such a drag Now your mom threw away your best porno mag You gotta fight For your right To party You gotta fight Don't step out of this house if that's the clothes you're gonna wear I'll kick you out of my home if you don't cut that hair Your mom busted in and said, \"What's that noise?\" Aw, Mom, you're just jealous, it's the Bea- -stie Boys You gotta fight For your right To party You gotta fight For your right To party",
+      "lyrics_raw": "Kick it! You wake up late for school, man, you don't wanna go You ask your mom, \"Please?\", but she still says, \"No\" You missed two classes and no homework But your teacher preaches class like you're some kind of *jerk* You gotta fight For your right To party Your pop's caught you smokin', man, he says, \"No way!\" That hypocrite smokes two packs a day Man, livin' at home is such a drag Now your mom threw away your best porno mag You gotta fight For your right To party You gotta fight for your right Don't step out of this house if that's the clothes you're gonna wear I'll kick you out of my home if you don't cut that hair Your mom busted in and said, \"What's that noise?\" Aw, Mom, you're just jealous, it's the Bea- -stie Boys You gotta fight For your right To party You gotta fight For your right To party",
       "tms": {
         "manual_done": [
           "bar_markers",
@@ -15475,7 +15475,7 @@
     "B1527": {
       "song_id": "BfbgVC",
       "bar_num": 53,
-      "lyrics": "",
+      "lyrics": "You gotta fight\n",
       "audio": "",
       "has_accents": false,
       "instrumental": true
@@ -15491,14 +15491,14 @@
     "B1529": {
       "song_id": "BfbgVC",
       "bar_num": 55,
-      "lyrics": "You\n",
+      "lyrics": "for your right\n",
       "audio": "",
       "has_accents": true
     },
     "B1530": {
       "song_id": "BfbgVC",
       "bar_num": 56,
-      "lyrics": "gotta fight",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },

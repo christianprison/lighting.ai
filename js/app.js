@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.2.14';
+const APP_VERSION = 'v2.2.15';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -1358,7 +1358,7 @@ function renderSongFields() {
         <label>GEMA Nr.</label>
         <div class="field-with-action">
           <input type="text" value="${esc(song.gema_nr || '')}" data-song-field="gema_nr" class="mono">
-          <a href="https://www.gema.de/repertoiresuche" target="_blank" rel="noopener" class="btn btn-sm btn-field-action" title="GEMA Werksuche &ouml;ffnen">&#128269;</a>
+          <a href="https://portal.gema.de/app/repertoiresuche/werksuche" target="_blank" rel="noopener" class="btn btn-sm btn-field-action" title="GEMA Werksuche &ouml;ffnen">&#128269;</a>
         </div>
       </div>
       <div>

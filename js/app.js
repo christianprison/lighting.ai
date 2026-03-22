@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.2.11';
+const APP_VERSION = 'v2.2.14';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -31,6 +31,7 @@ let _leBlocks = [];             // [{type:'bar'|'word', id, content, barNum}]
 let _leUndoStack = [];          // snapshots of _leBlocks for undo
 let _leRedoStack = [];          // snapshots of _leBlocks for redo
 let _leInitSongId = null;       // songId for which blocks were built
+let _leInitTotalBars = 0;      // total_bars when blocks were last built
 let _leDrag = null;             // active drag state
 let _leContextMenu = null;      // active context menu element
 let _leClipboard = null;        // copied word block for paste
@@ -61,6 +62,14 @@ let _irregTipShown = false;     // true after irregular-bars tip was shown once
 /* ── Bar Playback State ────────────────────────────── */
 let _barPlayId = null;        // currently playing bar ID
 let _partPlayActive = false;  // whether bar playback is active
+let _barPlaySrc = null;       // active AudioBufferSourceNode (for manual loop stop)
+let _barPlayLoopDur = 0;      // duration of current loop region (seconds)
+let _barPlayCtxStart = 0;     // AudioContext.currentTime when loop was started
+let _barPlaySongId = null;    // songId of the looping bar
+let _barPlayBarNum = 0;       // barNum of the looping bar
+let _takteRaf = null;         // rAF id for playhead/flash animation
+let _takteFlashes = [];       // [{x, color, age}] flash bursts on waveform canvas
+let _takteCanvas = null;      // waveform canvas element being animated
 
 const SETTINGS_KEY = 'lightingai_settings';
 
@@ -155,6 +164,8 @@ function buildTemplateOptions(selected) {
 }
 
 const ACCENT_TYPES = ['bl', 'bo', 'hl', 'st', 'fg'];
+// Accent type → CSS color (matches accent-cell colors in style.css)
+const ACCENT_COLORS = { bl: '#f0a030', bo: '#ff3b5c', hl: '#00dc82', st: '#38bdf8', fg: '#8b8fa8' };
 
 const ACCENT_INFO = {
   bl: 'Blinder', bo: 'Blackout', hl: 'Highlight', st: 'Strobe', fg: 'Fog'
@@ -676,6 +687,19 @@ function openTmsModal(songId) {
         tms.manual_undone = tms.manual_undone.filter(id => id !== stepId);
         if (!tms.manual_done.includes(stepId)) {
           tms.manual_done.push(stepId);
+        }
+        // Auto-set BPM when "Alle Takte identifiziert" is checked and BPM is missing
+        if (stepId === 'bar_markers') {
+          const song = db.songs[songId];
+          if (song && !song.bpm) {
+            const est = estimateBpmFromMarkers(songId);
+            if (est) {
+              song.bpm = est;
+              song.duration_sec = calcBarsDuration(song.total_bars || 0, est);
+              song.duration = fmtDur(song.duration_sec);
+              toast(`BPM automatisch auf ${est} gesetzt`, 'success');
+            }
+          }
         }
       }
       _suppressCelebration = true;
@@ -1215,6 +1239,14 @@ function switchTab(tab) {
       handleSave(false);
     }
   }
+  // Stop takte tab loop playback when leaving
+  if (activeTab === 'takte' && tab !== 'takte') {
+    try { _barPlaySrc?.stop(0); } catch (_) {}
+    _barPlaySrc = null;
+    _barPlayId = null;
+    _partPlayActive = false;
+    stopTakteAnimation();
+  }
   // Stop lyrics karaoke playback when leaving lyrics tab
   if (activeTab === 'lyrics' && tab !== 'lyrics') {
     leStopPartPlayback();
@@ -1583,6 +1615,134 @@ function updateTakteTabPlayButtons() {
   });
 }
 
+/* ── Takte Tab: Loop Animation (playhead + accent flashes) ─── */
+
+/**
+ * Stop the loop animation and restore the waveform canvas to its static state.
+ */
+function stopTakteAnimation() {
+  if (_takteRaf) { cancelAnimationFrame(_takteRaf); _takteRaf = null; }
+  _takteFlashes = [];
+  if (_takteCanvas) {
+    const start = parseFloat(_takteCanvas.dataset.waveStart);
+    const end   = parseFloat(_takteCanvas.dataset.waveEnd);
+    if (!isNaN(start) && !isNaN(end)) drawMiniWaveform(_takteCanvas, start, end, 'rgb(56, 189, 248)');
+    _takteCanvas = null;
+  }
+}
+
+/**
+ * Start the loop animation for the currently playing bar.
+ * Draws a moving playhead and accent flashes on the bar's mini waveform.
+ * @param {string} barId
+ */
+function startTakteAnimation(barId) {
+  if (!_barPlayLoopDur || _barPlayLoopDur <= 0) return;
+
+  // Find the waveform canvas for this bar's row
+  const btn = document.querySelector(
+    `.btn-bar-play[data-play-song-id="${_barPlaySongId}"][data-play-bar-num="${_barPlayBarNum}"].playing`
+  );
+  const canvas = btn?.closest('.ttt-row')?.querySelector('canvas[data-wave-start]');
+  if (!canvas) return;
+
+  _takteCanvas = canvas;
+  const waveStart = parseFloat(canvas.dataset.waveStart);
+  const waveEnd   = parseFloat(canvas.dataset.waveEnd);
+  if (isNaN(waveStart) || isNaN(waveEnd)) return;
+
+  // Draw waveform once and cache the pixel data for cheap per-frame restore
+  drawMiniWaveform(canvas, waveStart, waveEnd, 'rgb(56, 189, 248)');
+  const ctx  = canvas.getContext('2d');
+  const W    = canvas.width;   // physical pixels
+  const H    = canvas.height;
+  const dpr  = window.devicePixelRatio || 1;
+  const waveCache = ctx.getImageData(0, 0, W, H);
+
+  // Precompute accent x positions in physical pixels
+  const accents = getAccentsForBar(barId).map(a => ({
+    x:     ((a.pos_16th - 0.5) / 16) * W,
+    color: ACCENT_COLORS[a.type] || '#00dc82',
+  }));
+
+  let prevProgress = -1;
+
+  function tick() {
+    if (!_partPlayActive || !_barPlaySrc) return;
+
+    const ac       = audio.getContext();
+    const elapsed  = ac.currentTime - _barPlayCtxStart;
+    const progress = (elapsed % _barPlayLoopDur) / _barPlayLoopDur; // 0..1
+
+    // Detect accent crossings (handles loop wrap-around)
+    if (prevProgress >= 0) {
+      for (const acc of accents) {
+        const ap = acc.x / W;
+        const crossed = prevProgress <= progress
+          ? prevProgress <= ap && ap < progress
+          : ap >= prevProgress || ap < progress; // wrapped
+        if (crossed) _takteFlashes.push({ x: acc.x, color: acc.color, age: 0 });
+      }
+    }
+    prevProgress = progress;
+
+    // Restore base waveform
+    ctx.putImageData(waveCache, 0, 0);
+
+    // Accent tick marks (always-visible thin lines)
+    for (const acc of accents) {
+      ctx.globalAlpha = 0.55;
+      ctx.strokeStyle = acc.color;
+      ctx.lineWidth   = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(acc.x, 0);
+      ctx.lineTo(acc.x, H);
+      ctx.stroke();
+    }
+
+    // Flash bursts when playhead crosses an accent
+    _takteFlashes = _takteFlashes.filter(f => f.age < 1);
+    for (const f of _takteFlashes) {
+      const t = 1 - f.age;
+      // Expanding column streak (bright center, fading to sides)
+      const colW = Math.max(2, H * 0.55) * t;
+      ctx.globalAlpha = t * 0.85;
+      ctx.fillStyle   = f.color;
+      ctx.fillRect(f.x - colW / 2, 0, colW, H);
+      // White hot core
+      ctx.globalAlpha = t * 0.95;
+      ctx.fillStyle   = '#ffffff';
+      ctx.fillRect(f.x - colW * 0.2, 0, colW * 0.4, H);
+      // Radial outer glow (expands beyond column)
+      const r = f.age * H * 2.2;
+      ctx.globalAlpha = t * 0.45;
+      ctx.fillStyle   = f.color;
+      ctx.beginPath();
+      ctx.arc(f.x, H / 2, r || 0.1, 0, Math.PI * 2);
+      ctx.fill();
+      f.age += 0.055; // ~0.35 s fade at 60 fps
+    }
+
+    // Playhead — white line with soft glow
+    const headX = progress * W;
+    ctx.globalAlpha  = 1;
+    ctx.strokeStyle  = 'rgba(255,255,255,0.95)';
+    ctx.lineWidth    = dpr * 1.5;
+    ctx.shadowColor  = 'rgba(255,255,255,0.8)';
+    ctx.shadowBlur   = 5 * dpr;
+    ctx.beginPath();
+    ctx.moveTo(headX, 0);
+    ctx.lineTo(headX, H);
+    ctx.stroke();
+    ctx.shadowBlur  = 0;
+    ctx.globalAlpha = 1;
+
+    _takteRaf = requestAnimationFrame(tick);
+  }
+
+  _takteRaf = requestAnimationFrame(tick);
+}
+
 async function handleBarPlay(songId, barNum) {
   audio.warmup(); // iOS: resume AudioContext in gesture handler
   ensureCollections();
@@ -1592,11 +1752,19 @@ async function handleBarPlay(songId, barNum) {
 
   // If already playing this bar → stop
   if (_barPlayId === barId && _partPlayActive) {
+    try { _barPlaySrc?.stop(0); } catch (_) {}
+    _barPlaySrc = null;
     _barPlayId = null;
     _partPlayActive = false;
+    stopTakteAnimation();
     updateTakteTabPlayButtons();
     return;
   }
+
+  // Stop any previously playing bar
+  try { _barPlaySrc?.stop(0); } catch (_) {}
+  _barPlaySrc = null;
+  stopTakteAnimation();
 
   _barPlayId = barId;
   _partPlayActive = true;
@@ -1606,35 +1774,44 @@ async function handleBarPlay(songId, barNum) {
     const ac = audio.getContext();
     if (ac.state === 'suspended') await ac.resume();
 
-    // Strategy 1: Use split audio file if available
+    // Strategy 1: Use split audio file — loop it
     if (barData.audio) {
       const arrBuf = await fetchAudioUrl(barData.audio);
       if (arrBuf) {
         const decoded = await ac.decodeAudioData(arrBuf);
         const src = ac.createBufferSource();
         src.buffer = decoded;
+        src.loop = true;
         src.connect(ac.destination);
-        src.onended = () => {
-          if (_barPlayId === barId) { _barPlayId = null; _partPlayActive = false; updateTakteTabPlayButtons(); }
-        };
         src.start(0);
+        _barPlaySrc = src;
+        _barPlayLoopDur = decoded.duration;
+        _barPlayCtxStart = ac.currentTime;
+        _barPlaySongId = songId;
+        _barPlayBarNum = barNum;
+        startTakteAnimation(barId);
         return;
       }
     }
 
-    // Strategy 2: Play from reference audio buffer using bar time range
+    // Strategy 2: Play from reference audio buffer using bar time range — loop the region
     const refBuffer = audio.getBuffer();
     if (refBuffer) {
       const range = getBarTimeRange(songId, barNum);
-      if (range) {
+      if (range?.end) {
         const src = ac.createBufferSource();
         src.buffer = refBuffer;
+        src.loop = true;
+        src.loopStart = range.start;
+        src.loopEnd = range.end;
         src.connect(ac.destination);
-        const dur = range.end - range.start;
-        src.onended = () => {
-          if (_barPlayId === barId) { _barPlayId = null; _partPlayActive = false; updateTakteTabPlayButtons(); }
-        };
-        src.start(0, range.start, dur);
+        src.start(0, range.start);
+        _barPlaySrc = src;
+        _barPlayLoopDur = range.end - range.start;
+        _barPlayCtxStart = ac.currentTime;
+        _barPlaySongId = songId;
+        _barPlayBarNum = barNum;
+        startTakteAnimation(barId);
         return;
       }
     }
@@ -1643,7 +1820,10 @@ async function handleBarPlay(songId, barNum) {
   } catch (err) {
     console.error('Bar playback error:', err);
     toast(`Wiedergabe-Fehler: ${err.message}`, 'error');
+    _barPlaySrc = null;
     _barPlayId = null;
+    _partPlayActive = false;
+    stopTakteAnimation();
   }
 }
 
@@ -2168,10 +2348,16 @@ function buildAudioSummary() {
   const irregHtml = irregCount > 0
     ? `<span class="summary-item"><span class="summary-label">Unregelmäßig</span><span class="mono text-red">${irregCount}</span></span>`
     : '';
+  const song = selectedSongId ? db.songs[selectedSongId] : null;
+  const bpmDiffers = est && song?.bpm && Math.abs(est - song.bpm) > 3;
+  const bpmBtnHtml = est
+    ? `<button class="btn btn-xs${bpmDiffers ? ' btn-warn' : ''}" id="btn-set-bpm-audio" title="${bpmDiffers ? `Song-BPM: ${song.bpm} — Differenz: ${Math.abs(est - song.bpm)}` : ''}">BPM setzen (${est})</button>`
+    : '';
   return `
     <div class="summary-bar">
       <span class="summary-item"><span class="summary-label">Takte</span><span class="mono">${totalBars}</span></span>
       <span class="summary-item"><span class="summary-label">BPM (est.)</span><span class="mono">${est || '\u2014'}</span></span>
+      ${bpmBtnHtml}
       ${irregHtml}
       <span class="summary-item"><span class="summary-label">Storage</span><span class="mono text-green">GitHub</span></span>
     </div>`;
@@ -2242,6 +2428,25 @@ function estimateBpm() {
   return Math.round(240 / avg);
 }
 
+/**
+ * Estimate BPM from stored split_markers in the DB (works from any tab).
+ * @param {string} songId
+ * @returns {number|null}
+ */
+function estimateBpmFromMarkers(songId) {
+  const markerArr = db?.songs?.[songId]?.split_markers?.markers;
+  if (!markerArr || markerArr.length < 2) return null;
+  const sorted = [...markerArr].sort((a, b) => a.time - b.time);
+  const intervals = [];
+  for (let i = 1; i < sorted.length; i++) {
+    const dt = sorted[i].time - sorted[i - 1].time;
+    if (dt >= 0.3 && dt <= 4.0) intervals.push(dt);
+  }
+  if (intervals.length === 0) return null;
+  const avg = intervals.reduce((a, b) => a + b, 0) / intervals.length;
+  return Math.round(240 / avg);
+}
+
 function resetAudioSplit() {
   markers = [];
   tapHistory = [];
@@ -2258,6 +2463,25 @@ function resetAudioSplit() {
 function saveMarkersToSong() {
   if (!selectedSongId || !db.songs[selectedSongId]) return;
   const song = db.songs[selectedSongId];
+
+  // Detect if bar positions have shifted (bars inserted/removed in the middle or at the start).
+  // If the earliest marker time changes by more than 0.5s the existing split-audio files no longer
+  // align with the bar numbers in db.bars → clear them so the Takte-Tab falls back to reference audio.
+  const oldMarkers = song.split_markers?.markers;
+  if (oldMarkers?.length && markers.length) {
+    const oldFirst = Math.min(...oldMarkers.map(m => m.time));
+    const newFirst = Math.min(...markers.map(m => m.time));
+    if (Math.abs(oldFirst - newFirst) > 0.5) {
+      const songBars = getBarsForSong(selectedSongId);
+      let cleared = 0;
+      for (const bar of songBars) {
+        if (bar.audio) { db.bars[bar.id].audio = ''; cleared++; }
+      }
+      if (cleared > 0) {
+        toast(`Taktpositionen verschoben: ${cleared} veraltete Audio-Referenzen bereinigt. Bitte Audio-Split neu exportieren.`, 'info', 5000);
+      }
+    }
+  }
 
   // Build part_starts from markers that have a partName
   const partStarts = [];
@@ -3662,6 +3886,29 @@ function handleBpmUpdate() {
   renderAudioTab();
 }
 
+/**
+ * Set BPM from stored bar markers (works from Takte tab or TMS auto-trigger).
+ * @param {string} [songId] defaults to selectedSongId
+ * @param {boolean} [silent] if true, no toast is shown (for auto-trigger)
+ */
+function handleBpmSetFromMarkers(songId = selectedSongId, silent = false) {
+  if (!songId) return false;
+  const est = estimateBpmFromMarkers(songId);
+  if (!est) { if (!silent) toast('Keine Takt-Marker für BPM-Berechnung vorhanden', 'error'); return false; }
+  const song = db.songs[songId];
+  if (!song) return false;
+  song.bpm = est;
+  song.duration_sec = calcBarsDuration(song.total_bars || 0, est);
+  song.duration = fmtDur(song.duration_sec);
+  markDirty();
+  if (!silent) toast(`BPM auf ${est} gesetzt`, 'success');
+  if (activeTab === 'takte') renderTakteTab();
+  else if (activeTab === 'audio') renderAudioTab();
+  else if (activeTab === 'editor') renderEditorTab();
+  renderSongList(els.searchBox.value);
+  return true;
+}
+
 /* ── Audio Export to GitHub ─────────────────────────── */
 
 async function handleAudioExport() {
@@ -3765,8 +4012,8 @@ function handleAudioClick(e) {
   if (el.closest('#tap-snap-peaks') && !el.closest('#tap-snap-peaks').disabled) { handleSnapToPeaks(); return; }
   if (el.closest('#tap-delete-bars') && !el.closest('#tap-delete-bars').disabled) { handleDeleteAllBarMarkers(); return; }
 
-  // BPM update
-  if (el.closest('#btn-update-bpm')) { handleBpmUpdate(); return; }
+  // BPM update (banner or summary bar)
+  if (el.closest('#btn-update-bpm') || el.closest('#btn-set-bpm-audio')) { handleBpmUpdate(); return; }
 
 
 }
@@ -3977,6 +4224,7 @@ function leDistributeText(songId, rawText) {
 function leInitFromSong(song) {
   leCancelShiftMode();
   _leInitSongId = selectedSongId;
+  _leInitTotalBars = song.total_bars || 0;
   _leBlocks = leBuildBlocks(selectedSongId);
   leClearUndoHistory();
 }
@@ -4005,8 +4253,8 @@ function renderLyricsTab() {
     _refLoadingPromise = loadReferenceAudio().finally(() => { _refLoadingFor = null; _refLoadingPromise = null; });
   }
 
-  // Initialize blocks if needed
-  if (_leInitSongId !== selectedSongId) {
+  // Initialize blocks if needed — rebuild when song or bar structure changed
+  if (_leInitSongId !== selectedSongId || _leInitTotalBars !== (song.total_bars || 0)) {
     leInitFromSong(song);
   } else {
     // Sync instrumental flags from DB (may have changed in Takte/Parts tab without triggering a full rebuild)
@@ -7040,7 +7288,16 @@ function renderTakteTab() {
   els.content.innerHTML = `
     <div class="takte-tab-panel">
       <div class="takte-tab-scroll" id="takte-tab-scroll">
-        ${allBars.length > 0 ? `<div class="takte-toolbar"><button class="btn btn-small btn-danger" id="btn-delete-all-bars" title="Alle Takte l\u00f6schen">Alle Takte l\u00f6schen</button></div>` : ''}
+        ${allBars.length > 0 ? (() => {
+          const song = filterSong ? db.songs[filterSong] : null;
+          const est = filterSong ? estimateBpmFromMarkers(filterSong) : null;
+          const bpmBtnLabel = est ? `BPM setzen (${est})` : null;
+          const bpmDiffers = est && song?.bpm && Math.abs(est - song.bpm) > 3;
+          const bpmBtnHtml = bpmBtnLabel
+            ? `<button class="btn btn-small${bpmDiffers ? ' btn-warn' : ''}" id="btn-set-bpm-takte" title="${bpmDiffers ? `Song-BPM: ${song.bpm} — Differenz: ${Math.abs(est - song.bpm)}` : 'BPM aus Takt-Markern berechnen und setzen'}">${bpmBtnLabel}</button>`
+            : '';
+          return `<div class="takte-toolbar">${bpmBtnHtml}<button class="btn btn-small btn-danger" id="btn-delete-all-bars" title="Alle Takte l\u00f6schen">Alle Takte l\u00f6schen</button></div>`;
+        })() : ''}
         ${allBars.length === 0
           ? '<div class="empty-state" style="padding:60px 0"><div class="icon">&#9881;</div><p>Keine Takte gefunden.</p></div>'
           : buildTakteTabTable(allBars, filterSong)}
@@ -7066,10 +7323,13 @@ function renderTakteTab() {
  * Returns { start, end } in seconds or null.
  */
 function getBarTimeRange(songId, barNum) {
-  if (!audioMeta || !selectedSongId) return null;
+  // Read authoritative marker times directly from the DB (song.split_markers.markers),
+  // NOT from the global markers[] which may be stale or belong to a different song.
+  const song = db.songs[songId];
+  const markerArr = song?.split_markers?.markers;
+  if (!markerArr || markerArr.length === 0) return null;
 
-  // Get sorted markers
-  const sorted = [...markers].sort((a, b) => a.time - b.time);
+  const sorted = [...markerArr].sort((a, b) => a.time - b.time);
   const idx = barNum - 1;
 
   if (idx < 0 || idx >= sorted.length) return null;
@@ -7109,8 +7369,9 @@ function buildTakteTabTable(bars, filterSong) {
 
           let waveCanvas = '';
           if (showWave) {
-            // Compute bar time range from sorted markers
-            const sortedM = [...markers].sort((a, b) => a.time - b.time);
+            // Compute bar time range from the authoritative DB markers, not in-memory markers[]
+            const dbMarkers = db.songs[filterSong]?.split_markers?.markers;
+            const sortedM = dbMarkers ? [...dbMarkers].sort((a, b) => a.time - b.time) : [];
             const mIdx = b.absBar - 1;
             if (mIdx >= 0 && mIdx < sortedM.length) {
               const mStart = sortedM[mIdx].time;
@@ -7255,6 +7516,9 @@ async function handleDeleteAllBars() {
 
 function handleTakteTabClick(e) {
   const el = e.target;
+
+  // BPM aus Takt-Markern setzen (Takte-Tab)
+  if (el.closest('#btn-set-bpm-takte')) { handleBpmSetFromMarkers(); return; }
 
   // Delete all bars button
   if (el.closest('#btn-delete-all-bars')) {
@@ -7764,6 +8028,11 @@ function wireEvents() {
     // Remember current tab — must be preserved across song switch
     const currentTab = activeTab;
     // Stop audio and reset split state when switching songs
+    try { _barPlaySrc?.stop(0); } catch (_) {}
+    _barPlaySrc = null;
+    _barPlayId = null;
+    _partPlayActive = false;
+    stopTakteAnimation();
     audio.reset();
     audioMeta = null;
     audioFileName = null;

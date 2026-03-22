@@ -2313,7 +2313,7 @@
       "qlc_id": 175,
       "audio_ref": "audio/Are You Gonna Be My Girl/Are You Gonna Be My Girl - Full Song.mp3",
       "audio_ref_name": "20190905 Are you gonna be my girl - QWNPrZ.mp3",
-      "lyrics_raw": "Go! one, two, three, take my hand and come with me Because you look so fine that I really wanna make you mine look so fine that I really wanna make you mine four, five, six, c'mon and get your kicks Now you don't need that money when you look like that, do you honey? Big black boots, long brown hair She's so sweet with her get back stare I could see, you home with me But you were with another man, yeah I know we ain't got so much to say Before I let you get a way, yeah I said, \"Are you gonna be my girl?\" one, two, three, take my hand and come with me Because you look so fine that I really wanna make you mine I say you look so fine that I really wanna make you mine four, five, six, c'mon and get your kicks Now you don't need that money with a face like that, do you? Big black boots, long brown hair She's so sweet with her get back stare Well I could see, you home with me But you were with another man, yeah I know we ain't got much to say Before I let you get a- way, yeah I said, \"Are you gonna be my girl?\" Oh yeah, oh yeah, c'mon I could see, you home with me But you were with another man, yeah I know we ain't got much to say Before I let you get away, yeah Uh, be my girl, be my girl Are you gonna be my girl? Yeah Ooh!",
+      "lyrics_raw": "Go! one, two, three, take my hand and come with me Because you look so fine that I really wanna make you mine look so fine that I really wanna make you mine four, five, six, c'mon and get your kicks Now you don't need that money when you look like that, do you honey? Big black boots, long brown hair She's so sweet with her get back stare I could see, you home with me But you were with another man, yeah I know we ain't got so much to say Before I let you get a way, yeah I said, \"Are you gonna be my girl?\" Well so one, two, three, take my hand and come with me Because you look so fine that I really wanna make you mine I say you look so fine that I really wanna make you mine Oh four, five, six, c'mon and get your kicks Now you don't need that money with a face like that, do you? Big black boots, long brown hair She's so sweet with her get back stare Well I could see, you home with me But you were with another man, yeah I know we ain't got much to say Before I let you get away, yeah I said, \"Are you gonna be my girl?\" Oh yeah, oh yeah, c'mon I could see, you home with me But you were with another man, yeah I know we ain't got much to say Before I let you get away, yeah Uh, be my girl, be my girl Are you gonna be my girl? Yeah Ooh!",
       "tms": {
         "manual_done": [
           "bar_markers",
@@ -3838,354 +3838,11 @@
       "notes": "",
       "lyrics_raw": "[Verse 1]\nWords like violence break the silence\nCome crashing in into my little world\nPainful to me, pierce right through me\nCan't you understand? Oh, my little girl\n\n[Chorus]\nAll I ever wanted\nAll I ever needed is here in my arms\nWords are very unnecessary\nThey can only do harm\n[Instrumental Break]\n\n[Verse 2]\nVows are spoken to be broken\nFeelings are intense, words are trivial\nPleasures remain, so does the pain\nWords are meaningless and forgettable\n\n[Chorus]\nAll I ever wanted\nAll I ever needed is here in my arms\nWords are very unnecessary\nThey can only do harm\n\n[Instrumental Break]\n\n[Chorus]\nAll I ever wanted\nAll I ever needed is here in my arms\nWords are very unnecessary\nThey can only do harm\nAll I ever wanted\nAll I ever needed is here in my arms\nWords are very unnecessary\nThey can only do harm\n\n[Instrumental Break]\n\n[Outro]\nEnjoy the silence",
       "tms": {
-        "manual_done": [
-          "bar_markers",
-          "templates_set",
-          "parts_identified"
-        ],
+        "manual_done": [],
         "user_tasks": [],
         "manual_undone": []
       },
-      "total_bars": 92,
-      "audio_ref": "audio/Enjoy The Silence/Enjoy The Silence - Full Song.mp3",
-      "audio_ref_name": "Enjoy the silence - Template  - zyDkjm.mp3",
-      "split_markers": {
-        "markers": [
-          {
-            "time": 0.7676875000000027
-          },
-          {
-            "time": 2.9676875000000056
-          },
-          {
-            "time": 5.205080758426954
-          },
-          {
-            "time": 7.4744140917602895
-          },
-          {
-            "time": 9.807747425093618
-          },
-          {
-            "time": 12.08774742509362
-          },
-          {
-            "time": 14.303747425093627
-          },
-          {
-            "time": 16.60774742509363
-          },
-          {
-            "time": 18.83708075842696
-          },
-          {
-            "time": 21.125080758426957
-          },
-          {
-            "time": 23.40508075842696
-          },
-          {
-            "time": 25.60774742509363
-          },
-          {
-            "time": 27.93841409176029
-          },
-          {
-            "time": 30.17041409176029
-          },
-          {
-            "time": 32.44241409176029
-          },
-          {
-            "time": 34.73841409176028
-          },
-          {
-            "time": 36.98908075842696
-          },
-          {
-            "time": 39.22108075842696
-          },
-          {
-            "time": 41.47441409176029
-          },
-          {
-            "time": 43.72241409176028
-          },
-          {
-            "time": 46.03708075842696
-          },
-          {
-            "time": 48.32508075842694
-          },
-          {
-            "time": 50.52508075842696
-          },
-          {
-            "time": 52.72508075842695
-          },
-          {
-            "time": 55.08774742509363
-          },
-          {
-            "time": 57.32508075842694
-          },
-          {
-            "time": 59.59174742509362
-          },
-          {
-            "time": 61.87441409176029
-          },
-          {
-            "time": 64.09308075842695
-          },
-          {
-            "time": 66.35441409176029
-          },
-          {
-            "time": 68.67174742509364
-          },
-          {
-            "time": 70.90374742509364
-          },
-          {
-            "time": 73.18908075842695
-          },
-          {
-            "time": 75.38908075842697
-          },
-          {
-            "time": 77.68774742509363
-          },
-          {
-            "time": 79.94108075842696
-          },
-          {
-            "time": 82.20508075842697
-          },
-          {
-            "time": 84.4584140917603
-          },
-          {
-            "time": 86.75974742509364
-          },
-          {
-            "time": 89.02108075842698
-          },
-          {
-            "time": 91.29308075842697
-          },
-          {
-            "time": 93.5224140917603
-          },
-          {
-            "time": 95.78908075842698
-          },
-          {
-            "time": 98.0424140917603
-          },
-          {
-            "time": 100.25841409176029
-          },
-          {
-            "time": 102.5704140917603
-          },
-          {
-            "time": 104.8744140917603
-          },
-          {
-            "time": 107.07441409176029
-          },
-          {
-            "time": 109.35974742509363
-          },
-          {
-            "time": 111.62108075842697
-          },
-          {
-            "time": 113.9224140917603
-          },
-          {
-            "time": 116.15974742509364
-          },
-          {
-            "time": 118.4264140917603
-          },
-          {
-            "time": 120.69308075842697
-          },
-          {
-            "time": 122.99174742509364
-          },
-          {
-            "time": 125.20774742509364
-          },
-          {
-            "time": 127.4584140917603
-          },
-          {
-            "time": 129.72508075842694
-          },
-          {
-            "time": 132.0424140917603
-          },
-          {
-            "time": 134.30908075842694
-          },
-          {
-            "time": 136.60508075842694
-          },
-          {
-            "time": 138.83708075842696
-          },
-          {
-            "time": 141.12508075842698
-          },
-          {
-            "time": 143.38908075842699
-          },
-          {
-            "time": 145.63708075842698
-          },
-          {
-            "time": 147.87174742509364
-          },
-          {
-            "time": 150.10908075842696
-          },
-          {
-            "time": 152.42108075842697
-          },
-          {
-            "time": 154.67174742509366
-          },
-          {
-            "time": 156.9384140917603
-          },
-          {
-            "time": 159.24241409176028
-          },
-          {
-            "time": 161.509080758427
-          },
-          {
-            "time": 163.77574742509364
-          },
-          {
-            "time": 165.97574742509363
-          },
-          {
-            "time": 168.28774742509364
-          },
-          {
-            "time": 170.60508075842694
-          },
-          {
-            "time": 172.77308075842694
-          },
-          {
-            "time": 175.03708075842695
-          },
-          {
-            "time": 177.3597474250936
-          },
-          {
-            "time": 179.62108075842696
-          },
-          {
-            "time": 181.8717474250936
-          },
-          {
-            "time": 184.07441409176027
-          },
-          {
-            "time": 186.34108075842693
-          },
-          {
-            "time": 188.6744140917603
-          },
-          {
-            "time": 190.85841409176027
-          },
-          {
-            "time": 193.15441409176026
-          },
-          {
-            "time": 195.40508075842695
-          },
-          {
-            "time": 197.58908075842697
-          },
-          {
-            "time": 199.85574742509363
-          },
-          {
-            "time": 202.19174742509364
-          },
-          {
-            "time": 204.4077474250936
-          },
-          {
-            "time": 206.73841409176026
-          }
-        ],
-        "part_starts": [
-          {
-            "bar_num": 1,
-            "name": "Thema 1 (Intro)",
-            "light_template": "03 walking"
-          },
-          {
-            "bar_num": 9,
-            "name": "Verse 1",
-            "light_template": "PAR Blue + Fog"
-          },
-          {
-            "bar_num": 17,
-            "name": "Chorus 1",
-            "light_template": "06 blinking"
-          },
-          {
-            "bar_num": 26,
-            "name": "Thema 2",
-            "light_template": "03 walking"
-          },
-          {
-            "bar_num": 34,
-            "name": "Verse 2",
-            "light_template": "PAR Green + Fog"
-          },
-          {
-            "bar_num": 42,
-            "name": "Chorus 2",
-            "light_template": "06 blinking"
-          },
-          {
-            "bar_num": 51,
-            "name": "Thema 3",
-            "light_template": "03 walking"
-          },
-          {
-            "bar_num": 59,
-            "name": "Thema 4",
-            "light_template": "07 round'n'round"
-          },
-          {
-            "bar_num": 67,
-            "name": "Chorus 3",
-            "light_template": "09 Alarm"
-          },
-          {
-            "bar_num": 75,
-            "name": "Chorus 4",
-            "light_template": "10 Alarm 🔔🔔"
-          },
-          {
-            "bar_num": 84,
-            "name": "Thema 5",
-            "light_template": "03 walking"
-          }
-        ]
-      }
+      "total_bars": 0
     },
     "EfmiXn": {
       "name": "Every You Every Me",
@@ -4203,442 +3860,11 @@
       "audio_ref_name": "Every You Every Me - Full Song.mp3",
       "lyrics_raw": "[Verse 1]Sucker love is heaven sent\nYou pucker up, our passion's spent\nMy heart's a tart, your body's rent\nMy body's broken, yours is bent\nCarve your name into my arm\nInstead of stressed, I lie here charmed\n'Cause there's nothing else to do\nEvery me and every you\n\n[Verse 2]\nSucker love, a box I choose\nNo other box I choose to use\nAnother love I would abuse\nNo circumstances could excuse\nIn the shape of things to come\nToo much poison come undone\n'Cause there's nothing else to do\nEvery me and every you\n[Chorus]\nEvery me and every you\nEvery me\n\n[Verse 3]\nSucker love is known to swing\nProne to cling and waste these things\nPucker up for heaven's sake\nThere's never been so much at stake\nI serve my head up on a plate\nIt's only comfort, calling late\n'Cause there's nothing else to do\nEvery me and every you\n\n[Chorus]\nEvery me and every you\nEvery me\nEvery me and every you\nEvery me\n\n[Verse 4]\nLike the naked leads the blind\nI know I'm selfish, I'm unkind\nSucker love I always find\nSomeone to bruise and leave behind\nAll alone in space and time\nThere's nothing here but what here's mine\nSomething borrowed, something blue\nEvery me and every you",
       "tms": {
-        "manual_done": [
-          "bar_markers",
-          "parts_identified",
-          "templates_set"
-        ],
+        "manual_done": [],
         "user_tasks": [],
         "manual_undone": []
       },
-      "total_bars": 117,
-      "split_markers": {
-        "markers": [
-          {
-            "time": 6.752808988764045
-          },
-          {
-            "time": 8.339232209737801
-          },
-          {
-            "time": 9.931232209737843
-          },
-          {
-            "time": 11.504565543071166
-          },
-          {
-            "time": 13.149898876404492
-          },
-          {
-            "time": 14.720565543071174
-          },
-          {
-            "time": 16.37123220973784
-          },
-          {
-            "time": 17.981898876404486
-          },
-          {
-            "time": 19.58723220973785
-          },
-          {
-            "time": 21.221898876404495
-          },
-          {
-            "time": 22.8058988764045
-          },
-          {
-            "time": 24.467232209737844
-          },
-          {
-            "time": 26.08323220973783
-          },
-          {
-            "time": 27.720565543071174
-          },
-          {
-            "time": 29.283232209737818
-          },
-          {
-            "time": 30.904565543071143
-          },
-          {
-            "time": 32.504565543071166
-          },
-          {
-            "time": 34.14989887640449
-          },
-          {
-            "time": 35.7312322097378
-          },
-          {
-            "time": 37.3872322097378
-          },
-          {
-            "time": 38.96629213483146
-          },
-          {
-            "time": 40.57123220973783
-          },
-          {
-            "time": 42.12359550561798
-          },
-          {
-            "time": 43.733898876404496
-          },
-          {
-            "time": 45.33123220973782
-          },
-          {
-            "time": 47.01656554307117
-          },
-          {
-            "time": 48.67256554307117
-          },
-          {
-            "time": 50.3152322097378
-          },
-          {
-            "time": 51.92056554307116
-          },
-          {
-            "time": 53.58189887640451
-          },
-          {
-            "time": 55.216565543071155
-          },
-          {
-            "time": 56.8032322097378
-          },
-          {
-            "time": 58.448565543071126
-          },
-          {
-            "time": 60.14989887640449
-          },
-          {
-            "time": 61.8032322097378
-          },
-          {
-            "time": 63.499232209737826
-          },
-          {
-            "time": 65.10456554307113
-          },
-          {
-            "time": 66.84856554307116
-          },
-          {
-            "time": 68.50456554307117
-          },
-          {
-            "time": 70.16589887640451
-          },
-          {
-            "time": 71.81656554307118
-          },
-          {
-            "time": 73.45389887640447
-          },
-          {
-            "time": 75.14989887640449
-          },
-          {
-            "time": 76.8032322097378
-          },
-          {
-            "time": 78.3658988764045
-          },
-          {
-            "time": 79.9978988764045
-          },
-          {
-            "time": 81.64856554307117
-          },
-          {
-            "time": 83.29923220973784
-          },
-          {
-            "time": 84.8992322097378
-          },
-          {
-            "time": 86.56589887640449
-          },
-          {
-            "time": 88.18723220973781
-          },
-          {
-            "time": 89.91523220973782
-          },
-          {
-            "time": 91.58189887640451
-          },
-          {
-            "time": 93.29923220973784
-          },
-          {
-            "time": 94.88323220973784
-          },
-          {
-            "time": 96.54989887640447
-          },
-          {
-            "time": 98.14989887640449
-          },
-          {
-            "time": 99.8538988764045
-          },
-          {
-            "time": 101.42189887640448
-          },
-          {
-            "time": 103.06456554307117
-          },
-          {
-            "time": 104.69923220973781
-          },
-          {
-            "time": 106.29923220973784
-          },
-          {
-            "time": 108.01656554307111
-          },
-          {
-            "time": 109.68856554307114
-          },
-          {
-            "time": 111.2725655430712
-          },
-          {
-            "time": 112.95505617977528
-          },
-          {
-            "time": 114.52056554307113
-          },
-          {
-            "time": 116.1712322097378
-          },
-          {
-            "time": 117.82189887640446
-          },
-          {
-            "time": 119.44856554307113
-          },
-          {
-            "time": 121.13656554307111
-          },
-          {
-            "time": 122.78723220973778
-          },
-          {
-            "time": 124.4832322097378
-          },
-          {
-            "time": 126.13923220973787
-          },
-          {
-            "time": 127.8005655430711
-          },
-          {
-            "time": 129.43256554307115
-          },
-          {
-            "time": 131.04856554307113
-          },
-          {
-            "time": 132.76589887640452
-          },
-          {
-            "time": 134.37123220973783
-          },
-          {
-            "time": 135.98189887640453
-          },
-          {
-            "time": 137.66989887640452
-          },
-          {
-            "time": 139.35523220973786
-          },
-          {
-            "time": 140.93656554307117
-          },
-          {
-            "time": 142.60056554307116
-          },
-          {
-            "time": 144.2378988764045
-          },
-          {
-            "time": 145.8725655430711
-          },
-          {
-            "time": 147.51523220973783
-          },
-          {
-            "time": 149.1658988764045
-          },
-          {
-            "time": 150.8538988764045
-          },
-          {
-            "time": 152.4538988764045
-          },
-          {
-            "time": 154.10456554307117
-          },
-          {
-            "time": 155.66723220973776
-          },
-          {
-            "time": 157.26723220973778
-          },
-          {
-            "time": 158.88323220973777
-          },
-          {
-            "time": 160.56589887640448
-          },
-          {
-            "time": 162.22189887640442
-          },
-          {
-            "time": 163.86456554307117
-          },
-          {
-            "time": 165.5552322097378
-          },
-          {
-            "time": 167.18723220973786
-          },
-          {
-            "time": 168.83256554307113
-          },
-          {
-            "time": 170.4645655430712
-          },
-          {
-            "time": 172.1658988764045
-          },
-          {
-            "time": 173.78723220973777
-          },
-          {
-            "time": 175.43256554307115
-          },
-          {
-            "time": 177.0885655430711
-          },
-          {
-            "time": 178.73389887640448
-          },
-          {
-            "time": 180.4165655430712
-          },
-          {
-            "time": 182.05389887640442
-          },
-          {
-            "time": 183.68856554307112
-          },
-          {
-            "time": 185.36589887640443
-          },
-          {
-            "time": 187.03256554307117
-          },
-          {
-            "time": 188.68323220973784
-          },
-          {
-            "time": 190.26723220973778
-          },
-          {
-            "time": 191.9392322097378
-          },
-          {
-            "time": 193.53389887640444
-          },
-          {
-            "time": 195.21656554307114
-          },
-          {
-            "time": 196.8725655430711
-          }
-        ],
-        "part_starts": [
-          {
-            "bar_num": 1,
-            "name": "Intro Guitar",
-            "light_template": "Spot auf Axel"
-          },
-          {
-            "bar_num": 17,
-            "name": "+ Drums",
-            "light_template": "Spot auf Tim"
-          },
-          {
-            "bar_num": 25,
-            "name": "Verse 1",
-            "light_template": "07 round'n'round"
-          },
-          {
-            "bar_num": 33,
-            "name": "Bridge 1",
-            "light_template": "09 Alarm"
-          },
-          {
-            "bar_num": 41,
-            "name": "Verse 2",
-            "light_template": "07 round'n'round"
-          },
-          {
-            "bar_num": 49,
-            "name": "Bridge 2",
-            "light_template": "09 Alarm"
-          },
-          {
-            "bar_num": 57,
-            "name": "Chorus 1",
-            "light_template": "06 blinking"
-          },
-          {
-            "bar_num": 61,
-            "name": "Verse 3",
-            "light_template": "07 round'n'round"
-          },
-          {
-            "bar_num": 69,
-            "name": "Bridge 3",
-            "light_template": "09 Alarm"
-          },
-          {
-            "bar_num": 77,
-            "name": "Chorus 2",
-            "light_template": "06 blinking"
-          },
-          {
-            "bar_num": 85,
-            "name": "Verse 4",
-            "light_template": "07 round'n'round"
-          },
-          {
-            "bar_num": 93,
-            "name": "Bridge 4",
-            "light_template": "09 Alarm"
-          },
-          {
-            "bar_num": 101,
-            "name": "Chorus 3",
-            "light_template": "06 blinking"
-          },
-          {
-            "bar_num": 117,
-            "name": "Ausklang",
-            "light_template": "01 statisch bunt"
-          }
-        ]
-      }
+      "total_bars": 0
     },
     "BfbgVC": {
       "name": "Fight for your Right",
@@ -4656,637 +3882,29 @@
       "audio_ref_name": "Fight for your Right - Full Song.mp3",
       "lyrics_raw": "Kick it\n\n[Verse 1: Ad-Rock, Mike D, Mike D & Ad-Rock, MCA & *MCA & Ad-Rock*]\nYou wake up late for school, man, you don't wanna go\nYou ask your mom, \"Please?\", but she still says, \"No\"\nYou missed two classes and no homework\nBut your teacher preaches class like you're some kind of *jerk*\n\n[Chorus: All]\nYou gotta fight\nFor your right\nTo party\n[Verse 2: Mike D, Mike D & MCA, MCA & Ad-Rock]\nYour pop's caught you smokin', man, he says, \"No way!\"\nThat hypocrite smokes two packs a day\nMan, livin' at home is such a drag\nNow your mom threw away your best porno mag (Busted)\n\n[Chorus: All]\nYou gotta fight\nFor your right\nTo party\nYou gotta fight\n\n[Guitar Solo]\n\n[Verse 3: Ad-Rock, Mike D, MCA & All]\nDon't step out of this house if that's the clothes you're gonna wear\nI'll kick you out of my home if you don't cut that hair\nYour mom busted in and said, \"What's that noise?\"\nAw, Mom, you're just jealous, it's the Bea- -stie Boys\n\n[Chorus: All]\nYou gotta fight\nFor your right\nTo party\nYou gotta fight\nFor your right\nTo party",
       "tms": {
-        "manual_done": [
-          "bar_markers",
-          "parts_identified",
-          "templates_set"
-        ],
+        "manual_done": [],
         "user_tasks": [],
         "manual_undone": []
       },
-      "total_bars": 121,
-      "split_markers": {
-        "markers": [
-          {
-            "time": 0.004999999999981186
-          },
-          {
-            "time": 10.701000000000008
-          },
-          {
-            "time": 12.500999999999962
-          },
-          {
-            "time": 14.28766666666671
-          },
-          {
-            "time": 16.052999999999983
-          },
-          {
-            "time": 17.919666666666657
-          },
-          {
-            "time": 19.73833333333333
-          },
-          {
-            "time": 21.503666666666717
-          },
-          {
-            "time": 23.319666666666635
-          },
-          {
-            "time": 25.18633333333331
-          },
-          {
-            "time": 26.901000000000053
-          },
-          {
-            "time": 28.701000000000008
-          },
-          {
-            "time": 30.535666666666643
-          },
-          {
-            "time": 32.30100000000003
-          },
-          {
-            "time": 34.103666666666626
-          },
-          {
-            "time": 35.869000000000014
-          },
-          {
-            "time": 37.719666666666726
-          },
-          {
-            "time": 39.50099999999996
-          },
-          {
-            "time": 41.26899999999999
-          },
-          {
-            "time": 43.1196666666667
-          },
-          {
-            "time": 44.98633333333338
-          },
-          {
-            "time": 46.78633333333333
-          },
-          {
-            "time": 48.60233333333336
-          },
-          {
-            "time": 50.40233333333332
-          },
-          {
-            "time": 52.26899999999999
-          },
-          {
-            "time": 54.0183333333333
-          },
-          {
-            "time": 55.729438202247195
-          },
-          {
-            "time": 57.601348314606746
-          },
-          {
-            "time": 59.29943820224719
-          },
-          {
-            "time": 61.08500000000002
-          },
-          {
-            "time": 62.93566666666662
-          },
-          {
-            "time": 64.70366666666665
-          },
-          {
-            "time": 66.50099999999996
-          },
-          {
-            "time": 68.31966666666663
-          },
-          {
-            "time": 70.18633333333331
-          },
-          {
-            "time": 71.9516666666667
-          },
-          {
-            "time": 73.82100000000001
-          },
-          {
-            "time": 75.60233333333336
-          },
-          {
-            "time": 77.42100000000003
-          },
-          {
-            "time": 79.21833333333335
-          },
-          {
-            "time": 81.02100000000006
-          },
-          {
-            "time": 82.8503333333333
-          },
-          {
-            "time": 84.66899999999997
-          },
-          {
-            "time": 86.50099999999996
-          },
-          {
-            "time": 88.28766666666671
-          },
-          {
-            "time": 90.05299999999998
-          },
-          {
-            "time": 91.81833333333337
-          },
-          {
-            "time": 93.68500000000004
-          },
-          {
-            "time": 95.4183333333334
-          },
-          {
-            "time": 97.21230337078651
-          },
-          {
-            "time": 99.01067415730337
-          },
-          {
-            "time": 100.78633333333333
-          },
-          {
-            "time": 102.68766666666669
-          },
-          {
-            "time": 104.4458988764045
-          },
-          {
-            "time": 106.14398876404495
-          },
-          {
-            "time": 107.92898876404495
-          },
-          {
-            "time": 109.74741573033708
-          },
-          {
-            "time": 111.53030337078654
-          },
-          {
-            "time": 113.34097003745318
-          },
-          {
-            "time": 115.1569700374532
-          },
-          {
-            "time": 116.99697003745324
-          },
-          {
-            "time": 118.74630337078655
-          },
-          {
-            "time": 120.55101123595506
-          },
-          {
-            "time": 122.3023687315634
-          },
-          {
-            "time": 124.08370206489674
-          },
-          {
-            "time": 125.81170206489675
-          },
-          {
-            "time": 127.57703539823008
-          },
-          {
-            "time": 129.38503539823006
-          },
-          {
-            "time": 131.18503539823004
-          },
-          {
-            "time": 132.98503539823005
-          },
-          {
-            "time": 134.77703539823005
-          },
-          {
-            "time": 136.49436873156338
-          },
-          {
-            "time": 138.3023687315634
-          },
-          {
-            "time": 140.1343687315634
-          },
-          {
-            "time": 141.9503687315634
-          },
-          {
-            "time": 143.8429213483146
-          },
-          {
-            "time": 145.6463687315634
-          },
-          {
-            "time": 147.48370206489673
-          },
-          {
-            "time": 149.26770206489672
-          },
-          {
-            "time": 151.11836873156338
-          },
-          {
-            "time": 152.8943687315634
-          },
-          {
-            "time": 154.67836873156338
-          },
-          {
-            "time": 156.54503539823006
-          },
-          {
-            "time": 158.37703539823005
-          },
-          {
-            "time": 160.1503687315634
-          },
-          {
-            "time": 161.97703539823007
-          },
-          {
-            "time": 163.82770206489673
-          },
-          {
-            "time": 165.53185840707965
-          },
-          {
-            "time": 167.2920353982301
-          },
-          {
-            "time": 169.04636873156338
-          },
-          {
-            "time": 170.89030973451327
-          },
-          {
-            "time": 172.6743097345133
-          },
-          {
-            "time": 174.50097640117994
-          },
-          {
-            "time": 176.31746017699115
-          },
-          {
-            "time": 178.1104513274336
-          },
-          {
-            "time": 179.9066371681416
-          },
-          {
-            "time": 181.65711799410028
-          },
-          {
-            "time": 183.5184513274336
-          },
-          {
-            "time": 185.35089970501474
-          },
-          {
-            "time": 187.15089970501472
-          },
-          {
-            "time": 189.0335663716814
-          },
-          {
-            "time": 190.8495663716814
-          },
-          {
-            "time": 192.60689970501474
-          },
-          {
-            "time": 194.37489970501474
-          },
-          {
-            "time": 196.15623303834806
-          },
-          {
-            "time": 197.96689970501473
-          },
-          {
-            "time": 199.77489970501475
-          },
-          {
-            "time": 201.62289970501473
-          },
-          {
-            "time": 203.39089970501473
-          },
-          {
-            "time": 205.19089970501474
-          },
-          {
-            "time": 206.99889970501474
-          },
-          {
-            "time": 208.8495663716814
-          },
-          {
-            "time": 210.59089970501472
-          },
-          {
-            "time": 212.4175663716814
-          },
-          {
-            "time": 214.28423303834808
-          },
-          {
-            "time": 216.12423303834808
-          },
-          {
-            "time": 217.90023303834806
-          },
-          {
-            "time": 219.6655663716814
-          },
-          {
-            "time": 221.46823303834807
-          },
-          {
-            "time": 223.31623303834806
-          },
-          {
-            "time": 233.08805309734512
-          }
-        ],
-        "part_starts": [
-          {
-            "bar_num": 1,
-            "name": "Geschraddel bis „Kick it“",
-            "light_template": "16 Searchlight"
-          },
-          {
-            "bar_num": 2,
-            "name": "Thema 1 (Intro)",
-            "light_template": "10 Alarm 🔔🔔"
-          },
-          {
-            "bar_num": 10,
-            "name": "Verse 1",
-            "light_template": "08 swimming"
-          },
-          {
-            "bar_num": 26,
-            "name": "Chorus 1",
-            "light_template": "blind (accent)"
-          },
-          {
-            "bar_num": 28,
-            "name": "Thema 2",
-            "light_template": "10 Alarm 🔔🔔"
-          },
-          {
-            "bar_num": 32,
-            "name": "Verse 2",
-            "light_template": "08 swimming"
-          },
-          {
-            "bar_num": 48,
-            "name": "Chorus 2",
-            "light_template": "01 statisch bunt"
-          },
-          {
-            "bar_num": 50,
-            "name": "Thema 3",
-            "light_template": "10 Alarm 🔔🔔"
-          },
-          {
-            "bar_num": 54,
-            "name": "Chorus 3"
-          },
-          {
-            "bar_num": 56,
-            "name": "Thema 4",
-            "light_template": "10 Alarm 🔔🔔"
-          },
-          {
-            "bar_num": 60,
-            "name": "Interlude 1",
-            "light_template": "02 slow blue"
-          },
-          {
-            "bar_num": 64,
-            "name": "Solo Axel",
-            "light_template": "01 statisch bunt"
-          },
-          {
-            "bar_num": 72,
-            "name": "Verse 3",
-            "light_template": "08 swimming"
-          },
-          {
-            "bar_num": 88,
-            "name": "Chorus 4",
-            "light_template": "01 statisch bunt"
-          },
-          {
-            "bar_num": 90,
-            "name": "Thema 5",
-            "light_template": "10 Alarm 🔔🔔"
-          },
-          {
-            "bar_num": 94,
-            "name": "Chorus 5",
-            "light_template": "01 statisch bunt"
-          },
-          {
-            "bar_num": 96,
-            "name": "Thema 6",
-            "light_template": "10 Alarm 🔔🔔"
-          },
-          {
-            "bar_num": 100,
-            "name": "Interlude 2",
-            "light_template": "02 slow blue"
-          },
-          {
-            "bar_num": 104,
-            "name": "Thema 7 (Party)",
-            "light_template": "10 Alarm 🔔🔔"
-          },
-          {
-            "bar_num": 108,
-            "name": "Thema 8 (Party)",
-            "light_template": "10 Alarm 🔔🔔"
-          },
-          {
-            "bar_num": 112,
-            "name": "Thema 9 (Party)",
-            "light_template": "10 Alarm 🔔🔔"
-          },
-          {
-            "bar_num": 116,
-            "name": "Thema 10 (Party)",
-            "light_template": "10 Alarm 🔔🔔"
-          },
-          {
-            "bar_num": 120,
-            "name": "Ausklang",
-            "light_template": "09 Alarm"
-          },
-          {
-            "bar_num": 121,
-            "name": "Abschlag",
-            "light_template": "22 blind"
-          }
-        ]
+      "total_bars": 0
+    },
+    "ZhSlyd": {
+      "name": "Flourescent Adolescent",
+      "artist": "Arctic Monkeys",
+      "bpm": 110,
+      "key": "E dur",
+      "year": "2007",
+      "pick": "",
+      "gema_nr": "9714554-001",
+      "duration": "3:08",
+      "duration_sec": 188,
+      "notes": "end-akkord = cis moll; ; 4 Intro alle mit Stops; 4 Intro alle mit Beat ; 4 Verse ohne Git; 4 Verse alle; 9 Bridge (erst Pausen dann Beat); 8 Verse (letzte 2 Takte Pause); 8 Bridge (erst Beat dann Pausen); 8 Interlude; 4 Intro alle mit Stops; 4 Intro alle mit Stops + Vocals; 5 Intro Stops anders + Vocals; 16 Refrain; Abschlag auf 1 in Cis moll; ;",
+      "tms": {
+        "manual_done": [],
+        "user_tasks": [],
+        "manual_undone": []
       },
-      "qlc_parts": {
-        "BfbgVC_QP001": {
-          "pos": 1,
-          "name": "Einstieg auf \"Kick it\"",
-          "light_template": "01 statisch bunt",
-          "notes": ""
-        },
-        "BfbgVC_QP002": {
-          "pos": 2,
-          "name": "Thema",
-          "light_template": "09 Alarm",
-          "notes": ""
-        },
-        "BfbgVC_QP003": {
-          "pos": 3,
-          "name": "Verse 1",
-          "light_template": "08 swimming",
-          "notes": ""
-        },
-        "BfbgVC_QP004": {
-          "pos": 4,
-          "name": "Chorus 1",
-          "light_template": "blind (accent)",
-          "notes": ""
-        },
-        "BfbgVC_QP005": {
-          "pos": 5,
-          "name": "Verse 2",
-          "light_template": "08 swimming",
-          "notes": ""
-        },
-        "BfbgVC_QP006": {
-          "pos": 6,
-          "name": "you got to fight",
-          "light_template": "blackout (scene)",
-          "notes": ""
-        },
-        "BfbgVC_QP007": {
-          "pos": 7,
-          "name": "for your right",
-          "light_template": "blackout (scene)",
-          "notes": ""
-        },
-        "BfbgVC_QP008": {
-          "pos": 8,
-          "name": "to party",
-          "light_template": "10 Strobe",
-          "notes": ""
-        },
-        "BfbgVC_QP009": {
-          "pos": 9,
-          "name": "for your right",
-          "light_template": "blackout (scene)",
-          "notes": ""
-        },
-        "BfbgVC_QP010": {
-          "pos": 10,
-          "name": "to party",
-          "light_template": "10 Strobe",
-          "notes": ""
-        },
-        "BfbgVC_QP011": {
-          "pos": 11,
-          "name": "Interlude",
-          "light_template": "02 slow blue",
-          "notes": ""
-        },
-        "BfbgVC_QP012": {
-          "pos": 12,
-          "name": "Solo Axel",
-          "light_template": "Spot auf Axel hot",
-          "notes": ""
-        },
-        "BfbgVC_QP013": {
-          "pos": 13,
-          "name": "Verse 3",
-          "light_template": "08 swimming",
-          "notes": ""
-        },
-        "BfbgVC_QP014": {
-          "pos": 14,
-          "name": "You got to fight",
-          "light_template": "blackout (scene)",
-          "notes": ""
-        },
-        "BfbgVC_QP015": {
-          "pos": 15,
-          "name": "for your right",
-          "light_template": "blackout (scene)",
-          "notes": ""
-        },
-        "BfbgVC_QP016": {
-          "pos": 16,
-          "name": "to party",
-          "light_template": "10 Strobe",
-          "notes": ""
-        },
-        "BfbgVC_QP017": {
-          "pos": 17,
-          "name": "Interlude",
-          "light_template": "02 slow blue",
-          "notes": ""
-        },
-        "BfbgVC_QP018": {
-          "pos": 18,
-          "name": "\"Party\"",
-          "light_template": "10 Strobe",
-          "notes": ""
-        },
-        "BfbgVC_QP019": {
-          "pos": 19,
-          "name": "\"Party\"",
-          "light_template": "10 Strobe",
-          "notes": ""
-        },
-        "BfbgVC_QP020": {
-          "pos": 20,
-          "name": "\"Party\"",
-          "light_template": "10 Strobe",
-          "notes": ""
-        },
-        "BfbgVC_QP021": {
-          "pos": 21,
-          "name": "\"Party\"",
-          "light_template": "10 Strobe",
-          "notes": ""
-        },
-        "BfbgVC_QP022": {
-          "pos": 22,
-          "name": "Lärm mit Abschlag",
-          "light_template": "01 statisch bunt",
-          "notes": ""
-        }
-      }
+      "total_bars": 0
     },
     "E3pvFC": {
       "name": "Goodbye",
@@ -5305,257 +3923,7 @@
         "user_tasks": [],
         "manual_undone": []
       },
-      "total_bars": 81,
-      "audio_ref": "audio/Goodbye/Goodbye - Full Song.mp3",
-      "audio_ref_name": "20190905 Goodbye - vVFlbr.mp3",
-      "split_markers": {
-        "markers": [
-          {
-            "time": 13.864979400748993
-          },
-          {
-            "time": 16.104979400749002
-          },
-          {
-            "time": 18.36631273408237
-          },
-          {
-            "time": 20.6196460674157
-          },
-          {
-            "time": 22.864979400748993
-          },
-          {
-            "time": 25.12097940074908
-          },
-          {
-            "time": 27.36631273408237
-          },
-          {
-            "time": 29.555646067415736
-          },
-          {
-            "time": 31.750312734082385
-          },
-          {
-            "time": 34.032979400749
-          },
-          {
-            "time": 36.23831273408233
-          },
-          {
-            "time": 38.419646067415655
-          },
-          {
-            "time": 40.55031273408234
-          },
-          {
-            "time": 42.84897940074903
-          },
-          {
-            "time": 44.936979400748996
-          },
-          {
-            "time": 47.13697940074904
-          },
-          {
-            "time": 49.28631273408233
-          },
-          {
-            "time": 51.53697940074902
-          },
-          {
-            "time": 53.72097940074899
-          },
-          {
-            "time": 55.99831273408232
-          },
-          {
-            "time": 58.187646067415685
-          },
-          {
-            "time": 60.464979400749016
-          },
-          {
-            "time": 62.670312734082344
-          },
-          {
-            "time": 64.936979400749
-          },
-          {
-            "time": 67.09964606741572
-          },
-          {
-            "time": 69.28631273408233
-          },
-          {
-            "time": 71.48631273408238
-          },
-          {
-            "time": 73.68364606741567
-          },
-          {
-            "time": 75.78764606741571
-          },
-          {
-            "time": 78.05431273408236
-          },
-          {
-            "time": 80.24897940074901
-          },
-          {
-            "time": 82.38231273408233
-          },
-          {
-            "time": 84.46497940074902
-          },
-          {
-            "time": 86.75031273408239
-          },
-          {
-            "time": 88.936979400749
-          },
-          {
-            "time": 91.13697940074904
-          },
-          {
-            "time": 93.29964606741565
-          },
-          {
-            "time": 95.46497940074902
-          },
-          {
-            "time": 97.59831273408234
-          },
-          {
-            "time": 99.87031273408239
-          },
-          {
-            "time": 102.04897940074908
-          },
-          {
-            "time": 104.36631273408237
-          },
-          {
-            "time": 106.58231273408238
-          },
-          {
-            "time": 108.81697940074899
-          },
-          {
-            "time": 111.07031273408232
-          },
-          {
-            "time": 113.28364606741569
-          },
-          {
-            "time": 115.52097940074906
-          },
-          {
-            "time": 117.66497940074906
-          },
-          {
-            "time": 119.93164606741571
-          },
-          {
-            "time": 122.16631273408233
-          },
-          {
-            "time": 124.38764606741573
-          },
-          {
-            "time": 126.61431273408242
-          },
-          {
-            "time": 128.81964606741573
-          },
-          {
-            "time": 130.98764606741574
-          },
-          {
-            "time": 133.27031273408235
-          },
-          {
-            "time": 135.41964606741564
-          },
-          {
-            "time": 137.73164606741565
-          },
-          {
-            "time": 139.96631273408238
-          },
-          {
-            "time": 142.19831273408235
-          },
-          {
-            "time": 144.41964606741564
-          },
-          {
-            "time": 146.632979400749
-          },
-          {
-            "time": 148.75031273408237
-          },
-          {
-            "time": 150.87031273408238
-          },
-          {
-            "time": 153.03297940074899
-          },
-          {
-            "time": 155.2383127340823
-          },
-          {
-            "time": 157.38764606741572
-          },
-          {
-            "time": 159.632979400749
-          },
-          {
-            "time": 161.88631273408234
-          },
-          {
-            "time": 164.13164606741574
-          },
-          {
-            "time": 166.2543127340824
-          },
-          {
-            "time": 168.43831273408236
-          },
-          {
-            "time": 170.6383127340824
-          },
-          {
-            "time": 172.87031273408238
-          },
-          {
-            "time": 175.13697940074903
-          },
-          {
-            "time": 177.3983127340824
-          },
-          {
-            "time": 179.53164606741572
-          },
-          {
-            "time": 181.7823127340824
-          },
-          {
-            "time": 184.0036460674157
-          },
-          {
-            "time": 186.2383127340823
-          },
-          {
-            "time": 188.40364606741568
-          },
-          {
-            "time": 190.65431273408237
-          }
-        ],
-        "part_starts": []
-      }
+      "total_bars": 0
     },
     "qVbU6L": {
       "name": "Hail to the Freaks",
@@ -6650,249 +5018,7 @@
         "user_tasks": [],
         "manual_undone": []
       },
-      "total_bars": 79,
-      "split_markers": {
-        "markers": [
-          {
-            "time": 3.415666666666695
-          },
-          {
-            "time": 5.527666666666661
-          },
-          {
-            "time": 7.6636666666666855
-          },
-          {
-            "time": 9.79433333333337
-          },
-          {
-            "time": 11.879666666666694
-          },
-          {
-            "time": 13.895666666666656
-          },
-          {
-            "time": 15.978333333333339
-          },
-          {
-            "time": 18.02900000000004
-          },
-          {
-            "time": 20.06100000000002
-          },
-          {
-            "time": 22.213000000000008
-          },
-          {
-            "time": 24.29566666666669
-          },
-          {
-            "time": 26.343666666666692
-          },
-          {
-            "time": 28.362333333333353
-          },
-          {
-            "time": 30.477000000000018
-          },
-          {
-            "time": 32.581
-          },
-          {
-            "time": 34.698333333333366
-          },
-          {
-            "time": 36.89380530973452
-          },
-          {
-            "time": 39.01300000000002
-          },
-          {
-            "time": 41.111666666666665
-          },
-          {
-            "time": 43.34778761061947
-          },
-          {
-            "time": 45.56725663716814
-          },
-          {
-            "time": 47.6650825958702
-          },
-          {
-            "time": 49.787749262536906
-          },
-          {
-            "time": 51.937082595870194
-          },
-          {
-            "time": 54.1530825958702
-          },
-          {
-            "time": 56.32108259587021
-          },
-          {
-            "time": 58.38774926253687
-          },
-          {
-            "time": 60.58774926253686
-          },
-          {
-            "time": 62.64641592920354
-          },
-          {
-            "time": 64.81974926253689
-          },
-          {
-            "time": 66.96908259587023
-          },
-          {
-            "time": 69.06241592920354
-          },
-          {
-            "time": 71.23574926253688
-          },
-          {
-            "time": 73.40374926253689
-          },
-          {
-            "time": 75.57974926253688
-          },
-          {
-            "time": 77.70241592920353
-          },
-          {
-            "time": 79.83041592920357
-          },
-          {
-            "time": 81.92108259587023
-          },
-          {
-            "time": 84.06241592920354
-          },
-          {
-            "time": 86.16374926253688
-          },
-          {
-            "time": 88.27041592920357
-          },
-          {
-            "time": 90.35308259587019
-          },
-          {
-            "time": 92.60374926253688
-          },
-          {
-            "time": 94.77974926253687
-          },
-          {
-            "time": 97.01441592920354
-          },
-          {
-            "time": 99.23574926253688
-          },
-          {
-            "time": 101.50241592920354
-          },
-          {
-            "time": 103.6650825958702
-          },
-          {
-            "time": 105.89708259587023
-          },
-          {
-            "time": 108.1317492625369
-          },
-          {
-            "time": 110.28108259587019
-          },
-          {
-            "time": 112.41441592920357
-          },
-          {
-            "time": 114.47041592920355
-          },
-          {
-            "time": 116.72908259587022
-          },
-          {
-            "time": 118.83574926253691
-          },
-          {
-            "time": 120.95308259587021
-          },
-          {
-            "time": 123.07041592920358
-          },
-          {
-            "time": 125.21974926253687
-          },
-          {
-            "time": 127.40374926253689
-          },
-          {
-            "time": 129.56908259587019
-          },
-          {
-            "time": 131.7024159292035
-          },
-          {
-            "time": 133.87041592920352
-          },
-          {
-            "time": 136.1530825958702
-          },
-          {
-            "time": 138.36374926253686
-          },
-          {
-            "time": 140.47041592920354
-          },
-          {
-            "time": 142.63574926253685
-          },
-          {
-            "time": 144.72108259587023
-          },
-          {
-            "time": 146.79841592920351
-          },
-          {
-            "time": 148.96908259587022
-          },
-          {
-            "time": 151.10241592920354
-          },
-          {
-            "time": 153.24641592920355
-          },
-          {
-            "time": 155.43041592920358
-          },
-          {
-            "time": 157.51308259587026
-          },
-          {
-            "time": 159.57974926253686
-          },
-          {
-            "time": 161.67041592920359
-          },
-          {
-            "time": 163.78774926253683
-          },
-          {
-            "time": 165.89708259587016
-          },
-          {
-            "time": 168.01974926253692
-          },
-          {
-            "time": 170.1210825958702
-          }
-        ],
-        "part_starts": []
-      }
+      "total_bars": 0
     },
     "I8M2A8": {
       "name": "Seven Nation Army + Sweet Dreams",
@@ -8944,231 +7070,231 @@
     "B0283": {
       "bar_num": 1,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/01 Bass Solo mit Tambourine/001 Are You Gonna Be My Girl Bass Solo mit Tambourine.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0284": {
       "bar_num": 2,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/01 Bass Solo mit Tambourine/002 Are You Gonna Be My Girl Bass Solo mit Tambourine.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0285": {
       "bar_num": 3,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/01 Bass Solo mit Tambourine/003 Are You Gonna Be My Girl Bass Solo mit Tambourine.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0286": {
       "bar_num": 4,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/01 Bass Solo mit Tambourine/004 Are You Gonna Be My Girl Bass Solo mit Tambourine.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0287": {
       "bar_num": 5,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/01 Bass Solo mit Tambourine/005 Are You Gonna Be My Girl Bass Solo mit Tambourine.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0288": {
       "bar_num": 6,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/01 Bass Solo mit Tambourine/006 Are You Gonna Be My Girl Bass Solo mit Tambourine.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0289": {
       "bar_num": 7,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/01 Bass Solo mit Tambourine/007 Are You Gonna Be My Girl Bass Solo mit Tambourine.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0290": {
       "bar_num": 8,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/01 Bass Solo mit Tambourine/008 Are You Gonna Be My Girl Bass Solo mit Tambourine.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0291": {
       "bar_num": 9,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/02 + Drums/009 Are You Gonna Be My Girl + Drums.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0292": {
       "bar_num": 10,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/02 + Drums/010 Are You Gonna Be My Girl + Drums.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0293": {
       "bar_num": 11,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/02 + Drums/011 Are You Gonna Be My Girl + Drums.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0294": {
       "bar_num": 12,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/02 + Drums/012 Are You Gonna Be My Girl + Drums.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0295": {
       "bar_num": 13,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/02 + Drums/013 Are You Gonna Be My Girl + Drums.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0296": {
       "bar_num": 14,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/02 + Drums/014 Are You Gonna Be My Girl + Drums.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0297": {
       "bar_num": 15,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/03 Mini-Solo Axel/015 Are You Gonna Be My Girl Mini-Solo Axel.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0298": {
       "bar_num": 16,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/03 Mini-Solo Axel/016 Are You Gonna Be My Girl Mini-Solo Axel.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0299": {
       "bar_num": 17,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/04 Thema 1/017 Are You Gonna Be My Girl Thema 1.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0300": {
       "bar_num": 18,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/04 Thema 1/018 Are You Gonna Be My Girl Thema 1.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0301": {
       "bar_num": 19,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/04 Thema 1/019 Are You Gonna Be My Girl Thema 1.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0302": {
       "bar_num": 20,
       "lyrics": "Go!\n",
-      "audio": "audio/Are You Gonna Be My Girl/04 Thema 1/020 Are You Gonna Be My Girl Thema 1.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0303": {
       "bar_num": 21,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/04 Thema 1/021 Are You Gonna Be My Girl Thema 1.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0304": {
       "bar_num": 22,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/04 Thema 1/022 Are You Gonna Be My Girl Thema 1.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0305": {
       "bar_num": 23,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/04 Thema 1/023 Are You Gonna Be My Girl Thema 1.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0306": {
       "bar_num": 24,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/04 Thema 1/024 Are You Gonna Be My Girl Thema 1.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0308": {
       "bar_num": 25,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/05 Verse 1/025 Are You Gonna Be My Girl Verse 1.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0309": {
       "bar_num": 26,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/05 Verse 1/026 Are You Gonna Be My Girl Verse 1.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0310": {
       "bar_num": 27,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/05 Verse 1/027 Are You Gonna Be My Girl Verse 1.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0311": {
       "bar_num": 28,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/05 Verse 1/028 Are You Gonna Be My Girl Verse 1.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0312": {
       "bar_num": 29,
       "lyrics": "one, two, three, take my",
-      "audio": "audio/Are You Gonna Be My Girl/05 Verse 1/029 Are You Gonna Be My Girl Verse 1.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0313": {
       "bar_num": 30,
       "lyrics": "hand and come with me Because you",
-      "audio": "audio/Are You Gonna Be My Girl/05 Verse 1/030 Are You Gonna Be My Girl Verse 1.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0314": {
       "bar_num": 31,
       "lyrics": "look so fine that I",
-      "audio": "audio/Are You Gonna Be My Girl/05 Verse 1/031 Are You Gonna Be My Girl Verse 1.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0315": {
       "bar_num": 32,
       "lyrics": "really wanna make you mine",
-      "audio": "audio/Are You Gonna Be My Girl/05 Verse 1/032 Are You Gonna Be My Girl Verse 1.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0316": {
       "bar_num": 33,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/05 Verse 1/033 Are You Gonna Be My Girl Verse 1.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO",
       "instrumental": true
@@ -9176,7 +7302,7 @@
     "B0317": {
       "bar_num": 34,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/05 Verse 1/034 Are You Gonna Be My Girl Verse 1.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO",
       "instrumental": true
@@ -9184,21 +7310,21 @@
     "B0318": {
       "bar_num": 35,
       "lyrics": "look so fine that I",
-      "audio": "audio/Are You Gonna Be My Girl/05 Verse 1/035 Are You Gonna Be My Girl Verse 1.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0319": {
       "bar_num": 36,
       "lyrics": "really wanna make you mine",
-      "audio": "audio/Are You Gonna Be My Girl/05 Verse 1/036 Are You Gonna Be My Girl Verse 1.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0320": {
       "bar_num": 37,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/05 Verse 1/037 Are You Gonna Be My Girl Verse 1.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO",
       "instrumental": true
@@ -9206,7 +7332,7 @@
     "B0321": {
       "bar_num": 38,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/05 Verse 1/038 Are You Gonna Be My Girl Verse 1.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO",
       "instrumental": true
@@ -9214,35 +7340,35 @@
     "B0322": {
       "bar_num": 39,
       "lyrics": "four, five, six, c'mon",
-      "audio": "audio/Are You Gonna Be My Girl/05 Verse 1/039 Are You Gonna Be My Girl Verse 1.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0323": {
       "bar_num": 40,
       "lyrics": "and get your kicks Now you",
-      "audio": "audio/Are You Gonna Be My Girl/05 Verse 1/040 Are You Gonna Be My Girl Verse 1.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0325": {
       "bar_num": 41,
       "lyrics": "don't need that money when",
-      "audio": "audio/Are You Gonna Be My Girl/06 Bridge 1/041 Are You Gonna Be My Girl Bridge 1.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0326": {
       "bar_num": 42,
       "lyrics": "you look like that, do you honey?",
-      "audio": "audio/Are You Gonna Be My Girl/06 Bridge 1/042 Are You Gonna Be My Girl Bridge 1.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0327": {
       "bar_num": 43,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/06 Bridge 1/043 Are You Gonna Be My Girl Bridge 1.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO",
       "instrumental": true
@@ -9250,7 +7376,7 @@
     "B0328": {
       "bar_num": 44,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/06 Bridge 1/044 Are You Gonna Be My Girl Bridge 1.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO",
       "instrumental": true
@@ -9258,7 +7384,7 @@
     "B0329": {
       "bar_num": 45,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/06 Bridge 1/045 Are You Gonna Be My Girl Bridge 1.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO",
       "instrumental": true
@@ -9266,7 +7392,7 @@
     "B0330": {
       "bar_num": 46,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/06 Bridge 1/046 Are You Gonna Be My Girl Bridge 1.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO",
       "instrumental": true
@@ -9274,875 +7400,875 @@
     "B0331": {
       "bar_num": 47,
       "lyrics": "Big black",
-      "audio": "audio/Are You Gonna Be My Girl/06 Bridge 1/047 Are You Gonna Be My Girl Bridge 1.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0332": {
       "bar_num": 48,
       "lyrics": "boots,",
-      "audio": "audio/Are You Gonna Be My Girl/06 Bridge 1/048 Are You Gonna Be My Girl Bridge 1.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0334": {
       "bar_num": 49,
       "lyrics": "long brown",
-      "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/049 Are You Gonna Be My Girl Chorus 1.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0335": {
       "bar_num": 50,
       "lyrics": "hair",
-      "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/050 Are You Gonna Be My Girl Chorus 1.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0336": {
       "bar_num": 51,
       "lyrics": "She's so sweet",
-      "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/051 Are You Gonna Be My Girl Chorus 1.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0337": {
       "bar_num": 52,
       "lyrics": "with her",
-      "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/052 Are You Gonna Be My Girl Chorus 1.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0338": {
       "bar_num": 53,
       "lyrics": "get back",
-      "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/053 Are You Gonna Be My Girl Chorus 1.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0339": {
       "bar_num": 54,
       "lyrics": "stare\n",
-      "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/054 Are You Gonna Be My Girl Chorus 1.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0340": {
       "bar_num": 55,
       "lyrics": "I could see,",
-      "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/055 Are You Gonna Be My Girl Chorus 1.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0341": {
       "bar_num": 56,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/056 Are You Gonna Be My Girl Chorus 1.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0342": {
       "bar_num": 57,
       "lyrics": "you home with me",
-      "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/057 Are You Gonna Be My Girl Chorus 1.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0343": {
       "bar_num": 58,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/058 Are You Gonna Be My Girl Chorus 1.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0344": {
       "bar_num": 59,
       "lyrics": "But you were",
-      "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/059 Are You Gonna Be My Girl Chorus 1.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0345": {
       "bar_num": 60,
       "lyrics": "with another",
-      "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/060 Are You Gonna Be My Girl Chorus 1.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0346": {
       "bar_num": 61,
       "lyrics": "man,",
-      "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/061 Are You Gonna Be My Girl Chorus 1.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0347": {
       "bar_num": 62,
       "lyrics": "yeah",
-      "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/062 Are You Gonna Be My Girl Chorus 1.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0348": {
       "bar_num": 63,
       "lyrics": "I know",
-      "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/063 Are You Gonna Be My Girl Chorus 1.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0349": {
       "bar_num": 64,
       "lyrics": "we ain't got",
-      "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/064 Are You Gonna Be My Girl Chorus 1.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0350": {
       "bar_num": 65,
       "lyrics": "so much to say",
-      "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/065 Are You Gonna Be My Girl Chorus 1.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0351": {
       "bar_num": 66,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/066 Are You Gonna Be My Girl Chorus 1.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0352": {
       "bar_num": 67,
       "lyrics": "Before I",
-      "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/067 Are You Gonna Be My Girl Chorus 1.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0353": {
       "bar_num": 68,
       "lyrics": "let you get a",
-      "audio": "audio/Are You Gonna Be My Girl/08 Thema 2/068 Are You Gonna Be My Girl Thema 2.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0354": {
       "bar_num": 69,
       "lyrics": "way,",
-      "audio": "audio/Are You Gonna Be My Girl/08 Thema 2/069 Are You Gonna Be My Girl Thema 2.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0355": {
       "bar_num": 70,
       "lyrics": "yeah",
-      "audio": "audio/Are You Gonna Be My Girl/08 Thema 2/070 Are You Gonna Be My Girl Thema 2.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0356": {
       "bar_num": 71,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/08 Thema 2/071 Are You Gonna Be My Girl Thema 2.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0357": {
       "bar_num": 72,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/08 Thema 2/072 Are You Gonna Be My Girl Thema 2.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0358": {
       "bar_num": 73,
       "lyrics": "I said, \"Are you gonna be my girl?\"\n",
-      "audio": "audio/Are You Gonna Be My Girl/08 Thema 2/073 Are You Gonna Be My Girl Thema 2.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0359": {
       "bar_num": 74,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/08 Thema 2/074 Are You Gonna Be My Girl Thema 2.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0360": {
       "bar_num": 75,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/08 Thema 2/075 Are You Gonna Be My Girl Thema 2.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0361": {
       "bar_num": 76,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/09 Verse 2/076 Are You Gonna Be My Girl Verse 2.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0362": {
       "bar_num": 77,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/09 Verse 2/077 Are You Gonna Be My Girl Verse 2.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0363": {
       "bar_num": 78,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/09 Verse 2/078 Are You Gonna Be My Girl Verse 2.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0364": {
       "bar_num": 79,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/09 Verse 2/079 Are You Gonna Be My Girl Verse 2.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0365": {
       "bar_num": 80,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/09 Verse 2/080 Are You Gonna Be My Girl Verse 2.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0366": {
       "bar_num": 81,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/09 Verse 2/081 Are You Gonna Be My Girl Verse 2.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0367": {
       "bar_num": 82,
-      "lyrics": "one, two, three, take my",
-      "audio": "audio/Are You Gonna Be My Girl/09 Verse 2/082 Are You Gonna Be My Girl Verse 2.mp3",
+      "lyrics": "",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0368": {
       "bar_num": 83,
-      "lyrics": "hand and come with me Because you",
-      "audio": "audio/Are You Gonna Be My Girl/09 Verse 2/083 Are You Gonna Be My Girl Verse 2.mp3",
+      "lyrics": "Well so one, two, three, take my hand and come with me Because you look so fine that I really wanna make you mine I say you",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0369": {
       "bar_num": 84,
-      "lyrics": "look so fine that I",
-      "audio": "audio/Are You Gonna Be My Girl/09 Verse 2/084 Are You Gonna Be My Girl Verse 2.mp3",
+      "lyrics": "look so fine",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0370": {
       "bar_num": 85,
-      "lyrics": "really wanna make you mine",
-      "audio": "audio/Are You Gonna Be My Girl/09 Verse 2/085 Are You Gonna Be My Girl Verse 2.mp3",
+      "lyrics": "that I really",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0371": {
       "bar_num": 86,
-      "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/09 Verse 2/086 Are You Gonna Be My Girl Verse 2.mp3",
+      "lyrics": "wanna make you",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0372": {
       "bar_num": 87,
-      "lyrics": "I say you",
-      "audio": "audio/Are You Gonna Be My Girl/09 Verse 2/087 Are You Gonna Be My Girl Verse 2.mp3",
+      "lyrics": "mine Oh four,",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0373": {
       "bar_num": 88,
-      "lyrics": "look so fine that I",
-      "audio": "audio/Are You Gonna Be My Girl/09 Verse 2/088 Are You Gonna Be My Girl Verse 2.mp3",
+      "lyrics": "five, six, c'mon",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0374": {
       "bar_num": 89,
-      "lyrics": "really wanna make you mine",
-      "audio": "audio/Are You Gonna Be My Girl/09 Verse 2/089 Are You Gonna Be My Girl Verse 2.mp3",
+      "lyrics": "and get your",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0375": {
       "bar_num": 90,
-      "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/09 Verse 2/090 Are You Gonna Be My Girl Verse 2.mp3",
+      "lyrics": "kicks Now you",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0376": {
       "bar_num": 91,
-      "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/09 Verse 2/091 Are You Gonna Be My Girl Verse 2.mp3",
+      "lyrics": "don't need that",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0377": {
       "bar_num": 92,
-      "lyrics": "four, five, six, c'mon",
-      "audio": "audio/Are You Gonna Be My Girl/09 Verse 2/092 Are You Gonna Be My Girl Verse 2.mp3",
+      "lyrics": "money with a",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0378": {
       "bar_num": 93,
-      "lyrics": "and get your kicks",
-      "audio": "audio/Are You Gonna Be My Girl/09 Verse 2/093 Are You Gonna Be My Girl Verse 2.mp3",
+      "lyrics": "face like that,",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0379": {
       "bar_num": 94,
-      "lyrics": "Now you don't need that money with a face like that,",
-      "audio": "audio/Are You Gonna Be My Girl/09 Verse 2/094 Are You Gonna Be My Girl Verse 2.mp3",
+      "lyrics": "do you? Big",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0380": {
       "bar_num": 95,
-      "lyrics": "do you?",
-      "audio": "audio/Are You Gonna Be My Girl/10 Bridge 2/095 Are You Gonna Be My Girl Bridge 2.mp3",
+      "lyrics": "black boots, long",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0381": {
       "bar_num": 96,
-      "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/10 Bridge 2/096 Are You Gonna Be My Girl Bridge 2.mp3",
+      "lyrics": "brown hair She's",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0382": {
       "bar_num": 97,
-      "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/10 Bridge 2/097 Are You Gonna Be My Girl Bridge 2.mp3",
+      "lyrics": "so sweet with",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0383": {
       "bar_num": 98,
-      "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/10 Bridge 2/098 Are You Gonna Be My Girl Bridge 2.mp3",
+      "lyrics": "her get back",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0384": {
       "bar_num": 99,
-      "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/10 Bridge 2/099 Are You Gonna Be My Girl Bridge 2.mp3",
+      "lyrics": "stare Well I\n",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0385": {
       "bar_num": 100,
-      "lyrics": "Big black",
-      "audio": "audio/Are You Gonna Be My Girl/10 Bridge 2/100 Are You Gonna Be My Girl Bridge 2.mp3",
+      "lyrics": "could see, you",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0386": {
       "bar_num": 101,
-      "lyrics": "boots,",
-      "audio": "audio/Are You Gonna Be My Girl/10 Bridge 2/101 Are You Gonna Be My Girl Bridge 2.mp3",
+      "lyrics": "home with me",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0387": {
       "bar_num": 102,
-      "lyrics": "long brown",
-      "audio": "audio/Are You Gonna Be My Girl/10 Bridge 2/102 Are You Gonna Be My Girl Bridge 2.mp3",
+      "lyrics": "But you were",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0388": {
       "bar_num": 103,
-      "lyrics": "hair",
-      "audio": "audio/Are You Gonna Be My Girl/11 Chorus 2/103 Are You Gonna Be My Girl Chorus 2.mp3",
+      "lyrics": "with another man,",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0389": {
       "bar_num": 104,
-      "lyrics": "She's so",
-      "audio": "audio/Are You Gonna Be My Girl/11 Chorus 2/104 Are You Gonna Be My Girl Chorus 2.mp3",
+      "lyrics": "yeah I know",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0390": {
       "bar_num": 105,
-      "lyrics": "sweet with her",
-      "audio": "audio/Are You Gonna Be My Girl/11 Chorus 2/105 Are You Gonna Be My Girl Chorus 2.mp3",
+      "lyrics": "we ain't got",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0391": {
       "bar_num": 106,
-      "lyrics": "get back stare",
-      "audio": "audio/Are You Gonna Be My Girl/11 Chorus 2/106 Are You Gonna Be My Girl Chorus 2.mp3",
+      "lyrics": "much to say",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0392": {
       "bar_num": 107,
-      "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/11 Chorus 2/107 Are You Gonna Be My Girl Chorus 2.mp3",
+      "lyrics": "Before I let\n",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0393": {
       "bar_num": 108,
-      "lyrics": "Well I could see,",
-      "audio": "audio/Are You Gonna Be My Girl/11 Chorus 2/108 Are You Gonna Be My Girl Chorus 2.mp3",
+      "lyrics": "you get away,",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0394": {
       "bar_num": 109,
-      "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/11 Chorus 2/109 Are You Gonna Be My Girl Chorus 2.mp3",
+      "lyrics": "yeah I said,",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0395": {
       "bar_num": 110,
-      "lyrics": "you home with me",
-      "audio": "audio/Are You Gonna Be My Girl/11 Chorus 2/110 Are You Gonna Be My Girl Chorus 2.mp3",
+      "lyrics": "\"Are you gonna",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0396": {
       "bar_num": 114,
-      "lyrics": "man,",
-      "audio": "audio/Are You Gonna Be My Girl/11 Chorus 2/114 Are You Gonna Be My Girl Chorus 2.mp3",
+      "lyrics": "could see, you",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0397": {
       "bar_num": 115,
-      "lyrics": "yeah",
-      "audio": "audio/Are You Gonna Be My Girl/11 Chorus 2/115 Are You Gonna Be My Girl Chorus 2.mp3",
+      "lyrics": "home with me",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0398": {
       "bar_num": 116,
-      "lyrics": "I know",
-      "audio": "audio/Are You Gonna Be My Girl/11 Chorus 2/116 Are You Gonna Be My Girl Chorus 2.mp3",
+      "lyrics": "But you were",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0399": {
       "bar_num": 117,
-      "lyrics": "we ain't got",
-      "audio": "audio/Are You Gonna Be My Girl/11 Chorus 2/117 Are You Gonna Be My Girl Chorus 2.mp3",
+      "lyrics": "with another man,",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0400": {
       "bar_num": 118,
-      "lyrics": "much to say",
-      "audio": "audio/Are You Gonna Be My Girl/11 Chorus 2/118 Are You Gonna Be My Girl Chorus 2.mp3",
+      "lyrics": "yeah I know",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0401": {
       "bar_num": 119,
-      "lyrics": "Before I",
-      "audio": "audio/Are You Gonna Be My Girl/11 Chorus 2/119 Are You Gonna Be My Girl Chorus 2.mp3",
+      "lyrics": "we ain't got",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0402": {
       "bar_num": 120,
-      "lyrics": "let you get a-",
-      "audio": "audio/Are You Gonna Be My Girl/11 Chorus 2/120 Are You Gonna Be My Girl Chorus 2.mp3",
+      "lyrics": "much to say",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0403": {
       "bar_num": 121,
-      "lyrics": "way,",
-      "audio": "audio/Are You Gonna Be My Girl/11 Chorus 2/121 Are You Gonna Be My Girl Chorus 2.mp3",
+      "lyrics": "Before I let",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0404": {
       "bar_num": 122,
-      "lyrics": "yeah",
-      "audio": "audio/Are You Gonna Be My Girl/11 Chorus 2/122 Are You Gonna Be My Girl Chorus 2.mp3",
+      "lyrics": "you get away,",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0405": {
       "bar_num": 123,
-      "lyrics": "I said, \"Are you gonna be my girl?\" Oh yeah, oh yeah, c'mon I could see, you home with me But you were with another man, yeah I know we ain't got much to say Before I let you get away, yeah Uh, be",
-      "audio": "audio/Are You Gonna Be My Girl/11 Chorus 2/123 Are You Gonna Be My Girl Chorus 2.mp3",
+      "lyrics": "yeah Uh, be",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0406": {
       "bar_num": 124,
       "lyrics": "my girl, be",
-      "audio": "audio/Are You Gonna Be My Girl/11 Chorus 2/124 Are You Gonna Be My Girl Chorus 2.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0407": {
       "bar_num": 125,
       "lyrics": "my girl Are",
-      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/125 Are You Gonna Be My Girl Solo Axel.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0408": {
       "bar_num": 126,
       "lyrics": "you gonna be",
-      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/126 Are You Gonna Be My Girl Solo Axel.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0409": {
       "bar_num": 127,
       "lyrics": "my girl? Yeah\n",
-      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/127 Are You Gonna Be My Girl Solo Axel.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0410": {
       "bar_num": 128,
       "lyrics": "Ooh!",
-      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/128 Are You Gonna Be My Girl Solo Axel.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0411": {
       "bar_num": 129,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/129 Are You Gonna Be My Girl Solo Axel.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0412": {
       "bar_num": 130,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/130 Are You Gonna Be My Girl Solo Axel.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0413": {
       "bar_num": 131,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/131 Are You Gonna Be My Girl Solo Axel.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0414": {
       "bar_num": 132,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/132 Are You Gonna Be My Girl Solo Axel.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0415": {
       "bar_num": 133,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/133 Are You Gonna Be My Girl Solo Axel.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0416": {
       "bar_num": 134,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/134 Are You Gonna Be My Girl Solo Axel.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0417": {
       "bar_num": 135,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/135 Are You Gonna Be My Girl Solo Axel.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0418": {
       "bar_num": 136,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/136 Are You Gonna Be My Girl Solo Axel.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0419": {
       "bar_num": 137,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/137 Are You Gonna Be My Girl Solo Axel.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0420": {
       "bar_num": 138,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/138 Are You Gonna Be My Girl Solo Axel.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0421": {
       "bar_num": 139,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/139 Are You Gonna Be My Girl Solo Axel.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0422": {
       "bar_num": 140,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/140 Are You Gonna Be My Girl Solo Axel.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0423": {
       "bar_num": 141,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/141 Are You Gonna Be My Girl Solo Axel.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0424": {
       "bar_num": 142,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/142 Are You Gonna Be My Girl Solo Axel.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0425": {
       "bar_num": 143,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/143 Are You Gonna Be My Girl Solo Axel.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0426": {
       "bar_num": 144,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/144 Are You Gonna Be My Girl Solo Axel.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0427": {
       "bar_num": 145,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/145 Are You Gonna Be My Girl Solo Axel.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0428": {
       "bar_num": 146,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/146 Are You Gonna Be My Girl Solo Axel.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0429": {
       "bar_num": 147,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/147 Are You Gonna Be My Girl Solo Axel.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0430": {
       "bar_num": 148,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/148 Are You Gonna Be My Girl Solo Axel.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0431": {
       "bar_num": 149,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/149 Are You Gonna Be My Girl Solo Axel.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0432": {
       "bar_num": 150,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/150 Are You Gonna Be My Girl Solo Axel.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0433": {
       "bar_num": 151,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/151 Are You Gonna Be My Girl Solo Axel.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0434": {
       "bar_num": 152,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/152 Are You Gonna Be My Girl Solo Axel.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0435": {
       "bar_num": 153,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/153 Are You Gonna Be My Girl Solo Axel.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0436": {
       "bar_num": 154,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/154 Are You Gonna Be My Girl Solo Axel.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0437": {
       "bar_num": 155,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/155 Are You Gonna Be My Girl Solo Axel.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0438": {
       "bar_num": 156,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/156 Are You Gonna Be My Girl Solo Axel.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0439": {
       "bar_num": 157,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/157 Are You Gonna Be My Girl Solo Axel.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0440": {
       "bar_num": 158,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/158 Are You Gonna Be My Girl Solo Axel.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0441": {
       "bar_num": 159,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/159 Are You Gonna Be My Girl Solo Axel.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0442": {
       "bar_num": 160,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/160 Are You Gonna Be My Girl Solo Axel.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0443": {
       "bar_num": 161,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/161 Are You Gonna Be My Girl Solo Axel.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0444": {
       "bar_num": 162,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/162 Are You Gonna Be My Girl Solo Axel.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0445": {
       "bar_num": 163,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/163 Are You Gonna Be My Girl Solo Axel.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0446": {
       "bar_num": 164,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/164 Are You Gonna Be My Girl Solo Axel.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0447": {
       "bar_num": 165,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/13 Chorus 3/165 Are You Gonna Be My Girl Chorus 3.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0448": {
       "bar_num": 166,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/13 Chorus 3/166 Are You Gonna Be My Girl Chorus 3.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0449": {
       "bar_num": 167,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/13 Chorus 3/167 Are You Gonna Be My Girl Chorus 3.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0450": {
       "bar_num": 168,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/13 Chorus 3/168 Are You Gonna Be My Girl Chorus 3.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0451": {
       "bar_num": 169,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/13 Chorus 3/169 Are You Gonna Be My Girl Chorus 3.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0452": {
       "bar_num": 170,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/13 Chorus 3/170 Are You Gonna Be My Girl Chorus 3.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0453": {
       "bar_num": 171,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/13 Chorus 3/171 Are You Gonna Be My Girl Chorus 3.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0454": {
       "bar_num": 172,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/13 Chorus 3/172 Are You Gonna Be My Girl Chorus 3.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0455": {
       "bar_num": 173,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/13 Chorus 3/173 Are You Gonna Be My Girl Chorus 3.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
     "B0456": {
       "bar_num": 174,
       "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/13 Chorus 3/174 Are You Gonna Be My Girl Chorus 3.mp3",
+      "audio": "",
       "has_accents": false,
       "song_id": "5D6dZO"
     },
@@ -12591,21 +10717,21 @@
     "B1130": {
       "song_id": "5D6dZO",
       "bar_num": 111,
-      "lyrics": "",
+      "lyrics": "be my girl?\"",
       "audio": "",
       "has_accents": false
     },
     "B1131": {
       "song_id": "5D6dZO",
       "bar_num": 112,
-      "lyrics": "But you were",
+      "lyrics": "Oh yeah, oh",
       "audio": "",
       "has_accents": false
     },
     "B1132": {
       "song_id": "5D6dZO",
       "bar_num": 113,
-      "lyrics": "with another",
+      "lyrics": "yeah, c'mon I",
       "audio": "",
       "has_accents": false
     },
@@ -13532,3468 +11658,6 @@
       "lyrics": "",
       "audio": "",
       "has_accents": false
-    },
-    "B1265": {
-      "song_id": "QeOWYg",
-      "bar_num": 1,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1266": {
-      "song_id": "QeOWYg",
-      "bar_num": 2,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1267": {
-      "song_id": "QeOWYg",
-      "bar_num": 3,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1268": {
-      "song_id": "QeOWYg",
-      "bar_num": 4,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1269": {
-      "song_id": "QeOWYg",
-      "bar_num": 5,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1270": {
-      "song_id": "QeOWYg",
-      "bar_num": 6,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1271": {
-      "song_id": "QeOWYg",
-      "bar_num": 7,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1272": {
-      "song_id": "QeOWYg",
-      "bar_num": 8,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1273": {
-      "song_id": "QeOWYg",
-      "bar_num": 9,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": true
-    },
-    "B1274": {
-      "song_id": "QeOWYg",
-      "bar_num": 10,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": true
-    },
-    "B1275": {
-      "song_id": "QeOWYg",
-      "bar_num": 11,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": true
-    },
-    "B1276": {
-      "song_id": "QeOWYg",
-      "bar_num": 12,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": true
-    },
-    "B1277": {
-      "song_id": "QeOWYg",
-      "bar_num": 13,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": true
-    },
-    "B1278": {
-      "song_id": "QeOWYg",
-      "bar_num": 14,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": true
-    },
-    "B1279": {
-      "song_id": "QeOWYg",
-      "bar_num": 15,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": true
-    },
-    "B1280": {
-      "song_id": "QeOWYg",
-      "bar_num": 16,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": true
-    },
-    "B1281": {
-      "song_id": "QeOWYg",
-      "bar_num": 17,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1282": {
-      "song_id": "QeOWYg",
-      "bar_num": 18,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1283": {
-      "song_id": "QeOWYg",
-      "bar_num": 19,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1284": {
-      "song_id": "QeOWYg",
-      "bar_num": 20,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1285": {
-      "song_id": "QeOWYg",
-      "bar_num": 21,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1286": {
-      "song_id": "QeOWYg",
-      "bar_num": 22,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1287": {
-      "song_id": "QeOWYg",
-      "bar_num": 23,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1288": {
-      "song_id": "QeOWYg",
-      "bar_num": 24,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1289": {
-      "song_id": "QeOWYg",
-      "bar_num": 25,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1290": {
-      "song_id": "QeOWYg",
-      "bar_num": 26,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1291": {
-      "song_id": "QeOWYg",
-      "bar_num": 27,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1292": {
-      "song_id": "QeOWYg",
-      "bar_num": 28,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1293": {
-      "song_id": "QeOWYg",
-      "bar_num": 29,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1294": {
-      "song_id": "QeOWYg",
-      "bar_num": 30,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1295": {
-      "song_id": "QeOWYg",
-      "bar_num": 31,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1296": {
-      "song_id": "QeOWYg",
-      "bar_num": 32,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1297": {
-      "song_id": "QeOWYg",
-      "bar_num": 33,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1298": {
-      "song_id": "QeOWYg",
-      "bar_num": 34,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": true
-    },
-    "B1299": {
-      "song_id": "QeOWYg",
-      "bar_num": 35,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": true
-    },
-    "B1300": {
-      "song_id": "QeOWYg",
-      "bar_num": 36,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": true
-    },
-    "B1301": {
-      "song_id": "QeOWYg",
-      "bar_num": 37,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": true
-    },
-    "B1302": {
-      "song_id": "QeOWYg",
-      "bar_num": 38,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": true
-    },
-    "B1303": {
-      "song_id": "QeOWYg",
-      "bar_num": 39,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": true
-    },
-    "B1304": {
-      "song_id": "QeOWYg",
-      "bar_num": 40,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": true
-    },
-    "B1305": {
-      "song_id": "QeOWYg",
-      "bar_num": 41,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": true
-    },
-    "B1306": {
-      "song_id": "QeOWYg",
-      "bar_num": 42,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1307": {
-      "song_id": "QeOWYg",
-      "bar_num": 43,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1308": {
-      "song_id": "QeOWYg",
-      "bar_num": 44,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1309": {
-      "song_id": "QeOWYg",
-      "bar_num": 45,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1310": {
-      "song_id": "QeOWYg",
-      "bar_num": 46,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1311": {
-      "song_id": "QeOWYg",
-      "bar_num": 47,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1312": {
-      "song_id": "QeOWYg",
-      "bar_num": 48,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1313": {
-      "song_id": "QeOWYg",
-      "bar_num": 49,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1314": {
-      "song_id": "QeOWYg",
-      "bar_num": 50,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1315": {
-      "song_id": "QeOWYg",
-      "bar_num": 51,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1316": {
-      "song_id": "QeOWYg",
-      "bar_num": 52,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1317": {
-      "song_id": "QeOWYg",
-      "bar_num": 53,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1318": {
-      "song_id": "QeOWYg",
-      "bar_num": 54,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1319": {
-      "song_id": "QeOWYg",
-      "bar_num": 55,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1320": {
-      "song_id": "QeOWYg",
-      "bar_num": 56,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1321": {
-      "song_id": "QeOWYg",
-      "bar_num": 57,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1322": {
-      "song_id": "QeOWYg",
-      "bar_num": 58,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1323": {
-      "song_id": "QeOWYg",
-      "bar_num": 59,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1324": {
-      "song_id": "QeOWYg",
-      "bar_num": 60,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1325": {
-      "song_id": "QeOWYg",
-      "bar_num": 61,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1326": {
-      "song_id": "QeOWYg",
-      "bar_num": 62,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1327": {
-      "song_id": "QeOWYg",
-      "bar_num": 63,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1328": {
-      "song_id": "QeOWYg",
-      "bar_num": 64,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1329": {
-      "song_id": "QeOWYg",
-      "bar_num": 65,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1330": {
-      "song_id": "QeOWYg",
-      "bar_num": 66,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1331": {
-      "song_id": "QeOWYg",
-      "bar_num": 67,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1332": {
-      "song_id": "QeOWYg",
-      "bar_num": 68,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1333": {
-      "song_id": "QeOWYg",
-      "bar_num": 69,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1334": {
-      "song_id": "QeOWYg",
-      "bar_num": 70,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1335": {
-      "song_id": "QeOWYg",
-      "bar_num": 71,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1336": {
-      "song_id": "QeOWYg",
-      "bar_num": 72,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1337": {
-      "song_id": "QeOWYg",
-      "bar_num": 73,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1338": {
-      "song_id": "QeOWYg",
-      "bar_num": 74,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1339": {
-      "song_id": "QeOWYg",
-      "bar_num": 75,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1340": {
-      "song_id": "QeOWYg",
-      "bar_num": 76,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1341": {
-      "song_id": "QeOWYg",
-      "bar_num": 77,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1342": {
-      "song_id": "QeOWYg",
-      "bar_num": 78,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1343": {
-      "song_id": "QeOWYg",
-      "bar_num": 79,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1344": {
-      "song_id": "QeOWYg",
-      "bar_num": 80,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1345": {
-      "song_id": "QeOWYg",
-      "bar_num": 81,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1346": {
-      "song_id": "QeOWYg",
-      "bar_num": 82,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1347": {
-      "song_id": "QeOWYg",
-      "bar_num": 83,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1348": {
-      "song_id": "QeOWYg",
-      "bar_num": 84,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1349": {
-      "song_id": "QeOWYg",
-      "bar_num": 85,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1350": {
-      "song_id": "QeOWYg",
-      "bar_num": 86,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1351": {
-      "song_id": "QeOWYg",
-      "bar_num": 87,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1352": {
-      "song_id": "QeOWYg",
-      "bar_num": 88,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1353": {
-      "song_id": "QeOWYg",
-      "bar_num": 89,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1354": {
-      "song_id": "QeOWYg",
-      "bar_num": 90,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1355": {
-      "song_id": "QeOWYg",
-      "bar_num": 91,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1356": {
-      "song_id": "QeOWYg",
-      "bar_num": 92,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1357": {
-      "song_id": "EfmiXn",
-      "bar_num": 1,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false,
-      "instrumental": true
-    },
-    "B1358": {
-      "song_id": "EfmiXn",
-      "bar_num": 2,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false,
-      "instrumental": true
-    },
-    "B1359": {
-      "song_id": "EfmiXn",
-      "bar_num": 3,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false,
-      "instrumental": true
-    },
-    "B1360": {
-      "song_id": "EfmiXn",
-      "bar_num": 4,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false,
-      "instrumental": true
-    },
-    "B1361": {
-      "song_id": "EfmiXn",
-      "bar_num": 5,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false,
-      "instrumental": true
-    },
-    "B1362": {
-      "song_id": "EfmiXn",
-      "bar_num": 6,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false,
-      "instrumental": true
-    },
-    "B1363": {
-      "song_id": "EfmiXn",
-      "bar_num": 7,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false,
-      "instrumental": true
-    },
-    "B1364": {
-      "song_id": "EfmiXn",
-      "bar_num": 8,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false,
-      "instrumental": true
-    },
-    "B1365": {
-      "song_id": "EfmiXn",
-      "bar_num": 9,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false,
-      "instrumental": true
-    },
-    "B1366": {
-      "song_id": "EfmiXn",
-      "bar_num": 10,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false,
-      "instrumental": true
-    },
-    "B1367": {
-      "song_id": "EfmiXn",
-      "bar_num": 11,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false,
-      "instrumental": true
-    },
-    "B1368": {
-      "song_id": "EfmiXn",
-      "bar_num": 12,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false,
-      "instrumental": true
-    },
-    "B1369": {
-      "song_id": "EfmiXn",
-      "bar_num": 13,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false,
-      "instrumental": true
-    },
-    "B1370": {
-      "song_id": "EfmiXn",
-      "bar_num": 14,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false,
-      "instrumental": true
-    },
-    "B1371": {
-      "song_id": "EfmiXn",
-      "bar_num": 15,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false,
-      "instrumental": true
-    },
-    "B1372": {
-      "song_id": "EfmiXn",
-      "bar_num": 16,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false,
-      "instrumental": true
-    },
-    "B1373": {
-      "song_id": "EfmiXn",
-      "bar_num": 17,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false,
-      "instrumental": true
-    },
-    "B1374": {
-      "song_id": "EfmiXn",
-      "bar_num": 18,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false,
-      "instrumental": true
-    },
-    "B1375": {
-      "song_id": "EfmiXn",
-      "bar_num": 19,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false,
-      "instrumental": true
-    },
-    "B1376": {
-      "song_id": "EfmiXn",
-      "bar_num": 20,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false,
-      "instrumental": true
-    },
-    "B1377": {
-      "song_id": "EfmiXn",
-      "bar_num": 21,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false,
-      "instrumental": true
-    },
-    "B1378": {
-      "song_id": "EfmiXn",
-      "bar_num": 22,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false,
-      "instrumental": true
-    },
-    "B1379": {
-      "song_id": "EfmiXn",
-      "bar_num": 23,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false,
-      "instrumental": true
-    },
-    "B1380": {
-      "song_id": "EfmiXn",
-      "bar_num": 24,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false,
-      "instrumental": true
-    },
-    "B1381": {
-      "song_id": "EfmiXn",
-      "bar_num": 25,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1382": {
-      "song_id": "EfmiXn",
-      "bar_num": 26,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1383": {
-      "song_id": "EfmiXn",
-      "bar_num": 27,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1384": {
-      "song_id": "EfmiXn",
-      "bar_num": 28,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1385": {
-      "song_id": "EfmiXn",
-      "bar_num": 29,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1386": {
-      "song_id": "EfmiXn",
-      "bar_num": 30,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1387": {
-      "song_id": "EfmiXn",
-      "bar_num": 31,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1388": {
-      "song_id": "EfmiXn",
-      "bar_num": 32,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1389": {
-      "song_id": "EfmiXn",
-      "bar_num": 33,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1390": {
-      "song_id": "EfmiXn",
-      "bar_num": 34,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1391": {
-      "song_id": "EfmiXn",
-      "bar_num": 35,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1392": {
-      "song_id": "EfmiXn",
-      "bar_num": 36,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1393": {
-      "song_id": "EfmiXn",
-      "bar_num": 37,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1394": {
-      "song_id": "EfmiXn",
-      "bar_num": 38,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1395": {
-      "song_id": "EfmiXn",
-      "bar_num": 39,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1396": {
-      "song_id": "EfmiXn",
-      "bar_num": 40,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1397": {
-      "song_id": "EfmiXn",
-      "bar_num": 41,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1398": {
-      "song_id": "EfmiXn",
-      "bar_num": 42,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1399": {
-      "song_id": "EfmiXn",
-      "bar_num": 43,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1400": {
-      "song_id": "EfmiXn",
-      "bar_num": 44,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1401": {
-      "song_id": "EfmiXn",
-      "bar_num": 45,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1402": {
-      "song_id": "EfmiXn",
-      "bar_num": 46,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1403": {
-      "song_id": "EfmiXn",
-      "bar_num": 47,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1404": {
-      "song_id": "EfmiXn",
-      "bar_num": 48,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1405": {
-      "song_id": "EfmiXn",
-      "bar_num": 49,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1406": {
-      "song_id": "EfmiXn",
-      "bar_num": 50,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1407": {
-      "song_id": "EfmiXn",
-      "bar_num": 51,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1408": {
-      "song_id": "EfmiXn",
-      "bar_num": 52,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1409": {
-      "song_id": "EfmiXn",
-      "bar_num": 53,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1410": {
-      "song_id": "EfmiXn",
-      "bar_num": 54,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1411": {
-      "song_id": "EfmiXn",
-      "bar_num": 55,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1412": {
-      "song_id": "EfmiXn",
-      "bar_num": 56,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1413": {
-      "song_id": "EfmiXn",
-      "bar_num": 57,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1414": {
-      "song_id": "EfmiXn",
-      "bar_num": 58,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1415": {
-      "song_id": "EfmiXn",
-      "bar_num": 59,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1416": {
-      "song_id": "EfmiXn",
-      "bar_num": 60,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1417": {
-      "song_id": "EfmiXn",
-      "bar_num": 61,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1418": {
-      "song_id": "EfmiXn",
-      "bar_num": 62,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1419": {
-      "song_id": "EfmiXn",
-      "bar_num": 63,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1420": {
-      "song_id": "EfmiXn",
-      "bar_num": 64,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1421": {
-      "song_id": "EfmiXn",
-      "bar_num": 65,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1422": {
-      "song_id": "EfmiXn",
-      "bar_num": 66,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1423": {
-      "song_id": "EfmiXn",
-      "bar_num": 67,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1424": {
-      "song_id": "EfmiXn",
-      "bar_num": 68,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1425": {
-      "song_id": "EfmiXn",
-      "bar_num": 69,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1426": {
-      "song_id": "EfmiXn",
-      "bar_num": 70,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1427": {
-      "song_id": "EfmiXn",
-      "bar_num": 71,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1428": {
-      "song_id": "EfmiXn",
-      "bar_num": 72,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1429": {
-      "song_id": "EfmiXn",
-      "bar_num": 73,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1430": {
-      "song_id": "EfmiXn",
-      "bar_num": 74,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1431": {
-      "song_id": "EfmiXn",
-      "bar_num": 75,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1432": {
-      "song_id": "EfmiXn",
-      "bar_num": 76,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1433": {
-      "song_id": "EfmiXn",
-      "bar_num": 77,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1434": {
-      "song_id": "EfmiXn",
-      "bar_num": 78,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1435": {
-      "song_id": "EfmiXn",
-      "bar_num": 79,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1436": {
-      "song_id": "EfmiXn",
-      "bar_num": 80,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1437": {
-      "song_id": "EfmiXn",
-      "bar_num": 81,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1438": {
-      "song_id": "EfmiXn",
-      "bar_num": 82,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1439": {
-      "song_id": "EfmiXn",
-      "bar_num": 83,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1440": {
-      "song_id": "EfmiXn",
-      "bar_num": 84,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1441": {
-      "song_id": "EfmiXn",
-      "bar_num": 85,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1442": {
-      "song_id": "EfmiXn",
-      "bar_num": 86,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1443": {
-      "song_id": "EfmiXn",
-      "bar_num": 87,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1444": {
-      "song_id": "EfmiXn",
-      "bar_num": 88,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1445": {
-      "song_id": "EfmiXn",
-      "bar_num": 89,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1446": {
-      "song_id": "EfmiXn",
-      "bar_num": 90,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1447": {
-      "song_id": "EfmiXn",
-      "bar_num": 91,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1448": {
-      "song_id": "EfmiXn",
-      "bar_num": 92,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1449": {
-      "song_id": "EfmiXn",
-      "bar_num": 93,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1450": {
-      "song_id": "EfmiXn",
-      "bar_num": 94,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1451": {
-      "song_id": "EfmiXn",
-      "bar_num": 95,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1452": {
-      "song_id": "EfmiXn",
-      "bar_num": 96,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1453": {
-      "song_id": "EfmiXn",
-      "bar_num": 97,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1454": {
-      "song_id": "EfmiXn",
-      "bar_num": 98,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1455": {
-      "song_id": "EfmiXn",
-      "bar_num": 99,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1456": {
-      "song_id": "EfmiXn",
-      "bar_num": 100,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1457": {
-      "song_id": "EfmiXn",
-      "bar_num": 101,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1458": {
-      "song_id": "EfmiXn",
-      "bar_num": 102,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1459": {
-      "song_id": "EfmiXn",
-      "bar_num": 103,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1460": {
-      "song_id": "EfmiXn",
-      "bar_num": 104,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1461": {
-      "song_id": "EfmiXn",
-      "bar_num": 105,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1462": {
-      "song_id": "EfmiXn",
-      "bar_num": 106,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1463": {
-      "song_id": "EfmiXn",
-      "bar_num": 107,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1464": {
-      "song_id": "EfmiXn",
-      "bar_num": 108,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1465": {
-      "song_id": "EfmiXn",
-      "bar_num": 109,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": true
-    },
-    "B1466": {
-      "song_id": "EfmiXn",
-      "bar_num": 110,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1467": {
-      "song_id": "EfmiXn",
-      "bar_num": 111,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1468": {
-      "song_id": "EfmiXn",
-      "bar_num": 112,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1469": {
-      "song_id": "EfmiXn",
-      "bar_num": 113,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1470": {
-      "song_id": "EfmiXn",
-      "bar_num": 114,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1471": {
-      "song_id": "EfmiXn",
-      "bar_num": 115,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1472": {
-      "song_id": "EfmiXn",
-      "bar_num": 116,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1473": {
-      "song_id": "EfmiXn",
-      "bar_num": 117,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false,
-      "instrumental": true
-    },
-    "B1474": {
-      "song_id": "EfmiXn",
-      "bar_num": 118,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1475": {
-      "song_id": "BfbgVC",
-      "bar_num": 1,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1476": {
-      "song_id": "BfbgVC",
-      "bar_num": 2,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1477": {
-      "song_id": "BfbgVC",
-      "bar_num": 3,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1478": {
-      "song_id": "BfbgVC",
-      "bar_num": 4,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1479": {
-      "song_id": "BfbgVC",
-      "bar_num": 5,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1480": {
-      "song_id": "BfbgVC",
-      "bar_num": 6,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1481": {
-      "song_id": "BfbgVC",
-      "bar_num": 7,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1482": {
-      "song_id": "BfbgVC",
-      "bar_num": 8,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1483": {
-      "song_id": "BfbgVC",
-      "bar_num": 9,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1484": {
-      "song_id": "BfbgVC",
-      "bar_num": 10,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1485": {
-      "song_id": "BfbgVC",
-      "bar_num": 11,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1486": {
-      "song_id": "BfbgVC",
-      "bar_num": 12,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": true
-    },
-    "B1487": {
-      "song_id": "BfbgVC",
-      "bar_num": 13,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": true
-    },
-    "B1488": {
-      "song_id": "BfbgVC",
-      "bar_num": 14,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1489": {
-      "song_id": "BfbgVC",
-      "bar_num": 15,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1490": {
-      "song_id": "BfbgVC",
-      "bar_num": 16,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": true
-    },
-    "B1491": {
-      "song_id": "BfbgVC",
-      "bar_num": 17,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": true
-    },
-    "B1492": {
-      "song_id": "BfbgVC",
-      "bar_num": 18,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1493": {
-      "song_id": "BfbgVC",
-      "bar_num": 19,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1494": {
-      "song_id": "BfbgVC",
-      "bar_num": 20,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": true
-    },
-    "B1495": {
-      "song_id": "BfbgVC",
-      "bar_num": 21,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": true
-    },
-    "B1496": {
-      "song_id": "BfbgVC",
-      "bar_num": 22,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1497": {
-      "song_id": "BfbgVC",
-      "bar_num": 23,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1498": {
-      "song_id": "BfbgVC",
-      "bar_num": 24,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": true
-    },
-    "B1499": {
-      "song_id": "BfbgVC",
-      "bar_num": 25,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": true
-    },
-    "B1500": {
-      "song_id": "BfbgVC",
-      "bar_num": 26,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": true
-    },
-    "B1501": {
-      "song_id": "BfbgVC",
-      "bar_num": 27,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": true
-    },
-    "B1502": {
-      "song_id": "BfbgVC",
-      "bar_num": 28,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1503": {
-      "song_id": "BfbgVC",
-      "bar_num": 29,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1504": {
-      "song_id": "BfbgVC",
-      "bar_num": 30,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1505": {
-      "song_id": "BfbgVC",
-      "bar_num": 31,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1506": {
-      "song_id": "BfbgVC",
-      "bar_num": 32,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1507": {
-      "song_id": "BfbgVC",
-      "bar_num": 33,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1508": {
-      "song_id": "BfbgVC",
-      "bar_num": 34,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1509": {
-      "song_id": "BfbgVC",
-      "bar_num": 35,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1510": {
-      "song_id": "BfbgVC",
-      "bar_num": 36,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1511": {
-      "song_id": "BfbgVC",
-      "bar_num": 37,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1512": {
-      "song_id": "BfbgVC",
-      "bar_num": 38,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1513": {
-      "song_id": "BfbgVC",
-      "bar_num": 39,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1514": {
-      "song_id": "BfbgVC",
-      "bar_num": 40,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1515": {
-      "song_id": "BfbgVC",
-      "bar_num": 41,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1516": {
-      "song_id": "BfbgVC",
-      "bar_num": 42,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1517": {
-      "song_id": "BfbgVC",
-      "bar_num": 43,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1518": {
-      "song_id": "BfbgVC",
-      "bar_num": 44,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1519": {
-      "song_id": "BfbgVC",
-      "bar_num": 45,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1520": {
-      "song_id": "BfbgVC",
-      "bar_num": 46,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1521": {
-      "song_id": "BfbgVC",
-      "bar_num": 47,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1522": {
-      "song_id": "BfbgVC",
-      "bar_num": 48,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1523": {
-      "song_id": "BfbgVC",
-      "bar_num": 49,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1524": {
-      "song_id": "BfbgVC",
-      "bar_num": 50,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1525": {
-      "song_id": "BfbgVC",
-      "bar_num": 51,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1526": {
-      "song_id": "BfbgVC",
-      "bar_num": 52,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1527": {
-      "song_id": "BfbgVC",
-      "bar_num": 53,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1528": {
-      "song_id": "BfbgVC",
-      "bar_num": 54,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1529": {
-      "song_id": "BfbgVC",
-      "bar_num": 55,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1530": {
-      "song_id": "BfbgVC",
-      "bar_num": 56,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1531": {
-      "song_id": "BfbgVC",
-      "bar_num": 57,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1532": {
-      "song_id": "BfbgVC",
-      "bar_num": 58,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1533": {
-      "song_id": "BfbgVC",
-      "bar_num": 59,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1534": {
-      "song_id": "BfbgVC",
-      "bar_num": 60,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1535": {
-      "song_id": "BfbgVC",
-      "bar_num": 61,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1536": {
-      "song_id": "BfbgVC",
-      "bar_num": 62,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1537": {
-      "song_id": "BfbgVC",
-      "bar_num": 63,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1538": {
-      "song_id": "BfbgVC",
-      "bar_num": 64,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1539": {
-      "song_id": "BfbgVC",
-      "bar_num": 65,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1540": {
-      "song_id": "BfbgVC",
-      "bar_num": 66,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1541": {
-      "song_id": "BfbgVC",
-      "bar_num": 67,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1542": {
-      "song_id": "BfbgVC",
-      "bar_num": 68,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1543": {
-      "song_id": "BfbgVC",
-      "bar_num": 69,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1544": {
-      "song_id": "BfbgVC",
-      "bar_num": 70,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1545": {
-      "song_id": "BfbgVC",
-      "bar_num": 71,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1546": {
-      "song_id": "BfbgVC",
-      "bar_num": 72,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1547": {
-      "song_id": "BfbgVC",
-      "bar_num": 73,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1548": {
-      "song_id": "BfbgVC",
-      "bar_num": 74,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1549": {
-      "song_id": "BfbgVC",
-      "bar_num": 75,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1550": {
-      "song_id": "BfbgVC",
-      "bar_num": 76,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1551": {
-      "song_id": "BfbgVC",
-      "bar_num": 77,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1552": {
-      "song_id": "BfbgVC",
-      "bar_num": 78,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1553": {
-      "song_id": "BfbgVC",
-      "bar_num": 79,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1554": {
-      "song_id": "BfbgVC",
-      "bar_num": 80,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1555": {
-      "song_id": "BfbgVC",
-      "bar_num": 81,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1556": {
-      "song_id": "BfbgVC",
-      "bar_num": 82,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1557": {
-      "song_id": "BfbgVC",
-      "bar_num": 83,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1558": {
-      "song_id": "BfbgVC",
-      "bar_num": 84,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1559": {
-      "song_id": "BfbgVC",
-      "bar_num": 85,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1560": {
-      "song_id": "BfbgVC",
-      "bar_num": 86,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1561": {
-      "song_id": "BfbgVC",
-      "bar_num": 87,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1562": {
-      "song_id": "BfbgVC",
-      "bar_num": 88,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1563": {
-      "song_id": "BfbgVC",
-      "bar_num": 89,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1564": {
-      "song_id": "BfbgVC",
-      "bar_num": 90,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1565": {
-      "song_id": "BfbgVC",
-      "bar_num": 91,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1566": {
-      "song_id": "BfbgVC",
-      "bar_num": 92,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1567": {
-      "song_id": "BfbgVC",
-      "bar_num": 93,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1568": {
-      "song_id": "BfbgVC",
-      "bar_num": 94,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1569": {
-      "song_id": "BfbgVC",
-      "bar_num": 95,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1570": {
-      "song_id": "BfbgVC",
-      "bar_num": 96,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1571": {
-      "song_id": "BfbgVC",
-      "bar_num": 97,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1572": {
-      "song_id": "BfbgVC",
-      "bar_num": 98,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1573": {
-      "song_id": "BfbgVC",
-      "bar_num": 99,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1574": {
-      "song_id": "BfbgVC",
-      "bar_num": 100,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1575": {
-      "song_id": "BfbgVC",
-      "bar_num": 101,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1576": {
-      "song_id": "BfbgVC",
-      "bar_num": 102,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1577": {
-      "song_id": "BfbgVC",
-      "bar_num": 103,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1578": {
-      "song_id": "BfbgVC",
-      "bar_num": 104,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1579": {
-      "song_id": "BfbgVC",
-      "bar_num": 105,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1580": {
-      "song_id": "BfbgVC",
-      "bar_num": 106,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1581": {
-      "song_id": "BfbgVC",
-      "bar_num": 107,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1582": {
-      "song_id": "BfbgVC",
-      "bar_num": 108,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1583": {
-      "song_id": "BfbgVC",
-      "bar_num": 109,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1584": {
-      "song_id": "BfbgVC",
-      "bar_num": 110,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1585": {
-      "song_id": "BfbgVC",
-      "bar_num": 111,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1586": {
-      "song_id": "BfbgVC",
-      "bar_num": 112,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1587": {
-      "song_id": "BfbgVC",
-      "bar_num": 113,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1588": {
-      "song_id": "BfbgVC",
-      "bar_num": 114,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1589": {
-      "song_id": "BfbgVC",
-      "bar_num": 115,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1590": {
-      "song_id": "BfbgVC",
-      "bar_num": 116,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1591": {
-      "song_id": "BfbgVC",
-      "bar_num": 117,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1592": {
-      "song_id": "BfbgVC",
-      "bar_num": 118,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1593": {
-      "song_id": "BfbgVC",
-      "bar_num": 119,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1594": {
-      "song_id": "BfbgVC",
-      "bar_num": 120,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1595": {
-      "song_id": "BfbgVC",
-      "bar_num": 121,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1596": {
-      "song_id": "FaAM01",
-      "bar_num": 1,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1597": {
-      "song_id": "FaAM01",
-      "bar_num": 2,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1598": {
-      "song_id": "FaAM01",
-      "bar_num": 3,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1599": {
-      "song_id": "FaAM01",
-      "bar_num": 4,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1600": {
-      "song_id": "FaAM01",
-      "bar_num": 5,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1601": {
-      "song_id": "FaAM01",
-      "bar_num": 6,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1602": {
-      "song_id": "FaAM01",
-      "bar_num": 7,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1603": {
-      "song_id": "FaAM01",
-      "bar_num": 8,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1604": {
-      "song_id": "FaAM01",
-      "bar_num": 9,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1605": {
-      "song_id": "FaAM01",
-      "bar_num": 10,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1606": {
-      "song_id": "FaAM01",
-      "bar_num": 11,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1607": {
-      "song_id": "FaAM01",
-      "bar_num": 12,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1608": {
-      "song_id": "FaAM01",
-      "bar_num": 13,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1609": {
-      "song_id": "FaAM01",
-      "bar_num": 14,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1610": {
-      "song_id": "FaAM01",
-      "bar_num": 15,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1611": {
-      "song_id": "FaAM01",
-      "bar_num": 16,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1612": {
-      "song_id": "FaAM01",
-      "bar_num": 17,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1613": {
-      "song_id": "FaAM01",
-      "bar_num": 18,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1614": {
-      "song_id": "FaAM01",
-      "bar_num": 19,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1615": {
-      "song_id": "FaAM01",
-      "bar_num": 20,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1616": {
-      "song_id": "FaAM01",
-      "bar_num": 21,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1617": {
-      "song_id": "FaAM01",
-      "bar_num": 22,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1618": {
-      "song_id": "FaAM01",
-      "bar_num": 23,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1619": {
-      "song_id": "FaAM01",
-      "bar_num": 24,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1620": {
-      "song_id": "FaAM01",
-      "bar_num": 25,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1621": {
-      "song_id": "FaAM01",
-      "bar_num": 26,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1622": {
-      "song_id": "FaAM01",
-      "bar_num": 27,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1623": {
-      "song_id": "FaAM01",
-      "bar_num": 28,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1624": {
-      "song_id": "FaAM01",
-      "bar_num": 29,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1625": {
-      "song_id": "FaAM01",
-      "bar_num": 30,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1626": {
-      "song_id": "FaAM01",
-      "bar_num": 31,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1627": {
-      "song_id": "FaAM01",
-      "bar_num": 32,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1628": {
-      "song_id": "FaAM01",
-      "bar_num": 33,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1629": {
-      "song_id": "FaAM01",
-      "bar_num": 34,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1630": {
-      "song_id": "FaAM01",
-      "bar_num": 35,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1631": {
-      "song_id": "FaAM01",
-      "bar_num": 36,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1632": {
-      "song_id": "FaAM01",
-      "bar_num": 37,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1633": {
-      "song_id": "FaAM01",
-      "bar_num": 38,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1634": {
-      "song_id": "FaAM01",
-      "bar_num": 39,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1635": {
-      "song_id": "FaAM01",
-      "bar_num": 40,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1636": {
-      "song_id": "FaAM01",
-      "bar_num": 41,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1637": {
-      "song_id": "FaAM01",
-      "bar_num": 42,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1638": {
-      "song_id": "FaAM01",
-      "bar_num": 43,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1639": {
-      "song_id": "FaAM01",
-      "bar_num": 44,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1640": {
-      "song_id": "FaAM01",
-      "bar_num": 45,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1641": {
-      "song_id": "FaAM01",
-      "bar_num": 46,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1642": {
-      "song_id": "FaAM01",
-      "bar_num": 47,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1643": {
-      "song_id": "FaAM01",
-      "bar_num": 48,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1644": {
-      "song_id": "FaAM01",
-      "bar_num": 49,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1645": {
-      "song_id": "FaAM01",
-      "bar_num": 50,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1646": {
-      "song_id": "FaAM01",
-      "bar_num": 51,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1647": {
-      "song_id": "FaAM01",
-      "bar_num": 52,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1648": {
-      "song_id": "FaAM01",
-      "bar_num": 53,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1649": {
-      "song_id": "FaAM01",
-      "bar_num": 54,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1650": {
-      "song_id": "FaAM01",
-      "bar_num": 55,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1651": {
-      "song_id": "FaAM01",
-      "bar_num": 56,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1652": {
-      "song_id": "FaAM01",
-      "bar_num": 57,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1653": {
-      "song_id": "FaAM01",
-      "bar_num": 58,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1654": {
-      "song_id": "FaAM01",
-      "bar_num": 59,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1655": {
-      "song_id": "FaAM01",
-      "bar_num": 60,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1656": {
-      "song_id": "FaAM01",
-      "bar_num": 61,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1657": {
-      "song_id": "FaAM01",
-      "bar_num": 62,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1658": {
-      "song_id": "FaAM01",
-      "bar_num": 63,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1659": {
-      "song_id": "FaAM01",
-      "bar_num": 64,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1660": {
-      "song_id": "FaAM01",
-      "bar_num": 65,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1661": {
-      "song_id": "FaAM01",
-      "bar_num": 66,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1662": {
-      "song_id": "FaAM01",
-      "bar_num": 67,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1663": {
-      "song_id": "FaAM01",
-      "bar_num": 68,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1664": {
-      "song_id": "FaAM01",
-      "bar_num": 69,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1665": {
-      "song_id": "FaAM01",
-      "bar_num": 70,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1666": {
-      "song_id": "FaAM01",
-      "bar_num": 71,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1667": {
-      "song_id": "FaAM01",
-      "bar_num": 72,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1668": {
-      "song_id": "FaAM01",
-      "bar_num": 73,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1669": {
-      "song_id": "FaAM01",
-      "bar_num": 74,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1670": {
-      "song_id": "FaAM01",
-      "bar_num": 75,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1671": {
-      "song_id": "FaAM01",
-      "bar_num": 76,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1672": {
-      "song_id": "FaAM01",
-      "bar_num": 77,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1673": {
-      "song_id": "FaAM01",
-      "bar_num": 78,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1674": {
-      "song_id": "FaAM01",
-      "bar_num": 79,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1675": {
-      "song_id": "E3pvFC",
-      "bar_num": 1,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1676": {
-      "song_id": "E3pvFC",
-      "bar_num": 2,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1677": {
-      "song_id": "E3pvFC",
-      "bar_num": 3,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1678": {
-      "song_id": "E3pvFC",
-      "bar_num": 4,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1679": {
-      "song_id": "E3pvFC",
-      "bar_num": 5,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1680": {
-      "song_id": "E3pvFC",
-      "bar_num": 6,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1681": {
-      "song_id": "E3pvFC",
-      "bar_num": 7,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1682": {
-      "song_id": "E3pvFC",
-      "bar_num": 8,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1683": {
-      "song_id": "E3pvFC",
-      "bar_num": 9,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1684": {
-      "song_id": "E3pvFC",
-      "bar_num": 10,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1685": {
-      "song_id": "E3pvFC",
-      "bar_num": 11,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1686": {
-      "song_id": "E3pvFC",
-      "bar_num": 12,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1687": {
-      "song_id": "E3pvFC",
-      "bar_num": 13,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1688": {
-      "song_id": "E3pvFC",
-      "bar_num": 14,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1689": {
-      "song_id": "E3pvFC",
-      "bar_num": 15,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1690": {
-      "song_id": "E3pvFC",
-      "bar_num": 16,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1691": {
-      "song_id": "E3pvFC",
-      "bar_num": 17,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1692": {
-      "song_id": "E3pvFC",
-      "bar_num": 18,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1693": {
-      "song_id": "E3pvFC",
-      "bar_num": 19,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1694": {
-      "song_id": "E3pvFC",
-      "bar_num": 20,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1695": {
-      "song_id": "E3pvFC",
-      "bar_num": 21,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1696": {
-      "song_id": "E3pvFC",
-      "bar_num": 22,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1697": {
-      "song_id": "E3pvFC",
-      "bar_num": 23,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1698": {
-      "song_id": "E3pvFC",
-      "bar_num": 24,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1699": {
-      "song_id": "E3pvFC",
-      "bar_num": 25,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1700": {
-      "song_id": "E3pvFC",
-      "bar_num": 26,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1701": {
-      "song_id": "E3pvFC",
-      "bar_num": 27,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1702": {
-      "song_id": "E3pvFC",
-      "bar_num": 28,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1703": {
-      "song_id": "E3pvFC",
-      "bar_num": 29,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1704": {
-      "song_id": "E3pvFC",
-      "bar_num": 30,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1705": {
-      "song_id": "E3pvFC",
-      "bar_num": 31,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1706": {
-      "song_id": "E3pvFC",
-      "bar_num": 32,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1707": {
-      "song_id": "E3pvFC",
-      "bar_num": 33,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1708": {
-      "song_id": "E3pvFC",
-      "bar_num": 34,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1709": {
-      "song_id": "E3pvFC",
-      "bar_num": 35,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1710": {
-      "song_id": "E3pvFC",
-      "bar_num": 36,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1711": {
-      "song_id": "E3pvFC",
-      "bar_num": 37,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1712": {
-      "song_id": "E3pvFC",
-      "bar_num": 38,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1713": {
-      "song_id": "E3pvFC",
-      "bar_num": 39,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1714": {
-      "song_id": "E3pvFC",
-      "bar_num": 40,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1715": {
-      "song_id": "E3pvFC",
-      "bar_num": 41,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1716": {
-      "song_id": "E3pvFC",
-      "bar_num": 42,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1717": {
-      "song_id": "E3pvFC",
-      "bar_num": 43,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1718": {
-      "song_id": "E3pvFC",
-      "bar_num": 44,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1719": {
-      "song_id": "E3pvFC",
-      "bar_num": 45,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1720": {
-      "song_id": "E3pvFC",
-      "bar_num": 46,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1721": {
-      "song_id": "E3pvFC",
-      "bar_num": 47,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1722": {
-      "song_id": "E3pvFC",
-      "bar_num": 48,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1723": {
-      "song_id": "E3pvFC",
-      "bar_num": 49,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1724": {
-      "song_id": "E3pvFC",
-      "bar_num": 50,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1725": {
-      "song_id": "E3pvFC",
-      "bar_num": 51,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1726": {
-      "song_id": "E3pvFC",
-      "bar_num": 52,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1727": {
-      "song_id": "E3pvFC",
-      "bar_num": 53,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1728": {
-      "song_id": "E3pvFC",
-      "bar_num": 54,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1729": {
-      "song_id": "E3pvFC",
-      "bar_num": 55,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1730": {
-      "song_id": "E3pvFC",
-      "bar_num": 56,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1731": {
-      "song_id": "E3pvFC",
-      "bar_num": 57,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1732": {
-      "song_id": "E3pvFC",
-      "bar_num": 58,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1733": {
-      "song_id": "E3pvFC",
-      "bar_num": 59,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1734": {
-      "song_id": "E3pvFC",
-      "bar_num": 60,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1735": {
-      "song_id": "E3pvFC",
-      "bar_num": 61,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1736": {
-      "song_id": "E3pvFC",
-      "bar_num": 62,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1737": {
-      "song_id": "E3pvFC",
-      "bar_num": 63,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1738": {
-      "song_id": "E3pvFC",
-      "bar_num": 64,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1739": {
-      "song_id": "E3pvFC",
-      "bar_num": 65,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1740": {
-      "song_id": "E3pvFC",
-      "bar_num": 66,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1741": {
-      "song_id": "E3pvFC",
-      "bar_num": 67,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1742": {
-      "song_id": "E3pvFC",
-      "bar_num": 68,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1743": {
-      "song_id": "E3pvFC",
-      "bar_num": 69,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1744": {
-      "song_id": "E3pvFC",
-      "bar_num": 70,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1745": {
-      "song_id": "E3pvFC",
-      "bar_num": 71,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1746": {
-      "song_id": "E3pvFC",
-      "bar_num": 72,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1747": {
-      "song_id": "E3pvFC",
-      "bar_num": 73,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1748": {
-      "song_id": "E3pvFC",
-      "bar_num": 74,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1749": {
-      "song_id": "E3pvFC",
-      "bar_num": 75,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1750": {
-      "song_id": "E3pvFC",
-      "bar_num": 76,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1751": {
-      "song_id": "E3pvFC",
-      "bar_num": 77,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1752": {
-      "song_id": "E3pvFC",
-      "bar_num": 78,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1753": {
-      "song_id": "E3pvFC",
-      "bar_num": 79,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1754": {
-      "song_id": "E3pvFC",
-      "bar_num": 80,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B1755": {
-      "song_id": "E3pvFC",
-      "bar_num": 81,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
     }
   },
   "accents": {
@@ -17121,456 +11785,6 @@
       "bar_id": "B1086",
       "pos_16th": 16,
       "type": "bl",
-      "notes": ""
-    },
-    "A0028": {
-      "bar_id": "B1274",
-      "pos_16th": 1,
-      "type": "hl",
-      "notes": ""
-    },
-    "A0029": {
-      "bar_id": "B1274",
-      "pos_16th": 4,
-      "type": "hl",
-      "notes": ""
-    },
-    "A0030": {
-      "bar_id": "B1274",
-      "pos_16th": 7,
-      "type": "hl",
-      "notes": ""
-    },
-    "A0031": {
-      "bar_id": "B1275",
-      "pos_16th": 1,
-      "type": "hl",
-      "notes": ""
-    },
-    "A0032": {
-      "bar_id": "B1275",
-      "pos_16th": 4,
-      "type": "hl",
-      "notes": ""
-    },
-    "A0033": {
-      "bar_id": "B1275",
-      "pos_16th": 7,
-      "type": "hl",
-      "notes": ""
-    },
-    "A0034": {
-      "bar_id": "B1276",
-      "pos_16th": 1,
-      "type": "hl",
-      "notes": ""
-    },
-    "A0035": {
-      "bar_id": "B1276",
-      "pos_16th": 4,
-      "type": "hl",
-      "notes": ""
-    },
-    "A0036": {
-      "bar_id": "B1276",
-      "pos_16th": 7,
-      "type": "hl",
-      "notes": ""
-    },
-    "A0037": {
-      "bar_id": "B1277",
-      "pos_16th": 1,
-      "type": "hl",
-      "notes": ""
-    },
-    "A0038": {
-      "bar_id": "B1277",
-      "pos_16th": 4,
-      "type": "hl",
-      "notes": ""
-    },
-    "A0039": {
-      "bar_id": "B1277",
-      "pos_16th": 7,
-      "type": "hl",
-      "notes": ""
-    },
-    "A0040": {
-      "bar_id": "B1278",
-      "pos_16th": 1,
-      "type": "hl",
-      "notes": ""
-    },
-    "A0041": {
-      "bar_id": "B1278",
-      "pos_16th": 4,
-      "type": "hl",
-      "notes": ""
-    },
-    "A0042": {
-      "bar_id": "B1278",
-      "pos_16th": 7,
-      "type": "hl",
-      "notes": ""
-    },
-    "A0043": {
-      "bar_id": "B1279",
-      "pos_16th": 1,
-      "type": "hl",
-      "notes": ""
-    },
-    "A0044": {
-      "bar_id": "B1279",
-      "pos_16th": 4,
-      "type": "hl",
-      "notes": ""
-    },
-    "A0045": {
-      "bar_id": "B1279",
-      "pos_16th": 7,
-      "type": "hl",
-      "notes": ""
-    },
-    "A0046": {
-      "bar_id": "B1280",
-      "pos_16th": 1,
-      "type": "hl",
-      "notes": ""
-    },
-    "A0047": {
-      "bar_id": "B1280",
-      "pos_16th": 4,
-      "type": "hl",
-      "notes": ""
-    },
-    "A0048": {
-      "bar_id": "B1280",
-      "pos_16th": 7,
-      "type": "hl",
-      "notes": ""
-    },
-    "A0049": {
-      "bar_id": "B1273",
-      "pos_16th": 1,
-      "type": "hl",
-      "notes": ""
-    },
-    "A0050": {
-      "bar_id": "B1273",
-      "pos_16th": 4,
-      "type": "hl",
-      "notes": ""
-    },
-    "A0051": {
-      "bar_id": "B1273",
-      "pos_16th": 7,
-      "type": "hl",
-      "notes": ""
-    },
-    "A0052": {
-      "bar_id": "B1298",
-      "pos_16th": 1,
-      "type": "hl",
-      "notes": ""
-    },
-    "A0053": {
-      "bar_id": "B1298",
-      "pos_16th": 4,
-      "type": "hl",
-      "notes": ""
-    },
-    "A0054": {
-      "bar_id": "B1298",
-      "pos_16th": 7,
-      "type": "hl",
-      "notes": ""
-    },
-    "A0055": {
-      "bar_id": "B1299",
-      "pos_16th": 1,
-      "type": "hl",
-      "notes": ""
-    },
-    "A0056": {
-      "bar_id": "B1299",
-      "pos_16th": 4,
-      "type": "hl",
-      "notes": ""
-    },
-    "A0057": {
-      "bar_id": "B1299",
-      "pos_16th": 7,
-      "type": "hl",
-      "notes": ""
-    },
-    "A0061": {
-      "bar_id": "B1300",
-      "pos_16th": 1,
-      "type": "hl",
-      "notes": ""
-    },
-    "A0062": {
-      "bar_id": "B1300",
-      "pos_16th": 4,
-      "type": "hl",
-      "notes": ""
-    },
-    "A0063": {
-      "bar_id": "B1300",
-      "pos_16th": 7,
-      "type": "hl",
-      "notes": ""
-    },
-    "A0064": {
-      "bar_id": "B1301",
-      "pos_16th": 1,
-      "type": "hl",
-      "notes": ""
-    },
-    "A0065": {
-      "bar_id": "B1301",
-      "pos_16th": 4,
-      "type": "hl",
-      "notes": ""
-    },
-    "A0066": {
-      "bar_id": "B1301",
-      "pos_16th": 7,
-      "type": "hl",
-      "notes": ""
-    },
-    "A0067": {
-      "bar_id": "B1302",
-      "pos_16th": 1,
-      "type": "hl",
-      "notes": ""
-    },
-    "A0068": {
-      "bar_id": "B1302",
-      "pos_16th": 4,
-      "type": "hl",
-      "notes": ""
-    },
-    "A0069": {
-      "bar_id": "B1302",
-      "pos_16th": 7,
-      "type": "hl",
-      "notes": ""
-    },
-    "A0070": {
-      "bar_id": "B1303",
-      "pos_16th": 1,
-      "type": "hl",
-      "notes": ""
-    },
-    "A0071": {
-      "bar_id": "B1303",
-      "pos_16th": 4,
-      "type": "hl",
-      "notes": ""
-    },
-    "A0072": {
-      "bar_id": "B1303",
-      "pos_16th": 7,
-      "type": "hl",
-      "notes": ""
-    },
-    "A0073": {
-      "bar_id": "B1304",
-      "pos_16th": 1,
-      "type": "hl",
-      "notes": ""
-    },
-    "A0074": {
-      "bar_id": "B1304",
-      "pos_16th": 4,
-      "type": "hl",
-      "notes": ""
-    },
-    "A0075": {
-      "bar_id": "B1304",
-      "pos_16th": 7,
-      "type": "hl",
-      "notes": ""
-    },
-    "A0076": {
-      "bar_id": "B1305",
-      "pos_16th": 1,
-      "type": "hl",
-      "notes": ""
-    },
-    "A0077": {
-      "bar_id": "B1305",
-      "pos_16th": 4,
-      "type": "hl",
-      "notes": ""
-    },
-    "A0078": {
-      "bar_id": "B1305",
-      "pos_16th": 7,
-      "type": "hl",
-      "notes": ""
-    },
-    "A0079": {
-      "bar_id": "B1465",
-      "pos_16th": 1,
-      "type": "fg",
-      "notes": ""
-    },
-    "A0080": {
-      "bar_id": "B1486",
-      "pos_16th": 1,
-      "type": "st",
-      "notes": ""
-    },
-    "A0081": {
-      "bar_id": "B1486",
-      "pos_16th": 9,
-      "type": "st",
-      "notes": ""
-    },
-    "A0082": {
-      "bar_id": "B1487",
-      "pos_16th": 1,
-      "type": "st",
-      "notes": ""
-    },
-    "A0083": {
-      "bar_id": "B1487",
-      "pos_16th": 9,
-      "type": "st",
-      "notes": ""
-    },
-    "A0084": {
-      "bar_id": "B1490",
-      "pos_16th": 1,
-      "type": "st",
-      "notes": ""
-    },
-    "A0085": {
-      "bar_id": "B1490",
-      "pos_16th": 9,
-      "type": "st",
-      "notes": ""
-    },
-    "A0086": {
-      "bar_id": "B1491",
-      "pos_16th": 1,
-      "type": "st",
-      "notes": ""
-    },
-    "A0087": {
-      "bar_id": "B1491",
-      "pos_16th": 9,
-      "type": "st",
-      "notes": ""
-    },
-    "A0088": {
-      "bar_id": "B1494",
-      "pos_16th": 1,
-      "type": "st",
-      "notes": ""
-    },
-    "A0089": {
-      "bar_id": "B1494",
-      "pos_16th": 9,
-      "type": "st",
-      "notes": ""
-    },
-    "A0090": {
-      "bar_id": "B1495",
-      "pos_16th": 1,
-      "type": "st",
-      "notes": ""
-    },
-    "A0091": {
-      "bar_id": "B1495",
-      "pos_16th": 9,
-      "type": "st",
-      "notes": ""
-    },
-    "A0092": {
-      "bar_id": "B1498",
-      "pos_16th": 1,
-      "type": "st",
-      "notes": ""
-    },
-    "A0093": {
-      "bar_id": "B1498",
-      "pos_16th": 9,
-      "type": "st",
-      "notes": ""
-    },
-    "A0094": {
-      "bar_id": "B1498",
-      "pos_16th": 16,
-      "type": "bl",
-      "notes": ""
-    },
-    "A0095": {
-      "bar_id": "B1499",
-      "pos_16th": 1,
-      "type": "bo",
-      "notes": ""
-    },
-    "A0096": {
-      "bar_id": "B1500",
-      "pos_16th": 5,
-      "type": "bl",
-      "notes": ""
-    },
-    "A0097": {
-      "bar_id": "B1500",
-      "pos_16th": 9,
-      "type": "bl",
-      "notes": ""
-    },
-    "A0098": {
-      "bar_id": "B1501",
-      "pos_16th": 9,
-      "type": "st",
-      "notes": ""
-    },
-    "A0100": {
-      "bar_id": "B1501",
-      "pos_16th": 10,
-      "type": "st",
-      "notes": ""
-    },
-    "A0101": {
-      "bar_id": "B1501",
-      "pos_16th": 11,
-      "type": "st",
-      "notes": ""
-    },
-    "A0102": {
-      "bar_id": "B1501",
-      "pos_16th": 12,
-      "type": "st",
-      "notes": ""
-    },
-    "A0103": {
-      "bar_id": "B1501",
-      "pos_16th": 14,
-      "type": "st",
-      "notes": ""
-    },
-    "A0104": {
-      "bar_id": "B1501",
-      "pos_16th": 13,
-      "type": "st",
-      "notes": ""
-    },
-    "A0105": {
-      "bar_id": "B1501",
-      "pos_16th": 15,
-      "type": "st",
-      "notes": ""
-    },
-    "A0106": {
-      "bar_id": "B1501",
-      "pos_16th": 16,
-      "type": "st",
       "notes": ""
     }
   },

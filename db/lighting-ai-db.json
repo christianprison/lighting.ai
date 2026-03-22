@@ -4127,47 +4127,58 @@
         "part_starts": [
           {
             "bar_num": 1,
-            "name": "Thema 1 (Intro)"
+            "name": "Thema 1 (Intro)",
+            "light_template": "03 walking"
           },
           {
             "bar_num": 9,
-            "name": "Verse 1"
+            "name": "Verse 1",
+            "light_template": "PAR Blue + Fog"
           },
           {
             "bar_num": 17,
-            "name": "Chorus 1"
+            "name": "Chorus 1",
+            "light_template": "06 blinking"
           },
           {
             "bar_num": 26,
-            "name": "Thema 2"
+            "name": "Thema 2",
+            "light_template": "03 walking"
           },
           {
             "bar_num": 34,
-            "name": "Verse 2"
+            "name": "Verse 2",
+            "light_template": "PAR Green + Fog"
           },
           {
             "bar_num": 42,
-            "name": "Chorus 2"
+            "name": "Chorus 2",
+            "light_template": "06 blinking"
           },
           {
             "bar_num": 51,
-            "name": "Thema 3"
+            "name": "Thema 3",
+            "light_template": "03 walking"
           },
           {
             "bar_num": 59,
-            "name": "Thema 4"
+            "name": "Thema 4",
+            "light_template": "07 round'n'round"
           },
           {
             "bar_num": 67,
-            "name": "Chorus 3"
+            "name": "Chorus 3",
+            "light_template": "09 Alarm"
           },
           {
             "bar_num": 75,
-            "name": "Chorus 4"
+            "name": "Chorus 4",
+            "light_template": "10 Alarm 🔔🔔"
           },
           {
             "bar_num": 84,
-            "name": "Thema 5"
+            "name": "Thema 5",
+            "light_template": "03 walking"
           }
         ]
       }

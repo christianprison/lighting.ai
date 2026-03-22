@@ -6120,7 +6120,7 @@
       "qlc_id": 174,
       "audio_ref": "audio/Hail to the Freaks/Hail to the Freaks - Full Song.mp3",
       "audio_ref_name": "Hail to the Freaks - Full Song.mp3",
-      "lyrics_raw": "[Verse 1]Hail to the freaks I can't get enough\nSo the words hit the boy who can never be tough\nIf somebody tries to compromise\nHashing out deals to cover lies\n\n[Chorus]\nI predict a world\nThat keeps you hanging on\nAnd I've been around and around and around I'll come\nYeah, to weather the storm and set up the sun\nAnd weather the storm and set up the sun\nUh!\n[Verse 2]\nHail to the freaks I can't get enough\nSo the words hit the boy who can never be tough\nSaw a friend recently\nBegging for sympathy\nBeen holding my breath and trying to accept\nAnother apology\nOh...\n\n[Chorus]\nI predict a world\nThat keeps you hanging on\nAnd I've been around and around and around I'll come\nYeah, to weather the storm and set up the sun\nAnd weather the storm and set up the sun\n\n[Post-Chorus]\nCalling you from the top of friction\nCalling you from the wrong direction\nTo set up the sun, the sun, the sun\nOhohohoh!\n\n[Verse 3]\nHail to the freaks I can't get enough\nSo the words hit the boy who can never be tough\nSomebody needs to speak out wise\nHashing out deals to cover lies\nHashing out deals to cover lies",
+      "lyrics_raw": "",
       "tms": {
         "manual_done": [
           "bar_markers"
@@ -6546,7 +6546,9 @@
       "tms": {
         "manual_done": [],
         "user_tasks": [],
-        "manual_undone": []
+        "manual_undone": [
+          "lyrics_raw"
+        ]
       },
       "total_bars": 0
     },

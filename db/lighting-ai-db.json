@@ -3842,7 +3842,9 @@
         "user_tasks": [],
         "manual_undone": []
       },
-      "total_bars": 0
+      "total_bars": 0,
+      "audio_ref": "audio/Enjoy The Silence/Enjoy The Silence - Full Song.mp3",
+      "audio_ref_name": "Enjoy the silence - Template  - zyDkjm.mp3"
     },
     "EfmiXn": {
       "name": "Every You Every Me",

@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.2.16';
+const APP_VERSION = 'v2.2.17';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -500,6 +500,10 @@ const SONG_CHECKLIST = [
   { id: 'bar_markers',  label: 'Alle Takte identifiziert', cat: 'audio', tab: 'audio',
     check: () => false },  // Manuell abhaken — kein Auto-Check
   { id: 'parts_identified', label: 'Alle Parts identifiziert', cat: 'audio', tab: 'audio',
+    check: () => false },  // Manuell abhaken — kein Auto-Check
+  { id: 'instr_parts_identified', label: 'Alle Instrumental-Parts identifiziert', cat: 'audio', tab: 'audio',
+    check: () => false },  // Manuell abhaken — kein Auto-Check
+  { id: 'instr_bars_identified',  label: 'Alle Instrumental-Takte identifiziert', cat: 'audio', tab: 'audio',
     check: () => false },  // Manuell abhaken — kein Auto-Check
 
   // ── Lyrics ──

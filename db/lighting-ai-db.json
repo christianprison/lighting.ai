@@ -5027,7 +5027,24 @@
             "time": 233.08805309734512
           }
         ],
-        "part_starts": []
+        "part_starts": [
+          {
+            "bar_num": 1,
+            "name": "Geschraddel bis „Kick it“"
+          },
+          {
+            "bar_num": 2,
+            "name": "Thema 1 (Intro)"
+          },
+          {
+            "bar_num": 10,
+            "name": "Verse 1"
+          },
+          {
+            "bar_num": 26,
+            "name": "Chorus 1"
+          }
+        ]
       }
     },
     "E3pvFC": {

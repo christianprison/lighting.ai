@@ -3795,11 +3795,12 @@
       "qlc_id": 177,
       "audio_ref": "audio/Dancing with myself/Dancing with myself - Full Song.mp3",
       "audio_ref_name": "Dancing with myself - Full Song.mp3",
-      "lyrics_raw": "[Verse 1]\nOn the floors of Tokyo-o\nOr down in London town to go, go\nA-with the record selection and the mirror's reflection\nI'm a-dancing with myself\nOh, when there's no one else in sight\nA-in the crowded lonely night\nWell, I wait so long for my love vibration\nAnd I'm dancing with myself\n\n[Chorus]\nOh, oh, dancing with myself\nOh, oh, dancing with myself\nWhen there's nothing to lose, and there's nothing to prove\nAnd I'm dancing with myself, oh, oh, uh-oh\n[Verse 2]\nIf I looked all over the world\nAnd there's every type of girl\nBut your empty eyes seem to pass me by\nLeave me dancing with myself\nSo let's sink another drink\n'Cause it'll give me time to think\nIf I had the chance, I'd ask the world to dance\nAnd I'll be dancing with myself\n\n[Chorus]\nOh, oh, dancing with myself\nOh, oh, dancing with myself\nWhen there's nothing to lose, and there's nothing to prove\nAnd I'm dancing with myself, oh, oh, uh-oh\n\n[Bridge]\nOh, oh, uh-oh, oh\nOh, oh, uh-oh\nOh, uh-uh, oh, ow\n\n[Guitar Solo]\n\n[Verse 3]\nWell, if I looked all over the world\nAnd there's every type of girl\nBut your empty eyes seem to pass me by\nLeave me dancing with myself\nSo let's sink another drink\n'Cause it'll give me time to think\nIf I had the chance, I'd ask the world to dance\nAnd I'll be dancing with myself\n[Chorus]\nOh, oh, dancing with myself\nOh, oh, dancing with myself\nIf I had the chance, I'd ask the world to dance\nIf I had the chance, I'd ask the world to dance\nIf I had the chance, I'd ask the world to dance, ow\n\n[Bridge]\nOh, oh, uh-oh\nOh, oh, uh-oh\nOh, oh, uh-oh\nOh, oh, uh-oh\n\n[Outro]\n(Dancing with myself, oh, oh) Oh, it's all wet\n(Dancing with myself, oh, oh) And I'll sweat\n(Dancing with myself, oh, oh) And I'll sweat, sweat, sweat, sweat\n(Dancing with myself, oh, oh) Sweat, sweat, sweat, sweat\n(Dancing with myself, oh, oh) Sweat, sweat, sweat, sweat\n(Dancing with myself, oh, oh) Sweat, sweat, sweat, sweat, sweat\nOh\n(Dancing with myself, oh, oh)\n(Dancing with myself, oh, oh) Dancing with myself, oh\n(Dancing with myself, oh, oh)\n(Dancing with myself, oh, oh)\n(Dancing with myself, oh, oh) Wow\n(Dancing with myself, oh, oh)\n(Dancing with myself, oh, oh)",
+      "lyrics_raw": "On floor of Tokyo Or down in London town to go, go With the the record selection With the mirror reflection I'm dancing with myself When there's no-one else in sight In the crowded lonely night Well I wait so long For my love vibration And I'm dancing with myself Oh dancing with myself Oh dancing with myself Well there's nothing to lose And there's nothing to prove I'll be dancing with myself If I looked all over the world And there's every type of girl But your empty eyes Seem to pass me by Leave me dancing with myself So let's sink another drink 'Cause it'll give me time to think If I had the chance I'd ask the world to dance And I'll be dancing with myself Oh dancing with myself Oh dancing with myself Well there's nothing to lose And there's nothing to prove I'll be dancing with myself If I looked all over the world And there's every type of girl But your empty eyes Seem to pass me by Leave me dancing with myself So let's sink another drink 'Cause it'll give me time to think If I had the chance I'd ask the world to dance And I'll be dancing with myself Oh dancing with myself Oh dancing with myself If I had the chance I'd ask the world to dance If I had the chance I'd ask the world to dance If I had the chance I'd ask the world to dance Dancing with myself Dancing with myself Dancing with myself Dancing with myself If I looked all over the world And there's every type of girl But your empty eyes Seem to pass me by Leave me dancing with myself So let's sink another drink 'Cause it'll give me time to think If I had the chance I'd ask the world to dance And I'll be dancing with myself Oh dancing with myself Oh dancing with myself If I had the chance I'd ask the world to dance If I had the chance I'd ask the world to dance If I had the chance I'd ask the world to dance",
       "tms": {
         "manual_done": [
           "bar_markers",
-          "parts_identified"
+          "parts_identified",
+          "instr_parts_identified"
         ],
         "user_tasks": [],
         "manual_undone": []
@@ -17703,175 +17704,175 @@
     "B1767": {
       "song_id": "pVmkRc",
       "bar_num": 12,
-      "lyrics": "",
+      "lyrics": "On\n",
       "audio": "",
       "has_accents": false
     },
     "B1768": {
       "song_id": "pVmkRc",
       "bar_num": 13,
-      "lyrics": "",
+      "lyrics": "floor of",
       "audio": "",
       "has_accents": false
     },
     "B1769": {
       "song_id": "pVmkRc",
       "bar_num": 14,
-      "lyrics": "",
+      "lyrics": "Tokyo Or down in",
       "audio": "",
       "has_accents": false
     },
     "B1770": {
       "song_id": "pVmkRc",
       "bar_num": 15,
-      "lyrics": "",
+      "lyrics": "London town to go,",
       "audio": "",
       "has_accents": false
     },
     "B1771": {
       "song_id": "pVmkRc",
       "bar_num": 16,
-      "lyrics": "",
+      "lyrics": "go With the the record",
       "audio": "",
       "has_accents": false
     },
     "B1772": {
       "song_id": "pVmkRc",
       "bar_num": 17,
-      "lyrics": "",
+      "lyrics": "selection With the mirror",
       "audio": "",
       "has_accents": false
     },
     "B1773": {
       "song_id": "pVmkRc",
       "bar_num": 18,
-      "lyrics": "",
+      "lyrics": "reflection I'm dancing with",
       "audio": "",
       "has_accents": false
     },
     "B1774": {
       "song_id": "pVmkRc",
       "bar_num": 19,
-      "lyrics": "",
+      "lyrics": "myself When there's no-one",
       "audio": "",
       "has_accents": false
     },
     "B1775": {
       "song_id": "pVmkRc",
       "bar_num": 20,
-      "lyrics": "",
+      "lyrics": "else in sight In",
       "audio": "",
       "has_accents": false
     },
     "B1776": {
       "song_id": "pVmkRc",
       "bar_num": 21,
-      "lyrics": "",
+      "lyrics": "the crowded lonely night",
       "audio": "",
       "has_accents": false
     },
     "B1777": {
       "song_id": "pVmkRc",
       "bar_num": 22,
-      "lyrics": "",
+      "lyrics": "Well I wait so",
       "audio": "",
       "has_accents": false
     },
     "B1778": {
       "song_id": "pVmkRc",
       "bar_num": 23,
-      "lyrics": "",
+      "lyrics": "long For my love",
       "audio": "",
       "has_accents": false
     },
     "B1779": {
       "song_id": "pVmkRc",
       "bar_num": 24,
-      "lyrics": "",
+      "lyrics": "vibration And I'm dancing",
       "audio": "",
       "has_accents": false
     },
     "B1780": {
       "song_id": "pVmkRc",
       "bar_num": 25,
-      "lyrics": "",
+      "lyrics": "with myself Oh dancing",
       "audio": "",
       "has_accents": false
     },
     "B1781": {
       "song_id": "pVmkRc",
       "bar_num": 26,
-      "lyrics": "",
+      "lyrics": "with myself Oh dancing",
       "audio": "",
       "has_accents": false
     },
     "B1782": {
       "song_id": "pVmkRc",
       "bar_num": 27,
-      "lyrics": "",
+      "lyrics": "with myself Well there's",
       "audio": "",
       "has_accents": false
     },
     "B1783": {
       "song_id": "pVmkRc",
       "bar_num": 28,
-      "lyrics": "",
+      "lyrics": "nothing to lose And\n",
       "audio": "",
       "has_accents": false
     },
     "B1784": {
       "song_id": "pVmkRc",
       "bar_num": 29,
-      "lyrics": "",
+      "lyrics": "there's nothing to prove",
       "audio": "",
       "has_accents": false
     },
     "B1785": {
       "song_id": "pVmkRc",
       "bar_num": 30,
-      "lyrics": "",
+      "lyrics": "I'll be dancing with",
       "audio": "",
       "has_accents": false
     },
     "B1786": {
       "song_id": "pVmkRc",
       "bar_num": 31,
-      "lyrics": "",
+      "lyrics": "myself If I looked",
       "audio": "",
       "has_accents": false
     },
     "B1787": {
       "song_id": "pVmkRc",
       "bar_num": 32,
-      "lyrics": "",
+      "lyrics": "all over the world",
       "audio": "",
       "has_accents": false
     },
     "B1788": {
       "song_id": "pVmkRc",
       "bar_num": 33,
-      "lyrics": "",
+      "lyrics": "And there's every type",
       "audio": "",
       "has_accents": false
     },
     "B1789": {
       "song_id": "pVmkRc",
       "bar_num": 34,
-      "lyrics": "",
+      "lyrics": "of girl But your",
       "audio": "",
       "has_accents": false
     },
     "B1790": {
       "song_id": "pVmkRc",
       "bar_num": 35,
-      "lyrics": "",
+      "lyrics": "empty eyes Seem to",
       "audio": "",
       "has_accents": false
     },
     "B1791": {
       "song_id": "pVmkRc",
       "bar_num": 36,
-      "lyrics": "",
+      "lyrics": "pass me by Leave\n",
       "audio": "",
       "has_accents": false
     },
@@ -17892,224 +17893,224 @@
     "B1794": {
       "song_id": "pVmkRc",
       "bar_num": 39,
-      "lyrics": "",
+      "lyrics": "me dancing with myself",
       "audio": "",
       "has_accents": false
     },
     "B1795": {
       "song_id": "pVmkRc",
       "bar_num": 40,
-      "lyrics": "",
+      "lyrics": "So let's sink another",
       "audio": "",
       "has_accents": false
     },
     "B1796": {
       "song_id": "pVmkRc",
       "bar_num": 41,
-      "lyrics": "",
+      "lyrics": "drink 'Cause it'll give",
       "audio": "",
       "has_accents": false
     },
     "B1797": {
       "song_id": "pVmkRc",
       "bar_num": 42,
-      "lyrics": "",
+      "lyrics": "me time to think",
       "audio": "",
       "has_accents": false
     },
     "B1798": {
       "song_id": "pVmkRc",
       "bar_num": 43,
-      "lyrics": "",
+      "lyrics": "If I had the",
       "audio": "",
       "has_accents": false
     },
     "B1799": {
       "song_id": "pVmkRc",
       "bar_num": 44,
-      "lyrics": "",
+      "lyrics": "chance I'd ask the",
       "audio": "",
       "has_accents": false
     },
     "B1800": {
       "song_id": "pVmkRc",
       "bar_num": 45,
-      "lyrics": "",
+      "lyrics": "world to dance And",
       "audio": "",
       "has_accents": false
     },
     "B1801": {
       "song_id": "pVmkRc",
       "bar_num": 46,
-      "lyrics": "",
+      "lyrics": "I'll be dancing with",
       "audio": "",
       "has_accents": false
     },
     "B1802": {
       "song_id": "pVmkRc",
       "bar_num": 47,
-      "lyrics": "",
+      "lyrics": "myself Oh dancing with",
       "audio": "",
       "has_accents": false
     },
     "B1803": {
       "song_id": "pVmkRc",
       "bar_num": 48,
-      "lyrics": "",
+      "lyrics": "myself Oh dancing with",
       "audio": "",
       "has_accents": false
     },
     "B1804": {
       "song_id": "pVmkRc",
       "bar_num": 49,
-      "lyrics": "",
+      "lyrics": "myself Well there's nothing",
       "audio": "",
       "has_accents": false
     },
     "B1805": {
       "song_id": "pVmkRc",
       "bar_num": 50,
-      "lyrics": "",
+      "lyrics": "to lose And there's",
       "audio": "",
       "has_accents": false
     },
     "B1806": {
       "song_id": "pVmkRc",
       "bar_num": 51,
-      "lyrics": "",
+      "lyrics": "nothing to prove I'll",
       "audio": "",
       "has_accents": false
     },
     "B1807": {
       "song_id": "pVmkRc",
       "bar_num": 52,
-      "lyrics": "",
+      "lyrics": "be dancing with myself",
       "audio": "",
       "has_accents": false
     },
     "B1808": {
       "song_id": "pVmkRc",
       "bar_num": 53,
-      "lyrics": "",
+      "lyrics": "If I looked all",
       "audio": "",
       "has_accents": false
     },
     "B1809": {
       "song_id": "pVmkRc",
       "bar_num": 54,
-      "lyrics": "",
+      "lyrics": "over the world And\n",
       "audio": "",
       "has_accents": false
     },
     "B1810": {
       "song_id": "pVmkRc",
       "bar_num": 55,
-      "lyrics": "",
+      "lyrics": "there's every type of",
       "audio": "",
       "has_accents": false
     },
     "B1811": {
       "song_id": "pVmkRc",
       "bar_num": 56,
-      "lyrics": "",
+      "lyrics": "girl But your empty",
       "audio": "",
       "has_accents": false
     },
     "B1812": {
       "song_id": "pVmkRc",
       "bar_num": 57,
-      "lyrics": "",
+      "lyrics": "eyes Seem to pass",
       "audio": "",
       "has_accents": false
     },
     "B1813": {
       "song_id": "pVmkRc",
       "bar_num": 58,
-      "lyrics": "",
+      "lyrics": "me by Leave me",
       "audio": "",
       "has_accents": false
     },
     "B1814": {
       "song_id": "pVmkRc",
       "bar_num": 59,
-      "lyrics": "",
+      "lyrics": "dancing with myself So",
       "audio": "",
       "has_accents": false
     },
     "B1815": {
       "song_id": "pVmkRc",
       "bar_num": 60,
-      "lyrics": "",
+      "lyrics": "let's sink another drink",
       "audio": "",
       "has_accents": false
     },
     "B1816": {
       "song_id": "pVmkRc",
       "bar_num": 61,
-      "lyrics": "",
+      "lyrics": "'Cause it'll give me",
       "audio": "",
       "has_accents": false
     },
     "B1817": {
       "song_id": "pVmkRc",
       "bar_num": 62,
-      "lyrics": "",
+      "lyrics": "time to think If\n",
       "audio": "",
       "has_accents": false
     },
     "B1818": {
       "song_id": "pVmkRc",
       "bar_num": 63,
-      "lyrics": "",
+      "lyrics": "I had the chance",
       "audio": "",
       "has_accents": false
     },
     "B1819": {
       "song_id": "pVmkRc",
       "bar_num": 64,
-      "lyrics": "",
+      "lyrics": "I'd ask the world",
       "audio": "",
       "has_accents": false
     },
     "B1820": {
       "song_id": "pVmkRc",
       "bar_num": 65,
-      "lyrics": "",
+      "lyrics": "to dance And I'll",
       "audio": "",
       "has_accents": false
     },
     "B1821": {
       "song_id": "pVmkRc",
       "bar_num": 66,
-      "lyrics": "",
+      "lyrics": "be dancing with myself",
       "audio": "",
       "has_accents": false
     },
     "B1822": {
       "song_id": "pVmkRc",
       "bar_num": 67,
-      "lyrics": "",
+      "lyrics": "Oh dancing with myself",
       "audio": "",
       "has_accents": false
     },
     "B1823": {
       "song_id": "pVmkRc",
       "bar_num": 68,
-      "lyrics": "",
+      "lyrics": "Oh dancing with myself",
       "audio": "",
       "has_accents": false
     },
     "B1824": {
       "song_id": "pVmkRc",
       "bar_num": 69,
-      "lyrics": "",
+      "lyrics": "If I had the",
       "audio": "",
       "has_accents": false
     },
     "B1825": {
       "song_id": "pVmkRc",
       "bar_num": 70,
-      "lyrics": "",
+      "lyrics": "chance I'd ask the\n",
       "audio": "",
       "has_accents": false
     },
@@ -18228,238 +18229,238 @@
     "B1842": {
       "song_id": "pVmkRc",
       "bar_num": 87,
-      "lyrics": "",
+      "lyrics": "world to dance If",
       "audio": "",
       "has_accents": false
     },
     "B1843": {
       "song_id": "pVmkRc",
       "bar_num": 88,
-      "lyrics": "",
+      "lyrics": "I had the chance",
       "audio": "",
       "has_accents": false
     },
     "B1844": {
       "song_id": "pVmkRc",
       "bar_num": 89,
-      "lyrics": "",
+      "lyrics": "I'd ask the world",
       "audio": "",
       "has_accents": false
     },
     "B1845": {
       "song_id": "pVmkRc",
       "bar_num": 90,
-      "lyrics": "",
+      "lyrics": "to dance If I",
       "audio": "",
       "has_accents": false
     },
     "B1846": {
       "song_id": "pVmkRc",
       "bar_num": 91,
-      "lyrics": "",
+      "lyrics": "had the chance I'd",
       "audio": "",
       "has_accents": false
     },
     "B1847": {
       "song_id": "pVmkRc",
       "bar_num": 92,
-      "lyrics": "",
+      "lyrics": "ask the world to",
       "audio": "",
       "has_accents": false
     },
     "B1848": {
       "song_id": "pVmkRc",
       "bar_num": 93,
-      "lyrics": "",
+      "lyrics": "dance Dancing with myself",
       "audio": "",
       "has_accents": false
     },
     "B1849": {
       "song_id": "pVmkRc",
       "bar_num": 94,
-      "lyrics": "",
+      "lyrics": "Dancing with myself Dancing",
       "audio": "",
       "has_accents": false
     },
     "B1850": {
       "song_id": "pVmkRc",
       "bar_num": 95,
-      "lyrics": "",
+      "lyrics": "with myself Dancing with",
       "audio": "",
       "has_accents": false
     },
     "B1851": {
       "song_id": "pVmkRc",
       "bar_num": 96,
-      "lyrics": "",
+      "lyrics": "myself If I looked",
       "audio": "",
       "has_accents": false
     },
     "B1852": {
       "song_id": "pVmkRc",
       "bar_num": 97,
-      "lyrics": "",
+      "lyrics": "all over the world",
       "audio": "",
       "has_accents": false
     },
     "B1853": {
       "song_id": "pVmkRc",
       "bar_num": 98,
-      "lyrics": "",
+      "lyrics": "And there's every type",
       "audio": "",
       "has_accents": false
     },
     "B1854": {
       "song_id": "pVmkRc",
       "bar_num": 99,
-      "lyrics": "",
+      "lyrics": "of girl But your",
       "audio": "",
       "has_accents": false
     },
     "B1855": {
       "song_id": "pVmkRc",
       "bar_num": 100,
-      "lyrics": "",
+      "lyrics": "empty eyes Seem to",
       "audio": "",
       "has_accents": false
     },
     "B1856": {
       "song_id": "pVmkRc",
       "bar_num": 101,
-      "lyrics": "",
+      "lyrics": "pass me by Leave",
       "audio": "",
       "has_accents": false
     },
     "B1857": {
       "song_id": "pVmkRc",
       "bar_num": 102,
-      "lyrics": "",
+      "lyrics": "me dancing with myself\n",
       "audio": "",
       "has_accents": false
     },
     "B1858": {
       "song_id": "pVmkRc",
       "bar_num": 103,
-      "lyrics": "",
+      "lyrics": "So let's sink another",
       "audio": "",
       "has_accents": false
     },
     "B1859": {
       "song_id": "pVmkRc",
       "bar_num": 104,
-      "lyrics": "",
+      "lyrics": "drink 'Cause it'll give",
       "audio": "",
       "has_accents": false
     },
     "B1860": {
       "song_id": "pVmkRc",
       "bar_num": 105,
-      "lyrics": "",
+      "lyrics": "me time to think",
       "audio": "",
       "has_accents": false
     },
     "B1861": {
       "song_id": "pVmkRc",
       "bar_num": 106,
-      "lyrics": "",
+      "lyrics": "If I had the",
       "audio": "",
       "has_accents": false
     },
     "B1862": {
       "song_id": "pVmkRc",
       "bar_num": 107,
-      "lyrics": "",
+      "lyrics": "chance I'd ask the",
       "audio": "",
       "has_accents": false
     },
     "B1863": {
       "song_id": "pVmkRc",
       "bar_num": 108,
-      "lyrics": "",
+      "lyrics": "world to dance And",
       "audio": "",
       "has_accents": false
     },
     "B1864": {
       "song_id": "pVmkRc",
       "bar_num": 109,
-      "lyrics": "",
+      "lyrics": "I'll be dancing with",
       "audio": "",
       "has_accents": false
     },
     "B1865": {
       "song_id": "pVmkRc",
       "bar_num": 110,
-      "lyrics": "",
+      "lyrics": "myself Oh dancing with",
       "audio": "",
       "has_accents": false
     },
     "B1866": {
       "song_id": "pVmkRc",
       "bar_num": 111,
-      "lyrics": "",
+      "lyrics": "myself Oh dancing with",
       "audio": "",
       "has_accents": false
     },
     "B1867": {
       "song_id": "pVmkRc",
       "bar_num": 112,
-      "lyrics": "",
+      "lyrics": "myself If I had",
       "audio": "",
       "has_accents": false
     },
     "B1868": {
       "song_id": "pVmkRc",
       "bar_num": 113,
-      "lyrics": "",
+      "lyrics": "the chance I'd ask",
       "audio": "",
       "has_accents": false
     },
     "B1869": {
       "song_id": "pVmkRc",
       "bar_num": 114,
-      "lyrics": "",
+      "lyrics": "the world to dance\n",
       "audio": "",
       "has_accents": false
     },
     "B1870": {
       "song_id": "pVmkRc",
       "bar_num": 115,
-      "lyrics": "",
+      "lyrics": "If I had the",
       "audio": "",
       "has_accents": false
     },
     "B1871": {
       "song_id": "pVmkRc",
       "bar_num": 116,
-      "lyrics": "",
+      "lyrics": "chance I'd ask the",
       "audio": "",
       "has_accents": false
     },
     "B1872": {
       "song_id": "pVmkRc",
       "bar_num": 117,
-      "lyrics": "",
+      "lyrics": "world to dance If",
       "audio": "",
       "has_accents": false
     },
     "B1873": {
       "song_id": "pVmkRc",
       "bar_num": 118,
-      "lyrics": "",
+      "lyrics": "I had the chance",
       "audio": "",
       "has_accents": false
     },
     "B1874": {
       "song_id": "pVmkRc",
       "bar_num": 119,
-      "lyrics": "",
+      "lyrics": "I'd ask the world",
       "audio": "",
       "has_accents": false
     },
     "B1875": {
       "song_id": "pVmkRc",
       "bar_num": 120,
-      "lyrics": "",
+      "lyrics": "to dance",
       "audio": "",
       "has_accents": false
     },

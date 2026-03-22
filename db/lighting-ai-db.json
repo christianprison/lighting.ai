@@ -15197,7 +15197,7 @@
     "B1489": {
       "song_id": "BfbgVC",
       "bar_num": 15,
-      "lyrics": "still says,",
+      "lyrics": "still says, \"No\"",
       "audio": "",
       "has_accents": false
     },
@@ -15206,26 +15206,27 @@
       "bar_num": 16,
       "lyrics": "",
       "audio": "",
-      "has_accents": true
+      "has_accents": true,
+      "instrumental": true
     },
     "B1491": {
       "song_id": "BfbgVC",
       "bar_num": 17,
-      "lyrics": "",
+      "lyrics": "You",
       "audio": "",
       "has_accents": true
     },
     "B1492": {
       "song_id": "BfbgVC",
       "bar_num": 18,
-      "lyrics": "",
+      "lyrics": "missed two classes and",
       "audio": "",
       "has_accents": false
     },
     "B1493": {
       "song_id": "BfbgVC",
       "bar_num": 19,
-      "lyrics": "",
+      "lyrics": "no homework",
       "audio": "",
       "has_accents": false
     },
@@ -15234,42 +15235,45 @@
       "bar_num": 20,
       "lyrics": "",
       "audio": "",
-      "has_accents": true
+      "has_accents": true,
+      "instrumental": true
     },
     "B1495": {
       "song_id": "BfbgVC",
       "bar_num": 21,
-      "lyrics": "\"No\" You",
+      "lyrics": "But your",
       "audio": "",
       "has_accents": true
     },
     "B1496": {
       "song_id": "BfbgVC",
       "bar_num": 22,
-      "lyrics": "missed two",
+      "lyrics": "teacher preaches class like you're",
       "audio": "",
       "has_accents": false
     },
     "B1497": {
       "song_id": "BfbgVC",
       "bar_num": 23,
-      "lyrics": "classes and",
+      "lyrics": "some kind of *jerk*",
       "audio": "",
       "has_accents": false
     },
     "B1498": {
       "song_id": "BfbgVC",
       "bar_num": 24,
-      "lyrics": "no homework",
+      "lyrics": "",
       "audio": "",
-      "has_accents": true
+      "has_accents": true,
+      "instrumental": true
     },
     "B1499": {
       "song_id": "BfbgVC",
       "bar_num": 25,
-      "lyrics": "But your teacher preaches class like you're some kind of *jerk*\n",
+      "lyrics": "",
       "audio": "",
-      "has_accents": true
+      "has_accents": true,
+      "instrumental": true
     },
     "B1500": {
       "song_id": "BfbgVC",

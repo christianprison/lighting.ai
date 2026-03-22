@@ -4277,28 +4277,34 @@
           },
           {
             "bar_num": 29,
-            "name": "Chorus 1"
+            "name": "Chorus 1",
+            "light_template": "04 up'n'down"
           },
           {
             "bar_num": 37,
             "name": "Interlude 1",
+            "light_template": "01 statisch bunt",
             "instrumental": true
           },
           {
             "bar_num": 39,
-            "name": "Verse 2"
+            "name": "Verse 2",
+            "light_template": "05 left'n'right"
           },
           {
             "bar_num": 55,
-            "name": "Chorus 2"
+            "name": "Chorus 2",
+            "light_template": "04 up'n'down"
           },
           {
             "bar_num": 63,
-            "name": "Interlude 2"
+            "name": "Interlude 2",
+            "light_template": "Spot auf Axel & Bibo"
           },
           {
             "bar_num": 71,
             "name": "Mittelteil",
+            "light_template": "Spot auf Axel",
             "instrumental": true
           },
           {

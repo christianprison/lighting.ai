@@ -6647,7 +6647,8 @@
       "audio_ref_name": "Fluorescent Adolescent - Full Song.mp3",
       "tms": {
         "manual_done": [
-          "bar_markers"
+          "bar_markers",
+          "parts_identified"
         ],
         "user_tasks": [],
         "manual_undone": []

@@ -6667,7 +6667,8 @@
           "parts_identified",
           "instr_parts_identified",
           "instr_bars_identified",
-          "lyrics_raw"
+          "lyrics_raw",
+          "templates_set"
         ],
         "user_tasks": [],
         "manual_undone": []

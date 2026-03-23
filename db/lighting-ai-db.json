@@ -6660,7 +6660,7 @@
       "qlc_id": 87,
       "audio_ref": "audio/Inside/Inside - Full Song.mp3",
       "audio_ref_name": "Inside - Full Song.mp3",
-      "lyrics_raw": "Swing low In a dark glass hour You turn and cower See it turn to dust Move on a stone dark night We take to flight Snowfall turns to rust Seam in a fusing mine Like a nursing rhyme Fat man starts to fall Here in a hostile place I hear your face start to call And if you think That I've been losing my way That's because I'm slightly blinded And if you think That I don't make too much sense That's because I'm broken minded Don't keep it... in- side If you believe it Don't keep it all inside Strong words In a ganges sky I have to lie Shadows move in pairs Ring out from a bruised postcard In the shooting yard Looking through the tears Out of a black slate time We move in line But never reach an end Fall in a long stray town As the ice comes down River starts to bend And if you think That I've been losing my way That's because I'm slightly blinded And if you think That I don't make too much sense That's because I'm broken minded Don't keep it... Inside If you believe it Don't keep it all inside..",
+      "lyrics_raw": "Swing low In a dark glass hour You turn and cower See it turn to dust Move on a stone dark night We take to flight Snowfall turns to rust Seam in a fusing mine Like a nursing rhyme Fat man starts to fall Here in a hostile place I hear your face start to call And if you think That I've been losing my way That's because I'm slightly blinded And if you think That I don't make too much sense That's because I'm broken minded Don't keep it... in- side If you believe it Don't keep it all inside Strong words In a ganges sky I have to lie Shadows move in pairs Ring out from a bruised postcard In the shooting yard Looking through the tears Out of a black slate time We move in line But never reach an end Fall in a long stray town As the ice comes down River starts to bend And if you think That I've been losing my way That's because I'm slightly blinded And if you think That I don't make too much sense That's because I'm broken minded Don't keep it... Inside If you believe it Don't keep it all inside.. Don‘t keep it inside If you believe it don‘t keep it all inside Don‘t keep it inside If you believe it Don't keep it all inside don't keep it all inside",
       "tms": {
         "manual_done": [
           "bar_markers",
@@ -20899,168 +20899,168 @@
     "B2081": {
       "song_id": "1FXXiL",
       "bar_num": 43,
-      "lyrics": "Strong words In a",
+      "lyrics": "Strong words In a ganges sky",
       "audio": "",
       "has_accents": false
     },
     "B2082": {
       "song_id": "1FXXiL",
       "bar_num": 44,
-      "lyrics": "ganges sky I have",
+      "lyrics": "I have to lie Shadows move in",
       "audio": "",
       "has_accents": false
     },
     "B2083": {
       "song_id": "1FXXiL",
       "bar_num": 45,
-      "lyrics": "to lie Shadows move",
+      "lyrics": "pairs Ring out from a bruised postcard In the",
       "audio": "",
       "has_accents": false
     },
     "B2084": {
       "song_id": "1FXXiL",
       "bar_num": 46,
-      "lyrics": "in pairs Ring out",
+      "lyrics": "shooting yard Looking through the tears",
       "audio": "",
       "has_accents": false
     },
     "B2085": {
       "song_id": "1FXXiL",
       "bar_num": 47,
-      "lyrics": "from a bruised postcard",
+      "lyrics": "Out of a black slate time We",
       "audio": "",
       "has_accents": false
     },
     "B2086": {
       "song_id": "1FXXiL",
       "bar_num": 48,
-      "lyrics": "In the shooting yard",
+      "lyrics": "move in line But never reach an end",
       "audio": "",
       "has_accents": false
     },
     "B2087": {
       "song_id": "1FXXiL",
       "bar_num": 49,
-      "lyrics": "Looking through the tears",
+      "lyrics": "Fall in a long stray town As the",
       "audio": "",
       "has_accents": false
     },
     "B2088": {
       "song_id": "1FXXiL",
       "bar_num": 50,
-      "lyrics": "Out of a black\n",
+      "lyrics": "ice comes down River starts to bend\n",
       "audio": "",
       "has_accents": false
     },
     "B2089": {
       "song_id": "1FXXiL",
       "bar_num": 51,
-      "lyrics": "slate time We move",
+      "lyrics": "And if you think That I've been",
       "audio": "",
       "has_accents": false
     },
     "B2090": {
       "song_id": "1FXXiL",
       "bar_num": 52,
-      "lyrics": "in line But never",
+      "lyrics": "losing my way",
       "audio": "",
       "has_accents": false
     },
     "B2091": {
       "song_id": "1FXXiL",
       "bar_num": 53,
-      "lyrics": "reach an end Fall",
+      "lyrics": "That's because I'm slightly",
       "audio": "",
       "has_accents": false
     },
     "B2092": {
       "song_id": "1FXXiL",
       "bar_num": 54,
-      "lyrics": "in a long stray",
+      "lyrics": "blinded",
       "audio": "",
       "has_accents": false
     },
     "B2093": {
       "song_id": "1FXXiL",
       "bar_num": 55,
-      "lyrics": "town As the ice",
+      "lyrics": "And if you think That I don't",
       "audio": "",
       "has_accents": false
     },
     "B2094": {
       "song_id": "1FXXiL",
       "bar_num": 56,
-      "lyrics": "comes down River starts",
+      "lyrics": "make too much sense",
       "audio": "",
       "has_accents": false
     },
     "B2095": {
       "song_id": "1FXXiL",
       "bar_num": 57,
-      "lyrics": "to bend And if",
+      "lyrics": "That's because I'm broken",
       "audio": "",
       "has_accents": false
     },
     "B2096": {
       "song_id": "1FXXiL",
       "bar_num": 58,
-      "lyrics": "you think That I've\n",
+      "lyrics": "minded\n",
       "audio": "",
       "has_accents": false
     },
     "B2097": {
       "song_id": "1FXXiL",
       "bar_num": 59,
-      "lyrics": "been losing my way",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B2098": {
       "song_id": "1FXXiL",
       "bar_num": 60,
-      "lyrics": "That's because I'm slightly",
+      "lyrics": "Don't keep it...",
       "audio": "",
       "has_accents": false
     },
     "B2099": {
       "song_id": "1FXXiL",
       "bar_num": 61,
-      "lyrics": "blinded And if you",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B2100": {
       "song_id": "1FXXiL",
       "bar_num": 62,
-      "lyrics": "think That I don't",
+      "lyrics": "Inside",
       "audio": "",
       "has_accents": false
     },
     "B2101": {
       "song_id": "1FXXiL",
       "bar_num": 63,
-      "lyrics": "make too much sense",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B2102": {
       "song_id": "1FXXiL",
       "bar_num": 64,
-      "lyrics": "That's because I'm broken",
+      "lyrics": "If you believe it",
       "audio": "",
       "has_accents": false
     },
     "B2103": {
       "song_id": "1FXXiL",
       "bar_num": 65,
-      "lyrics": "minded Don't keep it...",
+      "lyrics": "Don't keep it all inside..",
       "audio": "",
       "has_accents": false
     },
     "B2104": {
       "song_id": "1FXXiL",
       "bar_num": 66,
-      "lyrics": "Inside If you believe\n",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
@@ -21137,14 +21137,14 @@
     "B2115": {
       "song_id": "1FXXiL",
       "bar_num": 77,
-      "lyrics": "it Don't keep it",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B2116": {
       "song_id": "1FXXiL",
       "bar_num": 78,
-      "lyrics": "all inside..",
+      "lyrics": "Don‘t keep it",
       "audio": "",
       "has_accents": false
     },
@@ -21158,7 +21158,7 @@
     "B2118": {
       "song_id": "1FXXiL",
       "bar_num": 80,
-      "lyrics": "",
+      "lyrics": "inside",
       "audio": "",
       "has_accents": false
     },
@@ -21172,14 +21172,14 @@
     "B2120": {
       "song_id": "1FXXiL",
       "bar_num": 82,
-      "lyrics": "",
+      "lyrics": "If you believe it",
       "audio": "",
       "has_accents": false
     },
     "B2121": {
       "song_id": "1FXXiL",
       "bar_num": 83,
-      "lyrics": "",
+      "lyrics": "don‘t keep it all inside",
       "audio": "",
       "has_accents": false
     },
@@ -21200,7 +21200,7 @@
     "B2124": {
       "song_id": "1FXXiL",
       "bar_num": 86,
-      "lyrics": "",
+      "lyrics": "Don‘t keep it",
       "audio": "",
       "has_accents": false
     },
@@ -21214,7 +21214,7 @@
     "B2126": {
       "song_id": "1FXXiL",
       "bar_num": 88,
-      "lyrics": "",
+      "lyrics": "inside",
       "audio": "",
       "has_accents": false
     },
@@ -21228,14 +21228,14 @@
     "B2128": {
       "song_id": "1FXXiL",
       "bar_num": 90,
-      "lyrics": "",
+      "lyrics": "If you believe it",
       "audio": "",
       "has_accents": false
     },
     "B2129": {
       "song_id": "1FXXiL",
       "bar_num": 91,
-      "lyrics": "",
+      "lyrics": "Don't keep it all inside",
       "audio": "",
       "has_accents": false
     },
@@ -21249,7 +21249,7 @@
     "B2131": {
       "song_id": "1FXXiL",
       "bar_num": 93,
-      "lyrics": "",
+      "lyrics": "don't keep it all inside\n",
       "audio": "",
       "has_accents": false
     },

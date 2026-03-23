@@ -12149,7 +12149,8 @@
       "lyrics": "",
       "audio": "",
       "has_accents": false,
-      "song_id": "HDX1IN"
+      "song_id": "HDX1IN",
+      "instrumental": true
     },
     "B0862": {
       "bar_num": 56,

@@ -6120,7 +6120,7 @@
       "qlc_id": 174,
       "audio_ref": "audio/Hail to the Freaks/Hail to the Freaks - Full Song.mp3",
       "audio_ref_name": "Hail to the Freaks - Full Song.mp3",
-      "lyrics_raw": "Hail to the freaks I can't get enough So the words hit the boy who can never be tough If somebody tries to compromise Hashing out deals to cover lies I pre- dict a world That keeps you hanging on And I've been around and around and around I'll come Yeah, and set up the sun And weather the storm and set up the sun to weather the storm Uh! Hail to the freaks I can't get enough So the words hit the boy who can never be tough Saw a friend recently Begging for sympathy Been holding my breath and trying to accept Another apology I predict a world That keeps you hanging on And I've been around and around and around I'll come Yeah, to weather the storm and set up the sun And weather the storm and set up the sun Calling you from the top of friction Calling you from the wrong direction To set up the sun, the sun, the sun Ohohohoh! Hail to the freaks I can't get enough So the words hit the boy who can never be tough Somebody needs to speak out wise Hashing out deals to cover lies Hashing out deals to cover lies Calling you from the top of friction Calling you from the wrong direction To set up the sun, the sun, the sun Yeah!",
+      "lyrics_raw": "Hail to the freaks I can't get enough So the words hit the boy who can never be tough If somebody tries to compromise Hashing out deals to cover lies I pre- dict a world That keeps you hanging on And I've been around and around and around I'll come Yeah, and set up the sun And weather the storm and set up the sun to weather the storm Uh! Hail to the freaks I can't get enough So the words hit the boy who can never be tough Saw a friend recently Begging for sympathy Been holding my breath and trying to accept Another apology I pre- dict a world That keeps you hanging on And I've been around and around and around I'll come Yeah, direction to weather the storm and set up the sun And weather the storm and set up the sun Calling you from the top of friction Calling you from the wrong To set up the sun, the sun, the sun Ohohohoh! Hail to the freaks I can't get enough So the words hit the boy who can never be tough Somebody needs to speak out wise Hashing out deals to cover lies Hashing out deals to cover lies Calling you from the top of friction Calling you from the wrong direction To set up the sun, the sun, the sun Yeah!",
       "tms": {
         "manual_done": [
           "bar_markers",
@@ -19713,84 +19713,84 @@
     "B1964": {
       "song_id": "qVbU6L",
       "bar_num": 58,
-      "lyrics": "I predict a world That keeps you hanging on And I've been around and around and around I'll come Yeah, to weather the storm and set up the",
+      "lyrics": "I pre-",
       "audio": "",
       "has_accents": false
     },
     "B1965": {
       "song_id": "qVbU6L",
       "bar_num": 59,
-      "lyrics": "sun And weather the",
+      "lyrics": "dict a world",
       "audio": "",
       "has_accents": false
     },
     "B1966": {
       "song_id": "qVbU6L",
       "bar_num": 60,
-      "lyrics": "storm and set up",
+      "lyrics": "That keeps you",
       "audio": "",
       "has_accents": false
     },
     "B1967": {
       "song_id": "qVbU6L",
       "bar_num": 61,
-      "lyrics": "the sun Calling you",
+      "lyrics": "hanging on",
       "audio": "",
       "has_accents": false
     },
     "B1968": {
       "song_id": "qVbU6L",
       "bar_num": 62,
-      "lyrics": "from the top of",
+      "lyrics": "And I've been",
       "audio": "",
       "has_accents": false
     },
     "B1969": {
       "song_id": "qVbU6L",
       "bar_num": 63,
-      "lyrics": "friction Calling you from",
+      "lyrics": "around and around and",
       "audio": "",
       "has_accents": false
     },
     "B1970": {
       "song_id": "qVbU6L",
       "bar_num": 64,
-      "lyrics": "the wrong direction To",
+      "lyrics": "around I'll come",
       "audio": "",
       "has_accents": false
     },
     "B1971": {
       "song_id": "qVbU6L",
       "bar_num": 65,
-      "lyrics": "set up the sun,",
+      "lyrics": "Yeah,",
       "audio": "",
       "has_accents": false
     },
     "B1972": {
       "song_id": "qVbU6L",
       "bar_num": 66,
-      "lyrics": "the sun, the sun\n",
+      "lyrics": "direction to weather the\n",
       "audio": "",
       "has_accents": false
     },
     "B1973": {
       "song_id": "qVbU6L",
       "bar_num": 67,
-      "lyrics": "Ohohohoh! Hail to the",
+      "lyrics": "storm and",
       "audio": "",
       "has_accents": false
     },
     "B1974": {
       "song_id": "qVbU6L",
       "bar_num": 68,
-      "lyrics": "freaks I can't get",
+      "lyrics": "set up the sun And",
       "audio": "",
       "has_accents": false
     },
     "B1975": {
       "song_id": "qVbU6L",
       "bar_num": 69,
-      "lyrics": "enough So the words",
+      "lyrics": "weather the storm and set up the sun",
       "audio": "",
       "has_accents": false
     },
@@ -19805,7 +19805,7 @@
     "B1977": {
       "song_id": "qVbU6L",
       "bar_num": 71,
-      "lyrics": "hit the boy who",
+      "lyrics": "Calling you from the top of friction Calling you from the wrong To set up the sun, the sun, the sun Ohohohoh! Hail to the freaks I can't get enough So the words hit the boy who",
       "audio": "",
       "has_accents": false
     },

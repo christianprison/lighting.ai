@@ -6545,15 +6545,18 @@
           },
           {
             "bar_num": 17,
-            "name": "Verse 1"
+            "name": "Verse 1",
+            "light_template": "05 left'n'right"
           },
           {
             "bar_num": 29,
-            "name": "Bridge"
+            "name": "Bridge",
+            "light_template": "06 blinking"
           },
           {
             "bar_num": 38,
-            "name": "Chorus 1"
+            "name": "Chorus 1",
+            "light_template": "09 Alarm"
           },
           {
             "bar_num": 42,

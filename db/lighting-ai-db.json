@@ -6960,15 +6960,18 @@
         "part_starts": [
           {
             "bar_num": 1,
-            "name": "HH Einzähler"
+            "name": "HH Einzähler",
+            "instrumental": true
           },
           {
             "bar_num": 2,
-            "name": "Thema 1"
+            "name": "Thema 1",
+            "instrumental": true
           },
           {
             "bar_num": 10,
-            "name": "Pre-Verse 1"
+            "name": "Pre-Verse 1",
+            "instrumental": true
           },
           {
             "bar_num": 14,
@@ -6984,7 +6987,8 @@
           },
           {
             "bar_num": 39,
-            "name": "Pre-Verse 2"
+            "name": "Pre-Verse 2",
+            "instrumental": true
           },
           {
             "bar_num": 43,
@@ -7000,15 +7004,18 @@
           },
           {
             "bar_num": 67,
-            "name": "Solo Axel 1"
+            "name": "Solo Axel 1",
+            "instrumental": true
           },
           {
             "bar_num": 71,
-            "name": "Solo Axel 2"
+            "name": "Solo Axel 2",
+            "instrumental": true
           },
           {
             "bar_num": 75,
-            "name": "Solo Axel 3"
+            "name": "Solo Axel 3",
+            "instrumental": true
           },
           {
             "bar_num": 77,
@@ -7020,7 +7027,8 @@
           },
           {
             "bar_num": 94,
-            "name": "Ausklang"
+            "name": "Ausklang",
+            "instrumental": true
           }
         ]
       }

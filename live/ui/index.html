@@ -157,6 +157,27 @@ padding-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 padding:2px 8px;border-radius:3px;border:1px solid var(--border);background:transparent;transition:all .1s;margin-top:2px}
 .tl-sync:active{background:var(--bg4);color:var(--t2)}
 
+/* ═══ XR18 VU PANEL ═══ */
+.vu-panel{position:absolute;bottom:100%;right:0;margin-bottom:6px;
+background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);
+padding:10px 12px;min-width:260px;display:none;z-index:50;box-shadow:0 -4px 24px rgba(0,0,0,.5)}
+.vu-panel.show{display:block}
+.vu-head{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;
+color:var(--t3);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.vu-device{font-size:9px;color:var(--t4);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vu-channels{display:flex;gap:3px;align-items:flex-end;height:48px}
+.vu-ch{display:flex;flex-direction:column;align-items:center;gap:2px;flex:1}
+.vu-bar-wrap{width:100%;flex:1;display:flex;align-items:flex-end;background:var(--bg3);
+border-radius:2px;overflow:hidden;min-height:36px;position:relative}
+.vu-bar-fill{width:100%;background:var(--green);border-radius:2px;transition:height .1s;position:absolute;bottom:0}
+.vu-bar-fill.mid{background:var(--amber)}
+.vu-bar-fill.low{background:var(--t4)}
+.vu-lbl{font-family:'DM Mono',monospace;font-size:7px;color:var(--t4);line-height:1}
+.vu-ch.mix .vu-lbl{color:var(--cyan)}
+.vu-ch.mix .vu-bar-fill{background:var(--cyan)}
+.tl-audio-row{cursor:pointer}
+.tl-audio-row:active .dot{transform:scale(1.3)}
+
 /* ═══ MODE TOGGLE ═══ */
 .modes{display:flex;gap:3px;margin-left:auto}
 .mbtn{font-family:'DM Mono',monospace;font-size:9px;font-weight:500;letter-spacing:1px;
@@ -288,7 +309,7 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
     <div class="badges">
       <div class="badge live" id="badgeLive"><div class="pulse"></div>LIVE</div>
       <div class="badge" id="badgeQlc">QLC+ &#x25CF;</div>
-      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.03.23b</div>
+      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.03.23c</div>
     </div>
     <div class="beat-area">
       <div class="beat-row">
@@ -336,10 +357,20 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
     <span class="tl-part-count" id="tlCount">-</span>
   </div>
   <div class="tl-track"><div class="tl-bars" id="tlBars"></div></div>
-  <div class="tl-right">
+  <div class="tl-right" style="position:relative">
     <div class="tl-status"><div class="dot" id="dotQlc"></div><span id="statusQlc">QLC+ —</span></div>
     <div class="tl-status"><div class="dot" id="dotSync"></div><span id="statusSync">DB —</span></div>
+    <div class="tl-status tl-audio-row" id="audioStatusRow" onclick="toggleVuPanel()">
+      <div class="dot" id="dotAudio"></div><span id="statusAudio">XR18 —</span>
+    </div>
     <button class="tl-sync" id="btnSync">SYNC</button>
+    <div class="vu-panel" id="vuPanel">
+      <div class="vu-head">
+        <span>XR18 Pegel</span>
+        <span class="vu-device" id="vuDevice">—</span>
+      </div>
+      <div class="vu-channels" id="vuChannels"></div>
+    </div>
   </div>
   <div></div>
   <div class="tl-info" id="tlInfo"></div>
@@ -915,6 +946,111 @@ function dismissOverlay() {
   setTimeout(function() { ov.classList.remove('show', 'fade'); }, 400);
 }
 
+// ─── XR18 / Audio Status ──────────────────────
+var vuVisible = false;
+var audioLevelsTimer = null;
+var lastDeviceName = '';
+
+function toggleVuPanel() {
+  vuVisible = !vuVisible;
+  document.getElementById('vuPanel').classList.toggle('show', vuVisible);
+  if (vuVisible) pollAudioLevels();
+}
+
+// Schließen wenn außerhalb geklickt
+document.addEventListener('click', function(e) {
+  if (!vuVisible) return;
+  var row = document.getElementById('audioStatusRow');
+  var panel = document.getElementById('vuPanel');
+  if (!row.contains(e.target) && !panel.contains(e.target)) {
+    vuVisible = false;
+    panel.classList.remove('show');
+  }
+});
+
+async function pollAudioLevels() {
+  try {
+    var data = await fetchJSON('/api/audio/levels');
+    var devData = await fetchJSON('/api/audio/devices');
+    updateAudioStatus(data, devData);
+  } catch (e) {
+    document.getElementById('dotAudio').className = 'dot err';
+    document.getElementById('statusAudio').textContent = 'Audio —';
+  }
+}
+
+function updateAudioStatus(levelsData, devData) {
+  var dot = document.getElementById('dotAudio');
+  var label = document.getElementById('statusAudio');
+  var channels = levelsData.channels || [];
+  var active = levelsData.stream_active;
+
+  // XR18 erkannt?
+  var xr18ok = devData && devData.xr18_detected;
+  var devName = (devData && devData.xr18_candidates && devData.xr18_candidates[0])
+    ? devData.xr18_candidates[0].name : (devData && devData.devices && devData.devices[0] ? devData.devices[0].name : '');
+  if (devName !== lastDeviceName) {
+    document.getElementById('vuDevice').textContent = devName || '—';
+    lastDeviceName = devName;
+  }
+
+  // Signal auf Mix-Kanälen (CH17+18, Index 16+17)?
+  var mixRms = 0;
+  if (channels.length >= 18) {
+    mixRms = Math.max(channels[16].rms || 0, channels[17].rms || 0);
+  } else if (channels.length > 0) {
+    mixRms = Math.max.apply(null, channels.map(function(c) { return c.rms || 0; }));
+  }
+
+  if (!active) {
+    dot.className = 'dot err';
+    label.textContent = xr18ok ? 'XR18 kein Stream' : 'XR18 —';
+  } else if (mixRms < 0.0001) {
+    dot.className = 'dot warn';
+    label.textContent = 'XR18 Stille';
+  } else {
+    dot.className = 'dot ok';
+    label.textContent = 'XR18 OK';
+  }
+
+  // VU-Balken rendern
+  if (vuVisible) renderVuBars(channels);
+}
+
+function renderVuBars(channels) {
+  var container = document.getElementById('vuChannels');
+  if (!channels.length) { container.innerHTML = '<span style="color:var(--t4);font-size:10px">Kein Signal</span>'; return; }
+  var h = '';
+  for (var i = 0; i < channels.length; i++) {
+    var ch = channels[i];
+    var dbfs = ch.dbfs;
+    var isMix = i >= 16;
+    // Höhe: -60dBFS = 0%, 0dBFS = 100%
+    var pct = dbfs === null ? 0 : Math.max(0, Math.min(100, (dbfs + 60) / 60 * 100));
+    var fillCls = isMix ? '' : (pct > 60 ? '' : pct > 15 ? 'mid' : 'low');
+    h += '<div class="vu-ch' + (isMix ? ' mix' : '') + '">';
+    h += '<div class="vu-bar-wrap"><div class="vu-bar-fill ' + fillCls + '" style="height:' + pct.toFixed(1) + '%"></div></div>';
+    h += '<span class="vu-lbl">' + (i + 1) + '</span>';
+    h += '</div>';
+  }
+  container.innerHTML = h;
+}
+
+// Polling alle 3s im Hintergrund (nur Dot-Update, kein VU)
+function startAudioPolling() {
+  pollAudioLevels();
+  audioLevelsTimer = setInterval(function() {
+    fetchJSON('/api/audio/levels').then(function(d) {
+      fetchJSON('/api/audio/devices').then(function(dd) {
+        updateAudioStatus(d, dd);
+      }).catch(function(){});
+    }).catch(function() {
+      document.getElementById('dotAudio').className = 'dot err';
+      document.getElementById('statusAudio').textContent = 'Audio —';
+    });
+  }, 3000);
+}
+
 // ─── Init ─────────────────────────────────────
 document.getElementById('connOverlay').classList.add('show');
 updateBeats();
@@ -959,6 +1095,9 @@ updateBeats();
   setTask('ct-ws', 'active');
   connectWS();
   // WS onopen will mark done and dismiss overlay
+
+  // Step 5: Audio polling (kein Warmup-Task, läuft im Hintergrund)
+  startAudioPolling();
 })();
 </script>
 </body>

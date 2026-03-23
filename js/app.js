@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.2.22';
+const APP_VERSION = 'v2.2.23';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4880,6 +4880,7 @@ function leShowContextMenu(idx, blockEl) {
   menu.className = 'le-ctx-menu';
 
   if (block.type === 'word') {
+    const instrLabel = block.instrumental ? '&#9898; Instrumental entfernen' : '&#9898; Instrumental';
     menu.innerHTML = `
       <button data-action="edit" class="le-ctx-item">&#9998; Editieren</button>
       <button data-action="shift-start" class="le-ctx-item">&#8594; Ab hier verschieben&hellip;</button>
@@ -4888,12 +4889,15 @@ function leShowContextMenu(idx, blockEl) {
       <button data-action="paste" class="le-ctx-item"${_leClipboard ? '' : ' disabled'}>&#128203; Einf&uuml;gen</button>
       <button data-action="merge" class="le-ctx-item">&#128279; Zusammensetzen</button>
       <button data-action="insert" class="le-ctx-item">&#10133; Neues Wort</button>
+      <button data-action="instrumental" class="le-ctx-item">${instrLabel}</button>
       <button data-action="delete" class="le-ctx-item le-ctx-delete">&#128465; L&ouml;schen</button>
     `;
   } else if (block.type === 'bar') {
     const nlLabel = block.newline ? '&#8629; Neue Zeile entfernen' : '&#8629; Neue Zeile';
+    const instrLabel = block.instrumental ? '&#9898; Instrumental entfernen' : '&#9898; Instrumental';
     menu.innerHTML = `
       <button data-action="newline" class="le-ctx-item">${nlLabel}</button>
+      <button data-action="instrumental" class="le-ctx-item">${instrLabel}</button>
     `;
   } else {
     return;
@@ -5072,6 +5076,21 @@ async function leHandleContextAction(action, idx) {
   else if (action === 'newline') {
     lePushUndo();
     block.newline = !block.newline;
+    leCommitLyrics();
+    leRefreshCanvas();
+  }
+
+  else if (action === 'instrumental') {
+    const barNum = block.barNum;
+    const [barId, barData] = getOrCreateBar(selectedSongId, barNum);
+    const newVal = !barData.instrumental;
+    if (newVal) barData.instrumental = true;
+    else delete barData.instrumental;
+    // Sync instrumental flag on all _leBlocks belonging to this bar
+    for (const b of _leBlocks) {
+      if (b.barNum === barNum) b.instrumental = newVal;
+    }
+    markDirty();
     leCommitLyrics();
     leRefreshCanvas();
   }

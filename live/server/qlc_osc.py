@@ -102,8 +102,19 @@ class QlcOsc:
     def _trigger(self, channel: int) -> None:
         """Trigger a button: send 255 then 0 (QLC+ needs the 0→255 transition).
 
-        Sync version — nur für Threads außerhalb des asyncio-Event-Loops.
+        Sync-Version — NUR für Threads außerhalb des asyncio-Event-Loops.
+        Im async-Kontext stattdessen _trigger_async() verwenden, sonst
+        blockiert time.sleep() den Event-Loop.
         """
+        try:
+            loop = asyncio.get_running_loop()
+            if loop.is_running():
+                log.warning(
+                    "_trigger() aus asyncio-Context aufgerufen (channel=%d) — "
+                    "bitte _trigger_async() verwenden!", channel
+                )
+        except RuntimeError:
+            pass  # kein laufender Loop — sync-Kontext, time.sleep ist korrekt
         self._send(channel, 255.0)
         time.sleep(0.05)
         self._send(channel, 0.0)

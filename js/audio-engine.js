@@ -9,6 +9,8 @@
 let ctx = null;
 
 function getContext() {
+  // Recreate if the context was closed (e.g. after explicit close() call)
+  if (ctx && ctx.state === 'closed') ctx = null;
   if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
   return ctx;
 }
@@ -17,17 +19,32 @@ function getContext() {
 export { getContext };
 
 /**
+ * Attempt to resume the AudioContext. Handles both 'suspended' and
+ * 'interrupted' (iOS app-switch) states. If resume() fails, the context
+ * is closed and recreated so the next gesture can start fresh.
+ * @returns {Promise<void>}
+ */
+async function _resumeContext() {
+  const ac = getContext();
+  if (ac.state === 'running') return;
+  try {
+    await ac.resume();
+  } catch (_) {
+    // resume() failed — close and let getContext() recreate on next call
+    try { ctx.close(); } catch (__) {}
+    ctx = null;
+  }
+}
+
+/**
  * Play a short test beep to verify audio output works.
  * Must be called from a user gesture (click/touch) on iOS.
  * @returns {Promise<string>} diagnostic info
  */
 export async function testBeep() {
+  await _resumeContext();
   const ac = getContext();
   const info = [`state: ${ac.state}`, `sampleRate: ${ac.sampleRate}`];
-  if (ac.state === 'suspended') {
-    await ac.resume();
-    info.push(`after resume: ${ac.state}`);
-  }
   // Generate a 440Hz sine wave for 200ms
   const osc = ac.createOscillator();
   const gain = ac.createGain();
@@ -49,7 +66,7 @@ export async function testBeep() {
  */
 export function warmup() {
   const ac = getContext();
-  if (ac.state === 'suspended') ac.resume();
+  if (ac.state !== 'running') ac.resume().catch(() => {});
 }
 
 // Auto-resume on any user gesture (critical for iOS/iPad).
@@ -60,12 +77,21 @@ export function installGestureListener() {
   if (_gestureListenerInstalled) return;
   _gestureListenerInstalled = true;
   const ensureRunning = () => {
-    const ac = getContext(); // creates ctx if null
-    if (ac.state === 'suspended') ac.resume();
+    // getContext() recreates if closed; resume handles suspended + interrupted
+    const ac = getContext();
+    if (ac.state !== 'running') ac.resume().catch(() => {});
   };
   document.addEventListener('touchstart', ensureRunning, { passive: true });
   document.addEventListener('mousedown', ensureRunning, { passive: true });
   document.addEventListener('keydown', ensureRunning, { passive: true, once: true });
+
+  // Best-effort resume when returning from background (visibilitychange is
+  // not a user gesture on iOS, but Chrome on iOS often allows resume here).
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && ctx && ctx.state !== 'running') {
+      ctx.resume().catch(() => {});
+    }
+  });
 }
 
 /**

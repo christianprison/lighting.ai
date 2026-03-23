@@ -7188,7 +7188,7 @@
       "duration": "3:40",
       "duration_sec": 220,
       "notes": "",
-      "lyrics_raw": "15 ContributorsYou’re All I Have Lyrics[Intro]\n(Ooh, ooh, ooh, ooh)\n\n[Verse 1]\nTrain this chaos, turn it into light\nI've gotta see you one last night\nBefore the lions take their share\nLeave us in pieces, scattered everywhere\n\n[Pre-Chorus]\nJust gimme a chance to hold on\nGimme a chance to hold on\nGimme a chance to hold on\nJust gimme somethin' to hold onto\n\n[Chorus]\nIt's so clear now that you are all that I have (Ooh)\nI have no fear 'cause you are all that I have (Ooh)\nIt's so clear now that you are all that I have (Ooh)\nI have no fear 'cause you are all that I have (Ooh)\n\n[Verse 2]\nYou're cinematic, razor-sharp\nA welcome arrow through the heart\nUnder your skin feels like home\nElectric shocks on achin' bones\n[Pre-Chorus]\nGive me a chance to hold on\nGimme a chance to hold on\nGimme a chance to hold on\nJust give me somethin' to hold onto\n\n[Chorus]\nIt's so clear now that you are all that I have (Ooh)\nI have no fear 'cause you are all that I have (Ooh)\nIt's so clear now that you are all that I have (Ooh)\nI have no fear 'cause you are all that I have (Ooh)\n\n[Bridge]\nThere is a darkness deep in you\nA frightening magic I cling to\n\n[Pre-Chorus]\nGimme a chance to hold on\nGimme a chance to hold on\nGimme a chance to hold on\nJust give me somethin' to hold onto\n\n[Chorus]\nIt's so clear now that you are all that I have (Ooh)\nI have no fear now you are all that I have (Ooh)\nIt's so clear now that you are all that I have (Ooh)\nI have no fear now you are all that I have (Ooh)\n[Outro]\n(Ooh, ooh, ooh, ooh)",
+      "lyrics_raw": "",
       "tms": {
         "manual_done": [
           "bar_markers",
@@ -11865,14 +11865,16 @@
       "lyrics": "",
       "audio": "audio/You're all I have/03 Verse 1/015 You're all I have Verse 1.mp3",
       "has_accents": false,
-      "song_id": "HDX1IN"
+      "song_id": "HDX1IN",
+      "instrumental": true
     },
     "B0559": {
       "bar_num": 16,
       "lyrics": "",
       "audio": "audio/You're all I have/03 Verse 1/016 You're all I have Verse 1.mp3",
       "has_accents": false,
-      "song_id": "HDX1IN"
+      "song_id": "HDX1IN",
+      "instrumental": true
     },
     "B0560": {
       "bar_num": 17,
@@ -11893,14 +11895,16 @@
       "lyrics": "",
       "audio": "audio/You're all I have/03 Verse 1/019 You're all I have Verse 1.mp3",
       "has_accents": false,
-      "song_id": "HDX1IN"
+      "song_id": "HDX1IN",
+      "instrumental": true
     },
     "B0563": {
       "bar_num": 20,
       "lyrics": "",
       "audio": "audio/You're all I have/03 Verse 1/020 You're all I have Verse 1.mp3",
       "has_accents": false,
-      "song_id": "HDX1IN"
+      "song_id": "HDX1IN",
+      "instrumental": true
     },
     "B0564": {
       "bar_num": 21,
@@ -11921,14 +11925,16 @@
       "lyrics": "",
       "audio": "audio/You're all I have/03 Verse 1/023 You're all I have Verse 1.mp3",
       "has_accents": false,
-      "song_id": "HDX1IN"
+      "song_id": "HDX1IN",
+      "instrumental": true
     },
     "B0567": {
       "bar_num": 24,
       "lyrics": "",
       "audio": "audio/You're all I have/03 Verse 1/024 You're all I have Verse 1.mp3",
       "has_accents": false,
-      "song_id": "HDX1IN"
+      "song_id": "HDX1IN",
+      "instrumental": true
     },
     "B0568": {
       "bar_num": 25,
@@ -11949,14 +11955,16 @@
       "lyrics": "",
       "audio": "audio/You're all I have/03 Verse 1/027 You're all I have Verse 1.mp3",
       "has_accents": false,
-      "song_id": "HDX1IN"
+      "song_id": "HDX1IN",
+      "instrumental": true
     },
     "B0571": {
       "bar_num": 28,
       "lyrics": "",
       "audio": "audio/You're all I have/03 Verse 1/028 You're all I have Verse 1.mp3",
       "has_accents": false,
-      "song_id": "HDX1IN"
+      "song_id": "HDX1IN",
+      "instrumental": true
     },
     "B0572": {
       "bar_num": 29,
@@ -12082,14 +12090,16 @@
       "lyrics": "",
       "audio": "",
       "has_accents": false,
-      "song_id": "HDX1IN"
+      "song_id": "HDX1IN",
+      "instrumental": true
     },
     "B0854": {
       "bar_num": 48,
       "lyrics": "",
       "audio": "",
       "has_accents": false,
-      "song_id": "HDX1IN"
+      "song_id": "HDX1IN",
+      "instrumental": true
     },
     "B0855": {
       "bar_num": 49,
@@ -12110,14 +12120,16 @@
       "lyrics": "",
       "audio": "",
       "has_accents": false,
-      "song_id": "HDX1IN"
+      "song_id": "HDX1IN",
+      "instrumental": true
     },
     "B0858": {
       "bar_num": 52,
       "lyrics": "",
       "audio": "",
       "has_accents": false,
-      "song_id": "HDX1IN"
+      "song_id": "HDX1IN",
+      "instrumental": true
     },
     "B0859": {
       "bar_num": 53,
@@ -12145,7 +12157,8 @@
       "lyrics": "",
       "audio": "",
       "has_accents": false,
-      "song_id": "HDX1IN"
+      "song_id": "HDX1IN",
+      "instrumental": true
     },
     "B0863": {
       "bar_num": 57,
@@ -12159,7 +12172,8 @@
       "lyrics": "",
       "audio": "",
       "has_accents": false,
-      "song_id": "HDX1IN"
+      "song_id": "HDX1IN",
+      "instrumental": true
     },
     "B0865": {
       "bar_num": 59,
@@ -12173,7 +12187,8 @@
       "lyrics": "",
       "audio": "",
       "has_accents": false,
-      "song_id": "HDX1IN"
+      "song_id": "HDX1IN",
+      "instrumental": true
     },
     "B0871": {
       "bar_num": 66,
@@ -12257,14 +12272,16 @@
       "lyrics": "",
       "audio": "",
       "has_accents": false,
-      "song_id": "HDX1IN"
+      "song_id": "HDX1IN",
+      "instrumental": true
     },
     "B0888": {
       "bar_num": 84,
       "lyrics": "",
       "audio": "",
       "has_accents": false,
-      "song_id": "HDX1IN"
+      "song_id": "HDX1IN",
+      "instrumental": true
     },
     "B0889": {
       "bar_num": 85,
@@ -12383,7 +12400,8 @@
       "lyrics": "",
       "audio": "",
       "has_accents": false,
-      "song_id": "HDX1IN"
+      "song_id": "HDX1IN",
+      "instrumental": true
     },
     "B0945": {
       "bar_num": 101,
@@ -12425,14 +12443,16 @@
       "lyrics": "",
       "audio": "",
       "has_accents": false,
-      "song_id": "HDX1IN"
+      "song_id": "HDX1IN",
+      "instrumental": true
     },
     "B0952": {
       "bar_num": 44,
       "lyrics": "",
       "audio": "",
       "has_accents": false,
-      "song_id": "HDX1IN"
+      "song_id": "HDX1IN",
+      "instrumental": true
     },
     "B0953": {
       "bar_num": 45,
@@ -12453,7 +12473,8 @@
       "lyrics": "",
       "audio": "",
       "has_accents": false,
-      "song_id": "HDX1IN"
+      "song_id": "HDX1IN",
+      "instrumental": true
     },
     "B0956": {
       "bar_num": 63,
@@ -12516,14 +12537,16 @@
       "lyrics": "",
       "audio": "",
       "has_accents": false,
-      "song_id": "HDX1IN"
+      "song_id": "HDX1IN",
+      "instrumental": true
     },
     "B0965": {
       "bar_num": 88,
       "lyrics": "",
       "audio": "",
       "has_accents": false,
-      "song_id": "HDX1IN"
+      "song_id": "HDX1IN",
+      "instrumental": true
     },
     "B0966": {
       "bar_num": 89,
@@ -12537,7 +12560,8 @@
       "lyrics": "",
       "audio": "",
       "has_accents": false,
-      "song_id": "HDX1IN"
+      "song_id": "HDX1IN",
+      "instrumental": true
     },
     "B0968": {
       "bar_num": 91,
@@ -12551,7 +12575,8 @@
       "lyrics": "",
       "audio": "",
       "has_accents": false,
-      "song_id": "HDX1IN"
+      "song_id": "HDX1IN",
+      "instrumental": true
     },
     "B0970": {
       "bar_num": 95,
@@ -12593,7 +12618,8 @@
       "lyrics": "",
       "audio": "",
       "has_accents": false,
-      "song_id": "HDX1IN"
+      "song_id": "HDX1IN",
+      "instrumental": true
     },
     "B0976": {
       "bar_num": 102,

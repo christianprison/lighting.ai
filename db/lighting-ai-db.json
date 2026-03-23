@@ -7569,52 +7569,64 @@
           {
             "bar_num": 1,
             "name": "Synth Intro",
+            "light_template": "Spot auf Bibo",
             "instrumental": true
           },
           {
             "bar_num": 5,
             "name": "Intro",
+            "light_template": "06 blinking",
             "instrumental": true
           },
           {
             "bar_num": 13,
-            "name": "Verse 1"
+            "name": "Verse 1",
+            "light_template": "05 left'n'right"
           },
           {
             "bar_num": 29,
-            "name": "Bridge 1"
+            "name": "Bridge 1",
+            "light_template": "07 round'n'round"
           },
           {
             "bar_num": 33,
-            "name": "Chorus 1"
+            "name": "Chorus 1",
+            "light_template": "06 blinking"
           },
           {
             "bar_num": 41,
-            "name": "Verse 2"
+            "name": "Verse 2",
+            "light_template": "05 left'n'right"
           },
           {
             "bar_num": 57,
-            "name": "Bridge 2"
+            "name": "Bridge 2",
+            "light_template": "07 round'n'round"
           },
           {
             "bar_num": 65,
-            "name": "Chorus 2"
+            "name": "Chorus 2",
+            "light_template": "06 blinking"
           },
           {
             "bar_num": 81,
-            "name": "Interlude"
+            "name": "Interlude",
+            "light_template": "Spot auf Pete"
           },
           {
             "bar_num": 89,
-            "name": "Bridge 3 (crescendo)"
+            "name": "Bridge 3 (crescendo)",
+            "light_template": "02 slow blue"
           },
           {
             "bar_num": 97,
-            "name": "Chorus 3"
+            "name": "Chorus 3",
+            "light_template": "06 blinking"
           },
           {
             "bar_num": 113,
             "name": "Outro",
+            "light_template": "09 Alarm",
             "instrumental": true
           }
         ]

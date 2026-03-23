@@ -19445,8 +19445,7 @@
       "bar_num": 20,
       "lyrics": "So the",
       "audio": "",
-      "has_accents": false,
-      "instrumental": true
+      "has_accents": false
     },
     "B1927": {
       "song_id": "qVbU6L",
@@ -19475,8 +19474,7 @@
       "bar_num": 24,
       "lyrics": "If",
       "audio": "",
-      "has_accents": false,
-      "instrumental": true
+      "has_accents": false
     },
     "B1931": {
       "song_id": "qVbU6L",

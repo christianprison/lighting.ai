@@ -7491,7 +7491,7 @@
             "time": 174.81872739934457
           },
           {
-            "time": 176.64776835205993
+            "time": 176.71330435861424
           },
           {
             "time": 178.50139406601124
@@ -7563,7 +7563,56 @@
             "time": 218.48539406601122
           }
         ],
-        "part_starts": []
+        "part_starts": [
+          {
+            "bar_num": 1,
+            "name": "Synth Intro"
+          },
+          {
+            "bar_num": 5,
+            "name": "Intro"
+          },
+          {
+            "bar_num": 13,
+            "name": "Verse 1"
+          },
+          {
+            "bar_num": 29,
+            "name": "Bridge 1"
+          },
+          {
+            "bar_num": 34,
+            "name": "Chorus 1"
+          },
+          {
+            "bar_num": 41,
+            "name": "Verse 2"
+          },
+          {
+            "bar_num": 57,
+            "name": "Bridge 2"
+          },
+          {
+            "bar_num": 65,
+            "name": "Chorus 2"
+          },
+          {
+            "bar_num": 81,
+            "name": "Interkude"
+          },
+          {
+            "bar_num": 89,
+            "name": "Bridge 3 (crescendo)"
+          },
+          {
+            "bar_num": 97,
+            "name": "Chorus 3"
+          },
+          {
+            "bar_num": 113,
+            "name": "Outro"
+          }
+        ]
       },
       "total_bars": 120
     },

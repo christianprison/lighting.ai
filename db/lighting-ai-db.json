@@ -6125,7 +6125,8 @@
         "manual_done": [
           "bar_markers",
           "templates_set",
-          "parts_identified"
+          "parts_identified",
+          "instr_parts_identified"
         ],
         "user_tasks": [],
         "manual_undone": []
@@ -19435,14 +19436,16 @@
       "bar_num": 19,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B1926": {
       "song_id": "qVbU6L",
       "bar_num": 20,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B1927": {
       "song_id": "qVbU6L",
@@ -19463,14 +19466,16 @@
       "bar_num": 23,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B1930": {
       "song_id": "qVbU6L",
       "bar_num": 24,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B1931": {
       "song_id": "qVbU6L",
@@ -19610,7 +19615,8 @@
       "bar_num": 44,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B1951": {
       "song_id": "qVbU6L",
@@ -19638,7 +19644,8 @@
       "bar_num": 48,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B1955": {
       "song_id": "qVbU6L",
@@ -19701,7 +19708,8 @@
       "bar_num": 57,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B1964": {
       "song_id": "qVbU6L",
@@ -19792,7 +19800,8 @@
       "bar_num": 70,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B1977": {
       "song_id": "qVbU6L",
@@ -20016,7 +20025,8 @@
       "bar_num": 102,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2009": {
       "song_id": "qVbU6L",
@@ -20037,7 +20047,8 @@
       "bar_num": 105,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2012": {
       "song_id": "qVbU6L",
@@ -20086,7 +20097,8 @@
       "bar_num": 112,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2019": {
       "song_id": "qVbU6L",

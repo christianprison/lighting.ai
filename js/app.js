@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.2.24';
+const APP_VERSION = 'v2.2.25';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -519,8 +519,11 @@ const SONG_CHECKLIST = [
       return barIds.length > 0 && (withLyrics / barIds.length) >= 0.3;
     }},
   // ── Licht ──
-  { id: 'templates_set', label: 'Light-Template gesetzt', cat: 'licht', tab: 'editor',
-    check: (s) => !!(s.light_template && s.light_template !== '') },
+  { id: 'templates_set', label: 'Alle Light Templates gesetzt', cat: 'licht', tab: 'editor',
+    check: (s) => {
+      const starts = s.split_markers?.part_starts;
+      return !!(starts?.length && starts.every(p => p.light_template && p.light_template !== ''));
+    }},
   { id: 'accents_any',   label: 'Accents gesetzt (min. 1)', cat: 'licht', tab: 'accents',
     check: (s, barIds, theDb) => {
       return barIds.some(bId => Object.values(theDb.accents).some(a => a.bar_id === bId));

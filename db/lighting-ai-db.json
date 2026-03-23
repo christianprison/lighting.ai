@@ -12162,7 +12162,7 @@
     },
     "B0863": {
       "bar_num": 57,
-      "lyrics": "",
+      "lyrics": "Give me a chance to hold on",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
@@ -12177,7 +12177,7 @@
     },
     "B0865": {
       "bar_num": 59,
-      "lyrics": "Give me a",
+      "lyrics": "Give me a chance to hold on",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
@@ -12192,21 +12192,21 @@
     },
     "B0871": {
       "bar_num": 66,
-      "lyrics": "hold on Just give",
+      "lyrics": "",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0872": {
       "bar_num": 67,
-      "lyrics": "me something to hold",
+      "lyrics": "",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0873": {
       "bar_num": 68,
-      "lyrics": "onto It's so clear",
+      "lyrics": "It's so clear",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
@@ -12383,7 +12383,7 @@
     },
     "B0942": {
       "bar_num": 65,
-      "lyrics": "me a chance to",
+      "lyrics": "",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
@@ -12463,7 +12463,7 @@
     },
     "B0954": {
       "bar_num": 61,
-      "lyrics": "chance to hold on",
+      "lyrics": "Give me a chance to hold on",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
@@ -12478,14 +12478,14 @@
     },
     "B0956": {
       "bar_num": 63,
-      "lyrics": "Give me a chance",
+      "lyrics": "Just give me something to hold",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0957": {
       "bar_num": 64,
-      "lyrics": "to hold on Give\n",
+      "lyrics": "onto\n",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"

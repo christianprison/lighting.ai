@@ -2,3 +2,7 @@ __pycache__/
 *.pyc
 .env
 .DS_Store
+
+# Live-App: lokale Daten (zu groß für GitHub)
+live/data/recordings/
+live/data/*.db

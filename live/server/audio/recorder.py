@@ -41,10 +41,17 @@ class RecordingInfo:
     song_id: str          # Song-ID aus der DB (leer wenn kein Song gewählt)
     path: str             # Absoluter Pfad zur WAV-Datei
     started_at: str       # ISO-8601 Zeitstempel
+    started_at_ts: float  # time.time() beim Start — für wav_offset-Berechnung
     channels: int         # Anzahl der aufgezeichneten Kanäle
     sample_rate: int      # Sample-Rate
     blocks_written: int   # Anzahl der bisher geschriebenen Audio-Blöcke
     running: bool         # True solange Aufnahme aktiv
+
+    @property
+    def session_id(self) -> str:
+        """Dateiname ohne Extension — eindeutiger Session-Bezeichner."""
+        from pathlib import Path
+        return Path(self.path).stem
 
 
 class MultitrackRecorder:
@@ -130,6 +137,7 @@ class MultitrackRecorder:
                 song_id=song_id,
                 path=str(path),
                 started_at=now.isoformat(),
+                started_at_ts=time.time(),
                 channels=self.channels,
                 sample_rate=self.sample_rate,
                 blocks_written=0,

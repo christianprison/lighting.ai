@@ -13,7 +13,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from .config import load_config, Config
-from .db_cache import sync, load_db, load_qxw_path
+from .db_cache import sync, load_db, load_qxw_path, push_probe_log
 from .qlc_parser import parse, qlc_data_to_dict, QlcData, ACCENT_FUNCTIONS
 from .qlc_osc import QlcOsc
 from .ws_handler import WsHandler
@@ -77,6 +77,9 @@ async def startup():
     sync_result = sync(cfg)
     log.info("DB sync: %s", sync_result)
 
+    # Ausstehende lokale Probe-Logs nach GitHub pushen (Offline-Fallback)
+    asyncio.create_task(_push_pending_probe_logs())
+
     # 2) Load DB
     try:
         db = load_db(cfg)
@@ -132,7 +135,67 @@ async def startup():
 @app.on_event("shutdown")
 async def shutdown():
     if audio_process:
+        # Aufnahme stoppen und Session-ID ermitteln
+        rec_info = audio_process.recorder._info
+        session_id = rec_info.session_id if rec_info else None
         audio_process.stop()
+
+        # Probe-Events exportieren und nach GitHub pushen
+        if session_id and ref_db:
+            await _export_and_push_probe_log(session_id)
+
+
+async def _export_and_push_probe_log(session_id: str) -> None:
+    """Exportiert Probe-Events als JSON und pusht nach GitHub."""
+    import json as _json
+    try:
+        data = ref_db.export_probe_session(session_id)
+        if data["event_count"] == 0:
+            log.info("Keine Probe-Events für Session %s — kein Push", session_id)
+            return
+
+        content = _json.dumps(data, ensure_ascii=False, indent=2)
+        log.info(
+            "Exportiere %d Probe-Events für Session %s ...",
+            data["event_count"], session_id,
+        )
+        ok = push_probe_log(cfg, session_id, content)
+        if ok:
+            log.info("Probe-Log erfolgreich nach GitHub gepusht: %s", session_id)
+        else:
+            # Offline oder kein Token — lokal speichern als Fallback
+            local_dir = cfg.base_dir / "data" / "probe_logs"
+            local_dir.mkdir(parents=True, exist_ok=True)
+            local_path = local_dir / f"{session_id}.json"
+            local_path.write_text(content, encoding="utf-8")
+            log.info(
+                "Offline — Probe-Log lokal gespeichert: %s (wird beim nächsten Start gepusht)",
+                local_path,
+            )
+    except Exception as exc:
+        log.error("Probe-Log Export/Push fehlgeschlagen: %s", exc)
+
+
+async def _push_pending_probe_logs() -> None:
+    """Pusht lokal gespeicherte Probe-Logs die beim letzten Shutdown offline waren."""
+    import json as _json
+    local_dir = cfg.base_dir / "data" / "probe_logs"
+    if not local_dir.exists():
+        return
+    pending = list(local_dir.glob("*.json"))
+    if not pending:
+        return
+    log.info("%d ausstehende Probe-Logs gefunden — pushe nach GitHub ...", len(pending))
+    for path in pending:
+        session_id = path.stem
+        try:
+            content = path.read_text(encoding="utf-8")
+            ok = push_probe_log(cfg, session_id, content)
+            if ok:
+                path.unlink()
+                log.info("Ausstehender Probe-Log gepusht und gelöscht: %s", session_id)
+        except Exception as exc:
+            log.warning("Push für %s fehlgeschlagen: %s", session_id, exc)
 
 
 # --- Audio Queue Consumer ---

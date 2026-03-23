@@ -20209,28 +20209,28 @@
       "bar_num": 128,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B2035": {
       "song_id": "qVbU6L",
       "bar_num": 129,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B2036": {
       "song_id": "qVbU6L",
       "bar_num": 130,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B2037": {
       "song_id": "qVbU6L",
       "bar_num": 131,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B2038": {
       "song_id": "qVbU6L",
@@ -21420,6 +21420,102 @@
     "A0211": {
       "bar_id": "B1885",
       "pos_16th": 9,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0212": {
+      "bar_id": "B2034",
+      "pos_16th": 1,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0215": {
+      "bar_id": "B2034",
+      "pos_16th": 5,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0216": {
+      "bar_id": "B2034",
+      "pos_16th": 9,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0217": {
+      "bar_id": "B2034",
+      "pos_16th": 13,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0218": {
+      "bar_id": "B2035",
+      "pos_16th": 1,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0219": {
+      "bar_id": "B2035",
+      "pos_16th": 5,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0220": {
+      "bar_id": "B2035",
+      "pos_16th": 9,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0221": {
+      "bar_id": "B2035",
+      "pos_16th": 13,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0222": {
+      "bar_id": "B2036",
+      "pos_16th": 1,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0223": {
+      "bar_id": "B2036",
+      "pos_16th": 5,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0224": {
+      "bar_id": "B2036",
+      "pos_16th": 9,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0225": {
+      "bar_id": "B2036",
+      "pos_16th": 13,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0226": {
+      "bar_id": "B2037",
+      "pos_16th": 1,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0227": {
+      "bar_id": "B2037",
+      "pos_16th": 5,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0228": {
+      "bar_id": "B2037",
+      "pos_16th": 9,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0229": {
+      "bar_id": "B2037",
+      "pos_16th": 13,
       "type": "hl",
       "notes": ""
     }

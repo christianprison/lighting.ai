@@ -6670,7 +6670,7 @@
           "lyrics_raw"
         ]
       },
-      "total_bars": 95,
+      "total_bars": 94,
       "split_markers": {
         "markers": [
           {
@@ -6954,9 +6954,6 @@
           },
           {
             "time": 260.90717977528095
-          },
-          {
-            "time": 262.31807490636703
           }
         ],
         "part_starts": []

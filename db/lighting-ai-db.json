@@ -7601,8 +7601,7 @@
           },
           {
             "bar_num": 81,
-            "name": "Interkude",
-            "instrumental": true
+            "name": "Interkude"
           },
           {
             "bar_num": 89,
@@ -7614,7 +7613,8 @@
           },
           {
             "bar_num": 113,
-            "name": "Outro"
+            "name": "Outro",
+            "instrumental": true
           }
         ]
       },

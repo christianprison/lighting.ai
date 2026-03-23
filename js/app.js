@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.2.23';
+const APP_VERSION = 'v2.2.24';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -1784,7 +1784,7 @@ async function handleBarPlay(songId, barNum) {
 
   try {
     const ac = audio.getContext();
-    if (ac.state === 'suspended') await ac.resume();
+    if (ac.state !== 'running') await ac.resume();
 
     // Strategy 1: Use split audio file — loop it
     if (barData.audio) {
@@ -2039,7 +2039,7 @@ function partsTabTogglePlay(part) {
   if (!refBuf) { toast('Kein Audio geladen', 'error'); return; }
 
   const ac = audio.getContext();
-  if (ac.state === 'suspended') ac.resume();
+  if (ac.state !== 'running') ac.resume().catch(() => {});
 
   const src = ac.createBufferSource();
   src.buffer = refBuf;
@@ -4415,7 +4415,7 @@ function leStartPartPlayback(partBarNum) {
   if (dur <= 0) return;
 
   const ac = audio.getContext();
-  if (ac.state === 'suspended') ac.resume();
+  if (ac.state !== 'running') ac.resume().catch(() => {});
 
   const src = ac.createBufferSource();
   src.buffer = refBuf;
@@ -5887,7 +5887,7 @@ async function handleAccentBarPlay(songId, barNum) {
 
   try {
     const ac = audio.getContext();
-    if (ac.state === 'suspended') await ac.resume();
+    if (ac.state !== 'running') await ac.resume();
 
     // Strategy 1: split audio file
     if (barData.audio) {

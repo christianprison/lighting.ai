@@ -173,6 +173,10 @@ class AudioProcess:
         self._snapshot_pending = False
         self._current_bpm: float = 120.0
 
+        # Pegel-Monitoring: RMS pro Kanal (für /api/audio/levels)
+        self._channel_rms: np.ndarray = np.zeros(CHANNELS_TOTAL, dtype=np.float32)
+        self._rms_lock = threading.Lock()
+
         # Beat-Detektor (PLL-basiert, Multi-Channel)
         self.beat_detector = BeatDetector(sample_rate=SAMPLE_RATE, initial_bpm=self._current_bpm)
 
@@ -212,6 +216,30 @@ class AudioProcess:
         self._current_bpm = bpm
         self.beat_detector.set_bpm(bpm)
         log.debug("BPM auf %.1f gesetzt", bpm)
+
+    def channel_levels(self) -> list[float]:
+        """Aktuelle RMS-Pegel pro Kanal (0.0–1.0, float32)."""
+        with self._rms_lock:
+            return [round(float(v), 6) for v in self._channel_rms]
+
+    @staticmethod
+    def list_devices() -> list[dict]:
+        """Listet alle verfügbaren Audio-Input-Geräte."""
+        try:
+            import sounddevice as sd
+            devices = sd.query_devices()
+            return [
+                {
+                    "index": i,
+                    "name": d["name"],
+                    "channels_in": d["max_input_channels"],
+                    "sample_rate": int(d["default_samplerate"]),
+                }
+                for i, d in enumerate(devices)
+                if d["max_input_channels"] > 0
+            ]
+        except Exception as exc:
+            return [{"error": str(exc)}]
 
     def status(self) -> dict:
         return AudioStatus(
@@ -315,6 +343,11 @@ class AudioProcess:
 
         # --- Aufnahme: alle 18 Kanäle direkt in Datei schreiben ---
         self.recorder.write_block(indata)
+
+        # --- Pegel-Monitoring: RMS pro Kanal aktualisieren ---
+        rms_per_ch = np.sqrt(np.mean(indata ** 2, axis=0))
+        with self._rms_lock:
+            self._channel_rms = rms_per_ch
 
         # --- Pfad 1: Beat-Detection (alle Kanäle, block-weise) ---
         beat_events = self.beat_detector.process_block(indata)

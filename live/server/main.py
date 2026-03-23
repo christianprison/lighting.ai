@@ -411,6 +411,50 @@ async def osc_send(req: OscSendRequest):
 
 # --- Audio Engine API ---
 
+@app.get("/api/audio/devices")
+async def get_audio_devices():
+    """Listet alle verfügbaren Audio-Input-Geräte.
+
+    Damit lässt sich prüfen ob der XR18 als Device sichtbar ist
+    und unter welchem Index/Namen er erscheint.
+    """
+    from .audio.audio_process import AudioProcess
+    devices = AudioProcess.list_devices()
+    xr18_candidates = [d for d in devices if "xr18" in d.get("name", "").lower()
+                       or "behringer" in d.get("name", "").lower()
+                       or d.get("channels_in", 0) >= 18]
+    return {
+        "devices": devices,
+        "xr18_detected": len(xr18_candidates) > 0,
+        "xr18_candidates": xr18_candidates,
+    }
+
+
+@app.get("/api/audio/levels")
+async def get_audio_levels():
+    """Aktuelle RMS-Pegel pro Kanal (0.0–1.0).
+
+    Gibt 0.0 zurück wenn kein Audio-Stream aktiv ist.
+    Kanal-Indizes sind 0-basiert (CH1 = Index 0, CH18 = Index 17).
+    """
+    if not audio_process:
+        return JSONResponse({"error": "AudioProcess not initialised"}, status_code=503)
+    levels = audio_process.channel_levels()
+    # dBFS für bessere Lesbarkeit
+    import math
+    def to_dbfs(rms: float) -> float | None:
+        if rms <= 0:
+            return None
+        return round(20 * math.log10(rms), 1)
+    return {
+        "channels": [
+            {"ch": i + 1, "rms": levels[i], "dbfs": to_dbfs(levels[i])}
+            for i in range(len(levels))
+        ],
+        "stream_active": audio_process.is_running(),
+    }
+
+
 @app.get("/api/audio/status")
 async def get_audio_status():
     """Status des AudioProcess (läuft, Gerätename, Fehler)."""

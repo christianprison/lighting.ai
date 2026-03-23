@@ -6528,15 +6528,20 @@
         "part_starts": [
           {
             "bar_num": 1,
-            "name": "Drum Intro"
+            "name": "Drum Intro",
+            "light_template": "Spot auf Tim",
+            "instrumental": true
           },
           {
             "bar_num": 9,
-            "name": "+ Guitar"
+            "name": "+ Guitar",
+            "light_template": "Spot auf Axel",
+            "instrumental": true
           },
           {
             "bar_num": 13,
-            "name": "+ 2nd Guitar"
+            "name": "+ 2nd Guitar",
+            "light_template": "Spot auf Pete"
           },
           {
             "bar_num": 17,

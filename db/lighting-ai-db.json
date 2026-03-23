@@ -6664,12 +6664,13 @@
       "tms": {
         "manual_done": [
           "bar_markers",
-          "parts_identified"
+          "parts_identified",
+          "instr_parts_identified",
+          "instr_bars_identified",
+          "lyrics_raw"
         ],
         "user_tasks": [],
-        "manual_undone": [
-          "lyrics_raw"
-        ]
+        "manual_undone": []
       },
       "total_bars": 94,
       "split_markers": {
@@ -6961,76 +6962,178 @@
           {
             "bar_num": 1,
             "name": "HH Einzähler",
+            "light_template": "11 Stop",
             "instrumental": true
           },
           {
             "bar_num": 2,
             "name": "Thema 1",
+            "light_template": "03 walking",
             "instrumental": true
           },
           {
             "bar_num": 10,
             "name": "Pre-Verse 1",
+            "light_template": "03 walking",
             "instrumental": true
           },
           {
             "bar_num": 14,
-            "name": "Verse 1"
+            "name": "Verse 1",
+            "light_template": "03 walking"
           },
           {
             "bar_num": 22,
-            "name": "Bridge 1"
+            "name": "Bridge 1",
+            "light_template": "10 Strobe"
           },
           {
             "bar_num": 30,
-            "name": "Chorus 1"
+            "name": "Chorus 1",
+            "light_template": "04 up'n'down"
           },
           {
             "bar_num": 39,
             "name": "Pre-Verse 2",
+            "light_template": "03 walking",
             "instrumental": true
           },
           {
             "bar_num": 43,
-            "name": "Verse 2"
+            "name": "Verse 2",
+            "light_template": "03 walking"
           },
           {
             "bar_num": 51,
-            "name": "Bridge 2"
+            "name": "Bridge 2",
+            "light_template": "10 Strobe"
           },
           {
             "bar_num": 59,
-            "name": "Chorus 2"
+            "name": "Chorus 2",
+            "light_template": "04 up'n'down"
           },
           {
             "bar_num": 67,
             "name": "Solo Axel 1",
+            "light_template": "Spot auf Axel",
             "instrumental": true
           },
           {
             "bar_num": 71,
             "name": "Solo Axel 2",
+            "light_template": "Spot auf Axel",
             "instrumental": true
           },
           {
             "bar_num": 75,
             "name": "Solo Axel 3",
+            "light_template": "Spot auf Axel",
             "instrumental": true
           },
           {
             "bar_num": 77,
-            "name": "Chorus 3"
+            "name": "Chorus 3",
+            "light_template": "04 up'n'down"
           },
           {
             "bar_num": 85,
-            "name": "Chorus 4"
+            "name": "Chorus 4",
+            "light_template": "09 Alarm"
           },
           {
             "bar_num": 94,
             "name": "Ausklang",
+            "light_template": "01 statisch bunt",
             "instrumental": true
           }
         ]
+      },
+      "qlc_parts": {
+        "1FXXiL_QP001": {
+          "pos": 1,
+          "name": "Intro",
+          "light_template": "04 up'n'down",
+          "notes": ""
+        },
+        "1FXXiL_QP002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "light_template": "03 walking",
+          "notes": ""
+        },
+        "1FXXiL_QP003": {
+          "pos": 3,
+          "name": "Bridge 1",
+          "light_template": "10 Strobe",
+          "notes": ""
+        },
+        "1FXXiL_QP004": {
+          "pos": 4,
+          "name": "Chorus 1",
+          "light_template": "04 up'n'down",
+          "notes": ""
+        },
+        "1FXXiL_QP005": {
+          "pos": 5,
+          "name": "Verse 2",
+          "light_template": "03 walking",
+          "notes": ""
+        },
+        "1FXXiL_QP006": {
+          "pos": 6,
+          "name": "Bridge 2",
+          "light_template": "10 Strobe",
+          "notes": ""
+        },
+        "1FXXiL_QP007": {
+          "pos": 7,
+          "name": "Chorus 2",
+          "light_template": "04 up'n'down",
+          "notes": ""
+        },
+        "1FXXiL_QP008": {
+          "pos": 8,
+          "name": "Solo Axel",
+          "light_template": "Spot auf Axel",
+          "notes": ""
+        },
+        "1FXXiL_QP009": {
+          "pos": 9,
+          "name": "Intro",
+          "light_template": "Spot auf Axel hot",
+          "notes": ""
+        },
+        "1FXXiL_QP010": {
+          "pos": 10,
+          "name": "Ausklang",
+          "light_template": "02 slow blue",
+          "notes": ""
+        },
+        "1FXXiL_QP011": {
+          "pos": 11,
+          "name": "Basssolo",
+          "light_template": "Spot auf Bibo",
+          "notes": ""
+        },
+        "1FXXiL_QP012": {
+          "pos": 12,
+          "name": "Chorus 3",
+          "light_template": "04 up'n'down",
+          "notes": ""
+        },
+        "1FXXiL_QP013": {
+          "pos": 13,
+          "name": "Chorus 4",
+          "light_template": "09 Alarm",
+          "notes": ""
+        },
+        "1FXXiL_QP014": {
+          "pos": 14,
+          "name": "Ausklang",
+          "light_template": "01 statisch bunt",
+          "notes": ""
+        }
       }
     },
     "B3R92r": {

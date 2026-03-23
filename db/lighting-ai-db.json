@@ -7188,7 +7188,7 @@
       "duration": "3:40",
       "duration_sec": 220,
       "notes": "",
-      "lyrics_raw": "Strain this chaos turn it into light I've got to see you one last night Before the lions take their share Leave us in pieces, scattered everywhere Just give me a chance to hold on Just Give something to hold on to It's so clear now that you are all that I have I have no fear cos you are all that I have It's so clear now that you are all that I have I have no fear cos you are all that I have You're cinematic razor sharp A welcome arrow through the heart Under your skin feels like home Electric shocks on aching bones Give me a chance to hold on Give me a chance to hold on Give me a chance to hold on Just give me something to hold onto It's so clear now that you are all that I have I have no fear cos you are all that I have It's so clear now that you are all that I have I have no fear cos you are all that I have There is a darkness deep in you A frightening magic I cling to Give me a chance to hold on Give me a chance to hold on Give me a chance to hold on Just give me something to hold onto It's so clear now that you are all that I have I have no fear now you are all that I have It's so clear now that you are all that I have I have no fear now you are all that I have",
+      "lyrics_raw": "Strain this chaos turn it into light I've got to see you one last night Before the lions take their share Leave us in pieces, scattered everywhere Just give me a chance to hold on Just Give something to hold on to It's so clear now that you are all that I have I have no fear cos you are all that I have have no fear cos you are all that I have I have It's so clear now that you are all that I You're cinematic razor sharp A welcome arrow through the heart Under your skin feels like home Electric shocks on aching bones Give me a chance to hold on Give me a chance to hold on Give me a chance to hold on Just give me something to hold onto It's so clear now that you are all that I have I have no fear cos you are all that I have It's so clear now that you are all that I have I have no fear cos you are all that I have There is a darkness deep in you A frightening magic I cling to Give me a chance to hold on Give me a chance to hold on Give me a chance to hold on Just give me something to hold onto It's so clear now that you are all that I have I have no fear now you are all that I have It's so clear now that you are all that I have I have no fear now you are all that I have",
       "tms": {
         "manual_done": [
           "bar_markers",
@@ -12065,21 +12065,21 @@
     },
     "B0847": {
       "bar_num": 40,
-      "lyrics": "I have It's so\n",
+      "lyrics": "I have have no fear cos you are all that I have I have It's so clear now that you are all that I\n",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0848": {
       "bar_num": 41,
-      "lyrics": "clear now that you",
+      "lyrics": "You're cinematic",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0849": {
       "bar_num": 42,
-      "lyrics": "are all that I",
+      "lyrics": "razor sharp",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
@@ -12102,14 +12102,14 @@
     },
     "B0855": {
       "bar_num": 49,
-      "lyrics": "all that I have",
+      "lyrics": "Under your",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0856": {
       "bar_num": 50,
-      "lyrics": "You're cinematic razor sharp",
+      "lyrics": "skin feels like home",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
@@ -12132,21 +12132,21 @@
     },
     "B0859": {
       "bar_num": 53,
-      "lyrics": "A welcome arrow through",
+      "lyrics": "Electric shocks",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0860": {
       "bar_num": 54,
-      "lyrics": "the heart Under your",
+      "lyrics": "on aching bones",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0861": {
       "bar_num": 55,
-      "lyrics": "skin feels like home",
+      "lyrics": "",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
@@ -12161,7 +12161,7 @@
     },
     "B0863": {
       "bar_num": 57,
-      "lyrics": "Electric shocks on aching",
+      "lyrics": "",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
@@ -12176,7 +12176,7 @@
     },
     "B0865": {
       "bar_num": 59,
-      "lyrics": "bones Give me a",
+      "lyrics": "Give me a",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
@@ -12375,7 +12375,7 @@
     },
     "B0941": {
       "bar_num": 46,
-      "lyrics": "fear cos you are",
+      "lyrics": "through the heart",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
@@ -12455,7 +12455,7 @@
     },
     "B0953": {
       "bar_num": 45,
-      "lyrics": "have I have no",
+      "lyrics": "A welcome arrow",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"

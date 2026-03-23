@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.2.23';
+const APP_VERSION = 'v2.2.24';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -7875,28 +7875,52 @@ function updateSaveButton() {
 let _saveInProgress = false;
 /**
  * Auto-marks TMS tasks based on audio marker coverage at save time.
- * If the last bar/part marker is within 10s of the audio end, the
- * corresponding task is considered complete and marked done automatically.
+ * Reads from song.split_markers (always up-to-date after saveMarkersToSong)
+ * rather than markers[] (which may be empty if audio wasn't loaded this session).
+ * Falls back to song.duration_sec when audioMeta is not available.
+ * Returns true if any task was newly marked done.
  */
 function autoCheckTmsByAudioEnd() {
-  if (!selectedSongId || !markers.length || !audioMeta?.duration) return;
-  const tms = getSongTms(selectedSongId);
-  const THRESHOLD = 10; // seconds from end
+  if (!selectedSongId) return false;
+  const song = db?.songs[selectedSongId];
+  if (!song) return false;
 
-  const lastBarTime = Math.max(...markers.map(m => m.time));
-  if (audioMeta.duration - lastBarTime <= THRESHOLD && !tms.manual_done.includes('bar_markers')) {
+  const sm = song.split_markers;
+  if (!sm?.markers?.length) return false;
+
+  // Prefer live audio duration; fall back to the stored song duration
+  const audioDuration = audioMeta?.duration ?? song.duration_sec;
+  if (!audioDuration) return false;
+
+  const tms = getSongTms(selectedSongId);
+  const THRESHOLD = 10;
+  let changed = false;
+
+  // Bar check: last marker within 10s of end
+  const lastBarTime = Math.max(...sm.markers.map(m => m.time));
+  if (audioDuration - lastBarTime <= THRESHOLD && !tms.manual_done.includes('bar_markers')) {
     tms.manual_done.push('bar_markers');
     tms.manual_undone = tms.manual_undone.filter(id => id !== 'bar_markers');
+    changed = true;
   }
 
-  const partMarkers = markers.filter(m => m.partName);
-  if (partMarkers.length > 0) {
-    const lastPartTime = Math.max(...partMarkers.map(m => m.time));
-    if (audioMeta.duration - lastPartTime <= THRESHOLD && !tms.manual_done.includes('parts_identified')) {
-      tms.manual_done.push('parts_identified');
-      tms.manual_undone = tms.manual_undone.filter(id => id !== 'parts_identified');
+  // Part check: last part-start marker within 10s of end
+  if (sm.part_starts?.length) {
+    const partBarNums = new Set(sm.part_starts.map(ps => ps.bar_num));
+    const partTimes = sm.markers
+      .filter((_, i) => partBarNums.has(i + 1))
+      .map(m => m.time);
+    if (partTimes.length > 0) {
+      const lastPartTime = Math.max(...partTimes);
+      if (audioDuration - lastPartTime <= THRESHOLD && !tms.manual_done.includes('parts_identified')) {
+        tms.manual_done.push('parts_identified');
+        tms.manual_undone = tms.manual_undone.filter(id => id !== 'parts_identified');
+        changed = true;
+      }
     }
   }
+
+  return changed;
 }
 
 async function handleSave(showToast = true) {
@@ -7905,8 +7929,8 @@ async function handleSave(showToast = true) {
   // Ensure audio split markers are persisted to the song object before saving
   if (selectedSongId && markers.length > 0) {
     saveMarkersToSong();
-    autoCheckTmsByAudioEnd();
   }
+  const tmsChanged = autoCheckTmsByAudioEnd();
   if (readOnly) {
     const hasToken = !!getSettings().token;
     const msg = hasToken
@@ -7927,6 +7951,12 @@ async function handleSave(showToast = true) {
     updateDebugPanel();
     if (showToast) toast('Gespeichert', 'success');
     leClearUndoHistory();
+
+    // If TMS tasks were auto-marked, update the song list progress rings
+    if (tmsChanged && selectedSongId) {
+      _prevProgress[selectedSongId] = getSongProgress(selectedSongId).completed;
+      renderSongList(els.searchBox.value);
+    }
 
     // Auto-export audio segments only from the audio tab
 

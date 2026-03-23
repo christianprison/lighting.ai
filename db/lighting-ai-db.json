@@ -12309,7 +12309,8 @@
       "lyrics": "",
       "audio": "",
       "has_accents": false,
-      "song_id": "HDX1IN"
+      "song_id": "HDX1IN",
+      "instrumental": true
     },
     "B0914": {
       "bar_num": 113,
@@ -12618,8 +12619,7 @@
       "lyrics": "I",
       "audio": "",
       "has_accents": false,
-      "song_id": "HDX1IN",
-      "instrumental": true
+      "song_id": "HDX1IN"
     },
     "B0976": {
       "bar_num": 102,

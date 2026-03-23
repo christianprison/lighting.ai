@@ -61,6 +61,11 @@ class RehearsalSongRequest(BaseModel):
     song_id: str | None = None  # None = Live Mode (alle Songs)
 
 
+class RecordingStartRequest(BaseModel):
+    label: str = ""      # Frei wählbar, z.B. Song-Name
+    song_id: str = ""    # Song-ID für spätere Zuordnung
+
+
 # --- Startup / Shutdown ---
 
 @app.on_event("startup")
@@ -388,6 +393,65 @@ async def reload_audio_engine():
         return JSONResponse({"error": "AudioProcess not initialised"}, status_code=503)
     n = audio_process.hmm.load_all_states()
     return {"ok": True, "states_loaded": n}
+
+
+# --- Recording API ---
+
+@app.post("/api/recording/start")
+async def recording_start(req: RecordingStartRequest):
+    """Startet eine neue Multitrack-Aufnahme (alle 18 XR18-Kanäle).
+
+    Falls kein label angegeben: Zeitstempel wird als Name verwendet.
+    Falls song_id angegeben: wird in der Datei-Metadaten vermerkt.
+    """
+    if not audio_process:
+        return JSONResponse({"error": "AudioProcess not initialised"}, status_code=503)
+
+    label = req.label
+    if not label and req.song_id:
+        song = db.get("songs", {}).get(req.song_id, {})
+        label = song.get("name", req.song_id)
+
+    try:
+        info = audio_process.recorder.start(label=label, song_id=req.song_id)
+        return {"ok": True, **audio_process.recorder.status()}
+    except RuntimeError as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.post("/api/recording/stop")
+async def recording_stop():
+    """Beendet die laufende Aufnahme und schließt die Datei."""
+    if not audio_process:
+        return JSONResponse({"error": "AudioProcess not initialised"}, status_code=503)
+
+    info = audio_process.recorder.stop()
+    if info is None:
+        return {"ok": False, "message": "Keine Aufnahme aktiv"}
+
+    duration = round(info.blocks_written * 2048 / info.sample_rate, 1)
+    return {
+        "ok": True,
+        "path": info.path,
+        "duration_sec": duration,
+        "blocks_written": info.blocks_written,
+    }
+
+
+@app.get("/api/recording/status")
+async def recording_status():
+    """Status der aktuellen Aufnahme."""
+    if not audio_process:
+        return JSONResponse({"error": "AudioProcess not initialised"}, status_code=503)
+    return audio_process.recorder.status()
+
+
+@app.get("/api/recording/list")
+async def recording_list():
+    """Listet alle vorhandenen WAV-Dateien im Recordings-Verzeichnis."""
+    if not audio_process:
+        return JSONResponse({"error": "AudioProcess not initialised"}, status_code=503)
+    return {"recordings": audio_process.recorder.list_recordings()}
 
 
 # --- WebSocket ---

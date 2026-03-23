@@ -32,6 +32,7 @@ import numpy as np
 
 from .beat_detector import BeatDetector, BeatEvent as _BeatEvent
 from .hmm import AudioHMM, HMMState
+from .recorder import MultitrackRecorder
 from .reference_db import ReferenceDB
 
 log = logging.getLogger("live.audio.process")
@@ -156,6 +157,7 @@ class AudioProcess:
         self.device = device
 
         self.hmm = AudioHMM(db)
+        self.recorder = MultitrackRecorder(sample_rate=SAMPLE_RATE, channels=CHANNELS_TOTAL)
         self._thread: threading.Thread | None = None
         self._stop_event = threading.Event()
         self._running = False
@@ -300,6 +302,9 @@ class AudioProcess:
         """
         if status:
             log.warning("sounddevice Status: %s", status)
+
+        # --- Aufnahme: alle 18 Kanäle direkt in Datei schreiben ---
+        self.recorder.write_block(indata)
 
         # --- Pfad 1: Beat-Detection (alle Kanäle, block-weise) ---
         beat_events = self.beat_detector.process_block(indata)

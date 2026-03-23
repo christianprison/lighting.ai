@@ -6525,7 +6525,92 @@
             "time": 201.9925564138577
           }
         ],
-        "part_starts": []
+        "part_starts": [
+          {
+            "bar_num": 1,
+            "name": "Drum Intro"
+          },
+          {
+            "bar_num": 9,
+            "name": "+ Guitar"
+          },
+          {
+            "bar_num": 13,
+            "name": "+ 2nd Guitar"
+          },
+          {
+            "bar_num": 17,
+            "name": "Verse 1"
+          },
+          {
+            "bar_num": 29,
+            "name": "Bridge"
+          },
+          {
+            "bar_num": 38,
+            "name": "Chorus 1"
+          },
+          {
+            "bar_num": 42,
+            "name": "Hail to the Freaks"
+          },
+          {
+            "bar_num": 46,
+            "name": "Verse 2"
+          },
+          {
+            "bar_num": 58,
+            "name": "Bridge 2"
+          },
+          {
+            "bar_num": 67,
+            "name": "Chorus 2"
+          },
+          {
+            "bar_num": 71,
+            "name": "Interlude"
+          },
+          {
+            "bar_num": 77,
+            "name": "Chorus 3"
+          },
+          {
+            "bar_num": 81,
+            "name": "Bass + Drums"
+          },
+          {
+            "bar_num": 85,
+            "name": "Solo Axel"
+          },
+          {
+            "bar_num": 97,
+            "name": "Bridge 3 (Hail to the freaks)"
+          },
+          {
+            "bar_num": 106,
+            "name": "Chorus 4"
+          },
+          {
+            "bar_num": 110,
+            "name": "Interlude 2"
+          },
+          {
+            "bar_num": 116,
+            "name": "Chorus 5"
+          },
+          {
+            "bar_num": 120,
+            "name": "Outro 1"
+          },
+          {
+            "bar_num": 124,
+            "name": "Outro 2 (halftime)"
+          },
+          {
+            "bar_num": 128,
+            "name": "Outro 3 (power)"
+          }
+        ]
       }
     },
     "1FXXiL": {

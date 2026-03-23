@@ -20796,21 +20796,24 @@
       "bar_num": 28,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2067": {
       "song_id": "1FXXiL",
       "bar_num": 29,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2068": {
       "song_id": "1FXXiL",
       "bar_num": 30,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2069": {
       "song_id": "1FXXiL",
@@ -20824,7 +20827,8 @@
       "bar_num": 32,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2071": {
       "song_id": "1FXXiL",
@@ -20852,7 +20856,8 @@
       "bar_num": 36,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2075": {
       "song_id": "1FXXiL",
@@ -21013,7 +21018,8 @@
       "bar_num": 59,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2098": {
       "song_id": "1FXXiL",
@@ -21027,7 +21033,8 @@
       "bar_num": 61,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2100": {
       "song_id": "1FXXiL",
@@ -21041,7 +21048,8 @@
       "bar_num": 63,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2102": {
       "song_id": "1FXXiL",
@@ -21062,7 +21070,8 @@
       "bar_num": 66,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2105": {
       "song_id": "1FXXiL",
@@ -21139,7 +21148,8 @@
       "bar_num": 77,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2116": {
       "song_id": "1FXXiL",
@@ -21153,7 +21163,8 @@
       "bar_num": 79,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2118": {
       "song_id": "1FXXiL",
@@ -21167,7 +21178,8 @@
       "bar_num": 81,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2120": {
       "song_id": "1FXXiL",
@@ -21188,14 +21200,16 @@
       "bar_num": 84,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2123": {
       "song_id": "1FXXiL",
       "bar_num": 85,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2124": {
       "song_id": "1FXXiL",
@@ -21209,7 +21223,8 @@
       "bar_num": 87,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2126": {
       "song_id": "1FXXiL",
@@ -21223,7 +21238,8 @@
       "bar_num": 89,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2128": {
       "song_id": "1FXXiL",
@@ -21244,7 +21260,8 @@
       "bar_num": 92,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2131": {
       "song_id": "1FXXiL",

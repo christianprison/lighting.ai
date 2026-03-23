@@ -30,6 +30,7 @@ from typing import Any
 
 import numpy as np
 
+from .beat_detector import BeatDetector, BeatEvent as _BeatEvent
 from .hmm import AudioHMM, HMMState
 from .reference_db import ReferenceDB
 
@@ -84,9 +85,11 @@ class PositionUpdate:
 @dataclass
 class BeatUpdate:
     """Beat/Downbeat-Ereignis."""
-    beat_num: int       # 1–4
-    bar_num_local: int  # Takt innerhalb des aktuellen Songs (absolut)
+    beat_num: int        # 1–4
+    bar_num_local: int   # Takt innerhalb des aktuellen Songs (absolut)
     bpm: float
+    is_downbeat: bool    # True wenn Beat 1 (Taktanfang)
+    is_fill: bool        # True wenn Tom-Fill erkannt
     timestamp: float = field(default_factory=time.time)
 
     def to_dict(self) -> dict:
@@ -94,6 +97,8 @@ class BeatUpdate:
             "type": "beat_update",
             "beat_num": self.beat_num,
             "bpm": round(self.bpm, 1),
+            "is_downbeat": self.is_downbeat,
+            "is_fill": self.is_fill,
             "timestamp": self.timestamp,
         }
 
@@ -157,16 +162,17 @@ class AudioProcess:
         self._device_name = ""
         self._error = ""
 
-        # Ring-Buffer für Audio-Samples (1 Sekunde Stereo bei 48 kHz)
+        # Ring-Buffer für Stereo-Mix-Samples (1 Sekunde, für HMM-Fingerprinting)
         self._ring_buffer: list[np.ndarray] = []
         self._ring_lock = threading.Lock()
         self._ring_max_blocks = SAMPLE_RATE // BLOCK_SIZE  # ~23 Blöcke/Sek
 
-        # Snapshot-Timing: Feature-Extraktion auf Beat 1 triggern
+        # Snapshot-Timing: Feature-Extraktion auf Downbeat triggern
         self._snapshot_pending = False
         self._current_bpm: float = 120.0
-        self._beat_phase: float = 0.0   # Phase in Samples seit letztem Beat
-        self._samples_per_beat: float = SAMPLE_RATE * 60.0 / self._current_bpm
+
+        # Beat-Detektor (PLL-basiert, Multi-Channel)
+        self.beat_detector = BeatDetector(sample_rate=SAMPLE_RATE, initial_bpm=self._current_bpm)
 
     # --- Lifecycle ------------------------------------------------------------
 
@@ -202,7 +208,7 @@ class AudioProcess:
     def set_bpm(self, bpm: float) -> None:
         """Aktualisiert das Tempo (wird vom DB-Song-Wechsel getriggert)."""
         self._current_bpm = bpm
-        self._samples_per_beat = SAMPLE_RATE * 60.0 / bpm
+        self.beat_detector.set_bpm(bpm)
         log.debug("BPM auf %.1f gesetzt", bpm)
 
     def status(self) -> dict:
@@ -287,11 +293,30 @@ class AudioProcess:
         """Wird von sounddevice bei jedem neuen Audio-Block aufgerufen.
 
         indata: shape (frames, CHANNELS_TOTAL), float32
+
+        Zwei parallele Pfade:
+          1. Multi-Channel → BeatDetector (Kick/Snare/Overheads/Toms)
+          2. Stereo-Mix → Ring-Buffer → HMM-Fingerprinting (beat-synchron)
         """
         if status:
             log.warning("sounddevice Status: %s", status)
 
-        # Stereo-Mix extrahieren (Kanäle 17+18, 0-basiert)
+        # --- Pfad 1: Beat-Detection (alle Kanäle, block-weise) ---
+        beat_events = self.beat_detector.process_block(indata)
+        for ev in beat_events:
+            beat_update = BeatUpdate(
+                beat_num=ev.beat_num,
+                bar_num_local=ev.bar_num,
+                bpm=ev.bpm,
+                is_downbeat=ev.is_downbeat,
+                is_fill=ev.is_fill,
+            )
+            self._emit(beat_update)
+            # Downbeat (Beat 1) → HMM-Snapshot triggern
+            if ev.is_downbeat:
+                self._snapshot_pending = True
+
+        # --- Pfad 2: Stereo-Mix in Ring-Buffer für Fingerprinting ---
         if indata.shape[1] > CHANNEL_MIX_R:
             stereo = indata[:, [CHANNEL_MIX_L, CHANNEL_MIX_R]]
         else:
@@ -299,15 +324,8 @@ class AudioProcess:
 
         with self._ring_lock:
             self._ring_buffer.append(stereo.copy())
-            # Ring-Buffer begrenzen
             if len(self._ring_buffer) > self._ring_max_blocks:
                 self._ring_buffer.pop(0)
-
-        # Beat-Phase akkumulieren (einfache Tempo-Schätzung aus BPM-DB)
-        self._beat_phase += frames
-        if self._beat_phase >= self._samples_per_beat:
-            self._beat_phase -= self._samples_per_beat
-            self._snapshot_pending = True
 
     # --- Feature-Extraktion und HMM-Update ------------------------------------
 
@@ -331,8 +349,10 @@ class AudioProcess:
 
         try:
             from .fingerprint import extract_features_from_array
+            # BPM aus BeatDetector (live gemessen) bevorzugen
+            bpm_for_fingerprint = self.beat_detector.bpm or self._current_bpm
             chroma, mfcc, onset, rms = extract_features_from_array(
-                mono, sr=SAMPLE_RATE, bpm=self._current_bpm
+                mono, sr=SAMPLE_RATE, bpm=bpm_for_fingerprint
             )
         except Exception as exc:
             log.warning("Feature-Extraktion fehlgeschlagen: %s", exc)

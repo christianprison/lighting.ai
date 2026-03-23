@@ -74,10 +74,15 @@ def import_from_repo(
     ref_db = ReferenceDB(ref_db_path)
     log.info("Referenz-DB: %s", ref_db_path)
 
-    # Bars nach song_id gruppieren
+    # Bars nach song_id gruppieren.
+    # Bars haben kein direktes song_id-Feld — es wird aus part_id abgeleitet.
+    # part_id-Format: "{song_id}_P{NNN}" (z.B. "5Ij0Ns_P003" → song_id="5Ij0Ns")
     bars_by_song: dict[str, list[tuple[str, dict]]] = {}
     for bid, b in bars.items():
-        sid = b.get("song_id", "")
+        part_id = b.get("part_id", "")
+        sid = part_id.rsplit("_", 1)[0] if "_" in part_id else part_id
+        if not sid:
+            continue
         if sid not in bars_by_song:
             bars_by_song[sid] = []
         bars_by_song[sid].append((bid, b))
@@ -98,12 +103,41 @@ def import_from_repo(
         song = songs[song_id]
         song_name = song.get("name", "")
         bpm = float(song.get("bpm", 120))
-        song_bars = sorted(bars_by_song.get(song_id, []), key=lambda x: x[1].get("bar_num", 0))
+        song_bars_raw = bars_by_song.get(song_id, [])
 
-        total_bars = len(song_bars)
+        total_bars = len(song_bars_raw)
         if total_bars == 0:
             log.debug("Song %s (%s): keine Takte — übersprungen", song_id, song_name)
             continue
+
+        # Absolute bar_num berechnen:
+        # DB speichert bar_num relativ zum Part (jeder Part beginnt bei 1).
+        # Für die Referenz-DB (HMM) brauchen wir absolute Nummern (Song-weit eindeutig).
+        # Dazu Parts nach pos sortieren und Offset aufaddieren.
+        parts_of_song = song.get("parts", {})
+        sorted_part_ids = sorted(
+            parts_of_song.keys(),
+            key=lambda pid: parts_of_song[pid].get("pos", 0),
+        )
+        # Offset = Summe aller Takte in den vorherigen Parts
+        part_offset: dict[str, int] = {}
+        offset = 0
+        for pid in sorted_part_ids:
+            part_offset[pid] = offset
+            # Zähle Takte die zu diesem Part gehören
+            n_bars_in_part = sum(
+                1 for _, b in song_bars_raw if b.get("part_id") == pid
+            )
+            offset += n_bars_in_part
+
+        # Bars sortiert nach (Part-Position, bar_num-im-Part)
+        def _bar_sort_key(item: tuple[str, dict]) -> tuple[int, int]:
+            _, b = item
+            pid = b.get("part_id", "")
+            part_pos = parts_of_song.get(pid, {}).get("pos", 0) if pid in parts_of_song else 0
+            return (part_pos, b.get("bar_num", 0))
+
+        song_bars = sorted(song_bars_raw, key=_bar_sort_key)
 
         # Song in Referenz-DB anlegen
         ref_db.upsert_song(SongRecord(
@@ -116,11 +150,14 @@ def import_from_repo(
         log.info("Song: %s — %s (%d Takte, %.0f BPM)", song_id, song_name, total_bars, bpm)
 
         for bar_id, bar_data in song_bars:
-            bar_num = bar_data.get("bar_num", 0)
+            part_id = bar_data.get("part_id", "")
+            # Absoluter Takt = Offset des Parts + relativer Takt im Part (1-basiert)
+            bar_num_in_part = bar_data.get("bar_num", 1)
+            bar_num = part_offset.get(part_id, 0) + bar_num_in_part
             audio_rel = bar_data.get("audio", "")
 
-            # Part-Namen aus Audio-Pfad extrahieren
-            part_name = _part_name_from_path(audio_rel)
+            # Part-Namen aus Song-DB (bevorzugt) oder Audio-Pfad (Fallback)
+            part_name = parts_of_song.get(part_id, {}).get("name", "") or _part_name_from_path(audio_rel)
 
             # Bar in Referenz-DB anlegen
             ref_db.upsert_bar(BarRecord(

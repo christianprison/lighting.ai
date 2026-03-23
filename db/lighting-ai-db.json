@@ -7188,7 +7188,7 @@
       "duration": "3:40",
       "duration_sec": 220,
       "notes": "",
-      "lyrics_raw": "",
+      "lyrics_raw": "Strain this chaos turn it into light I've got to see you one last night Before the lions take their share Leave us in pieces, scattered everywhere Just give me a chance to hold on Give me a chance to hold on Give me a chance to hold on Just give me something to hold onto It's so clear now that you are all that I have I have no fear cos you are all that I have It's so clear now that you are all that I have I have no fear cos you are all that I have You're cinematic razor sharp A welcome arrow through the heart Under your skin feels like home Electric shocks on aching bones Give me a chance to hold on Give me a chance to hold on Give me a chance to hold on Just give me something to hold onto It's so clear now that you are all that I have I have no fear cos you are all that I have It's so clear now that you are all that I have I have no fear cos you are all that I have There is a darkness deep in you A frightening magic I cling to Give me a chance to hold on Give me a chance to hold on Give me a chance to hold on Just give me something to hold onto It's so clear now that you are all that I have I have no fear now you are all that I have It's so clear now that you are all that I have I have no fear now you are all that I have",
       "tms": {
         "manual_done": [
           "bar_markers",
@@ -11855,7 +11855,7 @@
     },
     "B0557": {
       "bar_num": 14,
-      "lyrics": "",
+      "lyrics": "turn it into light",
       "audio": "audio/You're all I have/03 Verse 1/014 You're all I have Verse 1.mp3",
       "has_accents": false,
       "song_id": "HDX1IN"
@@ -11878,14 +11878,14 @@
     },
     "B0560": {
       "bar_num": 17,
-      "lyrics": "",
+      "lyrics": "I've got to see",
       "audio": "audio/You're all I have/03 Verse 1/017 You're all I have Verse 1.mp3",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0561": {
       "bar_num": 18,
-      "lyrics": "",
+      "lyrics": "you one last night",
       "audio": "audio/You're all I have/03 Verse 1/018 You're all I have Verse 1.mp3",
       "has_accents": false,
       "song_id": "HDX1IN"
@@ -11908,14 +11908,14 @@
     },
     "B0564": {
       "bar_num": 21,
-      "lyrics": "",
+      "lyrics": "Before the lions",
       "audio": "audio/You're all I have/03 Verse 1/021 You're all I have Verse 1.mp3",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0565": {
       "bar_num": 22,
-      "lyrics": "",
+      "lyrics": "take their share",
       "audio": "audio/You're all I have/03 Verse 1/022 You're all I have Verse 1.mp3",
       "has_accents": false,
       "song_id": "HDX1IN"
@@ -11938,14 +11938,14 @@
     },
     "B0568": {
       "bar_num": 25,
-      "lyrics": "",
+      "lyrics": "Leave us in pieces,",
       "audio": "audio/You're all I have/03 Verse 1/025 You're all I have Verse 1.mp3",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0569": {
       "bar_num": 26,
-      "lyrics": "",
+      "lyrics": "scattered everywhere",
       "audio": "audio/You're all I have/03 Verse 1/026 You're all I have Verse 1.mp3",
       "has_accents": false,
       "song_id": "HDX1IN"
@@ -11960,15 +11960,14 @@
     },
     "B0571": {
       "bar_num": 28,
-      "lyrics": "",
+      "lyrics": "Just\n",
       "audio": "audio/You're all I have/03 Verse 1/028 You're all I have Verse 1.mp3",
       "has_accents": false,
-      "song_id": "HDX1IN",
-      "instrumental": true
+      "song_id": "HDX1IN"
     },
     "B0572": {
       "bar_num": 29,
-      "lyrics": "",
+      "lyrics": "give me a chance to hold on Give",
       "audio": "audio/You're all I have/03 Verse 1/029 You're all I have Verse 1.mp3",
       "has_accents": false,
       "song_id": "HDX1IN"
@@ -12031,56 +12030,56 @@
     },
     "B0840": {
       "bar_num": 32,
-      "lyrics": "",
+      "lyrics": "a chance to hold",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0841": {
       "bar_num": 33,
-      "lyrics": "",
+      "lyrics": "on Just give me\n",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0844": {
       "bar_num": 37,
-      "lyrics": "",
+      "lyrics": "that I have I",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0845": {
       "bar_num": 38,
-      "lyrics": "",
+      "lyrics": "have no fear cos",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0846": {
       "bar_num": 39,
-      "lyrics": "",
+      "lyrics": "you are all that",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0847": {
       "bar_num": 40,
-      "lyrics": "",
+      "lyrics": "I have It's so\n",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0848": {
       "bar_num": 41,
-      "lyrics": "",
+      "lyrics": "clear now that you",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0849": {
       "bar_num": 42,
-      "lyrics": "",
+      "lyrics": "are all that I",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
@@ -12103,14 +12102,14 @@
     },
     "B0855": {
       "bar_num": 49,
-      "lyrics": "",
+      "lyrics": "all that I have",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0856": {
       "bar_num": 50,
-      "lyrics": "",
+      "lyrics": "You're cinematic razor sharp",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
@@ -12133,21 +12132,21 @@
     },
     "B0859": {
       "bar_num": 53,
-      "lyrics": "",
+      "lyrics": "A welcome arrow through",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0860": {
       "bar_num": 54,
-      "lyrics": "",
+      "lyrics": "the heart Under your",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0861": {
       "bar_num": 55,
-      "lyrics": "",
+      "lyrics": "skin feels like home",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
@@ -12162,7 +12161,7 @@
     },
     "B0863": {
       "bar_num": 57,
-      "lyrics": "",
+      "lyrics": "Electric shocks on aching",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
@@ -12177,7 +12176,7 @@
     },
     "B0865": {
       "bar_num": 59,
-      "lyrics": "",
+      "lyrics": "bones Give me a",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
@@ -12192,77 +12191,77 @@
     },
     "B0871": {
       "bar_num": 66,
-      "lyrics": "",
+      "lyrics": "hold on Just give",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0872": {
       "bar_num": 67,
-      "lyrics": "",
+      "lyrics": "me something to hold",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0873": {
       "bar_num": 68,
-      "lyrics": "",
+      "lyrics": "onto It's so clear",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0879": {
       "bar_num": 75,
-      "lyrics": "",
+      "lyrics": "you are all that",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0880": {
       "bar_num": 76,
-      "lyrics": "",
+      "lyrics": "I have I have",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0881": {
       "bar_num": 77,
-      "lyrics": "",
+      "lyrics": "no fear cos you",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0882": {
       "bar_num": 78,
-      "lyrics": "",
+      "lyrics": "are all that I",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0883": {
       "bar_num": 79,
-      "lyrics": "",
+      "lyrics": "have There is a",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0884": {
       "bar_num": 80,
-      "lyrics": "",
+      "lyrics": "darkness deep in you\n",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0885": {
       "bar_num": 81,
-      "lyrics": "",
+      "lyrics": "A frightening magic I",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0886": {
       "bar_num": 82,
-      "lyrics": "",
+      "lyrics": "cling to Give me",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
@@ -12285,14 +12284,14 @@
     },
     "B0889": {
       "bar_num": 85,
-      "lyrics": "",
+      "lyrics": "a chance to hold",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0896": {
       "bar_num": 93,
-      "lyrics": "",
+      "lyrics": "to hold on Just",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
@@ -12355,42 +12354,42 @@
     },
     "B0938": {
       "bar_num": 13,
-      "lyrics": "",
+      "lyrics": "Strain this chaos",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0939": {
       "bar_num": 31,
-      "lyrics": "",
+      "lyrics": "hold on Give me",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0940": {
       "bar_num": 36,
-      "lyrics": "",
+      "lyrics": "that you are all",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0941": {
       "bar_num": 46,
-      "lyrics": "",
+      "lyrics": "fear cos you are",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0942": {
       "bar_num": 65,
-      "lyrics": "",
+      "lyrics": "me a chance to",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0943": {
       "bar_num": 74,
-      "lyrics": "",
+      "lyrics": "so clear now that",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
@@ -12405,7 +12404,7 @@
     },
     "B0945": {
       "bar_num": 101,
-      "lyrics": "",
+      "lyrics": "fear now you are",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
@@ -12419,21 +12418,21 @@
     },
     "B0948": {
       "bar_num": 30,
-      "lyrics": "",
+      "lyrics": "me a chance to",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0949": {
       "bar_num": 34,
-      "lyrics": "",
+      "lyrics": "something to hold onto",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0950": {
       "bar_num": 35,
-      "lyrics": "",
+      "lyrics": "It's so clear now",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
@@ -12456,14 +12455,14 @@
     },
     "B0953": {
       "bar_num": 45,
-      "lyrics": "",
+      "lyrics": "have I have no",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0954": {
       "bar_num": 61,
-      "lyrics": "",
+      "lyrics": "chance to hold on",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
@@ -12478,56 +12477,56 @@
     },
     "B0956": {
       "bar_num": 63,
-      "lyrics": "",
+      "lyrics": "Give me a chance",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0957": {
       "bar_num": 64,
-      "lyrics": "",
+      "lyrics": "to hold on Give\n",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0958": {
       "bar_num": 69,
-      "lyrics": "",
+      "lyrics": "now that you are",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0959": {
       "bar_num": 70,
-      "lyrics": "",
+      "lyrics": "all that I have",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0960": {
       "bar_num": 71,
-      "lyrics": "",
+      "lyrics": "I have no fear",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0961": {
       "bar_num": 72,
-      "lyrics": "",
+      "lyrics": "cos you are all",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0962": {
       "bar_num": 73,
-      "lyrics": "",
+      "lyrics": "that I have It's",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0963": {
       "bar_num": 86,
-      "lyrics": "",
+      "lyrics": "on Give me a",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
@@ -12550,7 +12549,7 @@
     },
     "B0966": {
       "bar_num": 89,
-      "lyrics": "",
+      "lyrics": "chance to hold on",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
@@ -12565,7 +12564,7 @@
     },
     "B0968": {
       "bar_num": 91,
-      "lyrics": "",
+      "lyrics": "Give me a chance",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
@@ -12580,35 +12579,35 @@
     },
     "B0970": {
       "bar_num": 95,
-      "lyrics": "",
+      "lyrics": "give me something to",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0971": {
       "bar_num": 96,
-      "lyrics": "",
+      "lyrics": "hold onto It's so\n",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0972": {
       "bar_num": 97,
-      "lyrics": "",
+      "lyrics": "clear now that you",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0973": {
       "bar_num": 98,
-      "lyrics": "",
+      "lyrics": "are all that I",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0974": {
       "bar_num": 99,
-      "lyrics": "",
+      "lyrics": "have I have no",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
@@ -12623,49 +12622,49 @@
     },
     "B0976": {
       "bar_num": 102,
-      "lyrics": "",
+      "lyrics": "all that I have",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0977": {
       "bar_num": 103,
-      "lyrics": "",
+      "lyrics": "It's so clear now",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0978": {
       "bar_num": 104,
-      "lyrics": "",
+      "lyrics": "that you are all",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0979": {
       "bar_num": 105,
-      "lyrics": "",
+      "lyrics": "that I have I",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0980": {
       "bar_num": 106,
-      "lyrics": "",
+      "lyrics": "have no fear now",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0981": {
       "bar_num": 107,
-      "lyrics": "",
+      "lyrics": "you are all that",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"
     },
     "B0982": {
       "bar_num": 108,
-      "lyrics": "",
+      "lyrics": "I have",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"

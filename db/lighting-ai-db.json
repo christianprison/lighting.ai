@@ -7192,12 +7192,13 @@
       "tms": {
         "manual_done": [
           "bar_markers",
-          "parts_identified"
+          "parts_identified",
+          "instr_parts_identified",
+          "instr_bars_identified",
+          "lyrics_raw"
         ],
         "user_tasks": [],
-        "manual_undone": [
-          "lyrics_raw"
-        ]
+        "manual_undone": []
       },
       "audio_ref": "audio/You're all I have/You're all I have - Full Song.mp3",
       "audio_ref_name": "You're All I Have - 9GTEyj.mp3",

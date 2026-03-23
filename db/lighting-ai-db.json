@@ -6126,7 +6126,8 @@
           "bar_markers",
           "templates_set",
           "parts_identified",
-          "instr_parts_identified"
+          "instr_parts_identified",
+          "instr_bars_identified"
         ],
         "user_tasks": [],
         "manual_undone": []

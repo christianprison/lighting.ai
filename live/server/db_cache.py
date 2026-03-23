@@ -147,6 +147,52 @@ def load_db(cfg: Config) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def push_probe_log(cfg: Config, session_id: str, content: str) -> bool:
+    """Pusht einen Probe-Event-Log als JSON-Datei nach GitHub.
+
+    Legt die Datei unter live/data/probe_logs/{session_id}.json im Repo an
+    oder aktualisiert sie falls sie bereits existiert (SHA wird abgefragt).
+
+    Returns True bei Erfolg, False bei Fehler (offline, kein Token, etc.).
+    """
+    if not cfg.github.token:
+        log.warning("Kein GitHub-Token — Probe-Log wird nicht gepusht")
+        return False
+
+    repo_path = f"live/data/probe_logs/{session_id}.json"
+    url = f"https://api.github.com/repos/{cfg.github.repo}/contents/{repo_path}"
+    headers = {
+        "Authorization": f"Bearer {cfg.github.token}",
+        "Accept": "application/vnd.github.v3+json",
+    }
+    encoded = base64.b64encode(content.encode("utf-8")).decode("ascii")
+
+    # Bestehende SHA abfragen (nötig für Update)
+    sha: str | None = None
+    try:
+        resp = httpx.get(url, headers=headers, timeout=10)
+        if resp.status_code == 200:
+            sha = resp.json().get("sha")
+    except Exception:
+        pass  # Datei existiert noch nicht — kein Problem
+
+    body: dict = {
+        "message": f"probe log: {session_id}",
+        "content": encoded,
+    }
+    if sha:
+        body["sha"] = sha
+
+    try:
+        resp = httpx.put(url, headers=headers, json=body, timeout=30)
+        resp.raise_for_status()
+        log.info("Probe-Log gepusht: %s", repo_path)
+        return True
+    except Exception as exc:
+        log.warning("Probe-Log Push fehlgeschlagen: %s", exc)
+        return False
+
+
 def load_qxw_path(cfg: Config) -> Path:
     """Return path to the cached QXW file."""
     path = _data_dir(cfg) / _CACHE_FILES["qxw"]

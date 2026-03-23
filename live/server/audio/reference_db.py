@@ -136,6 +136,25 @@ class ReferenceDB:
                     onset       BLOB NOT NULL,   -- numpy float32 (16,)
                     rms         REAL NOT NULL
                 );
+
+                CREATE TABLE IF NOT EXISTS probe_events (
+                    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+                    session_id  TEXT NOT NULL,      -- WAV-Dateiname ohne Extension
+                    wav_offset  REAL NOT NULL,       -- Sekunden seit Aufnahmestart
+                    song_id     TEXT NOT NULL DEFAULT '',
+                    bar_num     INTEGER NOT NULL DEFAULT 0,
+                    part_name   TEXT NOT NULL DEFAULT '',
+                    confidence  REAL NOT NULL DEFAULT 0.0,
+                    chroma      BLOB,               -- numpy float32 (12,)
+                    mfcc        BLOB,               -- numpy float32 (20,)
+                    onset       BLOB,               -- numpy float32 (16,)
+                    rms         REAL NOT NULL DEFAULT 0.0,
+                    bpm_live    REAL NOT NULL DEFAULT 0.0,
+                    is_downbeat INTEGER NOT NULL DEFAULT 0
+                );
+
+                CREATE INDEX IF NOT EXISTS idx_probe_events_session
+                    ON probe_events(session_id, wav_offset);
             """)
         log.debug("Reference DB initialised at %s", self.path)
 
@@ -289,6 +308,101 @@ class ReferenceDB:
                    ORDER BY b.song_id, b.bar_num"""
             ).fetchall()
         return [BarRecord(**dict(r)) for r in rows]
+
+    # --- Probe Events -----------------------------------------------------------
+
+    def log_probe_event(
+        self,
+        session_id: str,
+        wav_offset: float,
+        song_id: str,
+        bar_num: int,
+        part_name: str,
+        confidence: float,
+        chroma: "np.ndarray",
+        mfcc: "np.ndarray",
+        onset: "np.ndarray",
+        rms: float,
+        bpm_live: float,
+        is_downbeat: bool,
+    ) -> None:
+        """Loggt eine HMM-Entscheidung mit allen Feature-Daten."""
+        with self._conn() as con:
+            con.execute(
+                """INSERT INTO probe_events
+                   (session_id, wav_offset, song_id, bar_num, part_name,
+                    confidence, chroma, mfcc, onset, rms, bpm_live, is_downbeat)
+                   VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
+                (
+                    session_id,
+                    wav_offset,
+                    song_id,
+                    bar_num,
+                    part_name,
+                    confidence,
+                    _blob(chroma),
+                    _blob(mfcc),
+                    _blob(onset),
+                    float(rms),
+                    float(bpm_live),
+                    int(is_downbeat),
+                ),
+            )
+
+    def export_probe_session(self, session_id: str) -> dict:
+        """Exportiert alle Events einer Session als JSON-serialisierbares dict."""
+        with self._conn() as con:
+            rows = con.execute(
+                """SELECT wav_offset, song_id, bar_num, part_name, confidence,
+                          chroma, mfcc, onset, rms, bpm_live, is_downbeat
+                   FROM probe_events
+                   WHERE session_id = ?
+                   ORDER BY wav_offset""",
+                (session_id,),
+            ).fetchall()
+
+        events = []
+        for r in rows:
+            events.append({
+                "wav_offset": round(r["wav_offset"], 3),
+                "song_id": r["song_id"],
+                "bar_num": r["bar_num"],
+                "part_name": r["part_name"],
+                "confidence": round(r["confidence"], 4),
+                "chroma": _from_blob(r["chroma"]).tolist(),
+                "mfcc": _from_blob(r["mfcc"]).tolist(),
+                "onset": _from_blob(r["onset"]).tolist(),
+                "rms": round(r["rms"], 6),
+                "bpm_live": round(r["bpm_live"], 2),
+                "is_downbeat": bool(r["is_downbeat"]),
+            })
+
+        return {
+            "session_id": session_id,
+            "event_count": len(events),
+            "events": events,
+        }
+
+    def list_probe_sessions(self) -> list[dict]:
+        """Listet alle vorhandenen Probe-Sessions."""
+        with self._conn() as con:
+            rows = con.execute(
+                """SELECT session_id,
+                          COUNT(*) as event_count,
+                          MIN(wav_offset) as start_offset,
+                          MAX(wav_offset) as end_offset
+                   FROM probe_events
+                   GROUP BY session_id
+                   ORDER BY session_id DESC"""
+            ).fetchall()
+        return [
+            {
+                "session_id": r["session_id"],
+                "event_count": r["event_count"],
+                "duration_sec": round(r["end_offset"] - r["start_offset"], 1),
+            }
+            for r in rows
+        ]
 
     # --- Stats ------------------------------------------------------------------
 

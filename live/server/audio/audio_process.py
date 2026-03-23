@@ -376,6 +376,28 @@ class AudioProcess:
         # HMM-Update
         state: HMMState = self.hmm.update(chroma, mfcc, onset)
 
+        # Probe-Event in SQLite loggen
+        rec = self.recorder._info
+        if rec is not None and state.song_id:
+            wav_offset = time.time() - rec.started_at_ts
+            try:
+                self.db.log_probe_event(
+                    session_id=rec.session_id,
+                    wav_offset=wav_offset,
+                    song_id=state.song_id,
+                    bar_num=state.bar_num,
+                    part_name=state.part_name,
+                    confidence=state.confidence,
+                    chroma=chroma,
+                    mfcc=mfcc,
+                    onset=onset,
+                    rms=float(rms),
+                    bpm_live=self.beat_detector.bpm or self._current_bpm,
+                    is_downbeat=self._snapshot_pending is False,  # wurde durch Downbeat getriggert
+                )
+            except Exception as exc:
+                log.warning("Probe-Event konnte nicht geloggt werden: %s", exc)
+
         # Ergebnis in asyncio-Queue schieben
         update = PositionUpdate(
             song_id=state.song_id,

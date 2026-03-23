@@ -7567,11 +7567,13 @@
         "part_starts": [
           {
             "bar_num": 1,
-            "name": "Synth Intro"
+            "name": "Synth Intro",
+            "instrumental": true
           },
           {
             "bar_num": 5,
-            "name": "Intro"
+            "name": "Intro",
+            "instrumental": true
           },
           {
             "bar_num": 13,
@@ -7599,7 +7601,8 @@
           },
           {
             "bar_num": 81,
-            "name": "Interkude"
+            "name": "Interkude",
+            "instrumental": true
           },
           {
             "bar_num": 89,

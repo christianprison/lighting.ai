@@ -7584,7 +7584,7 @@
             "name": "Bridge 1"
           },
           {
-            "bar_num": 34,
+            "bar_num": 33,
             "name": "Chorus 1"
           },
           {
@@ -11967,7 +11967,7 @@
     },
     "B0572": {
       "bar_num": 29,
-      "lyrics": "give me a chance to hold on Give",
+      "lyrics": "give me a chance to hold on",
       "audio": "audio/You're all I have/03 Verse 1/029 You're all I have Verse 1.mp3",
       "has_accents": false,
       "song_id": "HDX1IN"
@@ -12418,7 +12418,7 @@
     },
     "B0948": {
       "bar_num": 30,
-      "lyrics": "me a chance to",
+      "lyrics": "Give me a chance to",
       "audio": "",
       "has_accents": false,
       "song_id": "HDX1IN"

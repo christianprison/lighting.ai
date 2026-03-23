@@ -6560,47 +6560,58 @@
           },
           {
             "bar_num": 42,
-            "name": "Hail to the Freaks"
+            "name": "Hail to the Freaks",
+            "light_template": "02 slow blue"
           },
           {
             "bar_num": 46,
-            "name": "Verse 2"
+            "name": "Verse 2",
+            "light_template": "05 left'n'right"
           },
           {
             "bar_num": 58,
-            "name": "Bridge 2"
+            "name": "Bridge 2",
+            "light_template": "06 blinking"
           },
           {
             "bar_num": 67,
-            "name": "Chorus 2"
+            "name": "Chorus 2",
+            "light_template": "09 Alarm"
           },
           {
             "bar_num": 71,
-            "name": "Interlude"
+            "name": "Interlude",
+            "light_template": "04 up'n'down"
           },
           {
             "bar_num": 77,
-            "name": "Chorus 3"
+            "name": "Chorus 3",
+            "light_template": "09 Alarm"
           },
           {
             "bar_num": 81,
-            "name": "Bass + Drums"
+            "name": "Bass + Drums",
+            "light_template": "Spot auf Bibo"
           },
           {
             "bar_num": 85,
-            "name": "Solo Axel"
+            "name": "Solo Axel",
+            "light_template": "Spot auf Axel"
           },
           {
             "bar_num": 97,
-            "name": "Bridge 3 (Hail to the freaks)"
+            "name": "Bridge 3 (Hail to the freaks)",
+            "light_template": "06 blinking"
           },
           {
             "bar_num": 106,
-            "name": "Chorus 4"
+            "name": "Chorus 4",
+            "light_template": "09 Alarm"
           },
           {
             "bar_num": 110,
-            "name": "Interlude 2"
+            "name": "Interlude 2",
+            "light_template": "04 up'n'down"
           },
           {
             "bar_num": 116,

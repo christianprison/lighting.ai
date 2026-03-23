@@ -263,9 +263,19 @@ class AudioProcess:
                 log.info("Audio-Stream geöffnet: %s @ %d Hz, %d ch", self._device_name, SAMPLE_RATE, CHANNELS_TOTAL)
                 self._send_status()
 
+                # Aufnahme automatisch starten
+                from datetime import datetime
+                label = datetime.now().strftime("probe_%Y-%m-%d")
+                try:
+                    self.recorder.start(label=label)
+                except RuntimeError as exc:
+                    log.warning("Aufnahme konnte nicht gestartet werden: %s", exc)
+
                 while not self._stop_event.is_set():
                     self._process_ring_buffer()
                     time.sleep(0.01)  # 10ms polling interval
+
+                self.recorder.stop()
 
         except Exception as exc:
             self._error = str(exc)

@@ -198,6 +198,60 @@ class MultitrackRecorder:
                 ),
             }
 
+    def mixdown(self, source_filename: str) -> dict:
+        """Erstellt einen Stereo-Mixdown einer 18-Kanal-WAV-Aufnahme.
+
+        Alle 18 Kanäle werden gleichgewichtet summiert (L = ungerade Kanäle,
+        R = gerade Kanäle, analog zur üblichen Stereo-Panning-Konvention beim
+        XR18: L-Bus auf ungerade USB-Kanäle, R-Bus auf gerade).
+        Das Ergebnis wird peak-normalisiert und als neue WAV-Datei gespeichert.
+
+        Parameters
+        ----------
+        source_filename:
+            Dateiname (ohne Pfad) der 18-Kanal-Quelldatei.
+
+        Returns
+        -------
+        dict mit ``path``, ``filename``, ``duration_sec``, ``size_mb``.
+        """
+        try:
+            import soundfile as sf  # type: ignore
+        except ImportError as exc:
+            raise RuntimeError("soundfile nicht installiert.") from exc
+
+        src = self.recordings_dir / source_filename
+        if not src.exists():
+            raise FileNotFoundError(f"Quelldatei nicht gefunden: {src}")
+
+        data, sr = sf.read(str(src), dtype="float32", always_2d=True)
+        n_ch = data.shape[1]
+
+        # Stereo-Summierung: L = Kanäle 0,2,4,…  R = Kanäle 1,3,5,…
+        left  = data[:, 0:n_ch:2].mean(axis=1)
+        right = data[:, 1:n_ch:2].mean(axis=1) if n_ch > 1 else left.copy()
+
+        stereo = np.stack([left, right], axis=1)
+
+        # Peak-Normalisierung auf -1 dBFS
+        peak = np.abs(stereo).max()
+        if peak > 0:
+            stereo *= (10 ** (-1 / 20)) / peak
+
+        dest_name = src.stem + "_mixdown.wav"
+        dest = self.recordings_dir / dest_name
+        sf.write(str(dest), stereo, sr, subtype="FLOAT")
+
+        size_mb = round(dest.stat().st_size / 1_048_576, 1)
+        duration_sec = round(len(stereo) / sr, 1)
+        log.info("Mixdown erstellt: %s (%.1f s, %.1f MB)", dest, duration_sec, size_mb)
+        return {
+            "filename": dest_name,
+            "path": str(dest),
+            "duration_sec": duration_sec,
+            "size_mb": size_mb,
+        }
+
     def list_recordings(self) -> list[dict]:
         """Listet alle vorhandenen WAV-Dateien im Recordings-Verzeichnis."""
         if not self.recordings_dir.exists():

@@ -425,7 +425,7 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
     <div class="badges">
       <div class="badge live" id="badgeLive"><div class="pulse"></div>LIVE</div>
       <div class="badge" id="badgeQlc">QLC+ &#x25CF;</div>
-      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.03.26p</div>
+      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.03.26q</div>
     </div>
     <div class="beat-area">
       <div class="beat-row">
@@ -684,7 +684,7 @@ function renderParts() {
       else if (i === activeIdx + 1) cls = 'next';
     }
     var badge = p.bars ? p.bars + '\u00a0T' : '';
-    h += '<div class="part ' + cls + '" style="min-height:48px" data-part-name="' + escHtml(p.name) + '">';
+    h += '<div class="part ' + cls + '" style="min-height:48px" data-part-name="' + escHtml(p.name) + '" data-light-template="' + escHtml(p.light_template || '') + '">';
     h += '<span class="part-n">' + (i + 1) + '</span>';
     h += '<div class="part-body">';
     h += '<span class="part-name">' + escHtml(p.name) + '</span>';
@@ -900,26 +900,22 @@ document.getElementById('setlist').addEventListener('click', function(e) {
   if (sid) sendCmd('select_song', { song_id: sid });
 });
 
-// Parts click — Part-Name → passenden QLC+-Step suchen und anspringen
+// Parts click — light_template → OSC-Befehl senden
 document.getElementById('parts').addEventListener('click', function(e) {
   var partEl = e.target.closest('.part');
   if (!partEl) return;
-  var partName = partEl.dataset.partName || '';
-  var sid = state.current_song_id;
-  if (!partName || !sid) return;
-  var chaser = qlcMapping[sid];
-  if (chaser) {
-    var steps = chaser.steps || [];
-    var pnLower = partName.toLowerCase().trim();
-    for (var i = 0; i < steps.length; i++) {
-      if ((steps[i].note || '').toLowerCase().trim() === pnLower) {
-        sendCmd('goto', { step: i });
-        return;
-      }
-    }
+  var tpl = partEl.dataset.lightTemplate || '';
+  if (!tpl) {
+    console.warn('Part hat kein light_template:', partEl.dataset.partName);
+    return;
   }
-  // Kein QLC+-Step mit passendem Note-Feld → kein Kommando, nur Log
-  console.warn('Kein QLC+-Step für Part:', partName);
+  fetch('/api/osc/send_template', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({template: tpl})
+  }).then(function(r) { return r.json(); }).then(function(d) {
+    if (!d.ok) console.warn('send_template Fehler:', d);
+  }).catch(function(err) { console.error('send_template:', err); });
 });
 
 // Timeline step click

@@ -425,7 +425,7 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
     <div class="badges">
       <div class="badge live" id="badgeLive"><div class="pulse"></div>LIVE</div>
       <div class="badge" id="badgeQlc">QLC+ &#x25CF;</div>
-      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.03.26o</div>
+      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.03.26p</div>
     </div>
     <div class="beat-area">
       <div class="beat-row">
@@ -532,6 +532,8 @@ function connectWS() {
     if (msg.type === 'state') {
       state = msg.data;
       renderAll();
+    } else if (msg.type === 'beat_update') {
+      handleBeatUpdate(msg);
     }
   };
   ws.onclose = function() {
@@ -648,40 +650,47 @@ function renderSetlist() {
   if (active) scrollIntoContainer(el, active);
 }
 
-// ─── Render: Parts (left panel) ───────────────
+// ─── Render: Parts (left panel) — aus DB, nicht aus QLC+-Steps ───
 function renderParts() {
   var el = document.getElementById('parts');
   var sid = state.current_song_id;
-  var hasMap = !!qlcMapping[sid];
-  if (!sid || !hasMap) {
+  if (!sid || !songs[sid]) {
     el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--t3)">Kein Song ausgew\u00e4hlt</div>';
     return;
   }
-  var chaser = qlcMapping[sid];
-  var steps = chaser.steps || [];
-  var curStep = state.current_step || 0;
+  var partsList = Object.values(songs[sid].parts || {})
+    .sort(function(a, b) { return (a.pos || 0) - (b.pos || 0); });
+  if (!partsList.length) {
+    el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--t3)">Keine Parts in der DB</div>';
+    return;
+  }
+
+  // Aktiver Part: state.current_part_name mit DB-Partname abgleichen
+  var activeName = (state.current_part_name || '').toLowerCase().trim();
+  var activeIdx = -1;
+  if (activeName) {
+    for (var i = 0; i < partsList.length; i++) {
+      if (partsList[i].name.toLowerCase().trim() === activeName) { activeIdx = i; break; }
+    }
+  }
+
   var h = '';
-  for (var i = 0; i < steps.length; i++) {
-    var s = steps[i];
+  for (var i = 0; i < partsList.length; i++) {
+    var p = partsList[i];
     var cls = '';
-    if (s.is_title) cls = 'done';
-    else if (i < curStep) cls = 'done';
-    else if (i === curStep) cls = 'active';
-    else if (i === curStep + 1) cls = 'next';
-
-    var holdLabel = '';
-    if (s.is_manual) holdLabel = 'MANUAL';
-    else if (s.hold_sec !== null && s.hold_sec !== undefined) holdLabel = s.hold_sec + 's';
-
-    var name = s.note || s.function_name || '\u2014';
-    var info = (s.note && s.function_name) ? s.function_name : '';
-
-    h += '<div class="part ' + cls + '" style="min-height:42px" data-step="' + i + '">';
+    if (activeIdx >= 0) {
+      if (i < activeIdx) cls = 'done';
+      else if (i === activeIdx) cls = 'active';
+      else if (i === activeIdx + 1) cls = 'next';
+    }
+    var badge = p.bars ? p.bars + '\u00a0T' : '';
+    h += '<div class="part ' + cls + '" style="min-height:48px" data-part-name="' + escHtml(p.name) + '">';
     h += '<span class="part-n">' + (i + 1) + '</span>';
-    h += '<div class="part-body"><span class="part-name">' + escHtml(name) + '</span>';
-    if (info) h += '<span class="part-info">' + escHtml(info) + '</span>';
+    h += '<div class="part-body">';
+    h += '<span class="part-name">' + escHtml(p.name) + '</span>';
+    if (p.light_template) h += '<span class="part-info">' + escHtml(p.light_template) + '</span>';
     h += '</div>';
-    h += '<span class="part-badge">' + holdLabel + '</span>';
+    h += '<span class="part-badge">' + badge + '</span>';
     h += '</div>';
   }
   el.innerHTML = h;
@@ -844,6 +853,43 @@ function restartBeatSim(bpm) {
   }, Math.round(60000 / bpm));
 }
 
+// ─── Beat-Update vom Server (XR18-Takterkennung) ──────────────
+var tlBarAtPartStart = 0;  // bar_num beim letzten Part-Wechsel
+var tlLastStep = -1;       // letzter current_step bei dem wir zurückgesetzt haben
+
+function handleBeatUpdate(msg) {
+  // Beat-Visualisierung live vom Server statt Simulation
+  if (msg.beat_num) {
+    beat = msg.beat_num;
+    updateBeats();
+    if (msg.bpm && msg.bpm > 0) restartBeatSim(msg.bpm);
+  }
+  // Timeline-Scroll auf Downbeat
+  if (msg.is_downbeat) {
+    var curStep = state.current_step || 0;
+    var barNum = msg.bar_num || 0;
+    if (curStep !== tlLastStep) {
+      // Neuer Part → Zähler auf aktuellen bar_num zurücksetzen
+      tlBarAtPartStart = barNum;
+      tlLastStep = curStep;
+    }
+    var barInPart = barNum - tlBarAtPartStart;
+    scrollTimelineToBarInPart(barInPart);
+  }
+}
+
+function scrollTimelineToBarInPart(barInPart) {
+  var tlScrollEl = document.getElementById('tlScroll');
+  if (!tlScrollEl) return;
+  var activeBars = document.querySelectorAll('#tlBars .tl-bar.active');
+  if (!activeBars.length) return;
+  var idx = Math.min(Math.max(barInPart, 0), activeBars.length - 1);
+  var target = activeBars[idx];
+  if (target) {
+    tlScrollEl.scrollLeft = target.offsetLeft - tlScrollEl.clientWidth / 2 + target.offsetWidth / 2;
+  }
+}
+
 // ─── Event Handlers ───────────────────────────
 
 // Setlist click
@@ -854,12 +900,26 @@ document.getElementById('setlist').addEventListener('click', function(e) {
   if (sid) sendCmd('select_song', { song_id: sid });
 });
 
-// Parts click
+// Parts click — Part-Name → passenden QLC+-Step suchen und anspringen
 document.getElementById('parts').addEventListener('click', function(e) {
   var partEl = e.target.closest('.part');
   if (!partEl) return;
-  var idx = parseInt(partEl.dataset.step, 10);
-  if (!isNaN(idx)) sendCmd('goto', { step: idx });
+  var partName = partEl.dataset.partName || '';
+  var sid = state.current_song_id;
+  if (!partName || !sid) return;
+  var chaser = qlcMapping[sid];
+  if (chaser) {
+    var steps = chaser.steps || [];
+    var pnLower = partName.toLowerCase().trim();
+    for (var i = 0; i < steps.length; i++) {
+      if ((steps[i].note || '').toLowerCase().trim() === pnLower) {
+        sendCmd('goto', { step: i });
+        return;
+      }
+    }
+  }
+  // Kein QLC+-Step mit passendem Note-Feld → kein Kommando, nur Log
+  console.warn('Kein QLC+-Step für Part:', partName);
 });
 
 // Timeline step click

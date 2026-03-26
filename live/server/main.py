@@ -463,13 +463,17 @@ async def get_audio_devices():
     """
     from .audio.audio_process import AudioProcess
     devices = AudioProcess.list_devices()
+    # XR18 nur per Name erkennen — Kanalzahl allein reicht nicht (andere Geräte/JACK haben auch 18+)
     xr18_candidates = [d for d in devices if "xr18" in d.get("name", "").lower()
-                       or "behringer" in d.get("name", "").lower()
-                       or d.get("channels_in", 0) >= 18]
+                       or "behringer" in d.get("name", "").lower()]
+    other_18ch = [d for d in devices if d.get("channels_in", 0) >= 18
+                  and "xr18" not in d.get("name", "").lower()
+                  and "behringer" not in d.get("name", "").lower()]
     return {
         "devices": devices,
         "xr18_detected": len(xr18_candidates) > 0,
         "xr18_candidates": xr18_candidates,
+        "other_18ch_devices": other_18ch,
     }
 
 

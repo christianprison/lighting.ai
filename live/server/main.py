@@ -14,8 +14,8 @@ from pydantic import BaseModel
 
 from .config import load_config, Config
 from .db_cache import sync, load_db, load_qxw_path, push_probe_log
-from .qlc_parser import parse, qlc_data_to_dict, QlcData, ACCENT_FUNCTIONS
-from .qlc_osc import QlcOsc
+from .qlc_parser import parse, qlc_data_to_dict, QlcData, ACCENT_FUNCTIONS, BASE_COLLECTIONS
+from .qlc_osc import QlcOsc, FUNCTION_TO_COLLECTION
 from .ws_handler import WsHandler
 from .audio.reference_db import ReferenceDB, DEFAULT_DB_PATH
 from .audio.audio_process import AudioProcess, PositionUpdate, BeatUpdate, AudioStatus
@@ -450,6 +450,39 @@ async def osc_send(req: OscSendRequest):
     except Exception as exc:
         log.error("OSC send failed: %s", exc)
         return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+class OscSendTemplateRequest(BaseModel):
+    template: str  # light_template name, e.g. "03 walking"
+
+
+@app.post("/api/osc/send_template")
+async def osc_send_template(req: OscSendTemplateRequest):
+    """Trigger QLC+ by light_template name (from DB part).
+
+    Looks up the function_id in BASE_COLLECTIONS, then the collection_id
+    in FUNCTION_TO_COLLECTION, and fires the OSC trigger via the active QLC client.
+    """
+    # Find function_id for this template name
+    function_id: int | None = None
+    for fid, tname in BASE_COLLECTIONS.items():
+        if tname == req.template:
+            function_id = fid
+            break
+
+    if function_id is None:
+        log.warning("send_template: unknown template '%s'", req.template)
+        return JSONResponse({"error": f"Unknown template: {req.template}"}, status_code=404)
+
+    if qlc is None or not qlc.connected:
+        return JSONResponse({"error": "QLC+ OSC not connected"}, status_code=503)
+
+    ok = await qlc.trigger_function_async(function_id)
+    if ok:
+        log.info("send_template '%s' → function %d triggered", req.template, function_id)
+        return {"ok": True, "template": req.template, "function_id": function_id}
+    else:
+        return JSONResponse({"error": f"No collection mapping for function {function_id}"}, status_code=500)
 
 
 # --- Audio Engine API ---

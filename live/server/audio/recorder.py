@@ -30,6 +30,8 @@ from typing import Optional
 
 import numpy as np
 
+from .event_logger import SessionEventLogger
+
 log = logging.getLogger("live.audio.recorder")
 
 DEFAULT_RECORDINGS_DIR = Path(__file__).resolve().parent.parent.parent / "data" / "recordings"
@@ -82,6 +84,7 @@ class MultitrackRecorder:
         self._lock = threading.Lock()
         self._sf_file: Optional[object] = None   # soundfile.SoundFile
         self._info: Optional[RecordingInfo] = None
+        self.event_logger: Optional[SessionEventLogger] = None
 
     # --- Public API (aufgerufen vom FastAPI-Thread) ----------------------------
 
@@ -133,17 +136,31 @@ class MultitrackRecorder:
                 subtype="FLOAT",
             )
 
+            started_ts = time.time()
             self._info = RecordingInfo(
                 label=label,
                 song_id=song_id,
                 path=str(path),
                 started_at=now.isoformat(),
-                started_at_ts=time.time(),
+                started_at_ts=started_ts,
                 channels=self.channels,
                 sample_rate=self.sample_rate,
                 blocks_written=0,
                 running=True,
             )
+
+            # Event-Logger: JSONL-Datei neben der WAV
+            jsonl_path = path.with_suffix(".jsonl")
+            self.event_logger = SessionEventLogger(jsonl_path, started_ts)
+            self.event_logger.log(
+                "session_start",
+                label=label,
+                song_id=song_id,
+                wav=path.name,
+                channels=self.channels,
+                sample_rate=self.sample_rate,
+            )
+
             log.info("Recording gestartet: %s", path)
             return self._info
 
@@ -288,5 +305,14 @@ class MultitrackRecorder:
                 "Recording beendet: %s (%.1f s, %d Blöcke)",
                 info.path, duration, info.blocks_written,
             )
+            if self.event_logger is not None:
+                self.event_logger.log(
+                    "session_end",
+                    duration_sec=duration,
+                    blocks=info.blocks_written,
+                )
+        if self.event_logger is not None:
+            self.event_logger.close()
+            self.event_logger = None
         self._info = None
         return info  # type: ignore[return-value]

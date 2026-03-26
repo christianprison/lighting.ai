@@ -73,6 +73,7 @@ class BeatEvent:
     is_downbeat: bool    # True wenn Beat 1 (Taktanfang)
     is_fill: bool        # True wenn Tom-Fill erkannt (Phrasenende)
     bar_num: int         # Taktnummer seit Start (0-basiert)
+    trigger: str = "timer"  # "kick" | "overhead" | "timer"
     timestamp: float = field(default_factory=time.time)
 
 
@@ -286,20 +287,20 @@ class BeatDetector:
 
         if kick_onset:
             self._last_kick_sample = self._total_samples
-            emitted = self._pll_update(is_fill, events)
+            emitted = self._pll_update(is_fill, events, trigger="kick")
             beat_emitted = emitted
 
         if not beat_emitted and oh_onset:
             # Overhead als Fallback nur wenn keine Kick-Info in letzter Zeit
             samples_since_kick = self._total_samples - self._last_kick_sample
             if samples_since_kick > self._beat_period * 1.5:
-                self._pll_update(is_fill, events)
+                self._pll_update(is_fill, events, trigger="overhead")
                 beat_emitted = True
 
         # Zeitbasierter Fallback: Beat erwürfeln wenn Phase überschritten
         if not beat_emitted and self._beat_phase >= self._beat_period:
             self._beat_phase -= self._beat_period
-            events.append(self._make_event(is_fill))
+            events.append(self._make_event(is_fill, trigger="timer"))
 
         # --- Snare-Downbeat-Korrektur ---
         if snare_onset:
@@ -312,7 +313,7 @@ class BeatDetector:
     def _bpm_to_period(self, bpm: float) -> float:
         return self._sr * 60.0 / bpm
 
-    def _pll_update(self, is_fill: bool, events: list[BeatEvent]) -> bool:
+    def _pll_update(self, is_fill: bool, events: list[BeatEvent], trigger: str = "kick") -> bool:
         """PLL-Schritt bei erkanntem Onset.
 
         Prüft ob der Onset nahe genug am erwarteten Beat liegt.
@@ -341,12 +342,12 @@ class BeatDetector:
             # Phase zurücksetzen
             self._beat_phase -= expected
 
-            events.append(self._make_event(is_fill))
+            events.append(self._make_event(is_fill, trigger=trigger))
             return True
 
         return False
 
-    def _make_event(self, is_fill: bool) -> BeatEvent:
+    def _make_event(self, is_fill: bool, trigger: str = "timer") -> BeatEvent:
         """Erzeugt BeatEvent und inkrementiert Beat/Bar-Zähler."""
         ev = BeatEvent(
             beat_num=self._beat_num,
@@ -354,6 +355,7 @@ class BeatDetector:
             is_downbeat=(self._beat_num == 1),
             is_fill=is_fill,
             bar_num=self._bar_num,
+            trigger=trigger,
         )
         self._beat_num += 1
         if self._beat_num > 4:

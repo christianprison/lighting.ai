@@ -239,6 +239,27 @@ cursor:pointer;transition:all .12s;position:relative;overflow:hidden}
 .cfg-btn .ch{font-family:'DM Mono',monospace;font-size:9px;color:var(--t4)}
 .cfg-btn.flash .ch{color:var(--green)}
 
+/* ═══ XR18 STATUS IN CONFIG ═══ */
+.xr18-checks{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.xr18-check{display:flex;align-items:baseline;gap:8px;font-family:'DM Mono',monospace;font-size:11px;color:var(--t2)}
+.xr18-check .xc-i{width:12px;flex-shrink:0;font-style:normal}
+.xr18-check.ok{color:var(--green)}.xr18-check.warn{color:var(--amber)}.xr18-check.err{color:var(--red)}
+.xr18-check em{font-style:normal;color:var(--t3)}
+.xr18-badge{font-family:'DM Mono',monospace;font-size:11px;font-weight:500;padding:4px 12px;border-radius:12px;display:inline-block;margin-bottom:10px}
+.xr18-badge.ok{background:var(--green3);color:var(--green);border:1px solid var(--green)}
+.xr18-badge.warn{background:var(--amber2);color:var(--amber);border:1px solid var(--amber)}
+.xr18-badge.err{background:#ff3b5c15;color:var(--red);border:1px solid var(--red)}
+.xr18-badge.loading{background:var(--bg3);color:var(--t3);border:1px solid var(--border2)}
+.cfg-vu-wrap{display:flex;gap:2px;align-items:flex-end;height:64px;margin-top:8px}
+.cfg-vu-ch{display:flex;flex-direction:column;align-items:center;gap:2px;flex:1;min-width:0}
+.cfg-vu-bar-wrap{width:100%;flex:1;background:var(--bg3);border-radius:2px;overflow:hidden;min-height:50px;position:relative}
+.cfg-vu-fill{width:100%;border-radius:2px;position:absolute;bottom:0;transition:height .12s}
+.cfg-vu-fill.sig{background:var(--cyan)}
+.cfg-vu-fill.mix{background:var(--green)}
+.cfg-vu-fill.high{background:var(--amber)}
+.cfg-vu-lbl{font-family:'DM Mono',monospace;font-size:7px;color:var(--t4);text-align:center;line-height:1;white-space:nowrap;overflow:hidden;width:100%}
+.cfg-vu-ch.mix .cfg-vu-lbl{color:var(--green);font-weight:600}
+
 /* ═══ CONNECTION / WARMUP OVERLAY ═══ */
 .conn-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(8,9,13,.85);
 display:none;align-items:center;justify-content:center;z-index:100;flex-direction:column;gap:16px;
@@ -329,18 +350,36 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
 <div class="cfg-overlay" id="cfgOverlay">
 <div class="cfg-modal">
   <div class="cfg-header">
-    <h2>QLC+ OSC Config</h2>
+    <h2>Setup</h2>
     <button class="cfg-close" onclick="toggleConfig()">&times;</button>
   </div>
-  <div class="cfg-bar">
-    <label>Host <input type="text" id="oscHost" value="127.0.0.1"></label>
-    <label>Port <input type="number" id="oscPort" value="7700"></label>
-    <label>Universe <input type="number" id="oscUni" value="1"></label>
-    <div class="cfg-status" id="cfgConnStatus">...</div>
+
+  <!-- XR18 Section -->
+  <div class="cfg-group">
+    <div class="cfg-group-title" style="display:flex;justify-content:space-between;align-items:center">
+      XR18 Audio
+      <button onclick="refreshXR18Status()" style="font-family:'DM Mono',monospace;font-size:9px;color:var(--t3);background:transparent;border:1px solid var(--border);border-radius:3px;padding:2px 8px;cursor:pointer;letter-spacing:1px">&#x21BB; REFRESH</button>
+    </div>
+    <div id="xr18Badge" class="xr18-badge loading">&#x2022;&#x2022;&#x2022;</div>
+    <div class="xr18-checks" id="xr18Checks"></div>
+    <div class="cfg-vu-wrap" id="xr18VuBars"></div>
+    <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--t4);margin-top:5px" id="xr18DevName"></div>
   </div>
-  <div class="cfg-info">
-    QLC+ &rarr; Button &rarr; External Input &rarr; Auto-Detect &rarr; hier klicken.
+
+  <!-- QLC+ Section -->
+  <div class="cfg-group">
+    <div class="cfg-group-title">QLC+ OSC</div>
+    <div class="cfg-bar" style="border:none;padding:0;margin-bottom:8px">
+      <label>Host <input type="text" id="oscHost" value="127.0.0.1"></label>
+      <label>Port <input type="number" id="oscPort" value="7700"></label>
+      <label>Universe <input type="number" id="oscUni" value="1"></label>
+      <div class="cfg-status" id="cfgConnStatus">...</div>
+    </div>
+    <div class="cfg-info" style="margin-bottom:8px">
+      QLC+ &rarr; Button &rarr; External Input &rarr; Auto-Detect &rarr; hier klicken.
+    </div>
   </div>
+
   <div id="cfgGroups"></div>
 </div>
 </div>
@@ -386,7 +425,7 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
     <div class="badges">
       <div class="badge live" id="badgeLive"><div class="pulse"></div>LIVE</div>
       <div class="badge" id="badgeQlc">QLC+ &#x25CF;</div>
-      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.03.26n</div>
+      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.03.26o</div>
     </div>
     <div class="beat-area">
       <div class="beat-row">
@@ -987,6 +1026,95 @@ function renderCfgButtons() {
   container.innerHTML = html;
 }
 
+// ─── XR18 Status im Config-Modal ──────────────
+var xr18PollTimer = null;
+
+async function refreshXR18Status() {
+  try {
+    var devData = await fetchJSON('/api/audio/devices');
+    var levelsData = await fetchJSON('/api/audio/levels');
+    renderXR18Status(devData, levelsData);
+  } catch(e) {
+    var badge = document.getElementById('xr18Badge');
+    badge.className = 'xr18-badge err';
+    badge.textContent = 'Server nicht erreichbar';
+  }
+}
+
+function renderXR18Status(devData, levelsData) {
+  var badge = document.getElementById('xr18Badge');
+  var checksEl = document.getElementById('xr18Checks');
+  var vuEl = document.getElementById('xr18VuBars');
+  var devNameEl = document.getElementById('xr18DevName');
+
+  var channels = levelsData.channels || [];
+  var streamActive = !!levelsData.stream_active;
+  var xr18ok = !!(devData && devData.xr18_detected);
+  var chCount = channels.length;
+
+  var mixLrms = chCount >= 17 ? (channels[16].rms || 0) : 0;
+  var mixRrms = chCount >= 18 ? (channels[17].rms || 0) : 0;
+  var mixSignal = Math.max(mixLrms, mixRrms) > 0.001;
+
+  var mixLdb = chCount >= 17 ? channels[16].dbfs : null;
+  var mixRdb = chCount >= 18 ? channels[17].dbfs : null;
+
+  // Device name
+  var dname = (devData.xr18_candidates && devData.xr18_candidates[0])
+    ? devData.xr18_candidates[0].name
+    : (devData.devices && devData.devices[0] ? devData.devices[0].name : '');
+  devNameEl.textContent = dname ? 'Device: ' + dname : '';
+
+  // Status-Checks
+  var chk = [
+    { s: xr18ok ? 'ok' : 'err',
+      t: 'XR18 als Audio-Device erkannt' },
+    { s: streamActive ? 'ok' : (xr18ok ? 'warn' : 'err'),
+      t: '18-Kanal USB-Stream aktiv' },
+    { s: chCount >= 18 ? 'ok' : (chCount > 0 ? 'warn' : 'err'),
+      t: '18 Kan\u00e4le verf\u00fcgbar' + (chCount > 0 && chCount < 18 ? ' \u2014 aktuell: ' + chCount : '') },
+    { s: mixSignal ? 'ok' : (streamActive ? 'warn' : 'err'),
+      t: 'CH17+18 haben Signal (Main L/R)',
+      hint: mixSignal
+        ? (mixLdb !== null ? mixLdb.toFixed(1) + '\u202fdBFS / ' + (mixRdb !== null ? mixRdb.toFixed(1) : '?') + '\u202fdBFS' : '')
+        : 'Main-Fader pr\u00fcfen + LR-Routing pro Kanal aktiv?' },
+  ];
+
+  var allOk = chk.every(function(c) { return c.s === 'ok'; });
+  var hasErr = chk.some(function(c) { return c.s === 'err'; });
+  badge.className = 'xr18-badge ' + (allOk ? 'ok' : hasErr ? 'err' : 'warn');
+  badge.textContent = allOk ? '\u2714 Alles OK \u2014 bereit f\u00fcr Aufnahme + HMM'
+    : hasErr ? '\u2716 XR18 nicht bereit'
+    : '\u26A0 Signal pr\u00fcfen';
+
+  var icons = { ok: '\u2714', warn: '\u26A0', err: '\u2716' };
+  var ch = '';
+  for (var i = 0; i < chk.length; i++) {
+    var c = chk[i];
+    ch += '<div class="xr18-check ' + c.s + '">';
+    ch += '<i class="xc-i">' + icons[c.s] + '</i>';
+    ch += '<span>' + c.t + (c.hint ? ' \u2014 <em>' + escHtml(c.hint) + '</em>' : '') + '</span>';
+    ch += '</div>';
+  }
+  checksEl.innerHTML = ch;
+
+  // VU Bars (alle 18 Kanäle)
+  var bh = '';
+  for (var i = 0; i < 18; i++) {
+    var cd = channels[i] || { dbfs: null, rms: 0 };
+    var dbfs = cd.dbfs;
+    var isMix = i >= 16;
+    var pct = dbfs === null ? 0 : Math.max(0, Math.min(100, (dbfs + 60) / 60 * 100));
+    var fillCls = isMix ? 'mix' : (pct > 83 ? 'high' : (pct > 5 ? 'sig' : ''));
+    var lbl = isMix ? (i === 16 ? 'MIX L' : 'MIX R') : String(i + 1);
+    bh += '<div class="cfg-vu-ch' + (isMix ? ' mix' : '') + '">';
+    bh += '<div class="cfg-vu-bar-wrap"><div class="cfg-vu-fill ' + fillCls + '" style="height:' + pct.toFixed(1) + '%"></div></div>';
+    bh += '<span class="cfg-vu-lbl">' + lbl + '</span>';
+    bh += '</div>';
+  }
+  vuEl.innerHTML = bh;
+}
+
 function toggleConfig() {
   var el = document.getElementById('cfgOverlay');
   var show = !el.classList.contains('show');
@@ -994,6 +1122,10 @@ function toggleConfig() {
   if (show) {
     renderCfgButtons();
     cfgCheckConn();
+    refreshXR18Status();
+    xr18PollTimer = setInterval(refreshXR18Status, 2000);
+  } else {
+    if (xr18PollTimer) { clearInterval(xr18PollTimer); xr18PollTimer = null; }
   }
 }
 

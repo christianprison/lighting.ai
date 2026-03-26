@@ -369,7 +369,7 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
     <div class="badges">
       <div class="badge live" id="badgeLive"><div class="pulse"></div>LIVE</div>
       <div class="badge" id="badgeQlc">QLC+ &#x25CF;</div>
-      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.03.26b</div>
+      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.03.26c</div>
     </div>
     <div class="beat-area">
       <div class="beat-row">
@@ -428,7 +428,7 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
       <button class="tl-rec" id="btnRec">REC</button>
     </div>
     <div class="tl-rec-dur" id="recDurInline"></div>
-    <div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--t3);margin-top:1px">v2026.03.26b</div>
+    <div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--t3);margin-top:1px">v2026.03.26c</div>
     <div class="vu-panel" id="vuPanel">
       <div class="vu-head">
         <span>XR18 Pegel</span>
@@ -534,6 +534,19 @@ async function loadBarsForSong(songId) {
 }
 
 // ─── Helpers ──────────────────────────────────
+// Scrollt ein Element innerhalb seines Containers sichtbar —
+// ohne den Viewport / die ganze Seite zu scrollen.
+function scrollIntoContainer(container, el) {
+  var elTop = el.offsetTop;
+  var elBottom = elTop + el.offsetHeight;
+  var ctTop = container.scrollTop;
+  var ctBottom = ctTop + container.clientHeight;
+  if (elTop < ctTop) {
+    container.scrollTop = elTop - 6;
+  } else if (elBottom > ctBottom) {
+    container.scrollTop = elBottom - container.clientHeight + 6;
+  }
+}
 function escHtml(s) {
   var d = document.createElement('div');
   d.textContent = s;
@@ -577,7 +590,7 @@ function renderSetlist() {
   }
   el.innerHTML = h;
   var active = el.querySelector('.song.active');
-  if (active) active.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  if (active) scrollIntoContainer(el, active);
 }
 
 // ─── Render: Parts (left panel) ───────────────
@@ -617,7 +630,7 @@ function renderParts() {
   }
   el.innerHTML = h;
   var active = el.querySelector('.part.active');
-  if (active) active.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  if (active) scrollIntoContainer(el, active);
 }
 
 // ─── Render: Timeline (bottom) ────────────────
@@ -648,17 +661,26 @@ function renderTimeline() {
 
   // Bar blocks in timeline — grouped by part, showing lyrics
   var bh = '';
+  var activePartIdx = -1;
   if (sid && songBars.length > 0) {
+    // Determine index of active part once
+    for (var pi = 0; pi < songBars.length; pi++) {
+      if (activePartName && songBars[pi].part_name.toLowerCase() === activePartName) {
+        activePartIdx = pi;
+        break;
+      }
+    }
     for (var p = 0; p < songBars.length; p++) {
       var part = songBars[p];
-      var isActivePart = activePartName && part.part_name.toLowerCase() === activePartName;
+      var isActivePart = p === activePartIdx;
       var bars = part.bars;
-      // If no bars in DB, generate placeholder blocks from bar_count
-      var count = bars.length > 0 ? bars.length : part.bar_count;
+      // Always use bar_count from part definition — bars may be partially entered
+      var count = part.bar_count || bars.length;
       for (var b = 0; b < count; b++) {
-        var lyrics = bars[b] ? bars[b].lyrics : '';
-        var cls = isActivePart ? 'active' : (p < songBars.findIndex(function(pp) { return pp.part_name.toLowerCase() === activePartName; }) ? 'done' : '');
-        // First bar of each part gets a left border accent
+        // bars are sorted by bar_num (1-based) — match by position
+        var barData = bars[b] || null;
+        var lyrics = barData ? barData.lyrics : '';
+        var cls = isActivePart ? 'active' : (activePartIdx >= 0 && p < activePartIdx ? 'done' : '');
         var style = b === 0 ? ' style="border-left:2px solid ' + (isActivePart ? 'var(--green)' : 'var(--border2)') + '"' : '';
         var label = lyrics ? escHtml(truncLyrics(lyrics, 12)) : '';
         bh += '<div class="tl-bar ' + cls + '" title="' + escHtml(part.part_name) + ' T' + (b + 1) + (lyrics ? ': ' + escHtml(lyrics) : '') + '"' + style + '>' + label + '</div>';
@@ -674,9 +696,18 @@ function renderTimeline() {
   }
   document.getElementById('tlBars').innerHTML = bh;
 
-  // Scroll active bar into view
-  var activeBar = document.querySelector('.tl-bars .tl-bar.active');
-  if (activeBar) activeBar.scrollIntoView({ inline: 'nearest', behavior: 'smooth', block: 'nearest' });
+  // Scroll active bar into view — only within .tl-bars, never the whole page
+  var tlBarsEl = document.getElementById('tlBars');
+  var activeBar = tlBarsEl.querySelector('.tl-bar.active');
+  if (activeBar && tlBarsEl) {
+    var barLeft = activeBar.offsetLeft;
+    var barRight = barLeft + activeBar.offsetWidth;
+    var visible = tlBarsEl.scrollLeft;
+    var visEnd = visible + tlBarsEl.clientWidth;
+    if (barLeft < visible || barRight > visEnd) {
+      tlBarsEl.scrollLeft = barLeft - tlBarsEl.clientWidth / 2 + activeBar.offsetWidth / 2;
+    }
+  }
 
   // Current function name
   document.getElementById('tlInfo').textContent = state.current_function_name || '';

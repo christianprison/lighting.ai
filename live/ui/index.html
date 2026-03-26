@@ -402,12 +402,7 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
 
 <!-- LEFT: PARTS -->
 <div class="panel">
-  <div class="panel-head"><div class="ind"></div>PARTS
-    <div class="modes">
-      <button class="mbtn on" onclick="modeSwitch(this)">LIVE</button>
-      <button class="mbtn" onclick="modeSwitch(this)">EDIT</button>
-    </div>
-  </div>
+  <div class="panel-head"><div class="ind"></div>PARTS</div>
   <div class="scroll" id="parts"></div>
 </div>
 
@@ -425,7 +420,7 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
     <div class="badges">
       <div class="badge live" id="badgeLive"><div class="pulse"></div>LIVE</div>
       <div class="badge" id="badgeQlc">QLC+ &#x25CF;</div>
-      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.03.26q</div>
+      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.03.26r</div>
     </div>
     <div class="beat-area">
       <div class="beat-row">
@@ -1121,19 +1116,19 @@ function renderXR18Status(devData, levelsData) {
     : (devData.devices && devData.devices[0] ? devData.devices[0].name : '');
   devNameEl.textContent = dname ? 'Device: ' + dname : '';
 
-  // Status-Checks
+  // Status-Checks — nur wenn XR18 erkannt, sind weitere Checks sinnvoll
   var chk = [
     { s: xr18ok ? 'ok' : 'err',
       t: 'XR18 als Audio-Device erkannt' },
-    { s: streamActive ? 'ok' : (xr18ok ? 'warn' : 'err'),
+    { s: !xr18ok ? 'err' : (streamActive ? 'ok' : 'warn'),
       t: '18-Kanal USB-Stream aktiv' },
-    { s: chCount >= 18 ? 'ok' : (chCount > 0 ? 'warn' : 'err'),
-      t: '18 Kan\u00e4le verf\u00fcgbar' + (chCount > 0 && chCount < 18 ? ' \u2014 aktuell: ' + chCount : '') },
-    { s: mixSignal ? 'ok' : (streamActive ? 'warn' : 'err'),
+    { s: !xr18ok ? 'err' : (chCount >= 18 ? 'ok' : (chCount > 0 ? 'warn' : 'err')),
+      t: '18 Kan\u00e4le verf\u00fcgbar' + (xr18ok && chCount > 0 && chCount < 18 ? ' \u2014 aktuell: ' + chCount : '') },
+    { s: !xr18ok ? 'err' : (mixSignal ? 'ok' : (streamActive ? 'warn' : 'err')),
       t: 'CH17+18 haben Signal (Main L/R)',
-      hint: mixSignal
+      hint: xr18ok && mixSignal
         ? (mixLdb !== null ? mixLdb.toFixed(1) + '\u202fdBFS / ' + (mixRdb !== null ? mixRdb.toFixed(1) : '?') + '\u202fdBFS' : '')
-        : 'Main-Fader pr\u00fcfen + LR-Routing pro Kanal aktiv?' },
+        : (xr18ok ? 'Main-Fader pr\u00fcfen + LR-Routing pro Kanal aktiv?' : '') },
   ];
 
   var allOk = chk.every(function(c) { return c.s === 'ok'; });
@@ -1207,10 +1202,10 @@ async function cfgCheckConn() {
   try {
     var data = await fetchJSON('/api/qlc/status');
     if (data.connected) {
-      el.textContent = 'OSC OK';
-      el.className = 'cfg-status ok';
+      el.textContent = 'OSC konfiguriert \u2014 QLC+ nicht pr\u00fcfbar (UDP)';
+      el.className = 'cfg-status warn';
     } else {
-      el.textContent = 'OSC nicht verbunden';
+      el.textContent = 'OSC nicht konfiguriert';
       el.className = 'cfg-status err';
     }
   } catch (e) {
@@ -1476,9 +1471,11 @@ function stopRecDurTimer() {
   el.textContent = '';
 }
 
+var _recStatusLoadedOnce = false;
 async function refreshRecStatus() {
   try {
     var s = await fetchJSON('/api/recording/status');
+    var wasRunning = recRunning;
     recRunning = s.running;
     var btn = document.getElementById('btnRec');
     btn.classList.toggle('on', recRunning);
@@ -1486,9 +1483,11 @@ async function refreshRecStatus() {
       recStartedAt = new Date(s.started_at);
       startRecDurTimer();
       btn.innerHTML = '<span class="rec-dot"></span>REC';
+      if (!_recStatusLoadedOnce) showToast('Aufnahme l\u00e4uft noch \u2014 Stopp zum Beenden');
     } else if (!recRunning) {
       btn.innerHTML = '&#x23FA; REC';
     }
+    _recStatusLoadedOnce = true;
   } catch (e) { /* Server offline */ }
 }
 

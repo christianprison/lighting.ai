@@ -141,32 +141,34 @@ padding:9px 10px;margin-bottom:2px;border-radius:6px;border:1.5px solid transpar
 .song-pause{height:12px;margin:4px 16px;border-bottom:1px dashed var(--border2)}
 
 /* ═══ TIMELINE (BOTTOM) ═══ */
-.timeline{background:var(--bg2);display:grid;
-grid-template-columns:110px 1fr 130px;grid-template-rows:auto auto;
-column-gap:8px;row-gap:0;padding:8px 12px calc(8px + env(safe-area-inset-bottom)) 12px;
+.timeline{flex-shrink:0;background:var(--bg2);display:grid;
+grid-template-columns:110px 1fr 130px;
+column-gap:8px;padding:8px 12px calc(8px + env(safe-area-inset-bottom)) 12px;
 padding-left:calc(12px + env(safe-area-inset-left));
 padding-right:calc(12px + env(safe-area-inset-right));
 border-top:1px solid var(--border);align-items:start}
-.tl-label{grid-column:1;grid-row:1/3;display:flex;flex-direction:column;gap:1px;padding-top:4px}
+.tl-label{grid-column:1;display:flex;flex-direction:column;gap:1px;padding-top:4px}
 .tl-part-name{font-family:'Sora',sans-serif;font-size:14px;font-weight:600;color:var(--green)}
 .tl-part-count{font-family:'DM Mono',monospace;font-size:10px;color:var(--t3)}
-.tl-track{grid-column:2;grid-row:1}
-.tl-bars{display:flex;gap:2px;height:32px;align-items:stretch;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
+.tl-track{grid-column:2;overflow:hidden}
+.tl-scroll{overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
+.tl-scroll::-webkit-scrollbar{display:none}
+.tl-bars{display:flex;gap:2px;height:32px;align-items:stretch}
 .tl-bars::-webkit-scrollbar{display:none}
-.tl-bar{flex:0 0 auto;min-width:18px;max-width:90px;padding:0 3px;border-radius:3px;background:var(--bg3);border:1px solid var(--border);
+.tl-bar{flex:0 0 100px;border-radius:3px;background:var(--bg3);border:1px solid var(--border);
 display:flex;align-items:center;justify-content:center;position:relative;
-font-family:'DM Mono',monospace;font-size:8px;color:var(--t4);cursor:pointer;transition:all .12s;overflow:hidden;
-white-space:nowrap;text-overflow:ellipsis}
+font-family:'DM Mono',monospace;font-size:9px;color:var(--t4);cursor:pointer;transition:all .12s}
 .tl-bar.done{background:var(--bg4);border-color:var(--border2)}
 .tl-bar.active{background:var(--green2);border-color:var(--green);box-shadow:0 0 10px #00dc8220;color:var(--green)}
-.tl-right{grid-column:3;grid-row:1/3;display:flex;flex-direction:column;align-items:flex-end;gap:4px;padding-top:4px}
+.tl-lyrics{display:flex;gap:2px;margin-top:2px}
+.tl-lyric{flex:0 0 100px;font-family:'DM Mono',monospace;font-size:9px;color:var(--t1);
+overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tl-right{grid-column:3;display:flex;flex-direction:column;align-items:flex-end;gap:4px;padding-top:4px}
 .tl-status{font-family:'DM Mono',monospace;font-size:10px;color:var(--t3);display:flex;align-items:center;gap:6px}
 .tl-status .dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
 .tl-status .dot.ok{background:var(--green);box-shadow:0 0 4px var(--green)}
 .tl-status .dot.err{background:var(--red);box-shadow:0 0 4px var(--red)}
 .tl-status .dot.warn{background:var(--amber);box-shadow:0 0 4px var(--amber)}
-.tl-info{grid-column:2;grid-row:2;font-family:'DM Mono',monospace;font-size:10px;color:var(--t3);
-padding-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tl-sync{font-family:'DM Mono',monospace;font-size:9px;color:var(--t4);cursor:pointer;
 padding:2px 8px;border-radius:3px;border:1px solid var(--border);background:transparent;transition:all .1s;margin-top:2px}
 .tl-sync:active{background:var(--bg4);color:var(--t2)}
@@ -380,7 +382,7 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
     <div class="badges">
       <div class="badge live" id="badgeLive"><div class="pulse"></div>LIVE</div>
       <div class="badge" id="badgeQlc">QLC+ &#x25CF;</div>
-      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.03.26l</div>
+      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.03.26m</div>
     </div>
     <div class="beat-area">
       <div class="beat-row">
@@ -431,7 +433,7 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
     <span class="tl-part-name" id="tlPart">-</span>
     <span class="tl-part-count" id="tlCount">-</span>
   </div>
-  <div class="tl-track"><div class="tl-bars" id="tlBars"></div></div>
+  <div class="tl-track"><div class="tl-scroll" id="tlScroll"><div class="tl-bars" id="tlBars"></div><div class="tl-lyrics" id="tlLyrics"></div></div></div>
   <div class="tl-right" style="position:relative">
     <div class="tl-status"><div class="dot" id="dotQlc"></div><span id="statusQlc">QLC+ —</span></div>
     <div class="tl-status"><div class="dot" id="dotSync"></div><span id="statusSync">DB —</span></div>
@@ -448,9 +450,6 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
       <div class="vu-channels" id="vuChannels"></div>
     </div>
   </div>
-  <div></div>
-  <div class="tl-info" id="tlInfo"></div>
-  <div></div>
 </div>
 
 </div>
@@ -673,11 +672,11 @@ function renderTimeline() {
     }
   }
 
-  // Bar blocks in timeline — grouped by part, showing lyrics
+  // Bar blocks in timeline — bars on top, lyrics below (both scroll together)
   var bh = '';
+  var lh = '';
   var activePartIdx = -1;
   if (sid && songBars.length > 0) {
-    // Determine index of active part once
     for (var pi = 0; pi < songBars.length; pi++) {
       if (activePartName && songBars[pi].part_name.toLowerCase() === activePartName) {
         activePartIdx = pi;
@@ -688,39 +687,35 @@ function renderTimeline() {
       var part = songBars[p];
       var isActivePart = p === activePartIdx;
       var bars = part.bars;
-      // Always use bar_count from part definition — bars may be partially entered
       var count = part.bar_count || bars.length;
       for (var b = 0; b < count; b++) {
-        // bars are sorted by bar_num (1-based) — match by position
         var barData = bars[b] || null;
         var lyrics = barData ? barData.lyrics : '';
         var cls = isActivePart ? 'active' : (activePartIdx >= 0 && p < activePartIdx ? 'done' : '');
         var style = b === 0 ? ' style="border-left:2px solid ' + (isActivePart ? 'var(--green)' : 'var(--border2)') + '"' : '';
-        var label = lyrics ? escHtml(truncLyrics(lyrics, 12)) : '';
-        bh += '<div class="tl-bar ' + cls + '" title="' + escHtml(part.part_name) + ' T' + (b + 1) + (lyrics ? ': ' + escHtml(lyrics) : '') + '"' + style + '>' + label + '</div>';
+        var barNum = b + 1;
+        bh += '<div class="tl-bar ' + cls + '" title="' + escHtml(part.part_name) + ' T' + barNum + '"' + style + '>' + barNum + '</div>';
+        lh += '<div class="tl-lyric">' + (lyrics ? escHtml(truncLyrics(lyrics, 14)) : '') + '</div>';
       }
     }
   } else if (sid) {
-    // Keine Bar-Daten — DB veraltet oder noch nicht eingetragen
-    bh += '<div style="font-family:\'DM Mono\',monospace;font-size:9px;color:var(--amber);padding:0 4px;align-self:center">Keine Takte — SYNC drücken</div>';
+    bh += '<div style="font-family:\'DM Mono\',monospace;font-size:9px;color:var(--amber);padding:0 4px;align-self:center">Keine Takte — SYNC dr\u00fccken</div>';
   }
   document.getElementById('tlBars').innerHTML = bh;
+  document.getElementById('tlLyrics').innerHTML = lh;
 
-  // Scroll active bar into view — only within .tl-bars, never the whole page
-  var tlBarsEl = document.getElementById('tlBars');
-  var activeBar = tlBarsEl.querySelector('.tl-bar.active');
-  if (activeBar && tlBarsEl) {
+  // Scroll active bar into view — scroll the wrapper so bars + lyrics move together
+  var tlScrollEl = document.getElementById('tlScroll');
+  var activeBar = document.querySelector('#tlBars .tl-bar.active');
+  if (activeBar && tlScrollEl) {
     var barLeft = activeBar.offsetLeft;
     var barRight = barLeft + activeBar.offsetWidth;
-    var visible = tlBarsEl.scrollLeft;
-    var visEnd = visible + tlBarsEl.clientWidth;
+    var visible = tlScrollEl.scrollLeft;
+    var visEnd = visible + tlScrollEl.clientWidth;
     if (barLeft < visible || barRight > visEnd) {
-      tlBarsEl.scrollLeft = barLeft - tlBarsEl.clientWidth / 2 + activeBar.offsetWidth / 2;
+      tlScrollEl.scrollLeft = barLeft - tlScrollEl.clientWidth / 2 + activeBar.offsetWidth / 2;
     }
   }
-
-  // Current function name
-  document.getElementById('tlInfo').textContent = state.current_function_name || '';
 
   // QLC+ status
   var dotQlc = document.getElementById('dotQlc');

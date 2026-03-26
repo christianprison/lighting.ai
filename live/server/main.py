@@ -262,34 +262,52 @@ async def get_songs():
 
 @app.get("/api/songs/{song_id}/bars")
 async def get_song_bars(song_id: str):
-    """Return bars grouped by part for a song, including lyrics."""
+    """Return bars for a song, grouped by parts if available.
+
+    Supports two DB schemas:
+    - Legacy: bars have part_id, songs have parts dict
+    - Current (v1.7.0+): bars have song_id directly, parts derived from bar positions
+    """
     song = db.get("songs", {}).get(song_id)
     if not song:
         return JSONResponse({"error": "Song not found"}, status_code=404)
     all_bars = db.get("bars", {})
-    # Group bars by part_id
-    bars_by_part: dict[str, list] = {}
-    for bid, b in all_bars.items():
-        pid = b.get("part_id", "")
-        if pid not in bars_by_part:
-            bars_by_part[pid] = []
-        bars_by_part[pid].append({"id": bid, **b})
-    # Build ordered result: parts with their bars
-    parts = song.get("parts", {})
-    result = []
-    for pid, p in sorted(parts.items(), key=lambda x: x[1].get("pos", 0)):
-        part_bars = sorted(bars_by_part.get(pid, []), key=lambda x: x.get("bar_num", 0))
-        result.append({
-            "part_id": pid,
-            "part_name": p.get("name", ""),
-            "part_pos": p.get("pos", 0),
-            "bar_count": p.get("bars", 0),
-            "bars": [
-                {"bar_num": b.get("bar_num", 0), "lyrics": b.get("lyrics", "")}
-                for b in part_bars
-            ],
-        })
-    return result
+
+    # Collect all bars for this song (current schema: bars have song_id)
+    song_bars = sorted(
+        [b for b in all_bars.values() if b.get("song_id") == song_id],
+        key=lambda x: x.get("bar_num", 0),
+    )
+
+    # If no bars found via song_id, try legacy schema (part_id)
+    if not song_bars:
+        parts = song.get("parts", {})
+        if parts:
+            bars_by_part: dict[str, list] = {}
+            for b in all_bars.values():
+                pid = b.get("part_id", "")
+                bars_by_part.setdefault(pid, []).append(b)
+            result = []
+            for pid, p in sorted(parts.items(), key=lambda x: x[1].get("pos", 0)):
+                part_bars = sorted(bars_by_part.get(pid, []), key=lambda x: x.get("bar_num", 0))
+                result.append({
+                    "part_id": pid,
+                    "part_name": p.get("name", ""),
+                    "bar_count": p.get("bars", 0),
+                    "bars": [{"bar_num": b.get("bar_num", 0), "lyrics": b.get("lyrics", "").strip()}
+                             for b in part_bars],
+                })
+            return result
+        return []
+
+    # Current schema: return as single part (parts not yet in DB)
+    return [{
+        "part_id": song_id,
+        "part_name": "",
+        "bar_count": len(song_bars),
+        "bars": [{"bar_num": b.get("bar_num", 0), "lyrics": b.get("lyrics", "").strip()}
+                 for b in song_bars],
+    }]
 
 
 @app.get("/api/setlist")

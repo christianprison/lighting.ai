@@ -242,11 +242,14 @@ transition:opacity .4s}
 
 /* ═══ RECORDING ═══ */
 .tl-rec{font-family:'DM Mono',monospace;font-size:9px;color:var(--t4);cursor:pointer;
-padding:2px 8px;border-radius:3px;border:1px solid var(--border);background:transparent;transition:all .1s;margin-top:2px}
-.tl-rec:active{background:var(--bg4);color:var(--t2)}
-.tl-rec.on{color:var(--red);border-color:var(--red);background:#ff3b5c12}
-.tl-rec.on::before{content:'';display:inline-block;width:5px;height:5px;border-radius:50%;
-background:var(--red);margin-right:5px;animation:pulse 1s infinite;vertical-align:middle}
+padding:2px 8px;border-radius:3px;border:1px solid var(--border);background:transparent;transition:all .1s;margin-top:2px;
+-webkit-user-select:none;user-select:none}
+.tl-rec:active{background:var(--bg4)}
+.tl-rec.on{color:var(--red);border-color:var(--red);background:#ff3b5c12;font-weight:500}
+.tl-rec.armed{color:var(--amber);border-color:var(--amber);background:var(--amber2)}
+.tl-rec-dur{font-family:'DM Mono',monospace;font-size:9px;color:var(--red);margin-top:2px;
+min-width:32px;text-align:right;display:none}
+.tl-rec-dur.show{display:block}
 
 .rec-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(8,9,13,.92);
 display:none;z-index:200;overflow-y:auto}
@@ -297,11 +300,7 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
     <h2>Aufnahme</h2>
     <button class="rec-close" onclick="toggleRecModal()">&times;</button>
   </div>
-  <div class="rec-ctrl">
-    <button class="rec-start-btn" id="recStartBtn" onclick="recToggle()">REC STARTEN</button>
-    <span class="rec-dur" id="recDur"></span>
-    <span class="rec-label-hint" id="recLabelHint"></span>
-  </div>
+  <div class="rec-ctrl" style="display:none"></div>
   <div class="rec-list-head">Aufnahmen</div>
   <div id="recList"><div class="rec-empty">Keine Aufnahmen</div></div>
 </div>
@@ -423,8 +422,9 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
     </div>
     <div style="display:flex;gap:4px">
       <button class="tl-sync" id="btnSync">SYNC</button>
-      <button class="tl-rec" id="btnRec" onclick="toggleRecModal()">REC</button>
+      <button class="tl-rec" id="btnRec">REC</button>
     </div>
+    <div class="tl-rec-dur" id="recDurInline"></div>
     <div class="vu-panel" id="vuPanel">
       <div class="vu-head">
         <span>XR18 Pegel</span>
@@ -1116,74 +1116,151 @@ function startAudioPolling() {
 var recRunning = false;
 var recDurTimer = null;
 var recStartedAt = null;
+var recStopArmed = false;
+var recStopArmTimer = null;
+var recLongPressTimer = null;
 
-function toggleRecModal() {
-  var el = document.getElementById('recOverlay');
-  var show = !el.classList.contains('show');
-  el.classList.toggle('show', show);
-  if (show) {
-    refreshRecStatus();
-    loadRecList();
+(function initRecBtn() {
+  var btn = document.getElementById('btnRec');
+
+  // Touch: Langdruck = Nachbereitung, kurzer Tap = Start/Stop
+  btn.addEventListener('touchstart', function(e) {
+    e.preventDefault();
+    recLongPressTimer = setTimeout(function() {
+      recLongPressTimer = null;
+      if (!recRunning) openRecPostModal();
+    }, 600);
+  }, { passive: false });
+
+  btn.addEventListener('touchend', function(e) {
+    e.preventDefault();
+    if (recLongPressTimer) {
+      clearTimeout(recLongPressTimer);
+      recLongPressTimer = null;
+      recTap();
+    }
+  });
+
+  // Maus (Desktop): Langdruck per mousedown/mouseup
+  btn.addEventListener('mousedown', function() {
+    recLongPressTimer = setTimeout(function() {
+      recLongPressTimer = null;
+      if (!recRunning) openRecPostModal();
+    }, 600);
+  });
+  btn.addEventListener('mouseup', function() {
+    if (recLongPressTimer) {
+      clearTimeout(recLongPressTimer);
+      recLongPressTimer = null;
+      recTap();
+    }
+  });
+  btn.addEventListener('mouseleave', function() {
+    if (recLongPressTimer) { clearTimeout(recLongPressTimer); recLongPressTimer = null; }
+  });
+})();
+
+function recTap() {
+  if (!recRunning) {
+    recStart();
+  } else if (!recStopArmed) {
+    // Erster Tap: Stopp-Bestätigung anfordern
+    recStopArmed = true;
+    var btn = document.getElementById('btnRec');
+    btn.classList.remove('on');
+    btn.classList.add('armed');
+    btn.textContent = 'STOPP?';
+    recStopArmTimer = setTimeout(function() {
+      recStopArmed = false;
+      btn.classList.remove('armed');
+      btn.classList.add('on');
+      btn.textContent = 'REC';
+    }, 3000);
+  } else {
+    // Zweiter Tap: wirklich stoppen
+    clearTimeout(recStopArmTimer);
+    recStopArmed = false;
+    recStop();
   }
+}
+
+async function recStart() {
+  var now = new Date();
+  var label = 'Probe ' + now.getFullYear() + '-'
+    + String(now.getMonth()+1).padStart(2,'0') + '-'
+    + String(now.getDate()).padStart(2,'0');
+  try {
+    await fetch('/api/recording/start', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ label: label, song_id: '' })
+    });
+    recRunning = true;
+    recStartedAt = now;
+    startRecDurTimer();
+    var btn = document.getElementById('btnRec');
+    btn.classList.add('on');
+    btn.textContent = 'REC';
+    showToast('Aufnahme gestartet');
+  } catch (e) { showToast('Fehler beim Starten'); }
+}
+
+async function recStop() {
+  try {
+    var res = await fetch('/api/recording/stop', { method: 'POST' });
+    var data = await res.json();
+    recRunning = false;
+    stopRecDurTimer();
+    var btn = document.getElementById('btnRec');
+    btn.classList.remove('on', 'armed');
+    btn.textContent = 'REC';
+    var info = data.path ? data.path.split('/').pop() : '';
+    showToast('Aufnahme gespeichert' + (info ? ': ' + info : ''));
+  } catch (e) { showToast('Fehler beim Stoppen'); }
+}
+
+function startRecDurTimer() {
+  if (recDurTimer) return;
+  var el = document.getElementById('recDurInline');
+  el.classList.add('show');
+  recDurTimer = setInterval(function() {
+    if (!recStartedAt) return;
+    var sec = Math.floor((Date.now() - recStartedAt.getTime()) / 1000);
+    var m = Math.floor(sec / 60), s = sec % 60;
+    el.textContent = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+  }, 1000);
+}
+
+function stopRecDurTimer() {
+  if (recDurTimer) { clearInterval(recDurTimer); recDurTimer = null; }
+  var el = document.getElementById('recDurInline');
+  el.classList.remove('show');
+  el.textContent = '';
 }
 
 async function refreshRecStatus() {
   try {
     var s = await fetchJSON('/api/recording/status');
     recRunning = s.running;
-    var btn = document.getElementById('recStartBtn');
-    var hint = document.getElementById('recLabelHint');
-    btn.textContent = recRunning ? 'REC STOPPEN' : 'REC STARTEN';
+    var btn = document.getElementById('btnRec');
     btn.classList.toggle('on', recRunning);
-    document.getElementById('btnRec').classList.toggle('on', recRunning);
-    hint.textContent = recRunning ? (s.label || '') : (state.current_song_name ? 'Song: ' + state.current_song_name : '');
     if (recRunning && s.started_at) {
       recStartedAt = new Date(s.started_at);
       startRecDurTimer();
-    } else {
-      stopRecDurTimer();
     }
   } catch (e) { /* Server offline */ }
 }
 
-function startRecDurTimer() {
-  if (recDurTimer) return;
-  recDurTimer = setInterval(function() {
-    if (!recStartedAt) return;
-    var sec = Math.floor((Date.now() - recStartedAt.getTime()) / 1000);
-    var m = Math.floor(sec / 60), s = sec % 60;
-    document.getElementById('recDur').textContent =
-      String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
-  }, 500);
+// ─── Nachbereitung Modal (Langdruck auf REC) ──
+function openRecPostModal() {
+  var el = document.getElementById('recOverlay');
+  el.classList.add('show');
+  loadRecList();
 }
 
-function stopRecDurTimer() {
-  if (recDurTimer) { clearInterval(recDurTimer); recDurTimer = null; }
-  document.getElementById('recDur').textContent = '';
-}
-
-async function recToggle() {
-  if (recRunning) {
-    try {
-      await fetch('/api/recording/stop', { method: 'POST' });
-      showToast('Aufnahme gestoppt');
-    } catch (e) { showToast('Fehler'); return; }
-  } else {
-    var label = state.current_song_name || '';
-    var song_id = state.current_song_id || '';
-    try {
-      await fetch('/api/recording/start', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ label: label, song_id: song_id })
-      });
-      recStartedAt = new Date();
-      startRecDurTimer();
-      showToast('Aufnahme gestartet' + (label ? ': ' + label : ''));
-    } catch (e) { showToast('Fehler'); return; }
-  }
-  await refreshRecStatus();
-  await loadRecList();
+function toggleRecModal() {
+  var el = document.getElementById('recOverlay');
+  el.classList.remove('show');
 }
 
 async function loadRecList() {
@@ -1201,7 +1278,6 @@ function renderRecList(recs) {
   var h = '';
   for (var i = 0; i < recs.length; i++) {
     var r = recs[i];
-    // Mixdown-Dateien ausgrauen (sind bereits gemixed)
     var isMix = r.filename.indexOf('_mixdown') !== -1;
     h += '<div class="rec-item" id="ri-' + i + '">';
     h += '<span class="rec-item-name" title="' + escHtml(r.filename) + '">' + escHtml(r.filename) + '</span>';

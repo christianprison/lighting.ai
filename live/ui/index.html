@@ -380,7 +380,7 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
     <div class="badges">
       <div class="badge live" id="badgeLive"><div class="pulse"></div>LIVE</div>
       <div class="badge" id="badgeQlc">QLC+ &#x25CF;</div>
-      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.03.26g</div>
+      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.03.26h</div>
     </div>
     <div class="beat-area">
       <div class="beat-row">
@@ -455,7 +455,32 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
 
 </div>
 
+<!-- DEBUG OVERLAY -->
+<div id="dbg" style="display:none;position:fixed;top:0;left:0;z-index:9999;
+max-width:100vw;max-height:50vh;overflow-y:auto;
+background:rgba(0,0,0,.92);color:#0f0;font:11px/1.4 'DM Mono',monospace;
+padding:8px 12px;border-bottom:2px solid #0f0;border-right:2px solid #0f0;
+white-space:pre-wrap;word-break:break-all"></div>
+
 <script>
+// ─── Debug Overlay ────────────────────────────
+var _dbgLines = [];
+function dbg(msg) {
+  var ts = new Date().toTimeString().slice(0,8);
+  _dbgLines.push(ts + ' ' + msg);
+  if (_dbgLines.length > 60) _dbgLines.shift();
+  var el = document.getElementById('dbg');
+  el.style.display = 'block';
+  el.textContent = _dbgLines.join('\n');
+  el.scrollTop = el.scrollHeight;
+}
+window.onerror = function(msg, src, line, col, err) {
+  dbg('ERROR: ' + msg + ' (' + (src||'').split('/').pop() + ':' + line + ')');
+};
+window.addEventListener('unhandledrejection', function(e) {
+  dbg('PROMISE: ' + (e.reason && e.reason.message || e.reason));
+});
+
 // ═══════════════════════════════════════════════
 // lighting.ai Live Controller
 // Reference-UI Layout + Server Connectivity
@@ -609,11 +634,14 @@ function renderSetlist() {
 function renderParts() {
   var el = document.getElementById('parts');
   var sid = state.current_song_id;
-  if (!sid || !qlcMapping[sid]) {
+  var hasMap = !!qlcMapping[sid];
+  dbg('renderParts sid=' + sid + ' hasMap=' + hasMap + ' keys=' + Object.keys(qlcMapping).length);
+  if (!sid || !hasMap) {
     el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--t3)">Kein Song ausgew\u00e4hlt</div>';
     return;
   }
   var chaser = qlcMapping[sid];
+  dbg('chaser steps=' + (chaser.steps||[]).length + ' name=' + chaser.song_name);
   var steps = chaser.steps || [];
   var curStep = state.current_step || 0;
   var h = '';
@@ -653,6 +681,7 @@ function truncLyrics(s, max) {
 }
 
 function renderTimeline() {
+  dbg('renderTimeline sid=' + state.current_song_id + ' songBars=' + songBars.length);
   var sid = state.current_song_id;
   var partName = state.current_part_name || state.current_function_name || '-';
   var curStep = state.current_step || 0;
@@ -755,6 +784,7 @@ function renderTimeline() {
 
 // ─── Render: Full update ──────────────────────
 function renderAll() {
+  dbg('renderAll sid=' + state.current_song_id + ' step=' + state.current_step + ' song=' + (state.current_song_name||'-'));
   // Song header
   document.getElementById('songTitle').textContent = state.current_song_name || '-';
   document.getElementById('songArtist').textContent = state.current_artist || '';

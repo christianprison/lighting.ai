@@ -22,8 +22,8 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
 font-family:'Sora',system-ui,sans-serif;font-size:14px;-webkit-user-select:none;user-select:none}
 
 .app{display:grid;grid-template-rows:1fr 80px;height:100vh;height:100dvh}
-.main{display:grid;grid-template-columns:240px 1fr 220px;min-height:0;overflow:hidden;border-bottom:1px solid var(--border)}
-.panel{display:flex;flex-direction:column;min-height:0;overflow:hidden;background:var(--bg);border-right:1px solid var(--border)}
+.main{display:grid;grid-template-columns:240px 1fr 220px;height:100%;overflow:hidden;border-bottom:1px solid var(--border)}
+.panel{display:flex;flex-direction:column;height:100%;overflow:hidden;background:var(--bg);border-right:1px solid var(--border)}
 .panel:last-child{border-right:none;border-left:1px solid var(--border)}
 .panel-head{padding:12px 16px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);flex-shrink:0;
 font-family:'DM Mono',monospace;font-size:10px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--t3)}
@@ -51,8 +51,8 @@ background:var(--bg);padding:2px 8px;border-radius:4px;white-space:nowrap;align-
 .part-prog{position:absolute;bottom:0;left:0;height:2.5px;background:var(--green);transition:width .3s;box-shadow:0 0 8px var(--green)}
 
 /* ═══ CENTER ═══ */
-.center{display:flex;flex-direction:column;min-height:0;max-height:100%;overflow:hidden;
-width:100%;position:relative;background:var(--bg);border-right:1px solid var(--border)}
+.center{display:flex;flex-direction:column;height:100%;overflow:hidden;
+background:var(--bg);border-right:1px solid var(--border)}
 .song-bar{flex-shrink:0;padding:10px 20px 8px;text-align:center;border-bottom:1px solid var(--border);
 background:linear-gradient(180deg,var(--bg2),var(--bg))}
 .song-bar h1{font-size:20px;font-weight:700;letter-spacing:-.3px;margin-bottom:2px;
@@ -60,7 +60,7 @@ overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .song-bar .artist{font-size:12px;color:var(--t3);margin-bottom:5px}
 .song-meta{font-family:'DM Mono',monospace;font-size:11px;color:var(--t3);display:flex;justify-content:center;gap:18px}
 .song-meta .v{color:var(--t1);font-weight:500}
-.ctrls{flex:1;display:flex;flex-direction:column;padding:12px 18px;gap:14px;justify-content:space-between;min-height:0;overflow:hidden}
+.ctrls{flex:1;display:flex;flex-direction:column;padding:8px 18px;gap:10px;min-height:0;overflow:hidden}
 .badges{display:flex;justify-content:center;gap:8px;flex-shrink:0}
 .badge{font-family:'DM Mono',monospace;font-size:9px;font-weight:500;letter-spacing:1.5px;padding:4px 11px;border-radius:20px;display:flex;align-items:center;gap:5px}
 .badge.live{background:var(--green2);color:var(--green);border:1px solid var(--green)}
@@ -110,7 +110,7 @@ letter-spacing:.8px;text-transform:uppercase;color:var(--t2);cursor:pointer;tran
 .obtn.p.on{background:var(--green2);border-color:var(--green)}
 
 /* Nav row */
-.navrow{display:grid;grid-template-columns:1fr 1fr;gap:8px;flex-shrink:0}
+.navrow{display:grid;grid-template-columns:1fr 1fr;gap:8px;flex-shrink:0;margin-top:auto}
 
 /* Setlist head: REC + Settings */
 .setlist-head{display:flex;align-items:center;gap:6px;padding:8px 10px;flex-shrink:0}
@@ -380,7 +380,7 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
     <div class="badges">
       <div class="badge live" id="badgeLive"><div class="pulse"></div>LIVE</div>
       <div class="badge" id="badgeQlc">QLC+ &#x25CF;</div>
-      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.03.26h</div>
+      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.03.26i</div>
     </div>
     <div class="beat-area">
       <div class="beat-row">

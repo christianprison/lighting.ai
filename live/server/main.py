@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import re
 from pathlib import Path
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
@@ -258,19 +259,50 @@ async def index():
 
 # --- REST API ---
 
+def _derive_parts_from_bars(song_id: str, song_bars: list[dict]) -> dict:
+    """Derive parts from bars' audio path directories when not stored explicitly.
+
+    Bars use audio paths like 'audio/{song}/{NN partname}/{bar}.mp3'.
+    Groups bars by directory, extracts pos+name from 'NN name' prefix.
+    """
+    seen: dict[str, dict] = {}  # part_dir → part info
+    for b in sorted(song_bars, key=lambda x: x.get("bar_num", 0)):
+        audio = b.get("audio", "")
+        parts = audio.split("/")
+        part_dir = parts[2] if len(parts) > 2 else ""
+        if not part_dir:
+            continue
+        if part_dir not in seen:
+            m = re.match(r"^(\d+)\s+(.+)$", part_dir)
+            pos = int(m.group(1)) if m else len(seen) + 1
+            name = m.group(2) if m else part_dir
+            seen[part_dir] = {"pos": pos, "name": name, "bars": 0,
+                               "duration_sec": 0, "light_template": ""}
+        seen[part_dir]["bars"] += 1
+    return {
+        f"{song_id}_P{str(p['pos']).zfill(3)}": p
+        for p in seen.values()
+    }
+
+
 @app.get("/api/songs")
 async def get_songs():
-    """Return all songs from the DB."""
-    songs = db.get("songs", {})
-    return {
-        sid: {
-            "name": s.get("name", ""),
-            "artist": s.get("artist", ""),
-            "bpm": s.get("bpm", 0),
-            "key": s.get("key", ""),
-            "duration": s.get("duration", ""),
-            "duration_sec": s.get("duration_sec", 0),
-            "parts": {
+    """Return all songs from the DB, with parts derived from bars if not stored explicitly."""
+    songs_db = db.get("songs", {})
+    bars_db = db.get("bars", {})
+
+    # Pre-group bars by song_id for efficient lookup
+    bars_by_song: dict[str, list] = {}
+    for b in bars_db.values():
+        sid = b.get("song_id")
+        if sid:
+            bars_by_song.setdefault(sid, []).append(b)
+
+    result = {}
+    for sid, s in songs_db.items():
+        parts_db = s.get("parts", {})
+        if parts_db:
+            parts = {
                 pid: {
                     "pos": p.get("pos", 0),
                     "name": p.get("name", ""),
@@ -278,11 +310,21 @@ async def get_songs():
                     "duration_sec": p.get("duration_sec", 0),
                     "light_template": p.get("light_template", ""),
                 }
-                for pid, p in s.get("parts", {}).items()
-            },
+                for pid, p in parts_db.items()
+            }
+        else:
+            parts = _derive_parts_from_bars(sid, bars_by_song.get(sid, []))
+
+        result[sid] = {
+            "name": s.get("name", ""),
+            "artist": s.get("artist", ""),
+            "bpm": s.get("bpm", 0),
+            "key": s.get("key", ""),
+            "duration": s.get("duration", ""),
+            "duration_sec": s.get("duration_sec", 0),
+            "parts": parts,
         }
-        for sid, s in songs.items()
-    }
+    return result
 
 
 @app.get("/api/songs/{song_id}/bars")

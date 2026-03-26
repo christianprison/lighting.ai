@@ -561,6 +561,29 @@ async def recording_list():
     return {"recordings": audio_process.recorder.list_recordings()}
 
 
+@app.post("/api/recording/mixdown")
+async def recording_mixdown(body: dict):
+    """Erstellt einen Stereo-Mixdown einer 18-Kanal-Aufnahme.
+
+    Body: ``{"filename": "2026-03-24_200000_Animal.wav"}``
+    Gibt Pfad + Metadaten der erzeugten Stereo-WAV zurück.
+    """
+    if not audio_process:
+        return JSONResponse({"error": "AudioProcess not initialised"}, status_code=503)
+    filename = body.get("filename", "")
+    if not filename:
+        return JSONResponse({"error": "filename fehlt"}, status_code=400)
+    try:
+        result = await asyncio.get_event_loop().run_in_executor(
+            None, audio_process.recorder.mixdown, filename
+        )
+        return result
+    except FileNotFoundError as exc:
+        return JSONResponse({"error": str(exc)}, status_code=404)
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
 # --- WebSocket ---
 
 async def _handle_ws_action(action: str, msg: dict) -> dict | None:

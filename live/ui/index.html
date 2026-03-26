@@ -153,16 +153,14 @@ border-top:1px solid var(--border);align-items:start}
 .tl-track{grid-column:2;overflow:hidden}
 .tl-scroll{overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
 .tl-scroll::-webkit-scrollbar{display:none}
-.tl-bars{display:flex;gap:2px;height:32px;align-items:stretch}
-.tl-bars::-webkit-scrollbar{display:none}
-.tl-bar{flex:0 0 100px;border-radius:3px;background:var(--bg3);border:1px solid var(--border);
-display:flex;align-items:center;justify-content:center;position:relative;
-font-family:'DM Mono',monospace;font-size:9px;color:var(--t4);cursor:pointer;transition:all .12s}
+.tl-cols{display:flex;gap:2px;align-items:flex-start}
+.tl-col{display:flex;flex-direction:column;gap:2px;flex-shrink:0;cursor:pointer}
+.tl-bar{min-width:36px;padding:0 8px;height:32px;border-radius:3px;background:var(--bg3);border:1px solid var(--border);
+display:flex;align-items:center;justify-content:center;
+font-family:'DM Mono',monospace;font-size:9px;color:var(--t4);white-space:nowrap;transition:all .12s}
 .tl-bar.done{background:var(--bg4);border-color:var(--border2)}
 .tl-bar.active{background:var(--green2);border-color:var(--green);box-shadow:0 0 10px #00dc8220;color:var(--green)}
-.tl-lyrics{display:flex;gap:2px;margin-top:2px}
-.tl-lyric{flex:0 0 100px;font-family:'DM Mono',monospace;font-size:9px;color:var(--t1);
-overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tl-lyric{font-family:'DM Mono',monospace;font-size:9px;color:var(--t1);white-space:nowrap;padding:0 4px}
 .tl-right{grid-column:3;display:flex;flex-direction:column;align-items:flex-end;gap:4px;padding-top:4px}
 .tl-status{font-family:'DM Mono',monospace;font-size:10px;color:var(--t3);display:flex;align-items:center;gap:6px}
 .tl-status .dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
@@ -420,7 +418,7 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
     <div class="badges">
       <div class="badge live" id="badgeLive"><div class="pulse"></div>LIVE</div>
       <div class="badge" id="badgeQlc">QLC+ &#x25CF;</div>
-      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.03.26s</div>
+      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.03.26t</div>
     </div>
     <div class="beat-area">
       <div class="beat-row">
@@ -471,7 +469,7 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
     <span class="tl-part-name" id="tlPart">-</span>
     <span class="tl-part-count" id="tlCount">-</span>
   </div>
-  <div class="tl-track"><div class="tl-scroll" id="tlScroll"><div class="tl-bars" id="tlBars"></div><div class="tl-lyrics" id="tlLyrics"></div></div></div>
+  <div class="tl-track"><div class="tl-scroll" id="tlScroll"><div class="tl-cols" id="tlCols"></div></div></div>
   <div class="tl-right" style="position:relative">
     <div class="tl-status"><div class="dot" id="dotQlc"></div><span id="statusQlc">QLC+ —</span></div>
     <div class="tl-status"><div class="dot" id="dotSync"></div><span id="statusSync">DB —</span></div>
@@ -575,6 +573,7 @@ async function loadInitialData() {
 // ─── Bars loader ─────────────────────────────
 async function loadBarsForSong(songId) {
   if (!songId || songId === lastBarsSongId) return;
+  tlLocalBarIdx = 0;
   try {
     songBars = await fetchJSON('/api/songs/' + encodeURIComponent(songId) + '/bars');
     lastBarsSongId = songId;
@@ -710,59 +709,31 @@ function renderTimeline() {
   document.getElementById('tlCount').textContent = totalSteps > 0
     ? 'Step ' + (curStep + 1) + ' / ' + totalSteps : '-';
 
-  // Determine which part name is currently active (from chaser step note)
-  var activePartName = '';
-  if (sid && qlcMapping[sid]) {
-    var steps = qlcMapping[sid].steps || [];
-    if (steps[curStep]) {
-      activePartName = (steps[curStep].note || '').toLowerCase();
-    }
-  }
-
-  // Bar blocks in timeline — bars on top, lyrics below (both scroll together)
-  var bh = '';
-  var lh = '';
-  var activePartIdx = -1;
+  // Bar columns — one .tl-col per bar (bar block + lyrics), auto-width to fit lyrics
+  var ch = '';
+  var globalBarIdx = 0;
   if (sid && songBars.length > 0) {
-    for (var pi = 0; pi < songBars.length; pi++) {
-      if (activePartName && songBars[pi].part_name.toLowerCase() === activePartName) {
-        activePartIdx = pi;
-        break;
-      }
-    }
     for (var p = 0; p < songBars.length; p++) {
       var part = songBars[p];
-      var isActivePart = p === activePartIdx;
       var bars = part.bars;
       var count = part.bar_count || bars.length;
       for (var b = 0; b < count; b++) {
         var barData = bars[b] || null;
-        var lyrics = barData ? barData.lyrics : '';
-        var cls = isActivePart ? 'active' : (activePartIdx >= 0 && p < activePartIdx ? 'done' : '');
-        var style = b === 0 ? ' style="border-left:2px solid ' + (isActivePart ? 'var(--green)' : 'var(--border2)') + '"' : '';
+        var lyrics = barData ? (barData.lyrics || '') : '';
+        var barStyle = b === 0 ? 'border-left:2px solid var(--border2)' : '';
         var barNum = b + 1;
-        bh += '<div class="tl-bar ' + cls + '" title="' + escHtml(part.part_name) + ' T' + barNum + '"' + style + '>' + barNum + '</div>';
-        lh += '<div class="tl-lyric">' + (lyrics ? escHtml(truncLyrics(lyrics, 14)) : '') + '</div>';
+        ch += '<div class="tl-col" data-idx="' + globalBarIdx + '">';
+        ch += '<div class="tl-bar" title="' + escHtml(part.part_name) + ' T' + barNum + '" style="' + barStyle + '">' + barNum + '</div>';
+        ch += '<div class="tl-lyric">' + escHtml(lyrics) + '</div>';
+        ch += '</div>';
+        globalBarIdx++;
       }
     }
   } else if (sid) {
-    bh += '<div style="font-family:\'DM Mono\',monospace;font-size:9px;color:var(--amber);padding:0 4px;align-self:center">Keine Takte — SYNC dr\u00fccken</div>';
+    ch = '<div style="font-family:\'DM Mono\',monospace;font-size:9px;color:var(--amber);padding:8px 4px">Keine Takte \u2014 SYNC dr\u00fccken</div>';
   }
-  document.getElementById('tlBars').innerHTML = bh;
-  document.getElementById('tlLyrics').innerHTML = lh;
-
-  // Scroll active bar into view — scroll the wrapper so bars + lyrics move together
-  var tlScrollEl = document.getElementById('tlScroll');
-  var activeBar = document.querySelector('#tlBars .tl-bar.active');
-  if (activeBar && tlScrollEl) {
-    var barLeft = activeBar.offsetLeft;
-    var barRight = barLeft + activeBar.offsetWidth;
-    var visible = tlScrollEl.scrollLeft;
-    var visEnd = visible + tlScrollEl.clientWidth;
-    if (barLeft < visible || barRight > visEnd) {
-      tlScrollEl.scrollLeft = barLeft - tlScrollEl.clientWidth / 2 + activeBar.offsetWidth / 2;
-    }
-  }
+  document.getElementById('tlCols').innerHTML = ch;
+  updatePlayheadUI(tlLocalBarIdx);
 
   // QLC+ status
   var dotQlc = document.getElementById('dotQlc');
@@ -797,8 +768,14 @@ function renderTimeline() {
   }
 }
 
-// ─── Render: Full update ──────────────────────
+/// ─── Render: Full update ──────────────────────
+var _lastRenderedSongId = '';
 function renderAll() {
+  // Reset playhead on song change
+  if (state.current_song_id && state.current_song_id !== _lastRenderedSongId) {
+    _lastRenderedSongId = state.current_song_id;
+    tlLocalBarIdx = 0;
+  }
   // Song header
   document.getElementById('songTitle').textContent = state.current_song_name || '-';
   document.getElementById('songArtist').textContent = state.current_artist || '';
@@ -839,49 +816,51 @@ function updateBeats() {
   }
 }
 
+// 0-basierter absoluter Takt-Index im aktuellen Song für den Playhead
+var tlLocalBarIdx = 0;
+
+function updatePlayheadUI(barIdx) {
+  var cols = document.querySelectorAll('#tlCols .tl-col');
+  if (!cols.length) return;
+  for (var i = 0; i < cols.length; i++) {
+    var bar = cols[i].querySelector('.tl-bar');
+    bar.classList.toggle('active', i === barIdx);
+    bar.classList.toggle('done', i < barIdx);
+  }
+  var target = cols[Math.min(Math.max(barIdx, 0), cols.length - 1)];
+  if (target) {
+    var sc = document.getElementById('tlScroll');
+    if (sc) sc.scrollLeft = target.offsetLeft - sc.clientWidth / 2 + target.offsetWidth / 2;
+  }
+}
+
 function restartBeatSim(bpm) {
   if (beatTimer) clearInterval(beatTimer);
   if (!bpm || bpm <= 0) return;
   beatTimer = setInterval(function() {
     beat = (beat % 4) + 1;
     updateBeats();
+    if (beat === 1) {  // Downbeat: Playhead um einen Takt weiterschalten
+      var cols = document.querySelectorAll('#tlCols .tl-col');
+      if (cols.length && tlLocalBarIdx < cols.length - 1) {
+        tlLocalBarIdx++;
+        updatePlayheadUI(tlLocalBarIdx);
+      }
+    }
   }, Math.round(60000 / bpm));
 }
 
 // ─── Beat-Update vom Server (XR18-Takterkennung) ──────────────
-var tlBarAtPartStart = 0;  // bar_num beim letzten Part-Wechsel
-var tlLastStep = -1;       // letzter current_step bei dem wir zurückgesetzt haben
-
 function handleBeatUpdate(msg) {
-  // Beat-Visualisierung live vom Server statt Simulation
   if (msg.beat_num) {
     beat = msg.beat_num;
     updateBeats();
     if (msg.bpm && msg.bpm > 0) restartBeatSim(msg.bpm);
   }
-  // Timeline-Scroll auf Downbeat
-  if (msg.is_downbeat) {
-    var curStep = state.current_step || 0;
-    var barNum = msg.bar_num || 0;
-    if (curStep !== tlLastStep) {
-      // Neuer Part → Zähler auf aktuellen bar_num zurücksetzen
-      tlBarAtPartStart = barNum;
-      tlLastStep = curStep;
-    }
-    var barInPart = barNum - tlBarAtPartStart;
-    scrollTimelineToBarInPart(barInPart);
-  }
-}
-
-function scrollTimelineToBarInPart(barInPart) {
-  var tlScrollEl = document.getElementById('tlScroll');
-  if (!tlScrollEl) return;
-  var activeBars = document.querySelectorAll('#tlBars .tl-bar.active');
-  if (!activeBars.length) return;
-  var idx = Math.min(Math.max(barInPart, 0), activeBars.length - 1);
-  var target = activeBars[idx];
-  if (target) {
-    tlScrollEl.scrollLeft = target.offsetLeft - tlScrollEl.clientWidth / 2 + target.offsetWidth / 2;
+  // Downbeat vom XR18: absoluten Takt-Index aus bar_num setzen
+  if (msg.is_downbeat && msg.bar_num != null) {
+    tlLocalBarIdx = Math.max(0, msg.bar_num - 1);
+    updatePlayheadUI(tlLocalBarIdx);
   }
 }
 
@@ -913,12 +892,15 @@ document.getElementById('parts').addEventListener('click', function(e) {
   }).catch(function(err) { console.error('send_template:', err); });
 });
 
-// Timeline step click
-document.getElementById('tlBars').addEventListener('click', function(e) {
-  var barEl = e.target.closest('.tl-bar');
-  if (!barEl) return;
-  var idx = parseInt(barEl.dataset.step, 10);
-  if (!isNaN(idx)) sendCmd('goto', { step: idx });
+// Timeline click — Playhead auf geklickten Takt setzen
+document.getElementById('tlCols').addEventListener('click', function(e) {
+  var col = e.target.closest('.tl-col');
+  if (!col) return;
+  var idx = parseInt(col.dataset.idx, 10);
+  if (!isNaN(idx)) {
+    tlLocalBarIdx = idx;
+    updatePlayheadUI(tlLocalBarIdx);
+  }
 });
 
 // Nav buttons

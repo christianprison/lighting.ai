@@ -2,6 +2,12 @@
 
 Touch-optimierter Live Controller für THE PACT Bühnenbeleuchtung mit QLC+ Anbindung.
 
+## Dokumentation
+
+| Dokument                          | Inhalt                                     |
+|-----------------------------------|--------------------------------------------|
+| [docs/aufnahme.md](docs/aufnahme.md) | Proben-Aufnahme: Bedienung + Nachbereitung |
+
 ## Voraussetzungen
 
 - **Python 3.11+**

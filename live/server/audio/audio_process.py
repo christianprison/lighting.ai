@@ -350,7 +350,11 @@ class AudioProcess:
             self._channel_rms = rms_per_ch
 
         # --- Pfad 1: Beat-Detection (alle Kanäle, block-weise) ---
-        beat_events = self.beat_detector.process_block(indata)
+        beat_events, snare_onset = self.beat_detector.process_block(indata)
+        if snare_onset:
+            el = self.recorder.event_logger
+            if el is not None:
+                el.log("snare")
         for ev in beat_events:
             beat_update = BeatUpdate(
                 beat_num=ev.beat_num,

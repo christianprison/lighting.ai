@@ -21,10 +21,10 @@
 html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(--t1);
 font-family:'Sora',system-ui,sans-serif;font-size:14px;-webkit-user-select:none;user-select:none}
 
-.app{display:grid;grid-template-rows:1fr 80px;height:100vh;height:100dvh}
-.main{display:grid;grid-template-columns:240px 1fr 220px;grid-template-rows:1fr;height:100%;overflow:hidden;border-bottom:1px solid var(--border)}
-.panel{display:flex;flex-direction:column;height:100%;min-height:0;overflow:hidden;background:var(--bg);border-right:1px solid var(--border)}
-.panel:last-child{border-right:none;border-left:1px solid var(--border)}
+.app{display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden}
+.main{flex:1 1 0;min-height:0;display:flex;flex-direction:row;overflow:hidden;border-bottom:1px solid var(--border)}
+.panel{flex:0 0 240px;display:flex;flex-direction:column;min-height:0;overflow:hidden;background:var(--bg);border-right:1px solid var(--border)}
+.panel:last-child{flex:0 0 220px;border-right:none;border-left:1px solid var(--border)}
 .panel-head{padding:12px 16px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);flex-shrink:0;
 font-family:'DM Mono',monospace;font-size:10px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--t3)}
 .panel-head .ind{width:5px;height:5px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green)}
@@ -51,7 +51,7 @@ background:var(--bg);padding:2px 8px;border-radius:4px;white-space:nowrap;align-
 .part-prog{position:absolute;bottom:0;left:0;height:2.5px;background:var(--green);transition:width .3s;box-shadow:0 0 8px var(--green)}
 
 /* ═══ CENTER ═══ */
-.center{display:flex;flex-direction:column;height:100%;min-height:0;overflow:hidden;
+.center{flex:1 1 0;min-width:0;min-height:0;display:flex;flex-direction:column;overflow:hidden;
 background:var(--bg);border-right:1px solid var(--border)}
 .song-bar{flex-shrink:0;padding:10px 20px 8px;text-align:center;border-bottom:1px solid var(--border);
 background:linear-gradient(180deg,var(--bg2),var(--bg))}
@@ -380,7 +380,7 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
     <div class="badges">
       <div class="badge live" id="badgeLive"><div class="pulse"></div>LIVE</div>
       <div class="badge" id="badgeQlc">QLC+ &#x25CF;</div>
-      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.03.26k</div>
+      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.03.26l</div>
     </div>
     <div class="beat-area">
       <div class="beat-row">

@@ -21,7 +21,7 @@
 html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(--t1);
 font-family:'Sora',system-ui,sans-serif;font-size:14px;-webkit-user-select:none;user-select:none}
 
-.app{display:grid;grid-template-rows:1fr auto;height:100vh;height:100dvh}
+.app{display:grid;grid-template-rows:1fr 80px;height:100vh;height:100dvh}
 .main{display:grid;grid-template-columns:240px 1fr 220px;min-height:0;border-bottom:1px solid var(--border)}
 .panel{display:flex;flex-direction:column;min-height:0;background:var(--bg);border-right:1px solid var(--border)}
 .panel:last-child{border-right:none;border-left:1px solid var(--border)}
@@ -109,6 +109,12 @@ letter-spacing:.8px;text-transform:uppercase;color:var(--t2);cursor:pointer;tran
 
 /* Nav row */
 .navrow{display:grid;grid-template-columns:1fr 1fr;gap:8px;flex-shrink:0}
+.rec-main-btn{width:100%;padding:12px;border-radius:var(--r);border:2px solid var(--border2);
+background:var(--bg3);color:var(--t2);font-family:'DM Mono',monospace;font-size:13px;font-weight:600;
+letter-spacing:2px;cursor:pointer;transition:all .12s;flex-shrink:0;touch-action:manipulation}
+.rec-main-btn:active{transform:scale(.97)}
+.rec-main-btn.on{background:#ff3b5c18;border-color:var(--red);color:var(--red)}
+.rec-main-btn.armed{background:var(--amber2);border-color:var(--amber);color:var(--amber)}
 .nbtn{display:flex;align-items:center;justify-content:center;gap:6px;padding:14px;border-radius:var(--r);
 border:1.5px solid var(--border2);background:var(--bg3);color:var(--t1);font-size:13px;font-weight:600;
 cursor:pointer;transition:all .1s;touch-action:manipulation}
@@ -122,7 +128,7 @@ padding:9px 10px;margin-bottom:2px;border-radius:6px;border:1.5px solid transpar
 .song:active{transform:scale(.97)}
 .song.active{background:var(--green3);border-color:var(--green)}
 .song.played{opacity:.3}
-.song.no-chaser{opacity:.5}
+.song.no-chaser{opacity:.7}
 .song-i{font-family:'DM Mono',monospace;font-size:10px;color:var(--t4);text-align:right}
 .song.active .song-i{color:var(--green)}
 .song-t{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -369,7 +375,7 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
     <div class="badges">
       <div class="badge live" id="badgeLive"><div class="pulse"></div>LIVE</div>
       <div class="badge" id="badgeQlc">QLC+ &#x25CF;</div>
-      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.03.26c</div>
+      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.03.26d</div>
     </div>
     <div class="beat-area">
       <div class="beat-row">
@@ -399,6 +405,7 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
       <button class="nbtn" id="btnPrev">&#x25C0; PREV</button>
       <button class="nbtn go" id="btnNext">NEXT &#x25B6;</button>
     </div>
+    <button class="rec-main-btn" id="btnRec">&#x23FA; REC</button>
   </div>
 </div>
 
@@ -423,12 +430,8 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
     <div class="tl-status tl-audio-row" id="audioStatusRow" onclick="toggleVuPanel()">
       <div class="dot" id="dotAudio"></div><span id="statusAudio">XR18 —</span>
     </div>
-    <div style="display:flex;gap:4px">
-      <button class="tl-sync" id="btnSync">SYNC</button>
-      <button class="tl-rec" id="btnRec">REC</button>
-    </div>
+    <button class="tl-sync" id="btnSync">SYNC</button>
     <div class="tl-rec-dur" id="recDurInline"></div>
-    <div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--t3);margin-top:1px">v2026.03.26c</div>
     <div class="vu-panel" id="vuPanel">
       <div class="vu-head">
         <span>XR18 Pegel</span>
@@ -582,7 +585,8 @@ function renderSetlist() {
     var hasChaser = !!qlcMapping[sid];
     var cls = isActive ? 'active' : '';
     if (!hasChaser) cls += ' no-chaser';
-    h += '<div class="song ' + cls + '" data-sid="' + sid + '">';
+    var title = hasChaser ? '' : ' title="Kein QLC+ Mapping"';
+    h += '<div class="song ' + cls + '" data-sid="' + sid + '"' + title + '>';
     h += '<span class="song-i">' + String(idx).padStart(2, '0') + '</span>';
     h += '<span class="song-t">' + escHtml(item.name || '?') + '</span>';
     h += '<span class="song-b">' + (item.bpm || '') + '</span>';
@@ -686,13 +690,9 @@ function renderTimeline() {
         bh += '<div class="tl-bar ' + cls + '" title="' + escHtml(part.part_name) + ' T' + (b + 1) + (lyrics ? ': ' + escHtml(lyrics) : '') + '"' + style + '>' + label + '</div>';
       }
     }
-  } else if (sid && qlcMapping[sid]) {
-    // Fallback: show steps if no bars data
-    var steps = qlcMapping[sid].steps || [];
-    for (var i = 0; i < steps.length; i++) {
-      var cls = i < curStep ? 'done' : i === curStep ? 'active' : '';
-      bh += '<div class="tl-bar ' + cls + '" data-step="' + i + '">' + (i + 1) + '</div>';
-    }
+  } else if (sid) {
+    // Keine Bar-Daten — DB veraltet oder noch nicht eingetragen
+    bh += '<div style="font-family:\'DM Mono\',monospace;font-size:9px;color:var(--amber);padding:0 4px;align-self:center">Keine Takte — SYNC drücken</div>';
   }
   document.getElementById('tlBars').innerHTML = bh;
 

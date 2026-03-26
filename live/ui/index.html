@@ -110,9 +110,12 @@ letter-spacing:.8px;text-transform:uppercase;color:var(--t2);cursor:pointer;tran
 
 /* Nav row */
 .navrow{display:grid;grid-template-columns:1fr 1fr;gap:8px;flex-shrink:0}
-.rec-main-btn{width:100%;padding:12px;border-radius:var(--r);border:2px solid var(--border2);
-background:var(--bg3);color:var(--t2);font-family:'DM Mono',monospace;font-size:13px;font-weight:600;
-letter-spacing:2px;cursor:pointer;transition:all .12s;flex-shrink:0;touch-action:manipulation}
+
+/* Setlist head: REC + Settings */
+.setlist-head{display:flex;align-items:center;gap:6px;padding:8px 10px;flex-shrink:0}
+.rec-main-btn{flex:1;padding:10px 6px;border-radius:var(--r);border:2px solid var(--border2);
+background:var(--bg3);color:var(--t2);font-family:'DM Mono',monospace;font-size:12px;font-weight:600;
+letter-spacing:2px;cursor:pointer;transition:all .12s;touch-action:manipulation}
 .rec-main-btn:active{transform:scale(.97)}
 .rec-main-btn.on{background:#ff3b5c18;border-color:var(--red);color:var(--red)}
 .rec-main-btn.armed{background:var(--amber2);border-color:var(--amber);color:var(--amber)}
@@ -376,7 +379,7 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
     <div class="badges">
       <div class="badge live" id="badgeLive"><div class="pulse"></div>LIVE</div>
       <div class="badge" id="badgeQlc">QLC+ &#x25CF;</div>
-      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.03.26e</div>
+      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.03.26f</div>
     </div>
     <div class="beat-area">
       <div class="beat-row">
@@ -406,13 +409,16 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
       <button class="nbtn" id="btnPrev">&#x25C0; PREV</button>
       <button class="nbtn go" id="btnNext">NEXT &#x25B6;</button>
     </div>
-    <button class="rec-main-btn" id="btnRec">&#x23FA; REC</button>
   </div>
 </div>
 
 <!-- RIGHT: SETLIST -->
 <div class="panel" style="border-right:none">
-  <div class="panel-head">SETLIST <button class="settings-btn" onclick="toggleConfig()" title="QLC+ Config">&#x2699;</button></div>
+  <div class="setlist-head">
+    <button class="rec-main-btn" id="btnRec">&#x23FA; REC</button>
+    <button class="settings-btn" onclick="toggleConfig()" title="QLC+ Config">&#x2699;</button>
+  </div>
+  <div class="panel-head" style="border-top:1px solid var(--border)">SETLIST</div>
   <div class="scroll" id="setlist"></div>
 </div>
 

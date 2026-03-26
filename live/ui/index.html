@@ -23,7 +23,7 @@ font-family:'Sora',system-ui,sans-serif;font-size:14px;-webkit-user-select:none;
 
 .app{display:grid;grid-template-rows:1fr 80px;height:100vh;height:100dvh}
 .main{display:grid;grid-template-columns:240px 1fr 220px;grid-template-rows:1fr;height:100%;overflow:hidden;border-bottom:1px solid var(--border)}
-.panel{display:flex;flex-direction:column;height:100%;overflow:hidden;background:var(--bg);border-right:1px solid var(--border)}
+.panel{display:flex;flex-direction:column;height:100%;min-height:0;overflow:hidden;background:var(--bg);border-right:1px solid var(--border)}
 .panel:last-child{border-right:none;border-left:1px solid var(--border)}
 .panel-head{padding:12px 16px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);flex-shrink:0;
 font-family:'DM Mono',monospace;font-size:10px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--t3)}
@@ -51,7 +51,7 @@ background:var(--bg);padding:2px 8px;border-radius:4px;white-space:nowrap;align-
 .part-prog{position:absolute;bottom:0;left:0;height:2.5px;background:var(--green);transition:width .3s;box-shadow:0 0 8px var(--green)}
 
 /* ═══ CENTER ═══ */
-.center{display:flex;flex-direction:column;height:100%;overflow:hidden;
+.center{display:flex;flex-direction:column;height:100%;min-height:0;overflow:hidden;
 background:var(--bg);border-right:1px solid var(--border)}
 .song-bar{flex-shrink:0;padding:10px 20px 8px;text-align:center;border-bottom:1px solid var(--border);
 background:linear-gradient(180deg,var(--bg2),var(--bg))}
@@ -380,7 +380,7 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
     <div class="badges">
       <div class="badge live" id="badgeLive"><div class="pulse"></div>LIVE</div>
       <div class="badge" id="badgeQlc">QLC+ &#x25CF;</div>
-      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.03.26j</div>
+      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.03.26k</div>
     </div>
     <div class="beat-area">
       <div class="beat-row">
@@ -455,31 +455,7 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
 
 </div>
 
-<!-- DEBUG OVERLAY -->
-<div id="dbg" style="display:none;position:fixed;top:0;left:0;z-index:9999;
-max-width:100vw;max-height:50vh;overflow-y:auto;
-background:rgba(0,0,0,.92);color:#0f0;font:11px/1.4 'DM Mono',monospace;
-padding:8px 12px;border-bottom:2px solid #0f0;border-right:2px solid #0f0;
-white-space:pre-wrap;word-break:break-all"></div>
-
 <script>
-// ─── Debug Overlay ────────────────────────────
-var _dbgLines = [];
-function dbg(msg) {
-  var ts = new Date().toTimeString().slice(0,8);
-  _dbgLines.push(ts + ' ' + msg);
-  if (_dbgLines.length > 60) _dbgLines.shift();
-  var el = document.getElementById('dbg');
-  el.style.display = 'block';
-  el.textContent = _dbgLines.join('\n');
-  el.scrollTop = el.scrollHeight;
-}
-window.onerror = function(msg, src, line, col, err) {
-  dbg('ERROR: ' + msg + ' (' + (src||'').split('/').pop() + ':' + line + ')');
-};
-window.addEventListener('unhandledrejection', function(e) {
-  dbg('PROMISE: ' + (e.reason && e.reason.message || e.reason));
-});
 
 // ═══════════════════════════════════════════════
 // lighting.ai Live Controller
@@ -635,13 +611,11 @@ function renderParts() {
   var el = document.getElementById('parts');
   var sid = state.current_song_id;
   var hasMap = !!qlcMapping[sid];
-  dbg('renderParts sid=' + sid + ' hasMap=' + hasMap + ' keys=' + Object.keys(qlcMapping).length);
   if (!sid || !hasMap) {
     el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--t3)">Kein Song ausgew\u00e4hlt</div>';
     return;
   }
   var chaser = qlcMapping[sid];
-  dbg('chaser steps=' + (chaser.steps||[]).length + ' name=' + chaser.song_name);
   var steps = chaser.steps || [];
   var curStep = state.current_step || 0;
   var h = '';
@@ -681,7 +655,6 @@ function truncLyrics(s, max) {
 }
 
 function renderTimeline() {
-  dbg('renderTimeline sid=' + state.current_song_id + ' songBars=' + songBars.length);
   var sid = state.current_song_id;
   var partName = state.current_part_name || state.current_function_name || '-';
   var curStep = state.current_step || 0;
@@ -784,7 +757,6 @@ function renderTimeline() {
 
 // ─── Render: Full update ──────────────────────
 function renderAll() {
-  dbg('renderAll sid=' + state.current_song_id + ' step=' + state.current_step + ' song=' + (state.current_song_name||'-'));
   // Song header
   document.getElementById('songTitle').textContent = state.current_song_name || '-';
   document.getElementById('songArtist').textContent = state.current_artist || '';

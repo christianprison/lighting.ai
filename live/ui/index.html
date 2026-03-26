@@ -21,8 +21,8 @@
 html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(--t1);
 font-family:'Sora',system-ui,sans-serif;font-size:14px;-webkit-user-select:none;user-select:none}
 
-.app{display:grid;grid-template-rows:1fr 94px;height:100vh;height:100dvh}
-.main{display:grid;grid-template-columns:280px 1fr 250px;min-height:0;border-bottom:1px solid var(--border)}
+.app{display:grid;grid-template-rows:1fr auto;height:100vh;height:100dvh}
+.main{display:grid;grid-template-columns:240px 1fr 220px;min-height:0;border-bottom:1px solid var(--border)}
 .panel{display:flex;flex-direction:column;min-height:0;background:var(--bg);border-right:1px solid var(--border)}
 .panel:last-child{border-right:none;border-left:1px solid var(--border)}
 .panel-head{padding:12px 16px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);flex-shrink:0;
@@ -63,7 +63,7 @@ background:linear-gradient(180deg,var(--bg2),var(--bg))}
 .badge{font-family:'DM Mono',monospace;font-size:9px;font-weight:500;letter-spacing:1.5px;padding:4px 11px;border-radius:20px;display:flex;align-items:center;gap:5px}
 .badge.live{background:var(--green2);color:var(--green);border:1px solid var(--green)}
 .badge.qlc{background:var(--cyan2);color:var(--cyan);border:1px solid #38bdf850}
-.badge.off{background:var(--bg3);color:var(--t4);border:1px solid var(--border)}
+.badge.off{background:var(--bg3);color:var(--t2);border:1px solid var(--border2)}
 .pulse{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 1.4s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
@@ -131,8 +131,11 @@ padding:9px 10px;margin-bottom:2px;border-radius:6px;border:1.5px solid transpar
 
 /* ═══ TIMELINE (BOTTOM) ═══ */
 .timeline{background:var(--bg2);display:grid;
-grid-template-columns:120px 1fr 140px;grid-template-rows:auto auto;
-column-gap:12px;row-gap:0;padding:8px 16px 6px;border-top:1px solid var(--border);align-items:start}
+grid-template-columns:110px 1fr 130px;grid-template-rows:auto auto;
+column-gap:8px;row-gap:0;padding:8px 12px calc(8px + env(safe-area-inset-bottom)) 12px;
+padding-left:calc(12px + env(safe-area-inset-left));
+padding-right:calc(12px + env(safe-area-inset-right));
+border-top:1px solid var(--border);align-items:start}
 .tl-label{grid-column:1;grid-row:1/3;display:flex;flex-direction:column;gap:1px;padding-top:4px}
 .tl-part-name{font-family:'Sora',sans-serif;font-size:14px;font-weight:600;color:var(--green)}
 .tl-part-count{font-family:'DM Mono',monospace;font-size:10px;color:var(--t3)}
@@ -366,7 +369,7 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
     <div class="badges">
       <div class="badge live" id="badgeLive"><div class="pulse"></div>LIVE</div>
       <div class="badge" id="badgeQlc">QLC+ &#x25CF;</div>
-      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.03.26a</div>
+      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.03.26b</div>
     </div>
     <div class="beat-area">
       <div class="beat-row">
@@ -425,6 +428,7 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
       <button class="tl-rec" id="btnRec">REC</button>
     </div>
     <div class="tl-rec-dur" id="recDurInline"></div>
+    <div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--t3);margin-top:1px">v2026.03.26b</div>
     <div class="vu-panel" id="vuPanel">
       <div class="vu-head">
         <span>XR18 Pegel</span>
@@ -695,9 +699,15 @@ function renderTimeline() {
   var dotSync = document.getElementById('dotSync');
   var statusSync = document.getElementById('statusSync');
   if (state.db_synced) {
-    dotSync.className = 'dot ok';
+    var method = state.db_sync_method || '';
     var ts = state.db_sync_time ? formatSyncTime(state.db_sync_time) : '';
-    statusSync.textContent = 'DB OK' + (ts ? ' ' + ts : '');
+    if (method === 'local') {
+      dotSync.className = 'dot warn';
+      statusSync.textContent = 'DB lokal' + (ts ? ' ' + ts : '');
+    } else {
+      dotSync.className = 'dot ok';
+      statusSync.textContent = 'DB \u2191GH' + (ts ? ' ' + ts : '');
+    }
   } else {
     dotSync.className = 'dot warn';
     statusSync.textContent = 'DB Offline';

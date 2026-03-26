@@ -42,8 +42,8 @@ cursor:pointer;transition:all .1s;position:relative;overflow:hidden}
 .part-n{font-family:'DM Mono',monospace;font-size:10px;color:var(--t4);text-align:right}
 .part.active .part-n{color:var(--green)}
 .part-body{display:flex;flex-direction:column;justify-content:center;gap:2px;overflow:hidden}
-.part-name{font-weight:500;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.part-info{font-family:'DM Mono',monospace;font-size:10px;color:var(--t3);white-space:nowrap}
+.part-name{font-weight:500;font-size:13px;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.part-info{font-family:'DM Mono',monospace;font-size:13px;color:var(--amber);white-space:nowrap}
 .part.active .part-info{color:var(--green)}
 .part-badge{font-family:'DM Mono',monospace;font-size:10px;color:var(--t3);
 background:var(--bg);padding:2px 8px;border-radius:4px;white-space:nowrap;align-self:center}
@@ -263,6 +263,9 @@ padding:2px 8px;border-radius:3px;border:1px solid var(--border);background:tran
 .tl-rec:active{background:var(--bg4)}
 .tl-rec.on{color:var(--red);border-color:var(--red);background:#ff3b5c12;font-weight:500}
 .tl-rec.armed{color:var(--amber);border-color:var(--amber);background:var(--amber2)}
+.rec-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--red);
+vertical-align:middle;margin-right:4px;animation:recBlink .8s ease-in-out infinite}
+@keyframes recBlink{0%,100%{opacity:1}50%{opacity:0}}
 .tl-rec-dur{font-family:'DM Mono',monospace;font-size:9px;color:var(--red);margin-top:2px;
 min-width:32px;text-align:right;display:none}
 .tl-rec-dur.show{display:block}
@@ -350,6 +353,7 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
     <div class="conn-task" id="ct-songs"><span class="ct-icon">&#x25CB;</span>Songs laden</div>
     <div class="conn-task" id="ct-setlist"><span class="ct-icon">&#x25CB;</span>Setlist laden</div>
     <div class="conn-task" id="ct-qlc"><span class="ct-icon">&#x25CB;</span>QLC+ Mapping</div>
+    <div class="conn-task" id="ct-xr18"><span class="ct-icon">&#x25CB;</span>XR18 verbinden</div>
     <div class="conn-task" id="ct-ws"><span class="ct-icon">&#x25CB;</span>WebSocket verbinden</div>
   </div>
 </div>
@@ -382,7 +386,7 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
     <div class="badges">
       <div class="badge live" id="badgeLive"><div class="pulse"></div>LIVE</div>
       <div class="badge" id="badgeQlc">QLC+ &#x25CF;</div>
-      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.03.26m</div>
+      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.03.26n</div>
     </div>
     <div class="beat-area">
       <div class="beat-row">
@@ -1220,7 +1224,7 @@ function recTap() {
       recStopArmed = false;
       btn.classList.remove('armed');
       btn.classList.add('on');
-      btn.textContent = 'REC';
+      btn.innerHTML = '<span class="rec-dot"></span>REC';
     }, 3000);
   } else {
     // Zweiter Tap: wirklich stoppen
@@ -1246,7 +1250,7 @@ async function recStart() {
     startRecDurTimer();
     var btn = document.getElementById('btnRec');
     btn.classList.add('on');
-    btn.textContent = 'REC';
+    btn.innerHTML = '<span class="rec-dot"></span>REC';
     showToast('Aufnahme gestartet');
   } catch (e) { showToast('Fehler beim Starten'); }
 }
@@ -1259,7 +1263,7 @@ async function recStop() {
     stopRecDurTimer();
     var btn = document.getElementById('btnRec');
     btn.classList.remove('on', 'armed');
-    btn.textContent = 'REC';
+    btn.innerHTML = '&#x23FA; REC';
     var info = data.path ? data.path.split('/').pop() : '';
     showToast('Aufnahme gespeichert' + (info ? ': ' + info : ''));
   } catch (e) { showToast('Fehler beim Stoppen'); }
@@ -1293,6 +1297,9 @@ async function refreshRecStatus() {
     if (recRunning && s.started_at) {
       recStartedAt = new Date(s.started_at);
       startRecDurTimer();
+      btn.innerHTML = '<span class="rec-dot"></span>REC';
+    } else if (!recRunning) {
+      btn.innerHTML = '&#x23FA; REC';
     }
   } catch (e) { /* Server offline */ }
 }
@@ -1402,12 +1409,21 @@ updateBeats();
   // Render what we have so far
   renderAll();
 
-  // Step 4: WebSocket
+  // Step 4: XR18 verbinden
+  setTask('ct-xr18', 'active');
+  try {
+    var devs = await fetchJSON('/api/audio/devices');
+    setTask('ct-xr18', devs.xr18_detected ? 'done' : 'err');
+  } catch(e) {
+    setTask('ct-xr18', 'err');
+  }
+
+  // Step 5: WebSocket
   setTask('ct-ws', 'active');
   connectWS();
   // WS onopen will mark done and dismiss overlay
 
-  // Step 5: Audio polling + Recording-Status
+  // Step 6: Audio polling + Recording-Status
   startAudioPolling();
   refreshRecStatus();
 })();

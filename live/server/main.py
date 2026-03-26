@@ -27,6 +27,28 @@ logging.basicConfig(
 )
 log = logging.getLogger("live.main")
 
+
+class _EventLogHandler(logging.Handler):
+    """Leitet WARNING/ERROR/CRITICAL ins aktive Session-Logfile um."""
+
+    def emit(self, record: logging.LogRecord) -> None:
+        if record.levelno < logging.WARNING:
+            return
+        if audio_process is None:
+            return
+        el = audio_process.recorder.event_logger
+        if el is None:
+            return
+        try:
+            el.log(
+                "server_log",
+                level=record.levelname,
+                logger=record.name,
+                msg=record.getMessage(),
+            )
+        except Exception:
+            pass
+
 # --- Global state ---
 cfg: Config = load_config()
 db: dict = {}
@@ -125,6 +147,9 @@ async def startup():
     audio_device = getattr(cfg, "audio_device", None)
     audio_process = AudioProcess(ref_db, _audio_queue, loop, device=audio_device)
     audio_process.start()
+
+    # Logging-Handler registrieren: WARNING/ERROR → aktives Event-Logfile
+    logging.getLogger().addHandler(_EventLogHandler())
 
     # Background-Task: Audio-Queue → WebSocket broadcast
     asyncio.create_task(_consume_audio_queue())
@@ -604,6 +629,16 @@ async def recording_mixdown(body: dict):
 
 # --- WebSocket ---
 
+def _log_user_action(action: str, data: dict) -> None:
+    """Schreibt eine User-Interaktion ins aktive Event-Logfile."""
+    if audio_process is None:
+        return
+    el = audio_process.recorder.event_logger
+    if el is None:
+        return
+    el.log("user", action=action, data=data)
+
+
 async def _handle_ws_action(action: str, msg: dict) -> dict | None:
     """Process WebSocket commands from the UI."""
     songs = db.get("songs", {})
@@ -613,6 +648,7 @@ async def _handle_ws_action(action: str, msg: dict) -> dict | None:
         song = songs.get(song_id)
         if not song:
             return {"error": f"Song not found: {song_id}"}
+        _log_user_action("select_song", {"song_id": song_id, "name": song.get("name", "")})
 
         chaser = qlc_data.song_mapping.get(song_id) if qlc_data else None
 
@@ -638,6 +674,7 @@ async def _handle_ws_action(action: str, msg: dict) -> dict | None:
         return {"ok": True, "song_id": song_id, "has_chaser": chaser is not None}
 
     elif action == "next":
+        _log_user_action("next", {"from_step": ws_handler.state.current_step})
         chaser = None
         if qlc_data and ws_handler.state.current_song_id:
             chaser = qlc_data.song_mapping.get(ws_handler.state.current_song_id)
@@ -656,6 +693,7 @@ async def _handle_ws_action(action: str, msg: dict) -> dict | None:
         return {"ok": True, "step": new_step}
 
     elif action == "prev":
+        _log_user_action("prev", {"from_step": ws_handler.state.current_step})
         chaser = None
         if qlc_data and ws_handler.state.current_song_id:
             chaser = qlc_data.song_mapping.get(ws_handler.state.current_song_id)
@@ -674,6 +712,7 @@ async def _handle_ws_action(action: str, msg: dict) -> dict | None:
 
     elif action == "goto":
         step_index = msg.get("step", 0)
+        _log_user_action("goto", {"step": step_index, "from_step": ws_handler.state.current_step})
         chaser = None
         if qlc_data and ws_handler.state.current_song_id:
             chaser = qlc_data.song_mapping.get(ws_handler.state.current_song_id)
@@ -691,12 +730,14 @@ async def _handle_ws_action(action: str, msg: dict) -> dict | None:
 
     elif action == "accent":
         accent_type = msg.get("type", "")
+        _log_user_action("accent", {"accent": accent_type})
         if osc and accent_type in ACCENT_FUNCTIONS:
             await osc.trigger_accent_async(accent_type)
             return {"ok": True, "accent": accent_type}
         return {"error": f"Unknown accent or OSC not connected: {accent_type}"}
 
     elif action == "tap":
+        _log_user_action("tap", {"bpm_current": ws_handler.state.current_bpm})
         if osc:
             await osc.tap_tempo_async()
         return {"ok": True}

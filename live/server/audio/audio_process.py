@@ -360,6 +360,18 @@ class AudioProcess:
                 is_fill=ev.is_fill,
             )
             self._emit(beat_update)
+            # Beat ins Event-Log schreiben
+            el = self.recorder.event_logger
+            if el is not None:
+                el.log(
+                    "beat",
+                    beat_num=ev.beat_num,
+                    bar_num=ev.bar_num,
+                    bpm=ev.bpm,
+                    is_downbeat=ev.is_downbeat,
+                    is_fill=ev.is_fill,
+                    trigger=ev.trigger,
+                )
             # Downbeat (Beat 1) → HMM-Snapshot triggern
             if ev.is_downbeat:
                 self._snapshot_pending = True
@@ -430,6 +442,19 @@ class AudioProcess:
                 )
             except Exception as exc:
                 log.warning("Probe-Event konnte nicht geloggt werden: %s", exc)
+
+        # HMM-Position ins Event-Log schreiben
+        el = self.recorder.event_logger
+        if el is not None and state.song_id:
+            el.log(
+                "position",
+                song_id=state.song_id,
+                bar_num=state.bar_num,
+                part_name=state.part_name,
+                confidence=round(state.confidence, 4),
+                is_frozen=state.is_frozen,
+                bpm_live=round(self.beat_detector.bpm or 0.0, 1),
+            )
 
         # Ergebnis in asyncio-Queue schieben
         update = PositionUpdate(

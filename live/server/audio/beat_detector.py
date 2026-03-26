@@ -236,7 +236,7 @@ class BeatDetector:
     def bar_num(self) -> int:
         return self._bar_num
 
-    def process_block(self, block: np.ndarray) -> list[BeatEvent]:
+    def process_block(self, block: np.ndarray) -> tuple[list[BeatEvent], bool]:
         """Verarbeitet einen Audio-Block und gibt Beat-Ereignisse zurück.
 
         Parameters
@@ -248,7 +248,9 @@ class BeatDetector:
 
         Returns
         -------
-        Liste von BeatEvent (meist leer oder 1 Element pro Block).
+        (beat_events, snare_onset)
+            beat_events: Liste von BeatEvent (meist leer oder 1 Element pro Block).
+            snare_onset: True wenn in diesem Block ein Snare-Onset erkannt wurde.
         """
         frames = block.shape[0]
         n_ch = block.shape[1] if block.ndim > 1 else 1
@@ -306,7 +308,7 @@ class BeatDetector:
         if snare_onset:
             self._snare_correction()
 
-        return events
+        return events, snare_onset
 
     # --- Interne Methoden -----------------------------------------------------
 

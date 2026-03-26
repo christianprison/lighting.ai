@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import asyncio
 import logging
-import re
 from pathlib import Path
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
@@ -259,62 +258,46 @@ async def index():
 
 # --- REST API ---
 
-def _derive_parts_from_bars(song_id: str, song_bars: list[dict]) -> dict:
-    """Derive parts from bars' audio path directories when not stored explicitly.
+def _get_parts_for_song(song_id: str, song: dict, total_bars: int) -> dict:
+    """Build parts dict from split_markers.part_starts (DB-Pflege-App v1.7.0+ schema).
 
-    Bars use audio paths like 'audio/{song}/{NN partname}/{bar}.mp3'.
-    Groups bars by directory, extracts pos+name from 'NN name' prefix.
+    Each part_start has: bar_num, name, light_template, instrumental.
+    Bar count = next_part.bar_num - current.bar_num (last part gets remaining bars).
     """
-    seen: dict[str, dict] = {}  # part_dir → part info
-    for b in sorted(song_bars, key=lambda x: x.get("bar_num", 0)):
-        audio = b.get("audio", "")
-        parts = audio.split("/")
-        part_dir = parts[2] if len(parts) > 2 else ""
-        if not part_dir:
-            continue
-        if part_dir not in seen:
-            m = re.match(r"^(\d+)\s+(.+)$", part_dir)
-            pos = int(m.group(1)) if m else len(seen) + 1
-            name = m.group(2) if m else part_dir
-            seen[part_dir] = {"pos": pos, "name": name, "bars": 0,
-                               "duration_sec": 0, "light_template": ""}
-        seen[part_dir]["bars"] += 1
-    return {
-        f"{song_id}_P{str(p['pos']).zfill(3)}": p
-        for p in seen.values()
-    }
+    sm = song.get("split_markers", {})
+    part_starts = sorted(sm.get("part_starts", []), key=lambda x: x.get("bar_num", 0))
+    if not part_starts:
+        return {}
+    result = {}
+    for i, ps in enumerate(part_starts):
+        bar_num = ps.get("bar_num", 1)
+        next_ps = part_starts[i + 1] if i + 1 < len(part_starts) else None
+        bar_count = (next_ps["bar_num"] - bar_num) if next_ps else max(0, total_bars - bar_num + 1)
+        result[f"{song_id}_P{str(i + 1).zfill(3)}"] = {
+            "pos": i + 1,
+            "name": ps.get("name", ""),
+            "bars": bar_count,
+            "duration_sec": 0,
+            "light_template": ps.get("light_template", ""),
+        }
+    return result
 
 
 @app.get("/api/songs")
 async def get_songs():
-    """Return all songs from the DB, with parts derived from bars if not stored explicitly."""
+    """Return all songs from the DB with parts from split_markers.part_starts."""
     songs_db = db.get("songs", {})
     bars_db = db.get("bars", {})
 
-    # Pre-group bars by song_id for efficient lookup
-    bars_by_song: dict[str, list] = {}
+    # Count bars per song for bar_count calculation of last part
+    bars_per_song: dict[str, int] = {}
     for b in bars_db.values():
         sid = b.get("song_id")
         if sid:
-            bars_by_song.setdefault(sid, []).append(b)
+            bars_per_song[sid] = bars_per_song.get(sid, 0) + 1
 
     result = {}
     for sid, s in songs_db.items():
-        parts_db = s.get("parts", {})
-        if parts_db:
-            parts = {
-                pid: {
-                    "pos": p.get("pos", 0),
-                    "name": p.get("name", ""),
-                    "bars": p.get("bars", 0),
-                    "duration_sec": p.get("duration_sec", 0),
-                    "light_template": p.get("light_template", ""),
-                }
-                for pid, p in parts_db.items()
-            }
-        else:
-            parts = _derive_parts_from_bars(sid, bars_by_song.get(sid, []))
-
         result[sid] = {
             "name": s.get("name", ""),
             "artist": s.get("artist", ""),
@@ -322,7 +305,7 @@ async def get_songs():
             "key": s.get("key", ""),
             "duration": s.get("duration", ""),
             "duration_sec": s.get("duration_sec", 0),
-            "parts": parts,
+            "parts": _get_parts_for_song(sid, s, bars_per_song.get(sid, 0)),
         }
     return result
 

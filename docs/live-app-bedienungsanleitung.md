@@ -15,10 +15,11 @@
 5. [Parts und Steps navigieren](#5-parts-und-steps-navigieren)
 6. [Accents und Effekte](#6-accents-und-effekte)
 7. [Tap Tempo](#7-tap-tempo)
-8. [QLC+ Konfiguration](#8-qlc-konfiguration)
-9. [Offline-Betrieb](#9-offline-betrieb)
-10. [Fehlersuche](#10-fehlersuche)
-11. [Technische Referenz](#11-technische-referenz)
+8. [Proben-Aufnahme](#8-proben-aufnahme)
+9. [QLC+ Konfiguration](#9-qlc-konfiguration)
+10. [Offline-Betrieb](#10-offline-betrieb)
+11. [Fehlersuche](#11-fehlersuche)
+12. [Technische Referenz](#12-technische-referenz)
 
 ---
 
@@ -45,6 +46,7 @@ Lichtanlage (THE PACT)
 - Durch Song-Parts und Steps navigieren → QLC+ schaltet automatisch die richtigen Lichtszenen
 - Accents manuell triggern (Blinder, Strobe, Fog, Blackout, Alarm)
 - Tap Tempo für BPM-Anzeige
+- Komplette Probe als 18-Spur-Aufnahme mitschneiden (für Nachbereitung)
 
 ---
 
@@ -151,6 +153,7 @@ Zeigt die Takte des aktuellen Parts als Leiste:
 - Einzelne Taktblöcke anklickbar
 - Status-Dots zeigen QLC+- und DB-Verbindung
 - **SYNC-Button** für manuellen DB-Abgleich
+- **REC-Button** für Proben-Aufnahme (→ [Kapitel 8](#8-proben-aufnahme))
 
 ---
 
@@ -220,7 +223,48 @@ Das BPM-Display dient zur Orientierung — die App steuert die Lichter aktuell n
 
 ---
 
-## 8. QLC+ Konfiguration
+## 8. Proben-Aufnahme
+
+Der **REC-Button** (Timeline, unten rechts neben SYNC) schneidet die komplette Probe als 18-Spur-WAV mit. Die Aufnahme dient der Nachbereitung (System-Tuning, Fingerprint-Kalibrierung) und läuft unsichtbar im Hintergrund — während der Probe ist keine weitere Bedienung nötig.
+
+### Aufnahme starten
+
+**REC** kurz antippen → Button leuchtet rot, Stoppuhr läuft inline.
+
+Die Aufnahme startet sofort mit dem Label „Probe YYYY-MM-DD". Kein weiterer Dialog.
+
+### Aufnahme stoppen
+
+Am Ende der Probe **REC** antippen:
+
+1. Button wechselt auf **STOPP?** (amber) — 3 Sekunden Wartezeit
+2. **REC** nochmal antippen → Aufnahme wird gespeichert, Toast zeigt den Dateinamen
+
+Der zweistufige Stopp verhindert versehentliches Beenden. Passiert nach dem ersten Tap nichts Weiteres, kehrt der Button nach 3 Sekunden automatisch zu REC (rot) zurück.
+
+### Nachbereitung (nach der Probe)
+
+**REC ca. 0,6 Sekunden gedrückt halten** (Langdruck) → öffnet das Nachbereitung-Modal mit der Liste aller gespeicherten Aufnahmen.
+
+Dort gibt es pro Mehrspurdatei einen **MIXDOWN**-Button. Ein Tap darauf erzeugt eine abgemischte Stereo-WAV auf dem Laptop:
+- Alle 18 Kanäle werden gleichgewichtet summiert (L = ungerade Kanäle, R = gerade Kanäle)
+- Ergebnis wird auf −1 dBFS peak-normalisiert
+- Neue Datei: `<original>_mixdown.wav` im selben Verzeichnis
+- Quelldatei bleibt unverändert
+
+Mixdown-Dateien sind in der Liste durch ein grünes ✓ gekennzeichnet.
+
+### Speicherbedarf (Richtwerte)
+
+| Probendauer | Mehrspurdatei | + Mixdown |
+|-------------|---------------|-----------|
+| 1 Stunde    | ca. 750 MB    | + 85 MB   |
+| 2 Stunden   | ca. 1,5 GB    | + 170 MB  |
+| 3 Stunden   | ca. 2,2 GB    | + 255 MB  |
+
+---
+
+## 9. QLC+ Konfiguration
 
 Das **⚙️-Symbol** (oben rechts in der Setlist) öffnet das Konfigurations-Modal.
 
@@ -253,7 +297,7 @@ Im Config-Modal gibt es ein Grid mit allen QLC+-Funktionen. Einzelne Buttons ant
 
 ---
 
-## 9. Offline-Betrieb
+## 10. Offline-Betrieb
 
 Falls beim Start **kein Internet** verfügbar ist (z.B. auf einer Bühne ohne WLAN zum Router):
 
@@ -265,7 +309,7 @@ Falls beim Start **kein Internet** verfügbar ist (z.B. auf einer Bühne ohne WL
 
 ---
 
-## 10. Fehlersuche
+## 11. Fehlersuche
 
 ### „QLC+ nicht verbunden" (roter Punkt)
 
@@ -303,7 +347,7 @@ Falls beim Start **kein Internet** verfügbar ist (z.B. auf einer Bühne ohne WL
 
 ---
 
-## 11. Technische Referenz
+## 12. Technische Referenz
 
 ### OSC Channel-Belegung
 
@@ -336,6 +380,7 @@ Falls beim Start **kein Internet** verfügbar ist (z.B. auf einer Bühne ohne WL
 |-------|-------|
 | `~/lighting.ai/live/config.yaml` | Server-Konfiguration |
 | `~/lighting.ai/live/data/lighting-ai-db.json` | Lokale DB-Kopie |
+| `~/lighting.ai/live/data/recordings/` | Proben-Aufnahmen (WAV) |
 | `~/lighting.ai/db/lightingAI.qxw` | QLC+ Workspace |
 | `~/lighting.ai/live/start-live.sh` | Start-Skript |
 
@@ -353,4 +398,4 @@ server:
 
 ---
 
-*Letzte Aktualisierung: März 2026 — lighting.ai für THE PACT, Haan*
+*Letzte Aktualisierung: 26. März 2026 — lighting.ai für THE PACT, Haan*

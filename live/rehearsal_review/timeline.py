@@ -199,7 +199,7 @@ class TimelineWidget(QWidget):
             p.setFont(FONT_LABEL)
             p.drawText(QRect(0, 0, w, h),
                        Qt.AlignmentFlag.AlignCenter,
-                       "Keine Aufnahme geladen\n\nDatei  →  Öffnen…")
+                       "Keine Aufnahme geladen\n\nDatei  →  Öffnen...")
             return
 
         vl = self._scroll_x                       # visible left in waveform coords
@@ -333,7 +333,7 @@ class TimelineWidget(QWidget):
             p.setFont(FONT_MONO)
             p.drawText(LABEL_W + 6, y, w - LABEL_W - 8, h,
                        Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
-                       "Lade…")
+                       "Lade...")
             return
 
         cp = self.peaks.channel_peaks.get(track["ch"])

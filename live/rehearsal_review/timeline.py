@@ -106,8 +106,16 @@ def _fmt_t(secs: float) -> str:
     return f"{m}:{s:02d}"
 
 
-def _fmt_clock(dt: datetime) -> str:
-    return dt.strftime("%H:%M:%S")
+def _first_quarter_hour(dt: datetime) -> datetime:
+    """Return the first quarter-hour boundary (HH:00/15/30/45) at or after dt."""
+    m = dt.minute
+    rem = m % 15
+    if rem == 0 and dt.second == 0 and dt.microsecond == 0:
+        return dt
+    next_m = ((m // 15) + 1) * 15
+    if next_m >= 60:
+        return dt.replace(minute=0, second=0, microsecond=0) + timedelta(hours=1)
+    return dt.replace(minute=next_m, second=0, microsecond=0)
 
 
 class TimelineWidget(QWidget):
@@ -320,40 +328,53 @@ class TimelineWidget(QWidget):
         p.setPen(C_BORDER)
         p.drawLine(LABEL_W, RULER_H - 1, self.width(), RULER_H - 1)
 
-        secs_vis = max(1.0, self._visible_w() / self._pps)
-        if   secs_vis > 300: major, minor = 60, 10
-        elif secs_vis > 120: major, minor = 30, 5
-        elif secs_vis > 60:  major, minor = 15, 5
-        elif secs_vis > 30:  major, minor = 10, 2
-        elif secs_vis > 10:  major, minor = 5, 1
-        elif secs_vis > 4:   major, minor = 2, 0.5
-        else:                major, minor = 1, 0.25
-
-        seg_offset = self.segment.start_t if self.segment else 0.0
-        use_clock = self._rec_started_at is not None
+        if self.segment is None:
+            return
 
         p.setFont(FONT_TIME)
-        t = math.floor(vl / self._pps / minor) * minor
-        while t * self._pps <= vr:
-            x = LABEL_W + int(t * self._pps) - self._scroll_x
-            if x >= LABEL_W:
-                is_major = abs(t % major) < minor * 0.1
-                if is_major:
+
+        if self._rec_started_at is not None:
+            # Clock-time ticks only at full quarter hours (HH:00/15/30/45)
+            seg_offset = self.segment.start_t
+            abs_seg_start = self._rec_started_at + timedelta(seconds=seg_offset)
+            qh = _first_quarter_hour(abs_seg_start)
+            while True:
+                t = (qh - abs_seg_start).total_seconds()
+                x = LABEL_W + int(t * self._pps) - self._scroll_x
+                if x > self.width():
+                    break
+                if x >= LABEL_W:
                     p.setPen(C_T2)
                     p.drawLine(x, RULER_H - 12, x, RULER_H - 1)
-                    if use_clock:
-                        lbl = _fmt_clock(
-                            self._rec_started_at + timedelta(seconds=seg_offset + t)
-                        )
-                    else:
-                        lbl = _fmt_t(t)
                     p.drawText(x + 3, 2, 90, RULER_H - 4,
                                Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
-                               lbl)
-                else:
-                    p.setPen(C_T4)
-                    p.drawLine(x, RULER_H - 5, x, RULER_H - 1)
-            t += minor
+                               qh.strftime("%H:%M"))
+                qh += timedelta(minutes=15)
+        else:
+            # Fallback: dynamic relative time ticks (no clock data)
+            secs_vis = max(1.0, self._visible_w() / self._pps)
+            if   secs_vis > 300: major, minor = 60, 10
+            elif secs_vis > 120: major, minor = 30, 5
+            elif secs_vis > 60:  major, minor = 15, 5
+            elif secs_vis > 30:  major, minor = 10, 2
+            elif secs_vis > 10:  major, minor = 5, 1
+            elif secs_vis > 4:   major, minor = 2, 0.5
+            else:                major, minor = 1, 0.25
+            t = math.floor(vl / self._pps / minor) * minor
+            while t * self._pps <= vr:
+                x = LABEL_W + int(t * self._pps) - self._scroll_x
+                if x >= LABEL_W:
+                    is_major = abs(t % major) < minor * 0.1
+                    if is_major:
+                        p.setPen(C_T2)
+                        p.drawLine(x, RULER_H - 12, x, RULER_H - 1)
+                        p.drawText(x + 3, 2, 90, RULER_H - 4,
+                                   Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
+                                   _fmt_t(t))
+                    else:
+                        p.setPen(C_T4)
+                        p.drawLine(x, RULER_H - 5, x, RULER_H - 1)
+                t += minor
 
     # ── Events strip ─────────────────────────────────────────────────────────
 

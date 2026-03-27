@@ -174,7 +174,6 @@ class MainWindow(QMainWindow):
         self.addToolBar(tb)
 
         self._play_act = tb.addAction("▶  PLAY")
-        self._play_act.setShortcut(QKeySequence("Space"))
         self._play_act.triggered.connect(self._toggle_play)
 
         stop_act = tb.addAction("■  STOP")

@@ -119,6 +119,8 @@ class TimelineWidget(QWidget):
     """
 
     seek_requested = pyqtSignal(float)
+    # Emitted whenever Solo/Mute state changes; args: (muted_indices, soloed_indices)
+    solo_mute_changed = pyqtSignal(object, object)
 
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
@@ -205,6 +207,7 @@ class TimelineWidget(QWidget):
             self._muted.add(idx)
             self._soloed.discard(idx)
         self.update()
+        self.solo_mute_changed.emit(frozenset(self._muted), frozenset(self._soloed))
 
     def _toggle_solo(self, idx: int) -> None:
         if idx in self._soloed:
@@ -213,6 +216,7 @@ class TimelineWidget(QWidget):
             self._soloed.add(idx)
             self._muted.discard(idx)
         self.update()
+        self.solo_mute_changed.emit(frozenset(self._muted), frozenset(self._soloed))
 
     def _is_dim(self, idx: int) -> bool:
         if idx in self._muted:

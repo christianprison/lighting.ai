@@ -8,15 +8,15 @@ from typing import Optional
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QAction, QKeySequence
 from PyQt6.QtWidgets import (
-    QApplication, QFileDialog, QLabel, QListWidget, QListWidgetItem,
-    QMainWindow, QMessageBox, QProgressDialog, QScrollArea, QSplitter,
+    QApplication, QComboBox, QFileDialog, QLabel,
+    QMainWindow, QMessageBox, QProgressDialog, QScrollArea,
     QStatusBar, QToolBar, QVBoxLayout, QWidget,
 )
 
 from session import Session, SongSegment, load_session
 from peaks import PeakWorker, DISPLAY_CHANNELS, TrackPeaks
 from player import AudioPlayer
-from timeline import TimelineWidget, CONTENT_H
+from timeline import TimelineWidget, CONTENT_H, LABEL_W
 from overview import OverviewWidget
 
 _APP_STYLE = """
@@ -32,11 +32,6 @@ QToolButton                   { padding:5px 10px; font-family:'DM Mono',monospac
                                 border-radius:3px; background:#151820; margin:1px; }
 QToolButton:hover             { background:#1c1f2b; border-color:#2a2e40; }
 QToolButton:pressed           { background:#0e1017; }
-QListWidget                   { background:#0e1017; border:none; outline:none; }
-QListWidget::item             { padding:9px 14px; border-bottom:1px solid #1e2230;
-                                font-family:'Sora',sans-serif; font-size:11px; }
-QListWidget::item:selected    { background:#00dc8218; color:#00dc82; }
-QListWidget::item:hover       { background:#1c1f2b; }
 QScrollArea                   { border:none; background:#08090d; }
 QScrollBar:vertical           { background:#0e1017; width:8px; }
 QScrollBar::handle:vertical   { background:#2a2e40; border-radius:4px; }
@@ -49,6 +44,14 @@ QProgressDialog               { background:#0e1017; color:#eef0f6; }
 QProgressBar                  { background:#151820; border:1px solid #1e2230;
                                 border-radius:3px; text-align:center; }
 QProgressBar::chunk           { background:#00dc82; border-radius:2px; }
+QComboBox                     { background:#151820; border:1px solid #1e2230;
+                                color:#eef0f6; padding:3px 8px; border-radius:3px;
+                                font-family:'Sora',sans-serif; font-size:11px; }
+QComboBox:hover               { background:#1c1f2b; border-color:#2a2e40; }
+QComboBox::drop-down          { border:none; width:20px; }
+QComboBox QAbstractItemView   { background:#0e1017; border:1px solid #1e2230;
+                                color:#eef0f6; selection-background-color:#1c1f2b;
+                                font-family:'Sora',sans-serif; font-size:11px; }
 """
 
 
@@ -69,7 +72,9 @@ class MainWindow(QMainWindow):
         self._player = AudioPlayer(self)
         self._player.position_changed.connect(self._on_position)
         self._player.playback_stopped.connect(self._on_stopped)
-        self._player.error.connect(lambda msg: self._status.showMessage(f"Audio-Fehler: {msg}", 8000))
+        self._player.error.connect(
+            lambda msg: self._status.showMessage(f"Audio-Fehler: {msg}", 8000)
+        )
 
         self._build_ui()
         self._build_menu()
@@ -78,35 +83,23 @@ class MainWindow(QMainWindow):
     # ── Build UI ──────────────────────────────────────────────────────────────
 
     def _build_ui(self) -> None:
-        splitter = QSplitter(Qt.Orientation.Horizontal)
-        splitter.setHandleWidth(1)
-        splitter.setStyleSheet("QSplitter::handle { background:#1e2230; }")
+        # Overview minimap (full session)
+        self._overview = OverviewWidget()
+        self._overview.seek_requested.connect(self._on_overview_seek)
 
-        # Left panel: song list
-        self._left_panel = QWidget()
-        left = self._left_panel
-        left.setFixedWidth(230)
-        left.setStyleSheet("background:#0e1017; border-right:1px solid #1e2230;")
-        lv = QVBoxLayout(left)
-        lv.setContentsMargins(0, 0, 0, 0)
-        lv.setSpacing(0)
-
-        hdr = QLabel("  SONGS")
-        hdr.setFixedHeight(36)
-        hdr.setStyleSheet(
-            "background:#151820; border-bottom:1px solid #1e2230;"
-            "font-family:'DM Mono',monospace; font-size:9px;"
-            "letter-spacing:2px; color:#a0a4b8; padding-left:4px;"
+        # Song name header strip
+        self._song_name_lbl = QLabel("")
+        self._song_name_lbl.setFixedHeight(32)
+        self._song_name_lbl.setAlignment(
+            Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft
         )
-        lv.addWidget(hdr)
+        self._song_name_lbl.setStyleSheet(
+            "font-family:'Sora',sans-serif; font-size:13px; font-weight:600;"
+            "color:#eef0f6; padding-left:14px;"
+            "background:#0e1017; border-bottom:1px solid #1e2230;"
+        )
 
-        self._song_list = QListWidget()
-        self._song_list.currentItemChanged.connect(self._on_song_selected)
-        lv.addWidget(self._song_list)
-
-        splitter.addWidget(left)
-
-        # Right panel: timeline inside a vertical scroll area
+        # Timeline (full width — no left song-list panel)
         self._timeline = TimelineWidget()
         self._timeline.seek_requested.connect(self._on_seek)
 
@@ -117,24 +110,19 @@ class MainWindow(QMainWindow):
         scroll.setWidget(self._timeline)
         scroll.setMinimumHeight(CONTENT_H)
 
-        splitter.addWidget(scroll)
-        splitter.setSizes([230, 1210])
-
-        self._overview = OverviewWidget()
-        self._overview.seek_requested.connect(self._on_overview_seek)
-
         container = QWidget()
         vl = QVBoxLayout(container)
         vl.setContentsMargins(0, 0, 0, 0)
         vl.setSpacing(0)
         vl.addWidget(self._overview)
-        vl.addWidget(splitter)
+        vl.addWidget(self._song_name_lbl)
+        vl.addWidget(scroll)
         self.setCentralWidget(container)
 
         # Status bar
         self._status = QStatusBar()
         self.setStatusBar(self._status)
-        self._pos_label = QLabel("–:––.–")
+        self._pos_label = QLabel("-:--.-")
         self._pos_label.setStyleSheet(
             "font-family:'DM Mono',monospace; font-size:10px; color:#a0a4b8;"
         )
@@ -144,7 +132,7 @@ class MainWindow(QMainWindow):
         mb = self.menuBar()
 
         fm = mb.addMenu("Datei")
-        open_a = QAction("Öffnen...", self)
+        open_a = QAction("Oeffnen...", self)
         open_a.setShortcut(QKeySequence("Ctrl+O"))
         open_a.triggered.connect(self._open_session)
         fm.addAction(open_a)
@@ -159,7 +147,7 @@ class MainWindow(QMainWindow):
         zi.setShortcut(QKeySequence("+"))
         zi.triggered.connect(lambda: self._zoom(1.25))
         vm.addAction(zi)
-        zo = QAction("Zoom −", self)
+        zo = QAction("Zoom -", self)
         zo.setShortcut(QKeySequence("-"))
         zo.triggered.connect(lambda: self._zoom(0.8))
         vm.addAction(zo)
@@ -173,11 +161,20 @@ class MainWindow(QMainWindow):
         tb.setMovable(False)
         self.addToolBar(tb)
 
-        self._play_act = tb.addAction("▶  PLAY")
+        self._play_act = tb.addAction("Play")
         self._play_act.triggered.connect(self._toggle_play)
 
-        stop_act = tb.addAction("■  STOP")
+        stop_act = tb.addAction("Stop")
         stop_act.triggered.connect(self._stop)
+
+        tb.addSeparator()
+
+        # Song selection dropdown
+        self._song_combo = QComboBox()
+        self._song_combo.setMinimumWidth(300)
+        self._song_combo.setPlaceholderText("-- Song waehlen --")
+        self._song_combo.currentIndexChanged.connect(self._on_song_combo_changed)
+        tb.addWidget(self._song_combo)
 
         tb.addSeparator()
 
@@ -202,7 +199,7 @@ class MainWindow(QMainWindow):
             Path(__file__).parent.parent / "data" / "recordings"
         )
         path, _ = QFileDialog.getOpenFileName(
-            self, "Aufnahme öffnen", default_dir,
+            self, "Aufnahme oeffnen", default_dir,
             "JSONL Event-Log (*.jsonl);;Alle Dateien (*)"
         )
         if path:
@@ -220,21 +217,13 @@ class MainWindow(QMainWindow):
         self._current_seg = None
         self._player.stop()
 
-        # Hide song list when no song navigation data available (fallback session)
-        has_songs = len(session.songs) > 1 or (
-            len(session.songs) == 1 and bool(session.songs[0].song_id)
-        )
-        self._left_panel.setVisible(has_songs)
-
-        self._song_list.clear()
+        # Fill song combo (block signals during rebuild)
+        self._song_combo.blockSignals(True)
+        self._song_combo.clear()
         for seg in session.songs:
-            item = QListWidgetItem(f"  {seg.song_name}")
-            item.setToolTip(
-                f"{_fmt_t(seg.start_t)} → {_fmt_t(seg.end_t)}"
-                f"  ({_fmt_dur(seg.duration)})"
-            )
-            item.setData(Qt.ItemDataRole.UserRole, seg)
-            self._song_list.addItem(item)
+            self._song_combo.addItem(seg.song_name, seg)
+        self._song_combo.setCurrentIndex(-1)
+        self._song_combo.blockSignals(False)
 
         # Pass recording start time to timeline ruler
         self._timeline.set_recording_started_at(
@@ -247,8 +236,8 @@ class MainWindow(QMainWindow):
             f"  {session.sample_rate} Hz  |  {len(session.songs)} Songs{mix}  "
         )
         self._status.showMessage(
-            f"{jsonl_path}  —  {len(session.songs)} Songs"
-            f"  —  {_fmt_dur(session.total_duration)}"
+            f"{jsonl_path}  --  {len(session.songs)} Songs"
+            f"  --  {_fmt_dur(session.total_duration)}"
         )
 
         # Start overview peak extraction (full session, Main L+R or mixdown ch 0+1)
@@ -270,11 +259,14 @@ class MainWindow(QMainWindow):
         )
         self._overview_worker = ov_worker
         ov_worker.finished.connect(self._on_overview_peaks_done)
-        ov_worker.error.connect(lambda msg: self._status.showMessage(f"Overview-Fehler: {msg}", 5000))
+        ov_worker.error.connect(
+            lambda msg: self._status.showMessage(f"Overview-Fehler: {msg}", 5000)
+        )
         ov_worker.start()
 
-        if self._song_list.count():
-            self._song_list.setCurrentRow(0)
+        # Select first song
+        if self._song_combo.count():
+            self._song_combo.setCurrentIndex(0)
 
     def _try_load_db(self, jsonl_path: Path) -> Optional[dict]:
         for p in [
@@ -290,13 +282,17 @@ class MainWindow(QMainWindow):
 
     # ── Song selection ────────────────────────────────────────────────────────
 
-    def _on_song_selected(self, current, _previous) -> None:
-        if current is None:
+    def _on_song_combo_changed(self, index: int) -> None:
+        if index < 0:
             return
-        seg: SongSegment = current.data(Qt.ItemDataRole.UserRole)
+        seg: Optional[SongSegment] = self._song_combo.itemData(index)
+        if seg is None:
+            return
+
         self._current_seg = seg
         self._player.stop()
-        self._play_act.setText("▶  PLAY")
+        self._play_act.setText("Play")
+        self._song_name_lbl.setText(seg.song_name)
 
         self._timeline.set_segment(seg, None)
         self._overview.set_segment(seg)
@@ -330,7 +326,7 @@ class MainWindow(QMainWindow):
         )
         self._peak_worker = worker
 
-        prg = self._progress   # local capture for lambdas
+        prg = self._progress
         cur = seg
 
         worker.progress.connect(lambda v: prg.setValue(v))
@@ -378,11 +374,11 @@ class MainWindow(QMainWindow):
         if self._current_seg is None:
             return
         self._player.toggle()
-        self._play_act.setText("⏸  PAUSE" if self._player.is_playing else "▶  PLAY")
+        self._play_act.setText("Pause" if self._player.is_playing else "Play")
 
     def _stop(self) -> None:
         self._player.stop()
-        self._play_act.setText("▶  PLAY")
+        self._play_act.setText("Play")
         if self._current_seg:
             self._timeline.set_cursor(self._current_seg.start_t)
             self._pos_label.setText(_fmt_t_precise(0.0))
@@ -399,7 +395,7 @@ class MainWindow(QMainWindow):
             self._pos_label.setText(_fmt_t_precise(wav_t - self._current_seg.start_t))
 
     def _on_stopped(self) -> None:
-        self._play_act.setText("▶  PLAY")
+        self._play_act.setText("Play")
 
     def _on_overview_peaks_done(self, track_peaks) -> None:
         import numpy as np
@@ -430,18 +426,15 @@ class MainWindow(QMainWindow):
             return
 
         if target_seg is self._current_seg:
-            # Same segment: seek immediately
             t_in_seg = max(0.0, wav_t - target_seg.start_t)
             self._player.seek(t_in_seg)
             self._timeline.set_cursor(wav_t)
             self._overview.set_playhead(wav_t)
         else:
-            # Different segment: remember seek target, select the segment
             self._pending_seek_t = wav_t
-            for i in range(self._song_list.count()):
-                item = self._song_list.item(i)
-                if item.data(Qt.ItemDataRole.UserRole) is target_seg:
-                    self._song_list.setCurrentRow(i)
+            for i in range(self._song_combo.count()):
+                if self._song_combo.itemData(i) is target_seg:
+                    self._song_combo.setCurrentIndex(i)
                     break
 
     # ── Zoom ──────────────────────────────────────────────────────────────────
@@ -459,7 +452,7 @@ class MainWindow(QMainWindow):
     def _zoom_fit(self) -> None:
         if self._current_seg is None:
             return
-        avail = max(1, self._timeline.width() - 162)
+        avail = max(1, self._timeline.width() - LABEL_W - 2)
         pps = avail / max(0.1, self._current_seg.duration)
         self._timeline.set_zoom(pps)
         self._zoom_lbl.setText(f"  {self._timeline.zoom:.0f} px/s  ")

@@ -1,7 +1,6 @@
 """overview.py — Full-session overview waveform (mini-map navigation)."""
 from __future__ import annotations
 
-import math
 from datetime import datetime, timedelta
 from typing import Optional
 
@@ -15,10 +14,12 @@ from PyQt6.QtWidgets import QWidget, QSizePolicy
 from session import Session, SongSegment
 
 # ── Colors (matching design system) ──────────────────────────────────────────
+_BG     = QColor("#08090d")
 _BG2    = QColor("#0e1017")
 _BORDER = QColor("#1e2230")
 _T3     = QColor("#a0a4b8")
 _T4     = QColor("#5c6080")
+_T1     = QColor("#eef0f6")
 _GREEN  = QColor("#00dc82")
 _WF     = QColor("#00dc82")
 _WF_F   = QColor(0x00, 0xdc, 0x82, 45)
@@ -28,17 +29,21 @@ _SEG_LN = QColor(0x00, 0xdc, 0x82, 160)
 
 _FONT      = QFont("DM Mono", 8)
 _FONT_RULE = QFont("DM Mono", 7)
+_FONT_NAME = QFont("Sora", 8)
 
-HEIGHT  = 88   # fixed widget height in px
-RULER_H = 18   # clock-time ruler at top
+RULER_H = 18   # clock-time ruler
+NAME_H  = 16   # song name strip below ruler
+HEIGHT  = 106  # total: RULER_H(18) + NAME_H(16) + waveform(70) + border(2)
 
 
 class OverviewWidget(QWidget):
     """Full-session waveform mini-map with click-to-seek.
 
     Shows the Main L/R mix for the entire recording duration.
-    The currently selected segment is highlighted green.
-    Clicking emits seek_requested(wav_t) with absolute WAV seconds.
+    Three horizontal bands:
+      - Clock-time ruler (RULER_H px)
+      - Song name strip  (NAME_H px)  — names above waveform, not overlaid
+      - Waveform area
     """
 
     seek_requested = pyqtSignal(float)   # absolute WAV time
@@ -46,8 +51,8 @@ class OverviewWidget(QWidget):
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self._session: Optional[Session] = None
-        self._pk_max: Optional[np.ndarray] = None   # combined L+R max envelope
-        self._pk_min: Optional[np.ndarray] = None   # combined L+R min envelope
+        self._pk_max: Optional[np.ndarray] = None
+        self._pk_min: Optional[np.ndarray] = None
         self._cursor_t: float = 0.0
         self._seg_start: float = 0.0
         self._seg_end: float = 0.0
@@ -117,8 +122,8 @@ class OverviewWidget(QWidget):
     def paintEvent(self, _event) -> None:
         p = QPainter(self)
         w, h = self.width(), self.height()
-        wf_y = RULER_H          # waveform area starts below ruler
-        wf_h = h - RULER_H - 1  # leave 1px for bottom border
+        wf_y = RULER_H + NAME_H          # waveform area starts here
+        wf_h = h - wf_y - 1             # waveform height (leave 1px for bottom border)
 
         p.fillRect(0, 0, w, h, _BG2)
 
@@ -130,27 +135,23 @@ class OverviewWidget(QWidget):
             p.end()
             return
 
-        # ── Clock-time ruler ──
+        # ── Clock-time ruler (every 15 minutes = 900 s) ──
         rec_start = getattr(self._session, "recording_started_at", None)
         dur = self._session.total_duration
         if dur > 0:
-            # Choose tick interval based on width
-            secs_per_px = dur / max(1, w)
-            tick_opts = [3600, 1800, 900, 600, 300, 120, 60, 30, 15, 10, 5, 1]
-            tick = next((t for t in tick_opts if t / secs_per_px >= 60), tick_opts[-1])
-
+            tick = 900  # every 15 minutes
             p.setFont(_FONT_RULE)
             t = 0.0
             while t <= dur:
                 x = int(t / dur * w)
                 p.setPen(QPen(_T3, 1))
-                p.drawLine(x, 0, x, RULER_H)
+                p.drawLine(x, 0, x, RULER_H - 2)
                 if rec_start is not None:
                     lbl = (rec_start + timedelta(seconds=t)).strftime("%H:%M")
                 else:
-                    m, s = divmod(int(t), 60)
-                    lbl = f"{m}:{s:02d}"
-                p.setPen(QColor("#eef0f6"))
+                    m_, s_ = divmod(int(t), 60)
+                    lbl = f"{m_}:{s_:02d}"
+                p.setPen(_T1)
                 p.drawText(x + 3, 0, 55, RULER_H,
                            Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
                            lbl)
@@ -158,6 +159,32 @@ class OverviewWidget(QWidget):
 
         p.setPen(QPen(_T4, 1))
         p.drawLine(0, RULER_H - 1, w, RULER_H - 1)
+
+        # ── Song name strip ──
+        p.fillRect(0, RULER_H, w, NAME_H, _BG)
+        p.setFont(_FONT_NAME)
+        for seg in self._session.songs:
+            if seg.song_id:
+                x = self._t_to_x(seg.start_t)
+                if x < 0:
+                    continue
+                # Vertical divider at segment start
+                p.setPen(QPen(_T4, 1))
+                p.drawLine(x, RULER_H, x, RULER_H + NAME_H - 1)
+                # Full song name
+                p.setPen(_T3)
+                p.drawText(x + 4, RULER_H, w - x - 4, NAME_H,
+                           Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
+                           seg.song_name)
+            else:
+                # Fallback single-segment: show session name
+                p.setPen(_T3)
+                p.drawText(4, RULER_H, w - 8, NAME_H,
+                           Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
+                           seg.song_name)
+
+        p.setPen(QPen(_T4, 1))
+        p.drawLine(0, RULER_H + NAME_H - 1, w, RULER_H + NAME_H - 1)
 
         # ── Current segment highlight ──
         if self._seg_end > self._seg_start:
@@ -191,21 +218,6 @@ class OverviewWidget(QWidget):
             for i in range(len(top_pts) - 1):
                 p.drawLine(top_pts[i], top_pts[i + 1])
                 p.drawLine(bot_pts[i], bot_pts[i + 1])
-
-        # ── Segment markers (song boundaries) ──
-        p.setFont(_FONT)
-        for seg in self._session.songs:
-            if not seg.song_id:
-                continue  # skip fallback "whole session" entry
-            x = self._t_to_x(seg.start_t)
-            if x < 0:
-                continue
-            p.setPen(QPen(_T4, 1))
-            p.drawLine(x, wf_y, x, h)
-            p.setPen(_T3)
-            p.drawText(x + 3, wf_y + 2, 110, wf_h // 2,
-                       Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
-                       seg.song_name[:16])
 
         # ── Cursor ──
         cx = self._cursor_px if self._cursor_px >= 0 else self._t_to_x(self._cursor_t)

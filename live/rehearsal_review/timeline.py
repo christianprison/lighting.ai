@@ -7,6 +7,7 @@ Layout (top to bottom):
 
 Left LABEL_W pixels are the sticky label column — drawn last so they
 always appear on top of the scrolled waveform content.
+Label column right portion contains per-track M (mute) and S (solo) buttons.
 """
 from __future__ import annotations
 
@@ -25,13 +26,19 @@ from session import SongSegment
 from peaks import TrackPeaks, CHANNEL_LABELS, SUM_CHANNELS, DISPLAY_CHANNELS
 
 # ── Layout ────────────────────────────────────────────────────────────────────
-LABEL_W   = 160
+LABEL_W   = 196
 RULER_H   = 28
-EVENTS_H  = 52
+EVENTS_H  = 26   # halved from 52
 MIX_H     = 44
 TRACK_H   = 27
 TRACK_GAP = 2
 SCROLL_H  = 14
+
+# Solo/Mute button geometry (relative to left edge of label column)
+BTN_W    = 18
+BTN_H    = 13
+BTN_M_X  = LABEL_W - 44   # M button left x
+BTN_S_X  = LABEL_W - 24   # S button left x
 
 # ── Colors ────────────────────────────────────────────────────────────────────
 C_BG     = QColor("#08090d")
@@ -56,18 +63,32 @@ CURSOR_C = QColor("#ff3b5c")
 FONT_MONO  = QFont("DM Mono", 8)
 FONT_LABEL = QFont("Sora", 9)
 FONT_TIME  = QFont("DM Mono", 9)
+FONT_BTN   = QFont("DM Mono", 7)
 
 # ── Track definitions (in display order) ─────────────────────────────────────
-TRACKS: list[dict] = []
+
+# Combined Main L+R as single virtual track (ch=-1, merges ch 16+17)
+TRACKS: list[dict] = [
+    {
+        "ch":           -1,
+        "combined_chs": (16, 17),
+        "label":        "Main L+R",
+        "color":        WF_SUM,
+        "fill":         WF_SUM_F,
+        "h":            MIX_H,
+        "is_sum":       True,
+    },
+]
 for _ch in DISPLAY_CHANNELS:
-    _is_sum = _ch in SUM_CHANNELS
+    if _ch in SUM_CHANNELS:
+        continue   # skip individual Main L / Main R
     TRACKS.append({
         "ch":     _ch,
         "label":  CHANNEL_LABELS.get(_ch, f"CH {_ch + 1}"),
-        "color":  WF_SUM if _is_sum else WF_CH,
-        "fill":   WF_SUM_F if _is_sum else WF_CH_F,
-        "h":      MIX_H if _is_sum else TRACK_H,
-        "is_sum": _is_sum,
+        "color":  WF_CH,
+        "fill":   WF_CH_F,
+        "h":      TRACK_H,
+        "is_sum": False,
     })
 
 # Pre-compute y offsets
@@ -108,7 +129,11 @@ class TimelineWidget(QWidget):
         self._pps: float = 80.0         # pixels per second
         self._scroll_x: int = 0
         self._cursor_px: int = -1
-        self._rec_started_at: Optional[datetime] = None   # wall-clock recording start
+        self._rec_started_at: Optional[datetime] = None
+
+        # Solo / Mute state (track indices into TRACKS list)
+        self._muted: set[int] = set()
+        self._soloed: set[int] = set()
 
         self._hbar = QScrollBar(Qt.Orientation.Horizontal, self)
         self._hbar.valueChanged.connect(self._on_scroll)
@@ -135,7 +160,6 @@ class TimelineWidget(QWidget):
         self.update()
 
     def set_cursor(self, wav_t: float) -> None:
-        old_t = self.cursor_t
         self.cursor_t = wav_t
 
         if self.segment is None:
@@ -159,7 +183,6 @@ class TimelineWidget(QWidget):
             old_px = self._cursor_px
             self._cursor_px = new_px
             h = self.height()
-            # Repaint a rect spanning old and new cursor positions
             left = min(old_px if old_px >= 0 else new_px, new_px) - 3
             right = max(old_px if old_px >= 0 else new_px, new_px) + 3
             self.update(QRect(max(LABEL_W, left), 0, right - left + 1, h))
@@ -172,6 +195,31 @@ class TimelineWidget(QWidget):
     @property
     def zoom(self) -> float:
         return self._pps
+
+    # ── Solo / Mute ───────────────────────────────────────────────────────────
+
+    def _toggle_mute(self, idx: int) -> None:
+        if idx in self._muted:
+            self._muted.discard(idx)
+        else:
+            self._muted.add(idx)
+            self._soloed.discard(idx)
+        self.update()
+
+    def _toggle_solo(self, idx: int) -> None:
+        if idx in self._soloed:
+            self._soloed.discard(idx)
+        else:
+            self._soloed.add(idx)
+            self._muted.discard(idx)
+        self.update()
+
+    def _is_dim(self, idx: int) -> bool:
+        if idx in self._muted:
+            return True
+        if self._soloed and idx not in self._soloed:
+            return True
+        return False
 
     # ── Internal helpers ──────────────────────────────────────────────────────
 
@@ -206,12 +254,27 @@ class TimelineWidget(QWidget):
             self._hbar.setValue(self._scroll_x + (-step if dy > 0 else step))
 
     def mousePressEvent(self, event) -> None:
+        x = int(event.position().x())
+        y = int(event.position().y())
+
+        # Check S/M button clicks in label column
+        if x < LABEL_W:
+            for i, (track, ty) in enumerate(zip(TRACKS, TRACK_Y)):
+                th = track["h"]
+                if ty <= y < ty + th:
+                    btn_y = ty + (th - BTN_H) // 2
+                    if btn_y <= y < btn_y + BTN_H:
+                        if BTN_M_X <= x < BTN_M_X + BTN_W:
+                            self._toggle_mute(i)
+                        elif BTN_S_X <= x < BTN_S_X + BTN_W:
+                            self._toggle_solo(i)
+                    break
+            return
+
         if event.button() == Qt.MouseButton.LeftButton and self.segment:
-            x = event.position().x()
-            if x >= LABEL_W:
-                t = (x - LABEL_W + self._scroll_x) / self._pps
-                t = max(0.0, min(t, self.segment.duration))
-                self.seek_requested.emit(t)
+            t = (x - LABEL_W + self._scroll_x) / self._pps
+            t = max(0.0, min(t, self.segment.duration))
+            self.seek_requested.emit(t)
 
     # ── Paint ─────────────────────────────────────────────────────────────────
 
@@ -227,11 +290,11 @@ class TimelineWidget(QWidget):
             p.setFont(FONT_LABEL)
             p.drawText(QRect(0, 0, w, h),
                        Qt.AlignmentFlag.AlignCenter,
-                       "Keine Aufnahme geladen\n\nDatei  →  Öffnen...")
+                       "Keine Aufnahme geladen\n\nDatei  ->  Oeffnen...")
             return
 
-        vl = self._scroll_x                       # visible left in waveform coords
-        vr = self._scroll_x + self._visible_w()   # visible right
+        vl = self._scroll_x
+        vr = self._scroll_x + self._visible_w()
 
         self._paint_ruler(p, vl, vr)
         self._paint_events(p, vl, vr)
@@ -262,7 +325,6 @@ class TimelineWidget(QWidget):
         elif secs_vis > 4:   major, minor = 2, 0.5
         else:                major, minor = 1, 0.25
 
-        # Use clock time labels if recording start is known
         seg_offset = self.segment.start_t if self.segment else 0.0
         use_clock = self._rec_started_at is not None
 
@@ -276,7 +338,9 @@ class TimelineWidget(QWidget):
                     p.setPen(C_T2)
                     p.drawLine(x, RULER_H - 12, x, RULER_H - 1)
                     if use_clock:
-                        lbl = _fmt_clock(self._rec_started_at + timedelta(seconds=seg_offset + t))
+                        lbl = _fmt_clock(
+                            self._rec_started_at + timedelta(seconds=seg_offset + t)
+                        )
                     else:
                         lbl = _fmt_t(t)
                     p.drawText(x + 3, 2, 90, RULER_H - 4,
@@ -337,8 +401,8 @@ class TimelineWidget(QWidget):
             elif ev.type == "user":
                 action = ev.data.get("action", "")
                 if action in ("next", "prev", "goto", "accent"):
-                    label_map = {"next": "→", "prev": "←",
-                                 "goto": "⤷", "accent": "★"}
+                    label_map = {"next": "->", "prev": "<-",
+                                 "goto": "~>", "accent": "*"}
                     p.setPen(QPen(C_GREEN, 2))
                     p.drawLine(ex, y0 + EVENTS_H // 3, ex, y0 + EVENTS_H - 2)
                     p.setPen(C_GREEN)
@@ -348,7 +412,7 @@ class TimelineWidget(QWidget):
 
     # ── Waveform track ────────────────────────────────────────────────────────
 
-    def _paint_track(self, p: QPainter, _idx: int, track: dict,
+    def _paint_track(self, p: QPainter, idx: int, track: dict,
                      y: int, vl: int, vr: int) -> None:
         h = track["h"]
         w = self.width()
@@ -360,7 +424,6 @@ class TimelineWidget(QWidget):
         p.setPen(C_BORDER)
         p.drawLine(LABEL_W, y + h - 1, w, y + h - 1)
 
-        # Centre line
         p.setPen(QPen(C_T4, 1))
         p.drawLine(LABEL_W, mid, w, mid)
 
@@ -372,29 +435,51 @@ class TimelineWidget(QWidget):
                        "Lade...")
             return
 
-        cp = self.peaks.channel_peaks.get(track["ch"])
-        if cp is None or cp.n_points == 0:
-            return
+        # Resolve peak data (combined or single channel)
+        if "combined_chs" in track:
+            chs = track["combined_chs"]
+            cp1 = self.peaks.channel_peaks.get(chs[0])
+            cp2 = self.peaks.channel_peaks.get(chs[1])
+            if cp1 and cp2 and cp1.n_points > 0 and cp2.n_points > 0:
+                n = min(cp1.n_points, cp2.n_points)
+                pk_max = np.maximum(cp1.peaks_max[:n], cp2.peaks_max[:n])
+                pk_min = np.minimum(cp1.peaks_min[:n], cp2.peaks_min[:n])
+            elif cp1 and cp1.n_points > 0:
+                pk_max, pk_min, n = cp1.peaks_max, cp1.peaks_min, cp1.n_points
+            elif cp2 and cp2.n_points > 0:
+                pk_max, pk_min, n = cp2.peaks_max, cp2.peaks_min, cp2.n_points
+            else:
+                return
+        else:
+            cp = self.peaks.channel_peaks.get(track["ch"])
+            if cp is None or cp.n_points == 0:
+                return
+            pk_max, pk_min, n = cp.peaks_max, cp.peaks_min, cp.n_points
 
         ww = self._wf_width()
         if ww == 0:
             return
 
-        n = cp.n_points
-        # Map visible pixel range to peak indices (+ 2 px margin)
+        # Apply Solo/Mute dimming
+        if self._is_dim(idx):
+            color = QColor(track["color"])
+            color.setAlpha(35)
+            fill_c = QColor(track["fill"])
+            fill_c.setAlpha(12)
+        else:
+            color = track["color"]
+            fill_c = track["fill"]
+
         pi_start = max(0, int((vl - 2) / ww * n))
         pi_end   = min(n, int((vr + 2) / ww * n) + 1)
-
-        color  = track["color"]
-        fill_c = track["fill"]
 
         top_pts: list[QPoint] = []
         bot_pts: list[QPoint] = []
 
         for pi in range(pi_start, pi_end):
             x = LABEL_W + int(pi / n * ww) - self._scroll_x
-            vmax = float(cp.peaks_max[pi])
-            vmin = float(cp.peaks_min[pi])
+            vmax = float(pk_max[pi])
+            vmin = float(pk_min[pi])
             top_pts.append(QPoint(x, mid - int(vmax * half)))
             bot_pts.append(QPoint(x, mid - int(vmin * half)))
 
@@ -415,7 +500,6 @@ class TimelineWidget(QWidget):
     # ── Labels column (sticky) ────────────────────────────────────────────────
 
     def _paint_labels(self, p: QPainter, h: int) -> None:
-        # Opaque background to cover waveforms underneath
         p.fillRect(0, 0, LABEL_W, h, C_BG)
 
         # Ruler cell
@@ -430,7 +514,6 @@ class TimelineWidget(QWidget):
                    "EVENTS")
 
         # Track cells
-        p.setFont(FONT_LABEL)
         for i, track in enumerate(TRACKS):
             y = TRACK_Y[i]
             th = track["h"]
@@ -440,10 +523,33 @@ class TimelineWidget(QWidget):
             # Colour swatch
             p.fillRect(2, y + th // 2 - 3, 4, 6, track["color"])
 
+            # Label text (leave room for S/M buttons on the right)
+            p.setFont(FONT_LABEL)
             p.setPen(C_T1 if track["is_sum"] else C_T2)
-            p.drawText(10, y, LABEL_W - 12, th,
+            p.drawText(10, y, LABEL_W - 52, th,
                        Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
                        track["label"])
+
+            # S/M buttons
+            btn_y = y + (th - BTN_H) // 2
+
+            # M button
+            m_on = i in self._muted
+            p.fillRect(BTN_M_X, btn_y, BTN_W, BTN_H,
+                       C_RED if m_on else C_BG3)
+            p.setPen(C_T1 if m_on else C_T4)
+            p.setFont(FONT_BTN)
+            p.drawText(BTN_M_X, btn_y, BTN_W, BTN_H,
+                       Qt.AlignmentFlag.AlignCenter, "M")
+
+            # S button
+            s_on = i in self._soloed
+            p.fillRect(BTN_S_X, btn_y, BTN_W, BTN_H,
+                       C_AMBER if s_on else C_BG3)
+            p.setPen(C_BG if s_on else C_T4)
+            p.setFont(FONT_BTN)
+            p.drawText(BTN_S_X, btn_y, BTN_W, BTN_H,
+                       Qt.AlignmentFlag.AlignCenter, "S")
 
             p.setPen(C_BORDER)
             p.drawLine(0, y + th - 1, LABEL_W, y + th - 1)
@@ -463,7 +569,6 @@ class TimelineWidget(QWidget):
             return
         p.setPen(QPen(CURSOR_C, 2))
         p.drawLine(cx, RULER_H, cx, h)
-        # Triangle head
         p.setBrush(QBrush(CURSOR_C))
         p.setPen(Qt.PenStyle.NoPen)
         p.drawPolygon(QPolygon([

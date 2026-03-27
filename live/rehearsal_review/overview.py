@@ -143,15 +143,15 @@ class OverviewWidget(QWidget):
             t = 0.0
             while t <= dur:
                 x = int(t / dur * w)
-                p.setPen(QPen(_T4, 1))
-                p.drawLine(x, RULER_H - 5, x, RULER_H)
+                p.setPen(QPen(_T3, 1))
+                p.drawLine(x, 0, x, RULER_H)
                 if rec_start is not None:
                     lbl = (rec_start + timedelta(seconds=t)).strftime("%H:%M")
                 else:
                     m, s = divmod(int(t), 60)
                     lbl = f"{m}:{s:02d}"
-                p.setPen(_T3)
-                p.drawText(x + 2, 0, 55, RULER_H - 2,
+                p.setPen(QColor("#eef0f6"))
+                p.drawText(x + 3, 0, 55, RULER_H,
                            Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
                            lbl)
                 t += tick

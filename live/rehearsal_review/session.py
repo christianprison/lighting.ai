@@ -100,7 +100,7 @@ def load_session(jsonl_path: Path, db: Optional[dict] = None) -> Session:
     # Fallback: parse start time from WAV filename (format: YYYY-MM-DD_HHMMSS...)
     if recording_started_at is None:
         try:
-            recording_started_at = datetime.strptime(wav_path.stem[:15], "%Y-%m-%d_%H%M%S")
+            recording_started_at = datetime.strptime(wav_path.stem[:17], "%Y-%m-%d_%H%M%S")
         except ValueError:
             pass
 

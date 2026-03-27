@@ -7,7 +7,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 VENV="/opt/lighting-venv"
 
 # ── System libraries (run once, needs sudo) ───────────────────────────────────
-_APT_PKGS="libportaudio2 libegl1 libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-render-util0 libxcb-xinerama0"
+_APT_PKGS="libportaudio2 libegl1 libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-render-util0 libxcb-xinerama0 libxcb-cursor0"
 _MISSING=""
 for _pkg in $_APT_PKGS; do
     dpkg -s "$_pkg" >/dev/null 2>&1 || _MISSING="$_MISSING $_pkg"

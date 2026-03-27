@@ -36,6 +36,18 @@ NAME_H  = 16   # song name strip below ruler
 HEIGHT  = 106  # total: RULER_H(18) + NAME_H(16) + waveform(70) + border(2)
 
 
+def _first_quarter_hour(dt: datetime) -> datetime:
+    """Return the first quarter-hour boundary (HH:00/15/30/45) at or after dt."""
+    m = dt.minute
+    rem = m % 15
+    if rem == 0 and dt.second == 0 and dt.microsecond == 0:
+        return dt  # already exactly on a quarter-hour boundary
+    next_m = ((m // 15) + 1) * 15
+    if next_m >= 60:
+        return dt.replace(minute=0, second=0, microsecond=0) + timedelta(hours=1)
+    return dt.replace(minute=next_m, second=0, microsecond=0)
+
+
 class OverviewWidget(QWidget):
     """Full-session waveform mini-map with click-to-seek.
 
@@ -135,27 +147,25 @@ class OverviewWidget(QWidget):
             p.end()
             return
 
-        # ── Clock-time ruler (every 15 minutes = 900 s) ──
+        # ── Clock-time ruler — ticks only at full quarter hours (HH:00/15/30/45) ──
         rec_start = getattr(self._session, "recording_started_at", None)
         dur = self._session.total_duration
-        if dur > 0:
-            tick = 900  # every 15 minutes
+        if dur > 0 and rec_start is not None:
             p.setFont(_FONT_RULE)
-            t = 0.0
-            while t <= dur:
+            # First quarter-hour boundary at or after recording start
+            qh = _first_quarter_hour(rec_start)
+            while True:
+                t = (qh - rec_start).total_seconds()
+                if t > dur:
+                    break
                 x = int(t / dur * w)
                 p.setPen(QPen(_T3, 1))
                 p.drawLine(x, 0, x, RULER_H - 2)
-                if rec_start is not None:
-                    lbl = (rec_start + timedelta(seconds=t)).strftime("%H:%M")
-                else:
-                    m_, s_ = divmod(int(t), 60)
-                    lbl = f"{m_}:{s_:02d}"
                 p.setPen(_T1)
                 p.drawText(x + 3, 0, 55, RULER_H,
                            Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
-                           lbl)
-                t += tick
+                           qh.strftime("%H:%M"))
+                qh += timedelta(minutes=15)
 
         p.setPen(QPen(_T4, 1))
         p.drawLine(0, RULER_H - 1, w, RULER_H - 1)
@@ -172,13 +182,13 @@ class OverviewWidget(QWidget):
                 p.setPen(QPen(_T4, 1))
                 p.drawLine(x, RULER_H, x, RULER_H + NAME_H - 1)
                 # Full song name
-                p.setPen(_T3)
+                p.setPen(_T1)
                 p.drawText(x + 4, RULER_H, w - x - 4, NAME_H,
                            Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
                            seg.song_name)
             else:
                 # Fallback single-segment: show session name
-                p.setPen(_T3)
+                p.setPen(_T1)
                 p.drawText(4, RULER_H, w - 8, NAME_H,
                            Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
                            seg.song_name)

@@ -87,18 +87,6 @@ class MainWindow(QMainWindow):
         self._overview = OverviewWidget()
         self._overview.seek_requested.connect(self._on_overview_seek)
 
-        # Song name header strip
-        self._song_name_lbl = QLabel("")
-        self._song_name_lbl.setFixedHeight(32)
-        self._song_name_lbl.setAlignment(
-            Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft
-        )
-        self._song_name_lbl.setStyleSheet(
-            "font-family:'Sora',sans-serif; font-size:13px; font-weight:600;"
-            "color:#eef0f6; padding-left:14px;"
-            "background:#0e1017; border-bottom:1px solid #1e2230;"
-        )
-
         # Timeline (full width — no left song-list panel)
         self._timeline = TimelineWidget()
         self._timeline.seek_requested.connect(self._on_seek)
@@ -116,7 +104,6 @@ class MainWindow(QMainWindow):
         vl.setContentsMargins(0, 0, 0, 0)
         vl.setSpacing(0)
         vl.addWidget(self._overview)
-        vl.addWidget(self._song_name_lbl)
         vl.addWidget(scroll)
         self.setCentralWidget(container)
 
@@ -293,7 +280,6 @@ class MainWindow(QMainWindow):
         self._current_seg = seg
         self._player.stop()
         self._play_act.setText("Play")
-        self._song_name_lbl.setText(seg.song_name)
 
         self._timeline.set_segment(seg, None)
         self._overview.set_segment(seg)

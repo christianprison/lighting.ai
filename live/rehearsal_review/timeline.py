@@ -129,6 +129,8 @@ class TimelineWidget(QWidget):
     seek_requested = pyqtSignal(float)
     # Emitted whenever Solo/Mute state changes; args: (muted_indices, soloed_indices)
     solo_mute_changed = pyqtSignal(object, object)
+    # Emitted when user clicks the events label cell; arg: current wav_t
+    event_label_clicked = pyqtSignal(float)
 
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
@@ -226,6 +228,36 @@ class TimelineWidget(QWidget):
         self.update()
         self.solo_mute_changed.emit(frozenset(self._muted), frozenset(self._soloed))
 
+    def _current_event_label(self) -> tuple[str, QColor]:
+        """Return (short text, color) for the last event before cursor_t."""
+        if not self.segment or not self.segment.events:
+            return "EVENTS  ▸", C_T3
+        last = None
+        for ev in self.segment.events:
+            if ev.t <= self.cursor_t:
+                last = ev
+            else:
+                break
+        if last is None:
+            return "EVENTS  ▸", C_T3
+        t_rel = _fmt_t(last.t - self.segment.start_t)
+        etype = last.type
+        if etype == "beat":
+            sym = "↓" if last.data.get("is_downbeat") else "·"
+            return f"{t_rel} {sym}", C_AMBER
+        if etype == "position":
+            part = last.data.get("part_name", "")
+            return f"{t_rel} {part}", C_CYAN
+        if etype == "user":
+            action = last.data.get("action", "?")
+            lmap = {"next": "→ next", "prev": "← prev", "goto": "goto",
+                    "select_song": "song", "send_template": "tmpl",
+                    "accent": "★"}
+            return f"{t_rel} {lmap.get(action, action)}", C_GREEN
+        if etype in ("session_start", "session_end"):
+            return f"{t_rel} {etype}", C_T3
+        return f"{t_rel} {etype}", C_T3
+
     def _is_dim(self, idx: int) -> bool:
         if idx in self._muted:
             return True
@@ -269,8 +301,13 @@ class TimelineWidget(QWidget):
         x = int(event.position().x())
         y = int(event.position().y())
 
-        # Check S/M button clicks in label column
+        # Clicks in label column
         if x < LABEL_W:
+            # Events cell → emit click with current wav_t for dialog
+            if RULER_H <= y < RULER_H + EVENTS_H:
+                self.event_label_clicked.emit(self.cursor_t)
+                return
+            # S/M button clicks
             for i, (track, ty) in enumerate(zip(TRACKS, TRACK_Y)):
                 th = track["h"]
                 if ty <= y < ty + th:
@@ -530,13 +567,14 @@ class TimelineWidget(QWidget):
         # Ruler cell
         p.fillRect(0, 0, LABEL_W, RULER_H, C_BG2)
 
-        # Events cell
+        # Events cell — shows last event before cursor; click opens full list
         p.fillRect(0, RULER_H, LABEL_W, EVENTS_H, C_BG2)
-        p.setPen(C_T3)
+        summary, color = self._current_event_label()
         p.setFont(FONT_MONO)
-        p.drawText(6, RULER_H, LABEL_W - 8, EVENTS_H,
+        p.setPen(color)
+        p.drawText(6, RULER_H, LABEL_W - 10, EVENTS_H,
                    Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
-                   "EVENTS")
+                   summary)
 
         # Track cells
         for i, track in enumerate(TRACKS):

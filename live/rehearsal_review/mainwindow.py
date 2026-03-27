@@ -5,12 +5,13 @@ import json
 from pathlib import Path
 from typing import Optional
 
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QTimer, pyqtSignal
 from PyQt6.QtGui import QAction, QKeySequence
 from PyQt6.QtWidgets import (
-    QApplication, QComboBox, QFileDialog, QLabel,
-    QMainWindow, QMessageBox, QProgressDialog, QScrollArea,
-    QStatusBar, QToolBar, QVBoxLayout, QWidget,
+    QApplication, QComboBox, QDialog, QFileDialog, QLabel,
+    QListWidget, QListWidgetItem, QMainWindow, QMessageBox,
+    QProgressDialog, QScrollArea, QStatusBar, QToolBar,
+    QVBoxLayout, QWidget,
 )
 
 from session import Session, SongSegment, load_session
@@ -55,6 +56,114 @@ QComboBox QAbstractItemView   { background:#0e1017; border:1px solid #1e2230;
 """
 
 
+_PANEL_STYLE = """
+QDialog       { background:#0e1017; border:1px solid #1e2230; }
+QListWidget   { background:#0e1017; border:none; outline:none; }
+QListWidget::item {
+    padding:6px 12px;
+    border-bottom:1px solid #1e2230;
+    font-family:'DM Mono',monospace; font-size:10px; color:#a0a4b8;
+}
+QListWidget::item:selected { background:#00dc8218; color:#00dc82; }
+QListWidget::item:hover    { background:#1c1f2b; }
+QScrollBar:vertical        { background:#0e1017; width:6px; }
+QScrollBar::handle:vertical { background:#2a2e40; border-radius:3px; }
+QScrollBar::add-line:vertical,
+QScrollBar::sub-line:vertical { height:0; }
+"""
+
+_TYPE_ICONS = {
+    "beat":          ("·",  "#f0a030"),
+    "beat_down":     ("↓",  "#f0a030"),
+    "position":      ("◆",  "#38bdf8"),
+    "user":          ("▶",  "#00dc82"),
+    "session_start": ("▷",  "#5c6080"),
+    "session_end":   ("■",  "#5c6080"),
+}
+
+
+def _fmt_event_row(ev, seg_start: float) -> str:
+    """Return a single-line description for an event list row."""
+    t = _fmt_t(ev.t - seg_start)
+    et = ev.type
+    if et == "beat":
+        tag = "↓ Downbeat" if ev.data.get("is_downbeat") else "  Beat"
+        return f"{t}   {tag}"
+    if et == "position":
+        part = ev.data.get("part_name", "")
+        conf = ev.data.get("confidence", 0)
+        return f"{t}   Position → {part}  ({conf:.0%})"
+    if et == "user":
+        action = ev.data.get("action", "?")
+        d = ev.data.get("data", {})
+        detail = ""
+        if action == "select_song":
+            detail = f": {d.get('name', '')}"
+        elif action == "send_template":
+            detail = f": {d.get('template', d.get('name', ''))}"
+        return f"{t}   {action}{detail}"
+    if et == "session_start":
+        wav = ev.data.get("wav", "")
+        return f"{t}   Session Start  {wav}"
+    if et == "session_end":
+        dur = ev.data.get("duration_sec", "")
+        return f"{t}   Session Ende  ({dur}s)"
+    return f"{t}   {et}  {ev.data}"
+
+
+class EventListPanel(QDialog):
+    """Non-modal floating panel showing all events for the active segment.
+
+    Clicking a row seeks the timeline to that event's position.
+    """
+    seek_requested = pyqtSignal(float)   # t_in_segment
+
+    def __init__(self, parent=None) -> None:
+        super().__init__(parent, Qt.WindowType.Tool)
+        self.setWindowTitle("Events")
+        self.resize(480, 520)
+        self.setStyleSheet(_PANEL_STYLE)
+
+        self._list = QListWidget()
+        self._list.itemClicked.connect(self._on_item_clicked)
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(self._list)
+
+        self._seg_start: float = 0.0
+        self._event_times: list[float] = []
+
+    def load_segment(self, seg: "SongSegment") -> None:
+        self._list.clear()
+        self._seg_start = seg.start_t
+        self._event_times = []
+        for ev in seg.events:
+            text = _fmt_event_row(ev, seg.start_t)
+            item = QListWidgetItem(text)
+            item.setData(Qt.ItemDataRole.UserRole, ev.t - seg.start_t)
+            self._list.addItem(item)
+            self._event_times.append(ev.t)
+
+    def focus_at(self, wav_t: float) -> None:
+        """Scroll to and select the last event at or before wav_t."""
+        row = -1
+        for i, t in enumerate(self._event_times):
+            if t <= wav_t:
+                row = i
+            else:
+                break
+        if row >= 0:
+            self._list.setCurrentRow(row)
+            self._list.scrollToItem(
+                self._list.item(row),
+                QListWidget.ScrollHint.PositionAtCenter,
+            )
+
+    def _on_item_clicked(self, item: QListWidgetItem) -> None:
+        t_in_seg: float = item.data(Qt.ItemDataRole.UserRole)
+        self.seek_requested.emit(t_in_seg)
+
+
 class MainWindow(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
@@ -68,6 +177,8 @@ class MainWindow(QMainWindow):
         self._progress: Optional[QProgressDialog] = None
         self._overview_worker: Optional[PeakWorker] = None
         self._pending_seek_t: Optional[float] = None
+
+        self._event_panel: Optional[EventListPanel] = None
 
         self._player = AudioPlayer(self)
         self._player.position_changed.connect(self._on_position)
@@ -91,6 +202,7 @@ class MainWindow(QMainWindow):
         self._timeline = TimelineWidget()
         self._timeline.seek_requested.connect(self._on_seek)
         self._timeline.solo_mute_changed.connect(self._on_solo_mute_changed)
+        self._timeline.event_label_clicked.connect(self._on_event_label_clicked)
 
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
@@ -284,6 +396,10 @@ class MainWindow(QMainWindow):
         self._timeline.set_segment(seg, None)
         self._overview.set_segment(seg)
 
+        # Update event panel if open
+        if self._event_panel and self._event_panel.isVisible():
+            self._event_panel.load_segment(seg)
+
         # Cancel previous worker
         if self._peak_worker and self._peak_worker.isRunning():
             self._peak_worker.terminate()
@@ -355,6 +471,18 @@ class MainWindow(QMainWindow):
         except Exception as exc:
             self._status.showMessage(f"Audio-Ladefehler: {exc}", 5000)
 
+    def _on_event_label_clicked(self, wav_t: float) -> None:
+        """Open (or bring to front) the event list panel, focused at wav_t."""
+        if self._current_seg is None:
+            return
+        if self._event_panel is None:
+            self._event_panel = EventListPanel(self)
+            self._event_panel.seek_requested.connect(self._on_seek)
+        self._event_panel.load_segment(self._current_seg)
+        self._event_panel.focus_at(wav_t)
+        self._event_panel.show()
+        self._event_panel.raise_()
+
     def _on_solo_mute_changed(self, muted: frozenset, soloed: frozenset) -> None:
         """Reload audio mix when Solo/Mute state changes."""
         solo_chs = self._solo_to_channels(soloed)
@@ -403,6 +531,8 @@ class MainWindow(QMainWindow):
         self._overview.set_playhead(wav_t)
         if self._current_seg:
             self._pos_label.setText(_fmt_t_precise(wav_t - self._current_seg.start_t))
+        if self._event_panel and self._event_panel.isVisible():
+            self._event_panel.focus_at(wav_t)
 
     def _on_stopped(self) -> None:
         self._play_act.setText("Play")

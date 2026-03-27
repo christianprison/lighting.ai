@@ -65,16 +65,21 @@ class PeakWorker(QThread):
         parent=None,
     ) -> None:
         super().__init__(parent)
+        self._cancelled = False
         self.wav_path = wav_path
         self.ch_indices = ch_indices
         self.start_t = start_t
         self.end_t = end_t
         self.sample_rate = sample_rate
 
+    def cancel(self) -> None:
+        self._cancelled = True
+
     def run(self) -> None:
         try:
             peaks = self._extract()
-            self.finished.emit(TrackPeaks(peaks, self.end_t - self.start_t))
+            if not self._cancelled:
+                self.finished.emit(TrackPeaks(peaks, self.end_t - self.start_t))
         except Exception as exc:  # noqa: BLE001
             self.error.emit(str(exc))
 

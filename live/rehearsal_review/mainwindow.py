@@ -119,7 +119,6 @@ class MainWindow(QMainWindow):
         splitter.addWidget(scroll)
         splitter.setSizes([230, 1210])
 
-        from PyQt6.QtWidgets import QVBoxLayout
         self._overview = OverviewWidget()
         self._overview.seek_requested.connect(self._on_overview_seek)
 

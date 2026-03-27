@@ -86,29 +86,72 @@ def _fmt_event_row(ev, seg_start: float) -> str:
     """Return a single-line description for an event list row."""
     t = _fmt_t(ev.t - seg_start)
     et = ev.type
+
     if et == "beat":
         tag = "↓ Downbeat" if ev.data.get("is_downbeat") else "  Beat"
-        return f"{t}   {tag}"
+        extras: list[str] = []
+        if "beat_num" in ev.data:
+            extras.append(f"#{ev.data['beat_num']}")
+        if "bpm" in ev.data:
+            extras.append(f"{float(ev.data['bpm']):.1f} BPM")
+        suffix = "  " + "  ".join(extras) if extras else ""
+        return f"{t}   {tag}{suffix}"
+
     if et == "position":
         part = ev.data.get("part_name", "")
         conf = ev.data.get("confidence", 0)
-        return f"{t}   Position → {part}  ({conf:.0%})"
+        detail: list[str] = [f"◆ {part}"]
+        if "bar_num" in ev.data:
+            detail.append(f"Bar {ev.data['bar_num']}")
+        detail.append(f"({float(conf):.0%})")
+        return f"{t}   " + "  ".join(detail)
+
     if et == "user":
         action = ev.data.get("action", "?")
-        d = ev.data.get("data", {})
-        detail = ""
+        d = ev.data.get("data", {}) if isinstance(ev.data.get("data"), dict) else {}
+        parts: list[str] = [action]
         if action == "select_song":
-            detail = f": {d.get('name', '')}"
+            if d.get("name"):
+                parts.append(d["name"])
+            if d.get("song_id"):
+                parts.append(f"[{d['song_id']}]")
         elif action == "send_template":
-            detail = f": {d.get('template', d.get('name', ''))}"
-        return f"{t}   {action}{detail}"
+            tmpl = d.get("template", d.get("name", ""))
+            if tmpl:
+                parts.append(str(tmpl))
+        else:
+            for k, v in d.items():
+                parts.append(f"{k}={v}")
+        return f"{t}   " + "  ".join(parts)
+
     if et == "session_start":
+        parts2: list[str] = ["▷ Session Start"]
         wav = ev.data.get("wav", "")
-        return f"{t}   Session Start  {wav}"
+        if wav:
+            parts2.append(str(wav))
+        sr = ev.data.get("sample_rate")
+        if sr is not None:
+            parts2.append(f"{sr} Hz")
+        ch = ev.data.get("channels")
+        if ch is not None:
+            parts2.append(f"{ch} ch")
+        sa = ev.data.get("started_at", "")
+        if sa:
+            parts2.append(str(sa))
+        return f"{t}   " + "  ".join(parts2)
+
     if et == "session_end":
-        dur = ev.data.get("duration_sec", "")
-        return f"{t}   Session Ende  ({dur}s)"
-    return f"{t}   {et}  {ev.data}"
+        dur = ev.data.get("duration_sec")
+        if dur is not None:
+            m, s = divmod(int(float(dur)), 60)
+            dur_str = f"{m}:{s:02d}"
+        else:
+            dur_str = "?"
+        return f"{t}   ■ Session Ende  {dur_str}"
+
+    # Unknown type: show all key=value pairs
+    pairs = "  ".join(f"{k}={v}" for k, v in ev.data.items())
+    return f"{t}   {et}  {pairs}" if pairs else f"{t}   {et}"
 
 
 class EventListPanel(QDialog):
@@ -168,7 +211,6 @@ class MainWindow(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
         self.setWindowTitle("Rehearsal Post-Preparation — lighting.ai")
-        self.resize(1440, 940)
         self.setStyleSheet(_APP_STYLE)
 
         self._session: Optional[Session] = None
@@ -209,7 +251,6 @@ class MainWindow(QMainWindow):
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         scroll.setWidget(self._timeline)
-        scroll.setMinimumHeight(CONTENT_H)
 
         container = QWidget()
         vl = QVBoxLayout(container)

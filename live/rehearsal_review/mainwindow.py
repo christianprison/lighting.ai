@@ -83,7 +83,8 @@ class MainWindow(QMainWindow):
         splitter.setStyleSheet("QSplitter::handle { background:#1e2230; }")
 
         # Left panel: song list
-        left = QWidget()
+        self._left_panel = QWidget()
+        left = self._left_panel
         left.setFixedWidth(230)
         left.setStyleSheet("background:#0e1017; border-right:1px solid #1e2230;")
         lv = QVBoxLayout(left)
@@ -220,6 +221,12 @@ class MainWindow(QMainWindow):
         self._current_seg = None
         self._player.stop()
 
+        # Hide song list when no song navigation data available (fallback session)
+        has_songs = len(session.songs) > 1 or (
+            len(session.songs) == 1 and bool(session.songs[0].song_id)
+        )
+        self._left_panel.setVisible(has_songs)
+
         self._song_list.clear()
         for seg in session.songs:
             item = QListWidgetItem(f"  {seg.song_name}")
@@ -229,6 +236,9 @@ class MainWindow(QMainWindow):
             )
             item.setData(Qt.ItemDataRole.UserRole, seg)
             self._song_list.addItem(item)
+
+        # Pass recording start time to timeline ruler
+        self._timeline.set_recording_started_at(session.recording_started_at)
 
         mix = " · Mixdown vorhanden" if session.mixdown_path else ""
         self._file_lbl.setText(

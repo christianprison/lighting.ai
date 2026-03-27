@@ -1,0 +1,3 @@
+# Rehearsal Post-Preparation — additional deps on top of live/requirements.txt
+PyQt6>=6.4.0
+# numpy, soundfile, sounddevice are already in live/requirements.txt

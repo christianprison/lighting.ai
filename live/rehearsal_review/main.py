@@ -18,15 +18,18 @@ def main() -> None:
     app.setFont(QFont("Sora", 10))
 
     win = MainWindow()
-    win.showMaximized()
+    win.show()   # show at default size first so the window handle is created
 
-    # Delay file open until the event loop is running so showMaximized() takes effect
+    # showMaximized() must run inside the event loop on Linux/KDE;
+    # calling it before app.exec() sets the state flag but not the geometry.
     if len(sys.argv) > 1:
         p = Path(sys.argv[1])
         if p.exists() and p.suffix == ".jsonl":
-            QTimer.singleShot(0, lambda: win._load_session(p))
+            QTimer.singleShot(0, lambda: (win.showMaximized(), win._load_session(p)))
+        else:
+            QTimer.singleShot(0, lambda: (win.showMaximized(), win._open_session()))
     else:
-        QTimer.singleShot(0, win._open_session)
+        QTimer.singleShot(0, lambda: (win.showMaximized(), win._open_session()))
 
     sys.exit(app.exec())
 

@@ -351,6 +351,12 @@ class MainWindow(QMainWindow):
         self._timeline.set_zoom(self._timeline.zoom * factor)
         self._zoom_lbl.setText(f"  {self._timeline.zoom:.0f} px/s  ")
 
+    def keyPressEvent(self, event) -> None:
+        if event.key() == Qt.Key.Key_Space:
+            self._toggle_play()
+        else:
+            super().keyPressEvent(event)
+
     def _zoom_fit(self) -> None:
         if self._current_seg is None:
             return

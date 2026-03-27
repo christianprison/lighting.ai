@@ -94,6 +94,10 @@ TRACKS: list[dict] = [
 _TOM_CHS = (10, 11, 12)
 _tom_added = False
 
+# OH channels merged into one overlay track (like Toms)
+_OH_CHS = (13, 14)
+_oh_added = False
+
 for _ch in DISPLAY_CHANNELS:
     if _ch in SUM_CHANNELS:
         continue   # skip individual Main L / Main R
@@ -110,6 +114,19 @@ for _ch in DISPLAY_CHANNELS:
             })
             _tom_added = True
         continue   # skip individual Tom H / M / L
+    if _ch in _OH_CHS:
+        if not _oh_added:
+            TRACKS.append({
+                "ch":           -1,
+                "combined_chs": _OH_CHS,
+                "label":        "OH L+R",
+                "color":        WF_CH,
+                "fill":         WF_CH_F,
+                "h":            TRACK_H,
+                "is_sum":       False,
+            })
+            _oh_added = True
+        continue   # skip individual OH L / OH R
     TRACKS.append({
         "ch":     _ch,
         "label":  CHANNEL_LABELS.get(_ch, f"CH {_ch + 1}"),

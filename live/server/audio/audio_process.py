@@ -364,9 +364,10 @@ class AudioProcess:
                 is_fill=ev.is_fill,
             )
             self._emit(beat_update)
-            # Beat ins Event-Log schreiben
+            # Beat ins Event-Log schreiben — Timer-Beats werden nicht geloggt,
+            # da sie keine realen Onset-Ereignisse darstellen.
             el = self.recorder.event_logger
-            if el is not None:
+            if el is not None and ev.trigger != "timer":
                 el.log(
                     "beat",
                     beat_num=ev.beat_num,

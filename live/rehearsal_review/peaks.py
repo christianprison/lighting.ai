@@ -18,8 +18,8 @@ from PyQt6.QtCore import QThread, pyqtSignal
 DISPLAY_CHANNELS: list[int] = [16, 17, 0, 1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14]
 
 CHANNEL_LABELS: dict[int, str] = {
-    0: "CH 1", 1: "CH 2", 2: "CH 3", 3: "CH 4",
-    4: "CH 5", 5: "CH 6", 6: "CH 7",
+    0: "Pete Vox", 1: "Axel Vox", 2: "Bibo Vox", 3: "Lead Guitar",
+    4: "Rhythm Guitar", 5: "Bass", 6: "Synth",
     8: "Kick",  9: "Snare", 10: "Tom H", 11: "Tom M",
     12: "Tom L", 13: "OH L", 14: "OH R",
     16: "Main L", 17: "Main R",

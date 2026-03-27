@@ -666,6 +666,27 @@ async def recording_list():
     return {"recordings": audio_process.recorder.list_recordings()}
 
 
+@app.get("/api/recording/download/{filename}")
+async def recording_download(filename: str):
+    """Lädt eine WAV-Aufnahme herunter.
+
+    ``filename`` darf nur den Dateinamen enthalten (kein Pfad).
+    """
+    if not audio_process:
+        return JSONResponse({"error": "AudioProcess not initialised"}, status_code=503)
+    # Sicherheitscheck: kein Path-Traversal
+    if "/" in filename or "\\" in filename or ".." in filename:
+        return JSONResponse({"error": "Ungültiger Dateiname"}, status_code=400)
+    path = audio_process.recorder.recordings_dir / filename
+    if not path.exists() or path.suffix.lower() != ".wav":
+        return JSONResponse({"error": "Datei nicht gefunden"}, status_code=404)
+    return FileResponse(
+        path=str(path),
+        media_type="audio/wav",
+        filename=filename,
+    )
+
+
 @app.post("/api/recording/mixdown")
 async def recording_mixdown(body: dict):
     """Erstellt einen Stereo-Mixdown einer 18-Kanal-Aufnahme.

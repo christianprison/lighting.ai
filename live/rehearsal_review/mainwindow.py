@@ -16,7 +16,7 @@ from PyQt6.QtWidgets import (
 from session import Session, SongSegment, load_session
 from peaks import PeakWorker, DISPLAY_CHANNELS, TrackPeaks
 from player import AudioPlayer
-from timeline import TimelineWidget, CONTENT_H, LABEL_W
+from timeline import TimelineWidget, CONTENT_H, LABEL_W, TRACKS
 from overview import OverviewWidget
 
 _APP_STYLE = """
@@ -102,6 +102,7 @@ class MainWindow(QMainWindow):
         # Timeline (full width — no left song-list panel)
         self._timeline = TimelineWidget()
         self._timeline.seek_requested.connect(self._on_seek)
+        self._timeline.solo_mute_changed.connect(self._on_solo_mute_changed)
 
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
@@ -367,6 +368,29 @@ class MainWindow(QMainWindow):
             )
         except Exception as exc:
             self._status.showMessage(f"Audio-Ladefehler: {exc}", 5000)
+
+    def _on_solo_mute_changed(self, muted: frozenset, soloed: frozenset) -> None:
+        """Reload audio mix when Solo/Mute state changes."""
+        solo_chs = self._solo_to_channels(soloed)
+        self._player.reload_mix(solo_chs)
+
+    def _solo_to_channels(self, soloed: frozenset) -> Optional[list[int]]:
+        """Convert soloed track indices to raw WAV channel indices.
+
+        Returns None when nothing is soloed (= play normal mix).
+        """
+        if not soloed:
+            return None
+        channels: list[int] = []
+        for idx in soloed:
+            if idx >= len(TRACKS):
+                continue
+            track = TRACKS[idx]
+            if "combined_chs" in track:
+                channels.extend(track["combined_chs"])
+            elif track["ch"] >= 0:
+                channels.append(track["ch"])
+        return channels if channels else None
 
     # ── Transport ─────────────────────────────────────────────────────────────
 

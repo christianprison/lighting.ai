@@ -89,9 +89,27 @@ TRACKS: list[dict] = [
         "is_sum":       True,
     },
 ]
+
+# Tom channels merged into one overlay track
+_TOM_CHS = (10, 11, 12)
+_tom_added = False
+
 for _ch in DISPLAY_CHANNELS:
     if _ch in SUM_CHANNELS:
         continue   # skip individual Main L / Main R
+    if _ch in _TOM_CHS:
+        if not _tom_added:
+            TRACKS.append({
+                "ch":           -1,
+                "combined_chs": _TOM_CHS,
+                "label":        "Toms",
+                "color":        WF_CH,
+                "fill":         WF_CH_F,
+                "h":            TRACK_H,
+                "is_sum":       False,
+            })
+            _tom_added = True
+        continue   # skip individual Tom H / M / L
     TRACKS.append({
         "ch":     _ch,
         "label":  CHANNEL_LABELS.get(_ch, f"CH {_ch + 1}"),
@@ -584,21 +602,18 @@ class TimelineWidget(QWidget):
                        "Lade...")
             return
 
-        # Resolve peak data (combined or single channel)
+        # Resolve peak data — works for any number of combined_chs
         if "combined_chs" in track:
-            chs = track["combined_chs"]
-            cp1 = self.peaks.channel_peaks.get(chs[0])
-            cp2 = self.peaks.channel_peaks.get(chs[1])
-            if cp1 and cp2 and cp1.n_points > 0 and cp2.n_points > 0:
-                n = min(cp1.n_points, cp2.n_points)
-                pk_max = np.maximum(cp1.peaks_max[:n], cp2.peaks_max[:n])
-                pk_min = np.minimum(cp1.peaks_min[:n], cp2.peaks_min[:n])
-            elif cp1 and cp1.n_points > 0:
-                pk_max, pk_min, n = cp1.peaks_max, cp1.peaks_min, cp1.n_points
-            elif cp2 and cp2.n_points > 0:
-                pk_max, pk_min, n = cp2.peaks_max, cp2.peaks_min, cp2.n_points
-            else:
+            valid = [self.peaks.channel_peaks.get(ch) for ch in track["combined_chs"]]
+            valid = [cp for cp in valid if cp and cp.n_points > 0]
+            if not valid:
                 return
+            n = min(cp.n_points for cp in valid)
+            pk_max = valid[0].peaks_max[:n].copy()
+            pk_min = valid[0].peaks_min[:n].copy()
+            for cp in valid[1:]:
+                np.maximum(pk_max, cp.peaks_max[:n], out=pk_max)
+                np.minimum(pk_min, cp.peaks_min[:n], out=pk_min)
         else:
             cp = self.peaks.channel_peaks.get(track["ch"])
             if cp is None or cp.n_points == 0:
@@ -625,10 +640,13 @@ class TimelineWidget(QWidget):
         top_pts: list[QPoint] = []
         bot_pts: list[QPoint] = []
 
+        # 2× vertical gain for individual tracks; clamp to keep within row bounds
+        gain = 1.0 if track["is_sum"] else 2.0
+
         for pi in range(pi_start, pi_end):
             x = LABEL_W + int(pi / n * ww) - self._scroll_x
-            vmax = float(pk_max[pi])
-            vmin = float(pk_min[pi])
+            vmax = min(1.0, float(pk_max[pi]) * gain)
+            vmin = max(-1.0, float(pk_min[pi]) * gain)
             top_pts.append(QPoint(x, mid - int(vmax * half)))
             bot_pts.append(QPoint(x, mid - int(vmin * half)))
 

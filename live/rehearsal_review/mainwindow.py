@@ -238,7 +238,9 @@ class MainWindow(QMainWindow):
             self._song_list.addItem(item)
 
         # Pass recording start time to timeline ruler
-        self._timeline.set_recording_started_at(session.recording_started_at)
+        self._timeline.set_recording_started_at(
+            getattr(session, "recording_started_at", None)
+        )
 
         mix = " · Mixdown vorhanden" if session.mixdown_path else ""
         self._file_lbl.setText(

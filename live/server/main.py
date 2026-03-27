@@ -505,6 +505,7 @@ async def osc_send_template(req: OscSendTemplateRequest):
     ok = await qlc.trigger_function_async(function_id)
     if ok:
         log.info("send_template '%s' → function %d triggered", req.template, function_id)
+        _log_user_action("send_template", {"template": req.template, "function_id": function_id})
         return {"ok": True, "template": req.template, "function_id": function_id}
     else:
         return JSONResponse({"error": f"No collection mapping for function {function_id}"}, status_code=500)
@@ -593,6 +594,17 @@ async def set_rehearsal_song(req: RehearsalSongRequest):
         song = db.get("songs", {}).get(song_id, {})
         bpm = float(song.get("bpm", 120))
         audio_process.set_bpm(bpm)
+        _log_user_action("select_song", {
+            "song_id": song_id,
+            "name": song.get("name", ""),
+            "source": "rehearsal",
+        })
+    else:
+        _log_user_action("select_song", {
+            "song_id": "",
+            "name": "",
+            "source": "rehearsal_clear",
+        })
 
     mode = "rehearsal" if song_id else "live"
     return {"ok": True, "mode": mode, "song_id": song_id}

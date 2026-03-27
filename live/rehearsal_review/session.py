@@ -114,6 +114,16 @@ def load_session(jsonl_path: Path, db: Optional[dict] = None) -> Session:
             events=seg_events,
         ))
 
+    # Fallback: no select_song events → show entire recording as one segment
+    if not songs:
+        songs.append(SongSegment(
+            song_id="",
+            song_name=jsonl_path.stem,
+            start_t=0.0,
+            end_t=total_duration,
+            events=events,
+        ))
+
     return Session(
         wav_path=wav_path,
         mixdown_path=mixdown_path,

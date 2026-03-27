@@ -17,6 +17,7 @@ from session import Session, SongSegment, load_session
 from peaks import PeakWorker, DISPLAY_CHANNELS, TrackPeaks
 from player import AudioPlayer
 from timeline import TimelineWidget, CONTENT_H
+from overview import OverviewWidget
 
 _APP_STYLE = """
 QMainWindow, QWidget          { background:#08090d; color:#eef0f6; }
@@ -62,10 +63,13 @@ class MainWindow(QMainWindow):
         self._current_seg: Optional[SongSegment] = None
         self._peak_worker: Optional[PeakWorker] = None
         self._progress: Optional[QProgressDialog] = None
+        self._overview_worker: Optional[PeakWorker] = None
+        self._pending_seek_t: Optional[float] = None
 
         self._player = AudioPlayer(self)
         self._player.position_changed.connect(self._on_position)
         self._player.playback_stopped.connect(self._on_stopped)
+        self._player.error.connect(lambda msg: self._status.showMessage(f"Audio-Fehler: {msg}", 8000))
 
         self._build_ui()
         self._build_menu()

@@ -26,6 +26,7 @@ class AudioPlayer(QObject):
 
     position_changed = pyqtSignal(float)
     playback_stopped = pyqtSignal()
+    error = pyqtSignal(str)
 
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
@@ -55,15 +56,14 @@ class AudioPlayer(QObject):
         Falls back to channels 16+17 from the raw WAV.
         """
         self.stop()
-        sr = self._sr
-        start = int(start_t * sr)
-        end = int(end_t * sr)
 
         src = mixdown_path if (mixdown_path and mixdown_path.exists()) else wav_path
 
         with sf.SoundFile(str(src)) as f:
             sr = f.samplerate
             n_ch = f.channels
+            start = int(start_t * sr)
+            end = int(end_t * sr)
             f.seek(start)
             raw = f.read(end - start, dtype="float32", always_2d=True)
 
@@ -86,7 +86,12 @@ class AudioPlayer(QObject):
     def play(self) -> None:
         if self._data is None:
             return
-        sd.play(self._data[self._start_frame:], self._sr)
+        try:
+            sd.play(self._data[self._start_frame:], self._sr)
+        except Exception as exc:
+            self.error.emit(str(exc))
+            self._is_playing = False
+            return
         self._play_ts = time.monotonic()
         self._is_playing = True
         self._poll.start()

@@ -102,6 +102,7 @@ class TimelineWidget(QWidget):
 
         self._pps: float = 80.0         # pixels per second
         self._scroll_x: int = 0
+        self._cursor_px: int = -1
 
         self._hbar = QScrollBar(Qt.Orientation.Horizontal, self)
         self._hbar.valueChanged.connect(self._on_scroll)
@@ -125,16 +126,34 @@ class TimelineWidget(QWidget):
         self.update()
 
     def set_cursor(self, wav_t: float) -> None:
+        old_t = self.cursor_t
         self.cursor_t = wav_t
-        # Auto-scroll to keep cursor visible
-        if self.segment:
-            cx = int((wav_t - self.segment.start_t) * self._pps)
-            vw = self._visible_w()
-            if cx < self._scroll_x:
-                self._hbar.setValue(max(0, cx - 40))
-            elif cx > self._scroll_x + vw - 40:
-                self._hbar.setValue(cx - vw + 80)
-        self.update()
+
+        if self.segment is None:
+            return
+
+        cx_new = int((wav_t - self.segment.start_t) * self._pps)
+        vw = self._visible_w()
+        scrolled = False
+        if cx_new < self._scroll_x:
+            self._hbar.setValue(max(0, cx_new - 40))
+            scrolled = True
+        elif cx_new > self._scroll_x + vw - 40:
+            self._hbar.setValue(cx_new - vw + 80)
+            scrolled = True
+
+        new_px = LABEL_W + cx_new - self._scroll_x
+        if scrolled:
+            self._cursor_px = new_px
+            self.update()
+        else:
+            old_px = self._cursor_px
+            self._cursor_px = new_px
+            h = self.height()
+            # Repaint a rect spanning old and new cursor positions
+            left = min(old_px if old_px >= 0 else new_px, new_px) - 3
+            right = max(old_px if old_px >= 0 else new_px, new_px) + 3
+            self.update(QRect(max(LABEL_W, left), 0, right - left + 1, h))
 
     def set_zoom(self, pps: float) -> None:
         self._pps = max(4.0, min(800.0, pps))

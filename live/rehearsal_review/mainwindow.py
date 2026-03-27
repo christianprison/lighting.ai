@@ -265,7 +265,7 @@ class MainWindow(QMainWindow):
             return
 
         self._progress = QProgressDialog(
-            f"Lade Wellenformen: "{seg.song_name}"...",
+            f'Lade Wellenformen: "{seg.song_name}"...',
             None, 0, 100, self
         )
         self._progress.setWindowTitle("Wellenformen")

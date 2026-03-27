@@ -35,6 +35,7 @@ from __future__ import annotations
 
 import logging
 import math
+from collections import deque
 from dataclasses import dataclass, field
 from typing import NamedTuple
 
@@ -56,6 +57,10 @@ CONFIDENCE_THRESHOLD = 0.30
 # Beam-Breite: nur Top-K Hypothesen weiterverfolgen
 BEAM_WIDTH = 50
 
+# Part-Konsensus: Anzahl aufeinanderfolgender Auswertungen mit gleichem Part,
+# ab der ein Part auch bei niedriger Einzel-Konfidenz als erkannt gilt.
+PART_CONSENSUS_N = 3
+
 
 # ---------------------------------------------------------------------------
 # Datenstrukturen
@@ -73,7 +78,8 @@ class HMMState:
     bar_num: int = 0
     part_name: str = ""
     confidence: float = 0.0
-    is_frozen: bool = False   # True wenn unter Konfidenz-Schwelle (Fallback)
+    is_frozen: bool = False        # True wenn unter Konfidenz-Schwelle (Fallback)
+    is_part_consensus: bool = False  # True wenn Part durch Konsensus bestätigt
 
 
 @dataclass
@@ -121,6 +127,9 @@ class AudioHMM:
         # Letzter sicherer Zustand für Fallback
         self._last_confident: HMMState = HMMState()
 
+        # Part-Konsensus: rollierende History der besten (song_id, part_name)-Votes
+        self._part_vote_history: deque[tuple[str, str]] = deque(maxlen=PART_CONSENSUS_N)
+
     # --- Laden ---------------------------------------------------------------
 
     def load_all_states(self) -> int:
@@ -166,6 +175,7 @@ class AudioHMM:
             return
         log_prior = -math.log(len(keys))
         self._beam = [_Hypothesis(k, log_prior) for k in keys]
+        self._part_vote_history.clear()
 
     def _active_keys(self) -> list[StateKey]:
         """Alle Zustände im aktuellen Suchraum."""
@@ -226,29 +236,54 @@ class AudioHMM:
         probs /= probs.sum()
         confidence = float(probs[0])
 
-        # 5) Fallback: Position einfrieren falls unter Schwelle
+        # Part-Konsensus: immer den wahrscheinlichsten Part stimmen lassen,
+        # unabhängig von der Einzel-Konfidenz.
+        bar = self._bars.get(best_key)
+        current_part = bar.part_name if bar else ""
+        self._part_vote_history.append((best_key.song_id, current_part))
+        is_consensus = (
+            len(self._part_vote_history) == PART_CONSENSUS_N
+            and len(set(self._part_vote_history)) == 1
+            and current_part != ""
+        )
+
+        # 5) Fallback: Position einfrieren falls unter Schwelle —
+        #    außer wenn Part-Konsensus greift.
         if confidence < CONFIDENCE_THRESHOLD:
+            if is_consensus:
+                cs_song_id, cs_part = self._part_vote_history[0]
+                log.debug(
+                    "Part-Konsensus: %s / %s (confidence=%.2f)",
+                    cs_song_id, cs_part, confidence,
+                )
+                return HMMState(
+                    song_id=cs_song_id,
+                    bar_num=best_key.bar_num,
+                    part_name=cs_part,
+                    confidence=confidence,
+                    is_frozen=False,
+                    is_part_consensus=True,
+                )
             log.debug(
                 "Konfidenz %.2f < %.2f — Position eingefroren bei %s T%d",
                 confidence, CONFIDENCE_THRESHOLD,
                 self._last_confident.song_id, self._last_confident.bar_num,
             )
-            frozen = HMMState(
+            return HMMState(
                 song_id=self._last_confident.song_id,
                 bar_num=self._last_confident.bar_num,
                 part_name=self._last_confident.part_name,
                 confidence=confidence,
                 is_frozen=True,
             )
-            return frozen
 
-        bar = self._bars.get(best_key)
         state = HMMState(
             song_id=best_key.song_id,
             bar_num=best_key.bar_num,
-            part_name=bar.part_name if bar else "",
+            part_name=current_part,
             confidence=confidence,
             is_frozen=False,
+            is_part_consensus=is_consensus,
         )
         self._last_confident = state
         return state

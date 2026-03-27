@@ -69,6 +69,7 @@ class PositionUpdate:
     part_name: str
     confidence: float
     is_frozen: bool
+    is_part_consensus: bool = False
     timestamp: float = field(default_factory=time.time)
 
     def to_dict(self) -> dict:
@@ -79,6 +80,7 @@ class PositionUpdate:
             "part_name": self.part_name,
             "confidence": round(self.confidence, 3),
             "is_frozen": self.is_frozen,
+            "is_part_consensus": self.is_part_consensus,
             "timestamp": self.timestamp,
         }
 
@@ -448,9 +450,11 @@ class AudioProcess:
             except Exception as exc:
                 log.warning("Probe-Event konnte nicht geloggt werden: %s", exc)
 
-        # HMM-Position ins Event-Log schreiben
+        # HMM-Position ins Event-Log schreiben:
+        # — bei sicherer Erkennung (song_id gesetzt, nicht eingefroren)
+        # — oder bei Part-Konsensus (auch wenn Einzel-Konfidenz niedrig)
         el = self.recorder.event_logger
-        if el is not None and state.song_id:
+        if el is not None and state.song_id and (not state.is_frozen or state.is_part_consensus):
             el.log(
                 "position",
                 song_id=state.song_id,
@@ -458,6 +462,7 @@ class AudioProcess:
                 part_name=state.part_name,
                 confidence=round(state.confidence, 4),
                 is_frozen=state.is_frozen,
+                is_part_consensus=state.is_part_consensus,
                 bpm_live=round(self.beat_detector.bpm or 0.0, 1),
             )
 
@@ -468,6 +473,7 @@ class AudioProcess:
             part_name=state.part_name,
             confidence=state.confidence,
             is_frozen=state.is_frozen,
+            is_part_consensus=state.is_part_consensus,
         )
         self._emit(update)
 

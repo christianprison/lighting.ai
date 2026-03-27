@@ -4,9 +4,9 @@ from __future__ import annotations
 from typing import Optional
 
 import numpy as np
-from PyQt6.QtCore import Qt, QRect, pyqtSignal
+from PyQt6.QtCore import Qt, QRect, QPoint, pyqtSignal
 from PyQt6.QtGui import (
-    QPainter, QPen, QBrush, QColor, QFont, QPolygon, QPoint,
+    QPainter, QPen, QBrush, QColor, QFont, QPolygon,
 )
 from PyQt6.QtWidgets import QWidget, QSizePolicy
 

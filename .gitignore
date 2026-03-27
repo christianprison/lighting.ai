@@ -6,3 +6,4 @@ __pycache__/
 # Live-App: lokale Daten (zu groß für GitHub)
 live/data/recordings/
 live/data/*.db
+!live/data/reference.db

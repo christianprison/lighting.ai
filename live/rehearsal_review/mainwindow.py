@@ -120,7 +120,7 @@ class MainWindow(QMainWindow):
         mb = self.menuBar()
 
         fm = mb.addMenu("Datei")
-        open_a = QAction("Oeffnen...", self)
+        open_a = QAction("Öffnen...", self)
         open_a.setShortcut(QKeySequence("Ctrl+O"))
         open_a.triggered.connect(self._open_session)
         fm.addAction(open_a)
@@ -187,7 +187,7 @@ class MainWindow(QMainWindow):
             Path(__file__).parent.parent / "data" / "recordings"
         )
         path, _ = QFileDialog.getOpenFileName(
-            self, "Aufnahme oeffnen", default_dir,
+            self, "Aufnahme öffnen", default_dir,
             "JSONL Event-Log (*.jsonl);;Alle Dateien (*)"
         )
         if path:

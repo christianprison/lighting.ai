@@ -19,13 +19,15 @@ def main() -> None:
     app.setFont(QFont("Sora", 10))
 
     win = MainWindow()
-    win.show()
+    win.showMaximized()
 
-    # Open file passed as CLI argument
+    # Open file passed as CLI argument, otherwise show file dialog immediately
     if len(sys.argv) > 1:
         p = Path(sys.argv[1])
         if p.exists() and p.suffix == ".jsonl":
             win._load_session(p)
+    else:
+        win._open_session()
 
     sys.exit(app.exec())
 

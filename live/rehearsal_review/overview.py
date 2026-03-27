@@ -1,6 +1,8 @@
 """overview.py — Full-session overview waveform (mini-map navigation)."""
 from __future__ import annotations
 
+import math
+from datetime import datetime, timedelta
 from typing import Optional
 
 import numpy as np
@@ -24,9 +26,11 @@ _CURSOR = QColor("#ff3b5c")
 _SEG_HL = QColor(0x00, 0xdc, 0x82, 30)
 _SEG_LN = QColor(0x00, 0xdc, 0x82, 160)
 
-_FONT = QFont("DM Mono", 8)
+_FONT      = QFont("DM Mono", 8)
+_FONT_RULE = QFont("DM Mono", 7)
 
-HEIGHT = 72   # fixed widget height in px
+HEIGHT  = 88   # fixed widget height in px
+RULER_H = 18   # clock-time ruler at top
 
 
 class OverviewWidget(QWidget):
@@ -113,6 +117,8 @@ class OverviewWidget(QWidget):
     def paintEvent(self, _event) -> None:
         p = QPainter(self)
         w, h = self.width(), self.height()
+        wf_y = RULER_H          # waveform area starts below ruler
+        wf_h = h - RULER_H - 1  # leave 1px for bottom border
 
         p.fillRect(0, 0, w, h, _BG2)
 
@@ -124,11 +130,50 @@ class OverviewWidget(QWidget):
             p.end()
             return
 
+        # ── Clock-time ruler ──
+        rec_start = self._session.recording_started_at
+        dur = self._session.total_duration
+        if dur > 0:
+            # Choose tick interval based on width
+            secs_per_px = dur / max(1, w)
+            tick_opts = [3600, 1800, 900, 600, 300, 120, 60, 30, 15, 10, 5, 1]
+            tick = next((t for t in tick_opts if t / secs_per_px >= 60), tick_opts[-1])
+
+            p.setFont(_FONT_RULE)
+            t = 0.0
+            while t <= dur:
+                x = int(t / dur * w)
+                p.setPen(QPen(_T4, 1))
+                p.drawLine(x, RULER_H - 5, x, RULER_H)
+                if rec_start is not None:
+                    lbl = (rec_start + timedelta(seconds=t)).strftime("%H:%M")
+                else:
+                    m, s = divmod(int(t), 60)
+                    lbl = f"{m}:{s:02d}"
+                p.setPen(_T3)
+                p.drawText(x + 2, 0, 55, RULER_H - 2,
+                           Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
+                           lbl)
+                t += tick
+
+        p.setPen(QPen(_T4, 1))
+        p.drawLine(0, RULER_H - 1, w, RULER_H - 1)
+
+        # ── Current segment highlight ──
+        if self._seg_end > self._seg_start:
+            x1 = self._t_to_x(self._seg_start)
+            x2 = self._t_to_x(self._seg_end)
+            if x1 >= 0 and x2 > x1:
+                p.fillRect(x1, wf_y, x2 - x1, wf_h, _SEG_HL)
+                p.setPen(QPen(_SEG_LN, 1))
+                p.drawLine(x1, wf_y, x1, h)
+                p.drawLine(x2, wf_y, x2, h)
+
         # ── Waveform ──
         if self._pk_max is not None and len(self._pk_max) > 0:
             n = len(self._pk_max)
-            mid = h // 2
-            half = h // 2 - 5
+            mid = wf_y + wf_h // 2
+            half = wf_h // 2 - 3
 
             top_pts: list[QPoint] = []
             bot_pts: list[QPoint] = []
@@ -156,27 +201,17 @@ class OverviewWidget(QWidget):
             if x < 0:
                 continue
             p.setPen(QPen(_T4, 1))
-            p.drawLine(x, 0, x, h)
+            p.drawLine(x, wf_y, x, h)
             p.setPen(_T3)
-            p.drawText(x + 3, 2, 110, h // 2,
+            p.drawText(x + 3, wf_y + 2, 110, wf_h // 2,
                        Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
                        seg.song_name[:16])
-
-        # ── Current segment highlight ──
-        if self._seg_end > self._seg_start:
-            x1 = self._t_to_x(self._seg_start)
-            x2 = self._t_to_x(self._seg_end)
-            if x1 >= 0 and x2 > x1:
-                p.fillRect(x1, 0, x2 - x1, h, _SEG_HL)
-                p.setPen(QPen(_SEG_LN, 1))
-                p.drawLine(x1, 0, x1, h)
-                p.drawLine(x2, 0, x2, h)
 
         # ── Cursor ──
         cx = self._cursor_px if self._cursor_px >= 0 else self._t_to_x(self._cursor_t)
         if 0 <= cx < w:
             p.setPen(QPen(_CURSOR, 2))
-            p.drawLine(cx, 0, cx, h)
+            p.drawLine(cx, wf_y, cx, h)
 
         # ── Bottom border ──
         p.setPen(QPen(_BORDER, 1))

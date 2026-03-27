@@ -159,6 +159,7 @@ class MultitrackRecorder:
                 wav=path.name,
                 channels=self.channels,
                 sample_rate=self.sample_rate,
+                started_at=now.isoformat(),
             )
 
             log.info("Recording gestartet: %s", path)

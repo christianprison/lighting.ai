@@ -11,6 +11,7 @@ always appear on top of the scrolled waveform content.
 from __future__ import annotations
 
 import math
+from datetime import datetime, timedelta
 from typing import Optional
 
 import numpy as np
@@ -27,8 +28,8 @@ from peaks import TrackPeaks, CHANNEL_LABELS, SUM_CHANNELS, DISPLAY_CHANNELS
 LABEL_W   = 160
 RULER_H   = 28
 EVENTS_H  = 52
-MIX_H     = 88
-TRACK_H   = 54
+MIX_H     = 44
+TRACK_H   = 27
 TRACK_GAP = 2
 SCROLL_H  = 14
 
@@ -84,6 +85,10 @@ def _fmt_t(secs: float) -> str:
     return f"{m}:{s:02d}"
 
 
+def _fmt_clock(dt: datetime) -> str:
+    return dt.strftime("%H:%M:%S")
+
+
 class TimelineWidget(QWidget):
     """Waveform + event timeline for one SongSegment.
 
@@ -103,6 +108,7 @@ class TimelineWidget(QWidget):
         self._pps: float = 80.0         # pixels per second
         self._scroll_x: int = 0
         self._cursor_px: int = -1
+        self._rec_started_at: Optional[datetime] = None   # wall-clock recording start
 
         self._hbar = QScrollBar(Qt.Orientation.Horizontal, self)
         self._hbar.valueChanged.connect(self._on_scroll)
@@ -111,6 +117,9 @@ class TimelineWidget(QWidget):
         self.setMinimumHeight(CONTENT_H)
 
     # ── Public API ────────────────────────────────────────────────────────────
+
+    def set_recording_started_at(self, dt: Optional[datetime]) -> None:
+        self._rec_started_at = dt
 
     def set_segment(self, seg: SongSegment, peaks: Optional[TrackPeaks] = None) -> None:
         self.segment = seg
@@ -253,6 +262,10 @@ class TimelineWidget(QWidget):
         elif secs_vis > 4:   major, minor = 2, 0.5
         else:                major, minor = 1, 0.25
 
+        # Use clock time labels if recording start is known
+        seg_offset = self.segment.start_t if self.segment else 0.0
+        use_clock = self._rec_started_at is not None
+
         p.setFont(FONT_TIME)
         t = math.floor(vl / self._pps / minor) * minor
         while t * self._pps <= vr:
@@ -262,9 +275,13 @@ class TimelineWidget(QWidget):
                 if is_major:
                     p.setPen(C_T2)
                     p.drawLine(x, RULER_H - 12, x, RULER_H - 1)
-                    p.drawText(x + 3, 2, 80, RULER_H - 4,
+                    if use_clock:
+                        lbl = _fmt_clock(self._rec_started_at + timedelta(seconds=seg_offset + t))
+                    else:
+                        lbl = _fmt_t(t)
+                    p.drawText(x + 3, 2, 90, RULER_H - 4,
                                Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
-                               _fmt_t(t))
+                               lbl)
                 else:
                     p.setPen(C_T4)
                     p.drawLine(x, RULER_H - 5, x, RULER_H - 1)

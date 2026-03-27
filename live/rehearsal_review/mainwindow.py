@@ -218,6 +218,13 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Rehearsal Post-Preparation — lighting.ai")
         self.setStyleSheet(_APP_STYLE)
 
+        # Explicitly allow resize + maximize (prevents KDE/X11 from treating
+        # the window as fixed-size due to child widget size hints)
+        self.setMinimumSize(800, 500)
+        self.setMaximumSize(16_777_215, 16_777_215)  # QWIDGETSIZE_MAX
+        self.setWindowFlag(Qt.WindowType.WindowMaximizeButtonHint, True)
+        self.setWindowFlag(Qt.WindowType.WindowMinimizeButtonHint, True)
+
         self._session: Optional[Session] = None
         self._current_seg: Optional[SongSegment] = None
         self._peak_worker: Optional[PeakWorker] = None

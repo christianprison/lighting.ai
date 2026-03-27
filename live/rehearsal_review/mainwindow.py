@@ -119,7 +119,17 @@ class MainWindow(QMainWindow):
         splitter.addWidget(scroll)
         splitter.setSizes([230, 1210])
 
-        self.setCentralWidget(splitter)
+        from PyQt6.QtWidgets import QVBoxLayout
+        self._overview = OverviewWidget()
+        self._overview.seek_requested.connect(self._on_overview_seek)
+
+        container = QWidget()
+        vl = QVBoxLayout(container)
+        vl.setContentsMargins(0, 0, 0, 0)
+        vl.setSpacing(0)
+        vl.addWidget(self._overview)
+        vl.addWidget(splitter)
+        self.setCentralWidget(container)
 
         # Status bar
         self._status = QStatusBar()
@@ -231,6 +241,28 @@ class MainWindow(QMainWindow):
             f"  —  {_fmt_dur(session.total_duration)}"
         )
 
+        # Start overview peak extraction (full session, Main L+R or mixdown ch 0+1)
+        if self._overview_worker and self._overview_worker.isRunning():
+            self._overview_worker.cancel()
+            self._overview_worker.wait(300)
+
+        src = session.mixdown_path if session.mixdown_path else session.wav_path
+        ch_indices = [0, 1] if session.mixdown_path else [16, 17]
+        self._overview.set_session(session)
+
+        ov_worker = PeakWorker(
+            wav_path=src,
+            ch_indices=ch_indices,
+            start_t=0.0,
+            end_t=session.total_duration,
+            sample_rate=session.sample_rate,
+            n_points=2000,
+        )
+        self._overview_worker = ov_worker
+        ov_worker.finished.connect(self._on_overview_peaks_done)
+        ov_worker.error.connect(lambda msg: self._status.showMessage(f"Overview-Fehler: {msg}", 5000))
+        ov_worker.start()
+
         if self._song_list.count():
             self._song_list.setCurrentRow(0)
 
@@ -257,6 +289,7 @@ class MainWindow(QMainWindow):
         self._play_act.setText("▶  PLAY")
 
         self._timeline.set_segment(seg, None)
+        self._overview.set_segment(seg)
 
         # Cancel previous worker
         if self._peak_worker and self._peak_worker.isRunning():
@@ -304,6 +337,14 @@ class MainWindow(QMainWindow):
         self._load_audio(seg)
         self._zoom_fit()
 
+        if self._pending_seek_t is not None:
+            t_in_seg = self._pending_seek_t - seg.start_t
+            self._pending_seek_t = None
+            if 0.0 <= t_in_seg <= seg.duration:
+                self._player.seek(t_in_seg)
+                self._timeline.set_cursor(seg.start_t + t_in_seg)
+                self._overview.set_playhead(seg.start_t + t_in_seg)
+
     def _on_peaks_error(self, msg: str, prg: QProgressDialog) -> None:
         prg.close()
         self._status.showMessage(f"Peak-Fehler: {msg}", 6000)
@@ -343,11 +384,55 @@ class MainWindow(QMainWindow):
 
     def _on_position(self, wav_t: float) -> None:
         self._timeline.set_cursor(wav_t)
+        self._overview.set_playhead(wav_t)
         if self._current_seg:
             self._pos_label.setText(_fmt_t_precise(wav_t - self._current_seg.start_t))
 
     def _on_stopped(self) -> None:
         self._play_act.setText("▶  PLAY")
+
+    def _on_overview_peaks_done(self, track_peaks) -> None:
+        import numpy as np
+        chs = list(track_peaks.channel_peaks.values())
+        if not chs:
+            return
+        if len(chs) == 1:
+            pk_max = chs[0].peaks_max
+            pk_min = chs[0].peaks_min
+        else:
+            pk_max = np.maximum(chs[0].peaks_max, chs[1].peaks_max)
+            pk_min = np.minimum(chs[0].peaks_min, chs[1].peaks_min)
+        self._overview.set_peaks(pk_max, pk_min)
+
+    def _on_overview_seek(self, wav_t: float) -> None:
+        if self._session is None:
+            return
+
+        # Find segment containing wav_t
+        target_seg: Optional[SongSegment] = None
+        for seg in self._session.songs:
+            if seg.start_t <= wav_t <= seg.end_t:
+                target_seg = seg
+                break
+        if target_seg is None and self._session.songs:
+            target_seg = self._session.songs[-1]
+        if target_seg is None:
+            return
+
+        if target_seg is self._current_seg:
+            # Same segment: seek immediately
+            t_in_seg = max(0.0, wav_t - target_seg.start_t)
+            self._player.seek(t_in_seg)
+            self._timeline.set_cursor(wav_t)
+            self._overview.set_playhead(wav_t)
+        else:
+            # Different segment: remember seek target, select the segment
+            self._pending_seek_t = wav_t
+            for i in range(self._song_list.count()):
+                item = self._song_list.item(i)
+                if item.data(Qt.ItemDataRole.UserRole) is target_seg:
+                    self._song_list.setCurrentRow(i)
+                    break
 
     # ── Zoom ──────────────────────────────────────────────────────────────────
 

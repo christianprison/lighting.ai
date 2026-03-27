@@ -43,7 +43,7 @@ QScrollBar::add-line:vertical,
 QScrollBar::sub-line:vertical { height:0; }
 QStatusBar                    { background:#0e1017; border-top:1px solid #1e2230;
                                 font-family:'DM Mono',monospace; font-size:10px;
-                                color:#5c6080; }
+                                color:#a0a4b8; }
 QProgressDialog               { background:#0e1017; color:#eef0f6; }
 QProgressBar                  { background:#151820; border:1px solid #1e2230;
                                 border-radius:3px; text-align:center; }
@@ -91,7 +91,7 @@ class MainWindow(QMainWindow):
         hdr.setStyleSheet(
             "background:#151820; border-bottom:1px solid #1e2230;"
             "font-family:'DM Mono',monospace; font-size:9px;"
-            "letter-spacing:2px; color:#5c6080; padding-left:4px;"
+            "letter-spacing:2px; color:#a0a4b8; padding-left:4px;"
         )
         lv.addWidget(hdr)
 
@@ -170,7 +170,7 @@ class MainWindow(QMainWindow):
 
         self._zoom_lbl = QLabel("  80 px/s  ")
         self._zoom_lbl.setStyleSheet(
-            "font-family:'DM Mono',monospace; font-size:10px; color:#5c6080;"
+            "font-family:'DM Mono',monospace; font-size:10px; color:#a0a4b8;"
         )
         tb.addWidget(self._zoom_lbl)
 
@@ -178,7 +178,7 @@ class MainWindow(QMainWindow):
 
         self._file_lbl = QLabel("  Keine Datei geladen")
         self._file_lbl.setStyleSheet(
-            "font-family:'DM Mono',monospace; font-size:10px; color:#5c6080;"
+            "font-family:'DM Mono',monospace; font-size:10px; color:#a0a4b8;"
         )
         tb.addWidget(self._file_lbl)
 

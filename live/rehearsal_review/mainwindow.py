@@ -130,7 +130,7 @@ class MainWindow(QMainWindow):
         mb = self.menuBar()
 
         fm = mb.addMenu("Datei")
-        open_a = QAction("Öffnen…", self)
+        open_a = QAction("Öffnen...", self)
         open_a.setShortcut(QKeySequence("Ctrl+O"))
         open_a.triggered.connect(self._open_session)
         fm.addAction(open_a)
@@ -265,7 +265,7 @@ class MainWindow(QMainWindow):
             return
 
         self._progress = QProgressDialog(
-            f"Lade Wellenformen: „{seg.song_name}"…",
+            f"Lade Wellenformen: "{seg.song_name}"...",
             None, 0, 100, self
         )
         self._progress.setWindowTitle("Wellenformen")

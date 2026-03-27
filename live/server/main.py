@@ -134,7 +134,24 @@ async def startup():
         qlc_connected=osc_ok,
     )
 
-    # 6) Referenz-DB + AudioProcess initialisieren
+    # 6) Inkrementeller Feature-Import: neue Audio-Snippets verarbeiten
+    #    Läuft nach dem DB-Sync, damit frisch gepullte Snippets sofort
+    #    verarbeitet werden. Im Executor, damit der Event-Loop nicht blockiert.
+    try:
+        from .audio.snippet_importer import compute_missing_features
+        _repo_root = DEFAULT_DB_PATH.parent.parent.parent
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(
+            None,
+            compute_missing_features,
+            DEFAULT_DB_PATH,
+            _repo_root / "audio",
+            _repo_root / "db" / "lighting-ai-db.json",
+        )
+    except Exception as exc:
+        log.warning("Inkrementeller Feature-Import fehlgeschlagen: %s", exc)
+
+    # 7) Referenz-DB + AudioProcess initialisieren
     _audio_queue = asyncio.Queue()
     ref_db = ReferenceDB(DEFAULT_DB_PATH)
     stats = ref_db.stats()

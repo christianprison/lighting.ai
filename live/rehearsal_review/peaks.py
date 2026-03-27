@@ -62,6 +62,7 @@ class PeakWorker(QThread):
         start_t: float,
         end_t: float,
         sample_rate: int = 48_000,
+        n_points: int = 0,
         parent=None,
     ) -> None:
         super().__init__(parent)
@@ -71,6 +72,7 @@ class PeakWorker(QThread):
         self.start_t = start_t
         self.end_t = end_t
         self.sample_rate = sample_rate
+        self._n_points = n_points if n_points > 0 else self.N_POINTS
 
     def cancel(self) -> None:
         self._cancelled = True
@@ -89,7 +91,7 @@ class PeakWorker(QThread):
         end = int(self.end_t * sr)
         total = max(1, end - start)
 
-        spp = max(1, total // self.N_POINTS)        # samples per peak point
+        spp = max(1, total // self._n_points)        # samples per peak point
         n = total // spp                             # actual number of points
 
         pmins = {ch: np.ones(n, dtype=np.float32) for ch in self.ch_indices}

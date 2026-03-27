@@ -20,7 +20,7 @@ from PyQt6.QtCore import Qt, QPoint, QRect, pyqtSignal
 from PyQt6.QtGui import (
     QPainter, QPen, QBrush, QColor, QFont, QPolygon,
 )
-from PyQt6.QtWidgets import QWidget, QScrollBar, QSizePolicy
+from PyQt6.QtWidgets import QWidget, QScrollBar, QSizePolicy, QToolTip
 
 from session import SongSegment
 from peaks import TrackPeaks, CHANNEL_LABELS, SUM_CHANNELS, DISPLAY_CHANNELS
@@ -64,6 +64,16 @@ FONT_MONO  = QFont("DM Mono", 8)
 FONT_LABEL = QFont("Sora", 9)
 FONT_TIME  = QFont("DM Mono", 9)
 FONT_BTN   = QFont("DM Mono", 7)
+
+# ── Per-track event markers ───────────────────────────────────────────────────
+# Channels that get ALL beat markers (◆ for every beat)
+BEAT_MARKER_CHS: frozenset[int] = frozenset({13, 14})   # OH L, OH R
+# Channels that get snare markers
+SNARE_MARKER_CHS: frozenset[int] = frozenset({9})        # Snare
+# Channels that get downbeat-only markers
+KICK_MARKER_CHS: frozenset[int] = frozenset({8})         # Kick
+
+_DIAMOND_R = 4   # half-size of diamond marker (pixels)
 
 # ── Track definitions (in display order) ─────────────────────────────────────
 
@@ -152,6 +162,7 @@ class TimelineWidget(QWidget):
 
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self.setMinimumHeight(CONTENT_H)
+        self.setMouseTracking(True)
 
     # ── Public API ────────────────────────────────────────────────────────────
 
@@ -200,7 +211,7 @@ class TimelineWidget(QWidget):
             self.update(QRect(max(LABEL_W, left), 0, right - left + 1, h))
 
     def set_zoom(self, pps: float) -> None:
-        self._pps = max(4.0, min(800.0, pps))
+        self._pps = max(4.0, min(8000.0, pps))
         self._sync_scrollbar()
         self.update()
 
@@ -284,6 +295,47 @@ class TimelineWidget(QWidget):
         self._scroll_x = v
         self.update()
 
+    # ── Marker helpers ────────────────────────────────────────────────────────
+
+    @staticmethod
+    def _marker_color_for(ev, track_chs: frozenset) -> Optional[QColor]:
+        """Return the marker color for *ev* on a track with *track_chs*, or None."""
+        if ev.type == "beat":
+            if track_chs & BEAT_MARKER_CHS:
+                return C_RED if ev.data.get("is_downbeat") else C_AMBER
+            if track_chs & KICK_MARKER_CHS and ev.data.get("is_downbeat"):
+                return C_AMBER
+        elif ev.type == "snare" and track_chs & SNARE_MARKER_CHS:
+            return C_CYAN
+        return None
+
+    @staticmethod
+    def _build_marker_tooltip(ev, t_in_seg: float) -> str:
+        """Build a human-readable tooltip string for a marker event."""
+        m, s = divmod(t_in_seg, 60)
+        ts = f"{int(m)}:{s:05.2f}"
+        if ev.type == "beat":
+            sym = "↓ Downbeat" if ev.data.get("is_downbeat") else "Beat"
+            parts = [sym]
+            if "beat_num" in ev.data:
+                parts.append(f"#{ev.data['beat_num']}")
+            if "bpm" in ev.data:
+                parts.append(f"{float(ev.data['bpm']):.1f} BPM")
+            return f"{ts}   " + "  ".join(parts)
+        if ev.type == "snare":
+            parts = ["Snare"]
+            for k, v in ev.data.items():
+                parts.append(f"{k}={v}")
+            return f"{ts}   " + "  ".join(parts)
+        return f"{ts}   {ev.type}  {ev.data}"
+
+    def _track_chs_for(self, track: dict) -> frozenset[int]:
+        """Return the set of WAV channel indices for a track dict."""
+        if "combined_chs" in track:
+            return frozenset(track["combined_chs"])
+        ch = track.get("ch", -1)
+        return frozenset({ch}) if ch >= 0 else frozenset()
+
     # ── Qt events ─────────────────────────────────────────────────────────────
 
     def resizeEvent(self, _event) -> None:
@@ -324,6 +376,41 @@ class TimelineWidget(QWidget):
             t = (x - LABEL_W + self._scroll_x) / self._pps
             t = max(0.0, min(t, self.segment.duration))
             self.seek_requested.emit(t)
+
+    def mouseMoveEvent(self, event) -> None:
+        x = int(event.position().x())
+        y = int(event.position().y())
+
+        if x <= LABEL_W or self.segment is None:
+            QToolTip.hideText()
+            return
+
+        seg = self.segment
+        pps = self._pps
+        ox = self._scroll_x
+        hit_r = _DIAMOND_R + 4   # hit radius in px
+
+        for track, ty in zip(TRACKS, TRACK_Y):
+            th = track["h"]
+            if not (ty <= y < ty + th):
+                continue
+            track_chs = self._track_chs_for(track)
+            cy = ty + th - 2 - _DIAMOND_R   # diamond center y (bottom of track)
+            if abs(y - cy) > hit_r:
+                break
+            for ev in seg.events:
+                ex = LABEL_W + int((ev.t - seg.start_t) * pps) - ox
+                if abs(ex - x) > hit_r:
+                    continue
+                color = self._marker_color_for(ev, track_chs)
+                if color is None:
+                    continue
+                tip = self._build_marker_tooltip(ev, ev.t - seg.start_t)
+                QToolTip.showText(event.globalPosition().toPoint(), tip, self)
+                return
+            break
+
+        QToolTip.hideText()
 
     # ── Paint ─────────────────────────────────────────────────────────────────
 
@@ -558,6 +645,47 @@ class TimelineWidget(QWidget):
         for i in range(len(top_pts) - 1):
             p.drawLine(top_pts[i], top_pts[i + 1])
             p.drawLine(bot_pts[i], bot_pts[i + 1])
+
+        # Beat / snare / downbeat diamonds on designated tracks
+        self._paint_event_markers(p, track, y, h, vl, vr)
+
+    def _paint_event_markers(self, p: QPainter, track: dict,
+                              ty: int, th: int, vl: int, vr: int) -> None:
+        """Draw diamond markers for beat/snare/downbeat events on designated tracks."""
+        if not self.segment:
+            return
+        track_chs = self._track_chs_for(track)
+        all_marker_chs = BEAT_MARKER_CHS | SNARE_MARKER_CHS | KICK_MARKER_CHS
+        if not (track_chs & all_marker_chs):
+            return
+
+        seg = self.segment
+        pps = self._pps
+        ox = self._scroll_x
+        w = self.width()
+        r = _DIAMOND_R
+        cy = ty + th - 2 - r   # bottom-aligned diamond center
+
+        p.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+        for ev in seg.events:
+            ex = LABEL_W + int((ev.t - seg.start_t) * pps) - ox
+            if ex < LABEL_W - r or ex > w + r:
+                continue
+            color = self._marker_color_for(ev, track_chs)
+            if color is None:
+                continue
+            diamond = QPolygon([
+                QPoint(ex,     cy - r),
+                QPoint(ex + r, cy),
+                QPoint(ex,     cy + r),
+                QPoint(ex - r, cy),
+            ])
+            fill = QColor(color)
+            fill.setAlpha(180)
+            p.setPen(QPen(color, 1))
+            p.setBrush(QBrush(fill))
+            p.drawPolygon(diamond)
+        p.setRenderHint(QPainter.RenderHint.Antialiasing, False)
 
     # ── Labels column (sticky) ────────────────────────────────────────────────
 

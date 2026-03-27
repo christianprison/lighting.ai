@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import math
 from pathlib import Path
 from typing import Optional
 
@@ -53,7 +54,11 @@ QComboBox::drop-down          { border:none; width:20px; }
 QComboBox QAbstractItemView   { background:#0e1017; border:1px solid #1e2230;
                                 color:#eef0f6; selection-background-color:#1c1f2b;
                                 font-family:'Sora',sans-serif; font-size:11px; }
+QComboBox#zoom_combo          { font-family:'DM Mono',monospace; font-size:10px;
+                                min-width:90px; max-width:110px; }
 """
+
+_ZOOM_PRESETS: list[int] = [10, 20, 40, 80, 160, 320, 640, 1280, 2560, 5120]
 
 
 _PANEL_STYLE = """
@@ -319,19 +324,27 @@ class MainWindow(QMainWindow):
 
         tb.addSeparator()
 
-        self._zoom_lbl = QLabel("  80 px/s  ")
-        self._zoom_lbl.setStyleSheet(
+        zoom_lbl = QLabel("  Zoom:")
+        zoom_lbl.setStyleSheet(
             "font-family:'DM Mono',monospace; font-size:10px; color:#a0a4b8;"
         )
-        tb.addWidget(self._zoom_lbl)
+        tb.addWidget(zoom_lbl)
+
+        self._zoom_combo = QComboBox()
+        self._zoom_combo.setObjectName("zoom_combo")
+        for v in _ZOOM_PRESETS:
+            self._zoom_combo.addItem(f"{v} px/s", v)
+        self._zoom_combo.setCurrentIndex(3)   # default 80 px/s
+        self._zoom_combo.currentIndexChanged.connect(self._on_zoom_combo_changed)
+        tb.addWidget(self._zoom_combo)
 
         tb.addSeparator()
 
-        self._file_lbl = QLabel("  Keine Datei geladen")
-        self._file_lbl.setStyleSheet(
-            "font-family:'DM Mono',monospace; font-size:10px; color:#a0a4b8;"
+        self._datetime_lbl = QLabel("  —")
+        self._datetime_lbl.setStyleSheet(
+            "font-family:'DM Mono',monospace; font-size:10px; color:#eef0f6;"
         )
-        tb.addWidget(self._file_lbl)
+        tb.addWidget(self._datetime_lbl)
 
     # ── Loading ───────────────────────────────────────────────────────────────
 
@@ -371,10 +384,14 @@ class MainWindow(QMainWindow):
             getattr(session, "recording_started_at", None)
         )
 
-        mix = " · Mixdown vorhanden" if session.mixdown_path else ""
-        self._file_lbl.setText(
-            f"  {jsonl_path.name}  |  {session.n_channels} ch  |"
-            f"  {session.sample_rate} Hz  |  {len(session.songs)} Songs{mix}  "
+        mix = " · Mixdown" if session.mixdown_path else ""
+        if session.recording_started_at:
+            dt_str = session.recording_started_at.strftime("%d.%m.%Y  %H:%M")
+        else:
+            dt_str = jsonl_path.stem
+        self._datetime_lbl.setText(
+            f"  {dt_str}  ·  {len(session.songs)} Songs"
+            f"  ·  {session.n_channels} ch{mix}  "
         )
         self._status.showMessage(
             f"{jsonl_path}  --  {len(session.songs)} Songs"
@@ -620,9 +637,28 @@ class MainWindow(QMainWindow):
 
     # ── Zoom ──────────────────────────────────────────────────────────────────
 
+    def _on_zoom_combo_changed(self, index: int) -> None:
+        v = self._zoom_combo.itemData(index)
+        if v is not None:
+            self._timeline.set_zoom(float(v))
+
+    def _sync_zoom_combo(self) -> None:
+        """Select the nearest preset in the zoom combo for the current zoom."""
+        pps = self._timeline.zoom
+        best_idx, best_dist = 0, float("inf")
+        for i in range(self._zoom_combo.count()):
+            v = self._zoom_combo.itemData(i)
+            if v:
+                dist = abs(math.log(pps / v))
+                if dist < best_dist:
+                    best_dist, best_idx = dist, i
+        self._zoom_combo.blockSignals(True)
+        self._zoom_combo.setCurrentIndex(best_idx)
+        self._zoom_combo.blockSignals(False)
+
     def _zoom(self, factor: float) -> None:
         self._timeline.set_zoom(self._timeline.zoom * factor)
-        self._zoom_lbl.setText(f"  {self._timeline.zoom:.0f} px/s  ")
+        self._sync_zoom_combo()
 
     def keyPressEvent(self, event) -> None:
         if event.key() == Qt.Key.Key_Space:
@@ -636,7 +672,7 @@ class MainWindow(QMainWindow):
         avail = max(1, self._timeline.width() - LABEL_W - 2)
         pps = avail / max(0.1, self._current_seg.duration)
         self._timeline.set_zoom(pps)
-        self._zoom_lbl.setText(f"  {self._timeline.zoom:.0f} px/s  ")
+        self._sync_zoom_combo()
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────

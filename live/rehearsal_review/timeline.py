@@ -211,7 +211,7 @@ class TimelineWidget(QWidget):
             self.update(QRect(max(LABEL_W, left), 0, right - left + 1, h))
 
     def set_zoom(self, pps: float) -> None:
-        self._pps = max(4.0, min(8000.0, pps))
+        self._pps = max(4.0, min(40_960.0, pps))
         self._sync_scrollbar()
         self.update()
 

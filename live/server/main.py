@@ -832,6 +832,17 @@ async def _handle_ws_action(action: str, msg: dict) -> dict | None:
             if song_id:
                 song = songs.get(song_id, {})
                 audio_process.set_bpm(float(song.get("bpm", 120)))
+                _log_user_action("select_song", {
+                    "song_id": song_id,
+                    "name": song.get("name", ""),
+                    "source": "rehearsal",
+                })
+            else:
+                _log_user_action("select_song", {
+                    "song_id": "",
+                    "name": "",
+                    "source": "rehearsal_clear",
+                })
         return {"ok": True, "mode": "rehearsal" if song_id else "live", "song_id": song_id}
 
     elif action == "get_state":

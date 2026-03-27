@@ -131,7 +131,7 @@ class OverviewWidget(QWidget):
             return
 
         # ── Clock-time ruler ──
-        rec_start = self._session.recording_started_at
+        rec_start = getattr(self._session, "recording_started_at", None)
         dur = self._session.total_duration
         if dur > 0:
             # Choose tick interval based on width

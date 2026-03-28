@@ -246,7 +246,7 @@ class AudioPlayer(QObject):
         if self._data is None:
             return
         try:
-            sd.play(self._data[self._start_frame:], self._sr)
+            sd.play(self._data[self._start_frame:], self._sr, blocksize=4096)
         except Exception as exc:
             self.error.emit(str(exc))
             self._is_playing = False

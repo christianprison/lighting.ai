@@ -30,7 +30,7 @@ from annotation import BarMarker
 LABEL_W   = 196
 RULER_H   = 28
 EVENTS_H  = 26   # halved from 52
-ANNOT_H   = 22   # manual bar/part annotation strip
+ANNOT_H   = 32   # manual bar/part annotation strip
 MIX_H     = 44
 TRACK_H   = 27
 TRACK_GAP = 2
@@ -573,9 +573,13 @@ class TimelineWidget(QWidget):
         y0 = RULER_H + EVENTS_H
         w = self.width()
 
-        # Hintergrund — leicht hervorgehoben wenn Annotations-Modus aktiv
-        bg = QColor("#1a1420") if self._annotation_mode else C_BG2
+        # Hintergrund
+        bg = QColor("#1c1028") if self._annotation_mode else C_BG2
         p.fillRect(LABEL_W, y0, w - LABEL_W, ANNOT_H, bg)
+        # Oberer Rand — amber wenn aktiv, sonst normal
+        if self._annotation_mode:
+            p.setPen(QPen(QColor("#f0a030"), 2))
+            p.drawLine(LABEL_W, y0, w, y0)
         p.setPen(C_BORDER)
         p.drawLine(LABEL_W, y0 + ANNOT_H - 1, w, y0 + ANNOT_H - 1)
 
@@ -814,14 +818,21 @@ class TimelineWidget(QWidget):
 
         # Annotation cell
         annot_y = RULER_H + EVENTS_H
-        annot_bg = QColor("#1a1420") if self._annotation_mode else C_BG2
+        annot_bg = QColor("#1c1028") if self._annotation_mode else C_BG2
         p.fillRect(0, annot_y, LABEL_W, ANNOT_H, annot_bg)
+        if self._annotation_mode:
+            # Amber top border + left accent bar
+            p.setPen(QPen(QColor("#f0a030"), 2))
+            p.drawLine(0, annot_y, LABEL_W, annot_y)
+            p.fillRect(0, annot_y, 3, ANNOT_H, QColor("#f0a030"))
         n_markers = len(self._bar_markers)
-        annot_label = f"ANNOT  {n_markers}T" if n_markers else "ANNOT"
-        annot_color = C_GREEN if self._annotation_mode else C_T3
+        annot_label = f"● ANNOT  {n_markers}T" if self._annotation_mode else (
+            f"ANNOT  {n_markers}T" if n_markers else "ANNOT"
+        )
+        annot_color = QColor("#f0a030") if self._annotation_mode else C_T3
         p.setFont(FONT_MONO)
         p.setPen(annot_color)
-        p.drawText(6, annot_y, LABEL_W - 10, ANNOT_H,
+        p.drawText(8, annot_y, LABEL_W - 12, ANNOT_H,
                    Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
                    annot_label)
         p.setPen(C_BORDER)

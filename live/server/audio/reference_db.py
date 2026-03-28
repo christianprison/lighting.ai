@@ -255,6 +255,31 @@ class ReferenceDB:
             return None
         return BarRecord(**dict(row))
 
+    def get_parts_for_song(self, song_id: str) -> list[dict]:
+        """Gibt eine Liste der Parts eines Songs zurück, je mit bar-Bereich.
+
+        Returns:
+            Liste von dicts mit Schlüsseln:
+            - part_name (str)
+            - first_bar (int)
+            - last_bar  (int)
+            - bar_count (int)
+            Sortiert nach first_bar.
+        """
+        with self._conn() as con:
+            rows = con.execute(
+                """SELECT part_name,
+                          MIN(bar_num) AS first_bar,
+                          MAX(bar_num) AS last_bar,
+                          COUNT(*)     AS bar_count
+                   FROM bars
+                   WHERE song_id = ?
+                   GROUP BY part_name
+                   ORDER BY first_bar""",
+                (song_id,),
+            ).fetchall()
+        return [dict(r) for r in rows]
+
     # --- Feature Vectors --------------------------------------------------------
 
     def upsert_feature(self, fv: FeatureVector) -> None:

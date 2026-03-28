@@ -39,6 +39,9 @@ QToolButton                   { padding:5px 10px; font-family:'DM Mono',monospac
                                 border-radius:3px; background:#151820; margin:1px; }
 QToolButton:hover             { background:#1c1f2b; border-color:#2a2e40; }
 QToolButton:pressed           { background:#0e1017; }
+QToolButton:checked           { background:#00dc82; color:#08090d; border-color:#00dc82;
+                                font-weight:bold; }
+QToolButton:checked:hover     { background:#00f090; border-color:#00f090; }
 QScrollArea                   { border:none; background:#08090d; }
 QScrollBar:vertical           { background:#0e1017; width:8px; }
 QScrollBar::handle:vertical   { background:#2a2e40; border-radius:4px; }
@@ -405,6 +408,14 @@ class MainWindow(QMainWindow):
         )
         self._import_act.triggered.connect(self._run_recording_import)
 
+        self._db_parts_act = tb.addAction("DB-Parts")
+        self._db_parts_act.setEnabled(False)
+        self._db_parts_act.setToolTip(
+            "Parts des aktuellen Songs aus reference.db anzeigen\n"
+            "Doppelklick → Start-Takt setzen"
+        )
+        self._db_parts_act.triggered.connect(self._show_db_parts)
+
         tb.addSeparator()
 
         self._datetime_lbl = QLabel("  —")
@@ -442,6 +453,7 @@ class MainWindow(QMainWindow):
         self._annotations = load_annotations(jsonl_path)
         self._save_annot_act.setEnabled(True)
         self._import_act.setEnabled(True)
+        self._db_parts_act.setEnabled(True)
 
         # Fill song combo (block signals during rebuild)
         self._song_combo.blockSignals(True)
@@ -753,6 +765,74 @@ class MainWindow(QMainWindow):
             super().keyPressEvent(event)
 
     # ── Annotation handlers ───────────────────────────────────────────────────
+
+    def _show_db_parts(self) -> None:
+        """Zeigt die Parts des aktuellen Songs aus der reference.db."""
+        if self._current_seg is None:
+            return
+
+        # reference.db finden
+        ref_db_path = None
+        if self._session:
+            candidate = self._session.wav_path.parent.parent / "reference.db"
+            if candidate.exists():
+                ref_db_path = candidate
+        if ref_db_path is None:
+            QMessageBox.warning(self, "DB-Parts", "reference.db nicht gefunden.")
+            return
+
+        try:
+            import sys
+            server_path = str(ref_db_path.parent.parent / "server")
+            if server_path not in sys.path:
+                sys.path.insert(0, server_path)
+            from audio.reference_db import ReferenceDB
+            ref_db = ReferenceDB(ref_db_path)
+            parts = ref_db.get_parts_for_song(self._current_seg.song_id)
+        except Exception as exc:
+            QMessageBox.critical(self, "DB-Parts", f"Fehler: {exc}")
+            return
+
+        dlg = QDialog(self)
+        dlg.setWindowTitle(f"DB-Parts — {self._current_seg.song_name}")
+        dlg.setMinimumWidth(420)
+        dlg.setStyleSheet(_PANEL_STYLE + """
+            QDialog { background:#0e1017; }
+            QLabel  { color:#a0a4b8; font-family:'DM Mono',monospace; font-size:10px;
+                      padding:4px 8px; }
+        """)
+        layout = QVBoxLayout(dlg)
+        layout.setContentsMargins(8, 8, 8, 8)
+        layout.setSpacing(4)
+
+        if not parts:
+            layout.addWidget(QLabel("Keine Parts in reference.db für diesen Song."))
+        else:
+            hint = QLabel("Doppelklick → Start-Takt setzen")
+            hint.setStyleSheet("color:#5c6080; padding:2px 8px;")
+            layout.addWidget(hint)
+
+            lst = QListWidget()
+            lst.setStyleSheet(_PANEL_STYLE)
+            for part in parts:
+                text = (f"T{part['first_bar']:>3}–{part['last_bar']:<3}  "
+                        f"({part['bar_count']} Takte)   {part['part_name']}")
+                lst.addItem(text)
+            layout.addWidget(lst)
+
+            def on_double_click(item):
+                idx = lst.row(item)
+                first_bar = parts[idx]["first_bar"]
+                self._start_bar_spin.setValue(first_bar)
+                self._status.showMessage(
+                    f"Start-Takt auf {first_bar} gesetzt "
+                    f"({parts[idx]['part_name']})", 4000
+                )
+                dlg.accept()
+
+            lst.itemDoubleClicked.connect(on_double_click)
+
+        dlg.exec()
 
     def _on_start_bar_changed(self, value: int) -> None:
         """Setzt start_bar_num der aktuellen Annotation und nummeriert neu."""

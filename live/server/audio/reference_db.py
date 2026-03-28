@@ -7,7 +7,7 @@ bars           — Takte mit absolutem bar_num (relativ zum Song), Audio-Pfad, P
 feature_vectors— Vorberechnete Feature-Vektoren pro Takt (numpy BLOBs)
 
 Alle bar_num-Werte sind **absolut zum Song** (Takt 1 = allererster Takt, keine
-Rücksetzung an Partgrenzen). Part-Zugehörigkeit ergibt sich aus part_name.
+Rüksetzung an Partgrenzen). Part-Zugehörigkeit ergibt sich aus part_name.
 """
 
 from __future__ import annotations
@@ -238,6 +238,18 @@ class ReferenceDB:
             row = con.execute(
                 "SELECT bar_id, song_id, bar_num, part_name, audio_path FROM bars WHERE bar_id=?",
                 (bar_id,),
+            ).fetchone()
+        if row is None:
+            return None
+        return BarRecord(**dict(row))
+
+    def get_bar_by_num(self, song_id: str, bar_num: int) -> BarRecord | None:
+        """Gibt den BarRecord für (song_id, bar_num) zurück oder None."""
+        with self._conn() as con:
+            row = con.execute(
+                "SELECT bar_id, song_id, bar_num, part_name, audio_path "
+                "FROM bars WHERE song_id=? AND bar_num=?",
+                (song_id, bar_num),
             ).fetchone()
         if row is None:
             return None

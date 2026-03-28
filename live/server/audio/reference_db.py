@@ -243,6 +243,18 @@ class ReferenceDB:
             return None
         return BarRecord(**dict(row))
 
+    def get_bar_by_num(self, song_id: str, bar_num: int) -> BarRecord | None:
+        """Gibt den BarRecord für (song_id, bar_num) zurück oder None."""
+        with self._conn() as con:
+            row = con.execute(
+                "SELECT bar_id, song_id, bar_num, part_name, audio_path "
+                "FROM bars WHERE song_id=? AND bar_num=?",
+                (song_id, bar_num),
+            ).fetchone()
+        if row is None:
+            return None
+        return BarRecord(**dict(row))
+
     # --- Feature Vectors --------------------------------------------------------
 
     def upsert_feature(self, fv: FeatureVector) -> None:

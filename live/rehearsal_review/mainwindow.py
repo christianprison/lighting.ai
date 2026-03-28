@@ -3,14 +3,15 @@ from __future__ import annotations
 
 import json
 import math
+import threading
 from pathlib import Path
 from typing import Optional
 
 from PyQt6.QtCore import Qt, QTimer, pyqtSignal
 from PyQt6.QtGui import QAction, QKeySequence
 from PyQt6.QtWidgets import (
-    QApplication, QComboBox, QDialog, QFileDialog, QLabel,
-    QListWidget, QListWidgetItem, QMainWindow, QMessageBox,
+    QApplication, QComboBox, QDialog, QFileDialog, QInputDialog,
+    QLabel, QListWidget, QListWidgetItem, QMainWindow, QMessageBox,
     QProgressDialog, QScrollArea, QStatusBar, QToolBar,
     QVBoxLayout, QWidget,
 )
@@ -20,6 +21,10 @@ from peaks import PeakWorker, DISPLAY_CHANNELS, TrackPeaks
 from player import AudioPlayer
 from timeline import TimelineWidget, CONTENT_H, LABEL_W, TRACKS
 from overview import OverviewWidget
+from annotation import (
+    BarMarker, SongAnnotation,
+    load_annotations, save_annotations,
+)
 
 _APP_STYLE = """
 QMainWindow, QWidget          { background:#08090d; color:#eef0f6; }
@@ -234,6 +239,10 @@ class MainWindow(QMainWindow):
 
         self._event_panel: Optional[EventListPanel] = None
 
+        # Annotations: song_id → SongAnnotation
+        self._annotations: dict[str, SongAnnotation] = {}
+        self._annotation_mode: bool = False
+
         self._player = AudioPlayer(self)
         self._player.position_changed.connect(self._on_position)
         self._player.playback_stopped.connect(self._on_stopped)
@@ -257,6 +266,7 @@ class MainWindow(QMainWindow):
         self._timeline.seek_requested.connect(self._on_seek)
         self._timeline.solo_mute_changed.connect(self._on_solo_mute_changed)
         self._timeline.event_label_clicked.connect(self._on_event_label_clicked)
+        self._timeline.bar_marker_remove_requested.connect(self._on_remove_bar_marker)
 
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
@@ -347,6 +357,43 @@ class MainWindow(QMainWindow):
 
         tb.addSeparator()
 
+        # ── Annotation controls ──────────────────────────────────────────────
+        self._annot_act = tb.addAction("Annotieren")
+        self._annot_act.setCheckable(True)
+        self._annot_act.setToolTip(
+            "Annotations-Modus: Takt-Marker setzen (B = Takt, P = Part-Start)"
+        )
+        self._annot_act.triggered.connect(self._on_toggle_annotation_mode)
+
+        self._bar_act = tb.addAction("Takt [B]")
+        self._bar_act.setEnabled(False)
+        self._bar_act.setToolTip("Takt-Marker an aktueller Cursor-Position setzen (B)")
+        self._bar_act.triggered.connect(self._add_bar_marker)
+
+        self._part_act = tb.addAction("Part-Start [P]")
+        self._part_act.setEnabled(False)
+        self._part_act.setToolTip("Part-Start-Marker an aktueller Cursor-Position setzen (P)")
+        self._part_act.triggered.connect(self._add_part_marker)
+
+        self._undo_annot_act = tb.addAction("Undo [U]")
+        self._undo_annot_act.setEnabled(False)
+        self._undo_annot_act.setToolTip("Letzten Takt-Marker entfernen (U)")
+        self._undo_annot_act.triggered.connect(self._undo_last_marker)
+
+        self._save_annot_act = tb.addAction("Speichern")
+        self._save_annot_act.setEnabled(False)
+        self._save_annot_act.setToolTip("Annotierungen als JSON speichern")
+        self._save_annot_act.triggered.connect(self._save_annotations)
+
+        self._import_act = tb.addAction("→ reference.db")
+        self._import_act.setEnabled(False)
+        self._import_act.setToolTip(
+            "Annotierte Takte in reference.db importieren (Feature-Extraktion)"
+        )
+        self._import_act.triggered.connect(self._run_recording_import)
+
+        tb.addSeparator()
+
         self._datetime_lbl = QLabel("  —")
         self._datetime_lbl.setStyleSheet(
             "font-family:'DM Mono',monospace; font-size:10px; color:#eef0f6;"
@@ -377,6 +424,11 @@ class MainWindow(QMainWindow):
         self._session = session
         self._current_seg = None
         self._player.stop()
+
+        # Load existing annotations for this session
+        self._annotations = load_annotations(jsonl_path)
+        self._save_annot_act.setEnabled(True)
+        self._import_act.setEnabled(True)
 
         # Fill song combo (block signals during rebuild)
         self._song_combo.blockSignals(True)
@@ -460,6 +512,10 @@ class MainWindow(QMainWindow):
 
         self._timeline.set_segment(seg, None)
         self._overview.set_segment(seg)
+
+        # Show existing annotations for this song
+        ann = self._annotations.get(seg.song_id)
+        self._timeline.set_bar_markers(ann.markers if ann else [])
 
         # Update event panel if open
         if self._event_panel and self._event_panel.isVisible():
@@ -670,8 +726,186 @@ class MainWindow(QMainWindow):
     def keyPressEvent(self, event) -> None:
         if event.key() == Qt.Key.Key_Space:
             self._toggle_play()
+        elif event.key() == Qt.Key.Key_B and self._annotation_mode:
+            self._add_bar_marker()
+        elif event.key() == Qt.Key.Key_P and self._annotation_mode:
+            self._add_part_marker()
+        elif event.key() == Qt.Key.Key_U and self._annotation_mode:
+            self._undo_last_marker()
         else:
             super().keyPressEvent(event)
+
+    # ── Annotation handlers ───────────────────────────────────────────────────
+
+    def _on_toggle_annotation_mode(self, checked: bool) -> None:
+        self._annotation_mode = checked
+        self._timeline.set_annotation_mode(checked)
+        self._bar_act.setEnabled(checked)
+        self._part_act.setEnabled(checked)
+        self._undo_annot_act.setEnabled(checked)
+        state_str = "EIN" if checked else "AUS"
+        self._status.showMessage(
+            f"Annotations-Modus {state_str}  —  B = Takt  P = Part-Start  U = Undo  "
+            f"Rechtsklick = Marker löschen",
+            6000,
+        )
+
+    def _current_annotation(self) -> Optional[SongAnnotation]:
+        """Gibt die SongAnnotation für den aktiven Song zurück (legt sie ggf. an)."""
+        if self._current_seg is None:
+            return None
+        sid = self._current_seg.song_id
+        if sid not in self._annotations:
+            self._annotations[sid] = SongAnnotation(
+                song_id=sid,
+                song_name=self._current_seg.song_name,
+                segment_start_t=self._current_seg.start_t,
+            )
+        return self._annotations[sid]
+
+    def _add_bar_marker(self, part_name: str = "") -> None:
+        """Setzt einen Takt-Marker an der aktuellen Cursor-Position."""
+        ann = self._current_annotation()
+        if ann is None or self._current_seg is None:
+            return
+        t_in_seg = max(0.0, self.cursor_t_in_seg())
+        marker = ann.add_marker(t_in_seg, part_name=part_name)
+        self._timeline.set_bar_markers(ann.markers)
+        self._status.showMessage(
+            f"Takt {marker.bar_num} gesetzt @ {t_in_seg:.3f} s"
+            + (f"  [{part_name}]" if part_name else ""),
+            3000,
+        )
+
+    def _add_part_marker(self) -> None:
+        """Setzt einen Part-Start-Marker (fragt nach Part-Namen)."""
+        if self._current_seg is None:
+            return
+        name, ok = QInputDialog.getText(
+            self, "Part-Start", "Part-Name:",
+        )
+        if not ok or not name.strip():
+            return
+        self._add_bar_marker(part_name=name.strip())
+
+    def _undo_last_marker(self) -> None:
+        """Entfernt den zuletzt gesetzten (= höchste bar_num) Marker."""
+        ann = self._current_annotation()
+        if ann is None or not ann.markers:
+            self._status.showMessage("Keine Marker vorhanden", 2000)
+            return
+        removed = ann.markers.pop()
+        ann._renumber()
+        self._timeline.set_bar_markers(ann.markers)
+        self._status.showMessage(
+            f"Takt {removed.bar_num} @ {removed.t:.3f} s entfernt", 3000
+        )
+
+    def _on_remove_bar_marker(self, t_in_seg: float) -> None:
+        """Entfernt den Marker, der t_in_seg am nächsten liegt (Rechtsklick)."""
+        ann = self._current_annotation()
+        if ann is None:
+            return
+        removed = ann.remove_nearest(t_in_seg)
+        if removed:
+            self._timeline.set_bar_markers(ann.markers)
+            self._status.showMessage(
+                f"Takt {removed.bar_num} @ {removed.t:.3f} s entfernt", 3000
+            )
+
+    def cursor_t_in_seg(self) -> float:
+        """Aktuelle Cursor-Zeit relativ zum Segment-Start."""
+        if self._current_seg is None:
+            return 0.0
+        return self._player.position_in_segment
+
+    def _save_annotations(self) -> None:
+        if self._session is None:
+            return
+        save_annotations(self._session.jsonl_path, self._annotations)
+        total = sum(len(a.markers) for a in self._annotations.values())
+        self._status.showMessage(
+            f"Annotierungen gespeichert: {len(self._annotations)} Songs, {total} Takte",
+            4000,
+        )
+
+    def _run_recording_import(self) -> None:
+        """Startet den Feature-Import in einem Hintergrund-Thread."""
+        if self._session is None or not self._annotations:
+            QMessageBox.information(
+                self, "Import", "Keine Annotierungen vorhanden."
+            )
+            return
+
+        # Check if any annotations have markers
+        total_markers = sum(len(a.markers) for a in self._annotations.values())
+        if total_markers == 0:
+            QMessageBox.information(
+                self, "Import", "Keine Takt-Marker annotiert."
+            )
+            return
+
+        # First save
+        self._save_annotations()
+
+        # Find reference.db and db.json
+        repo_root = self._session.jsonl_path.parent.parent.parent.parent
+        ref_db_path  = repo_root / "live" / "data" / "reference.db"
+        db_json_path = repo_root / "db" / "lighting-ai-db.json"
+
+        if not ref_db_path.exists():
+            QMessageBox.warning(
+                self, "Import",
+                f"reference.db nicht gefunden:\n{ref_db_path}"
+            )
+            return
+
+        self._import_act.setEnabled(False)
+        self._status.showMessage(
+            f"Import läuft: {total_markers} Takte aus "
+            f"{len(self._annotations)} Songs …",
+        )
+
+        wav_path = self._session.wav_path
+        annotations = dict(self._annotations)
+        sr = self._session.sample_rate
+
+        def _run() -> None:
+            try:
+                import sys
+                sys.path.insert(0, str(repo_root / "live"))
+                from server.audio.recording_importer import import_from_recording
+                stats = import_from_recording(
+                    wav_path=wav_path,
+                    annotations=annotations,
+                    ref_db_path=ref_db_path,
+                    db_json_path=db_json_path,
+                    session_sample_rate=sr,
+                )
+                # Report back to UI thread via QTimer
+                msg = (
+                    f"Import abgeschlossen: "
+                    f"{stats.bars_inserted} neu, "
+                    f"{stats.bars_updated} gemittelt, "
+                    f"{stats.bars_skipped} übersprungen"
+                )
+                QTimer.singleShot(0, lambda: self._on_import_done(msg))
+            except Exception as exc:
+                err = str(exc)
+                QTimer.singleShot(0, lambda: self._on_import_error(err))
+
+        t = threading.Thread(target=_run, daemon=True)
+        t.start()
+
+    def _on_import_done(self, msg: str) -> None:
+        self._import_act.setEnabled(True)
+        self._status.showMessage(msg, 8000)
+        QMessageBox.information(self, "Import", msg)
+
+    def _on_import_error(self, err: str) -> None:
+        self._import_act.setEnabled(True)
+        self._status.showMessage(f"Import-Fehler: {err}", 8000)
+        QMessageBox.critical(self, "Import-Fehler", err)
 
     def _zoom_fit(self) -> None:
         if self._current_seg is None:

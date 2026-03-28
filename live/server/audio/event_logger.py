@@ -47,17 +47,24 @@ class SessionEventLogger:
 
     # ------------------------------------------------------------------
 
-    def log(self, event_type: str, **fields: Any) -> None:
+    def log(self, event_type: str, wav_offset: float | None = None, **fields: Any) -> None:
         """Schreibt einen Ereignis-Eintrag.
 
         Parameters
         ----------
         event_type:
             Kategorie (z.B. ``"beat"``, ``"user"``, ``"server_log"``).
+        wav_offset:
+            Präziser Zeitstempel in Sekunden seit Aufnahme-Start, berechnet
+            aus dem ADC-Zeitstempel des Audio-Callbacks (time_info.inputBufferAdcTime).
+            Falls None, wird time.time() als Fallback genutzt — weniger präzise.
         **fields:
             Beliebige weitere Felder — werden direkt ins JSON-Objekt aufgenommen.
         """
-        t = round(time.time() - self._started_at_ts, 4)
+        if wav_offset is not None:
+            t = round(wav_offset, 4)
+        else:
+            t = round(time.time() - self._started_at_ts, 4)
         entry: dict[str, Any] = {"t": t, "type": event_type}
         entry.update(fields)
         line = json.dumps(entry, ensure_ascii=False, default=str)

@@ -24,11 +24,13 @@ from PyQt6.QtWidgets import QWidget, QScrollBar, QSizePolicy, QToolTip
 
 from session import SongSegment
 from peaks import TrackPeaks, CHANNEL_LABELS, SUM_CHANNELS, DISPLAY_CHANNELS
+from annotation import BarMarker
 
 # ── Layout ────────────────────────────────────────────────────────────────────
 LABEL_W   = 196
 RULER_H   = 28
 EVENTS_H  = 26   # halved from 52
+ANNOT_H   = 22   # manual bar/part annotation strip
 MIX_H     = 44
 TRACK_H   = 27
 TRACK_GAP = 2
@@ -137,7 +139,7 @@ for _ch in DISPLAY_CHANNELS:
     })
 
 # Pre-compute y offsets
-_y = RULER_H + EVENTS_H
+_y = RULER_H + EVENTS_H + ANNOT_H
 TRACK_Y: list[int] = []
 for _t in TRACKS:
     TRACK_Y.append(_y)
@@ -176,6 +178,8 @@ class TimelineWidget(QWidget):
     solo_mute_changed = pyqtSignal(object, object)
     # Emitted when user clicks the events label cell; arg: current wav_t
     event_label_clicked = pyqtSignal(float)
+    # Annotation: emitted when user right-clicks a bar marker to remove it
+    bar_marker_remove_requested = pyqtSignal(float)  # t_in_seg of nearest marker
 
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
@@ -191,6 +195,10 @@ class TimelineWidget(QWidget):
         # Solo / Mute state (track indices into TRACKS list)
         self._muted: set[int] = set()
         self._soloed: set[int] = set()
+
+        # Annotation state
+        self._annotation_mode: bool = False
+        self._bar_markers: list[BarMarker] = []
 
         self._hbar = QScrollBar(Qt.Orientation.Horizontal, self)
         self._hbar.valueChanged.connect(self._on_scroll)
@@ -253,6 +261,18 @@ class TimelineWidget(QWidget):
     @property
     def zoom(self) -> float:
         return self._pps
+
+    # ── Annotation ────────────────────────────────────────────────────────────
+
+    def set_annotation_mode(self, enabled: bool) -> None:
+        """Schaltet den Annotations-Modus ein/aus."""
+        self._annotation_mode = enabled
+        self.update()
+
+    def set_bar_markers(self, markers: list[BarMarker]) -> None:
+        """Setzt die anzuzeigenden Takt-Marker (ersetzt bisherige)."""
+        self._bar_markers = list(markers)
+        self.update()
 
     # ── Solo / Mute ───────────────────────────────────────────────────────────
 
@@ -407,6 +427,16 @@ class TimelineWidget(QWidget):
                     break
             return
 
+        # Annotation strip: right-click removes nearest marker
+        annot_y0 = RULER_H + EVENTS_H
+        if (annot_y0 <= y < annot_y0 + ANNOT_H
+                and event.button() == Qt.MouseButton.RightButton
+                and self.segment):
+            t = (x - LABEL_W + self._scroll_x) / self._pps
+            t = max(0.0, min(t, self.segment.duration))
+            self.bar_marker_remove_requested.emit(t)
+            return
+
         if event.button() == Qt.MouseButton.LeftButton and self.segment:
             t = (x - LABEL_W + self._scroll_x) / self._pps
             t = max(0.0, min(t, self.segment.duration))
@@ -469,6 +499,7 @@ class TimelineWidget(QWidget):
 
         self._paint_ruler(p, vl, vr)
         self._paint_events(p, vl, vr)
+        self._paint_annotation_strip(p, vl, vr)
         for i, track in enumerate(TRACKS):
             self._paint_track(p, i, track, TRACK_Y[i], vl, vr)
 
@@ -534,6 +565,48 @@ class TimelineWidget(QWidget):
                         p.setPen(C_T4)
                         p.drawLine(x, RULER_H - 5, x, RULER_H - 1)
                 t += minor
+
+    # ── Annotation strip ──────────────────────────────────────────────────────
+
+    def _paint_annotation_strip(self, p: QPainter, vl: int, vr: int) -> None:
+        """Zeichnet den Takt-Annotations-Streifen unterhalb der Events-Spur."""
+        y0 = RULER_H + EVENTS_H
+        w = self.width()
+
+        # Hintergrund — leicht hervorgehoben wenn Annotations-Modus aktiv
+        bg = QColor("#1a1420") if self._annotation_mode else C_BG2
+        p.fillRect(LABEL_W, y0, w - LABEL_W, ANNOT_H, bg)
+        p.setPen(C_BORDER)
+        p.drawLine(LABEL_W, y0 + ANNOT_H - 1, w, y0 + ANNOT_H - 1)
+
+        if not self.segment or not self._bar_markers:
+            return
+
+        seg = self.segment
+        pps = self._pps
+        ox  = self._scroll_x
+        p.setFont(FONT_MONO)
+
+        for m in self._bar_markers:
+            ex = LABEL_W + int(m.t * pps) - ox
+            if ex < LABEL_W or ex > w:
+                continue
+
+            is_part = bool(m.part_name)
+            c = C_GREEN if is_part else C_AMBER
+
+            # Vertikale Linie — volle Streifen-Höhe
+            p.setPen(QPen(c, 1))
+            p.drawLine(ex, y0, ex, y0 + ANNOT_H - 2)
+
+            # Takt-Nummer (klein, oben links neben der Linie)
+            label = f"{m.bar_num}"
+            if is_part:
+                label = f"{m.bar_num} {m.part_name}"
+            p.setPen(c)
+            p.drawText(ex + 2, y0 + 1, 120, ANNOT_H - 2,
+                       Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
+                       label)
 
     # ── Events strip ─────────────────────────────────────────────────────────
 
@@ -738,6 +811,21 @@ class TimelineWidget(QWidget):
         p.drawText(6, RULER_H, LABEL_W - 10, EVENTS_H,
                    Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
                    summary)
+
+        # Annotation cell
+        annot_y = RULER_H + EVENTS_H
+        annot_bg = QColor("#1a1420") if self._annotation_mode else C_BG2
+        p.fillRect(0, annot_y, LABEL_W, ANNOT_H, annot_bg)
+        n_markers = len(self._bar_markers)
+        annot_label = f"ANNOT  {n_markers}T" if n_markers else "ANNOT"
+        annot_color = C_GREEN if self._annotation_mode else C_T3
+        p.setFont(FONT_MONO)
+        p.setPen(annot_color)
+        p.drawText(6, annot_y, LABEL_W - 10, ANNOT_H,
+                   Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
+                   annot_label)
+        p.setPen(C_BORDER)
+        p.drawLine(0, annot_y + ANNOT_H - 1, LABEL_W, annot_y + ANNOT_H - 1)
 
         # Track cells
         for i, track in enumerate(TRACKS):

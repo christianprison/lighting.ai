@@ -182,6 +182,11 @@ class AudioProcess:
         # Beat-Detektor (PLL-basiert, Multi-Channel)
         self.beat_detector = BeatDetector(sample_rate=SAMPLE_RATE, initial_bpm=self._current_bpm)
 
+        # ADC-Zeitstempel des ersten Audio-Callbacks nach Aufnahme-Start.
+        # Wird genutzt um Events auf den genauen WAV-Zeitstempel zu mappen
+        # (time_info.inputBufferAdcTime statt time.time(), eliminiert Input-Latenz).
+        self._adc_start: float | None = None
+
     # --- Lifecycle ------------------------------------------------------------
 
     def start(self) -> None:
@@ -346,6 +351,22 @@ class AudioProcess:
         # --- Aufnahme: alle 18 Kanäle direkt in Datei schreiben ---
         self.recorder.write_block(indata)
 
+        # --- ADC-Zeitstempel: präziser WAV-Offset für diesen Block ---
+        # inputBufferAdcTime ist der PortAudio-Zeitstempel des ersten Samples
+        # im aktuellen Block — unabhängig von OS-Scheduling-Jitter.
+        el = self.recorder.event_logger
+        if el is not None and self._adc_start is None:
+            # Erster Block dieser Aufnahme-Session: Referenzzeitpunkt setzen.
+            self._adc_start = time_info.inputBufferAdcTime
+        elif el is None:
+            # Aufnahme gestoppt: zurücksetzen für nächste Session.
+            self._adc_start = None
+
+        wav_offset: float | None = (
+            time_info.inputBufferAdcTime - self._adc_start
+            if self._adc_start is not None else None
+        )
+
         # --- Pegel-Monitoring: RMS pro Kanal aktualisieren ---
         rms_per_ch = np.sqrt(np.mean(indata ** 2, axis=0))
         with self._rms_lock:
@@ -353,10 +374,8 @@ class AudioProcess:
 
         # --- Pfad 1: Beat-Detection (alle Kanäle, block-weise) ---
         beat_events, snare_onset = self.beat_detector.process_block(indata)
-        if snare_onset:
-            el = self.recorder.event_logger
-            if el is not None:
-                el.log("snare")
+        if snare_onset and el is not None:
+            el.log("snare", wav_offset=wav_offset)
         for ev in beat_events:
             beat_update = BeatUpdate(
                 beat_num=ev.beat_num,
@@ -368,10 +387,10 @@ class AudioProcess:
             self._emit(beat_update)
             # Beat ins Event-Log schreiben — Timer-Beats werden nicht geloggt,
             # da sie keine realen Onset-Ereignisse darstellen.
-            el = self.recorder.event_logger
             if el is not None and ev.trigger != "timer":
                 el.log(
                     "beat",
+                    wav_offset=wav_offset,
                     beat_num=ev.beat_num,
                     bar_num=ev.bar_num,
                     bpm=ev.bpm,
@@ -431,7 +450,8 @@ class AudioProcess:
         # Probe-Event in SQLite loggen
         rec = self.recorder._info
         if rec is not None and state.song_id:
-            wav_offset = time.time() - rec.started_at_ts
+            # Exakte WAV-Position aus Block-Zähler (kein Uhrzeitfehler)
+            wav_offset = rec.blocks_written * BLOCK_SIZE / SAMPLE_RATE
             try:
                 self.db.log_probe_event(
                     session_id=rec.session_id,
@@ -457,6 +477,7 @@ class AudioProcess:
         if el is not None and state.song_id and (not state.is_frozen or state.is_part_consensus):
             el.log(
                 "position",
+                wav_offset=wav_offset,
                 song_id=state.song_id,
                 bar_num=state.bar_num,
                 part_name=state.part_name,

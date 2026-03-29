@@ -47,6 +47,7 @@ class SongAnnotation:
     song_id: str
     song_name: str
     segment_start_t: float = 0.0   # WAV-Offset des Segment-Starts (Sekunden)
+    start_bar_num: int = 1         # Takt-Nummer des ersten Markers in der DB
     markers: list[BarMarker] = field(default_factory=list)
 
     # ------------------------------------------------------------------
@@ -102,7 +103,7 @@ class SongAnnotation:
 
     def _renumber(self) -> None:
         for i, m in enumerate(self.markers):
-            m.bar_num = i + 1
+            m.bar_num = self.start_bar_num + i
 
     # ------------------------------------------------------------------
     # Serialisierung
@@ -113,6 +114,7 @@ class SongAnnotation:
             "song_id":         self.song_id,
             "song_name":       self.song_name,
             "segment_start_t": self.segment_start_t,
+            "start_bar_num":   self.start_bar_num,
             "markers": [
                 {"t": m.t, "bar_num": m.bar_num, "part_name": m.part_name}
                 for m in self.markers
@@ -125,6 +127,7 @@ class SongAnnotation:
             song_id=d["song_id"],
             song_name=d.get("song_name", ""),
             segment_start_t=float(d.get("segment_start_t", 0.0)),
+            start_bar_num=int(d.get("start_bar_num", 1)),
         )
         ann.markers = [
             BarMarker(

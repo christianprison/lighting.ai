@@ -12,7 +12,7 @@ from PyQt6.QtGui import QAction, QKeySequence
 from PyQt6.QtWidgets import (
     QApplication, QComboBox, QDialog, QFileDialog, QInputDialog,
     QLabel, QListWidget, QListWidgetItem, QMainWindow, QMessageBox,
-    QProgressDialog, QScrollArea, QStatusBar, QToolBar,
+    QProgressDialog, QScrollArea, QSpinBox, QStatusBar, QToolBar,
     QVBoxLayout, QWidget,
 )
 
@@ -365,6 +365,19 @@ class MainWindow(QMainWindow):
         )
         self._annot_act.triggered.connect(self._on_toggle_annotation_mode)
 
+        tb.addWidget(QLabel("  ab Takt "))
+        self._start_bar_spin = QSpinBox()
+        self._start_bar_spin.setMinimum(1)
+        self._start_bar_spin.setMaximum(999)
+        self._start_bar_spin.setValue(1)
+        self._start_bar_spin.setFixedWidth(56)
+        self._start_bar_spin.setToolTip(
+            "Erster annotierter Takt entspricht diesem DB-Takt.\n"
+            "Anpassen wenn die Aufnahme nicht bei Takt 1 des Songs beginnt."
+        )
+        self._start_bar_spin.valueChanged.connect(self._on_start_bar_changed)
+        tb.addWidget(self._start_bar_spin)
+
         self._bar_act = tb.addAction("Takt [B]")
         self._bar_act.setEnabled(False)
         self._bar_act.setToolTip("Takt-Marker an aktueller Cursor-Position setzen (B)")
@@ -516,6 +529,10 @@ class MainWindow(QMainWindow):
         # Show existing annotations for this song
         ann = self._annotations.get(seg.song_id)
         self._timeline.set_bar_markers(ann.markers if ann else [])
+        # Sync start_bar spinbox (block signal to avoid triggering _on_start_bar_changed)
+        self._start_bar_spin.blockSignals(True)
+        self._start_bar_spin.setValue(ann.start_bar_num if ann else 1)
+        self._start_bar_spin.blockSignals(False)
 
         # Update event panel if open
         if self._event_panel and self._event_panel.isVisible():
@@ -736,6 +753,18 @@ class MainWindow(QMainWindow):
             super().keyPressEvent(event)
 
     # ── Annotation handlers ───────────────────────────────────────────────────
+
+    def _on_start_bar_changed(self, value: int) -> None:
+        """Setzt start_bar_num der aktuellen Annotation und nummeriert neu."""
+        ann = self._current_annotation()
+        if ann is None:
+            return
+        ann.start_bar_num = value
+        ann._renumber()
+        self._timeline.set_bar_markers(ann.markers)
+        self._status.showMessage(
+            f"Start-Takt auf {value} gesetzt — Marker neu nummeriert", 3000
+        )
 
     def _on_toggle_annotation_mode(self, checked: bool) -> None:
         self._annotation_mode = checked

@@ -701,6 +701,14 @@ class TimelineWidget(QWidget):
                            Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
                            label)
 
+                # Quantisierung fehlgeschlagen → rotes „?" oben an der Linie
+                if getattr(m, "quantize_failed", False):
+                    p.setFont(FONT_BTN)
+                    p.setPen(C_RED)
+                    p.drawText(ex - 5, y0, 12, 12,
+                               Qt.AlignmentFlag.AlignCenter, "?")
+                    p.setFont(FONT_MONO)
+
     # ── Events strip ─────────────────────────────────────────────────────────
 
     def _paint_events(self, p: QPainter, vl: int, vr: int) -> None:

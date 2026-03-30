@@ -942,6 +942,14 @@ class MainWindow(QMainWindow):
         self._frag_act.setEnabled(checked)
         self._undo_annot_act.setEnabled(checked)
         state_str = "EIN" if checked else "AUS"
+        if not checked:
+            n_snapped, n_failed = self._quantize_bar_markers()
+            if n_snapped + n_failed > 0:
+                msg = f"Quantisiert: {n_snapped} OK"
+                if n_failed:
+                    msg += f", {n_failed} nicht gefunden (? markiert)"
+                self._status.showMessage(msg, 6000)
+                return
         self._status.showMessage(
             f"Annotations-Modus {state_str}  —  B = Takt  P = Part-Start  "
             f"F = Fragment-Start  U = Undo  Rechtsklick = Marker löschen",
@@ -961,6 +969,59 @@ class MainWindow(QMainWindow):
             )
         return self._annotations[sid]
 
+    # ── Quantisierung ────────────────────────────────────────────────────────
+
+    _QUANTIZE_WINDOW_SEC = 0.25   # ±Sekunden, innerhalb derer ein Beat gesucht wird
+
+    def _quantize_bar_markers(self) -> tuple[int, int]:
+        """Snappt alle Bar-Marker auf den nächsten Beat/Snare-Event.
+
+        Returns:
+            (n_snapped, n_failed) — wie viele Marker verschoben wurden
+            bzw. keinen Beat in Reichweite hatten.
+        """
+        ann = self._current_annotation()
+        seg = self._current_seg
+        if ann is None or seg is None or not ann.markers:
+            return 0, 0
+
+        # Beat-Zeiten aus Session-Events sammeln (relativ zum Segment-Start)
+        beat_times: list[float] = []
+        for ev in seg.events:
+            if ev.type in ("beat", "snare"):
+                beat_times.append(ev.t - seg.start_t)
+
+        if not beat_times:
+            return 0, 0
+
+        beat_times.sort()
+        win = self._QUANTIZE_WINDOW_SEC
+        n_snapped = 0
+        n_failed = 0
+
+        for m in ann.markers:
+            # Nächsten Beat in ±win suchen
+            best_t = None
+            best_dist = float("inf")
+            for bt in beat_times:
+                d = abs(bt - m.t)
+                if d <= win and d < best_dist:
+                    best_dist = d
+                    best_t = bt
+            if best_t is not None:
+                m.t = best_t
+                m.quantize_failed = False
+                n_snapped += 1
+            else:
+                m.quantize_failed = True
+                n_failed += 1
+
+        # Marker nach Snap neu sortieren und nummerieren
+        ann.markers.sort(key=lambda m: m.t)
+        ann._renumber()
+        self._timeline.set_bar_markers(ann.markers)
+        return n_snapped, n_failed
+
     def _add_bar_marker(self, part_name: str = "") -> None:
         """Setzt einen Takt-Marker an der aktuellen Cursor-Position."""
         ann = self._current_annotation()
@@ -976,12 +1037,59 @@ class MainWindow(QMainWindow):
         )
 
     def _add_part_marker(self) -> None:
-        """Setzt einen Part-Start-Marker (fragt nach Part-Namen)."""
+        """Setzt einen Part-Start-Marker — bietet Part-Namen aus reference.db an."""
         if self._current_seg is None:
             return
-        name, ok = QInputDialog.getText(
-            self, "Part-Start", "Part-Name:",
-        )
+
+        # Schätzung: Takt-Nummer an Cursor-Position
+        ann = self._current_annotation()
+        t_cursor = max(0.0, self.cursor_t_in_seg())
+        estimated_bar = 1
+        if ann and ann.markers:
+            before = [m for m in ann.markers if m.t <= t_cursor]
+            if before:
+                estimated_bar = before[-1].bar_num + 1
+
+        # Part-Namen aus reference.db laden
+        db_parts: list[dict] = []
+        try:
+            if self._session:
+                candidate = self._session.wav_path.parent.parent / "reference.db"
+                if candidate.exists():
+                    server_path = str(candidate.parent.parent / "server")
+                    if server_path not in sys.path:
+                        sys.path.insert(0, server_path)
+                    from audio.reference_db import ReferenceDB
+                    db_parts = ReferenceDB(candidate).get_parts_for_song(
+                        self._current_seg.song_id
+                    )
+        except Exception:
+            pass
+
+        # Default: nächstgelegener Part nach geschätzter Takt-Nummer
+        default_name = ""
+        if db_parts:
+            closest = min(db_parts, key=lambda p: abs(p["first_bar"] - estimated_bar))
+            default_name = closest["part_name"]
+
+        if db_parts:
+            # Combo-Dialog mit DB-Vorschlägen
+            items = [p["part_name"] for p in db_parts]
+            default_idx = items.index(default_name) if default_name in items else 0
+            name, ok = QInputDialog.getItem(
+                self,
+                "Part-Start",
+                f"Part-Name (geschätzter Takt: {estimated_bar}):",
+                items,
+                current=default_idx,
+                editable=True,
+            )
+        else:
+            name, ok = QInputDialog.getText(
+                self, "Part-Start", "Part-Name:",
+                text=default_name,
+            )
+
         if not ok or not name.strip():
             return
         self._add_bar_marker(part_name=name.strip())

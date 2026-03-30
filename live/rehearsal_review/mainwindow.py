@@ -3,11 +3,12 @@ from __future__ import annotations
 
 import json
 import math
-import threading
+import os
+import sys
 from pathlib import Path
 from typing import Optional
 
-from PyQt6.QtCore import Qt, QTimer, pyqtSignal
+from PyQt6.QtCore import Qt, QThread, QTimer, pyqtSignal
 from PyQt6.QtGui import QAction, QKeySequence
 from PyQt6.QtWidgets import (
     QApplication, QComboBox, QDialog, QFileDialog, QInputDialog,
@@ -220,6 +221,61 @@ class EventListPanel(QDialog):
         self.seek_requested.emit(t_in_seg)
 
 
+class _FragmentWorker(QThread):
+    """QThread that runs silence-based fragment detection off the main thread."""
+    finished = pyqtSignal(list)
+    error    = pyqtSignal(str)
+    progress = pyqtSignal(float, object)  # scan_t (float), windows (list of (t, bool))
+
+    _RMS_THRESH = 0.005
+    _WIN_SEC    = 0.05
+
+    def __init__(
+        self,
+        wav_path: Path,
+        start_t: float,
+        end_t: float,
+        sample_rate: int,
+        ch_indices: list[int],
+        parent=None,
+    ) -> None:
+        super().__init__(parent)
+        self._wav_path   = wav_path
+        self._start_t    = start_t
+        self._end_t      = end_t
+        self._sr         = sample_rate
+        self._ch_indices = ch_indices
+        self._win_count  = 0
+
+    def run(self) -> None:
+        try:
+            rr_dir = os.path.dirname(os.path.abspath(__file__))
+            if rr_dir not in sys.path:
+                sys.path.insert(0, rr_dir)
+            from fragment_detector import detect_fragments
+
+            def _cb(scan_t: float, chunk_rms: list[float]) -> None:
+                offset  = self._win_count * self._WIN_SEC
+                windows = [
+                    (offset + i * self._WIN_SEC, r >= self._RMS_THRESH)
+                    for i, r in enumerate(chunk_rms)
+                ]
+                self._win_count += len(chunk_rms)
+                self.progress.emit(scan_t, windows)
+
+            frags = detect_fragments(
+                wav_path=self._wav_path,
+                seg_start_t=self._start_t,
+                seg_end_t=self._end_t,
+                sample_rate=self._sr,
+                ch_indices=self._ch_indices,
+                progress_callback=_cb,
+            )
+            self.finished.emit(frags)
+        except Exception as exc:
+            self.error.emit(str(exc))
+
+
 class MainWindow(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
@@ -248,7 +304,7 @@ class MainWindow(QMainWindow):
 
         # Fragment detection results for the active segment
         self._detected_fragments: list = []
-        self._scan_window_count: int = 0   # windows accumulated so far (for t offset)
+        self._fragment_worker: Optional[_FragmentWorker] = None
 
         self._player = AudioPlayer(self)
         self._player.position_changed.connect(self._on_position)
@@ -562,7 +618,9 @@ class MainWindow(QMainWindow):
 
         # Clear fragment detection results from previous song
         self._detected_fragments = []
-        self._scan_window_count = 0
+        if self._fragment_worker is not None:
+            self._fragment_worker.quit()
+            self._fragment_worker = None
         self._timeline.set_fragment_boundaries([])
         self._timeline.clear_scan_progress()
 
@@ -1076,58 +1134,31 @@ class MainWindow(QMainWindow):
         if self._current_seg is None or self._session is None:
             return
 
-        seg      = self._current_seg
-        wav_path = self._session.wav_path
-        sr       = self._session.sample_rate
-        n_ch     = self._session.n_channels
-        # Instrument channels only (not Main L/R = ch 16/17 on XR18)
+        seg        = self._current_seg
+        n_ch       = self._session.n_channels
         ch_indices = list(range(min(16, n_ch)))
 
         self._detect_frags_act.setEnabled(False)
-        self._scan_window_count = 0
         self._timeline.clear_scan_progress()
         self._status.showMessage(
             f'Fragment-Erkennung läuft: "{seg.song_name}" …'
         )
 
-        start_t = seg.start_t
-        end_t   = seg.end_t
-
-        def _progress(scan_t: float, chunk_rms: list[float]) -> None:
-            """Called from worker thread after each audio chunk."""
-            RMS_THRESH = 0.005
-            offset = self._scan_window_count * 0.05
-            windows = [
-                (offset + i * 0.05, rms >= RMS_THRESH)
-                for i, rms in enumerate(chunk_rms)
-            ]
-            self._scan_window_count += len(chunk_rms)
-            QTimer.singleShot(
-                0, lambda w=windows, t=scan_t: self._timeline.update_scan_progress(t, w)
-            )
-
-        def _run() -> None:
-            try:
-                import sys
-                import os
-                rr_dir = os.path.dirname(os.path.abspath(__file__))
-                if rr_dir not in sys.path:
-                    sys.path.insert(0, rr_dir)
-                from fragment_detector import detect_fragments
-                frags = detect_fragments(
-                    wav_path=wav_path,
-                    seg_start_t=start_t,
-                    seg_end_t=end_t,
-                    sample_rate=sr,
-                    ch_indices=ch_indices,
-                    progress_callback=_progress,
-                )
-                QTimer.singleShot(0, lambda: self._on_fragments_done(frags))
-            except Exception as exc:
-                err = str(exc)
-                QTimer.singleShot(0, lambda: self._on_fragment_error(err))
-
-        threading.Thread(target=_run, daemon=True).start()
+        worker = _FragmentWorker(
+            wav_path=self._session.wav_path,
+            start_t=seg.start_t,
+            end_t=seg.end_t,
+            sample_rate=self._session.sample_rate,
+            ch_indices=ch_indices,
+            parent=self,
+        )
+        worker.finished.connect(self._on_fragments_done)
+        worker.error.connect(self._on_fragment_error)
+        worker.progress.connect(
+            lambda scan_t, windows: self._timeline.update_scan_progress(scan_t, windows)
+        )
+        self._fragment_worker = worker
+        worker.start()
 
     def _on_fragments_done(self, fragments: list) -> None:
         self._detected_fragments = fragments

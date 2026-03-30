@@ -204,6 +204,10 @@ class TimelineWidget(QWidget):
         # relative to segment start, in seconds
         self._fragment_boundaries: list[float] = []
 
+        # Live scan progress: list of (t_rel, is_active) per RMS window
+        self._scan_windows: list[tuple[float, bool]] = []
+        self._scan_pos: float = -1.0   # current scan head (seconds)
+
         self._hbar = QScrollBar(Qt.Orientation.Horizontal, self)
         self._hbar.valueChanged.connect(self._on_scroll)
 
@@ -284,6 +288,21 @@ class TimelineWidget(QWidget):
         Zeiten sind relativ zum Segment-Start in Sekunden.
         """
         self._fragment_boundaries = list(boundaries)
+        self.update()
+
+    def update_scan_progress(self, scan_pos: float, new_windows: list[tuple[float, bool]]) -> None:
+        """Fügt neue Scan-Fenster hinzu und setzt den Scan-Kopf.
+
+        Wird aus dem Fragment-Erkennungs-Thread aufgerufen (via QTimer.singleShot).
+        """
+        self._scan_windows.extend(new_windows)
+        self._scan_pos = scan_pos
+        self.update()
+
+    def clear_scan_progress(self) -> None:
+        """Löscht die Scan-Visualisierung."""
+        self._scan_windows = []
+        self._scan_pos = -1.0
         self.update()
 
     # ── Solo / Mute ───────────────────────────────────────────────────────────
@@ -594,6 +613,31 @@ class TimelineWidget(QWidget):
             p.drawLine(LABEL_W, y0, w, y0)
         p.setPen(C_BORDER)
         p.drawLine(LABEL_W, y0 + ANNOT_H - 1, w, y0 + ANNOT_H - 1)
+
+        # ── Live scan activity map ────────────────────────────────────────────
+        # Drawn as a thin bar at the bottom of the strip while detection runs.
+        if self._scan_windows:
+            pps  = self._pps
+            ox   = self._scroll_x
+            bh   = 7                          # activity bar height (px)
+            by   = y0 + ANNOT_H - bh - 1     # bar top y
+            ww   = max(1, int(0.05 * pps))    # pixel width per 50 ms window
+            C_ACT = QColor(0x00, 0xdc, 0x82, 110)   # green – active
+            C_SIL = QColor(0x5c, 0x60, 0x80,  70)   # grey  – silent
+            for t_win, is_active in self._scan_windows:
+                ex = LABEL_W + int(t_win * pps) - ox
+                if ex > w:
+                    break
+                if ex + ww < LABEL_W:
+                    continue
+                p.fillRect(max(LABEL_W, ex), by, ww, bh,
+                           C_ACT if is_active else C_SIL)
+            # Scan-head line
+            if self._scan_pos >= 0:
+                sx = LABEL_W + int(self._scan_pos * pps) - ox
+                if LABEL_W <= sx <= w:
+                    p.setPen(QPen(C_CYAN, 2))
+                    p.drawLine(sx, y0, sx, y0 + ANNOT_H - 1)
 
         # Fragment boundaries (violet, drawn before bar markers so they sit behind)
         C_FRAG = QColor("#a78bfa")

@@ -246,6 +246,9 @@ class MainWindow(QMainWindow):
         self._annotations: dict[str, SongAnnotation] = {}
         self._annotation_mode: bool = False
 
+        # Fragment detection results for the active segment
+        self._detected_fragments: list = []
+
         self._player = AudioPlayer(self)
         self._player.position_changed.connect(self._on_position)
         self._player.playback_stopped.connect(self._on_stopped)
@@ -341,6 +344,16 @@ class MainWindow(QMainWindow):
         self._song_combo.setPlaceholderText("-- Song waehlen --")
         self._song_combo.currentIndexChanged.connect(self._on_song_combo_changed)
         tb.addWidget(self._song_combo)
+
+        tb.addSeparator()
+
+        self._detect_frags_act = tb.addAction("Fragmente")
+        self._detect_frags_act.setEnabled(False)
+        self._detect_frags_act.setToolTip(
+            "Song in gespielte Fragmente aufteilen\n"
+            "(erkennt Stille-Lücken auf allen 16 Instrumenten-Kanälen)"
+        )
+        self._detect_frags_act.triggered.connect(self._detect_fragments)
 
         tb.addSeparator()
 
@@ -454,6 +467,7 @@ class MainWindow(QMainWindow):
         self._save_annot_act.setEnabled(True)
         self._import_act.setEnabled(True)
         self._db_parts_act.setEnabled(True)
+        self._detect_frags_act.setEnabled(True)
 
         # Fill song combo (block signals during rebuild)
         self._song_combo.blockSignals(True)
@@ -537,6 +551,10 @@ class MainWindow(QMainWindow):
 
         self._timeline.set_segment(seg, None)
         self._overview.set_segment(seg)
+
+        # Clear fragment detection results from previous song
+        self._detected_fragments = []
+        self._timeline.set_fragment_boundaries([])
 
         # Show existing annotations for this song
         ann = self._annotations.get(seg.song_id)
@@ -1015,6 +1033,76 @@ class MainWindow(QMainWindow):
         self._import_act.setEnabled(True)
         self._status.showMessage(f"Import-Fehler: {err}", 8000)
         QMessageBox.critical(self, "Import-Fehler", err)
+
+    # ── Fragment detection ────────────────────────────────────────────────────
+
+    def _detect_fragments(self) -> None:
+        """Startet die Stille-basierte Fragment-Erkennung im Hintergrund-Thread."""
+        if self._current_seg is None or self._session is None:
+            return
+
+        seg      = self._current_seg
+        wav_path = self._session.wav_path
+        sr       = self._session.sample_rate
+        n_ch     = self._session.n_channels
+        # Instrument channels only (not Main L/R = ch 16/17 on XR18)
+        ch_indices = list(range(min(16, n_ch)))
+
+        self._detect_frags_act.setEnabled(False)
+        self._status.showMessage(
+            f'Fragment-Erkennung läuft: "{seg.song_name}" …'
+        )
+
+        start_t = seg.start_t
+        end_t   = seg.end_t
+
+        def _run() -> None:
+            try:
+                import sys
+                import os
+                rr_dir = os.path.dirname(os.path.abspath(__file__))
+                if rr_dir not in sys.path:
+                    sys.path.insert(0, rr_dir)
+                from fragment_detector import detect_fragments
+                frags = detect_fragments(
+                    wav_path=wav_path,
+                    seg_start_t=start_t,
+                    seg_end_t=end_t,
+                    sample_rate=sr,
+                    ch_indices=ch_indices,
+                )
+                QTimer.singleShot(0, lambda: self._on_fragments_done(frags))
+            except Exception as exc:
+                err = str(exc)
+                QTimer.singleShot(0, lambda: self._on_fragment_error(err))
+
+        threading.Thread(target=_run, daemon=True).start()
+
+    def _on_fragments_done(self, fragments: list) -> None:
+        self._detected_fragments = fragments
+        self._detect_frags_act.setEnabled(True)
+
+        # Pass start times of fragments 2, 3, … to timeline
+        boundaries = [f.start_t for f in fragments[1:]]
+        self._timeline.set_fragment_boundaries(boundaries)
+
+        n = len(fragments)
+        if n <= 1:
+            msg = (
+                f'1 Fragment — Song komplett oder keine Stille-Lücke ≥ 1,5 s erkannt '
+                f'({fragments[0].fmt() if fragments else "—"})'
+            )
+        else:
+            labels = "  |  ".join(
+                f"F{i + 1}: {f.fmt()}" for i, f in enumerate(fragments)
+            )
+            msg = f"{n} Fragmente erkannt — {labels}"
+
+        self._status.showMessage(msg, 12000)
+
+    def _on_fragment_error(self, err: str) -> None:
+        self._detect_frags_act.setEnabled(True)
+        self._status.showMessage(f"Fragment-Erkennung fehlgeschlagen: {err}", 8000)
 
     def _zoom_fit(self) -> None:
         if self._current_seg is None:

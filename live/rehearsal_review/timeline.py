@@ -200,6 +200,10 @@ class TimelineWidget(QWidget):
         self._annotation_mode: bool = False
         self._bar_markers: list[BarMarker] = []
 
+        # Detected fragment boundaries (start times of fragments 2, 3, …)
+        # relative to segment start, in seconds
+        self._fragment_boundaries: list[float] = []
+
         self._hbar = QScrollBar(Qt.Orientation.Horizontal, self)
         self._hbar.valueChanged.connect(self._on_scroll)
 
@@ -272,6 +276,14 @@ class TimelineWidget(QWidget):
     def set_bar_markers(self, markers: list[BarMarker]) -> None:
         """Setzt die anzuzeigenden Takt-Marker (ersetzt bisherige)."""
         self._bar_markers = list(markers)
+        self.update()
+
+    def set_fragment_boundaries(self, boundaries: list[float]) -> None:
+        """Setzt erkannte Fragmentgrenzen (Start-Zeiten von Fragment 2, 3, …).
+
+        Zeiten sind relativ zum Segment-Start in Sekunden.
+        """
+        self._fragment_boundaries = list(boundaries)
         self.update()
 
     # ── Solo / Mute ───────────────────────────────────────────────────────────
@@ -582,6 +594,23 @@ class TimelineWidget(QWidget):
             p.drawLine(LABEL_W, y0, w, y0)
         p.setPen(C_BORDER)
         p.drawLine(LABEL_W, y0 + ANNOT_H - 1, w, y0 + ANNOT_H - 1)
+
+        # Fragment boundaries (violet, drawn before bar markers so they sit behind)
+        C_FRAG = QColor("#a78bfa")
+        if self.segment and self._fragment_boundaries:
+            pps = self._pps
+            ox  = self._scroll_x
+            p.setFont(FONT_MONO)
+            for k, bnd_t in enumerate(self._fragment_boundaries):
+                bx = LABEL_W + int(bnd_t * pps) - ox
+                if bx < LABEL_W or bx > w:
+                    continue
+                p.setPen(QPen(C_FRAG, 2))
+                p.drawLine(bx, y0, bx, y0 + ANNOT_H - 2)
+                p.setPen(C_FRAG)
+                p.drawText(bx + 3, y0 + 1, 40, ANNOT_H - 2,
+                           Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
+                           f"F{k + 2}")
 
         if not self.segment or not self._bar_markers:
             return

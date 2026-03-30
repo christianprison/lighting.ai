@@ -38,7 +38,8 @@ class BarMarker:
     """Manuell gesetzter Taktgrenzen-Marker."""
     t: float          # Sekunden seit Segment-Start (= relative Zeit im Song)
     bar_num: int      # 1-basiert, wird automatisch vergeben
-    part_name: str = ""   # nicht leer → dieser Takt ist auch ein Part-Start
+    part_name: str = ""             # nicht leer → dieser Takt ist auch ein Part-Start
+    restart_bar_num: Optional[int] = None  # nicht None → Fragment-Start; Zähler reset
 
 
 @dataclass
@@ -54,10 +55,16 @@ class SongAnnotation:
     # Marker-Verwaltung
     # ------------------------------------------------------------------
 
-    def add_marker(self, t: float, part_name: str = "") -> BarMarker:
+    def add_marker(
+        self,
+        t: float,
+        part_name: str = "",
+        restart_bar_num: Optional[int] = None,
+    ) -> BarMarker:
         """Fügt einen Takt-Marker bei Zeit *t* ein.
 
         Hält die Liste nach *t* sortiert und nummeriert alle Marker danach neu.
+        *restart_bar_num* != None → Fragment-Start-Marker (setzt Zähler zurück).
         """
         # Einfügeposition finden (sortiert nach t)
         idx = len(self.markers)
@@ -65,7 +72,8 @@ class SongAnnotation:
             if m.t > t:
                 idx = i
                 break
-        marker = BarMarker(t=t, bar_num=0, part_name=part_name)
+        marker = BarMarker(t=t, bar_num=0, part_name=part_name,
+                           restart_bar_num=restart_bar_num)
         self.markers.insert(idx, marker)
         self._renumber()
         return marker
@@ -102,8 +110,12 @@ class SongAnnotation:
         return min(self.markers, key=lambda m: abs(m.t - t))
 
     def _renumber(self) -> None:
-        for i, m in enumerate(self.markers):
-            m.bar_num = self.start_bar_num + i
+        counter = self.start_bar_num
+        for m in self.markers:
+            if m.restart_bar_num is not None:
+                counter = m.restart_bar_num
+            m.bar_num = counter
+            counter += 1
 
     # ------------------------------------------------------------------
     # Serialisierung
@@ -116,7 +128,13 @@ class SongAnnotation:
             "segment_start_t": self.segment_start_t,
             "start_bar_num":   self.start_bar_num,
             "markers": [
-                {"t": m.t, "bar_num": m.bar_num, "part_name": m.part_name}
+                {
+                    "t": m.t,
+                    "bar_num": m.bar_num,
+                    "part_name": m.part_name,
+                    **( {"restart_bar_num": m.restart_bar_num}
+                        if m.restart_bar_num is not None else {} ),
+                }
                 for m in self.markers
             ],
         }
@@ -134,6 +152,7 @@ class SongAnnotation:
                 t=float(m["t"]),
                 bar_num=int(m["bar_num"]),
                 part_name=m.get("part_name", ""),
+                restart_bar_num=int(m["restart_bar_num"]) if "restart_bar_num" in m else None,
             )
             for m in d.get("markers", [])
         ]

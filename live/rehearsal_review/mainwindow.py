@@ -404,6 +404,13 @@ class MainWindow(QMainWindow):
         self._part_act.setToolTip("Part-Start-Marker an aktueller Cursor-Position setzen (P)")
         self._part_act.triggered.connect(self._add_part_marker)
 
+        self._frag_act = tb.addAction("Fragment [F]")
+        self._frag_act.setEnabled(False)
+        self._frag_act.setToolTip(
+            "Fragment-Start-Marker setzen — fragt nach Takt-Nummer ab der gezählt wird (F)"
+        )
+        self._frag_act.triggered.connect(self._add_fragment_marker)
+
         self._undo_annot_act = tb.addAction("Undo [U]")
         self._undo_annot_act.setEnabled(False)
         self._undo_annot_act.setToolTip("Letzten Takt-Marker entfernen (U)")
@@ -777,6 +784,8 @@ class MainWindow(QMainWindow):
             self._add_bar_marker()
         elif event.key() == Qt.Key.Key_P and self._annotation_mode:
             self._add_part_marker()
+        elif event.key() == Qt.Key.Key_F and self._annotation_mode:
+            self._add_fragment_marker()
         elif event.key() == Qt.Key.Key_U and self._annotation_mode:
             self._undo_last_marker()
         else:
@@ -869,11 +878,12 @@ class MainWindow(QMainWindow):
         self._timeline.set_annotation_mode(checked)
         self._bar_act.setEnabled(checked)
         self._part_act.setEnabled(checked)
+        self._frag_act.setEnabled(checked)
         self._undo_annot_act.setEnabled(checked)
         state_str = "EIN" if checked else "AUS"
         self._status.showMessage(
-            f"Annotations-Modus {state_str}  —  B = Takt  P = Part-Start  U = Undo  "
-            f"Rechtsklick = Marker löschen",
+            f"Annotations-Modus {state_str}  —  B = Takt  P = Part-Start  "
+            f"F = Fragment-Start  U = Undo  Rechtsklick = Marker löschen",
             6000,
         )
 
@@ -914,6 +924,28 @@ class MainWindow(QMainWindow):
         if not ok or not name.strip():
             return
         self._add_bar_marker(part_name=name.strip())
+
+    def _add_fragment_marker(self) -> None:
+        """Setzt einen Fragment-Start-Marker (fragt nach Start-Takt-Nummer)."""
+        if self._current_seg is None:
+            return
+        # Vorschlag: nächste Takt-Nummer nach dem letzten Marker
+        ann = self._current_annotation()
+        default = (ann.markers[-1].bar_num + 1) if (ann and ann.markers) else 1
+        bar_num, ok = QInputDialog.getInt(
+            self, "Fragment-Start", "Takt-Nummer ab der gezählt wird:",
+            value=default, min=1, max=9999,
+        )
+        if not ok:
+            return
+        t_in_seg = max(0.0, self.cursor_t_in_seg())
+        marker = ann.add_marker(t_in_seg, restart_bar_num=bar_num)
+        self._timeline.set_bar_markers(ann.markers)
+        self._status.showMessage(
+            f"Fragment-Start: Takt {marker.bar_num} ab hier (→T{bar_num}) "
+            f"@ {t_in_seg:.3f} s",
+            4000,
+        )
 
     def _undo_last_marker(self) -> None:
         """Entfernt den zuletzt gesetzten (= höchste bar_num) Marker."""

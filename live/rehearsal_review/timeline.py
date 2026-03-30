@@ -620,26 +620,42 @@ class TimelineWidget(QWidget):
         ox  = self._scroll_x
         p.setFont(FONT_MONO)
 
+        C_FRAG_MARKER = QColor("#ffffff")  # Fragment-Start: weißer Marker
+
         for m in self._bar_markers:
             ex = LABEL_W + int(m.t * pps) - ox
             if ex < LABEL_W or ex > w:
                 continue
 
+            is_frag = m.restart_bar_num is not None
             is_part = bool(m.part_name)
-            c = C_GREEN if is_part else C_AMBER
 
-            # Vertikale Linie — volle Streifen-Höhe
-            p.setPen(QPen(c, 1))
-            p.drawLine(ex, y0, ex, y0 + ANNOT_H - 2)
+            if is_frag:
+                # Fragment-Start: breite weiße Linie + "→T{n}" Label
+                p.setPen(QPen(C_FRAG_MARKER, 2))
+                p.drawLine(ex, y0, ex, y0 + ANNOT_H - 1)
+                p.setPen(C_FRAG_MARKER)
+                frag_label = f"→T{m.restart_bar_num}"
+                if is_part:
+                    frag_label += f" {m.part_name}"
+                p.drawText(ex + 3, y0 + 1, 120, ANNOT_H - 2,
+                           Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
+                           frag_label)
+            else:
+                c = C_GREEN if is_part else C_AMBER
 
-            # Takt-Nummer (klein, oben links neben der Linie)
-            label = f"{m.bar_num}"
-            if is_part:
-                label = f"{m.bar_num} {m.part_name}"
-            p.setPen(c)
-            p.drawText(ex + 2, y0 + 1, 120, ANNOT_H - 2,
-                       Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
-                       label)
+                # Vertikale Linie — volle Streifen-Höhe
+                p.setPen(QPen(c, 1))
+                p.drawLine(ex, y0, ex, y0 + ANNOT_H - 2)
+
+                # Takt-Nummer (klein, oben links neben der Linie)
+                label = f"{m.bar_num}"
+                if is_part:
+                    label = f"{m.bar_num} {m.part_name}"
+                p.setPen(c)
+                p.drawText(ex + 2, y0 + 1, 120, ANNOT_H - 2,
+                           Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
+                           label)
 
     # ── Events strip ─────────────────────────────────────────────────────────
 

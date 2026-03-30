@@ -330,7 +330,8 @@ lighting.ai/live/
 │   ├── session.py                 # Session-Datenmodell (JSONL → SongSegments)
 │   ├── peaks.py                   # Waveform-Peak-Extraktion (QThread)
 │   ├── overview.py                # Minimap-Widget (volle Session)
-│   └── annotation.py             # Annotation-Datenmodell + JSON-I/O
+│   ├── annotation.py             # Annotation-Datenmodell + JSON-I/O
+│   └── fragment_detector.py      # Stille-basierte Fragment-Erkennung (chunked RMS)
 └── data/
     ├── reference.db               # SQLite: songs, bars, feature_vectors
     └── recordings/                # 18-Kanal WAV + JSONL Event-Logs
@@ -346,7 +347,9 @@ lighting.ai/live/
 Eine PyQt6 Desktop-App für den Linux Mint Steuer-Laptop, die:
 
 - Probenaufnahmen (18-Kanal WAV, 48 kHz) abhörbar macht (Solo, Mute, Zoom)
-- Takt- und Part-Grenzen manuell annotieren lässt (B / P / U Shortcuts)
+- Takt- und Part-Grenzen manuell annotieren lässt (B / P / F / U Shortcuts)
+- Songs automatisch in Fragmente unterteilt (Stille-Erkennung auf 16 Kanälen)
+- Per-Fragment `restart_bar_num` erlaubt unterschiedliche Takt-Offsets pro Spielanlauf
 - Annotierte Takte als Audio-Features in die `reference.db` importiert
 - Den HMM-Taktdetektor mit Echtdaten trainiert (inkrementelles Averaging)
 
@@ -377,18 +380,25 @@ venv: `/opt/lighting-venv` (PyQt6, sounddevice, soundfile, numpy, librosa)
 
 - **Datei**: `{session_stem}_annotations.json` neben dem JSONL
 - **`SongAnnotation`**: `song_id`, `song_name`, `segment_start_t` (WAV-Offset), `start_bar_num` (Offset wenn Aufnahme nicht bei Takt 1 beginnt), `markers: list[BarMarker]`
-- **`BarMarker`**: `t` (Sekunden relativ zum Segment-Start), `bar_num` (auto), `part_name` (nicht leer = Part-Start)
-- `_renumber()` nummeriert Marker ab `start_bar_num` (nicht ab 1!)
-- `add_marker()` hält Liste sortiert nach `t`
+- **`BarMarker`**: `t` (Sekunden relativ zum Segment-Start), `bar_num` (auto), `part_name` (nicht leer = Part-Start), `restart_bar_num` (nicht None = Fragment-Start, setzt Zähler zurück)
+- `_renumber()` nummeriert Marker ab `start_bar_num`; bei `restart_bar_num != None` wird der Zähler auf diesen Wert gesetzt
+- `add_marker()` hält Liste sortiert nach `t`; akzeptiert optionales `restart_bar_num`
+- Fragment-Erkennung: `fragment_detector.py` — chunked RMS-Analyse über alle 16 Instrumenten-Kanäle, Stille ≥ 1,5 s → Split
 
 #### Timeline-Layout (Konstanten in `timeline.py`)
 
 ```
 RULER_H  = 28    # Zeitlineal oben
 EVENTS_H = 26    # Beat/Position-Events-Streifen
-ANNOT_H  = 32    # Takt-Annotations-Streifen (amber = Takt, grün = Part-Start)
+ANNOT_H  = 32    # Takt-Annotations-Streifen
 LABEL_W  = 196   # Sticky-Label-Spalte links
 ```
+
+ANNOT-Strip Marker-Farben:
+- **amber** (#f0a030): normaler Takt-Marker
+- **grün** (#00dc82): Part-Start-Marker
+- **weiß** (#ffffff, 2px): Fragment-Start-Marker (`restart_bar_num` gesetzt), Label `→T{n}`
+- **violett** (#a78bfa): auto-erkannte Fragmentgrenze aus `fragment_detector.py` (nur visuell, kein BarMarker)
 
 Annotation-Strip zeigt amber Oberkante + lila Hintergrund wenn Modus aktiv.
 "Annotieren"-Button ist grün/invertiert wenn aktiv (`:checked` CSS).
@@ -413,6 +423,7 @@ probe_events   (id, session_id, wav_offset, song_id, bar_num, part_name, confide
 | Space | Play / Pause |
 | B | Takt-Marker an Cursor-Position (nur im Annotations-Modus) |
 | P | Part-Start-Marker (fragt nach Name) |
+| F | Fragment-Start-Marker (fragt nach Start-Takt-Nummer) |
 | U | Letzten Marker rückgängig |
 | + / - | Zoom in/out |
 | 0 | Zoom Anpassen |

@@ -40,6 +40,7 @@ class BarMarker:
     bar_num: int      # 1-basiert, wird automatisch vergeben
     part_name: str = ""             # nicht leer → dieser Takt ist auch ein Part-Start
     restart_bar_num: Optional[int] = None  # nicht None → Fragment-Start; Zähler reset
+    quantize_failed: bool = False   # True → kein Beat/Snare in der Nähe gefunden (transient, nicht gespeichert)
 
 
 @dataclass

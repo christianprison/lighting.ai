@@ -7,7 +7,7 @@ bars           — Takte mit absolutem bar_num (relativ zum Song), Audio-Pfad, P
 feature_vectors— Vorberechnete Feature-Vektoren pro Takt (numpy BLOBs)
 
 Alle bar_num-Werte sind **absolut zum Song** (Takt 1 = allererster Takt, keine
-Rüksetzung an Partgrenzen). Part-Zugehörigkeit ergibt sich aus part_name.
+Rücksetzung an Partgrenzen). Part-Zugehörigkeit ergibt sich aus part_name.
 """
 
 from __future__ import annotations

@@ -35,20 +35,21 @@ Optional: Session direkt übergeben:
 ## Oberfläche
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│ [Play] [Stop]  [Song-Auswahl ▾]  Zoom: [80px/s ▾]             │
-│ [Annotieren] ab Takt [1] [Takt B] [Part-Start P] [Undo U]      │
-│ [Speichern] [→ reference.db] [DB-Parts]                        │
-├─────────────────────────────────────────────────────────────────┤
-│ Minimap (gesamte Session)                                       │
-├─────────────────────────────────────────────────────────────────┤
-│ Zeitlineal                                                      │
-│ Events (Beats, Positionen, Song-Wechsel)                        │
-│ ANNOT-Strip (Takt-Marker: amber | Part-Start: grün)             │
-│ Mix (Main L+R)                                                  │
-│ CH 1  ··· CH 16  (einzelne Kanäle)                             │
-│ ─────────────────────────────────── Scrollbar                  │
-└─────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────┐
+│ [Play] [Stop]  [Song-Auswahl ▾]  [Fragmente]  Zoom: [80px/s ▾]   │
+│ [Annotieren] ab Takt [1] [Takt B] [Part-Start P] [Fragment F]      │
+│ [Undo U] [Speichern] [→ reference.db] [DB-Parts]                   │
+├─────────────────────────────────────────────────────────────────────┤
+│ Minimap (gesamte Session)                                           │
+├─────────────────────────────────────────────────────────────────────┤
+│ Zeitlineal                                                          │
+│ Events (Beats, Positionen, Song-Wechsel)                            │
+│ ANNOT-Strip: amber = Takt | grün = Part-Start | weiß = Fragment-Start│
+│              violett = auto-erkannte Fragmentgrenze (F2, F3 …)      │
+│ Mix (Main L+R)                                                      │
+│ CH 1  ··· CH 16  (einzelne Kanäle)                                 │
+│ ─────────────────────────────────── Scrollbar                      │
+└─────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -128,15 +129,45 @@ Zoom-Bereich: 10 px/s (Überblick) bis 40960 px/s (Sample-genaue Ansicht).
 - Part-Start erscheint als **grüne** Linie (mit Name)
 - Setzt gleichzeitig einen Takt-Marker (P = B + Part-Name)
 
+**F — Fragment-Start:**
+- Drückt man **F** → Dialog fragt nach der Takt-Nummer, ab der gezählt werden soll
+- Fragment-Start erscheint als **weiße, breitere** Linie mit Label `→T25` (= "ab jetzt Takt 25")
+- Alle nachfolgenden B-Marker zählen ab dieser Nummer weiter
+- Verwenden wenn der Song innerhalb der Aufnahme mehrfach gespielt wurde (jedes Mal von einer anderen Stelle)
+
 **U — Undo:**
 - Entfernt den zuletzt gesetzten Marker (rückwärts durch die Liste)
 
 **Rechtsklick im ANNOT-Strip:**
 - Löscht den Marker, der der Klickposition am nächsten liegt (max. 1 Sekunde Abstand)
 
-### Aufnahme beginnt nicht bei Takt 1
+### Songs, die mehrfach (ab unterschiedlichen Stellen) gespielt wurden
 
-Wenn die Probe z.B. beim Chorus (Takt 25) gestartet wurde:
+Typischer Probenablauf: Ein Song wird 3× gespielt — einmal komplett, dann ab dem Bridge, dann nochmal der Chorus. Das ergibt **3 Fragmente** innerhalb desselben Song-Segments.
+
+**Schritt 1: Fragmente automatisch erkennen**
+
+1. Song im Dropdown auswählen
+2. **"Fragmente"**-Button klicken → App analysiert alle 16 Instrumenten-Kanäle auf Stille-Lücken (≥ 1,5 Sekunden)
+3. Ergebnis in der Statuszeile: `3 Fragmente erkannt — F1: 0:00–1:45 | F2: 1:52–3:10 | F3: 3:18–4:30`
+4. Im ANNOT-Strip erscheinen **violette** vertikale Linien mit `F2`, `F3` … als Orientierungshilfe
+
+**Schritt 2: Fragment-Start-Marker setzen**
+
+An jeder Fragmentgrenze (wo der Song von vorne/von einer anderen Stelle startet):
+
+1. Cursor an die Stelle fahren, wo das neue Fragment beginnt (Klick auf Timeline oder Wiedergabe)
+2. **F** drücken → Dialog: "Takt-Nummer ab der gezählt wird:" → z.B. `25` eingeben
+3. Weißer `→T25`-Marker erscheint
+4. Danach mit **B** normal weiter-annotieren — Zählung beginnt bei 25, 26, 27 …
+
+**Schritt 3: Erstes Fragment**
+
+Das erste Fragment nutzt das globale "ab Takt"-Feld (wie gewohnt). Für alle weiteren Fragmente die **F**-Taste verwenden.
+
+### Aufnahme beginnt nicht bei Takt 1 (ganzer Song)
+
+Wenn die gesamte Aufnahme beim Chorus (Takt 25) gestartet wurde (= nur ein Fragment):
 
 1. **"DB-Parts"**-Button klicken → Liste aller Parts aus `reference.db`
    Zeigt z.B.: `T 25–32  (8 Takte)   Chorus`
@@ -236,6 +267,8 @@ live/data/recordings/
 ```
 
 ### Annotation JSON-Format
+
+**Einfaches Beispiel (ein Fragment, komplett ab Takt 1):**
 ```json
 {
   "song_id_XYZ": {
@@ -252,9 +285,30 @@ live/data/recordings/
 }
 ```
 
+**Beispiel mit mehreren Fragmenten (F1 ab T1, F2 ab T25, F3 ab T17):**
+```json
+{
+  "song_id_XYZ": {
+    "song_id": "song_id_XYZ",
+    "song_name": "Animal",
+    "segment_start_t": 387.4,
+    "start_bar_num": 1,
+    "markers": [
+      {"t": 0.0,   "bar_num":  1, "part_name": "Intro"},
+      {"t": 1.832, "bar_num":  2, "part_name": ""},
+      {"t": 110.4, "bar_num": 25, "part_name": "Chorus", "restart_bar_num": 25},
+      {"t": 112.2, "bar_num": 26, "part_name": ""},
+      {"t": 200.0, "bar_num": 17, "part_name": "Bridge", "restart_bar_num": 17},
+      {"t": 201.8, "bar_num": 18, "part_name": ""}
+    ]
+  }
+}
+```
+
 - `segment_start_t`: WAV-Offset in Sekunden (wann fängt dieser Song in der Aufnahme an)
-- `start_bar_num`: Erster Takt = welche DB-Taktnummer
+- `start_bar_num`: Erster Takt des **ersten Fragments** = welche DB-Taktnummer
 - `t`: Sekunden **relativ zum Segment-Start** (nicht zum WAV-Anfang)
+- `restart_bar_num` *(optional)*: Fragment-Start-Marker — setzt die Takt-Zählung hier zurück
 
 ### WAV direkt abhören (ohne App, für Diagnose)
 ```bash

@@ -312,12 +312,122 @@ lighting.ai/live/
 ├── start-live.sh                  # Startskript
 ├── server/
 │   ├── main.py                    # FastAPI Backend
-│   └── qlc_osc.py                # QLC+ OSC-Steuerung
+│   ├── qlc_osc.py                # QLC+ OSC-Steuerung
+│   └── audio/
+│       ├── reference_db.py        # SQLite-Wrapper für Takt-Feature-Daten
+│       ├── fingerprint.py         # Feature-Extraktion (chroma, MFCC, onset, RMS)
+│       ├── recording_importer.py  # WAV → Features → reference.db (inkrementell)
+│       └── snippet_importer.py    # Audio-Snippet → reference.db
 ├── ui/
 │   ├── index.html                 # Live-UI für iPad
 │   └── config.html                # Konfigurations-UI
-└── data/                          # Lokale Daten
+├── rehearsal_review/              # Probenaufnahme-Nachbereitung (PyQt6 Desktop-App)
+│   ├── start.sh                   # Startskript (venv /opt/lighting-venv)
+│   ├── main.py                    # Entry Point
+│   ├── mainwindow.py              # Hauptfenster
+│   ├── timeline.py                # Timeline-Widget
+│   ├── player.py                  # Audio-Playback (sounddevice)
+│   ├── session.py                 # Session-Datenmodell (JSONL → SongSegments)
+│   ├── peaks.py                   # Waveform-Peak-Extraktion (QThread)
+│   ├── overview.py                # Minimap-Widget (volle Session)
+│   ├── annotation.py             # Annotation-Datenmodell + JSON-I/O
+│   └── fragment_detector.py      # Stille-basierte Fragment-Erkennung (chunked RMS)
+└── data/
+    ├── reference.db               # SQLite: songs, bars, feature_vectors
+    └── recordings/                # 18-Kanal WAV + JSONL Event-Logs
+        └── YYYY-MM-DD_HHmmss_*.{wav,jsonl}
 ```
+
+-----
+
+## Rehearsal Post-Preparation App (Live-App-Sessions)
+
+### Was ist die Rehearsal App?
+
+Eine PyQt6 Desktop-App für den Linux Mint Steuer-Laptop, die:
+
+- Probenaufnahmen (18-Kanal WAV, 48 kHz) abhörbar macht (Solo, Mute, Zoom)
+- Takt- und Part-Grenzen manuell annotieren lässt (B / P / F / U Shortcuts)
+- Songs automatisch in Fragmente unterteilt (Stille-Erkennung auf 16 Kanälen)
+- Per-Fragment `restart_bar_num` erlaubt unterschiedliche Takt-Offsets pro Spielanlauf
+- Annotierte Takte als Audio-Features in die `reference.db` importiert
+- Den HMM-Taktdetektor mit Echtdaten trainiert (inkrementelles Averaging)
+
+### Starten
+
+```bash
+cd /home/thepact/git/lighting.ai_neu/live/rehearsal_review
+./start.sh [optionaler/pfad/zur/session.jsonl]
+```
+
+venv: `/opt/lighting-venv` (PyQt6, sounddevice, soundfile, numpy, librosa)
+
+### Wichtige Implementierungsdetails
+
+#### Audio-Playback
+
+- **sounddevice MUSS `device="pulse"` nutzen** — direktes ALSA ohne PulseAudio verursacht zufällige Knackser ("Furz"-Geräusche)
+- Aktuell: `sd.play(data, sr, device="pulse", blocksize=4096)` in `player.py`
+- WAV-Dateien: 18 Kanäle, float32, 48 kHz — Kanal 16+17 (0-basiert) = Main L/R
+
+#### Session-Format
+
+- **JSONL-Event-Log**: `{timestamp}_*.jsonl` — Events mit `t` (Sekunden seit Aufnahmestart), `type`, `data`
+- **WAV-Referenz** im `session_start`-Event unter `"wav"`-Key; Fallback: gleicher Name mit `.wav`
+- `session.py:load_session()` parst JSONL → `Session` mit `SongSegment`-Liste
+
+#### Annotations-System
+
+- **Datei**: `{session_stem}_annotations.json` neben dem JSONL
+- **`SongAnnotation`**: `song_id`, `song_name`, `segment_start_t` (WAV-Offset), `start_bar_num` (Offset wenn Aufnahme nicht bei Takt 1 beginnt), `markers: list[BarMarker]`
+- **`BarMarker`**: `t` (Sekunden relativ zum Segment-Start), `bar_num` (auto), `part_name` (nicht leer = Part-Start), `restart_bar_num` (nicht None = Fragment-Start, setzt Zähler zurück)
+- `_renumber()` nummeriert Marker ab `start_bar_num`; bei `restart_bar_num != None` wird der Zähler auf diesen Wert gesetzt
+- `add_marker()` hält Liste sortiert nach `t`; akzeptiert optionales `restart_bar_num`
+- Fragment-Erkennung: `fragment_detector.py` — chunked RMS-Analyse über alle 16 Instrumenten-Kanäle, Stille ≥ 1,5 s → Split
+
+#### Timeline-Layout (Konstanten in `timeline.py`)
+
+```
+RULER_H  = 28    # Zeitlineal oben
+EVENTS_H = 26    # Beat/Position-Events-Streifen
+ANNOT_H  = 32    # Takt-Annotations-Streifen
+LABEL_W  = 196   # Sticky-Label-Spalte links
+```
+
+ANNOT-Strip Marker-Farben:
+- **amber** (#f0a030): normaler Takt-Marker
+- **grün** (#00dc82): Part-Start-Marker
+- **weiß** (#ffffff, 2px): Fragment-Start-Marker (`restart_bar_num` gesetzt), Label `→T{n}`
+- **violett** (#a78bfa): auto-erkannte Fragmentgrenze aus `fragment_detector.py` (nur visuell, kein BarMarker)
+
+Annotation-Strip zeigt amber Oberkante + lila Hintergrund wenn Modus aktiv.
+"Annotieren"-Button ist grün/invertiert wenn aktiv (`:checked` CSS).
+
+#### reference.db Schema
+
+```sql
+songs          (song_id PK, name, bpm, total_bars)
+bars           (bar_id PK, song_id FK, bar_num, part_name, audio_path)
+feature_vectors(bar_id PK FK, chroma BLOB, mfcc BLOB, onset BLOB, rms REAL, sample_count INT)
+probe_events   (id, session_id, wav_offset, song_id, bar_num, part_name, confidence, ...)
+```
+
+- `get_parts_for_song(song_id)` → Liste von `{part_name, first_bar, last_bar, bar_count}` — nützlich um `start_bar_num` zu setzen
+- Inkrementelles Averaging: `new_mean = (old × n + new) / (n+1)` via `sample_count`
+- Schema-Migration: `recording_importer.py` legt `sample_count`-Spalte automatisch an falls fehlend
+
+#### Keyboard Shortcuts (Rehearsal App)
+
+| Taste | Funktion |
+|-------|----------|
+| Space | Play / Pause |
+| B | Takt-Marker an Cursor-Position (nur im Annotations-Modus) |
+| P | Part-Start-Marker (fragt nach Name) |
+| F | Fragment-Start-Marker (fragt nach Start-Takt-Nummer) |
+| U | Letzten Marker rückgängig |
+| + / - | Zoom in/out |
+| 0 | Zoom Anpassen |
+| Rechtsklick im ANNOT-Strip | Nächsten Marker löschen |
 
 ### Tech Stack (Live-App)
 

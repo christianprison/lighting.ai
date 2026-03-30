@@ -248,6 +248,7 @@ class MainWindow(QMainWindow):
 
         # Fragment detection results for the active segment
         self._detected_fragments: list = []
+        self._scan_window_count: int = 0   # windows accumulated so far (for t offset)
 
         self._player = AudioPlayer(self)
         self._player.position_changed.connect(self._on_position)
@@ -561,7 +562,9 @@ class MainWindow(QMainWindow):
 
         # Clear fragment detection results from previous song
         self._detected_fragments = []
+        self._scan_window_count = 0
         self._timeline.set_fragment_boundaries([])
+        self._timeline.clear_scan_progress()
 
         # Show existing annotations for this song
         ann = self._annotations.get(seg.song_id)
@@ -1081,12 +1084,27 @@ class MainWindow(QMainWindow):
         ch_indices = list(range(min(16, n_ch)))
 
         self._detect_frags_act.setEnabled(False)
+        self._scan_window_count = 0
+        self._timeline.clear_scan_progress()
         self._status.showMessage(
             f'Fragment-Erkennung läuft: "{seg.song_name}" …'
         )
 
         start_t = seg.start_t
         end_t   = seg.end_t
+
+        def _progress(scan_t: float, chunk_rms: list[float]) -> None:
+            """Called from worker thread after each audio chunk."""
+            RMS_THRESH = 0.005
+            offset = self._scan_window_count * 0.05
+            windows = [
+                (offset + i * 0.05, rms >= RMS_THRESH)
+                for i, rms in enumerate(chunk_rms)
+            ]
+            self._scan_window_count += len(chunk_rms)
+            QTimer.singleShot(
+                0, lambda w=windows, t=scan_t: self._timeline.update_scan_progress(t, w)
+            )
 
         def _run() -> None:
             try:
@@ -1102,6 +1120,7 @@ class MainWindow(QMainWindow):
                     seg_end_t=end_t,
                     sample_rate=sr,
                     ch_indices=ch_indices,
+                    progress_callback=_progress,
                 )
                 QTimer.singleShot(0, lambda: self._on_fragments_done(frags))
             except Exception as exc:

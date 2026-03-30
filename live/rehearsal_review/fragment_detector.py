@@ -21,7 +21,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
+from typing import Callable, Optional
 
 import numpy as np
 import soundfile as sf
@@ -61,7 +61,14 @@ def detect_fragments(
     min_silence_sec: float = 1.5,
     min_fragment_sec: float = 3.0,
     read_chunk_sec: float = 10.0,
+    progress_callback: Optional[Callable[[float, list[float]], None]] = None,
 ) -> list[Fragment]:
+    """``progress_callback(scan_t, rms_values)`` is called after each read chunk.
+
+    *scan_t* is the end-time of the processed audio (seconds relative to
+    segment start). *rms_values* is the list of per-window max-RMS values
+    computed in this chunk, in order.  Use this to show live progress in the UI.
+    """
     """Detect song fragments by finding silence gaps across all given channels.
 
     The algorithm:
@@ -133,14 +140,21 @@ def detect_fragments(
 
             # Compute RMS for each full window
             n_full = data.shape[0] // win_samples
+            chunk_rms: list[float] = []
             for i in range(n_full):
                 win = data[i * win_samples:(i + 1) * win_samples]
                 per_ch_rms = np.sqrt(np.mean(win ** 2, axis=0))
-                rms_values.append(float(per_ch_rms.max()))
+                chunk_rms.append(float(per_ch_rms.max()))
+            rms_values.extend(chunk_rms)
 
             # Keep incomplete trailing samples for next iteration
             tail_start = n_full * win_samples
             leftover = data[tail_start:] if tail_start < data.shape[0] else None
+
+            # Report progress to caller
+            if progress_callback is not None and chunk_rms:
+                scan_t = len(rms_values) * rms_window_sec
+                progress_callback(scan_t, chunk_rms)
 
     if not rms_values:
         seg_dur = seg_end_t - seg_start_t

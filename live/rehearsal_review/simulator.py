@@ -124,8 +124,39 @@ class SimulatorWorker(QThread):
         from server.audio.hmm import AudioHMM
         from server.audio.reference_db import ReferenceDB
 
-        # BeatDetector — identische Konfiguration wie AudioProcess
-        beat_det = BeatDetector(sample_rate=self._sr, initial_bpm=self._bpm)
+        # ── WAV-Datei vorab prüfen ────────────────────────────────────────────
+        with sf.SoundFile(self._wav_path) as f:
+            wav_sr     = f.samplerate
+            wav_frames = f.frames
+            wav_ch     = f.channels
+
+        # Tatsächliche Sample-Rate der WAV-Datei verwenden (statt Session-Wert)
+        # damit Seek-Position und Block-Zeitstempel stimmen.
+        sr = wav_sr
+
+        # Lese-Parameter (mit echter SR berechnet)
+        start_sample = int(self._seg_start_t * sr)
+        end_sample   = int(self._seg_end_t   * sr)
+        # Sicherstellen dass end_sample in Grenzen liegt
+        end_sample   = min(end_sample, wav_frames)
+        start_sample = min(start_sample, wav_frames)
+
+        if start_sample >= end_sample:
+            self.error.emit(
+                f"Kein Audio zu verarbeiten:\n"
+                f"  WAV: {wav_frames} Frames @ {wav_sr} Hz "
+                f"({wav_frames/wav_sr:.1f} s, {wav_ch} Kanäle)\n"
+                f"  Segment: {self._seg_start_t:.1f} s – {self._seg_end_t:.1f} s\n"
+                f"  → start_sample={start_sample} ≥ end_sample={end_sample}\n\n"
+                f"Prüfe ob die WAV-Datei vollständig ist und das Segment "
+                f"nicht über das Dateiende hinausragt."
+            )
+            return
+
+        total_frames = end_sample - start_sample
+
+        # BeatDetector — mit echter SR der WAV kalibrieren
+        beat_det = BeatDetector(sample_rate=sr, initial_bpm=self._bpm)
 
         # HMM nur wenn reference.db vorhanden
         hmm: Optional[AudioHMM] = None
@@ -133,13 +164,7 @@ class SimulatorWorker(QThread):
             ref_db = ReferenceDB(self._ref_db_path)
             hmm = AudioHMM(ref_db)
             hmm.load_all_states()
-            # Rehearsal Mode: Suchraum auf diesen Song einschränken
             hmm.set_active_song(self._song_id)
-
-        # Lese-Parameter
-        start_sample = int(self._seg_start_t * self._sr)
-        end_sample   = int(self._seg_end_t   * self._sr)
-        total_frames = end_sample - start_sample
 
         # Ring-Buffer für Stereo-Mix (wie AudioProcess)
         ring_buffer:    list[np.ndarray] = []
@@ -151,8 +176,8 @@ class SimulatorWorker(QThread):
         blocks_done = 0
 
         with sf.SoundFile(self._wav_path) as f:
-            f.seek(min(start_sample, f.frames))
-            remaining = min(end_sample, f.frames) - f.tell()
+            f.seek(start_sample)
+            remaining = end_sample - f.tell()
 
             while remaining > 0 and not self.isInterruptionRequested():
                 to_read = min(BLOCK_SIZE, remaining)
@@ -161,24 +186,23 @@ class SimulatorWorker(QThread):
                     break
                 remaining -= block.shape[0]
 
-                # Block-Zeit relativ zum Segment-Start
-                t_block = blocks_done * BLOCK_SIZE / self._sr
+                # Block-Zeit relativ zum Simulationsstart (immer ab 0)
+                t_block = blocks_done * BLOCK_SIZE / sr
 
-                # Kanal-Anzahl angleichen (falls WAV weniger Kanäle hat)
-                if block.shape[1] < self._n_ch:
-                    pad = np.zeros((block.shape[0], self._n_ch - block.shape[1]),
+                # Kanal-Anzahl auf erwartete Kanalzahl angleichen
+                if block.shape[1] < wav_ch:
+                    pad = np.zeros((block.shape[0], wav_ch - block.shape[1]),
                                    dtype=np.float32)
                     block = np.concatenate([block, pad], axis=1)
 
                 # ── Pfad 1: Beat-Detection ────────────────────────────────────
                 beat_events, snare_onset = beat_det.process_block(block)
-                t_block_mid = t_block + (block.shape[0] / 2) / self._sr
+                t_block_mid = t_block + (block.shape[0] / 2) / sr
                 if snare_onset:
                     self.snare.emit(t_block_mid)
                 for ev in beat_events:
-                    t_ev = t_block_mid
                     sim_beat = SimBeat(
-                        t=t_ev,
+                        t=t_block_mid,
                         beat_num=ev.beat_num,
                         bpm=ev.bpm,
                         is_downbeat=ev.is_downbeat,
@@ -194,7 +218,7 @@ class SimulatorWorker(QThread):
                 if block.shape[1] > CHANNEL_MIX_R:
                     stereo = block[:, [CHANNEL_MIX_L, CHANNEL_MIX_R]]
                 else:
-                    stereo = block[:, :2]
+                    stereo = block[:, :min(2, block.shape[1])]
                 ring_buffer.append(stereo)
                 if len(ring_buffer) > RING_MAX_BLOCKS:
                     ring_buffer.pop(0)
@@ -204,11 +228,11 @@ class SimulatorWorker(QThread):
                     snapshot_pending = False
                     audio = np.concatenate(ring_buffer, axis=0)
                     mono  = np.mean(audio, axis=1).astype(np.float32)
-                    if len(mono) >= int(self._sr * SNAPSHOT_MIN_SEC):
+                    if len(mono) >= int(sr * SNAPSHOT_MIN_SEC):
                         try:
                             from server.audio.fingerprint import extract_features_from_array
                             chroma, mfcc, onset, _ = extract_features_from_array(
-                                mono, sr=self._sr, bpm=beat_det.bpm or self._bpm
+                                mono, sr=sr, bpm=beat_det.bpm or self._bpm
                             )
                             state = hmm.update(chroma, mfcc, onset)
                             if state.song_id:

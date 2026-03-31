@@ -27,6 +27,7 @@ from annotation import (
     load_annotations, save_annotations,
 )
 from simulator import SimulatorWorker, SimBeat, SimPosition
+from sim_monitor import SimMonitorDialog
 
 _APP_STYLE = """
 QMainWindow, QWidget          { background:#08090d; color:#eef0f6; }
@@ -348,6 +349,7 @@ class MainWindow(QMainWindow):
 
         # Simulation
         self._sim_worker: Optional[SimulatorWorker] = None
+        self._sim_monitor: Optional[SimMonitorDialog] = None
 
         self._player = AudioPlayer(self)
         self._player.position_changed.connect(self._on_position)
@@ -1380,11 +1382,24 @@ class MainWindow(QMainWindow):
                 ref_db_path = candidate
 
         self._timeline.clear_sim_events()
+        self._timeline.set_hide_jsonl_events(True)
         self._sim_act.setEnabled(False)
         self._sim_clear_act.setEnabled(False)
         self._status.showMessage(
             f'Simulation läuft: "{seg.song_name}" — BPM {bpm:.0f} …'
         )
+
+        # Open / reset the monitor dialog
+        if self._sim_monitor is None or not self._sim_monitor.isVisible():
+            self._sim_monitor = SimMonitorDialog(
+                initial_bpm=bpm,
+                song_name=seg.song_name,
+                parent=self,
+            )
+        else:
+            self._sim_monitor.reset(bpm, seg.song_name)
+        self._sim_monitor.show()
+        self._sim_monitor.showMaximized()
 
         worker = SimulatorWorker(
             wav_path=self._session.wav_path,
@@ -1398,15 +1413,17 @@ class MainWindow(QMainWindow):
             parent=self,
         )
         worker.beat.connect(self._on_sim_beat)
+        worker.snare.connect(self._on_sim_snare)
         worker.position.connect(self._on_sim_position)
-        worker.progress.connect(
-            lambda v: self._status.showMessage(
-                f'Simulation: "{seg.song_name}" — {v:.0%}', 0
-            )
-        )
+        worker.progress.connect(self._on_sim_progress)
         worker.finished.connect(self._on_sim_finished)
         worker.error.connect(self._on_sim_error)
         self._sim_worker = worker
+
+        # Start audio playback from segment start
+        self._player.seek(seg.start_t)
+        self._player.play()
+
         worker.start()
 
     def _clear_simulation(self) -> None:
@@ -1414,20 +1431,41 @@ class MainWindow(QMainWindow):
             self._sim_worker.requestInterruption()
             self._sim_worker = None
         self._timeline.clear_sim_events()
+        self._timeline.set_hide_jsonl_events(False)
         self._sim_clear_act.setEnabled(False)
+        if self._sim_monitor is not None:
+            self._sim_monitor.hide()
+        self._player.stop()
         self._status.showMessage("Simulations-Ergebnisse gelöscht", 3000)
 
     def _on_sim_beat(self, beat: SimBeat) -> None:
         self._timeline.add_sim_beat(beat.t, beat.is_downbeat)
+        if self._sim_monitor is not None:
+            self._sim_monitor.add_beat(beat)
+
+    def _on_sim_snare(self, t: float) -> None:
+        if self._sim_monitor is not None:
+            self._sim_monitor.add_snare(t)
 
     def _on_sim_position(self, pos: SimPosition) -> None:
         self._timeline.add_sim_position(
             pos.t, pos.bar_num, pos.part_name, pos.confidence, pos.is_frozen
         )
+        if self._sim_monitor is not None:
+            self._sim_monitor.add_position(pos)
+
+    def _on_sim_progress(self, v: float) -> None:
+        seg = self._current_seg
+        name = seg.song_name if seg else "…"
+        self._status.showMessage(f'Simulation: "{name}" — {v:.0%}', 0)
+        if self._sim_monitor is not None:
+            self._sim_monitor.set_status(f'{name}  —  {v:.0%}')
 
     def _on_sim_finished(self, beats: list, positions: list) -> None:
         self._sim_act.setEnabled(True)
         self._sim_clear_act.setEnabled(True)
+        self._timeline.set_hide_jsonl_events(False)
+        self._player.stop()
 
         n_beats = sum(1 for b in beats if b.is_downbeat)
         n_pos   = len(positions)
@@ -1446,14 +1484,18 @@ class MainWindow(QMainWindow):
         else:
             match_info = ""
 
-        self._status.showMessage(
+        summary = (
             f"Simulation abgeschlossen: {n_beats} Downbeats, "
-            f"{n_pos} Positionsschätzungen{match_info}",
-            12000,
+            f"{n_pos} Positionsschätzungen{match_info}"
         )
+        self._status.showMessage(summary, 12000)
+        if self._sim_monitor is not None:
+            self._sim_monitor.set_status(summary)
 
     def _on_sim_error(self, err: str) -> None:
         self._sim_act.setEnabled(True)
+        self._timeline.set_hide_jsonl_events(False)
+        self._player.stop()
         self._status.showMessage(f"Simulation fehlgeschlagen: {err}", 8000)
         QMessageBox.critical(self, "Simulation", f"Fehler:\n{err}")
 

@@ -214,6 +214,10 @@ class TimelineWidget(QWidget):
         self._sim_beats: list[tuple[float, bool]] = []
         self._sim_positions: list[tuple[float, int, str, float, bool]] = []
 
+        # When True, JSONL events (beat/snare/position from recording) are not drawn.
+        # Set during simulation so sim results take centre stage.
+        self._hide_jsonl_events: bool = False
+
         self._hbar = QScrollBar(Qt.Orientation.Horizontal, self)
         self._hbar.valueChanged.connect(self._on_scroll)
 
@@ -326,6 +330,11 @@ class TimelineWidget(QWidget):
         """Löscht alle Simulations-Ergebnisse."""
         self._sim_beats = []
         self._sim_positions = []
+        self.update()
+
+    def set_hide_jsonl_events(self, hide: bool) -> None:
+        """Blendet JSONL-Events (Beat/Snare/Position aus der Aufnahme) aus/ein."""
+        self._hide_jsonl_events = hide
         self.update()
 
     # ── Solo / Mute ───────────────────────────────────────────────────────────
@@ -773,6 +782,9 @@ class TimelineWidget(QWidget):
         seg = self.segment
         pps = self._pps
         ox = self._scroll_x
+
+        if self._hide_jsonl_events:
+            return
 
         for ev in seg.events:
             ex = LABEL_W + int((ev.t - seg.start_t) * pps) - ox

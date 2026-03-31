@@ -51,6 +51,7 @@ class SimBeat:
     bpm: float
     is_downbeat: bool
     is_fill: bool
+    trigger: str = "timer"   # "kick" | "overhead" | "timer"
 
 
 @dataclass
@@ -62,6 +63,7 @@ class SimPosition:
     part_name: str
     confidence: float
     is_frozen: bool
+    is_part_consensus: bool = False
 
 
 # ---------------------------------------------------------------------------
@@ -72,6 +74,7 @@ class SimulatorWorker(QThread):
     """QThread der die Live-Erkennungspipeline offline auf einer WAV-Datei ausführt."""
 
     beat     = pyqtSignal(object)        # SimBeat
+    snare    = pyqtSignal(float)         # t (Snare-Onset)
     position = pyqtSignal(object)        # SimPosition
     progress = pyqtSignal(float)         # 0.0–1.0
     finished = pyqtSignal(list, list)    # beats: list[SimBeat], positions: list[SimPosition]
@@ -168,15 +171,19 @@ class SimulatorWorker(QThread):
                     block = np.concatenate([block, pad], axis=1)
 
                 # ── Pfad 1: Beat-Detection ────────────────────────────────────
-                beat_events, _snare = beat_det.process_block(block)
+                beat_events, snare_onset = beat_det.process_block(block)
+                t_block_mid = t_block + (block.shape[0] / 2) / self._sr
+                if snare_onset:
+                    self.snare.emit(t_block_mid)
                 for ev in beat_events:
-                    t_ev = t_block + (BLOCK_SIZE / 2) / self._sr  # Mitte des Blocks
+                    t_ev = t_block_mid
                     sim_beat = SimBeat(
                         t=t_ev,
                         beat_num=ev.beat_num,
                         bpm=ev.bpm,
                         is_downbeat=ev.is_downbeat,
                         is_fill=ev.is_fill,
+                        trigger=ev.trigger,
                     )
                     beats.append(sim_beat)
                     self.beat.emit(sim_beat)
@@ -212,6 +219,7 @@ class SimulatorWorker(QThread):
                                     part_name=state.part_name,
                                     confidence=state.confidence,
                                     is_frozen=state.is_frozen,
+                                    is_part_consensus=state.is_part_consensus,
                                 )
                                 positions.append(sim_pos)
                                 self.position.emit(sim_pos)

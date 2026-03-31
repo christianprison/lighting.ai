@@ -27,6 +27,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
+import time
+
 import numpy as np
 from PyQt6.QtCore import QThread, pyqtSignal
 
@@ -75,6 +77,7 @@ class SimulatorWorker(QThread):
 
     beat     = pyqtSignal(object)        # SimBeat
     snare    = pyqtSignal(float)         # t (Snare-Onset)
+    rms      = pyqtSignal(float, float)  # t, rms_value (Summensignal)
     position = pyqtSignal(object)        # SimPosition
     progress = pyqtSignal(float)         # 0.0–1.0
     finished = pyqtSignal(list, list)    # beats: list[SimBeat], positions: list[SimPosition]
@@ -188,6 +191,7 @@ class SimulatorWorker(QThread):
         positions: list[SimPosition] = []
 
         blocks_done = 0
+        sim_wall_start: float = 0.0   # set just before first block is processed
 
         with sf.SoundFile(self._wav_path) as f:
             f.seek(start_sample)
@@ -200,6 +204,9 @@ class SimulatorWorker(QThread):
             )
 
             while remaining > 0 and not self.isInterruptionRequested():
+                if blocks_done == 0:
+                    sim_wall_start = time.monotonic()
+
                 to_read = min(BLOCK_SIZE, remaining)
                 block = f.read(to_read, dtype="float32", always_2d=True)
                 if block.shape[0] == 0:
@@ -243,6 +250,10 @@ class SimulatorWorker(QThread):
                 if len(ring_buffer) > RING_MAX_BLOCKS:
                     ring_buffer.pop(0)
 
+                # ── Summensignal RMS emittieren ───────────────────────────────
+                rms_val = float(np.sqrt(np.mean(stereo ** 2)))
+                self.rms.emit(t_block_mid, rms_val)
+
                 # ── HMM-Snapshot auf Downbeat ─────────────────────────────────
                 if snapshot_pending and hmm is not None:
                     snapshot_pending = False
@@ -271,6 +282,14 @@ class SimulatorWorker(QThread):
                             pass  # Feature-Extraktion fehlgeschlagen → ignorieren
 
                 blocks_done += 1
+
+                # ── Echtzeit-Drosselung: Simulation an Audio-Playback angleichen
+                sim_t        = blocks_done * BLOCK_SIZE / sr
+                wall_elapsed = time.monotonic() - sim_wall_start
+                sleep_needed = sim_t - wall_elapsed - 0.003   # 3 ms Puffer
+                if sleep_needed > 0.001:
+                    time.sleep(sleep_needed)
+
                 if blocks_done % 100 == 0:
                     print(
                         f"[SIM] Block {blocks_done}: {len(beats)} Beats bisher  "

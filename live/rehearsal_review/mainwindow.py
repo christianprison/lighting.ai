@@ -1423,6 +1423,7 @@ class MainWindow(QMainWindow):
         )
         worker.beat.connect(self._on_sim_beat)
         worker.snare.connect(self._on_sim_snare)
+        worker.rms.connect(self._on_sim_rms)
         worker.position.connect(self._on_sim_position)
         worker.progress.connect(self._on_sim_progress)
         worker.finished.connect(self._on_sim_finished)
@@ -1458,6 +1459,10 @@ class MainWindow(QMainWindow):
     def _on_sim_snare(self, t: float) -> None:
         if self._sim_monitor is not None:
             self._sim_monitor.add_snare(t)
+
+    def _on_sim_rms(self, t: float, rms_val: float) -> None:
+        if self._sim_monitor is not None:
+            self._sim_monitor.add_rms(t, rms_val)
 
     def _on_sim_position(self, pos: SimPosition) -> None:
         self._timeline.add_sim_position(

@@ -330,8 +330,9 @@ lighting.ai/live/
 │   ├── session.py                 # Session-Datenmodell (JSONL → SongSegments)
 │   ├── peaks.py                   # Waveform-Peak-Extraktion (QThread)
 │   ├── overview.py                # Minimap-Widget (volle Session)
-│   ├── annotation.py             # Annotation-Datenmodell + JSON-I/O
-│   └── fragment_detector.py      # Stille-basierte Fragment-Erkennung (chunked RMS)
+│   ├── annotation.py              # Annotation-Datenmodell + JSON-I/O
+│   ├── fragment_detector.py       # Stille-basierte Fragment-Erkennung (chunked RMS)
+│   └── simulator.py               # Offline-Simulation der Live-Erkennungspipeline
 └── data/
     ├── reference.db               # SQLite: songs, bars, feature_vectors
     └── recordings/                # 18-Kanal WAV + JSONL Event-Logs
@@ -348,10 +349,13 @@ Eine PyQt6 Desktop-App für den Linux Mint Steuer-Laptop, die:
 
 - Probenaufnahmen (18-Kanal WAV, 48 kHz) abhörbar macht (Solo, Mute, Zoom)
 - Takt- und Part-Grenzen manuell annotieren lässt (B / P / F / U Shortcuts)
-- Songs automatisch in Fragmente unterteilt (Stille-Erkennung auf 16 Kanälen)
+- Bar-Marker beim Verlassen des Annotationsmodus auf den nächsten Beat/Snare-Event snapped (Auto-Quantisierung, ±0,25 s)
+- Part-Namen beim P-Dialog aus `reference.db` vorschlägt (Klappliste, Vorauswahl nach Takt-Nähe)
+- Songs automatisch in Fragmente unterteilt (Stille-Erkennung auf 16 Kanälen) mit Geplänkel-Filter (Drum-Aktivität)
 - Per-Fragment `restart_bar_num` erlaubt unterschiedliche Takt-Offsets pro Spielanlauf
 - Annotierte Takte als Audio-Features in die `reference.db` importiert
 - Den HMM-Taktdetektor mit Echtdaten trainiert (inkrementelles Averaging)
+- Die Live-Erkennungspipeline offline auf Probenaufnahmen simuliert (BeatDetector + HMM) zum Algorithmus-Tuning
 
 ### Starten
 
@@ -380,10 +384,12 @@ venv: `/opt/lighting-venv` (PyQt6, sounddevice, soundfile, numpy, librosa)
 
 - **Datei**: `{session_stem}_annotations.json` neben dem JSONL
 - **`SongAnnotation`**: `song_id`, `song_name`, `segment_start_t` (WAV-Offset), `start_bar_num` (Offset wenn Aufnahme nicht bei Takt 1 beginnt), `markers: list[BarMarker]`
-- **`BarMarker`**: `t` (Sekunden relativ zum Segment-Start), `bar_num` (auto), `part_name` (nicht leer = Part-Start), `restart_bar_num` (nicht None = Fragment-Start, setzt Zähler zurück)
+- **`BarMarker`**: `t` (Sekunden relativ zum Segment-Start), `bar_num` (auto), `part_name` (nicht leer = Part-Start), `restart_bar_num` (nicht None = Fragment-Start, setzt Zähler zurück), `quantize_failed` (transient, nicht serialisiert — True wenn kein Beat in ±0,25 s gefunden)
 - `_renumber()` nummeriert Marker ab `start_bar_num`; bei `restart_bar_num != None` wird der Zähler auf diesen Wert gesetzt
 - `add_marker()` hält Liste sortiert nach `t`; akzeptiert optionales `restart_bar_num`
-- Fragment-Erkennung: `fragment_detector.py` — chunked RMS-Analyse über alle 16 Instrumenten-Kanäle, Stille ≥ 1,5 s → Split
+- **Auto-Quantisierung** (`mainwindow._quantize_bar_markers()`): beim Verlassen des Annotationsmodus werden alle Marker auf den nächsten `beat`- oder `snare`-Event aus dem Session-JSONL gesnapped (Fenster ±0,25 s). Marker ohne Treffer bekommen `quantize_failed=True` und erhalten ein rotes `?` in der Timeline.
+- **Part-Dialog** (`_add_part_marker()`): lädt Parts aus `reference.db`, wählt den Part mit dem nächstgelegenen `first_bar` als Default in einer nicht-editierbaren Klappliste vor.
+- **Fragment-Erkennung** (`fragment_detector.py`): chunked RMS-Analyse, Stille ≥ 1,5 s → Split. Geplänkel-Filter: Fragmente mit <10% Drum-Aktivität (CH 8+9) UND <8 s absoluter Drum-Zeit werden verworfen. Parameter: `min_drum_activity=0.10`, `min_drum_active_sec=8.0`. `Fragment.drum_ratio` enthält den gemessenen Anteil.
 
 #### Timeline-Layout (Konstanten in `timeline.py`)
 
@@ -394,11 +400,21 @@ ANNOT_H  = 32    # Takt-Annotations-Streifen
 LABEL_W  = 196   # Sticky-Label-Spalte links
 ```
 
-ANNOT-Strip Marker-Farben:
+ANNOT-Strip Marker-Farben (obere Hälfte, manuelle Annotationen):
 - **amber** (#f0a030): normaler Takt-Marker
 - **grün** (#00dc82): Part-Start-Marker
 - **weiß** (#ffffff, 2px): Fragment-Start-Marker (`restart_bar_num` gesetzt), Label `→T{n}`
+- **rot `?`** (#ff3b5c): `quantize_failed=True` — kein Beat in Reichweite gefunden
 - **violett** (#a78bfa): auto-erkannte Fragmentgrenze aus `fragment_detector.py` (nur visuell, kein BarMarker)
+- **grün/grau Balken** (unten, während Fragmenterkennung): Aktivitätskarte der 50ms-RMS-Fenster; cyan Scan-Kopf-Linie
+
+ANNOT-Strip untere Hälfte (Simulations-Ergebnisse, violett gestrichelt):
+- `~T{n}` Label mit Part-Name = HMM-Positionsschätzung (Konfidenz ≥ 0,45)
+- sehr transparent = eingefroren / Konfidenz unter Schwelle
+
+Events-Strip (violett überlagert):
+- Solide violette Linie = simulierter Downbeat
+- Transparente violette Linie = simulierter Beat
 
 Annotation-Strip zeigt amber Oberkante + lila Hintergrund wenn Modus aktiv.
 "Annotieren"-Button ist grün/invertiert wenn aktiv (`:checked` CSS).
@@ -422,12 +438,24 @@ probe_events   (id, session_id, wav_offset, song_id, bar_num, part_name, confide
 |-------|----------|
 | Space | Play / Pause |
 | B | Takt-Marker an Cursor-Position (nur im Annotations-Modus) |
-| P | Part-Start-Marker (fragt nach Name) |
-| F | Fragment-Start-Marker (fragt nach Start-Takt-Nummer) |
-| U | Letzten Marker rückgängig |
+| P | Part-Start-Marker — Klappliste mit DB-Vorschlag (nur im Annotations-Modus) |
+| F | Fragment-Start-Marker — fragt nach Start-Takt-Nummer (nur im Annotations-Modus) |
+| U | Letzten Marker rückgängig (nur im Annotations-Modus) |
 | + / - | Zoom in/out |
 | 0 | Zoom Anpassen |
 | Rechtsklick im ANNOT-Strip | Nächsten Marker löschen |
+
+#### Simulation (simulator.py)
+
+`SimulatorWorker(QThread)` repliziert `AudioProcess._audio_callback()` + `_process_ring_buffer()` offline:
+- Liest WAV in BLOCK_SIZE=2048-Blöcken
+- Schickt jeden Block durch `BeatDetector.process_block()`
+- Auf jedem Downbeat: `extract_features_from_array()` + `hmm.update()` → `SimPosition`
+- Emittiert `beat(SimBeat)`, `position(SimPosition)`, `progress(float)`, `finished(list, list)`
+- HMM läuft im Rehearsal Mode (Suchraum auf aktuellen Song eingeschränkt: `hmm.set_active_song(song_id)`)
+- BPM wird aus `lighting-ai-db.json` geladen; Fallback: 120 BPM
+- Nach Abschluss: Match-Auswertung gegen manuelle Annotationen (±1 s, bar_num-Vergleich) → Prozent-Score in Statuszeile
+- Toolbar-Buttons: `▶ Simulation` startet, `✕ Sim` löscht Ergebnisse aus Timeline
 
 ### Tech Stack (Live-App)
 

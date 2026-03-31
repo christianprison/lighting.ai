@@ -141,8 +141,20 @@ class SimulatorWorker(QThread):
         end_sample   = min(end_sample, wav_frames)
         start_sample = min(start_sample, wav_frames)
 
+        print(
+            f"[SIM] WAV: {self._wav_path.name}  {wav_sr} Hz  "
+            f"{wav_frames} frames ({wav_frames/wav_sr:.1f}s)  {wav_ch}ch",
+            file=sys.stderr,
+        )
+        print(
+            f"[SIM] Segment: {self._seg_start_t:.2f}s – {self._seg_end_t:.2f}s  "
+            f"→  start_sample={start_sample}  end_sample={end_sample}  "
+            f"remaining={end_sample - start_sample}",
+            file=sys.stderr,
+        )
+
         if start_sample >= end_sample:
-            self.error.emit(
+            msg = (
                 f"Kein Audio zu verarbeiten:\n"
                 f"  WAV: {wav_frames} Frames @ {wav_sr} Hz "
                 f"({wav_frames/wav_sr:.1f} s, {wav_ch} Kanäle)\n"
@@ -151,6 +163,8 @@ class SimulatorWorker(QThread):
                 f"Prüfe ob die WAV-Datei vollständig ist und das Segment "
                 f"nicht über das Dateiende hinausragt."
             )
+            print(f"[SIM] FEHLER: {msg}", file=sys.stderr)
+            self.error.emit(msg)
             return
 
         total_frames = end_sample - start_sample
@@ -177,7 +191,13 @@ class SimulatorWorker(QThread):
 
         with sf.SoundFile(self._wav_path) as f:
             f.seek(start_sample)
-            remaining = end_sample - f.tell()
+            actual_pos = f.tell()
+            remaining = end_sample - actual_pos
+            print(
+                f"[SIM] seek({start_sample}) → tell()={actual_pos}  "
+                f"remaining={remaining}  interrupted={self.isInterruptionRequested()}",
+                file=sys.stderr,
+            )
 
             while remaining > 0 and not self.isInterruptionRequested():
                 to_read = min(BLOCK_SIZE, remaining)
@@ -251,10 +271,22 @@ class SimulatorWorker(QThread):
                             pass  # Feature-Extraktion fehlgeschlagen → ignorieren
 
                 blocks_done += 1
+                if blocks_done % 100 == 0:
+                    print(
+                        f"[SIM] Block {blocks_done}: {len(beats)} Beats bisher  "
+                        f"beat_phase={beat_det._beat_phase:.0f}/{beat_det._beat_period:.0f}",
+                        file=sys.stderr,
+                    )
                 if blocks_done % 50 == 0:
                     self.progress.emit(
                         min(1.0, (blocks_done * BLOCK_SIZE) / max(1, total_frames))
                     )
 
+        print(
+            f"[SIM] Fertig: {blocks_done} Blöcke, {len(beats)} Beats, "
+            f"{len(positions)} Positionen  "
+            f"(interrupted={self.isInterruptionRequested()})",
+            file=sys.stderr,
+        )
         self.progress.emit(1.0)
         self.finished.emit(beats, positions)

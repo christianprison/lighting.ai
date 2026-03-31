@@ -480,8 +480,14 @@ class SimMonitorDialog(QDialog):
     def __init__(self, initial_bpm: float, song_name: str, parent=None) -> None:
         super().__init__(parent)
         self.setWindowTitle(f"Simulation — {song_name}")
-        self.setModal(False)   # non-modal so audio player still works
-        self.setWindowState(Qt.WindowState.WindowMaximized)
+        # Non-modal + Window flag ensures it's a proper top-level window
+        # (not a child widget) even when parent is set.
+        self.setModal(False)
+        self.setWindowFlags(
+            Qt.WindowType.Window |
+            Qt.WindowType.WindowCloseButtonHint |
+            Qt.WindowType.WindowMaximizeButtonHint
+        )
         self.setStyleSheet("""
             QDialog   { background:#08090d; color:#eef0f6; }
             QPushButton { background:#151820; border:1px solid #1e2230;
@@ -564,6 +570,8 @@ class SimMonitorDialog(QDialog):
     def _update_scroll(self) -> None:
         content_w = self._canvas.content_width()
         view_w    = self._canvas.view_width()
+        if view_w <= 0:
+            return   # canvas not yet sized — skip until resizeEvent fires
         max_scroll = max(0, content_w - view_w)
         self._hbar.setMaximum(max_scroll)
         self._hbar.setPageStep(view_w)

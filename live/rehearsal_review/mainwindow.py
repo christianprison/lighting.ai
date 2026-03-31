@@ -1352,6 +1352,7 @@ class MainWindow(QMainWindow):
     def _on_fragment_error(self, err: str) -> None:
         self._detect_frags_act.setEnabled(True)
         self._status.showMessage(f"Fragment-Erkennung fehlgeschlagen: {err}", 8000)
+        QMessageBox.critical(self, "Fragment-Erkennung", f"Fehler:\n{err}")
 
     # ── Simulation ────────────────────────────────────────────────────────────
 
@@ -1381,10 +1382,15 @@ class MainWindow(QMainWindow):
             if candidate.exists():
                 ref_db_path = candidate
 
+        # Use current playhead position as simulation start (relative to seg start)
+        t_in_seg_start = max(0.0, self._player.position_in_segment)
+        sim_start_wav_t = seg.start_t + t_in_seg_start
+
         self._timeline.clear_sim_events()
         self._timeline.set_hide_jsonl_events(True)
         self._sim_act.setEnabled(False)
-        self._sim_clear_act.setEnabled(False)
+        # Keep _sim_clear_act enabled so the user can abort the simulation
+        self._sim_clear_act.setEnabled(True)
         self._status.showMessage(
             f'Simulation läuft: "{seg.song_name}" — BPM {bpm:.0f} …'
         )
@@ -1398,12 +1404,11 @@ class MainWindow(QMainWindow):
             )
         else:
             self._sim_monitor.reset(bpm, seg.song_name)
-        self._sim_monitor.show()
         self._sim_monitor.showMaximized()
 
         worker = SimulatorWorker(
             wav_path=self._session.wav_path,
-            seg_start_t=seg.start_t,
+            seg_start_t=sim_start_wav_t,
             seg_end_t=seg.end_t,
             sample_rate=self._session.sample_rate,
             n_channels=self._session.n_channels,
@@ -1420,11 +1425,13 @@ class MainWindow(QMainWindow):
         worker.error.connect(self._on_sim_error)
         self._sim_worker = worker
 
-        # Start audio playback from segment start
-        self._player.seek(seg.start_t)
+        # Start audio playback from the same position as the simulation
+        self._player.seek(t_in_seg_start)
         self._player.play()
 
-        worker.start()
+        # Delay worker start by one event-loop cycle so the dialog has time
+        # to show and calculate its geometry before the first events arrive.
+        QTimer.singleShot(0, worker.start)
 
     def _clear_simulation(self) -> None:
         if self._sim_worker is not None:
@@ -1432,6 +1439,7 @@ class MainWindow(QMainWindow):
             self._sim_worker = None
         self._timeline.clear_sim_events()
         self._timeline.set_hide_jsonl_events(False)
+        self._sim_act.setEnabled(True)
         self._sim_clear_act.setEnabled(False)
         if self._sim_monitor is not None:
             self._sim_monitor.hide()

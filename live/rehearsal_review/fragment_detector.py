@@ -63,7 +63,8 @@ def detect_fragments(
     min_fragment_sec: float = 3.0,
     read_chunk_sec: float = 10.0,
     drum_ch_indices: Optional[list[int]] = None,
-    min_drum_activity: float = 0.80,
+    min_drum_activity: float = 0.10,
+    min_drum_active_sec: float = 8.0,
     progress_callback: Optional[Callable[[float, list[float]], None]] = None,
 ) -> list[Fragment]:
     """``progress_callback(scan_t, rms_values)`` is called after each read chunk.
@@ -99,12 +100,17 @@ def detect_fragments(
         read_chunk_sec:   Audio read chunk size (seconds). Controls RAM usage.
                           10 s \u00d7 16 ch \u00d7 float32 \u00d7 48 kHz \u2248 30 MB.
         drum_ch_indices:  WAV channel indices for Kick + Snare (default: [8, 9]
-                          = XR18 Kick/Snare). Fragments where the drum channels
-                          are active in fewer than *min_drum_activity* of all
-                          windows are discarded as "Geplänkel".
-        min_drum_activity: Minimum fraction of windows with drum activity for a
-                          fragment to be kept (default: 0.80 = 80 %).
-                          Set to 0.0 to disable the drum-activity filter.
+                          = XR18 Kick/Snare). Fragments that fail BOTH the
+                          ratio and absolute-duration check are discarded as
+                          "Geplänkel" (musicians noodling between takes).
+        min_drum_activity: Minimum fraction of windows with drum activity
+                          (default: 0.10 = 10 %).  Songs typically score
+                          30–80 % even with drum-free intros/outros.
+                          Geplänkel without a drummer scores 0–5 %.
+        min_drum_active_sec: Minimum total seconds of drum activity required
+                          (default: 8.0 s). A fragment passes the filter when
+                          it meets EITHER the ratio OR the absolute threshold.
+                          Set both to 0.0 to disable the Geplänkel filter.
 
     Returns:
         List of Fragment objects sorted by start_t.  If no silence gaps are
@@ -234,18 +240,25 @@ def detect_fragments(
         if frag_end - frag_start < min_fragment_sec:
             continue
 
-        # Drum-Aktivitäts-Ratio für dieses Fragment berechnen
+        # Drum-Aktivität für dieses Fragment berechnen
         win_start = int(frag_start / rms_window_sec)
         win_end   = int(frag_end   / rms_window_sec)
         n_wins    = win_end - win_start
-        if has_drum_chs and n_wins > 0 and min_drum_activity > 0.0:
+        filter_enabled = has_drum_chs and n_wins > 0 and (
+            min_drum_activity > 0.0 or min_drum_active_sec > 0.0
+        )
+        if filter_enabled:
             drum_active = int(np.sum(drum_arr[win_start:win_end] >= silence_thresh))
             ratio = drum_active / n_wins
+            drum_secs = drum_active * rms_window_sec
         else:
-            ratio = 1.0   # keine Drum-Kanäle → Filter deaktiviert
+            ratio = 1.0
+            drum_secs = frag_end - frag_start
 
         frag = Fragment(start_t=frag_start, end_t=frag_end, drum_ratio=ratio)
-        if ratio >= min_drum_activity:
+        # Ein Fragment gilt als echt wenn es den Ratio- ODER den Absolut-Check besteht
+        passes = ratio >= min_drum_activity or drum_secs >= min_drum_active_sec
+        if passes:
             fragments.append(frag)
         else:
             geplänkel.append(frag)

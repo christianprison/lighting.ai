@@ -33,6 +33,7 @@ class Fragment:
 
     start_t: float   # seconds relative to segment start
     end_t: float     # seconds relative to segment start
+    drum_ratio: float = 0.0  # Anteil Fenster mit Schlagzeug-Aktivität (0–1)
 
     @property
     def duration(self) -> float:
@@ -46,7 +47,7 @@ class Fragment:
         return f"{_fmt(self.start_t)}\u2013{_fmt(self.end_t)}"
 
     def __repr__(self) -> str:
-        return f"Fragment({self.fmt()}, {self.duration:.1f}s)"
+        return f"Fragment({self.fmt()}, {self.duration:.1f}s, drums={self.drum_ratio:.0%})"
 
 
 def detect_fragments(
@@ -61,6 +62,8 @@ def detect_fragments(
     min_silence_sec: float = 1.5,
     min_fragment_sec: float = 3.0,
     read_chunk_sec: float = 10.0,
+    drum_ch_indices: Optional[list[int]] = None,
+    min_drum_activity: float = 0.80,
     progress_callback: Optional[Callable[[float, list[float]], None]] = None,
 ) -> list[Fragment]:
     """``progress_callback(scan_t, rms_values)`` is called after each read chunk.
@@ -95,6 +98,13 @@ def detect_fragments(
         min_fragment_sec: Minimum fragment duration; shorter ones are dropped.
         read_chunk_sec:   Audio read chunk size (seconds). Controls RAM usage.
                           10 s \u00d7 16 ch \u00d7 float32 \u00d7 48 kHz \u2248 30 MB.
+        drum_ch_indices:  WAV channel indices for Kick + Snare (default: [8, 9]
+                          = XR18 Kick/Snare). Fragments where the drum channels
+                          are active in fewer than *min_drum_activity* of all
+                          windows are discarded as "Geplänkel".
+        min_drum_activity: Minimum fraction of windows with drum activity for a
+                          fragment to be kept (default: 0.80 = 80 %).
+                          Set to 0.0 to disable the drum-activity filter.
 
     Returns:
         List of Fragment objects sorted by start_t.  If no silence gaps are
@@ -103,14 +113,21 @@ def detect_fragments(
     if seg_end_t <= seg_start_t:
         return []
 
+    if drum_ch_indices is None:
+        drum_ch_indices = [8, 9]   # XR18: ch8 = Kick, ch9 = Snare
+    drum_set = set(drum_ch_indices)
+
     start_sample = int(seg_start_t * sample_rate)
     end_sample   = int(seg_end_t   * sample_rate)
 
     win_samples   = max(1, int(rms_window_sec * sample_rate))
     chunk_samples = max(win_samples, int(read_chunk_sec * sample_rate))
 
-    rms_values: list[float] = []
+    rms_values:      list[float] = []
+    drum_rms_values: list[float] = []   # per-window max-RMS of drum channels
+    has_drum_chs = False                # set True once drum channels confirmed present
     leftover: Optional[np.ndarray] = None
+    drum_leftover: Optional[np.ndarray] = None
 
     with sf.SoundFile(wav_path) as f:
         total_frames = f.frames
@@ -126,30 +143,52 @@ def detect_fragments(
                 break
             remaining -= chunk.shape[0]
 
-            # Select valid channels
+            # Select valid instrument channels
             valid_chs = [c for c in ch_indices if c < chunk.shape[1]]
             if not valid_chs:
-                # Fallback: use all channels
                 data = chunk
             else:
                 data = chunk[:, valid_chs]
 
+            # Drum channels (subset of full WAV, not of valid_chs subset)
+            valid_drum = [c for c in drum_ch_indices if c < chunk.shape[1]]
+            if valid_drum:
+                has_drum_chs = True
+                drum_data = chunk[:, valid_drum]
+            else:
+                drum_data = None
+
             # Prepend leftover samples from previous chunk
             if leftover is not None:
                 data = np.concatenate([leftover, data], axis=0)
+            if drum_leftover is not None and drum_data is not None:
+                drum_data = np.concatenate([drum_leftover, drum_data], axis=0)
 
             # Compute RMS for each full window
             n_full = data.shape[0] // win_samples
             chunk_rms: list[float] = []
+            chunk_drum_rms: list[float] = []
             for i in range(n_full):
-                win = data[i * win_samples:(i + 1) * win_samples]
-                per_ch_rms = np.sqrt(np.mean(win ** 2, axis=0))
+                win_slice = data[i * win_samples:(i + 1) * win_samples]
+                per_ch_rms = np.sqrt(np.mean(win_slice ** 2, axis=0))
                 chunk_rms.append(float(per_ch_rms.max()))
+                if drum_data is not None:
+                    d_slice = drum_data[i * win_samples:(i + 1) * win_samples]
+                    d_rms = np.sqrt(np.mean(d_slice ** 2, axis=0))
+                    chunk_drum_rms.append(float(d_rms.max()))
+                else:
+                    chunk_drum_rms.append(0.0)
             rms_values.extend(chunk_rms)
+            drum_rms_values.extend(chunk_drum_rms)
 
             # Keep incomplete trailing samples for next iteration
             tail_start = n_full * win_samples
             leftover = data[tail_start:] if tail_start < data.shape[0] else None
+            if drum_data is not None:
+                drum_tail = drum_data[tail_start:]
+                drum_leftover = drum_tail if drum_tail.shape[0] > 0 else None
+            else:
+                drum_leftover = None
 
             # Report progress to caller
             if progress_callback is not None and chunk_rms:
@@ -181,18 +220,42 @@ def detect_fragments(
         else:
             i += 1
 
-    # \u2500\u2500 Build Fragment list \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n    seg_dur   = seg_end_t - seg_start_t
+    # ── Build Fragment list ─────────────────────────────────────────────────
+    drum_arr = np.array(drum_rms_values, dtype=np.float32)
+    seg_dur   = seg_end_t - seg_start_t
     boundaries = [0.0] + split_ts + [seg_dur]
 
     fragments: list[Fragment] = []
+    geplänkel: list[Fragment] = []
+
     for k in range(len(boundaries) - 1):
         frag_start = boundaries[k]
         frag_end   = boundaries[k + 1]
-        if frag_end - frag_start >= min_fragment_sec:
-            fragments.append(Fragment(start_t=frag_start, end_t=frag_end))
+        if frag_end - frag_start < min_fragment_sec:
+            continue
 
-    # If all fragments were filtered out, return the whole segment as one
+        # Drum-Aktivitäts-Ratio für dieses Fragment berechnen
+        win_start = int(frag_start / rms_window_sec)
+        win_end   = int(frag_end   / rms_window_sec)
+        n_wins    = win_end - win_start
+        if has_drum_chs and n_wins > 0 and min_drum_activity > 0.0:
+            drum_active = int(np.sum(drum_arr[win_start:win_end] >= silence_thresh))
+            ratio = drum_active / n_wins
+        else:
+            ratio = 1.0   # keine Drum-Kanäle → Filter deaktiviert
+
+        frag = Fragment(start_t=frag_start, end_t=frag_end, drum_ratio=ratio)
+        if ratio >= min_drum_activity:
+            fragments.append(frag)
+        else:
+            geplänkel.append(frag)
+
+    # If all fragments were filtered out as Geplänkel, return the whole segment
+    # (or the longest Geplänkel fragment as fallback so the user isn't left empty)
     if not fragments:
+        if geplänkel:
+            best = max(geplänkel, key=lambda f: f.duration)
+            return [Fragment(start_t=best.start_t, end_t=best.end_t, drum_ratio=best.drum_ratio)]
         return [Fragment(start_t=0.0, end_t=seg_dur)]
 
     return fragments

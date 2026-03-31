@@ -1382,8 +1382,12 @@ class MainWindow(QMainWindow):
             if candidate.exists():
                 ref_db_path = candidate
 
-        # Use current playhead position as simulation start (relative to seg start)
-        t_in_seg_start = max(0.0, self._player.position_in_segment)
+        # Use current playhead position as simulation start (relative to seg start).
+        # Clamp to [0, seg.duration - 1s] so we never start past the segment end.
+        t_in_seg_start = max(0.0, min(
+            self._player.position_in_segment,
+            max(0.0, seg.duration - 1.0),
+        ))
         sim_start_wav_t = seg.start_t + t_in_seg_start
 
         self._timeline.clear_sim_events()
@@ -1400,7 +1404,7 @@ class MainWindow(QMainWindow):
             self._sim_monitor = SimMonitorDialog(
                 initial_bpm=bpm,
                 song_name=seg.song_name,
-                parent=self,
+                parent=None,   # true top-level window, no WM constraints from parent
             )
         else:
             self._sim_monitor.reset(bpm, seg.song_name)
@@ -1475,8 +1479,22 @@ class MainWindow(QMainWindow):
         self._timeline.set_hide_jsonl_events(False)
         self._player.stop()
 
-        n_beats = sum(1 for b in beats if b.is_downbeat)
-        n_pos   = len(positions)
+        n_beats     = sum(1 for b in beats if b.is_downbeat)
+        n_beats_all = len(beats)
+        n_pos       = len(positions)
+
+        if n_beats_all == 0:
+            QMessageBox.warning(
+                self, "Simulation — keine Beats",
+                "Die Simulation hat keine Beats erkannt.\n\n"
+                "Mögliche Ursachen:\n"
+                "• Die WAV-Datei endet vor dem gewählten Segment\n"
+                "• Die Session-Sample-Rate stimmt nicht mit der WAV überein\n"
+                "• Der Playhead stand am Segment-Ende\n\n"
+                "Hinweis: Die Statuszeile zeigt die WAV-Diagnose wenn "
+                "die Simulation mit einem Fehler abgebrochen ist."
+            )
+            return
 
         # Vergleich mit manuellen Annotationen
         ann = self._current_annotation()

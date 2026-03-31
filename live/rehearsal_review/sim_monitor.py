@@ -58,6 +58,7 @@ _ROWS: list[dict] = [
     {"key": "trigger",   "label": "Trigger",      "h": 27},
     {"key": "snare",     "label": "Snare",        "h": 27},
     {"key": "kick",      "label": "Kick",         "h": 27},
+    {"key": "mix_rms",   "label": "Summe (RMS)",  "h": 48},
     {"key": "hmm_bar",   "label": "HMM Takt",     "h": 27},
     {"key": "hmm_part",  "label": "HMM Part",     "h": 27},
     {"key": "hmm_conf",  "label": "HMM Konfidenz","h": 48},
@@ -97,6 +98,7 @@ class SimCanvas(QWidget):
         # Event-Speicher
         self._beats:     list[SimBeat]     = []
         self._snares:    list[float]        = []   # snare onset times
+        self._rms_vals:  list[tuple[float, float]] = []  # (t, rms)
         self._positions: list[SimPosition]  = []
 
         self.setMouseTracking(True)
@@ -113,6 +115,11 @@ class SimCanvas(QWidget):
 
     def add_snare(self, t: float) -> None:
         self._snares.append(t)
+        self._max_t = max(self._max_t, t)
+        self.update()
+
+    def add_rms(self, t: float, rms_val: float) -> None:
+        self._rms_vals.append((t, rms_val))
         self._max_t = max(self._max_t, t)
         self.update()
 
@@ -156,6 +163,7 @@ class SimCanvas(QWidget):
         self._paint_triggers(p, ox)
         self._paint_snares(p, ox)
         self._paint_kicks(p, ox)
+        self._paint_mix_rms(p, ox)
         self._paint_hmm_bar(p, ox)
         self._paint_hmm_part(p, ox)
         self._paint_hmm_conf(p, ox)
@@ -184,7 +192,7 @@ class SimCanvas(QWidget):
 
     def _paint_beats(self, p: QPainter, ox: int) -> None:
         """Senkrechte Striche, Höhe proportional zu beat_num (1=voll, 4=kurz)."""
-        ri = 0
+        ri = next(i for i, r in enumerate(_ROWS) if r["key"] == "beats")
         y0, h = _ROW_Y[ri], _ROWS[ri]["h"]
         p.setFont(FONT_TINY)
         for b in self._beats:
@@ -203,7 +211,7 @@ class SimCanvas(QWidget):
             p.drawText(x + 2, y0, 12, 12, Qt.AlignmentFlag.AlignLeft, str(b.beat_num))
 
     def _paint_downbeats(self, p: QPainter, ox: int) -> None:
-        ri = 1
+        ri = next(i for i, r in enumerate(_ROWS) if r["key"] == "downbeat")
         y0, h = _ROW_Y[ri], _ROWS[ri]["h"]
         cy = y0 + h // 2
         p.setBrush(QBrush(C_GREEN))
@@ -218,7 +226,7 @@ class SimCanvas(QWidget):
 
     def _paint_bpm(self, p: QPainter, ox: int) -> None:
         """Zwei Kurven: initiale BPM (grau gestrichelt) + live BPM (amber)."""
-        ri = 2
+        ri = next(i for i, r in enumerate(_ROWS) if r["key"] == "bpm")
         y0, h = _ROW_Y[ri], _ROWS[ri]["h"]
         if not self._beats:
             return
@@ -256,7 +264,7 @@ class SimCanvas(QWidget):
                    f"{bpm_max:.0f}")
 
     def _paint_fills(self, p: QPainter, ox: int) -> None:
-        ri = 3
+        ri = next(i for i, r in enumerate(_ROWS) if r["key"] == "fill")
         y0, h = _ROW_Y[ri], _ROWS[ri]["h"]
         cy = y0 + h // 2
         p.setBrush(QBrush(C_RED))
@@ -270,7 +278,7 @@ class SimCanvas(QWidget):
             p.drawPolygon(_diamond(x, cy))
 
     def _paint_triggers(self, p: QPainter, ox: int) -> None:
-        ri = 4
+        ri = next(i for i, r in enumerate(_ROWS) if r["key"] == "trigger")
         y0, h = _ROW_Y[ri], _ROWS[ri]["h"]
         cy = y0 + h // 2
         for b in self._beats:
@@ -285,7 +293,7 @@ class SimCanvas(QWidget):
             p.drawPolygon(_diamond(x, cy))
 
     def _paint_snares(self, p: QPainter, ox: int) -> None:
-        ri = 5
+        ri = next(i for i, r in enumerate(_ROWS) if r["key"] == "snare")
         y0, h = _ROW_Y[ri], _ROWS[ri]["h"]
         cy = y0 + h // 2
         p.setBrush(QBrush(C_CYAN))
@@ -297,7 +305,7 @@ class SimCanvas(QWidget):
             p.drawPolygon(_diamond(x, cy))
 
     def _paint_kicks(self, p: QPainter, ox: int) -> None:
-        ri = 6
+        ri = next(i for i, r in enumerate(_ROWS) if r["key"] == "kick")
         y0, h = _ROW_Y[ri], _ROWS[ri]["h"]
         cy = y0 + h // 2
         p.setBrush(QBrush(C_AMBER))
@@ -310,8 +318,50 @@ class SimCanvas(QWidget):
                 continue
             p.drawPolygon(_diamond(x, cy))
 
+    def _paint_mix_rms(self, p: QPainter, ox: int) -> None:
+        """Summensignal — RMS-Kurve der Stereo-Mix-Kanäle (Ch 16+17)."""
+        ri = next(i for i, r in enumerate(_ROWS) if r["key"] == "mix_rms")
+        y0, h = _ROW_Y[ri], _ROWS[ri]["h"]
+        if not self._rms_vals:
+            return
+
+        rms_max = max(v for _, v in self._rms_vals) or 0.01
+        pad = 3
+
+        def rms_y(v: float) -> int:
+            frac = min(1.0, v / rms_max)
+            return y0 + h - pad - int(frac * (h - 2 * pad))
+
+        # Filled area under curve (semi-transparent green)
+        fill_color = QColor(C_GREEN.red(), C_GREEN.green(), C_GREEN.blue(), 40)
+        prev_x = prev_y = None
+        for t, v in self._rms_vals:
+            x = self._x(t, ox)
+            y = rms_y(v)
+            if prev_x is not None and self._in_view(x):
+                p.setBrush(QBrush(fill_color))
+                p.setPen(Qt.PenStyle.NoPen)
+                poly = QPolygon([
+                    QPoint(prev_x, y0 + h - pad),
+                    QPoint(prev_x, prev_y),
+                    QPoint(x, y),
+                    QPoint(x, y0 + h - pad),
+                ])
+                p.drawPolygon(poly)
+            prev_x, prev_y = x, y
+
+        # Curve line
+        p.setPen(QPen(C_GREEN, 1))
+        prev_pt = None
+        for t, v in self._rms_vals:
+            x = self._x(t, ox)
+            y = rms_y(v)
+            if prev_pt and self._in_view(x):
+                p.drawLine(prev_pt[0], prev_pt[1], x, y)
+            prev_pt = (x, y)
+
     def _paint_hmm_bar(self, p: QPainter, ox: int) -> None:
-        ri = 7
+        ri = next(i for i, r in enumerate(_ROWS) if r["key"] == "hmm_bar")
         y0, h = _ROW_Y[ri], _ROWS[ri]["h"]
         p.setFont(FONT_MONO)
         for pos in self._positions:
@@ -325,7 +375,7 @@ class SimCanvas(QWidget):
                        str(pos.bar_num))
 
     def _paint_hmm_part(self, p: QPainter, ox: int) -> None:
-        ri = 8
+        ri = next(i for i, r in enumerate(_ROWS) if r["key"] == "hmm_part")
         y0, h = _ROW_Y[ri], _ROWS[ri]["h"]
         p.setFont(FONT_MONO)
         for pos in self._positions:
@@ -345,7 +395,7 @@ class SimCanvas(QWidget):
 
     def _paint_hmm_conf(self, p: QPainter, ox: int) -> None:
         """Konfidenz-Kurve 0–1 mit gestrichelter Konfidenz-Schwelle bei 0.30."""
-        ri = 9
+        ri = next(i for i, r in enumerate(_ROWS) if r["key"] == "hmm_conf")
         y0, h = _ROW_Y[ri], _ROWS[ri]["h"]
         if not self._positions:
             return
@@ -376,7 +426,7 @@ class SimCanvas(QWidget):
                    Qt.AlignmentFlag.AlignLeft, "0.3")
 
     def _paint_hmm_frozen(self, p: QPainter, ox: int) -> None:
-        ri = 10
+        ri = next(i for i, r in enumerate(_ROWS) if r["key"] == "hmm_frz")
         y0, h = _ROW_Y[ri], _ROWS[ri]["h"]
         cy = y0 + h // 2
         p.setBrush(QBrush(C_RED))
@@ -390,7 +440,7 @@ class SimCanvas(QWidget):
             p.drawPolygon(_diamond(x, cy))
 
     def _paint_hmm_consensus(self, p: QPainter, ox: int) -> None:
-        ri = 11
+        ri = next(i for i, r in enumerate(_ROWS) if r["key"] == "hmm_cons")
         y0, h = _ROW_Y[ri], _ROWS[ri]["h"]
         cy = y0 + h // 2
         p.setBrush(QBrush(C_GREEN))
@@ -455,6 +505,15 @@ class SimCanvas(QWidget):
             )
             if nearest_t is not None:
                 return f"Snare Onset  t={nearest_t:.3f}s"
+
+        elif key == "mix_rms":
+            nearest = min(
+                self._rms_vals,
+                key=lambda tv: abs(tv[0] - t_cursor),
+                default=None,
+            )
+            if nearest and abs(nearest[0] - t_cursor) <= TOL_T:
+                return f"Summe RMS  t={nearest[0]:.3f}s  {nearest[1]:.4f}"
 
         elif key in ("hmm_bar", "hmm_part", "hmm_conf", "hmm_frz", "hmm_cons"):
             nearest = min(
@@ -543,6 +602,10 @@ class SimMonitorDialog(QDialog):
         self._canvas.add_snare(t)
         self._update_scroll()
 
+    def add_rms(self, t: float, rms_val: float) -> None:
+        self._canvas.add_rms(t, rms_val)
+        self._update_scroll()
+
     def add_position(self, pos: SimPosition) -> None:
         self._canvas.add_position(pos)
         self._update_scroll()
@@ -552,6 +615,7 @@ class SimMonitorDialog(QDialog):
         self.setWindowTitle(f"Simulation — {song_name}")
         self._canvas._beats.clear()
         self._canvas._snares.clear()
+        self._canvas._rms_vals.clear()
         self._canvas._positions.clear()
         self._canvas._max_t = 0.0
         self._canvas._initial_bpm = initial_bpm

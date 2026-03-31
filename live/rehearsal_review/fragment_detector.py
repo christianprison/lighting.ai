@@ -208,7 +208,8 @@ def detect_fragments(
     rms_arr   = np.array(rms_values, dtype=np.float32)
     is_silent = rms_arr < silence_thresh
 
-    # \u2500\u2500 Find silence runs \u2265 min_silence_sec \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n    min_sil_wins = max(1, int(min_silence_sec / rms_window_sec))
+    # ── Find silence runs >= min_silence_sec ─────────────────────────────────
+    min_sil_wins = max(1, int(min_silence_sec / rms_window_sec))
     split_ts: list[float] = []  # split times relative to segment start
 
     i = 0

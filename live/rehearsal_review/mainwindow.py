@@ -276,6 +276,45 @@ class _FragmentWorker(QThread):
             self.error.emit(str(exc))
 
 
+class _ImportWorker(QThread):
+    """QThread that runs recording_importer.import_from_recording off the main thread."""
+    finished = pyqtSignal(str)   # success message
+    error    = pyqtSignal(str)   # error message
+
+    def __init__(self, wav_path, annotations, ref_db_path, db_json_path, sr,
+                 repo_root, parent=None) -> None:
+        super().__init__(parent)
+        self._wav_path    = wav_path
+        self._annotations = annotations
+        self._ref_db_path = ref_db_path
+        self._db_json_path = db_json_path
+        self._sr          = sr
+        self._repo_root   = repo_root
+
+    def run(self) -> None:
+        try:
+            live_path = str(self._repo_root / "live")
+            if live_path not in sys.path:
+                sys.path.insert(0, live_path)
+            from server.audio.recording_importer import import_from_recording
+            stats = import_from_recording(
+                wav_path=self._wav_path,
+                annotations=self._annotations,
+                ref_db_path=self._ref_db_path,
+                db_json_path=self._db_json_path,
+                session_sample_rate=self._sr,
+            )
+            msg = (
+                f"Import abgeschlossen: "
+                f"{stats.bars_inserted} neu, "
+                f"{stats.bars_updated} gemittelt, "
+                f"{stats.bars_skipped} übersprungen"
+            )
+            self.finished.emit(msg)
+        except Exception as exc:
+            self.error.emit(str(exc))
+
+
 class MainWindow(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
@@ -1082,7 +1121,7 @@ class MainWindow(QMainWindow):
                 f"Part-Name (geschätzter Takt: {estimated_bar}):",
                 items,
                 current=default_idx,
-                editable=True,
+                editable=False,
             )
         else:
             name, ok = QInputDialog.getText(
@@ -1194,36 +1233,18 @@ class MainWindow(QMainWindow):
             f"{len(self._annotations)} Songs …",
         )
 
-        wav_path = self._session.wav_path
-        annotations = dict(self._annotations)
-        sr = self._session.sample_rate
-
-        def _run() -> None:
-            try:
-                import sys
-                sys.path.insert(0, str(repo_root / "live"))
-                from server.audio.recording_importer import import_from_recording
-                stats = import_from_recording(
-                    wav_path=wav_path,
-                    annotations=annotations,
-                    ref_db_path=ref_db_path,
-                    db_json_path=db_json_path,
-                    session_sample_rate=sr,
-                )
-                # Report back to UI thread via QTimer
-                msg = (
-                    f"Import abgeschlossen: "
-                    f"{stats.bars_inserted} neu, "
-                    f"{stats.bars_updated} gemittelt, "
-                    f"{stats.bars_skipped} übersprungen"
-                )
-                QTimer.singleShot(0, lambda: self._on_import_done(msg))
-            except Exception as exc:
-                err = str(exc)
-                QTimer.singleShot(0, lambda: self._on_import_error(err))
-
-        t = threading.Thread(target=_run, daemon=True)
-        t.start()
+        worker = _ImportWorker(
+            wav_path=self._session.wav_path,
+            annotations=dict(self._annotations),
+            ref_db_path=ref_db_path,
+            db_json_path=db_json_path,
+            sr=self._session.sample_rate,
+            repo_root=repo_root,
+            parent=self,
+        )
+        worker.finished.connect(self._on_import_done)
+        worker.error.connect(self._on_import_error)
+        worker.start()
 
     def _on_import_done(self, msg: str) -> None:
         self._import_act.setEnabled(True)
@@ -1278,13 +1299,15 @@ class MainWindow(QMainWindow):
 
         n = len(fragments)
         if n <= 1:
+            dr = f"{fragments[0].drum_ratio:.0%}" if fragments else "—"
             msg = (
                 f'1 Fragment — Song komplett oder keine Stille-Lücke ≥ 1,5 s erkannt '
-                f'({fragments[0].fmt() if fragments else "—"})'
+                f'({fragments[0].fmt() if fragments else "—"}, Drums {dr})'
             )
         else:
             labels = "  |  ".join(
-                f"F{i + 1}: {f.fmt()}" for i, f in enumerate(fragments)
+                f"F{i + 1}: {f.fmt()} [{f.drum_ratio:.0%}🥁]"
+                for i, f in enumerate(fragments)
             )
             msg = f"{n} Fragmente erkannt — {labels}"
 

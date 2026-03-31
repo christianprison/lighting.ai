@@ -26,6 +26,7 @@ from annotation import (
     BarMarker, SongAnnotation,
     load_annotations, save_annotations,
 )
+from simulator import SimulatorWorker, SimBeat, SimPosition
 
 _APP_STYLE = """
 QMainWindow, QWidget          { background:#08090d; color:#eef0f6; }
@@ -345,6 +346,9 @@ class MainWindow(QMainWindow):
         self._detected_fragments: list = []
         self._fragment_worker: Optional[_FragmentWorker] = None
 
+        # Simulation
+        self._sim_worker: Optional[SimulatorWorker] = None
+
         self._player = AudioPlayer(self)
         self._player.position_changed.connect(self._on_position)
         self._player.playback_stopped.connect(self._on_stopped)
@@ -532,6 +536,19 @@ class MainWindow(QMainWindow):
         )
         self._db_parts_act.triggered.connect(self._show_db_parts)
 
+        self._sim_act = tb.addAction("▶ Simulation")
+        self._sim_act.setEnabled(False)
+        self._sim_act.setToolTip(
+            "Beat-Detection + HMM-Parterkennung auf dieser Aufnahme simulieren\n"
+            "Ergebnis wird violett im Timeline dargestellt"
+        )
+        self._sim_act.triggered.connect(self._run_simulation)
+
+        self._sim_clear_act = tb.addAction("✕ Sim")
+        self._sim_clear_act.setEnabled(False)
+        self._sim_clear_act.setToolTip("Simulations-Ergebnisse aus Timeline entfernen")
+        self._sim_clear_act.triggered.connect(self._clear_simulation)
+
         tb.addSeparator()
 
         self._datetime_lbl = QLabel("  —")
@@ -571,6 +588,7 @@ class MainWindow(QMainWindow):
         self._import_act.setEnabled(True)
         self._db_parts_act.setEnabled(True)
         self._detect_frags_act.setEnabled(True)
+        self._sim_act.setEnabled(True)
 
         # Fill song combo (block signals during rebuild)
         self._song_combo.blockSignals(True)
@@ -662,6 +680,13 @@ class MainWindow(QMainWindow):
             self._fragment_worker = None
         self._timeline.set_fragment_boundaries([])
         self._timeline.clear_scan_progress()
+
+        # Clear simulation results from previous song
+        if self._sim_worker is not None:
+            self._sim_worker.requestInterruption()
+            self._sim_worker = None
+        self._timeline.clear_sim_events()
+        self._sim_clear_act.setEnabled(False)
 
         # Show existing annotations for this song
         ann = self._annotations.get(seg.song_id)
@@ -1316,6 +1341,112 @@ class MainWindow(QMainWindow):
     def _on_fragment_error(self, err: str) -> None:
         self._detect_frags_act.setEnabled(True)
         self._status.showMessage(f"Fragment-Erkennung fehlgeschlagen: {err}", 8000)
+
+    # ── Simulation ────────────────────────────────────────────────────────────
+
+    def _run_simulation(self) -> None:
+        """Startet die Offline-Simulation der Live-Erkennung auf dem aktuellen Segment."""
+        if self._current_seg is None or self._session is None:
+            return
+
+        seg = self._current_seg
+
+        # BPM aus der Songdatenbank holen (falls vorhanden)
+        bpm = 120.0
+        try:
+            repo_root = self._session.jsonl_path.parent.parent.parent.parent
+            db_json   = repo_root / "db" / "lighting-ai-db.json"
+            if db_json.exists():
+                import json as _json
+                db = _json.loads(db_json.read_text("utf-8"))
+                bpm = float(db.get("songs", {}).get(seg.song_id, {}).get("bpm", 120.0))
+        except Exception:
+            pass
+
+        # reference.db finden
+        ref_db_path: Optional[Path] = None
+        if self._session:
+            candidate = self._session.wav_path.parent.parent / "reference.db"
+            if candidate.exists():
+                ref_db_path = candidate
+
+        self._timeline.clear_sim_events()
+        self._sim_act.setEnabled(False)
+        self._sim_clear_act.setEnabled(False)
+        self._status.showMessage(
+            f'Simulation läuft: "{seg.song_name}" — BPM {bpm:.0f} …'
+        )
+
+        worker = SimulatorWorker(
+            wav_path=self._session.wav_path,
+            seg_start_t=seg.start_t,
+            seg_end_t=seg.end_t,
+            sample_rate=self._session.sample_rate,
+            n_channels=self._session.n_channels,
+            song_id=seg.song_id,
+            bpm=bpm,
+            ref_db_path=ref_db_path,
+            parent=self,
+        )
+        worker.beat.connect(self._on_sim_beat)
+        worker.position.connect(self._on_sim_position)
+        worker.progress.connect(
+            lambda v: self._status.showMessage(
+                f'Simulation: "{seg.song_name}" — {v:.0%}', 0
+            )
+        )
+        worker.finished.connect(self._on_sim_finished)
+        worker.error.connect(self._on_sim_error)
+        self._sim_worker = worker
+        worker.start()
+
+    def _clear_simulation(self) -> None:
+        if self._sim_worker is not None:
+            self._sim_worker.requestInterruption()
+            self._sim_worker = None
+        self._timeline.clear_sim_events()
+        self._sim_clear_act.setEnabled(False)
+        self._status.showMessage("Simulations-Ergebnisse gelöscht", 3000)
+
+    def _on_sim_beat(self, beat: SimBeat) -> None:
+        self._timeline.add_sim_beat(beat.t, beat.is_downbeat)
+
+    def _on_sim_position(self, pos: SimPosition) -> None:
+        self._timeline.add_sim_position(
+            pos.t, pos.bar_num, pos.part_name, pos.confidence, pos.is_frozen
+        )
+
+    def _on_sim_finished(self, beats: list, positions: list) -> None:
+        self._sim_act.setEnabled(True)
+        self._sim_clear_act.setEnabled(True)
+
+        n_beats = sum(1 for b in beats if b.is_downbeat)
+        n_pos   = len(positions)
+
+        # Vergleich mit manuellen Annotationen
+        ann = self._current_annotation()
+        if ann and ann.markers and positions:
+            correct = 0
+            for m in ann.markers:
+                # Nächste Sim-Position in ±1s suchen
+                closest = min(positions, key=lambda p: abs(p.t - m.t))
+                if abs(closest.t - m.t) <= 1.0 and closest.bar_num == m.bar_num:
+                    correct += 1
+            pct = correct / len(ann.markers) * 100
+            match_info = f" — Takt-Match: {correct}/{len(ann.markers)} ({pct:.0f}%)"
+        else:
+            match_info = ""
+
+        self._status.showMessage(
+            f"Simulation abgeschlossen: {n_beats} Downbeats, "
+            f"{n_pos} Positionsschätzungen{match_info}",
+            12000,
+        )
+
+    def _on_sim_error(self, err: str) -> None:
+        self._sim_act.setEnabled(True)
+        self._status.showMessage(f"Simulation fehlgeschlagen: {err}", 8000)
+        QMessageBox.critical(self, "Simulation", f"Fehler:\n{err}")
 
     def _zoom_fit(self) -> None:
         if self._current_seg is None:

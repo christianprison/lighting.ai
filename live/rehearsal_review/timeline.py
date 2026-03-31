@@ -208,6 +208,12 @@ class TimelineWidget(QWidget):
         self._scan_windows: list[tuple[float, bool]] = []
         self._scan_pos: float = -1.0   # current scan head (seconds)
 
+        # Simulation results
+        # beats: list of (t, is_downbeat)
+        # positions: list of (t, bar_num, part_name, confidence, is_frozen)
+        self._sim_beats: list[tuple[float, bool]] = []
+        self._sim_positions: list[tuple[float, int, str, float, bool]] = []
+
         self._hbar = QScrollBar(Qt.Orientation.Horizontal, self)
         self._hbar.valueChanged.connect(self._on_scroll)
 
@@ -303,6 +309,23 @@ class TimelineWidget(QWidget):
         """Löscht die Scan-Visualisierung."""
         self._scan_windows = []
         self._scan_pos = -1.0
+        self.update()
+
+    def add_sim_beat(self, t: float, is_downbeat: bool) -> None:
+        """Fügt einen simulierten Beat-Marker hinzu (live während Simulation)."""
+        self._sim_beats.append((t, is_downbeat))
+        self.update()
+
+    def add_sim_position(self, t: float, bar_num: int, part_name: str,
+                         confidence: float, is_frozen: bool) -> None:
+        """Fügt eine simulierte Takt-Positionsschätzung hinzu."""
+        self._sim_positions.append((t, bar_num, part_name, confidence, is_frozen))
+        self.update()
+
+    def clear_sim_events(self) -> None:
+        """Löscht alle Simulations-Ergebnisse."""
+        self._sim_beats = []
+        self._sim_positions = []
         self.update()
 
     # ── Solo / Mute ───────────────────────────────────────────────────────────
@@ -709,6 +732,31 @@ class TimelineWidget(QWidget):
                                Qt.AlignmentFlag.AlignCenter, "?")
                     p.setFont(FONT_MONO)
 
+        # ── Simulierte Positionsschätzungen (violett gestrichelt, unten) ──────
+        if self._sim_positions:
+            C_SIM    = QColor("#a78bfa")              # violett
+            C_SIM_FR = QColor(0xa7, 0x8b, 0xfa, 80)  # violett, eingefroren
+            sim_y0   = y0 + ANNOT_H // 2             # untere Hälfte des Streifens
+            sim_h    = ANNOT_H // 2 - 1
+            p.setFont(FONT_BTN)
+            for t_sim, bar_num, part_name, conf, frozen in self._sim_positions:
+                sx = LABEL_W + int(t_sim * pps) - ox
+                if sx < LABEL_W or sx > w:
+                    continue
+                c = C_SIM_FR if frozen else C_SIM
+                pen = QPen(c, 1, Qt.PenStyle.DashLine)
+                p.setPen(pen)
+                p.drawLine(sx, sim_y0, sx, sim_y0 + sim_h)
+                if not frozen and conf >= 0.45:
+                    p.setPen(c)
+                    lbl = f"~{bar_num}"
+                    if part_name:
+                        lbl += f" {part_name}"
+                    p.drawText(sx + 2, sim_y0, 80, sim_h,
+                               Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
+                               lbl)
+            p.setFont(FONT_MONO)
+
     # ── Events strip ─────────────────────────────────────────────────────────
 
     def _paint_events(self, p: QPainter, vl: int, vr: int) -> None:
@@ -767,6 +815,22 @@ class TimelineWidget(QWidget):
                     p.drawText(ex + 2, y0 + EVENTS_H // 3, 20, EVENTS_H // 2,
                                Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
                                label_map.get(action, "?"))
+
+        # ── Simulierte Beat-Marker (violett, überlagern JSONL-Events) ─────────
+        if self._sim_beats:
+            C_SIM_DOWN = QColor("#a78bfa")          # violett – simulierter Downbeat
+            C_SIM_BEAT = QColor(0xa7, 0x8b, 0xfa, 90)  # violett transparent – Beat
+            p.setFont(FONT_BTN)
+            for t_beat, is_down in self._sim_beats:
+                bx = LABEL_W + int(t_beat * pps) - ox
+                if bx < LABEL_W or bx > w:
+                    continue
+                if is_down:
+                    p.setPen(QPen(C_SIM_DOWN, 2))
+                    p.drawLine(bx, y0, bx, y0 + EVENTS_H - 1)
+                else:
+                    p.setPen(QPen(C_SIM_BEAT, 1))
+                    p.drawLine(bx, y0 + EVENTS_H // 2, bx, y0 + EVENTS_H - 1)
 
     # ── Waveform track ────────────────────────────────────────────────────────
 

@@ -426,28 +426,28 @@ class MainWindow(QMainWindow):
         vm.addAction(zf)
 
     def _build_toolbar(self) -> None:
-        tb = QToolBar()
-        tb.setMovable(False)
-        self.addToolBar(tb)
+        # ── Toolbar 1: Transport + Navigation ────────────────────────────────
+        tb1 = QToolBar()
+        tb1.setMovable(False)
+        self.addToolBar(tb1)
 
-        self._play_act = tb.addAction("Play")
+        self._play_act = tb1.addAction("Play")
         self._play_act.triggered.connect(self._toggle_play)
 
-        stop_act = tb.addAction("Stop")
+        stop_act = tb1.addAction("Stop")
         stop_act.triggered.connect(self._stop)
 
-        tb.addSeparator()
+        tb1.addSeparator()
 
-        # Song selection dropdown
         self._song_combo = QComboBox()
         self._song_combo.setMinimumWidth(300)
         self._song_combo.setPlaceholderText("-- Song waehlen --")
         self._song_combo.currentIndexChanged.connect(self._on_song_combo_changed)
-        tb.addWidget(self._song_combo)
+        tb1.addWidget(self._song_combo)
 
-        tb.addSeparator()
+        tb1.addSeparator()
 
-        self._detect_frags_act = tb.addAction("Fragmente")
+        self._detect_frags_act = tb1.addAction("Fragmente")
         self._detect_frags_act.setEnabled(False)
         self._detect_frags_act.setToolTip(
             "Song in gespielte Fragmente aufteilen\n"
@@ -455,33 +455,44 @@ class MainWindow(QMainWindow):
         )
         self._detect_frags_act.triggered.connect(self._detect_fragments)
 
-        tb.addSeparator()
+        tb1.addSeparator()
 
         zoom_lbl = QLabel("  Zoom:")
         zoom_lbl.setStyleSheet(
             "font-family:'DM Mono',monospace; font-size:10px; color:#a0a4b8;"
         )
-        tb.addWidget(zoom_lbl)
+        tb1.addWidget(zoom_lbl)
 
         self._zoom_combo = QComboBox()
         self._zoom_combo.setObjectName("zoom_combo")
         for v in _ZOOM_PRESETS:
             self._zoom_combo.addItem(f"{v} px/s", v)
-        self._zoom_combo.setCurrentIndex(3)   # default 80 px/s
+        self._zoom_combo.setCurrentIndex(3)
         self._zoom_combo.currentIndexChanged.connect(self._on_zoom_combo_changed)
-        tb.addWidget(self._zoom_combo)
+        tb1.addWidget(self._zoom_combo)
 
-        tb.addSeparator()
+        tb1.addSeparator()
 
-        # ── Annotation controls ──────────────────────────────────────────────
-        self._annot_act = tb.addAction("Annotieren")
+        self._datetime_lbl = QLabel("  —")
+        self._datetime_lbl.setStyleSheet(
+            "font-family:'DM Mono',monospace; font-size:10px; color:#eef0f6;"
+        )
+        tb1.addWidget(self._datetime_lbl)
+
+        # ── Toolbar 2: Annotation + Actions ──────────────────────────────────
+        tb2 = QToolBar()
+        tb2.setMovable(False)
+        self.addToolBarBreak()
+        self.addToolBar(tb2)
+
+        self._annot_act = tb2.addAction("Annotieren")
         self._annot_act.setCheckable(True)
         self._annot_act.setToolTip(
             "Annotations-Modus: Takt-Marker setzen (B = Takt, P = Part-Start)"
         )
         self._annot_act.triggered.connect(self._on_toggle_annotation_mode)
 
-        tb.addWidget(QLabel("  ab Takt "))
+        tb2.addWidget(QLabel("  ab Takt "))
         self._start_bar_spin = QSpinBox()
         self._start_bar_spin.setMinimum(1)
         self._start_bar_spin.setMaximum(999)
@@ -492,43 +503,47 @@ class MainWindow(QMainWindow):
             "Anpassen wenn die Aufnahme nicht bei Takt 1 des Songs beginnt."
         )
         self._start_bar_spin.valueChanged.connect(self._on_start_bar_changed)
-        tb.addWidget(self._start_bar_spin)
+        tb2.addWidget(self._start_bar_spin)
 
-        self._bar_act = tb.addAction("Takt [B]")
+        tb2.addSeparator()
+
+        self._bar_act = tb2.addAction("Takt [B]")
         self._bar_act.setEnabled(False)
         self._bar_act.setToolTip("Takt-Marker an aktueller Cursor-Position setzen (B)")
         self._bar_act.triggered.connect(self._add_bar_marker)
 
-        self._part_act = tb.addAction("Part-Start [P]")
+        self._part_act = tb2.addAction("Part-Start [P]")
         self._part_act.setEnabled(False)
         self._part_act.setToolTip("Part-Start-Marker an aktueller Cursor-Position setzen (P)")
         self._part_act.triggered.connect(self._add_part_marker)
 
-        self._frag_act = tb.addAction("Fragment [F]")
+        self._frag_act = tb2.addAction("Fragment [F]")
         self._frag_act.setEnabled(False)
         self._frag_act.setToolTip(
             "Fragment-Start-Marker setzen — fragt nach Takt-Nummer ab der gezählt wird (F)"
         )
         self._frag_act.triggered.connect(self._add_fragment_marker)
 
-        self._undo_annot_act = tb.addAction("Undo [U]")
+        self._undo_annot_act = tb2.addAction("Undo [U]")
         self._undo_annot_act.setEnabled(False)
         self._undo_annot_act.setToolTip("Letzten Takt-Marker entfernen (U)")
         self._undo_annot_act.triggered.connect(self._undo_last_marker)
 
-        self._save_annot_act = tb.addAction("Speichern")
+        tb2.addSeparator()
+
+        self._save_annot_act = tb2.addAction("Speichern")
         self._save_annot_act.setEnabled(False)
         self._save_annot_act.setToolTip("Annotierungen als JSON speichern")
         self._save_annot_act.triggered.connect(self._save_annotations)
 
-        self._import_act = tb.addAction("→ reference.db")
+        self._import_act = tb2.addAction("→ reference.db")
         self._import_act.setEnabled(False)
         self._import_act.setToolTip(
             "Annotierte Takte in reference.db importieren (Feature-Extraktion)"
         )
         self._import_act.triggered.connect(self._run_recording_import)
 
-        self._db_parts_act = tb.addAction("DB-Parts")
+        self._db_parts_act = tb2.addAction("DB-Parts")
         self._db_parts_act.setEnabled(False)
         self._db_parts_act.setToolTip(
             "Parts des aktuellen Songs aus reference.db anzeigen\n"
@@ -536,7 +551,9 @@ class MainWindow(QMainWindow):
         )
         self._db_parts_act.triggered.connect(self._show_db_parts)
 
-        self._sim_act = tb.addAction("▶ Simulation")
+        tb2.addSeparator()
+
+        self._sim_act = tb2.addAction("▶ Simulation")
         self._sim_act.setEnabled(False)
         self._sim_act.setToolTip(
             "Beat-Detection + HMM-Parterkennung auf dieser Aufnahme simulieren\n"
@@ -544,18 +561,10 @@ class MainWindow(QMainWindow):
         )
         self._sim_act.triggered.connect(self._run_simulation)
 
-        self._sim_clear_act = tb.addAction("✕ Sim")
+        self._sim_clear_act = tb2.addAction("✕ Sim")
         self._sim_clear_act.setEnabled(False)
         self._sim_clear_act.setToolTip("Simulations-Ergebnisse aus Timeline entfernen")
         self._sim_clear_act.triggered.connect(self._clear_simulation)
-
-        tb.addSeparator()
-
-        self._datetime_lbl = QLabel("  —")
-        self._datetime_lbl.setStyleSheet(
-            "font-family:'DM Mono',monospace; font-size:10px; color:#eef0f6;"
-        )
-        tb.addWidget(self._datetime_lbl)
 
     # ── Loading ───────────────────────────────────────────────────────────────
 

@@ -350,6 +350,7 @@ class MainWindow(QMainWindow):
         # Simulation
         self._sim_worker: Optional[SimulatorWorker] = None
         self._sim_monitor: Optional[SimMonitorDialog] = None
+        self._sim_start_wav_t: float = 0.0  # WAV-Offset bei Simulations-Start
 
         self._player = AudioPlayer(self)
         self._player.position_changed.connect(self._on_position)
@@ -844,6 +845,9 @@ class MainWindow(QMainWindow):
             self._pos_label.setText(_fmt_t_precise(wav_t - self._current_seg.start_t))
         if self._event_panel and self._event_panel.isVisible():
             self._event_panel.focus_at(wav_t)
+        # Playhead im Simulations-Monitor synchron halten
+        if self._sim_monitor is not None and self._sim_monitor.isVisible():
+            self._sim_monitor.set_playhead(max(0.0, wav_t - self._sim_start_wav_t))
 
     def _on_stopped(self) -> None:
         self._play_act.setText("Play")
@@ -1429,6 +1433,10 @@ class MainWindow(QMainWindow):
         worker.finished.connect(self._on_sim_finished)
         worker.error.connect(self._on_sim_error)
         self._sim_worker = worker
+
+        # WAV-Offset merken damit der Playhead korrekt berechnet werden kann.
+        # Simulation-Events haben t relativ zu sim_start_wav_t (= 0 im SimMonitor).
+        self._sim_start_wav_t = seg.start_t + t_in_seg_start
 
         # Start audio playback from the same position as the simulation
         self._player.seek(t_in_seg_start)

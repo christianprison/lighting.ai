@@ -27,8 +27,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
-import time
-
 import numpy as np
 from PyQt6.QtCore import QThread, pyqtSignal
 
@@ -191,7 +189,6 @@ class SimulatorWorker(QThread):
         positions: list[SimPosition] = []
 
         blocks_done = 0
-        sim_wall_start: float = 0.0   # set just before first block is processed
 
         with sf.SoundFile(self._wav_path) as f:
             f.seek(start_sample)
@@ -204,9 +201,6 @@ class SimulatorWorker(QThread):
             )
 
             while remaining > 0 and not self.isInterruptionRequested():
-                if blocks_done == 0:
-                    sim_wall_start = time.monotonic()
-
                 to_read = min(BLOCK_SIZE, remaining)
                 block = f.read(to_read, dtype="float32", always_2d=True)
                 if block.shape[0] == 0:
@@ -282,13 +276,6 @@ class SimulatorWorker(QThread):
                             pass  # Feature-Extraktion fehlgeschlagen → ignorieren
 
                 blocks_done += 1
-
-                # ── Echtzeit-Drosselung: Simulation an Audio-Playback angleichen
-                sim_t        = blocks_done * BLOCK_SIZE / sr
-                wall_elapsed = time.monotonic() - sim_wall_start
-                sleep_needed = sim_t - wall_elapsed - 0.003   # 3 ms Puffer
-                if sleep_needed > 0.001:
-                    time.sleep(sleep_needed)
 
                 if blocks_done % 100 == 0:
                     print(

@@ -75,7 +75,6 @@ class SimulatorWorker(QThread):
 
     beat     = pyqtSignal(object)        # SimBeat
     snare    = pyqtSignal(float)         # t (Snare-Onset)
-    rms      = pyqtSignal(float, float)  # t, rms_value (Summensignal)
     position = pyqtSignal(object)        # SimPosition
     progress = pyqtSignal(float)         # 0.0–1.0
     finished = pyqtSignal(list, list)    # beats: list[SimBeat], positions: list[SimPosition]
@@ -257,10 +256,6 @@ class SimulatorWorker(QThread):
                 ring_buffer.append(stereo)
                 if len(ring_buffer) > RING_MAX_BLOCKS:
                     ring_buffer.pop(0)
-
-                # ── Summensignal RMS emittieren ───────────────────────────────
-                rms_val = float(np.sqrt(np.mean(stereo ** 2)))
-                self.rms.emit(t_block_mid, rms_val)
 
                 # ── HMM-Snapshot auf Downbeat ─────────────────────────────────
                 if snapshot_pending and hmm is not None and self._use_hmm:

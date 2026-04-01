@@ -1423,12 +1423,14 @@ class MainWindow(QMainWindow):
             song_id=seg.song_id,
             bpm=bpm,
             ref_db_path=ref_db_path,
+            use_hmm=False,   # standardmäßig aus — per Toggle-Button zuschaltbar
             parent=self,
         )
         worker.beat.connect(self._on_sim_beat)
         worker.snare.connect(self._on_sim_snare)
         worker.rms.connect(self._on_sim_rms)
         worker.position.connect(self._on_sim_position)
+        self._sim_monitor.hmm_toggled.connect(worker.set_use_hmm)
         worker.progress.connect(self._on_sim_progress)
         worker.finished.connect(self._on_sim_finished)
         worker.error.connect(self._on_sim_error)

@@ -91,6 +91,7 @@ class SimulatorWorker(QThread):
         song_id: str,
         bpm: float,
         ref_db_path: Optional[Path] = None,
+        use_hmm: bool = False,
         parent=None,
     ) -> None:
         super().__init__(parent)
@@ -102,6 +103,11 @@ class SimulatorWorker(QThread):
         self._song_id     = song_id
         self._bpm         = bpm
         self._ref_db_path = ref_db_path
+        self._use_hmm     = use_hmm
+
+    def set_use_hmm(self, enabled: bool) -> None:
+        """Kann vom Main-Thread während der Simulation aufgerufen werden."""
+        self._use_hmm = enabled
 
     # ── Haupt-Loop ────────────────────────────────────────────────────────────
 
@@ -249,7 +255,7 @@ class SimulatorWorker(QThread):
                 self.rms.emit(t_block_mid, rms_val)
 
                 # ── HMM-Snapshot auf Downbeat ─────────────────────────────────
-                if snapshot_pending and hmm is not None:
+                if snapshot_pending and hmm is not None and self._use_hmm:
                     snapshot_pending = False
                     audio = np.concatenate(ring_buffer, axis=0)
                     mono  = np.mean(audio, axis=1).astype(np.float32)

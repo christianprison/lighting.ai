@@ -691,9 +691,14 @@ class SimMonitorDialog(QDialog):
         view_w = self._canvas.view_width()
         if view_w <= 0:
             return
+        # Max muss auch die aktuelle Playhead-Position abdecken — nicht nur
+        # die bisher empfangenen Events (am Anfang gibt es noch keine Events).
+        content_w = max(self._canvas.content_width(), int(t * PPS) + view_w + 200)
+        max_scroll = max(0, content_w - view_w)
+        self._hbar.setMaximum(max_scroll)
+        self._hbar.setPageStep(view_w)
         # Playhead bei 30% des sichtbaren Bereichs
         target = int(t * PPS) - view_w // 3
-        max_scroll = self._hbar.maximum()
         self._hbar.setValue(max(0, min(target, max_scroll)))
 
     def _on_scroll(self, val: int) -> None:

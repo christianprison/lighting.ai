@@ -179,13 +179,21 @@ class SimulatorWorker(QThread):
         # BeatDetector — mit echter SR der WAV kalibrieren
         beat_det = BeatDetector(sample_rate=sr, initial_bpm=self._bpm)
 
-        # HMM nur wenn reference.db vorhanden
+        # HMM nur laden wenn initial aktiviert UND reference.db vorhanden.
+        # Die DB wird im Worker-Thread geöffnet; SQLite-Locking-Fehler werden
+        # abgefangen damit die Beat-Detection trotzdem läuft.
         hmm: Optional[AudioHMM] = None
-        if self._ref_db_path and self._ref_db_path.exists():
-            ref_db = ReferenceDB(self._ref_db_path)
-            hmm = AudioHMM(ref_db)
-            hmm.load_all_states()
-            hmm.set_active_song(self._song_id)
+        if self._use_hmm and self._ref_db_path and self._ref_db_path.exists():
+            try:
+                ref_db = ReferenceDB(self._ref_db_path)
+                hmm = AudioHMM(ref_db)
+                hmm.load_all_states()
+                hmm.set_active_song(self._song_id)
+            except Exception as exc:
+                print(f"[SIM] HMM-Init fehlgeschlagen ({exc}) — HMM deaktiviert",
+                      file=sys.stderr)
+                hmm = None
+                self._use_hmm = False
 
         # Ring-Buffer für Stereo-Mix (wie AudioProcess)
         ring_buffer:    list[np.ndarray] = []

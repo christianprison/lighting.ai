@@ -8,7 +8,7 @@ from __future__ import annotations
 import math
 from typing import Optional
 
-from PyQt6.QtCore import Qt, QPoint, QRect, QSize
+from PyQt6.QtCore import Qt, QPoint, QRect, QSize, pyqtSignal
 from PyQt6.QtGui import (
     QPainter, QPen, QBrush, QColor, QFont, QPolygon, QFontMetrics,
 )
@@ -554,6 +554,8 @@ class SimCanvas(QWidget):
 class SimMonitorDialog(QDialog):
     """Modales Vollbild-Fenster für die Simulation."""
 
+    hmm_toggled = pyqtSignal(bool)   # True = HMM einschalten, False = aus
+
     def __init__(self, initial_bpm: float, song_name: str, parent=None) -> None:
         super().__init__(parent)
         self.setWindowTitle(f"Simulation — {song_name}")
@@ -573,6 +575,8 @@ class SimMonitorDialog(QDialog):
                           border-radius:3px; }
             QPushButton:hover { background:#1c1f2b; }
             QPushButton#close_btn { background:#ff3b5c22; border-color:#ff3b5c; color:#ff3b5c; }
+            QPushButton#hmm_btn { color:#5c6080; border-color:#2a2e40; }
+            QPushButton#hmm_btn:checked { background:#00dc8222; border-color:#00dc82; color:#00dc82; }
             QScrollBar:horizontal { background:#0e1017; height:14px; }
             QScrollBar::handle:horizontal { background:#2a2e40; border-radius:4px; min-width:20px; }
             QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal { width:0; }
@@ -590,9 +594,20 @@ class SimMonitorDialog(QDialog):
         self._hbar.valueChanged.connect(self._on_scroll)
         self._hbar.sliderPressed.connect(lambda: setattr(self, "_auto_scroll", False))
 
-        # Status-Label + Close-Button
+        # Status-Label + Buttons
         self._status_lbl = QLabel("Warte auf Events …")
         self._status_lbl.setObjectName("status_lbl")
+
+        self._hmm_btn = QPushButton("HMM aus")
+        self._hmm_btn.setObjectName("hmm_btn")
+        self._hmm_btn.setCheckable(True)
+        self._hmm_btn.setChecked(False)
+        self._hmm_btn.setToolTip(
+            "HMM-Takterkennung ein-/ausschalten.\n"
+            "Aus = nur Beat-Detection (schnell, Echtzeit).\n"
+            "Ein = Beat + Positions-Schätzung (langsamer als Echtzeit)."
+        )
+        self._hmm_btn.toggled.connect(self._on_hmm_toggled)
 
         close_btn = QPushButton("✕ Schließen")
         close_btn.setObjectName("close_btn")
@@ -601,6 +616,7 @@ class SimMonitorDialog(QDialog):
         # Layout
         top_bar = QHBoxLayout()
         top_bar.addWidget(self._status_lbl, stretch=1)
+        top_bar.addWidget(self._hmm_btn)
         top_bar.addWidget(close_btn)
 
         layout = QVBoxLayout(self)
@@ -648,10 +664,16 @@ class SimMonitorDialog(QDialog):
         self._hbar.setValue(0)
         self._hbar.setMaximum(0)
         self._status_lbl.setText("Warte auf Events …")
+        # HMM-Toggle zurücksetzen (neuer Lauf startet ohne HMM)
+        self._hmm_btn.setChecked(False)
         self._canvas.update()
 
     def set_status(self, text: str) -> None:
         self._status_lbl.setText(text)
+
+    def _on_hmm_toggled(self, checked: bool) -> None:
+        self._hmm_btn.setText("HMM ein" if checked else "HMM aus")
+        self.hmm_toggled.emit(checked)
 
     # ── Scroll management ─────────────────────────────────────────────────────
 

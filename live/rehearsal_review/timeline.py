@@ -214,9 +214,10 @@ class TimelineWidget(QWidget):
         self._sim_beats: list[tuple[float, bool]] = []
         self._sim_positions: list[tuple[float, int, str, float, bool]] = []
 
-        # When True, JSONL events (beat/snare/position from recording) are not drawn.
-        # Set during simulation so sim results take centre stage.
-        self._hide_jsonl_events: bool = False
+        # Overlay-Modus: wenn True, JSONL-Events bei 25 % Opazität,
+        # Sim-Events in vollen AMBER/CYAN-Farben (wie JSONL-Events).
+        # Wenn False, Sim-Events als halbtransparentes Violett-Overlay.
+        self._sim_overlay: bool = False
 
         self._hbar = QScrollBar(Qt.Orientation.Horizontal, self)
         self._hbar.valueChanged.connect(self._on_scroll)
@@ -332,9 +333,9 @@ class TimelineWidget(QWidget):
         self._sim_positions = []
         self.update()
 
-    def set_hide_jsonl_events(self, hide: bool) -> None:
-        """Blendet JSONL-Events (Beat/Snare/Position aus der Aufnahme) aus/ein."""
-        self._hide_jsonl_events = hide
+    def set_sim_overlay(self, enabled: bool) -> None:
+        """Overlay-Modus: Sim-Events in vollen Farben, JSONL-Events bei 25 % Opazität."""
+        self._sim_overlay = enabled
         self.update()
 
     # ── Solo / Mute ───────────────────────────────────────────────────────────
@@ -741,22 +742,31 @@ class TimelineWidget(QWidget):
                                Qt.AlignmentFlag.AlignCenter, "?")
                     p.setFont(FONT_MONO)
 
-        # ── Simulierte Positionsschätzungen (violett gestrichelt, unten) ──────
+        # ── Simulierte Positionsschätzungen ───────────────────────────────────
         if self._sim_positions:
-            C_SIM    = QColor("#a78bfa")              # violett
-            C_SIM_FR = QColor(0xa7, 0x8b, 0xfa, 80)  # violett, eingefroren
-            sim_y0   = y0 + ANNOT_H // 2             # untere Hälfte des Streifens
-            sim_h    = ANNOT_H // 2 - 1
+            sim_y0 = y0 + ANNOT_H // 2   # untere Hälfte des Streifens
+            sim_h  = ANNOT_H // 2 - 1
             p.setFont(FONT_BTN)
+            if self._sim_overlay:
+                # Overlay-Modus: volle Cyan-Farben wie JSONL-Positions
+                C_SIM    = C_CYAN
+                C_SIM_FR = QColor(C_CYAN.red(), C_CYAN.green(), C_CYAN.blue(), 80)
+                pen_style = Qt.PenStyle.SolidLine
+                conf_threshold = 0.65
+            else:
+                # Normal: dezentes Violett gestrichelt
+                C_SIM    = QColor("#a78bfa")
+                C_SIM_FR = QColor(0xa7, 0x8b, 0xfa, 80)
+                pen_style = Qt.PenStyle.DashLine
+                conf_threshold = 0.45
             for t_sim, bar_num, part_name, conf, frozen in self._sim_positions:
                 sx = LABEL_W + int(t_sim * pps) - ox
                 if sx < LABEL_W or sx > w:
                     continue
                 c = C_SIM_FR if frozen else C_SIM
-                pen = QPen(c, 1, Qt.PenStyle.DashLine)
-                p.setPen(pen)
+                p.setPen(QPen(c, 1, pen_style))
                 p.drawLine(sx, sim_y0, sx, sim_y0 + sim_h)
-                if not frozen and conf >= 0.45:
+                if not frozen and conf >= conf_threshold:
                     p.setPen(c)
                     lbl = f"~{bar_num}"
                     if part_name:
@@ -783,8 +793,9 @@ class TimelineWidget(QWidget):
         pps = self._pps
         ox = self._scroll_x
 
-        if self._hide_jsonl_events:
-            return
+        # Im Overlay-Modus JSONL-Events auf 25 % Opazität dimmen
+        if self._sim_overlay:
+            p.setOpacity(0.25)
 
         for ev in seg.events:
             ex = LABEL_W + int((ev.t - seg.start_t) * pps) - ox
@@ -828,10 +839,17 @@ class TimelineWidget(QWidget):
                                Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
                                label_map.get(action, "?"))
 
-        # ── Simulierte Beat-Marker (violett, überlagern JSONL-Events) ─────────
+        # ── Simulierte Beat-Marker ────────────────────────────────────────────
         if self._sim_beats:
-            C_SIM_DOWN = QColor("#a78bfa")          # violett – simulierter Downbeat
-            C_SIM_BEAT = QColor(0xa7, 0x8b, 0xfa, 90)  # violett transparent – Beat
+            p.setOpacity(1.0)   # immer volle Opazität, unabhängig vom Overlay-Modus
+            if self._sim_overlay:
+                # Im Overlay-Modus gleiche Farben wie JSONL-Events (amber/grau)
+                C_SIM_DOWN = C_AMBER
+                C_SIM_BEAT = C_T4
+            else:
+                # Außerhalb: halbtransparentes Violett als dezenter Hinweis
+                C_SIM_DOWN = QColor("#a78bfa")
+                C_SIM_BEAT = QColor(0xa7, 0x8b, 0xfa, 90)
             p.setFont(FONT_BTN)
             for t_beat, is_down in self._sim_beats:
                 bx = LABEL_W + int(t_beat * pps) - ox
@@ -843,6 +861,7 @@ class TimelineWidget(QWidget):
                 else:
                     p.setPen(QPen(C_SIM_BEAT, 1))
                     p.drawLine(bx, y0 + EVENTS_H // 2, bx, y0 + EVENTS_H - 1)
+        p.setOpacity(1.0)   # Opazität für nachfolgende Zeichenoperationen zurücksetzen
 
     # ── Waveform track ────────────────────────────────────────────────────────
 

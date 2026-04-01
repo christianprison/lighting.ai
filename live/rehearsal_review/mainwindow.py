@@ -349,10 +349,11 @@ class MainWindow(QMainWindow):
         self._fragment_worker: Optional[_FragmentWorker] = None
 
         # Simulation
-        self._sim_worker: Optional[SimulatorWorker] = None
-        self._sim_monitor: Optional[SimMonitorDialog] = None
-        self._sim_start_wav_t: float  = 0.0  # WAV-Offset bei Simulations-Start
-        self._sim_t_in_seg:   float   = 0.0  # Segment-relative Startposition für Seek
+        self._sim_worker:      Optional[SimulatorWorker] = None
+        self._sim_monitor:     Optional[SimMonitorDialog] = None
+        self._sim_overlay_act: Optional[object] = None   # QAction, gesetzt in _build_toolbar
+        self._sim_start_wav_t: float = 0.0  # WAV-Offset bei Simulations-Start
+        self._sim_t_in_seg:    float = 0.0  # Segment-relative Startposition für Seek
 
         self._player = AudioPlayer(self)
         self._player.position_changed.connect(self._on_position)
@@ -561,10 +562,19 @@ class MainWindow(QMainWindow):
         self._sim_act = tb2.addAction("▶ Simulation")
         self._sim_act.setEnabled(False)
         self._sim_act.setToolTip(
-            "Beat-Detection + HMM-Parterkennung auf dieser Aufnahme simulieren\n"
-            "Ergebnis wird violett im Timeline dargestellt"
+            "Beat-Detection offline simulieren — Ergebnis wird in der Timeline dargestellt"
         )
         self._sim_act.triggered.connect(self._run_simulation)
+
+        self._sim_overlay_act = tb2.addAction("⊙ Simulation")
+        self._sim_overlay_act.setCheckable(True)
+        self._sim_overlay_act.setChecked(False)
+        self._sim_overlay_act.setEnabled(False)
+        self._sim_overlay_act.setToolTip(
+            "Umschalten: Simulation (volle Farben) ↔ Original (volle Farben)\n"
+            "Im Simulation-Modus sind Original-Events auf 25 % gedimmt"
+        )
+        self._sim_overlay_act.toggled.connect(self._timeline.set_sim_overlay)
 
         self._sim_clear_act = tb2.addAction("✕ Sim")
         self._sim_clear_act.setEnabled(False)
@@ -700,6 +710,10 @@ class MainWindow(QMainWindow):
             self._sim_worker.requestInterruption()
             self._sim_worker = None
         self._timeline.clear_sim_events()
+        self._timeline.set_sim_overlay(False)
+        if self._sim_overlay_act:
+            self._sim_overlay_act.setChecked(False)
+            self._sim_overlay_act.setEnabled(False)
         self._sim_clear_act.setEnabled(False)
 
         # Show existing annotations for this song
@@ -1437,11 +1451,11 @@ class MainWindow(QMainWindow):
             self._sim_worker.requestInterruption()
             self._sim_worker = None
         self._timeline.clear_sim_events()
+        self._timeline.set_sim_overlay(False)
         self._sim_act.setEnabled(True)
+        self._sim_overlay_act.setChecked(False)
+        self._sim_overlay_act.setEnabled(False)
         self._sim_clear_act.setEnabled(False)
-        if self._sim_monitor is not None:
-            self._sim_monitor.hide()
-        self._player.stop()
         self._status.showMessage("Simulations-Ergebnisse gelöscht", 3000)
 
     def _on_sim_progress(self, v: float) -> None:
@@ -1507,39 +1521,14 @@ class MainWindow(QMainWindow):
         )
         self._status.showMessage(summary, 12000)
 
-        # Dialog öffnen und JSONL laden
-        if jsonl_path and jsonl_path.exists():
-            seg = self._current_seg
-            bpm_val = 120.0
-            try:
-                bpm_val = float(
-                    self._session and seg and
-                    __import__("json").loads(
-                        (self._session.jsonl_path.parent.parent.parent.parent
-                         / "db" / "lighting-ai-db.json").read_text("utf-8")
-                    ).get("songs", {}).get(seg.song_id, {}).get("bpm", 120.0)
-                )
-            except Exception:
-                pass
-            if self._sim_monitor is None or not self._sim_monitor.isVisible():
-                self._sim_monitor = SimMonitorDialog(
-                    initial_bpm=bpm_val,
-                    song_name=seg.song_name if seg else "",
-                    parent=None,
-                )
-            else:
-                self._sim_monitor.reset(bpm_val, seg.song_name if seg else "")
-            self._sim_monitor.load_jsonl(jsonl_path)
-            self._sim_monitor.showMaximized()
-
-            # Audio ab Simulations-Startposition abspielen
-            self._player.seek(self._sim_t_in_seg)
-            self._player.play()
+        # Overlay-Toggle freischalten und Simulation-Ansicht aktivieren
+        self._sim_overlay_act.setEnabled(True)
+        self._sim_overlay_act.setChecked(True)   # sofort auf Sim-Ansicht umschalten
 
     def _on_sim_error(self, err: str) -> None:
         self._sim_act.setEnabled(True)
         self._sim_worker = None
-        self._player.stop()
+        self._sim_clear_act.setEnabled(False)
         self._status.showMessage(f"Simulation fehlgeschlagen: {err}", 8000)
         QMessageBox.critical(self, "Simulation", f"Fehler:\n{err}")
 

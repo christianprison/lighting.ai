@@ -101,6 +101,8 @@ class SimCanvas(QWidget):
         self._rms_vals:  list[tuple[float, float]] = []  # (t, rms)
         self._positions: list[SimPosition]  = []
 
+        self._playhead_t: float = -1.0  # aktuelle Audio-Position (Sekunden relativ zu sim_start)
+
         self.setMouseTracking(True)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         self.setMinimumHeight(_TOTAL_H)
@@ -126,6 +128,10 @@ class SimCanvas(QWidget):
     def add_position(self, p: SimPosition) -> None:
         self._positions.append(p)
         self._max_t = max(self._max_t, p.t)
+        self.update()
+
+    def set_playhead(self, t: float) -> None:
+        self._playhead_t = t
         self.update()
 
     def set_scroll(self, x: int) -> None:
@@ -169,6 +175,18 @@ class SimCanvas(QWidget):
         self._paint_hmm_conf(p, ox)
         self._paint_hmm_frozen(p, ox)
         self._paint_hmm_consensus(p, ox)
+
+        # ── Playhead-Linie ────────────────────────────────────────────────────
+        if self._playhead_t >= 0:
+            px = self._x(self._playhead_t, ox)
+            if self._in_view(px):
+                p.setPen(QPen(C_WHITE, 2))
+                p.drawLine(px, 0, px, _TOTAL_H - SCROLL_H)
+                # Kleine Zeitangabe oben
+                p.setFont(FONT_TINY)
+                p.setPen(C_WHITE)
+                p.drawText(px + 3, 2, 50, 12, Qt.AlignmentFlag.AlignLeft,
+                           f"{self._playhead_t:.1f}s")
 
         # ── Sticky Label-Spalte (über allem) ──────────────────────────────────
         p.fillRect(0, 0, LABEL_W, _TOTAL_H - SCROLL_H, C_BG2)
@@ -606,6 +624,11 @@ class SimMonitorDialog(QDialog):
         self._canvas.add_rms(t, rms_val)
         self._update_scroll()
 
+    def set_playhead(self, t: float) -> None:
+        self._canvas.set_playhead(t)
+        if self._auto_scroll:
+            self._scroll_to_playhead(t)
+
     def add_position(self, pos: SimPosition) -> None:
         self._canvas.add_position(pos)
         self._update_scroll()
@@ -620,6 +643,7 @@ class SimMonitorDialog(QDialog):
         self._canvas._max_t = 0.0
         self._canvas._initial_bpm = initial_bpm
         self._canvas._scroll_x = 0
+        self._canvas._playhead_t = -1.0
         self._auto_scroll = True
         self._hbar.setValue(0)
         self._hbar.setMaximum(0)
@@ -639,8 +663,16 @@ class SimMonitorDialog(QDialog):
         max_scroll = max(0, content_w - view_w)
         self._hbar.setMaximum(max_scroll)
         self._hbar.setPageStep(view_w)
-        if self._auto_scroll:
-            self._hbar.setValue(max_scroll)
+
+    def _scroll_to_playhead(self, t: float) -> None:
+        """Scrollt so, dass die Playhead-Linie ~30% vom linken Rand sichtbar ist."""
+        view_w = self._canvas.view_width()
+        if view_w <= 0:
+            return
+        # Playhead bei 30% des sichtbaren Bereichs
+        target = int(t * PPS) - view_w // 3
+        max_scroll = self._hbar.maximum()
+        self._hbar.setValue(max(0, min(target, max_scroll)))
 
     def _on_scroll(self, val: int) -> None:
         self._canvas.set_scroll(val)

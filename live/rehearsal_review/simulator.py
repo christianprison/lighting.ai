@@ -1,26 +1,18 @@
 """simulator.py — Offline-Simulation der Live-Audio-Erkennung.
 
-Spielt einen Song-Abschnitt aus einer 18-Kanal-WAV-Datei durch denselben
-BeatDetector + AudioHMM-Algorithmus wie der Live-Betrieb und gibt Beat-
-und Positionsereignisse aus.  Dient zur Nachbereitung und Parameter-
-Optimierung nach der Probe.
+Läuft so schnell wie möglich (kein Echtzeit-Throttling), schreibt alle
+erkannten Events als JSONL-Datei und emittiert dann `finished`.
+Die Darstellung erfolgt nachgelagert über SimMonitorDialog.load_jsonl().
 
-Verwendung::
-
-    worker = SimulatorWorker(
-        wav_path=Path("recording.wav"),
-        seg_start_t=0.0, seg_end_t=220.0,
-        sample_rate=48000, n_channels=18,
-        song_id="5Ij0Ns", bpm=120.0,
-        ref_db_path=Path("live/data/reference.db"),
-    )
-    worker.beat.connect(on_beat)
-    worker.position.connect(on_position)
-    worker.finished.connect(on_done)
-    worker.start()
+JSONL-Format (eine JSON-Zeile pro Event, t relativ zu seg_start_t):
+    {"t": 0.0,  "type": "sim_start",  "data": {"song_id": …, "bpm": …, …}}
+    {"t": 1.23, "type": "beat",       "data": {"beat_num": 1, "bpm": 120.5, …}}
+    {"t": 1.23, "type": "snare",      "data": {}}
+    {"t": 4.10, "type": "position",   "data": {"bar_num": 2, "part_name": …, …}}
 """
 from __future__ import annotations
 
+import json as _json
 import os
 import sys
 from dataclasses import dataclass
@@ -71,13 +63,16 @@ class SimPosition:
 # ---------------------------------------------------------------------------
 
 class SimulatorWorker(QThread):
-    """QThread der die Live-Erkennungspipeline offline auf einer WAV-Datei ausführt."""
+    """QThread der die Live-Erkennungspipeline offline auf einer WAV-Datei ausführt.
 
-    beat     = pyqtSignal(object)        # SimBeat
-    snare    = pyqtSignal(float)         # t (Snare-Onset)
-    position = pyqtSignal(object)        # SimPosition
-    progress = pyqtSignal(float)         # 0.0–1.0
-    finished = pyqtSignal(list, list)    # beats: list[SimBeat], positions: list[SimPosition]
+    Läuft als schnelles Batch-Processing und schreibt alle Events in eine
+    JSONL-Datei.  Keine Echtzeit-Signale mehr — Darstellung erfolgt über
+    SimMonitorDialog.load_jsonl() nach Abschluss.
+    """
+
+    progress = pyqtSignal(float)    # 0.0–1.0
+    finished = pyqtSignal(object)   # dict: {jsonl_path, n_beats_all, n_downbeats,
+                                    #        n_positions, beats, positions}
     error    = pyqtSignal(str)
 
     def __init__(
@@ -88,25 +83,25 @@ class SimulatorWorker(QThread):
         sample_rate: int,
         n_channels: int,
         song_id: str,
+        song_name: str,
         bpm: float,
+        output_jsonl: Path,
         ref_db_path: Optional[Path] = None,
         use_hmm: bool = False,
         parent=None,
     ) -> None:
         super().__init__(parent)
-        self._wav_path    = wav_path
-        self._seg_start_t = seg_start_t
-        self._seg_end_t   = seg_end_t
-        self._sr          = sample_rate
-        self._n_ch        = n_channels
-        self._song_id     = song_id
-        self._bpm         = bpm
-        self._ref_db_path = ref_db_path
-        self._use_hmm     = use_hmm
-
-    def set_use_hmm(self, enabled: bool) -> None:
-        """Kann vom Main-Thread während der Simulation aufgerufen werden."""
-        self._use_hmm = enabled
+        self._wav_path     = wav_path
+        self._seg_start_t  = seg_start_t
+        self._seg_end_t    = seg_end_t
+        self._sr           = sample_rate
+        self._n_ch         = n_channels
+        self._song_id      = song_id
+        self._song_name    = song_name
+        self._bpm          = bpm
+        self._output_jsonl = output_jsonl
+        self._ref_db_path  = ref_db_path
+        self._use_hmm      = use_hmm
 
     # ── Haupt-Loop ────────────────────────────────────────────────────────────
 
@@ -136,16 +131,9 @@ class SimulatorWorker(QThread):
             wav_frames = f.frames
             wav_ch     = f.channels
 
-        # Tatsächliche Sample-Rate der WAV-Datei verwenden (statt Session-Wert)
-        # damit Seek-Position und Block-Zeitstempel stimmen.
-        sr = wav_sr
-
-        # Lese-Parameter (mit echter SR berechnet)
-        start_sample = int(self._seg_start_t * sr)
-        end_sample   = int(self._seg_end_t   * sr)
-        # Sicherstellen dass end_sample in Grenzen liegt
-        end_sample   = min(end_sample, wav_frames)
-        start_sample = min(start_sample, wav_frames)
+        sr           = wav_sr
+        start_sample = min(int(self._seg_start_t * sr), wav_frames)
+        end_sample   = min(int(self._seg_end_t   * sr), wav_frames)
 
         print(
             f"[SIM] WAV: {self._wav_path.name}  {wav_sr} Hz  "
@@ -165,22 +153,16 @@ class SimulatorWorker(QThread):
                 f"  WAV: {wav_frames} Frames @ {wav_sr} Hz "
                 f"({wav_frames/wav_sr:.1f} s, {wav_ch} Kanäle)\n"
                 f"  Segment: {self._seg_start_t:.1f} s – {self._seg_end_t:.1f} s\n"
-                f"  → start_sample={start_sample} ≥ end_sample={end_sample}\n\n"
-                f"Prüfe ob die WAV-Datei vollständig ist und das Segment "
-                f"nicht über das Dateiende hinausragt."
+                f"  → start_sample={start_sample} ≥ end_sample={end_sample}"
             )
-            print(f"[SIM] FEHLER: {msg}", file=sys.stderr)
             self.error.emit(msg)
             return
 
         total_frames = end_sample - start_sample
 
-        # BeatDetector — mit echter SR der WAV kalibrieren
+        # ── Algorithmen initialisieren ────────────────────────────────────────
         beat_det = BeatDetector(sample_rate=sr, initial_bpm=self._bpm)
 
-        # HMM nur laden wenn initial aktiviert UND reference.db vorhanden.
-        # Die DB wird im Worker-Thread geöffnet; SQLite-Locking-Fehler werden
-        # abgefangen damit die Beat-Detection trotzdem läuft.
         hmm: Optional[AudioHMM] = None
         if self._use_hmm and self._ref_db_path and self._ref_db_path.exists():
             try:
@@ -194,48 +176,60 @@ class SimulatorWorker(QThread):
                 hmm = None
                 self._use_hmm = False
 
-        # Ring-Buffer für Stereo-Mix (wie AudioProcess)
+        # ── Verarbeitungs-Loop → JSONL schreiben ─────────────────────────────
         ring_buffer:    list[np.ndarray] = []
         snapshot_pending = False
-
         beats:     list[SimBeat]     = []
         positions: list[SimPosition] = []
-
         blocks_done = 0
 
-        with sf.SoundFile(self._wav_path) as f:
-            f.seek(start_sample)
-            actual_pos = f.tell()
-            remaining = end_sample - actual_pos
-            print(
-                f"[SIM] seek({start_sample}) → tell()={actual_pos}  "
-                f"remaining={remaining}  interrupted={self.isInterruptionRequested()}",
-                file=sys.stderr,
-            )
+        self._output_jsonl.parent.mkdir(parents=True, exist_ok=True)
+        with (
+            sf.SoundFile(self._wav_path) as wav_f,
+            open(self._output_jsonl, "w", encoding="utf-8") as jf,
+        ):
+            # Header
+            jf.write(_json.dumps({
+                "t": 0.0,
+                "type": "sim_start",
+                "data": {
+                    "song_id":    self._song_id,
+                    "song_name":  self._song_name,
+                    "bpm":        self._bpm,
+                    "seg_start_t": self._seg_start_t,
+                    "seg_end_t":   self._seg_end_t,
+                    "wav":        str(self._wav_path),
+                },
+            }) + "\n")
+
+            wav_f.seek(start_sample)
+            remaining = end_sample - wav_f.tell()
 
             while remaining > 0 and not self.isInterruptionRequested():
                 to_read = min(BLOCK_SIZE, remaining)
-                block = f.read(to_read, dtype="float32", always_2d=True)
+                block = wav_f.read(to_read, dtype="float32", always_2d=True)
                 if block.shape[0] == 0:
                     break
                 remaining -= block.shape[0]
 
-                # Block-Zeit relativ zum Simulationsstart (immer ab 0)
-                t_block = blocks_done * BLOCK_SIZE / sr
+                t_block     = blocks_done * BLOCK_SIZE / sr
+                t_block_mid = t_block + (block.shape[0] / 2) / sr
 
-                # Kanal-Anzahl auf erwartete Kanalzahl angleichen
+                # Kanal-Padding falls WAV weniger Kanäle hat als erwartet
                 if block.shape[1] < wav_ch:
-                    pad = np.zeros((block.shape[0], wav_ch - block.shape[1]),
-                                   dtype=np.float32)
+                    pad = np.zeros(
+                        (block.shape[0], wav_ch - block.shape[1]), dtype=np.float32
+                    )
                     block = np.concatenate([block, pad], axis=1)
 
-                # ── Pfad 1: Beat-Detection ────────────────────────────────────
+                # ── Beat-Detection ────────────────────────────────────────────
                 beat_events, snare_onset = beat_det.process_block(block)
-                t_block_mid = t_block + (block.shape[0] / 2) / sr
+
                 if snare_onset:
-                    self.snare.emit(t_block_mid)
+                    jf.write(_json.dumps({"t": t_block_mid, "type": "snare", "data": {}}) + "\n")
+
                 for ev in beat_events:
-                    sim_beat = SimBeat(
+                    sb = SimBeat(
                         t=t_block_mid,
                         beat_num=ev.beat_num,
                         bpm=ev.bpm,
@@ -243,12 +237,22 @@ class SimulatorWorker(QThread):
                         is_fill=ev.is_fill,
                         trigger=ev.trigger,
                     )
-                    beats.append(sim_beat)
-                    self.beat.emit(sim_beat)
+                    beats.append(sb)
+                    jf.write(_json.dumps({
+                        "t": t_block_mid,
+                        "type": "beat",
+                        "data": {
+                            "beat_num":    ev.beat_num,
+                            "bpm":         ev.bpm,
+                            "is_downbeat": ev.is_downbeat,
+                            "is_fill":     ev.is_fill,
+                            "trigger":     ev.trigger,
+                        },
+                    }) + "\n")
                     if ev.is_downbeat:
                         snapshot_pending = True
 
-                # ── Pfad 2: Stereo-Mix → Ring-Buffer ─────────────────────────
+                # ── Stereo-Mix → Ring-Buffer ──────────────────────────────────
                 if block.shape[1] > CHANNEL_MIX_R:
                     stereo = block[:, [CHANNEL_MIX_L, CHANNEL_MIX_R]]
                 else:
@@ -270,7 +274,7 @@ class SimulatorWorker(QThread):
                             )
                             state = hmm.update(chroma, mfcc, onset)
                             if state.song_id:
-                                sim_pos = SimPosition(
+                                sp = SimPosition(
                                     t=t_block,
                                     song_id=state.song_id,
                                     bar_num=state.bar_num,
@@ -279,19 +283,24 @@ class SimulatorWorker(QThread):
                                     is_frozen=state.is_frozen,
                                     is_part_consensus=state.is_part_consensus,
                                 )
-                                positions.append(sim_pos)
-                                self.position.emit(sim_pos)
+                                positions.append(sp)
+                                jf.write(_json.dumps({
+                                    "t": t_block,
+                                    "type": "position",
+                                    "data": {
+                                        "song_id":          state.song_id,
+                                        "bar_num":          state.bar_num,
+                                        "part_name":        state.part_name,
+                                        "confidence":       state.confidence,
+                                        "is_frozen":        state.is_frozen,
+                                        "is_part_consensus": state.is_part_consensus,
+                                    },
+                                }) + "\n")
                         except Exception:
-                            pass  # Feature-Extraktion fehlgeschlagen → ignorieren
+                            pass
 
                 blocks_done += 1
 
-                if blocks_done % 100 == 0:
-                    print(
-                        f"[SIM] Block {blocks_done}: {len(beats)} Beats bisher  "
-                        f"beat_phase={beat_det._beat_phase:.0f}/{beat_det._beat_period:.0f}",
-                        file=sys.stderr,
-                    )
                 if blocks_done % 50 == 0:
                     self.progress.emit(
                         min(1.0, (blocks_done * BLOCK_SIZE) / max(1, total_frames))
@@ -299,9 +308,15 @@ class SimulatorWorker(QThread):
 
         print(
             f"[SIM] Fertig: {blocks_done} Blöcke, {len(beats)} Beats, "
-            f"{len(positions)} Positionen  "
-            f"(interrupted={self.isInterruptionRequested()})",
+            f"{len(positions)} Positionen → {self._output_jsonl.name}",
             file=sys.stderr,
         )
         self.progress.emit(1.0)
-        self.finished.emit(beats, positions)
+        self.finished.emit({
+            "jsonl_path":  self._output_jsonl,
+            "n_beats_all": len(beats),
+            "n_downbeats": sum(1 for b in beats if b.is_downbeat),
+            "n_positions": len(positions),
+            "beats":       beats,
+            "positions":   positions,
+        })

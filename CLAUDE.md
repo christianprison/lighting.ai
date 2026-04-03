@@ -412,9 +412,19 @@ ANNOT-Strip untere Hälfte (Simulations-Ergebnisse, violett gestrichelt):
 - `~T{n}` Label mit Part-Name = HMM-Positionsschätzung (Konfidenz ≥ 0,45)
 - sehr transparent = eingefroren / Konfidenz unter Schwelle
 
-Events-Strip (violett überlagert):
-- Solide violette Linie = simulierter Downbeat
-- Transparente violette Linie = simulierter Beat
+Events-Strip — Normal-Modus (JSONL-Events aus Probenaufnahme):
+- Solide Linie = Downbeat | transparente Linie = Beat | cyan = Snare
+
+Events-Strip — Sim-Overlay-Modus (`_sim_overlay=True`):
+- JSONL-Events auf 25% Opacity abgedunkelt
+- Sim-Diamonds im Events-Strip: grün = Sim-Downbeat (r=5), amber = Sim-Kick (r=4), cyan = Sim-Snare (oben)
+- Sim-Positions-Schätzung: cyan/solid (Konfidenz ≥ 0,65) statt violett/gestrichelt
+
+Kanal-Rows mit Event-Markern (`_paint_event_markers()`):
+- **OH L+R** (`BEAT_MARKER_CHS = {13,14}`): alle Beats — amber = Beat, rot = Downbeat
+- **Snare** (`SNARE_MARKER_CHS = {9}`): snare-Events — cyan Diamond
+- **Kick** (`KICK_MARKER_CHS = {8}`): nur `trigger="kick"` Beats — amber = Kick, rot = Kick+Downbeat
+- Im Sim-Overlay: Original alpha→50, Sim-Events alpha=220 voll sichtbar überlagert
 
 Annotation-Strip zeigt amber Oberkante + lila Hintergrund wenn Modus aktiv.
 "Annotieren"-Button ist grün/invertiert wenn aktiv (`:checked` CSS).
@@ -447,15 +457,31 @@ probe_events   (id, session_id, wav_offset, song_id, bar_num, part_name, confide
 
 #### Simulation (simulator.py)
 
-`SimulatorWorker(QThread)` repliziert `AudioProcess._audio_callback()` + `_process_ring_buffer()` offline:
+`SimulatorWorker(QThread)` repliziert `AudioProcess._audio_callback()` + `_process_ring_buffer()` **offline** (so schnell wie möglich, kein Echtzeit-Throttling):
 - Liest WAV in BLOCK_SIZE=2048-Blöcken
 - Schickt jeden Block durch `BeatDetector.process_block()`
-- Auf jedem Downbeat: `extract_features_from_array()` + `hmm.update()` → `SimPosition`
-- Emittiert `beat(SimBeat)`, `position(SimPosition)`, `progress(float)`, `finished(list, list)`
-- HMM läuft im Rehearsal Mode (Suchraum auf aktuellen Song eingeschränkt: `hmm.set_active_song(song_id)`)
-- BPM wird aus `lighting-ai-db.json` geladen; Fallback: 120 BPM
-- Nach Abschluss: Match-Auswertung gegen manuelle Annotationen (±1 s, bar_num-Vergleich) → Prozent-Score in Statuszeile
-- Toolbar-Buttons: `▶ Simulation` startet, `✕ Sim` löscht Ergebnisse aus Timeline
+- Auf jedem Downbeat (optional): `extract_features_from_array()` + `hmm.update(elapsed_sec=...)` → `SimPosition`
+- Schreibt alle Events inkrementell in eine **JSONL-Datei** (`{stem}_sim_{song_id}_{HHmmss}.jsonl`)
+- Emittiert **nur** `progress(float)` und `finished(dict)` — keine Echtzeit-Signale mehr
+- `finished`-Dict enthält: `jsonl_path`, `beats: list[SimBeat]`, `snares: list[float]`, `positions: list[SimPosition]`, Zähler
+- Nach Abschluss werden Beats/Snares/Positions **batch** in die Timeline geladen
+
+**Sim-Overlay-Modus** (Toggle `⊙ Simulation` in Toolbar, wird nach Sim-Ende automatisch aktiviert):
+- `_sim_overlay=True` → JSONL-Events abgedunkelt, Sim-Diamonds prominent überlagert
+- Kanal-Rows: Kick-Reihe zeigt Sim-Kicks, Snare-Reihe Sim-Snares, OH-Reihen alle Sim-Beats
+- `✕ Sim`-Button: löscht alle Sim-Events, deaktiviert Overlay
+
+**Beat-Detection-Verbesserungen** (seit 2026-04):
+- `ChannelOnsetDetector._peak_rms()`: max RMS über 4×512-Sample-Sub-Fenster statt 1×2048 — löst Block-Boundary-Problem für kurze Kick/Snare-Transienten
+- `BeatDetector.elapsed_sec`: Sekunden seit reset() — wird an `hmm.update()` übergeben
+- `BeatDetector.vox_rms`: Rolling-Average RMS von CH01 Pete Vox (CH_VOX=0), ~10 Blöcke = 0,4 s; in Beat-JSONL-Events als `vox_rms` geloggt
+
+**HMM-Verbesserungen** (seit 2026-04):
+- `_bpm_map: dict[str, float]` — wird beim `load_all_states()` aus `songs`-Tabelle gefüllt
+- `_time_prior_step()`: addiert Log-Gaußterm N(expected_bar, σ=2) zu allen Beam-Hypothesen; erwartet Takt = `elapsed_sec / bar_dur + 1`; hilft besonders bei harmonisch monotonen Songs
+
+HMM läuft im Rehearsal Mode (Suchraum auf aktuellen Song eingeschränkt: `hmm.set_active_song(song_id)`).
+`use_hmm: bool = False` — HMM nur wenn explizit aktiviert (verhindert SQLite-Locking aus Worker-Thread).
 
 ### Tech Stack (Live-App)
 

@@ -1,6 +1,6 @@
 # Rehearsal Post-Preparation App — Bedienungsanleitung
 
-**Version:** 2026-03 (rev 2)
+**Version:** 2026-04 (rev 3)
 **Zielgruppe:** Timo (Lichttechniker)
 **Plattform:** Linux Mint Steuer-Laptop
 
@@ -44,9 +44,10 @@ Optional: Session direkt übergeben:
 │ Minimap (gesamte Session)                                                    │
 ├──────────────────────────────────────────────────────────────────────────────┤
 │ Zeitlineal                                                                   │
-│ Events: amber/grau = Beat | cyan = Snare | violett = sim. Beat/Downbeat     │
+│ Events-Strip: amber = Beat | cyan = Snare | grün ◆ = Downbeat               │
+│   Im Sim-Overlay: orig. abgedunkelt + Sim ◆ (grün/amber/cyan) überlagert   │
 │ ANNOT-Strip (oben):   amber = Takt | grün = Part-Start | weiß = Frag.-Start │
-│            (unten):   gestrichelt violett = Sim.-Positionsschätzung ~T{n}   │
+│            (unten):   cyan gestrichelt = HMM-Positionsschätzung ~T{n}       │
 │            (Rand):    violett = auto-erk. Fragmentgrenze (F2, F3 …)         │
 │            (unten):   grün/grau Aktivitätsbalken während Fragment-Erkennung │
 │ Mix (Main L+R)                                                               │
@@ -211,40 +212,89 @@ T 21–28    (8 Takte)   Chorus
 
 ## Offline-Simulation der Live-Erkennung
 
-Mit dem **`▶ Simulation`**-Button kann die gesamte Live-Erkennungspipeline offline auf der Aufnahme ausgeführt werden — genauso wie sie im Live-Betrieb laufen würde.
+Mit dem **`▶ Simulation`**-Button wird die gesamte Live-Erkennungspipeline **offline** auf der Aufnahme ausgeführt — genauso wie sie im Live-Betrieb laufen würde, aber so schnell wie möglich (kein Echtzeit-Throttling).
 
 ### Was wird simuliert?
 
-Die Simulation führt denselben Code wie `AudioProcess` im Live-Betrieb aus:
-1. **BeatDetector (PLL-basiert):** Erkennt Beats und Downbeats aus Kick/Snare/Overheads
-2. **AudioHMM:** Schätzt auf jedem Downbeat die Takt-Position per Fingerprint-Matching gegen `reference.db`
+Dieselben Algorithmen wie `AudioProcess` im Live-Betrieb:
 
-Der HMM läuft im **Rehearsal Mode** — der Suchraum ist auf den aktuell gewählten Song eingeschränkt.
+1. **BeatDetector (PLL-basiert):** Erkennt Beats, Downbeats und Snares aus Kick (CH09) / Snare (CH10) / Overheads (CH14/15). Seit April 2026 mit **Sub-Block-RMS**: Kick/Snare-Transienten (5–15 ms) werden auch bei Block-Grenzen zuverlässig erkannt.
+2. **AudioHMM** *(optional, HMM-Toggle)*: Schätzt auf jedem Downbeat die Takt-Position per Fingerprint-Matching gegen `reference.db`. Läuft im **Rehearsal Mode** — Suchraum nur auf den aktuellen Song eingeschränkt. Nutzt **Zeit-Prior**: aus verstrichener Zeit + BPM wird der erwartete Takt berechnet (hilft bei harmonisch monotonen Songs wie „Dancing with myself").
 
-### Ergebnis in der Timeline (alles violett)
+### Ablauf
 
-| Element | Darstellung |
-|---------|-------------|
-| Simulierter Downbeat | Solide violette Linie im Events-Strip |
-| Simulierter Beat | Transparente violette Linie im Events-Strip |
-| Positionsschätzung (sicher) | Gestrichelte violette Linie im ANNOT-Strip, `~T25 Chorus` |
-| Positionsschätzung (eingefroren/unsicher) | Sehr transparente Linie, kein Label |
+1. Song im Dropdown auswählen
+2. **`▶ Simulation`** klicken → Fortschrittsbalken läuft
+3. Simulation schreibt eine JSONL-Datei (`{session}_sim_{song}_{Zeit}.jsonl`) neben die Aufnahme
+4. Nach Abschluss erscheinen die Ergebnisse **direkt in der Timeline**
+5. Der **`⊙ Simulation`**-Button wird automatisch aktiviert (Overlay-Modus)
 
-### Match-Auswertung
+### Sim-Overlay-Modus
 
-Nach Abschluss vergleicht die App die HMM-Schätzungen gegen die manuellen Annotationen:
+Im Overlay-Modus (`⊙ Simulation` = grün/aktiv) zeigt die Timeline:
 
-`Simulation abgeschlossen: 48 Downbeats, 44 Positionsschätzungen — Takt-Match: 32/48 (67%)`
+**Events-Strip** (schmaler Streifen oben):
+- Originale Probe-Events: stark abgedunkelt (25% Opacity)
+- Sim-Diamonds: **grün** = Downbeat ◆, **amber** = Kick-Beat ◆, **cyan** = Snare ◆ (oben)
 
-→ Hier erkennt man sofort, wo der Algorithmus driftet, und kann HMM-Parameter (Sigma-Werte, Konfidenz-Schwelle, Beam-Width) gezielt anpassen.
+**Kanal-Rows** — im Overlay überlagert:
+| Kanal | Original (abgedunkelt) | Simulation (voll sichtbar) |
+|-------|------------------------|----------------------------|
+| **OH L+R** | alle Beats (amber/rot) | alle Sim-Beats (amber = Beat, grün = Downbeat) |
+| **Snare** | erkannte Snares (cyan) | Sim-Snares (cyan ◆) |
+| **Kick** | kick-getriggerte Beats (amber/rot) | Sim-Kicks: amber = Kick, grün = Kick+Downbeat |
+
+> **Lesehinweis Kick-Reihe:** Amber = Kick erkannt (beliebiger Beat), Rot/Grün = dieser Kick war gleichzeitig ein Downbeat (Takt 1). Die Dichte der Diamonds zeigt direkt wie zuverlässig der Kick erkannt wird.
+
+**ANNOT-Strip** (Takt-Annotations-Streifen):
+- Manuelle Annotationen (amber/grün/weiß) bleiben sichtbar
+- HMM-Schätzungen (nur wenn HMM aktiv): `~T{n} Part` als cyan Linie, sehr transparent = eingefroren
+
+### Overlay ein-/ausschalten
+
+- **`⊙ Simulation`**-Button klicken → wechselt zwischen Sim-Overlay und Normal-Ansicht
+- Normal-Ansicht zeigt nur die originalen Probe-Events (volle Sättigung)
+- Overlay bleibt bis **`✕ Sim`** aktiv, auch beim Wechsel des Songs
+
+### Ergebnis interpretieren
+
+**Kick-Erkennung beurteilen:**
+- Dichtes Muster in der Kick-Reihe = Kick wird gut erkannt
+- Lücken = Transient lag an Block-Grenze oder unter Schwelle → ggf. `threshold_factor` in `beat_detector.py` senken
+
+**BPM-Drift beurteilen:**
+- Downbeats (grün) sollten gleichmäßig verteilt sein
+- Driftet der Abstand → PLL hat Probleme → BPM aus DB prüfen
+
+**HMM-Taktposition beurteilen** *(nur wenn HMM aktiv)*:
+- `~T{n}` Labels im ANNOT-Strip mit manuellen Markern vergleichen
+- Statuszeile zeigt Match-Quote: `Simulation: 48 Downbeats — Takt-Match: 32/48 (67%)`
+- Bei schlechten Ergebnissen: zuerst mehr Probenaufnahmen importieren (`→ reference.db`)
 
 ### Wann ist die Simulation sinnvoll?
 
 - **Nach dem ersten Import:** Prüfen ob die reference.db schon gut genug ist
-- **Nach Parameteränderungen:** z.B. nach Anpassen der Sigma-Werte in `hmm.py`
-- **Zur Fehlersuche:** Herausfinden warum der Live-Betrieb an bestimmten Stellen driftet
+- **Nach Parameteränderungen:** z.B. Sigma-Werte in `hmm.py`, Threshold in `beat_detector.py`
+- **Zur Fehlersuche:** Herausfinden warum bestimmte Songs schlechter erkannt werden
+- **Kick/Snare-Diagnose:** Sehen wo Transienten übersehen werden
 
-**`✕ Sim`** entfernt alle Simulations-Ergebnisse aus der Timeline.
+**`✕ Sim`** entfernt alle Simulations-Ergebnisse aus der Timeline und deaktiviert den Overlay.
+
+### Sim-JSONL-Datei
+
+Die erzeugte Datei kann auch direkt analysiert werden:
+```bash
+# Alle Downbeats ausgeben
+grep '"is_downbeat": true' *_sim_*.jsonl | head -20
+
+# Vox-RMS-Verlauf (Gesangsenergie auf CH01 Pete Vox)
+grep '"type": "beat"' *_sim_*.jsonl | python3 -c "
+import sys, json
+for line in sys.stdin:
+    d = json.loads(line)
+    print(f\"{d['t']:6.2f}s  vox_rms={d['data'].get('vox_rms', 0):.4f}\")
+"
+```
 
 ---
 
@@ -289,6 +339,26 @@ App über `./start.sh` starten (aktiviert venv `/opt/lighting-venv`).
 | + / - | Zoom in/out |
 | 0 | Zoom anpassen |
 | Rechtsklick ANNOT-Strip | Nächsten Marker löschen |
+
+### Toolbar-Buttons Übersicht
+
+| Button | Funktion |
+|--------|----------|
+| **Play / Stop** | Transport |
+| **Song-Dropdown** | Song-Segment wechseln |
+| **Fragmente** | Fragment-Erkennung für aktuellen Song starten |
+| **Annotieren** | Annotations-Modus ein/aus (leuchtet grün wenn aktiv) |
+| **ab Takt [n]** | Starttakt des ersten Fragments (Spinbox) |
+| **Takt [B]** | Takt-Marker setzen (Shortcut: B) |
+| **Part-Start [P]** | Part-Marker setzen mit Namens-Dialog (Shortcut: P) |
+| **Fragment [F]** | Fragment-Start setzen mit Takt-Eingabe (Shortcut: F) |
+| **Undo [U]** | Letzten Marker rückgängig (Shortcut: U) |
+| **Speichern** | Annotationen in JSON speichern |
+| **→ reference.db** | Annotierte Takte als Audio-Features importieren |
+| **DB-Parts** | Parts-Panel aus reference.db ein/ausblenden |
+| **▶ Simulation** | Offline-Simulation starten |
+| **⊙ Simulation** | Sim-Overlay ein/ausschalten (erscheint nach Simulation) |
+| **✕ Sim** | Simulations-Ergebnisse löschen |
 
 ### Dateistruktur
 ```

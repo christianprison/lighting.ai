@@ -34,13 +34,14 @@ log = logging.getLogger("live.audio.beat")
 # ---------------------------------------------------------------------------
 # Kanal-Indizes (0-basiert, XR18 USB)
 # ---------------------------------------------------------------------------
-CH_KICK = 8
-CH_SNARE = 9
+CH_VOX    = 0   # CH01 Pete Vox (0-basiert, XR18 USB)
+CH_KICK   = 8
+CH_SNARE  = 9
 CH_TOM_HI = 10
 CH_TOM_MID = 11
 CH_TOM_LO = 12
-CH_OH_L = 13
-CH_OH_R = 14
+CH_OH_L   = 13
+CH_OH_R   = 14
 
 # ---------------------------------------------------------------------------
 # PLL-Parameter
@@ -215,6 +216,10 @@ class BeatDetector:
         # Letzter Zeitpunkt eines Kick-Onsets (samples), für Fallback-Timer
         self._last_kick_sample: int = 0
 
+        # Gesangs-Energie: Rolling RMS über ~10 Blöcke (~0,4 s)
+        self._vox_rms_hist: deque[float] = deque(maxlen=10)
+        self._vox_rms: float = 0.0
+
     # --- Public API -----------------------------------------------------------
 
     def set_bpm(self, bpm: float) -> None:
@@ -241,6 +246,8 @@ class BeatDetector:
         self._oh.reset()
         self._toms.reset()
         self._tom_energy_hist.clear()
+        self._vox_rms_hist.clear()
+        self._vox_rms = 0.0
         log.info("BeatDetector zurückgesetzt (BPM=%.1f)", self._bpm)
 
     @property
@@ -254,6 +261,16 @@ class BeatDetector:
     @property
     def bar_num(self) -> int:
         return self._bar_num
+
+    @property
+    def elapsed_sec(self) -> float:
+        """Sekunden seit dem letzten reset()."""
+        return self._total_samples / self._sr
+
+    @property
+    def vox_rms(self) -> float:
+        """Aktuelle Gesangs-Energie (Rolling Average ~0,4 s, CH01 Pete Vox)."""
+        return self._vox_rms
 
     def process_block(self, block: np.ndarray) -> tuple[list[BeatEvent], bool]:
         """Verarbeitet einen Audio-Block und gibt Beat-Ereignisse zurück.
@@ -285,6 +302,13 @@ class BeatDetector:
         snare = _ch(CH_SNARE)
         oh = (_ch(CH_OH_L) + _ch(CH_OH_R)) * 0.5
         toms_sum = (_ch(CH_TOM_HI) + _ch(CH_TOM_MID) + _ch(CH_TOM_LO)) / 3.0
+
+        # Gesangs-Energie (Rolling Average)
+        if n_ch > CH_VOX:
+            vox = _ch(CH_VOX).astype(np.float32)
+            vox_rms = float(np.sqrt(np.mean(vox ** 2)))
+            self._vox_rms_hist.append(vox_rms)
+            self._vox_rms = float(np.mean(self._vox_rms_hist))
 
         # --- Onset-Erkennung ---
         kick_onset, _ = self._kick.process(kick, self._beat_period)

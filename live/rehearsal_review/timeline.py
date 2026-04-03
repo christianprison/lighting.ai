@@ -897,13 +897,6 @@ class TimelineWidget(QWidget):
                     p.setPen(Qt.PenStyle.NoPen)
                     p.drawPolygon(_diamond(bx, cy_bottom, R))
 
-                # Fill: rotes Diamond (mitte)
-                if is_fill:
-                    c = QColor("#ff3b5c") if self._sim_overlay else C_VIO_SOFT
-                    p.setBrush(QBrush(c))
-                    p.setPen(Qt.PenStyle.NoPen)
-                    p.drawPolygon(_diamond(bx, cy_mid, R))
-
                 # Normaler Beat (kein Downbeat, kein Kick): kleine Linie
                 if not is_down and trigger != "kick":
                     c = C_T4 if self._sim_overlay else C_VIO_SOFT

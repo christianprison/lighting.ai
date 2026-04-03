@@ -99,6 +99,25 @@ class ChannelOnsetDetector:
         self._cooldown_samples: int = 0
         self._cooldown_factor = cooldown_factor
 
+    @staticmethod
+    def _peak_rms(block: np.ndarray, n_windows: int = 4) -> float:
+        """Maximales RMS über N gleichgroße Sub-Fenster des Blocks.
+
+        Löst das Block-Boundary-Problem: Transient-Peaks (5–15 ms Kick/Snare),
+        die nahe einer Block-Grenze liegen, werden nicht mehr auf zwei Blöcke
+        verteilt und dadurch unsichtbar gemacht. Stattdessen findet das
+        Sub-Fenster, das den Peak enthält, seinen vollen Wert.
+        """
+        b = block.astype(np.float32)
+        n = len(b)
+        w = n // n_windows
+        if w == 0:
+            return float(np.sqrt(np.mean(b ** 2)))
+        return max(
+            float(np.sqrt(np.mean(b[i * w:(i + 1) * w] ** 2)))
+            for i in range(n_windows)
+        )
+
     def process(self, block: np.ndarray, beat_period_samples: float) -> tuple[bool, float]:
         """Verarbeitet einen Mono-Audio-Block.
 
@@ -113,7 +132,7 @@ class ChannelOnsetDetector:
         -------
         (onset_detected, rms_energy)
         """
-        rms = float(np.sqrt(np.mean(block.astype(np.float32) ** 2)))
+        rms = self._peak_rms(block)
         n = len(block)
 
         # Cooldown abbauen

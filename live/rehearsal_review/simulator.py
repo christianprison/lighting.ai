@@ -249,6 +249,7 @@ class SimulatorWorker(QThread):
                             "is_downbeat": ev.is_downbeat,
                             "is_fill":     ev.is_fill,
                             "trigger":     ev.trigger,
+                            "vox_rms":     round(beat_det.vox_rms, 6),
                         },
                     }) + "\n")
                     if ev.is_downbeat:
@@ -274,7 +275,10 @@ class SimulatorWorker(QThread):
                             chroma, mfcc, onset, _ = extract_features_from_array(
                                 mono, sr=sr, bpm=beat_det.bpm or self._bpm
                             )
-                            state = hmm.update(chroma, mfcc, onset)
+                            state = hmm.update(
+                                chroma, mfcc, onset,
+                                elapsed_sec=beat_det.elapsed_sec,
+                            )
                             if state.song_id:
                                 sp = SimPosition(
                                     t=t_block,

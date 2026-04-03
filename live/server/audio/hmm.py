@@ -117,6 +117,8 @@ class AudioHMM:
         self._bars: dict[StateKey, BarRecord] = {}
         # Part-Grenzen pro Song: song_id → sorted list of (start_bar_num, part_name)
         self._part_map: dict[str, list[tuple[int, str]]] = {}
+        # BPM pro Song (für Zeit-Prior)
+        self._bpm_map: dict[str, float] = {}
 
         # Aktueller Beam: Liste von Hypothesen, sortiert nach log_prob desc
         self._beam: list[_Hypothesis] = []
@@ -140,6 +142,12 @@ class AudioHMM:
         self._features.clear()
         self._bars.clear()
         self._part_map.clear()
+        self._bpm_map.clear()
+
+        # BPM pro Song laden (für Zeit-Prior)
+        for song in self.db.list_songs():
+            if song.bpm > 0:
+                self._bpm_map[song.song_id] = song.bpm
 
         features = self.db.get_all_features()
         for fv in features:
@@ -206,10 +214,19 @@ class AudioHMM:
         chroma: np.ndarray,
         mfcc: np.ndarray,
         onset: np.ndarray,
+        elapsed_sec: float = -1.0,
     ) -> HMMState:
         """Verarbeitet einen neuen Feature-Snapshot und gibt den neuen Zustand zurück.
 
         Wird einmal pro Takt aufgerufen (auf Beat 1 getriggert).
+
+        Parameters
+        ----------
+        elapsed_sec:
+            Sekunden seit Segment-Start (aus BeatDetector.elapsed_sec).
+            Wenn >= 0, wird ein zeit-basierter Prior eingebaut, der den Beam
+            auf den erwarteten Takt hin fokussiert. Das kompensiert schwache
+            Fingerprint-Ähnlichkeit bei harmonisch repetitiven Songs.
         """
         if not self._features:
             log.warning("HMM hat keine Zustände geladen")
@@ -221,11 +238,15 @@ class AudioHMM:
         # 2) Emission: Log-Emissionswahrscheinlichkeit addieren
         updated = self._emission_step(transitioned, chroma, mfcc, onset)
 
-        # 3) Beam stutzen (Top-K)
+        # 3) Zeit-Prior: Beam auf erwarteten Takt hin fokussieren
+        if elapsed_sec >= 0:
+            updated = self._time_prior_step(updated, elapsed_sec)
+
+        # 4) Beam stutzen (Top-K)
         updated.sort(key=lambda h: h.log_prob, reverse=True)
         self._beam = updated[:BEAM_WIDTH]
 
-        # 4) Bestes Ergebnis
+        # 5) Bestes Ergebnis
         best = self._beam[0]
         best_key = best.key
 
@@ -247,7 +268,7 @@ class AudioHMM:
             and current_part != ""
         )
 
-        # 5) Fallback: Position einfrieren falls unter Schwelle —
+        # 6) Fallback: Position einfrieren falls unter Schwelle —
         #    außer wenn Part-Konsensus greift.
         if confidence < CONFIDENCE_THRESHOLD:
             if is_consensus:
@@ -340,6 +361,41 @@ class AudioHMM:
             # sim ∈ [0, 1] → log(max(sim, ε)) als Emissionsterm
             log_emission = math.log(max(sim, 1e-9))
             result.append(_Hypothesis(hyp.key, hyp.log_prob + log_emission))
+        return result
+
+    def _time_prior_step(
+        self,
+        hypotheses: list[_Hypothesis],
+        elapsed_sec: float,
+    ) -> list[_Hypothesis]:
+        """Zeitbasierter Prior: bevorzugt Takte nahe der erwarteten Position.
+
+        Bei bekanntem BPM und verstrichener Zeit seit Song-Start lässt sich
+        der erwartete Takt sehr präzise ableiten.  Das hilft vor allem bei
+        harmonisch monotonen Songs, bei denen die Fingerprint-Emission kaum
+        diskriminiert.
+
+        Modell: Log-Gaußverteilung N(expected_bar, σ=2 Takte) addiert zu
+        jedem Hypothesen-Log-Prob.  σ=2 erlaubt ±4 Takte (95 %-Intervall),
+        deckt damit leichte BPM-Drift und verpasste Beats ab.
+        """
+        song_id = self._active_song_id
+        if not song_id:
+            return hypotheses
+        bpm = self._bpm_map.get(song_id, 0.0)
+        if bpm <= 0:
+            return hypotheses
+
+        bar_dur = 60.0 / bpm * 4.0
+        expected_bar = elapsed_sec / bar_dur + 1.0  # float für Gaußmitte
+
+        TIME_SIGMA = 2.0
+
+        result = []
+        for hyp in hypotheses:
+            delta = hyp.key.bar_num - expected_bar
+            log_time = _log_gaussian(delta, mu=0.0, sigma=TIME_SIGMA)
+            result.append(_Hypothesis(hyp.key, hyp.log_prob + log_time))
         return result
 
     def _log_transition(

@@ -180,6 +180,7 @@ class SimulatorWorker(QThread):
         ring_buffer:    list[np.ndarray] = []
         snapshot_pending = False
         beats:     list[SimBeat]     = []
+        snares:    list[float]       = []
         positions: list[SimPosition] = []
         blocks_done = 0
 
@@ -226,6 +227,7 @@ class SimulatorWorker(QThread):
                 beat_events, snare_onset = beat_det.process_block(block)
 
                 if snare_onset:
+                    snares.append(t_block_mid)
                     jf.write(_json.dumps({"t": t_block_mid, "type": "snare", "data": {}}) + "\n")
 
                 for ev in beat_events:
@@ -247,6 +249,7 @@ class SimulatorWorker(QThread):
                             "is_downbeat": ev.is_downbeat,
                             "is_fill":     ev.is_fill,
                             "trigger":     ev.trigger,
+                            "vox_rms":     round(beat_det.vox_rms, 6),
                         },
                     }) + "\n")
                     if ev.is_downbeat:
@@ -272,7 +275,10 @@ class SimulatorWorker(QThread):
                             chroma, mfcc, onset, _ = extract_features_from_array(
                                 mono, sr=sr, bpm=beat_det.bpm or self._bpm
                             )
-                            state = hmm.update(chroma, mfcc, onset)
+                            state = hmm.update(
+                                chroma, mfcc, onset,
+                                elapsed_sec=beat_det.elapsed_sec,
+                            )
                             if state.song_id:
                                 sp = SimPosition(
                                     t=t_block,
@@ -318,5 +324,6 @@ class SimulatorWorker(QThread):
             "n_downbeats": sum(1 for b in beats if b.is_downbeat),
             "n_positions": len(positions),
             "beats":       beats,
+            "snares":      snares,
             "positions":   positions,
         })

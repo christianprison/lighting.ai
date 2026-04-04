@@ -209,9 +209,11 @@ class TimelineWidget(QWidget):
         self._scan_pos: float = -1.0   # current scan head (seconds)
 
         # Simulation results
-        # beats: list of (t, is_downbeat)
+        # beats:   list of (t, is_downbeat, is_fill, trigger)
+        # snares:  list of t
         # positions: list of (t, bar_num, part_name, confidence, is_frozen)
-        self._sim_beats: list[tuple[float, bool]] = []
+        self._sim_beats: list[tuple[float, bool, bool, str]] = []
+        self._sim_snares: list[float] = []
         self._sim_positions: list[tuple[float, int, str, float, bool]] = []
 
         # Overlay-Modus: wenn True, JSONL-Events bei 25 % Opazität,
@@ -316,9 +318,13 @@ class TimelineWidget(QWidget):
         self._scan_pos = -1.0
         self.update()
 
-    def add_sim_beat(self, t: float, is_downbeat: bool) -> None:
-        """Fügt einen simulierten Beat-Marker hinzu (live während Simulation)."""
-        self._sim_beats.append((t, is_downbeat))
+    def add_sim_beat(self, t: float, is_downbeat: bool,
+                     is_fill: bool = False, trigger: str = "timer") -> None:
+        self._sim_beats.append((t, is_downbeat, is_fill, trigger))
+        self.update()
+
+    def add_sim_snare(self, t: float) -> None:
+        self._sim_snares.append(t)
         self.update()
 
     def add_sim_position(self, t: float, bar_num: int, part_name: str,
@@ -329,7 +335,8 @@ class TimelineWidget(QWidget):
 
     def clear_sim_events(self) -> None:
         """Löscht alle Simulations-Ergebnisse."""
-        self._sim_beats = []
+        self._sim_beats     = []
+        self._sim_snares    = []
         self._sim_positions = []
         self.update()
 
@@ -839,29 +846,64 @@ class TimelineWidget(QWidget):
                                Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
                                label_map.get(action, "?"))
 
-        # ── Simulierte Beat-Marker ────────────────────────────────────────────
+        # ── Simulierte Events als Diamonds ───────────────────────────────────
+        p.setOpacity(1.0)   # immer volle Opazität
+
+        def _diamond(cx: int, cy: int, r: int = 4) -> QPolygon:
+            return QPolygon([
+                QPoint(cx,     cy - r),
+                QPoint(cx + r, cy    ),
+                QPoint(cx,     cy + r),
+                QPoint(cx - r, cy    ),
+            ])
+
+        R = 4   # Diamond-Radius
+
+        cy_top    = y0 + EVENTS_H // 4          # Snares (oben)
+        cy_mid    = y0 + EVENTS_H // 2          # Fills (mitte)
+        cy_bottom = y0 + EVENTS_H * 3 // 4      # Beats / Kicks (unten)
+
+        C_VIO      = QColor("#a78bfa")
+        C_VIO_SOFT = QColor(0xa7, 0x8b, 0xfa, 90)
+
+        # Snares (cyan Diamonds oben)
+        if self._sim_snares:
+            c = C_CYAN if self._sim_overlay else C_VIO
+            p.setBrush(QBrush(c))
+            p.setPen(Qt.PenStyle.NoPen)
+            for t_s in self._sim_snares:
+                bx = LABEL_W + int(t_s * pps) - ox
+                if LABEL_W <= bx <= w:
+                    p.drawPolygon(_diamond(bx, cy_top, R))
+
+        # Beats / Kicks / Downbeats
         if self._sim_beats:
-            p.setOpacity(1.0)   # immer volle Opazität, unabhängig vom Overlay-Modus
-            if self._sim_overlay:
-                # Im Overlay-Modus gleiche Farben wie JSONL-Events (amber/grau)
-                C_SIM_DOWN = C_AMBER
-                C_SIM_BEAT = C_T4
-            else:
-                # Außerhalb: halbtransparentes Violett als dezenter Hinweis
-                C_SIM_DOWN = QColor("#a78bfa")
-                C_SIM_BEAT = QColor(0xa7, 0x8b, 0xfa, 90)
-            p.setFont(FONT_BTN)
-            for t_beat, is_down in self._sim_beats:
+            for t_beat, is_down, is_fill, trigger in self._sim_beats:
                 bx = LABEL_W + int(t_beat * pps) - ox
                 if bx < LABEL_W or bx > w:
                     continue
+
+                # Downbeat: grünes Diamond (volle Höhe)
                 if is_down:
-                    p.setPen(QPen(C_SIM_DOWN, 2))
-                    p.drawLine(bx, y0, bx, y0 + EVENTS_H - 1)
-                else:
-                    p.setPen(QPen(C_SIM_BEAT, 1))
-                    p.drawLine(bx, y0 + EVENTS_H // 2, bx, y0 + EVENTS_H - 1)
-        p.setOpacity(1.0)   # Opazität für nachfolgende Zeichenoperationen zurücksetzen
+                    c = C_GREEN if self._sim_overlay else C_VIO
+                    p.setBrush(QBrush(c))
+                    p.setPen(Qt.PenStyle.NoPen)
+                    p.drawPolygon(_diamond(bx, cy_bottom, R + 1))
+
+                # Kick: amber Diamond
+                if trigger == "kick":
+                    c = C_AMBER if self._sim_overlay else C_VIO_SOFT
+                    p.setBrush(QBrush(c))
+                    p.setPen(Qt.PenStyle.NoPen)
+                    p.drawPolygon(_diamond(bx, cy_bottom, R))
+
+                # Normaler Beat (kein Downbeat, kein Kick): kleine Linie
+                if not is_down and trigger != "kick":
+                    c = C_T4 if self._sim_overlay else C_VIO_SOFT
+                    p.setPen(QPen(c, 1))
+                    p.drawLine(bx, cy_mid, bx, y0 + EVENTS_H - 2)
+
+        p.setOpacity(1.0)
 
     # ── Waveform track ────────────────────────────────────────────────────────
 

@@ -1473,6 +1473,7 @@ class MainWindow(QMainWindow):
         n_positions = result.get("n_positions", 0)
         jsonl_path  = result.get("jsonl_path")
         beats       = result.get("beats", [])
+        snares      = result.get("snares", [])
         positions   = result.get("positions", [])
 
         if n_beats_all == 0:
@@ -1486,11 +1487,14 @@ class MainWindow(QMainWindow):
             )
             return
 
-        # Timeline mit Sim-Events befüllen (t relativ zu Segment-Start)
+        # Timeline mit Sim-Events befüllen (t = absoluter WAV-Zeitstempel)
         for b in beats:
             self._timeline.add_sim_beat(
-                self._sim_start_wav_t + b.t, b.is_downbeat
+                self._sim_start_wav_t + b.t,
+                b.is_downbeat, b.is_fill, b.trigger,
             )
+        for t_s in snares:
+            self._timeline.add_sim_snare(self._sim_start_wav_t + t_s)
         for pos in positions:
             self._timeline.add_sim_position(
                 self._sim_start_wav_t + pos.t,

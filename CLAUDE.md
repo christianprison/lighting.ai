@@ -33,6 +33,13 @@ Das Projekt besteht aus **zwei unabhängigen Teilprojekten**, die in separaten C
 - Commit Messages auf Deutsch oder Englisch — egal, Hauptsache klar
 - `db/lighting-ai-db.json` wird auch durch die App committed (auto-save)
 - Audio-Dateien kommen als Binary Blobs rein (kein LFS nötig, Dateien sind klein)
+### ⚠️ MCP-Tool-Limitation: Dateigröße
+
+**`mcp__github__push_files` und `mcp__github__create_or_update_file` haben ein stilles Content-Limit von ca. 48 KB.**  
+Bei Dateien über dieser Grenze wird der `content`-Parameter einfach verworfen — die Tools geben "missing required parameter: content" zurück oder senden Leerinhalt.
+
+**Konsequenz:** Niemals `push_files` / `create_or_update_file` für große Dateien (>~800 Zeilen Python) nutzen. Wenn `git push` geblockt ist und die MCP-Tools für große Dateien nicht funktionieren → Nutzer muss den Push von seinem lokalen Laptop aus durchführen.
+
 
 ### Versionierung
 

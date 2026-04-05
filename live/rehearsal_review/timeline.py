@@ -429,8 +429,11 @@ class TimelineWidget(QWidget):
         if ev.type == "beat":
             if track_chs & BEAT_MARKER_CHS:
                 return C_RED if ev.data.get("is_downbeat") else C_AMBER
-            if track_chs & KICK_MARKER_CHS and ev.data.get("is_downbeat"):
-                return C_AMBER
+            if track_chs & KICK_MARKER_CHS:
+                # Kick-Kanal: alle kick-getriggerten Beats zeigen (nicht nur Downbeats),
+                # damit die tatsächliche Kick-Erkennungsrate sichtbar ist.
+                if ev.data.get("trigger") == "kick":
+                    return C_RED if ev.data.get("is_downbeat") else C_AMBER
         elif ev.type == "snare" and track_chs & SNARE_MARKER_CHS:
             return C_CYAN
         return None
@@ -997,7 +1000,11 @@ class TimelineWidget(QWidget):
 
     def _paint_event_markers(self, p: QPainter, track: dict,
                               ty: int, th: int, vl: int, vr: int) -> None:
-        """Draw diamond markers for beat/snare/downbeat events on designated tracks."""
+        """Draw diamond markers for beat/snare/downbeat events on designated tracks.
+
+        Im Sim-Overlay-Modus werden die Original-JSONL-Events abgedunkelt und
+        die Sim-Events (kick/snare/downbeat) voll sichtbar überlagert.
+        """
         if not self.segment:
             return
         track_chs = self._track_chs_for(track)
@@ -1012,7 +1019,23 @@ class TimelineWidget(QWidget):
         r = _DIAMOND_R
         cy = ty + th - 2 - r   # bottom-aligned diamond center
 
+        def _draw_diamond(ex: int, color: QColor, alpha: int = 180, radius: int = r) -> None:
+            d = QPolygon([
+                QPoint(ex,          cy - radius),
+                QPoint(ex + radius, cy),
+                QPoint(ex,          cy + radius),
+                QPoint(ex - radius, cy),
+            ])
+            fill = QColor(color)
+            fill.setAlpha(alpha)
+            p.setPen(QPen(color, 1))
+            p.setBrush(QBrush(fill))
+            p.drawPolygon(d)
+
         p.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+
+        # ── Original-JSONL-Events ──────────────────────────────────────────────
+        orig_alpha = 50 if self._sim_overlay else 180  # abgedunkelt im Overlay-Modus
         for ev in seg.events:
             ex = LABEL_W + int((ev.t - seg.start_t) * pps) - ox
             if ex < LABEL_W - r or ex > w + r:
@@ -1020,17 +1043,34 @@ class TimelineWidget(QWidget):
             color = self._marker_color_for(ev, track_chs)
             if color is None:
                 continue
-            diamond = QPolygon([
-                QPoint(ex,     cy - r),
-                QPoint(ex + r, cy),
-                QPoint(ex,     cy + r),
-                QPoint(ex - r, cy),
-            ])
-            fill = QColor(color)
-            fill.setAlpha(180)
-            p.setPen(QPen(color, 1))
-            p.setBrush(QBrush(fill))
-            p.drawPolygon(diamond)
+            _draw_diamond(ex, color, alpha=orig_alpha)
+
+        # ── Sim-Events auf den Kanal-Rows überlagern (nur im Overlay-Modus) ───
+        if self._sim_overlay and (self._sim_beats or self._sim_snares):
+            seg_t0 = seg.start_t
+
+            if track_chs & SNARE_MARKER_CHS:
+                for t_s in self._sim_snares:
+                    ex = LABEL_W + int((t_s - seg_t0) * pps) - ox
+                    if LABEL_W - r <= ex <= w + r:
+                        _draw_diamond(ex, C_CYAN, alpha=220)
+
+            if track_chs & (KICK_MARKER_CHS | BEAT_MARKER_CHS):
+                for t_beat, is_down, _is_fill, trigger in self._sim_beats:
+                    ex = LABEL_W + int((t_beat - seg_t0) * pps) - ox
+                    if ex < LABEL_W - r or ex > w + r:
+                        continue
+                    if track_chs & KICK_MARKER_CHS:
+                        # Kick-Reihe: nur kick-getriggerte Beats
+                        if trigger != "kick":
+                            continue
+                        color = C_GREEN if is_down else C_AMBER
+                        _draw_diamond(ex, color, alpha=220, radius=r + (1 if is_down else 0))
+                    else:
+                        # OH-Reihen: alle Beats
+                        color = C_GREEN if is_down else C_AMBER
+                        _draw_diamond(ex, color, alpha=220, radius=r + (1 if is_down else 0))
+
         p.setRenderHint(QPainter.RenderHint.Antialiasing, False)
 
     # ── Labels column (sticky) ────────────────────────────────────────────────

@@ -567,3 +567,4 @@ Die Songdaten stammen aus einem **BandHelper-Export** (`The_Pact.json`), der im 
 |`tempo`         |bpm          |
 |`key`           |key          |
 |`duration`      |duration_sec |
+placeholder

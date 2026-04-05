@@ -758,51 +758,53 @@ class TimelineWidget(QWidget):
         pps = self._pps
         ox = self._scroll_x
 
-        # Im Overlay-Modus JSONL-Events auf 25 % Opazität dimmen
-        if self._sim_overlay:
-            p.setOpacity(0.25)
+        # Im Overlay-Modus mit Sim-Events: Original-JSONL komplett ausblenden
+        _hide_orig = self._sim_overlay and bool(self._sim_kicks or self._sim_snares)
 
-        for ev in seg.events:
-            ex = LABEL_W + int((ev.t - seg.start_t) * pps) - ox
-            if ex < LABEL_W or ex > w:
-                continue
+        if not _hide_orig:
+            if self._sim_overlay:
+                p.setOpacity(0.25)
+            for ev in seg.events:
+                ex = LABEL_W + int((ev.t - seg.start_t) * pps) - ox
+                if ex < LABEL_W or ex > w:
+                    continue
 
-            if ev.type == "beat":
-                down = ev.data.get("is_downbeat", False)
-                c = C_AMBER if down else C_T4
-                p.setPen(QPen(c, 1))
-                p.drawLine(ex, y0 + (2 if down else EVENTS_H // 2),
-                           ex, y0 + EVENTS_H - 2)
-
-            elif ev.type == "snare":
-                p.setPen(QPen(C_CYAN, 1))
-                p.drawLine(ex, y0, ex, y0 + EVENTS_H // 3)
-
-            elif ev.type == "position":
-                conf = float(ev.data.get("confidence", 0))
-                part = str(ev.data.get("part_name", ""))
-                if conf > 0.65 and part:
-                    alpha = int(min(1.0, conf) * 200)
-                    c = QColor(C_CYAN.red(), C_CYAN.green(), C_CYAN.blue(), alpha)
+                if ev.type == "beat":
+                    down = ev.data.get("is_downbeat", False)
+                    c = C_AMBER if down else C_T4
                     p.setPen(QPen(c, 1))
-                    p.drawLine(ex, y0, ex, y0 + EVENTS_H // 2)
-                    if conf > 0.82:
-                        p.setPen(c)
-                        p.drawText(ex + 2, y0, 70, EVENTS_H // 2,
-                                   Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
-                                   part)
+                    p.drawLine(ex, y0 + (2 if down else EVENTS_H // 2),
+                               ex, y0 + EVENTS_H - 2)
 
-            elif ev.type == "user":
-                action = ev.data.get("action", "")
-                if action in ("next", "prev", "goto", "accent"):
-                    label_map = {"next": "->", "prev": "<-",
-                                 "goto": "~>", "accent": "*"}
-                    p.setPen(QPen(C_GREEN, 2))
-                    p.drawLine(ex, y0 + EVENTS_H // 3, ex, y0 + EVENTS_H - 2)
-                    p.setPen(C_GREEN)
-                    p.drawText(ex + 2, y0 + EVENTS_H // 3, 20, EVENTS_H // 2,
-                               Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
-                               label_map.get(action, "?"))
+                elif ev.type == "snare":
+                    p.setPen(QPen(C_CYAN, 1))
+                    p.drawLine(ex, y0, ex, y0 + EVENTS_H // 3)
+
+                elif ev.type == "position":
+                    conf = float(ev.data.get("confidence", 0))
+                    part = str(ev.data.get("part_name", ""))
+                    if conf > 0.65 and part:
+                        alpha = int(min(1.0, conf) * 200)
+                        c = QColor(C_CYAN.red(), C_CYAN.green(), C_CYAN.blue(), alpha)
+                        p.setPen(QPen(c, 1))
+                        p.drawLine(ex, y0, ex, y0 + EVENTS_H // 2)
+                        if conf > 0.82:
+                            p.setPen(c)
+                            p.drawText(ex + 2, y0, 70, EVENTS_H // 2,
+                                       Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
+                                       part)
+
+                elif ev.type == "user":
+                    action = ev.data.get("action", "")
+                    if action in ("next", "prev", "goto", "accent"):
+                        label_map = {"next": "->", "prev": "<-",
+                                     "goto": "~>", "accent": "*"}
+                        p.setPen(QPen(C_GREEN, 2))
+                        p.drawLine(ex, y0 + EVENTS_H // 3, ex, y0 + EVENTS_H - 2)
+                        p.setPen(C_GREEN)
+                        p.drawText(ex + 2, y0 + EVENTS_H // 3, 20, EVENTS_H // 2,
+                                   Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
+                                   label_map.get(action, "?"))
 
         # ── Simulierte Kick/Snare-Onsets als Diamonds ────────────────────────
         p.setOpacity(1.0)
@@ -968,15 +970,18 @@ class TimelineWidget(QWidget):
         p.setRenderHint(QPainter.RenderHint.Antialiasing, True)
 
         # ── Original-JSONL-Events ──────────────────────────────────────────────
-        orig_alpha = 50 if self._sim_overlay else 180  # abgedunkelt im Overlay-Modus
-        for ev in seg.events:
-            ex = LABEL_W + int((ev.t - seg.start_t) * pps) - ox
-            if ex < LABEL_W - r or ex > w + r:
-                continue
-            color = self._marker_color_for(ev, track_chs)
-            if color is None:
-                continue
-            _draw_diamond(ex, color, alpha=orig_alpha)
+        # Im Overlay-Modus mit Sim-Events: Probe-Marker komplett ausblenden
+        _hide_orig = self._sim_overlay and bool(self._sim_kicks or self._sim_snares)
+        if not _hide_orig:
+            orig_alpha = 50 if self._sim_overlay else 180
+            for ev in seg.events:
+                ex = LABEL_W + int((ev.t - seg.start_t) * pps) - ox
+                if ex < LABEL_W - r or ex > w + r:
+                    continue
+                color = self._marker_color_for(ev, track_chs)
+                if color is None:
+                    continue
+                _draw_diamond(ex, color, alpha=orig_alpha)
 
         # ── Sim-Kick/Snare auf Kanal-Rows überlagern (nur im Overlay-Modus) ──
         if self._sim_overlay and (self._sim_kicks or self._sim_snares):

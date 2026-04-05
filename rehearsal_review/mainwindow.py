@@ -51,28 +51,41 @@ def _compute_sim_bpm(kicks: list[float], snares: list[float]) -> int:
 
 
 def _compute_bar_times(bpm: int, seg_start_t: float, seg_end_t: float,
-                       abs_events: list[float]) -> list[float]:
+                       abs_kicks: list[float], abs_snares: list[float]) -> list[float]:
     """Berechnet Takt-Zeitstempel (abs. WAV-Zeit) für ein 4/4-Taktgitter.
 
-    Ankerpunkt: erster abs. Event (erster Kick, ggf. erste Snare).
-    Erstreckt sich von seg_start_t bis seg_end_t.
+    Ankerpunkt: erster Kick (ggf. erste Snare).
+    Jeder Taktanfang wird auf das nächste Kick- oder Snare-Event gesnapped
+    (Fenster ±38 % eines Beats), damit Taktstriche immer auf einem
+    sichtbaren Drum-Hit landen.
+    Kein Event in Reichweite → Takt wird übersprungen (keine schwebende Linie).
     """
-    if bpm <= 0 or not abs_events:
+    if bpm <= 0:
         return []
     beat_sec = 60.0 / bpm
     bar_sec  = 4.0 * beat_sec
-    anchor   = min(abs_events)
+    snap_r   = beat_sec * 0.38   # ±38 % eines Beats: genug für Beat-1, zu eng für Beat-2
 
-    # Rückwärts iterieren bis vor seg_start_t
+    anchor_pool = abs_kicks if abs_kicks else abs_snares
+    if not anchor_pool:
+        return []
+    anchor = min(anchor_pool)
+
+    all_events = sorted(abs_kicks + abs_snares)
+
+    # Rückwärts bis vor seg_start_t iterieren
     t = anchor
     while t > seg_start_t:
         t -= bar_sec
 
-    # Vorwärts: alle Taktstriche innerhalb des Segments sammeln
     bar_times: list[float] = []
     while t <= seg_end_t + bar_sec * 0.5:
         if t >= seg_start_t - bar_sec * 0.1:
-            bar_times.append(t)
+            # Nächstes Kick/Snare-Event im Snap-Fenster suchen
+            candidates = [e for e in all_events if abs(e - t) <= snap_r]
+            if candidates:
+                bar_times.append(min(candidates, key=lambda e: abs(e - t)))
+            # Kein Event im Fenster → Taktlinie weglassen
         t += bar_sec
     return bar_times
 
@@ -1587,7 +1600,8 @@ class MainWindow(QMainWindow):
                 sim_bpm,
                 self._sim_start_wav_t,
                 self._sim_start_wav_t + seg.duration,
-                abs_kicks if abs_kicks else abs_snares,
+                abs_kicks,
+                abs_snares,
             )
             self._timeline.set_sim_bpm_and_bars(sim_bpm, bar_times)
 

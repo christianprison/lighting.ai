@@ -29,7 +29,6 @@ from annotation import (
 )
 from simulator import SimulatorWorker
 from datetime import datetime as _dt
-from sim_monitor import SimMonitorDialog
 
 _APP_STYLE = """
 QMainWindow, QWidget          { background:#08090d; color:#eef0f6; }
@@ -350,8 +349,8 @@ class MainWindow(QMainWindow):
         self._fragment_worker: Optional[_FragmentWorker] = None
 
         # Simulation
-        self._sim_worker:      Optional[SimulatorWorker] = None
-        self._sim_monitor:     Optional[SimMonitorDialog] = None
+        self._sim_worker:       Optional[SimulatorWorker] = None
+        self._sim_progress_dlg: Optional[QProgressDialog] = None
         self._sim_overlay_act: Optional[object] = None   # QAction, gesetzt in _build_toolbar
         self._sim_start_wav_t: float = 0.0  # WAV-Offset bei Simulations-Start
         self._sim_t_in_seg:    float = 0.0  # Segment-relative Startposition für Seek
@@ -592,10 +591,12 @@ class MainWindow(QMainWindow):
         default_dir = str(
             Path(__file__).parent.parent / "live" / "data" / "recordings"
         )
+        from PyQt6.QtWidgets import QSplitter
         dlg = QFileDialog(self, "Aufnahme öffnen", default_dir)
         dlg.setOptions(QFileDialog.Option.DontUseNativeDialog)
         dlg.setNameFilter("JSONL Event-Log (*.jsonl);;Alle Dateien (*)")
         dlg.setFileMode(QFileDialog.FileMode.ExistingFile)
+        dlg.resize(1080, 640)
 
         class _HideSimFiles(QSortFilterProxyModel):
             _pat = MainWindow._SIM_JSONL_PAT
@@ -607,6 +608,13 @@ class MainWindow(QMainWindow):
                 return super().filterAcceptsRow(row, parent)
 
         dlg.setProxyModel(_HideSimFiles(dlg))
+
+        # Sidebar-Splitter schmaler machen (links ~100px, Rest für Dateiliste)
+        for spl in dlg.findChildren(QSplitter):
+            if spl.count() >= 2:
+                spl.setSizes([100, 900])
+                break
+
         if dlg.exec() == QFileDialog.DialogCode.Accepted:
             sel = dlg.selectedFiles()
             if sel:
@@ -879,9 +887,6 @@ class MainWindow(QMainWindow):
             self._pos_label.setText(_fmt_t_precise(wav_t - self._current_seg.start_t))
         if self._event_panel and self._event_panel.isVisible():
             self._event_panel.focus_at(wav_t)
-        # Playhead im Simulations-Monitor synchron halten
-        if self._sim_monitor is not None and self._sim_monitor.isVisible():
-            self._sim_monitor.set_playhead(max(0.0, wav_t - self._sim_start_wav_t))
 
     def _on_stopped(self) -> None:
         self._play_act.setText("Play")
@@ -1434,9 +1439,32 @@ class MainWindow(QMainWindow):
         self._sim_start_wav_t = sim_start_wav_t
         self._sim_t_in_seg    = t_in_seg_start
         self._sim_bpm         = bpm
-        self._status.showMessage(
-            f'Simulation läuft: "{seg.song_name}" — BPM {bpm:.0f} …', 0
+
+        # Progress-Overlay Modal während der Simulation
+        prog = QProgressDialog(
+            f'Analysiere "{seg.song_name}" …', "Abbrechen", 0, 100, self
         )
+        prog.setWindowTitle("Simulation")
+        prog.setWindowModality(Qt.WindowModality.WindowModal)
+        prog.setMinimumDuration(0)
+        prog.setAutoClose(False)
+        prog.setAutoReset(False)
+        prog.setValue(0)
+        prog.setStyleSheet("""
+            QProgressDialog { background:#08090d; color:#eef0f6; }
+            QLabel           { color:#eef0f6; font-family:'Sora',sans-serif;
+                               font-size:11px; padding:8px 0 4px 0; }
+            QProgressBar     { background:#151820; border:1px solid #1e2230;
+                               border-radius:3px; text-align:center; color:#eef0f6;
+                               height:18px; min-height:18px; }
+            QProgressBar::chunk { background:#00dc82; border-radius:3px; }
+            QPushButton      { background:#ff3b5c22; border:1px solid #ff3b5c;
+                               color:#ff3b5c; padding:4px 16px;
+                               font-family:'DM Mono',monospace; font-size:10px;
+                               border-radius:3px; }
+            QPushButton:hover { background:#ff3b5c44; }
+        """)
+        self._sim_progress_dlg = prog
 
         worker = SimulatorWorker(
             wav_path=self._session.wav_path,
@@ -1452,11 +1480,13 @@ class MainWindow(QMainWindow):
             use_hmm=False,
             parent=self,
         )
-        worker.progress.connect(self._on_sim_progress)
+        prog.canceled.connect(worker.requestInterruption)
+        worker.progress.connect(lambda v: prog.setValue(int(v * 100)))
         worker.finished.connect(self._on_sim_finished)
         worker.error.connect(self._on_sim_error)
         self._sim_worker = worker
         worker.start()
+        prog.show()
 
     def _clear_simulation(self) -> None:
         if self._sim_worker is not None:
@@ -1470,12 +1500,13 @@ class MainWindow(QMainWindow):
         self._sim_clear_act.setEnabled(False)
         self._status.showMessage("Simulations-Ergebnisse gelöscht", 3000)
 
-    def _on_sim_progress(self, v: float) -> None:
-        seg = self._current_seg
-        name = seg.song_name if seg else "…"
-        self._status.showMessage(f'Simulation: "{name}" — {v:.0%}', 0)
+    def _close_sim_progress(self) -> None:
+        if self._sim_progress_dlg is not None:
+            self._sim_progress_dlg.close()
+            self._sim_progress_dlg = None
 
     def _on_sim_finished(self, result: dict) -> None:
+        self._close_sim_progress()
         self._sim_act.setEnabled(True)
         self._sim_clear_act.setEnabled(True)
         self._sim_worker = None
@@ -1507,20 +1538,6 @@ class MainWindow(QMainWindow):
             12000,
         )
 
-        # SimMonitorDialog öffnen und mit JSONL befüllen
-        jsonl_path = result.get("jsonl_path")
-        seg = self._current_seg
-        song_name = seg.song_name if seg else "?"
-        bpm = self._sim_bpm
-        if self._sim_monitor is None:
-            self._sim_monitor = SimMonitorDialog(bpm, song_name, self)
-        else:
-            self._sim_monitor.reset(bpm, song_name)
-        if jsonl_path and jsonl_path.exists():
-            self._sim_monitor.load_jsonl(jsonl_path)
-        self._sim_monitor.show()
-        self._sim_monitor.raise_()
-
         # Overlay-Toggle freischalten und Simulation-Ansicht aktivieren
         self._sim_overlay_act.setEnabled(True)
         self._sim_overlay_act.setChecked(True)
@@ -1530,6 +1547,7 @@ class MainWindow(QMainWindow):
         self._sync_zoom_combo()
 
     def _on_sim_error(self, err: str) -> None:
+        self._close_sim_progress()
         self._sim_act.setEnabled(True)
         self._sim_worker = None
         self._sim_clear_act.setEnabled(False)

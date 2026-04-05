@@ -4,11 +4,12 @@ from __future__ import annotations
 import json
 import math
 import os
+import re
 import sys
 from pathlib import Path
 from typing import Optional
 
-from PyQt6.QtCore import Qt, QThread, QTimer, pyqtSignal
+from PyQt6.QtCore import Qt, QSortFilterProxyModel, QThread, QTimer, pyqtSignal
 from PyQt6.QtGui import QAction, QKeySequence
 from PyQt6.QtWidgets import (
     QApplication, QComboBox, QDialog, QFileDialog, QInputDialog,
@@ -354,6 +355,7 @@ class MainWindow(QMainWindow):
         self._sim_overlay_act: Optional[object] = None   # QAction, gesetzt in _build_toolbar
         self._sim_start_wav_t: float = 0.0  # WAV-Offset bei Simulations-Start
         self._sim_t_in_seg:    float = 0.0  # Segment-relative Startposition für Seek
+        self._sim_bpm:         float = 120.0  # BPM zum Zeitpunkt des Sim-Starts
 
         self._player = AudioPlayer(self)
         self._player.position_changed.connect(self._on_position)
@@ -583,16 +585,32 @@ class MainWindow(QMainWindow):
 
     # ── Loading ───────────────────────────────────────────────────────────────
 
+    # Regex für simulierte JSONL-Ausgabedateien: stem_sim_songId_HHMMSS.jsonl
+    _SIM_JSONL_PAT = re.compile(r'_sim_[A-Za-z0-9]+_\d{6}\.jsonl$')
+
     def _open_session(self) -> None:
         default_dir = str(
             Path(__file__).parent.parent / "live" / "data" / "recordings"
         )
-        path, _ = QFileDialog.getOpenFileName(
-            self, "Aufnahme öffnen", default_dir,
-            "JSONL Event-Log (*.jsonl);;Alle Dateien (*)"
-        )
-        if path:
-            self._load_session(Path(path))
+        dlg = QFileDialog(self, "Aufnahme öffnen", default_dir)
+        dlg.setOptions(QFileDialog.Option.DontUseNativeDialog)
+        dlg.setNameFilter("JSONL Event-Log (*.jsonl);;Alle Dateien (*)")
+        dlg.setFileMode(QFileDialog.FileMode.ExistingFile)
+
+        class _HideSimFiles(QSortFilterProxyModel):
+            _pat = MainWindow._SIM_JSONL_PAT
+            def filterAcceptsRow(self, row: int, parent):
+                idx = self.sourceModel().index(row, 0, parent)
+                name = idx.data()
+                if isinstance(name, str) and self._pat.search(name):
+                    return False
+                return super().filterAcceptsRow(row, parent)
+
+        dlg.setProxyModel(_HideSimFiles(dlg))
+        if dlg.exec() == QFileDialog.DialogCode.Accepted:
+            sel = dlg.selectedFiles()
+            if sel:
+                self._load_session(Path(sel[0]))
 
     def _load_session(self, jsonl_path: Path) -> None:
         db = self._try_load_db(jsonl_path)
@@ -1415,6 +1433,7 @@ class MainWindow(QMainWindow):
         self._sim_clear_act.setEnabled(True)
         self._sim_start_wav_t = sim_start_wav_t
         self._sim_t_in_seg    = t_in_seg_start
+        self._sim_bpm         = bpm
         self._status.showMessage(
             f'Simulation läuft: "{seg.song_name}" — BPM {bpm:.0f} …', 0
         )
@@ -1492,7 +1511,7 @@ class MainWindow(QMainWindow):
         jsonl_path = result.get("jsonl_path")
         seg = self._current_seg
         song_name = seg.song_name if seg else "?"
-        bpm = float(seg.bpm) if seg and seg.bpm else 120.0
+        bpm = self._sim_bpm
         if self._sim_monitor is None:
             self._sim_monitor = SimMonitorDialog(bpm, song_name, self)
         else:
@@ -1505,6 +1524,10 @@ class MainWindow(QMainWindow):
         # Overlay-Toggle freischalten und Simulation-Ansicht aktivieren
         self._sim_overlay_act.setEnabled(True)
         self._sim_overlay_act.setChecked(True)
+
+        # Zoom auf 80 px/s setzen für gut lesbare Diamond-Darstellung
+        self._timeline.set_zoom(80.0)
+        self._sync_zoom_combo()
 
     def _on_sim_error(self, err: str) -> None:
         self._sim_act.setEnabled(True)

@@ -13,7 +13,6 @@ JSONL-Format (eine JSON-Zeile pro Event, t relativ zu seg_start_t):
 from __future__ import annotations
 
 import json as _json
-import os
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -114,16 +113,9 @@ class SimulatorWorker(QThread):
     def _run_inner(self) -> None:
         import soundfile as sf
 
-        # Server-Pfad in sys.path eintragen damit die Live-Module importierbar sind
-        rr_dir     = os.path.dirname(os.path.abspath(__file__))
-        repo_root  = Path(rr_dir).parent
-        server_dir = str(repo_root / "live")
-        if server_dir not in sys.path:
-            sys.path.insert(0, server_dir)
-
-        from server.audio.beat_detector import BeatDetector
-        from server.audio.hmm import AudioHMM
-        from server.audio.reference_db import ReferenceDB
+        from detection.beat_detector import BeatDetector
+        from detection.hmm import AudioHMM
+        from detection.reference_db import ReferenceDB
 
         # ── WAV-Datei vorab prüfen ────────────────────────────────────────────
         with sf.SoundFile(self._wav_path) as f:
@@ -271,7 +263,7 @@ class SimulatorWorker(QThread):
                     mono  = np.mean(audio, axis=1).astype(np.float32)
                     if len(mono) >= int(sr * SNAPSHOT_MIN_SEC):
                         try:
-                            from server.audio.fingerprint import extract_features_from_array
+                            from detection.fingerprint import extract_features_from_array
                             chroma, mfcc, onset, _ = extract_features_from_array(
                                 mono, sr=sr, bpm=beat_det.bpm or self._bpm
                             )

@@ -30,10 +30,10 @@ from typing import Any
 
 import numpy as np
 
-from .beat_detector import BeatDetector, BeatEvent as _BeatEvent
-from .hmm import AudioHMM, HMMState
+from detection.beat_detector import BeatDetector, BeatEvent as _BeatEvent
+from detection.hmm import AudioHMM, HMMState
+from detection.reference_db import ReferenceDB
 from .recorder import MultitrackRecorder
-from .reference_db import ReferenceDB
 
 log = logging.getLogger("live.audio.process")
 
@@ -434,7 +434,7 @@ class AudioProcess:
             return  # zu wenig Audio
 
         try:
-            from .fingerprint import extract_features_from_array
+            from detection.fingerprint import extract_features_from_array
             # BPM aus BeatDetector (live gemessen) bevorzugen
             bpm_for_fingerprint = self.beat_detector.bpm or self._current_bpm
             chroma, mfcc, onset, rms = extract_features_from_array(

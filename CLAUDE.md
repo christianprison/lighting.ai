@@ -328,22 +328,28 @@ lighting.ai/live/
 ├── ui/
 │   ├── index.html                 # Live-UI für iPad
 │   └── config.html                # Konfigurations-UI
-├── rehearsal_review/              # Probenaufnahme-Nachbereitung (PyQt6 Desktop-App)
-│   ├── start.sh                   # Startskript (venv /opt/lighting-venv)
-│   ├── main.py                    # Entry Point
-│   ├── mainwindow.py              # Hauptfenster
-│   ├── timeline.py                # Timeline-Widget
-│   ├── player.py                  # Audio-Playback (sounddevice)
-│   ├── session.py                 # Session-Datenmodell (JSONL → SongSegments)
-│   ├── peaks.py                   # Waveform-Peak-Extraktion (QThread)
-│   ├── overview.py                # Minimap-Widget (volle Session)
-│   ├── annotation.py              # Annotation-Datenmodell + JSON-I/O
-│   ├── fragment_detector.py       # Stille-basierte Fragment-Erkennung (chunked RMS)
-│   └── simulator.py               # Offline-Simulation der Live-Erkennungspipeline
 └── data/
     ├── reference.db               # SQLite: songs, bars, feature_vectors
     └── recordings/                # 18-Kanal WAV + JSONL Event-Logs
         └── YYYY-MM-DD_HHmmss_*.{wav,jsonl}
+```
+
+### Dateien der Rehearsal-Review-App
+
+```
+lighting.ai/rehearsal_review/
+├── start.sh                   # Startskript (venv /opt/lighting-venv)
+├── main.py                    # Entry Point
+├── mainwindow.py              # Hauptfenster
+├── timeline.py                # Timeline-Widget
+├── player.py                  # Audio-Playback (sounddevice)
+├── session.py                 # Session-Datenmodell (JSONL → SongSegments)
+├── peaks.py                   # Waveform-Peak-Extraktion (QThread)
+├── overview.py                # Minimap-Widget (volle Session)
+├── annotation.py              # Annotation-Datenmodell + JSON-I/O
+├── fragment_detector.py       # Stille-basierte Fragment-Erkennung (chunked RMS)
+├── sim_monitor.py             # Simulations-Monitor-Dialog
+└── simulator.py               # Offline-Simulation der Live-Erkennungspipeline
 ```
 
 -----
@@ -367,7 +373,7 @@ Eine PyQt6 Desktop-App für den Linux Mint Steuer-Laptop, die:
 ### Starten
 
 ```bash
-cd /home/thepact/git/lighting.ai_neu/live/rehearsal_review
+cd /home/thepact/git/lighting.ai_neu/rehearsal_review
 ./start.sh [optionaler/pfad/zur/session.jsonl]
 ```
 

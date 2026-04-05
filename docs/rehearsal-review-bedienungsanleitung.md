@@ -22,13 +22,14 @@ Die in die `reference.db` importierten Daten verbessern die automatische Takt- u
 ## Starten
 
 ```bash
-cd /home/thepact/git/lighting.ai_neu/live/rehearsal_review
+cd /home/thepact/git/lighting.ai_neu/rehearsal_review
 ./start.sh
 ```
 
 Optional: Session direkt übergeben:
 ```bash
 ./start.sh /home/thepact/git/lighting.ai_neu/live/data/recordings/2026-03-26_185333_Probe.jsonl
+
 ```
 
 ---

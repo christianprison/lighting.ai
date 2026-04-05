@@ -116,7 +116,7 @@ class SimulatorWorker(QThread):
 
         # Server-Pfad in sys.path eintragen damit die Live-Module importierbar sind
         rr_dir     = os.path.dirname(os.path.abspath(__file__))
-        repo_root  = Path(rr_dir).parent.parent
+        repo_root  = Path(rr_dir).parent
         server_dir = str(repo_root / "live")
         if server_dir not in sys.path:
             sys.path.insert(0, server_dir)

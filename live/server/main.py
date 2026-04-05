@@ -18,7 +18,7 @@ from .qlc_parser import parse, qlc_data_to_dict, QlcData, ACCENT_FUNCTIONS, BASE
 from .qlc_osc import QlcOsc, FUNCTION_TO_COLLECTION
 from .ws_handler import WsHandler
 from detection.reference_db import ReferenceDB, DEFAULT_DB_PATH
-from .audio.audio_process import AudioProcess, PositionUpdate, BeatUpdate, AudioStatus
+from .audio.audio_process import AudioProcess, OnsetUpdate, AudioStatus
 
 logging.basicConfig(
     level=logging.INFO,
@@ -162,7 +162,7 @@ async def startup():
 
     loop = asyncio.get_event_loop()
     audio_device = getattr(cfg, "audio_device", None)
-    audio_process = AudioProcess(ref_db, _audio_queue, loop, device=audio_device)
+    audio_process = AudioProcess(_audio_queue, loop, device=audio_device)
     audio_process.start()
 
     # Logging-Handler registrieren: WARNING/ERROR → aktives Event-Logfile
@@ -250,9 +250,7 @@ async def _consume_audio_queue() -> None:
         except asyncio.CancelledError:
             break
 
-        if isinstance(event, PositionUpdate):
-            await ws_handler.broadcast(event.to_dict())
-        elif isinstance(event, BeatUpdate):
+        if isinstance(event, OnsetUpdate):
             await ws_handler.broadcast(event.to_dict())
         elif isinstance(event, AudioStatus):
             await ws_handler.broadcast(event.to_dict())
@@ -605,12 +603,9 @@ async def set_rehearsal_song(req: RehearsalSongRequest):
         return JSONResponse({"error": "AudioProcess not initialised"}, status_code=503)
 
     song_id = req.song_id
-    audio_process.set_active_song(song_id)
 
     if song_id:
         song = db.get("songs", {}).get(song_id, {})
-        bpm = float(song.get("bpm", 120))
-        audio_process.set_bpm(bpm)
         _log_user_action("select_song", {
             "song_id": song_id,
             "name": song.get("name", ""),
@@ -629,11 +624,8 @@ async def set_rehearsal_song(req: RehearsalSongRequest):
 
 @app.post("/api/audio/reload")
 async def reload_audio_engine():
-    """Lädt alle Feature-Vektoren aus der Referenz-DB neu in den HMM."""
-    if not audio_process:
-        return JSONResponse({"error": "AudioProcess not initialised"}, status_code=503)
-    n = audio_process.hmm.load_all_states()
-    return {"ok": True, "states_loaded": n}
+    """Placeholder — HMM nicht mehr aktiv."""
+    return {"ok": True, "states_loaded": 0}
 
 
 # --- Recording API ---
@@ -780,8 +772,6 @@ async def _handle_ws_action(action: str, msg: dict) -> dict | None:
         if osc and chaser and chaser.steps:
             await osc.trigger_function_async(chaser.steps[0].function_id)
 
-        if audio_process:
-            audio_process.set_bpm(float(song.get("bpm", 120)))
 
         return {"ok": True, "song_id": song_id, "has_chaser": chaser is not None}
 
@@ -856,22 +846,19 @@ async def _handle_ws_action(action: str, msg: dict) -> dict | None:
 
     elif action == "set_rehearsal_song":
         song_id = msg.get("song_id")  # None = Live Mode
-        if audio_process:
-            audio_process.set_active_song(song_id)
-            if song_id:
-                song = songs.get(song_id, {})
-                audio_process.set_bpm(float(song.get("bpm", 120)))
-                _log_user_action("select_song", {
-                    "song_id": song_id,
-                    "name": song.get("name", ""),
-                    "source": "rehearsal",
-                })
-            else:
-                _log_user_action("select_song", {
-                    "song_id": "",
-                    "name": "",
-                    "source": "rehearsal_clear",
-                })
+        if song_id:
+            song = songs.get(song_id, {})
+            _log_user_action("select_song", {
+                "song_id": song_id,
+                "name": song.get("name", ""),
+                "source": "rehearsal",
+            })
+        else:
+            _log_user_action("select_song", {
+                "song_id": "",
+                "name": "",
+                "source": "rehearsal_clear",
+            })
         return {"ok": True, "mode": "rehearsal" if song_id else "live", "song_id": song_id}
 
     elif action == "get_state":

@@ -26,7 +26,7 @@ from annotation import (
     BarMarker, SongAnnotation,
     load_annotations, save_annotations,
 )
-from simulator import SimulatorWorker, SimBeat, SimPosition
+from simulator import SimulatorWorker
 from datetime import datetime as _dt
 from sim_monitor import SimMonitorDialog
 
@@ -1461,18 +1461,15 @@ class MainWindow(QMainWindow):
         self._sim_clear_act.setEnabled(True)
         self._sim_worker = None
 
-        n_beats_all = result.get("n_beats_all", 0)
-        n_downbeats = result.get("n_downbeats", 0)
-        n_positions = result.get("n_positions", 0)
-        jsonl_path  = result.get("jsonl_path")
-        beats       = result.get("beats", [])
-        snares      = result.get("snares", [])
-        positions   = result.get("positions", [])
+        n_kicks  = result.get("n_kicks",  0)
+        n_snares = result.get("n_snares", 0)
+        kicks    = result.get("kicks",  [])
+        snares   = result.get("snares", [])
 
-        if n_beats_all == 0:
+        if n_kicks == 0 and n_snares == 0:
             QMessageBox.warning(
-                self, "Simulation — keine Beats",
-                "Die Simulation hat keine Beats erkannt.\n\n"
+                self, "Simulation — keine Events",
+                "Die Simulation hat keine Kick- oder Snare-Onsets erkannt.\n\n"
                 "Mögliche Ursachen:\n"
                 "• Die WAV-Datei endet vor dem gewählten Segment\n"
                 "• Die Session-Sample-Rate stimmt nicht mit der WAV überein\n"
@@ -1481,46 +1478,33 @@ class MainWindow(QMainWindow):
             return
 
         # Timeline mit Sim-Events befüllen (t = absoluter WAV-Zeitstempel)
-        for b in beats:
-            self._timeline.add_sim_beat(
-                self._sim_start_wav_t + b.t,
-                b.is_downbeat, b.is_fill, b.trigger,
-            )
+        for t_k in kicks:
+            self._timeline.add_sim_kick(self._sim_start_wav_t + t_k)
         for t_s in snares:
             self._timeline.add_sim_snare(self._sim_start_wav_t + t_s)
-        for pos in positions:
-            self._timeline.add_sim_position(
-                self._sim_start_wav_t + pos.t,
-                pos.bar_num, pos.part_name, pos.confidence, pos.is_frozen,
-            )
 
-        # Vergleich mit manuellen Annotationen
-        ann = self._current_annotation()
-        if ann and ann.markers and positions:
-            correct = sum(
-                1 for m in ann.markers
-                if (
-                    (closest := min(positions, key=lambda p: abs(p.t - (m.t - self._sim_start_wav_t))))
-                    and abs(closest.t - (m.t - self._sim_start_wav_t)) <= 1.0
-                    and closest.bar_num == m.bar_num
-                )
-            )
-            match_info = (
-                f" — Takt-Match: {correct}/{len(ann.markers)} "
-                f"({correct / len(ann.markers):.0%})"
-            )
-        else:
-            match_info = ""
-
-        summary = (
-            f"Simulation: {n_downbeats} Downbeats, "
-            f"{n_positions} Positionen{match_info}"
+        self._status.showMessage(
+            f"Simulation: ◆ {n_kicks} Kicks (amber)  | ◆ {n_snares} Snares (cyan)",
+            12000,
         )
-        self._status.showMessage(summary, 12000)
+
+        # SimMonitorDialog öffnen und mit JSONL befüllen
+        jsonl_path = result.get("jsonl_path")
+        seg = self._current_seg
+        song_name = seg.song_name if seg else "?"
+        bpm = float(seg.bpm) if seg and seg.bpm else 120.0
+        if self._sim_monitor is None:
+            self._sim_monitor = SimMonitorDialog(bpm, song_name, self)
+        else:
+            self._sim_monitor.reset(bpm, song_name)
+        if jsonl_path and jsonl_path.exists():
+            self._sim_monitor.load_jsonl(jsonl_path)
+        self._sim_monitor.show()
+        self._sim_monitor.raise_()
 
         # Overlay-Toggle freischalten und Simulation-Ansicht aktivieren
         self._sim_overlay_act.setEnabled(True)
-        self._sim_overlay_act.setChecked(True)   # sofort auf Sim-Ansicht umschalten
+        self._sim_overlay_act.setChecked(True)
 
     def _on_sim_error(self, err: str) -> None:
         self._sim_act.setEnabled(True)

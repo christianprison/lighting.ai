@@ -1418,13 +1418,10 @@ class MainWindow(QMainWindow):
             if candidate.exists():
                 ref_db_path = candidate
 
-        # Use current playhead position as simulation start (relative to seg start).
-        # Clamp to [0, seg.duration - 1s] so we never start past the segment end.
-        t_in_seg_start = max(0.0, min(
-            self._player.position_in_segment,
-            max(0.0, seg.duration - 1.0),
-        ))
-        sim_start_wav_t = seg.start_t + t_in_seg_start
+        # Simulation immer ab Segment-Anfang — nicht ab Playhead-Position,
+        # da sonst der erste Teil des Songs nie analysiert wird.
+        t_in_seg_start = 0.0
+        sim_start_wav_t = seg.start_t
 
         # JSONL-Ausgabedatei neben der Session ablegen
         stamp = _dt.now().strftime("%H%M%S")

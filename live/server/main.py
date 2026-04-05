@@ -17,7 +17,7 @@ from .db_cache import sync, load_db, load_qxw_path, push_probe_log
 from .qlc_parser import parse, qlc_data_to_dict, QlcData, ACCENT_FUNCTIONS, BASE_COLLECTIONS
 from .qlc_osc import QlcOsc, FUNCTION_TO_COLLECTION
 from .ws_handler import WsHandler
-from .audio.reference_db import ReferenceDB, DEFAULT_DB_PATH
+from detection.reference_db import ReferenceDB, DEFAULT_DB_PATH
 from .audio.audio_process import AudioProcess, PositionUpdate, BeatUpdate, AudioStatus
 
 logging.basicConfig(

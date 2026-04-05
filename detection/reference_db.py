@@ -24,8 +24,8 @@ import numpy as np
 
 log = logging.getLogger("live.audio.refdb")
 
-# Default DB path (override in tests or config)
-DEFAULT_DB_PATH = Path(__file__).resolve().parent.parent.parent / "data" / "reference.db"
+# Default DB path: liegt in live/data/reference.db (relativ zum Repo-Root)
+DEFAULT_DB_PATH = Path(__file__).resolve().parent.parent / "live" / "data" / "reference.db"
 
 
 # ---------------------------------------------------------------------------

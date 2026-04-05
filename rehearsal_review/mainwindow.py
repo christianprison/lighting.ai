@@ -965,11 +965,7 @@ class MainWindow(QMainWindow):
             return
 
         try:
-            import sys
-            server_path = str(ref_db_path.parent.parent / "server")
-            if server_path not in sys.path:
-                sys.path.insert(0, server_path)
-            from audio.reference_db import ReferenceDB
+            from detection.reference_db import ReferenceDB
             ref_db = ReferenceDB(ref_db_path)
             parts = ref_db.get_parts_for_song(self._current_seg.song_id)
         except Exception as exc:
@@ -1151,10 +1147,7 @@ class MainWindow(QMainWindow):
             if self._session:
                 candidate = self._session.wav_path.parent.parent / "reference.db"
                 if candidate.exists():
-                    server_path = str(candidate.parent.parent / "server")
-                    if server_path not in sys.path:
-                        sys.path.insert(0, server_path)
-                    from audio.reference_db import ReferenceDB
+                    from detection.reference_db import ReferenceDB
                     db_parts = ReferenceDB(candidate).get_parts_for_song(
                         self._current_seg.song_id
                     )

@@ -585,7 +585,7 @@ class MainWindow(QMainWindow):
 
     def _open_session(self) -> None:
         default_dir = str(
-            Path(__file__).parent.parent / "data" / "recordings"
+            Path(__file__).parent.parent / "live" / "data" / "recordings"
         )
         path, _ = QFileDialog.getOpenFileName(
             self, "Aufnahme öffnen", default_dir,
@@ -672,7 +672,7 @@ class MainWindow(QMainWindow):
     def _try_load_db(self, jsonl_path: Path) -> Optional[dict]:
         for p in [
             jsonl_path.parent.parent.parent / "db" / "lighting-ai-db.json",
-            Path(__file__).parent.parent.parent / "db" / "lighting-ai-db.json",
+            Path(__file__).parent.parent / "db" / "lighting-ai-db.json",
         ]:
             if p.exists():
                 try:

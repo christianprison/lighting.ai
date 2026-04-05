@@ -208,13 +208,9 @@ class TimelineWidget(QWidget):
         self._scan_windows: list[tuple[float, bool]] = []
         self._scan_pos: float = -1.0   # current scan head (seconds)
 
-        # Simulation results
-        # beats:   list of (t, is_downbeat, is_fill, trigger)
-        # snares:  list of t
-        # positions: list of (t, bar_num, part_name, confidence, is_frozen)
-        self._sim_beats: list[tuple[float, bool, bool, str]] = []
+        # Simulation results (kick/snare onsets, t = absoluter WAV-Zeitstempel)
+        self._sim_kicks:  list[float] = []
         self._sim_snares: list[float] = []
-        self._sim_positions: list[tuple[float, int, str, float, bool]] = []
 
         # Overlay-Modus: wenn True, JSONL-Events bei 25 % Opazität,
         # Sim-Events in vollen AMBER/CYAN-Farben (wie JSONL-Events).
@@ -318,26 +314,18 @@ class TimelineWidget(QWidget):
         self._scan_pos = -1.0
         self.update()
 
-    def add_sim_beat(self, t: float, is_downbeat: bool,
-                     is_fill: bool = False, trigger: str = "timer") -> None:
-        self._sim_beats.append((t, is_downbeat, is_fill, trigger))
+    def add_sim_kick(self, t: float) -> None:
+        self._sim_kicks.append(t)
         self.update()
 
     def add_sim_snare(self, t: float) -> None:
         self._sim_snares.append(t)
         self.update()
 
-    def add_sim_position(self, t: float, bar_num: int, part_name: str,
-                         confidence: float, is_frozen: bool) -> None:
-        """Fügt eine simulierte Takt-Positionsschätzung hinzu."""
-        self._sim_positions.append((t, bar_num, part_name, confidence, is_frozen))
-        self.update()
-
     def clear_sim_events(self) -> None:
         """Löscht alle Simulations-Ergebnisse."""
-        self._sim_beats     = []
-        self._sim_snares    = []
-        self._sim_positions = []
+        self._sim_kicks  = []
+        self._sim_snares = []
         self.update()
 
     def set_sim_overlay(self, enabled: bool) -> None:
@@ -752,39 +740,6 @@ class TimelineWidget(QWidget):
                                Qt.AlignmentFlag.AlignCenter, "?")
                     p.setFont(FONT_MONO)
 
-        # ── Simulierte Positionsschätzungen ───────────────────────────────────
-        if self._sim_positions:
-            sim_y0 = y0 + ANNOT_H // 2   # untere Hälfte des Streifens
-            sim_h  = ANNOT_H // 2 - 1
-            p.setFont(FONT_BTN)
-            if self._sim_overlay:
-                # Overlay-Modus: volle Cyan-Farben wie JSONL-Positions
-                C_SIM    = C_CYAN
-                C_SIM_FR = QColor(C_CYAN.red(), C_CYAN.green(), C_CYAN.blue(), 80)
-                pen_style = Qt.PenStyle.SolidLine
-                conf_threshold = 0.65
-            else:
-                # Normal: dezentes Violett gestrichelt
-                C_SIM    = QColor("#a78bfa")
-                C_SIM_FR = QColor(0xa7, 0x8b, 0xfa, 80)
-                pen_style = Qt.PenStyle.DashLine
-                conf_threshold = 0.45
-            for t_sim, bar_num, part_name, conf, frozen in self._sim_positions:
-                sx = LABEL_W + int(t_sim * pps) - ox
-                if sx < LABEL_W or sx > w:
-                    continue
-                c = C_SIM_FR if frozen else C_SIM
-                p.setPen(QPen(c, 1, pen_style))
-                p.drawLine(sx, sim_y0, sx, sim_y0 + sim_h)
-                if not frozen and conf >= conf_threshold:
-                    p.setPen(c)
-                    lbl = f"~{bar_num}"
-                    if part_name:
-                        lbl += f" {part_name}"
-                    p.drawText(sx + 2, sim_y0, 80, sim_h,
-                               Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
-                               lbl)
-            p.setFont(FONT_MONO)
 
     # ── Events strip ─────────────────────────────────────────────────────────
 
@@ -849,8 +804,8 @@ class TimelineWidget(QWidget):
                                Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
                                label_map.get(action, "?"))
 
-        # ── Simulierte Events als Diamonds ───────────────────────────────────
-        p.setOpacity(1.0)   # immer volle Opazität
+        # ── Simulierte Kick/Snare-Onsets als Diamonds ────────────────────────
+        p.setOpacity(1.0)
 
         def _diamond(cx: int, cy: int, r: int = 4) -> QPolygon:
             return QPolygon([
@@ -860,16 +815,12 @@ class TimelineWidget(QWidget):
                 QPoint(cx - r, cy    ),
             ])
 
-        R = 4   # Diamond-Radius
+        R = 4
+        cy_top    = y0 + EVENTS_H // 4      # Snares oben
+        cy_bottom = y0 + EVENTS_H * 3 // 4  # Kicks unten
 
-        cy_top    = y0 + EVENTS_H // 4          # Snares (oben)
-        cy_mid    = y0 + EVENTS_H // 2          # Fills (mitte)
-        cy_bottom = y0 + EVENTS_H * 3 // 4      # Beats / Kicks (unten)
+        C_VIO = QColor("#a78bfa")
 
-        C_VIO      = QColor("#a78bfa")
-        C_VIO_SOFT = QColor(0xa7, 0x8b, 0xfa, 90)
-
-        # Snares (cyan Diamonds oben)
         if self._sim_snares:
             c = C_CYAN if self._sim_overlay else C_VIO
             p.setBrush(QBrush(c))
@@ -879,32 +830,14 @@ class TimelineWidget(QWidget):
                 if LABEL_W <= bx <= w:
                     p.drawPolygon(_diamond(bx, cy_top, R))
 
-        # Beats / Kicks / Downbeats
-        if self._sim_beats:
-            for t_beat, is_down, is_fill, trigger in self._sim_beats:
-                bx = LABEL_W + int(t_beat * pps) - ox
-                if bx < LABEL_W or bx > w:
-                    continue
-
-                # Downbeat: grünes Diamond (volle Höhe)
-                if is_down:
-                    c = C_GREEN if self._sim_overlay else C_VIO
-                    p.setBrush(QBrush(c))
-                    p.setPen(Qt.PenStyle.NoPen)
-                    p.drawPolygon(_diamond(bx, cy_bottom, R + 1))
-
-                # Kick: amber Diamond
-                if trigger == "kick":
-                    c = C_AMBER if self._sim_overlay else C_VIO_SOFT
-                    p.setBrush(QBrush(c))
-                    p.setPen(Qt.PenStyle.NoPen)
+        if self._sim_kicks:
+            c = C_AMBER if self._sim_overlay else C_VIO
+            p.setBrush(QBrush(c))
+            p.setPen(Qt.PenStyle.NoPen)
+            for t_k in self._sim_kicks:
+                bx = LABEL_W + int(t_k * pps) - ox
+                if LABEL_W <= bx <= w:
                     p.drawPolygon(_diamond(bx, cy_bottom, R))
-
-                # Normaler Beat (kein Downbeat, kein Kick): kleine Linie
-                if not is_down and trigger != "kick":
-                    c = C_T4 if self._sim_overlay else C_VIO_SOFT
-                    p.setPen(QPen(c, 1))
-                    p.drawLine(bx, cy_mid, bx, y0 + EVENTS_H - 2)
 
         p.setOpacity(1.0)
 
@@ -1045,8 +978,8 @@ class TimelineWidget(QWidget):
                 continue
             _draw_diamond(ex, color, alpha=orig_alpha)
 
-        # ── Sim-Events auf den Kanal-Rows überlagern (nur im Overlay-Modus) ───
-        if self._sim_overlay and (self._sim_beats or self._sim_snares):
+        # ── Sim-Kick/Snare auf Kanal-Rows überlagern (nur im Overlay-Modus) ──
+        if self._sim_overlay and (self._sim_kicks or self._sim_snares):
             seg_t0 = seg.start_t
 
             if track_chs & SNARE_MARKER_CHS:
@@ -1055,21 +988,11 @@ class TimelineWidget(QWidget):
                     if LABEL_W - r <= ex <= w + r:
                         _draw_diamond(ex, C_CYAN, alpha=220)
 
-            if track_chs & (KICK_MARKER_CHS | BEAT_MARKER_CHS):
-                for t_beat, is_down, _is_fill, trigger in self._sim_beats:
-                    ex = LABEL_W + int((t_beat - seg_t0) * pps) - ox
-                    if ex < LABEL_W - r or ex > w + r:
-                        continue
-                    if track_chs & KICK_MARKER_CHS:
-                        # Kick-Reihe: nur kick-getriggerte Beats
-                        if trigger != "kick":
-                            continue
-                        color = C_GREEN if is_down else C_AMBER
-                        _draw_diamond(ex, color, alpha=220, radius=r + (1 if is_down else 0))
-                    else:
-                        # OH-Reihen: alle Beats
-                        color = C_GREEN if is_down else C_AMBER
-                        _draw_diamond(ex, color, alpha=220, radius=r + (1 if is_down else 0))
+            if track_chs & KICK_MARKER_CHS:
+                for t_k in self._sim_kicks:
+                    ex = LABEL_W + int((t_k - seg_t0) * pps) - ox
+                    if LABEL_W - r <= ex <= w + r:
+                        _draw_diamond(ex, C_AMBER, alpha=220)
 
         p.setRenderHint(QPainter.RenderHint.Antialiasing, False)
 

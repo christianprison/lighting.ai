@@ -30,6 +30,53 @@ from annotation import (
 from simulator import SimulatorWorker
 from datetime import datetime as _dt
 
+import numpy as _np
+
+
+def _compute_sim_bpm(kicks: list[float], snares: list[float]) -> int:
+    """Berechnet BPM aus dem medianen IOI der Kick+Snare-Events.
+
+    Returns 0 wenn nicht genügend Events vorhanden.
+    """
+    all_t = sorted(kicks + snares)
+    if len(all_t) < 4:
+        return 0
+    iois = [all_t[i + 1] - all_t[i] for i in range(len(all_t) - 1)]
+    # Plausible Beat-Intervalle: 60–220 BPM → 0.27–1.0 s
+    iois = [d for d in iois if 0.27 <= d <= 1.0]
+    if not iois:
+        return 0
+    beat_sec = float(_np.median(iois))
+    return round(60.0 / beat_sec)
+
+
+def _compute_bar_times(bpm: int, seg_start_t: float, seg_end_t: float,
+                       abs_events: list[float]) -> list[float]:
+    """Berechnet Takt-Zeitstempel (abs. WAV-Zeit) für ein 4/4-Taktgitter.
+
+    Ankerpunkt: erster abs. Event (erster Kick, ggf. erste Snare).
+    Erstreckt sich von seg_start_t bis seg_end_t.
+    """
+    if bpm <= 0 or not abs_events:
+        return []
+    beat_sec = 60.0 / bpm
+    bar_sec  = 4.0 * beat_sec
+    anchor   = min(abs_events)
+
+    # Rückwärts iterieren bis vor seg_start_t
+    t = anchor
+    while t > seg_start_t:
+        t -= bar_sec
+
+    # Vorwärts: alle Taktstriche innerhalb des Segments sammeln
+    bar_times: list[float] = []
+    while t <= seg_end_t + bar_sec * 0.5:
+        if t >= seg_start_t - bar_sec * 0.1:
+            bar_times.append(t)
+        t += bar_sec
+    return bar_times
+
+
 _APP_STYLE = """
 QMainWindow, QWidget          { background:#08090d; color:#eef0f6; }
 QMenuBar                      { background:#0e1017; border-bottom:1px solid #1e2230; }
@@ -1525,13 +1572,28 @@ class MainWindow(QMainWindow):
             return
 
         # Timeline mit Sim-Events befüllen (t = absoluter WAV-Zeitstempel)
-        for t_k in kicks:
-            self._timeline.add_sim_kick(self._sim_start_wav_t + t_k)
-        for t_s in snares:
-            self._timeline.add_sim_snare(self._sim_start_wav_t + t_s)
+        abs_kicks  = [self._sim_start_wav_t + t_k for t_k in kicks]
+        abs_snares = [self._sim_start_wav_t + t_s for t_s in snares]
+        for t_k in abs_kicks:
+            self._timeline.add_sim_kick(t_k)
+        for t_s in abs_snares:
+            self._timeline.add_sim_snare(t_s)
 
+        # BPM aus den detektierten Events berechnen + Taktgitter setzen
+        sim_bpm = _compute_sim_bpm(kicks, snares)   # relative Zeiten reichen
+        if sim_bpm > 0 and self._current_seg is not None:
+            seg = self._current_seg
+            bar_times = _compute_bar_times(
+                sim_bpm,
+                self._sim_start_wav_t,
+                self._sim_start_wav_t + seg.duration,
+                abs_kicks if abs_kicks else abs_snares,
+            )
+            self._timeline.set_sim_bpm_and_bars(sim_bpm, bar_times)
+
+        bpm_str = f"  ~{sim_bpm} BPM" if sim_bpm > 0 else ""
         self._status.showMessage(
-            f"Simulation: ◆ {n_kicks} Kicks (amber)  | ◆ {n_snares} Snares (cyan)",
+            f"Simulation: ◆ {n_kicks} Kicks (amber)  | ◆ {n_snares} Snares (cyan){bpm_str}",
             12000,
         )
 

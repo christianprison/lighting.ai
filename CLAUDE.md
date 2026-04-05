@@ -367,8 +367,7 @@ Eine PyQt6 Desktop-App für den Linux Mint Steuer-Laptop, die:
 - Songs automatisch in Fragmente unterteilt (Stille-Erkennung auf 16 Kanälen) mit Geplänkel-Filter (Drum-Aktivität)
 - Per-Fragment `restart_bar_num` erlaubt unterschiedliche Takt-Offsets pro Spielanlauf
 - Annotierte Takte als Audio-Features in die `reference.db` importiert
-- Den HMM-Taktdetektor mit Echtdaten trainiert (inkrementelles Averaging)
-- Die Live-Erkennungspipeline offline auf Probenaufnahmen simuliert (BeatDetector + HMM) zum Algorithmus-Tuning
+- Die Kick/Snare-Erkennungspipeline offline auf Probenaufnahmen simuliert (`OnsetDetector`: Band-gefilterter ODF) zum Algorithmus-Tuning
 
 ### Starten
 
@@ -421,23 +420,24 @@ ANNOT-Strip Marker-Farben (obere Hälfte, manuelle Annotationen):
 - **violett** (#a78bfa): auto-erkannte Fragmentgrenze aus `fragment_detector.py` (nur visuell, kein BarMarker)
 - **grün/grau Balken** (unten, während Fragmenterkennung): Aktivitätskarte der 50ms-RMS-Fenster; cyan Scan-Kopf-Linie
 
-ANNOT-Strip untere Hälfte (Simulations-Ergebnisse, violett gestrichelt):
-- `~T{n}` Label mit Part-Name = HMM-Positionsschätzung (Konfidenz ≥ 0,45)
-- sehr transparent = eingefroren / Konfidenz unter Schwelle
-
 Events-Strip — Normal-Modus (JSONL-Events aus Probenaufnahme):
 - Solide Linie = Downbeat | transparente Linie = Beat | cyan = Snare
 
 Events-Strip — Sim-Overlay-Modus (`_sim_overlay=True`):
-- JSONL-Events auf 25% Opacity abgedunkelt
-- Sim-Diamonds im Events-Strip: grün = Sim-Downbeat (r=5), amber = Sim-Kick (r=4), cyan = Sim-Snare (oben)
-- Sim-Positions-Schätzung: cyan/solid (Konfidenz ≥ 0,65) statt violett/gestrichelt
+- JSONL-Events **komplett ausgeblendet** (wenn Sim-Events vorhanden)
+- Sim-Diamonds im Events-Strip: amber = Sim-Kick (r=4, unten), cyan = Sim-Snare (r=4, oben)
 
 Kanal-Rows mit Event-Markern (`_paint_event_markers()`):
 - **OH L+R** (`BEAT_MARKER_CHS = {13,14}`): alle Beats — amber = Beat, rot = Downbeat
 - **Snare** (`SNARE_MARKER_CHS = {9}`): snare-Events — cyan Diamond
 - **Kick** (`KICK_MARKER_CHS = {8}`): nur `trigger="kick"` Beats — amber = Kick, rot = Kick+Downbeat
-- Im Sim-Overlay: Original alpha→50, Sim-Events alpha=220 voll sichtbar überlagert
+- Im Sim-Overlay: Original-Marker komplett ausgeblendet (wenn Sim-Events vorhanden), Sim-Events alpha=220
+
+Taktgitter im Sim-Overlay (`_paint_sim_bars()`):
+- Halbdurchsichtige weiße vertikale Linien (`rgba(255,255,255,55)`) über alle Drum-Tracks (Kick..OH L+R)
+- Taktnummer alle 5 Takte in amber (FONT_BTN) in der Tom-Zeile
+- Tom-Label-Zelle zeigt bei aktiver Sim `"{sim_bpm} BPM"` in amber unter dem Spurnahmen
+- BPM wird aus dem medianen IOI aller Kick+Snare-Events berechnet (Filter: 60–220 BPM)
 
 Annotation-Strip zeigt amber Oberkante + lila Hintergrund wenn Modus aktiv.
 "Annotieren"-Button ist grün/invertiert wenn aktiv (`:checked` CSS).
@@ -470,31 +470,47 @@ probe_events   (id, session_id, wav_offset, song_id, bar_num, part_name, confide
 
 #### Simulation (simulator.py)
 
-`SimulatorWorker(QThread)` repliziert `AudioProcess._audio_callback()` + `_process_ring_buffer()` **offline** (so schnell wie möglich, kein Echtzeit-Throttling):
-- Liest WAV in BLOCK_SIZE=2048-Blöcken
-- Schickt jeden Block durch `BeatDetector.process_block()`
-- Auf jedem Downbeat (optional): `extract_features_from_array()` + `hmm.update(elapsed_sec=...)` → `SimPosition`
-- Schreibt alle Events inkrementell in eine **JSONL-Datei** (`{stem}_sim_{song_id}_{HHmmss}.jsonl`)
-- Emittiert **nur** `progress(float)` und `finished(dict)` — keine Echtzeit-Signale mehr
-- `finished`-Dict enthält: `jsonl_path`, `beats: list[SimBeat]`, `snares: list[float]`, `positions: list[SimPosition]`, Zähler
-- Nach Abschluss werden Beats/Snares/Positions **batch** in die Timeline geladen
+`SimulatorWorker(QThread)` repliziert die Erkennungspipeline **offline** (so schnell wie möglich, kein Echtzeit-Throttling):
+- Liest WAV **immer ab Segment-Anfang** in BLOCK_SIZE=2048-Blöcken
+- Schickt jeden Block durch `OnsetDetector.process_block()` (Kick CH08, Snare CH09)
+- Schreibt alle Events in eine **JSONL-Datei** (`{stem}_sim_{song_id}_{HHmmss}.jsonl`)
+- Während der Simulation: **Progress-Modal** (`QProgressDialog`) statt separatem Fenster
+- Emittiert `progress(float)` und `finished(dict)`, kein Echtzeit-Streaming
+- `finished`-Dict: `jsonl_path`, `n_kicks`, `n_snares`, `kicks: list[float]`, `snares: list[float]`
+- Sim-JSONL-Dateien werden im Dateiauswahldialog automatisch ausgeblendet (`_HideSimFiles` Proxy)
 
 **Sim-Overlay-Modus** (Toggle `⊙ Simulation` in Toolbar, wird nach Sim-Ende automatisch aktiviert):
-- `_sim_overlay=True` → JSONL-Events abgedunkelt, Sim-Diamonds prominent überlagert
-- Kanal-Rows: Kick-Reihe zeigt Sim-Kicks, Snare-Reihe Sim-Snares, OH-Reihen alle Sim-Beats
-- `✕ Sim`-Button: löscht alle Sim-Events, deaktiviert Overlay
+- `_sim_overlay=True` → JSONL-Probe-Events komplett ausgeblendet (wenn Sim-Events vorhanden)
+- Sim-Diamonds: amber = Kick, cyan = Snare (Events-Strip + Kanal-Rows)
+- Taktgitter + BPM-Anzeige automatisch berechnet und eingeblendet
+- Zoom wird nach Sim auf 80 px/s gesetzt
+- `✕ Sim`-Button: löscht alle Sim-Events, BPM, Taktgitter; deaktiviert Overlay
 
-**Beat-Detection-Verbesserungen** (seit 2026-04):
-- `ChannelOnsetDetector._peak_rms()`: max RMS über 4×512-Sample-Sub-Fenster statt 1×2048 — löst Block-Boundary-Problem für kurze Kick/Snare-Transienten
-- `BeatDetector.elapsed_sec`: Sekunden seit reset() — wird an `hmm.update()` übergeben
-- `BeatDetector.vox_rms`: Rolling-Average RMS von CH01 Pete Vox (CH_VOX=0), ~10 Blöcke = 0,4 s; in Beat-JSONL-Events als `vox_rms` geloggt
+#### OnsetDetector (`detection/beat_detector.py`)
 
-**HMM-Verbesserungen** (seit 2026-04):
-- `_bpm_map: dict[str, float]` — wird beim `load_all_states()` aus `songs`-Tabelle gefüllt
-- `_time_prior_step()`: addiert Log-Gaußterm N(expected_bar, σ=2) zu allen Beam-Hypothesen; erwartet Takt = `elapsed_sec / bar_dur + 1`; hilft besonders bei harmonisch monotonen Songs
+Band-gefilterter ODF auf Sub-Window-Ebene (kein PLL, kein HMM, kein BPM-Tracking):
 
-HMM läuft im Rehearsal Mode (Suchraum auf aktuellen Song eingeschränkt: `hmm.set_active_song(song_id)`).
-`use_hmm: bool = False` — HMM nur wenn explizit aktiviert (verhindert SQLite-Locking aus Worker-Thread).
+1. **Frequenzfilter** (Butterworth IIR, scipy, graceful fallback):
+   - Kick CH08: Tiefpass 250 Hz — isoliert Kick-Body
+   - Snare CH09: Bandpass 800–9000 Hz — verwirft Kick-Bleed
+
+2. **Sub-Window ODF** (5.3 ms-Auflösung statt 42.7 ms-Block):
+   - Block 2048 Samples → 8 × 256-Sample-Sub-Fenster
+   - `peak_odf = max(max(0, rms[n] − rms[n−1]))` — halbrektifizierte erste Ableitung des RMS
+   - `_prev_sub_rms` über Blockgrenzen mitgeführt
+
+3. **Dual-Gate**: Onset nur wenn BEIDE Bedingungen:
+   - `peak_odf > max(median(odf_hist) × factor, ONSET_MIN_ODF)` (adaptiver Median über 50 Blöcke)
+   - `mean_rms > abs_rms_min` (absoluter RMS-Boden)
+
+4. **Silence-Aware Warmup**:
+   - Nach ≥ 12 stillen Blöcken (~0,5 s): erster Spike nach Stille wird unterdrückt
+   - Verhindert False Positives beim Neueinsatz des Songs
+
+Parameter:
+- Kick: `threshold_factor=2.5`, `abs_rms_min=5e-3`, `cooldown=220 ms`
+- Snare: `threshold_factor=2.2`, `abs_rms_min=3e-3`, `cooldown=280 ms`
+- `ONSET_MIN_ODF=4e-3`, `SILENCE_BLOCKS=12`, `SUB_WIN=256`
 
 ### Tech Stack (Live-App)
 

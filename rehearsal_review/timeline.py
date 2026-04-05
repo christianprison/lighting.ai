@@ -217,6 +217,10 @@ class TimelineWidget(QWidget):
         # Wenn False, Sim-Events als halbtransparentes Violett-Overlay.
         self._sim_overlay: bool = False
 
+        # Sim BPM + Taktgitter
+        self._sim_bpm:       int         = 0
+        self._sim_bar_times: list[float] = []
+
         self._hbar = QScrollBar(Qt.Orientation.Horizontal, self)
         self._hbar.valueChanged.connect(self._on_scroll)
 
@@ -324,8 +328,16 @@ class TimelineWidget(QWidget):
 
     def clear_sim_events(self) -> None:
         """Löscht alle Simulations-Ergebnisse."""
-        self._sim_kicks  = []
-        self._sim_snares = []
+        self._sim_kicks     = []
+        self._sim_snares    = []
+        self._sim_bpm       = 0
+        self._sim_bar_times = []
+        self.update()
+
+    def set_sim_bpm_and_bars(self, bpm: int, bar_times: list[float]) -> None:
+        """Setzt BPM-Anzeige und Taktgitter für den Simulations-Overlay."""
+        self._sim_bpm       = bpm
+        self._sim_bar_times = bar_times
         self.update()
 
     def set_sim_overlay(self, enabled: bool) -> None:
@@ -565,6 +577,9 @@ class TimelineWidget(QWidget):
         for i, track in enumerate(TRACKS):
             self._paint_track(p, i, track, TRACK_Y[i], vl, vr)
 
+        # Taktstriche über alle Drum-Tracks (wenn Sim-Overlay aktiv)
+        self._paint_sim_bars(p, vl, vr)
+
         # Sticky labels drawn OVER waveforms
         self._paint_labels(p, h)
 
@@ -572,6 +587,59 @@ class TimelineWidget(QWidget):
         self._paint_cursor(p, h)
 
         p.end()
+
+    # ── Sim bar grid ──────────────────────────────────────────────────────────
+
+    def _paint_sim_bars(self, p: QPainter, vl: int, vr: int) -> None:
+        """Zeichnet Taktstriche über alle Schlagzeug-Tracks (Kick..OH L+R).
+
+        Nur aktiv wenn Sim-Overlay eingeschaltet und Taktgitter berechnet.
+        Jede 5. Taktnummer wird in der Tom-Zeile angezeigt.
+        """
+        if not self._sim_overlay or not self._sim_bar_times:
+            return
+        if self.segment is None:
+            return
+
+        # Drum-Track-Span ermitteln
+        drum_labels = {"Kick", "Snare", "Toms", "OH L+R"}
+        drum_indices = [i for i, t in enumerate(TRACKS) if t["label"] in drum_labels]
+        if not drum_indices:
+            return
+
+        y_top    = TRACK_Y[drum_indices[0]]
+        last_i   = drum_indices[-1]
+        y_bottom = TRACK_Y[last_i] + TRACKS[last_i]["h"] - 1
+
+        # Tom-Zeile für Taktnummern
+        tom_indices = [i for i, t in enumerate(TRACKS) if t["label"] == "Toms"]
+        tom_i = tom_indices[0] if tom_indices else None
+
+        seg_t0 = self.segment.start_t
+        pps    = self._pps
+        ox     = self._scroll_x
+        w      = self.width()
+
+        p.setRenderHint(QPainter.RenderHint.Antialiasing, False)
+        pen_bar = QPen(QColor(255, 255, 255, 55), 1)
+        C_NUM   = QColor(C_AMBER.red(), C_AMBER.green(), C_AMBER.blue(), 170)
+
+        for bar_num, bar_t in enumerate(self._sim_bar_times, start=1):
+            bx = LABEL_W + int((bar_t - seg_t0) * pps) - ox
+            if bx < LABEL_W or bx > w:
+                continue
+
+            p.setPen(pen_bar)
+            p.drawLine(bx, y_top, bx, y_bottom)
+
+            if bar_num % 5 == 0 and tom_i is not None:
+                ty = TRACK_Y[tom_i]
+                th = TRACKS[tom_i]["h"]
+                p.setFont(FONT_BTN)
+                p.setPen(C_NUM)
+                p.drawText(bx + 2, ty + 1, 28, th - 2,
+                           Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
+                           str(bar_num))
 
     # ── Ruler ─────────────────────────────────────────────────────────────────
 
@@ -1053,9 +1121,20 @@ class TimelineWidget(QWidget):
             # Label text (leave room for S/M buttons on the right)
             p.setFont(FONT_LABEL)
             p.setPen(C_T1 if track["is_sum"] else C_T2)
-            p.drawText(10, y, LABEL_W - 52, th,
-                       Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
-                       track["label"])
+            if track["label"] == "Toms" and self._sim_bpm > 0 and self._sim_overlay:
+                # Label in oberer Hälfte, BPM-Anzeige in unterer Hälfte
+                p.drawText(10, y, LABEL_W - 52, th // 2,
+                           Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
+                           track["label"])
+                p.setFont(FONT_BTN)
+                p.setPen(C_AMBER)
+                p.drawText(10, y + th // 2, LABEL_W - 52, th // 2,
+                           Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
+                           f"{self._sim_bpm} BPM")
+            else:
+                p.drawText(10, y, LABEL_W - 52, th,
+                           Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
+                           track["label"])
 
             # S/M buttons
             btn_y = y + (th - BTN_H) // 2

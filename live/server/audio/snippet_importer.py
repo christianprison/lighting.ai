@@ -137,8 +137,8 @@ def import_from_repo(
     song_filter:   Falls gesetzt, nur diesen Song importieren (song_id)
     force:         Feature-Vektoren auch für Bars neu berechnen, die bereits einen haben
     """
-    from .reference_db import ReferenceDB, SongRecord, BarRecord, FeatureVector
-    from .fingerprint import extract_features, extract_features_from_array
+    from detection.reference_db import ReferenceDB, SongRecord, BarRecord, FeatureVector
+    from detection.fingerprint import extract_features, extract_features_from_array
 
     # DB laden
     if not db_json_path.exists():
@@ -378,8 +378,8 @@ def compute_missing_features(
 
     Schneller Incremental-Update nach neuem Audio-Import über die DB-Pflege-App.
     """
-    from .reference_db import ReferenceDB, FeatureVector
-    from .fingerprint import extract_features
+    from detection.reference_db import ReferenceDB, FeatureVector
+    from detection.fingerprint import extract_features
 
     ref_db = ReferenceDB(ref_db_path)
 

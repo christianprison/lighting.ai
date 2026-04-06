@@ -41,8 +41,8 @@ from typing import NamedTuple
 
 import numpy as np
 
-from .fingerprint import weighted_similarity
-from .reference_db import BarRecord, FeatureVector, ReferenceDB
+from detection.fingerprint import weighted_similarity
+from detection.reference_db import BarRecord, FeatureVector, ReferenceDB
 
 log = logging.getLogger("live.audio.hmm")
 

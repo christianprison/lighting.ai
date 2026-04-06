@@ -37,7 +37,7 @@ from typing import TYPE_CHECKING, Optional
 import numpy as np
 
 if TYPE_CHECKING:
-    from .reference_db import ReferenceDB
+    from detection.reference_db import ReferenceDB
 
 log = logging.getLogger("live.audio.recording_importer")
 
@@ -100,8 +100,8 @@ def import_from_recording(
 
     import json as _json
 
-    from .reference_db import ReferenceDB
-    from .fingerprint import extract_features_from_array
+    from detection.reference_db import ReferenceDB
+    from detection.fingerprint import extract_features_from_array
 
     # BPM-Map aus lighting-ai-db.json laden
     bpm_map: dict[str, float] = {}
@@ -260,7 +260,7 @@ def _upsert_averaged(
     Returns True wenn ein neuer Eintrag angelegt wurde, False wenn gemittelt.
     """
     # Direktzugriff auf private Helpers (_blob, _from_blob) aus reference_db
-    from .reference_db import _blob, _from_blob
+    from detection.reference_db import _blob, _from_blob
 
     with ref_db._conn() as con:
         row = con.execute(

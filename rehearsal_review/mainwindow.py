@@ -4,11 +4,12 @@ from __future__ import annotations
 import json
 import math
 import os
+import re
 import sys
 from pathlib import Path
 from typing import Optional
 
-from PyQt6.QtCore import Qt, QThread, QTimer, pyqtSignal
+from PyQt6.QtCore import Qt, QSortFilterProxyModel, QThread, QTimer, pyqtSignal
 from PyQt6.QtGui import QAction, QKeySequence
 from PyQt6.QtWidgets import (
     QApplication, QComboBox, QDialog, QFileDialog, QInputDialog,
@@ -26,9 +27,51 @@ from annotation import (
     BarMarker, SongAnnotation,
     load_annotations, save_annotations,
 )
-from simulator import SimulatorWorker, SimBeat, SimPosition
+from simulator import SimulatorWorker
 from datetime import datetime as _dt
-from sim_monitor import SimMonitorDialog
+
+import numpy as _np
+
+
+def _compute_bpm_timeline(
+    abs_kicks: list[float],
+    abs_snares: list[float],
+    window: int = 16,
+    step: int = 4,
+) -> list[tuple[float, int]]:
+    """Berechnet BPM in gleitenden Fenstern (window Events, Stride step).
+
+    Returns list of (abs_time, bpm) — nur Einträge wo sich BPM um ≥1 ändert.
+    Erster Eintrag wird immer aufgenommen (BPM am Anfang).
+    """
+    all_t = sorted(abs_kicks + abs_snares)
+    if len(all_t) < window:
+        # Zu wenig Events: globalen BPM als Einzelwert
+        if len(all_t) >= 4:
+            iois = [all_t[i + 1] - all_t[i] for i in range(len(all_t) - 1)]
+            iois = [d for d in iois if 0.27 <= d <= 1.0]
+            if iois:
+                bpm = round(60.0 / float(_np.median(iois)))
+                return [(all_t[0], bpm)]
+        return []
+
+    result: list[tuple[float, int]] = []
+    last_bpm: int = -1
+    for i in range(0, len(all_t) - window + 1, step):
+        w = all_t[i: i + window]
+        iois = [w[j + 1] - w[j] for j in range(len(w) - 1)]
+        iois = [d for d in iois if 0.27 <= d <= 1.0]
+        if not iois:
+            continue
+        bpm = round(60.0 / float(_np.median(iois)))
+        if bpm != last_bpm:
+            result.append((w[0], bpm))
+            last_bpm = bpm
+    return result
+
+
+
+
 
 _APP_STYLE = """
 QMainWindow, QWidget          { background:#08090d; color:#eef0f6; }
@@ -349,11 +392,12 @@ class MainWindow(QMainWindow):
         self._fragment_worker: Optional[_FragmentWorker] = None
 
         # Simulation
-        self._sim_worker:      Optional[SimulatorWorker] = None
-        self._sim_monitor:     Optional[SimMonitorDialog] = None
+        self._sim_worker:       Optional[SimulatorWorker] = None
+        self._sim_progress_dlg: Optional[QProgressDialog] = None
         self._sim_overlay_act: Optional[object] = None   # QAction, gesetzt in _build_toolbar
         self._sim_start_wav_t: float = 0.0  # WAV-Offset bei Simulations-Start
         self._sim_t_in_seg:    float = 0.0  # Segment-relative Startposition für Seek
+        self._sim_bpm:         float = 120.0  # BPM zum Zeitpunkt des Sim-Starts
 
         self._player = AudioPlayer(self)
         self._player.position_changed.connect(self._on_position)
@@ -583,16 +627,41 @@ class MainWindow(QMainWindow):
 
     # ── Loading ───────────────────────────────────────────────────────────────
 
+    # Regex für simulierte JSONL-Ausgabedateien: stem_sim_songId_HHMMSS.jsonl
+    _SIM_JSONL_PAT = re.compile(r'_sim_[A-Za-z0-9]+_\d{6}\.jsonl$')
+
     def _open_session(self) -> None:
         default_dir = str(
-            Path(__file__).parent.parent / "data" / "recordings"
+            Path(__file__).parent.parent / "live" / "data" / "recordings"
         )
-        path, _ = QFileDialog.getOpenFileName(
-            self, "Aufnahme öffnen", default_dir,
-            "JSONL Event-Log (*.jsonl);;Alle Dateien (*)"
-        )
-        if path:
-            self._load_session(Path(path))
+        from PyQt6.QtWidgets import QSplitter
+        dlg = QFileDialog(self, "Aufnahme öffnen", default_dir)
+        dlg.setOptions(QFileDialog.Option.DontUseNativeDialog)
+        dlg.setNameFilter("JSONL Event-Log (*.jsonl);;Alle Dateien (*)")
+        dlg.setFileMode(QFileDialog.FileMode.ExistingFile)
+        dlg.resize(1080, 640)
+
+        class _HideSimFiles(QSortFilterProxyModel):
+            _pat = MainWindow._SIM_JSONL_PAT
+            def filterAcceptsRow(self, row: int, parent):
+                idx = self.sourceModel().index(row, 0, parent)
+                name = idx.data()
+                if isinstance(name, str) and self._pat.search(name):
+                    return False
+                return super().filterAcceptsRow(row, parent)
+
+        dlg.setProxyModel(_HideSimFiles(dlg))
+
+        # Sidebar-Splitter schmaler machen (links ~100px, Rest für Dateiliste)
+        for spl in dlg.findChildren(QSplitter):
+            if spl.count() >= 2:
+                spl.setSizes([100, 900])
+                break
+
+        if dlg.exec() == QFileDialog.DialogCode.Accepted:
+            sel = dlg.selectedFiles()
+            if sel:
+                self._load_session(Path(sel[0]))
 
     def _load_session(self, jsonl_path: Path) -> None:
         db = self._try_load_db(jsonl_path)
@@ -672,7 +741,7 @@ class MainWindow(QMainWindow):
     def _try_load_db(self, jsonl_path: Path) -> Optional[dict]:
         for p in [
             jsonl_path.parent.parent.parent / "db" / "lighting-ai-db.json",
-            Path(__file__).parent.parent.parent / "db" / "lighting-ai-db.json",
+            Path(__file__).parent.parent / "db" / "lighting-ai-db.json",
         ]:
             if p.exists():
                 try:
@@ -861,9 +930,6 @@ class MainWindow(QMainWindow):
             self._pos_label.setText(_fmt_t_precise(wav_t - self._current_seg.start_t))
         if self._event_panel and self._event_panel.isVisible():
             self._event_panel.focus_at(wav_t)
-        # Playhead im Simulations-Monitor synchron halten
-        if self._sim_monitor is not None and self._sim_monitor.isVisible():
-            self._sim_monitor.set_playhead(max(0.0, wav_t - self._sim_start_wav_t))
 
     def _on_stopped(self) -> None:
         self._play_act.setText("Play")
@@ -965,11 +1031,7 @@ class MainWindow(QMainWindow):
             return
 
         try:
-            import sys
-            server_path = str(ref_db_path.parent.parent / "server")
-            if server_path not in sys.path:
-                sys.path.insert(0, server_path)
-            from audio.reference_db import ReferenceDB
+            from detection.reference_db import ReferenceDB
             ref_db = ReferenceDB(ref_db_path)
             parts = ref_db.get_parts_for_song(self._current_seg.song_id)
         except Exception as exc:
@@ -1151,10 +1213,7 @@ class MainWindow(QMainWindow):
             if self._session:
                 candidate = self._session.wav_path.parent.parent / "reference.db"
                 if candidate.exists():
-                    server_path = str(candidate.parent.parent / "server")
-                    if server_path not in sys.path:
-                        sys.path.insert(0, server_path)
-                    from audio.reference_db import ReferenceDB
+                    from detection.reference_db import ReferenceDB
                     db_parts = ReferenceDB(candidate).get_parts_for_song(
                         self._current_seg.song_id
                     )
@@ -1402,13 +1461,10 @@ class MainWindow(QMainWindow):
             if candidate.exists():
                 ref_db_path = candidate
 
-        # Use current playhead position as simulation start (relative to seg start).
-        # Clamp to [0, seg.duration - 1s] so we never start past the segment end.
-        t_in_seg_start = max(0.0, min(
-            self._player.position_in_segment,
-            max(0.0, seg.duration - 1.0),
-        ))
-        sim_start_wav_t = seg.start_t + t_in_seg_start
+        # Simulation immer ab Segment-Anfang — nicht ab Playhead-Position,
+        # da sonst der erste Teil des Songs nie analysiert wird.
+        t_in_seg_start = 0.0
+        sim_start_wav_t = seg.start_t
 
         # JSONL-Ausgabedatei neben der Session ablegen
         stamp = _dt.now().strftime("%H%M%S")
@@ -1422,9 +1478,33 @@ class MainWindow(QMainWindow):
         self._sim_clear_act.setEnabled(True)
         self._sim_start_wav_t = sim_start_wav_t
         self._sim_t_in_seg    = t_in_seg_start
-        self._status.showMessage(
-            f'Simulation läuft: "{seg.song_name}" — BPM {bpm:.0f} …', 0
+        self._sim_bpm         = bpm
+
+        # Progress-Overlay Modal während der Simulation
+        prog = QProgressDialog(
+            f'Analysiere "{seg.song_name}" …', "Abbrechen", 0, 100, self
         )
+        prog.setWindowTitle("Simulation")
+        prog.setWindowModality(Qt.WindowModality.WindowModal)
+        prog.setMinimumDuration(0)
+        prog.setAutoClose(False)
+        prog.setAutoReset(False)
+        prog.setValue(0)
+        prog.setStyleSheet("""
+            QProgressDialog { background:#08090d; color:#eef0f6; }
+            QLabel           { color:#eef0f6; font-family:'Sora',sans-serif;
+                               font-size:11px; padding:8px 0 4px 0; }
+            QProgressBar     { background:#151820; border:1px solid #1e2230;
+                               border-radius:3px; text-align:center; color:#eef0f6;
+                               height:18px; min-height:18px; }
+            QProgressBar::chunk { background:#00dc82; border-radius:3px; }
+            QPushButton      { background:#ff3b5c22; border:1px solid #ff3b5c;
+                               color:#ff3b5c; padding:4px 16px;
+                               font-family:'DM Mono',monospace; font-size:10px;
+                               border-radius:3px; }
+            QPushButton:hover { background:#ff3b5c44; }
+        """)
+        self._sim_progress_dlg = prog
 
         worker = SimulatorWorker(
             wav_path=self._session.wav_path,
@@ -1440,11 +1520,13 @@ class MainWindow(QMainWindow):
             use_hmm=False,
             parent=self,
         )
-        worker.progress.connect(self._on_sim_progress)
+        prog.canceled.connect(worker.requestInterruption)
+        worker.progress.connect(lambda v: prog.setValue(int(v * 100)))
         worker.finished.connect(self._on_sim_finished)
         worker.error.connect(self._on_sim_error)
         self._sim_worker = worker
         worker.start()
+        prog.show()
 
     def _clear_simulation(self) -> None:
         if self._sim_worker is not None:
@@ -1458,28 +1540,26 @@ class MainWindow(QMainWindow):
         self._sim_clear_act.setEnabled(False)
         self._status.showMessage("Simulations-Ergebnisse gelöscht", 3000)
 
-    def _on_sim_progress(self, v: float) -> None:
-        seg = self._current_seg
-        name = seg.song_name if seg else "…"
-        self._status.showMessage(f'Simulation: "{name}" — {v:.0%}', 0)
+    def _close_sim_progress(self) -> None:
+        if self._sim_progress_dlg is not None:
+            self._sim_progress_dlg.close()
+            self._sim_progress_dlg = None
 
     def _on_sim_finished(self, result: dict) -> None:
+        self._close_sim_progress()
         self._sim_act.setEnabled(True)
         self._sim_clear_act.setEnabled(True)
         self._sim_worker = None
 
-        n_beats_all = result.get("n_beats_all", 0)
-        n_downbeats = result.get("n_downbeats", 0)
-        n_positions = result.get("n_positions", 0)
-        jsonl_path  = result.get("jsonl_path")
-        beats       = result.get("beats", [])
-        snares      = result.get("snares", [])
-        positions   = result.get("positions", [])
+        n_kicks  = result.get("n_kicks",  0)
+        n_snares = result.get("n_snares", 0)
+        kicks    = result.get("kicks",  [])
+        snares   = result.get("snares", [])
 
-        if n_beats_all == 0:
+        if n_kicks == 0 and n_snares == 0:
             QMessageBox.warning(
-                self, "Simulation — keine Beats",
-                "Die Simulation hat keine Beats erkannt.\n\n"
+                self, "Simulation — keine Events",
+                "Die Simulation hat keine Kick- oder Snare-Onsets erkannt.\n\n"
                 "Mögliche Ursachen:\n"
                 "• Die WAV-Datei endet vor dem gewählten Segment\n"
                 "• Die Session-Sample-Rate stimmt nicht mit der WAV überein\n"
@@ -1488,48 +1568,35 @@ class MainWindow(QMainWindow):
             return
 
         # Timeline mit Sim-Events befüllen (t = absoluter WAV-Zeitstempel)
-        for b in beats:
-            self._timeline.add_sim_beat(
-                self._sim_start_wav_t + b.t,
-                b.is_downbeat, b.is_fill, b.trigger,
-            )
-        for t_s in snares:
-            self._timeline.add_sim_snare(self._sim_start_wav_t + t_s)
-        for pos in positions:
-            self._timeline.add_sim_position(
-                self._sim_start_wav_t + pos.t,
-                pos.bar_num, pos.part_name, pos.confidence, pos.is_frozen,
-            )
+        abs_kicks  = [self._sim_start_wav_t + t_k for t_k in kicks]
+        abs_snares = [self._sim_start_wav_t + t_s for t_s in snares]
+        for t_k in abs_kicks:
+            self._timeline.add_sim_kick(t_k)
+        for t_s in abs_snares:
+            self._timeline.add_sim_snare(t_s)
 
-        # Vergleich mit manuellen Annotationen
-        ann = self._current_annotation()
-        if ann and ann.markers and positions:
-            correct = sum(
-                1 for m in ann.markers
-                if (
-                    (closest := min(positions, key=lambda p: abs(p.t - (m.t - self._sim_start_wav_t))))
-                    and abs(closest.t - (m.t - self._sim_start_wav_t)) <= 1.0
-                    and closest.bar_num == m.bar_num
-                )
-            )
-            match_info = (
-                f" — Takt-Match: {correct}/{len(ann.markers)} "
-                f"({correct / len(ann.markers):.0%})"
-            )
-        else:
-            match_info = ""
+        # BPM-Timeline + Taktgitter (vom BarTracker im Simulator berechnet)
+        sim_bpm  = result.get("bpm", 0)
+        bpm_tl   = _compute_bpm_timeline(abs_kicks, abs_snares)
+        bar_times: list[float] = result.get("bar_times", [])
+        self._timeline.set_sim_bpm_and_bars(bpm_tl, bar_times)
 
-        summary = (
-            f"Simulation: {n_downbeats} Downbeats, "
-            f"{n_positions} Positionen{match_info}"
+        bpm_str = f"  ~{sim_bpm} BPM" if sim_bpm > 0 else ""
+        self._status.showMessage(
+            f"Simulation: ◆ {n_kicks} Kicks (amber)  | ◆ {n_snares} Snares (cyan){bpm_str}",
+            12000,
         )
-        self._status.showMessage(summary, 12000)
 
         # Overlay-Toggle freischalten und Simulation-Ansicht aktivieren
         self._sim_overlay_act.setEnabled(True)
-        self._sim_overlay_act.setChecked(True)   # sofort auf Sim-Ansicht umschalten
+        self._sim_overlay_act.setChecked(True)
+
+        # Zoom auf 80 px/s setzen für gut lesbare Diamond-Darstellung
+        self._timeline.set_zoom(80.0)
+        self._sync_zoom_combo()
 
     def _on_sim_error(self, err: str) -> None:
+        self._close_sim_progress()
         self._sim_act.setEnabled(True)
         self._sim_worker = None
         self._sim_clear_act.setEnabled(False)

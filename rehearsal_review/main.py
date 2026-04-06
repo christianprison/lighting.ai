@@ -4,6 +4,12 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+# Repo-Root in sys.path eintragen damit das 'detection'-Paket importierbar ist.
+# Das 'detection/'-Verzeichnis liegt im Repo-Root, eine Ebene über rehearsal_review/.
+_REPO_ROOT = str(Path(__file__).resolve().parent.parent)
+if _REPO_ROOT not in sys.path:
+    sys.path.insert(0, _REPO_ROOT)
+
 from PyQt6.QtCore import QTimer
 from PyQt6.QtWidgets import QApplication
 from PyQt6.QtGui import QFont

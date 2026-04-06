@@ -33,6 +33,37 @@ Das Projekt besteht aus **zwei unabhängigen Teilprojekten**, die in separaten C
 - Commit Messages auf Deutsch oder Englisch — egal, Hauptsache klar
 - `db/lighting-ai-db.json` wird auch durch die App committed (auto-save)
 - Audio-Dateien kommen als Binary Blobs rein (kein LFS nötig, Dateien sind klein)
+
+### ⚠️ Paradigma: Gemeinsames Detection-Package `detection/`
+
+**Live-App und Rehearsal-App nutzen IMMER denselben Erkennungs-Code.**  
+Alle Algorithmen zur Audio-Erkennung und Taktanalyse gehören in das Paket `detection/`
+und dürfen **niemals** nur in einer der beiden Apps implementiert werden.
+
+```
+detection/
+├── beat_detector.py   # OnsetDetector: Kick/Snare-Erkennung (Echtzeit + Simulation)
+├── bar_tracker.py     # (geplant) Greedy Bar-Tracking + Phasen-Histogram
+├── fingerprint.py     # Feature-Extraktion (chroma, MFCC, onset, RMS)
+├── hmm.py             # HMM-basierte Takt-Positionsschätzung
+└── reference_db.py    # SQLite-Backend für Songs, Takte, Feature-Vektoren
+```
+
+**Warum:** Wenn eine Verbesserung am Algorithmus nötig ist, darf es nur eine Stelle geben.
+Doppelter Code = divergierende Algorithmen = Bugs im Live-Betrieb, die in der Simulation
+nicht aufgefallen sind.
+
+**Importpfad:**
+- Live-App (`live/server/`): `from detection.beat_detector import OnsetDetector`
+- Rehearsal-App (`rehearsal_review/`): identischer Import (Repo-Root liegt in `sys.path`)
+- Simulator (`rehearsal_review/simulator.py`): identischer Import
+
+**Aktuell bekannte Ausnahme / TODO:**  
+`_compute_bar_times()` und `_find_anchor_by_phase()` liegen noch in
+`rehearsal_review/mainwindow.py` (entstanden in einer Session, die dieses Paradigma
+nicht beachtet hat). Sie gehören in `detection/bar_tracker.py`, sobald der Live-App
+ein Bar-Tracker hinzugefügt wird. **Nicht noch einmal parallel implementieren.**
+
 ### ⚠️ MCP-Tool-Limitation: Dateigröße
 
 **`mcp__github__push_files` und `mcp__github__create_or_update_file` haben ein stilles Content-Limit von ca. 48 KB.**  

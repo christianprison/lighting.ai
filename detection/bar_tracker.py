@@ -127,28 +127,25 @@ def _snare_phase_correct(
 ) -> float:
     """Korrigiert den Taktanker so dass Snares auf Beat 2+4 (Offbeat) landen.
 
-    Nach der Anker-Bestimmung aus Kicks prüft diese Funktion, ob Snares
-    tatsächlich auf Beat 2 und 4 fallen (Phase ≈ beat_sec bzw. 3·beat_sec
-    relativ zum Anker). Falls nicht, testet sie alle 4 Viertel-Offsets
-    und wählt den mit den meisten Offbeat-Snares.
+    Testet alle 4 Viertel-Offsets des Ankers und wählt den, bei dem die
+    meisten Snares auf Beat 2 oder Beat 4 (Offbeat) fallen.
 
     Anwendungsfall: ein Pickup-Snareschlag auf der "4" vor Takt 1 wird vom
-    Onset-Detector fälschlich als Kick erkannt und kippt das Phasen-Histogramm
-    um ein Viertel. Die Snare-Korrektur erkennt dies und verschiebt den Anker
-    zurück auf Beat 1.
+    Onset-Detector fälschlich als Kick erkannt → Phasen-Histogram wählt
+    Beat-4-Phase als Anker → Taktgitter 1 Viertel zu früh.
 
-    Nur aktiv wenn Snares nachweislich im Offbeat-Muster schlagen
-    (medianer Snare-IOI > 1.3 × beat_sec). Bei durchgehenden Viertel-Snares
-    (z.B. Shuffle/Disco) wird nicht korrigiert.
+    Korrektur erfolgt nur wenn der gewinnende Shift deutlich mehr Offbeat-
+    Snares erklärt als kein Shift (Faktor ≥ 2 oder Abstand ≥ 4 Votes).
+    Das verhindert falsche Korrekturen bei sehr verrauschten Snare-Signalen
+    (Ghost Notes, HiHat-Bleed) — bei solchen Songs gewinnt Shift 0 oder der
+    Abstand ist zu gering.
     """
     if len(snares) < 4:
         return first_t
-    if _snare_pattern(sorted(snares), beat_sec) != "offbeat":
-        return first_t
 
-    best_shift = 0
-    best_score = -1
+    import sys
 
+    scores = []
     for shift in range(4):
         candidate = first_t + shift * beat_sec
         score = sum(
@@ -156,18 +153,35 @@ def _snare_phase_correct(
             if (_circ_dist((s - candidate) % bar_sec, beat_sec, bar_sec) <= snap_r
                 or _circ_dist((s - candidate) % bar_sec, 3.0 * beat_sec, bar_sec) <= snap_r)
         )
-        if score > best_score:
-            best_score = score
-            best_shift = shift
+        scores.append(score)
+
+    best_shift = max(range(4), key=lambda i: scores[i])
+
+    print(
+        f"[BAR] _snare_phase_correct: first_t={first_t:.3f}  "
+        f"scores(+0/+1/+2/+3)={scores}  best_shift={best_shift}",
+        file=sys.stderr,
+    )
 
     if best_shift == 0:
         return first_t
 
+    # Korrektur nur wenn klarer Vorsprung vor Shift-0
+    score0 = scores[0]
+    score_best = scores[best_shift]
+    if score_best < 2 * max(1, score0) and score_best - score0 < 4:
+        print(
+            f"[BAR] Korrektur abgelehnt: score_best={score_best} "
+            f"nicht klar vor score0={score0}",
+            file=sys.stderr,
+        )
+        return first_t
+
     corrected = first_t + best_shift * beat_sec
-    log.debug(
-        "_snare_phase_correct: Anker %.3f → %.3f (+%d Viertel), "
-        "offbeat_score=%d/%d Snares",
-        first_t, corrected, best_shift, best_score, len(snares),
+    print(
+        f"[BAR] Anker korrigiert: {first_t:.3f} → {corrected:.3f} "
+        f"(+{best_shift} Viertel)",
+        file=sys.stderr,
     )
     return corrected
 

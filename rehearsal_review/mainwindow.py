@@ -99,12 +99,17 @@ def _compute_bar_times(bpm: int, seg_start_t: float, seg_end_t: float,
     Bei mehreren Kandidaten gewinnt immer der dem Raster nächstgelegene.
     Da jeder Takt am tatsächlich detektierten Hit verankert wird, folgt das
     Gitter dem echten Tempo und driftet nicht bei BPM-Abweichungen.
+
+    snap_r = 70 % eines Beats — sicher, weil Beat-2-Snare genau 1 Beat
+    (= 100 %) vom Taktanfang entfernt liegt und damit nie ins Fenster fällt.
     """
     if bpm <= 0:
         return []
     beat_sec = 60.0 / bpm
     bar_sec  = 4.0 * beat_sec
-    snap_r   = beat_sec * 0.45
+    # 70 % des Beat-Abstands: fängt auch Kicks die ~200-300 ms daneben liegen.
+    # Sicher nach oben durch Beat-2-Snare (100 % weg) und Beat-3-Kick (200 % weg).
+    snap_r   = beat_sec * 0.70
 
     anchor_pool = abs_kicks if abs_kicks else abs_snares
     if not anchor_pool:

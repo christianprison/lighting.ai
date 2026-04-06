@@ -61,10 +61,32 @@ def _circ_dist(a: float, b: float, period: float) -> float:
     return min(d, period - d)
 
 
+def _snare_pattern(snares: list[float], beat_sec: float) -> str:
+    """Bestimmt ob Snare auf Offbeat (Beat 2+4) oder auf allen Vierteln schlägt.
+
+    Returns:
+        "offbeat"  — Snare typisch auf Beat 2 und 4 (medianer IOI ≈ 2 Beats)
+        "allbeat"  — Snare auf jedem Viertel oder häufiger (IOI ≤ 1.3 Beats)
+        "unknown"  — zu wenig Daten
+    """
+    if len(snares) < 4:
+        return "unknown"
+    s = sorted(snares)
+    iois = [s[i + 1] - s[i] for i in range(len(s) - 1)]
+    iois = [d for d in iois if d < beat_sec * 3.0]  # nur plausible IOIs
+    if not iois:
+        return "unknown"
+    median_ioi = float(np.median(iois))
+    if median_ioi <= beat_sec * 1.3:
+        return "allbeat"   # Snare auf allen Vierteln oder häufiger
+    return "offbeat"       # Snare nur auf Offbeats (Beat 2+4)
+
+
 def _find_anchor_by_phase(
     abs_kicks: list[float],
     bar_sec: float,
     snap_r: float,
+    snares: Optional[list[float]] = None,
 ) -> float:
     """Findet den ersten Kick der dominanten Beat-1-Phase.
 
@@ -74,12 +96,19 @@ def _find_anchor_by_phase(
     Phase (viele Stimmen) → die Sieger-Phase ist automatisch der echte
     Beat-1-Offset.
 
+    Snare-Phasen-Korrektur: bei 4-on-the-floor-Kicks (alle 4 Viertel haben
+    Kicks) sind alle Beat-Phasen gleichwertig — ein Pickup-Snare-Treffer
+    (fälschlich als Kick erkannt) kann die Abstimmung um 1 Viertel kippen.
+    Wenn Snares nachweislich nur auf dem Offbeat (Beat 2+4) schlagen, wird
+    die Sieger-Phase anhand der Snare-Offbeat-Verteilung korrigiert.
+
     Gibt den frühesten Kick zurück, dessen Phase mit der Sieger-Phase
     übereinstimmt. Fallback: min(abs_kicks) falls zu wenig Daten.
     """
     if len(abs_kicks) < _MIN_KICKS_FOR_PHASE:
         return min(abs_kicks)
 
+    beat_sec = bar_sec / 4.0
     phases = [t % bar_sec for t in abs_kicks]
 
     best_phase: float = phases[0]
@@ -89,6 +118,37 @@ def _find_anchor_by_phase(
         if count > best_count:
             best_count = count
             best_phase = p
+
+    # Snare-Phasen-Korrektur: wenn Snare nur auf Offbeat (Beat 2+4) schlägt,
+    # prüfe ob die gewählte Kick-Phase die Snares korrekt auf Beat 2+4 erklärt.
+    # Falls nicht, verschiebe die Phase um 1–3 Viertel bis die Offbeat-
+    # Ausrichtung am besten passt. Damit wird der "Pickup-Snare-als-Downbeat"-
+    # Fehler korrigiert, ohne den Algorithmus bei All-Beat-Snares zu stören.
+    if snares and len(snares) >= 4:
+        pattern = _snare_pattern(sorted(snares), beat_sec)
+        if pattern == "offbeat":
+            snare_phases = [t % bar_sec for t in snares]
+            best_shift = 0
+            best_offbeat_count = -1
+            for shift in range(4):
+                candidate = (best_phase + shift * beat_sec) % bar_sec
+                offbeat_count = sum(
+                    1 for sp in snare_phases
+                    if (_circ_dist(sp, (candidate + beat_sec) % bar_sec, bar_sec) <= snap_r
+                        or _circ_dist(sp, (candidate + 3.0 * beat_sec) % bar_sec, bar_sec) <= snap_r)
+                )
+                if offbeat_count > best_offbeat_count:
+                    best_offbeat_count = offbeat_count
+                    best_shift = shift
+
+            if best_shift != 0:
+                corrected = (best_phase + best_shift * beat_sec) % bar_sec
+                log.debug(
+                    "_find_anchor_by_phase: Snare-Korrektur +%d Viertel "
+                    "(%.3f → %.3f), offbeat_count=%d",
+                    best_shift, best_phase, corrected, best_offbeat_count,
+                )
+                best_phase = corrected
 
     for t in sorted(abs_kicks):
         if _circ_dist(t % bar_sec, best_phase, bar_sec) <= snap_r:
@@ -129,7 +189,7 @@ def _compute_bar_grid(
         return []
 
     if kicks:
-        first_t = _find_anchor_by_phase(kicks, bar_sec, snap_r)
+        first_t = _find_anchor_by_phase(kicks, bar_sec, snap_r, snares=snares)
     else:
         first_t = min(anchor_pool)
 

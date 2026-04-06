@@ -627,8 +627,8 @@ class TimelineWidget(QWidget):
         w      = self.width()
 
         p.setRenderHint(QPainter.RenderHint.Antialiasing, False)
-        pen_bar = QPen(QColor(255, 255, 255, 55), 1)
-        C_NUM   = QColor(C_AMBER.red(), C_AMBER.green(), C_AMBER.blue(), 170)
+        pen_bar = QPen(QColor(255, 255, 255, 110), 1)
+        C_NUM   = QColor(0xee, 0xf0, 0xf6, 230)   # fast weiß, gut lesbar
 
         # ── Taktstriche + Taktnummern ──────────────────────────────────────────
         for bar_num, bar_t in enumerate(self._sim_bar_times, start=1):
@@ -642,12 +642,17 @@ class TimelineWidget(QWidget):
             if bar_num % 5 == 0 and tom_i is not None:
                 ty = TRACK_Y[tom_i]
                 th = TRACKS[tom_i]["h"]
-                # Taktnummer im unteren Drittel der Tom-Zeile
+                # Taktnummer im unteren Drittel: dunkler Hintergrund + helle Schrift
+                lbl   = str(bar_num)
+                lbl_w = 26
+                lbl_y = ty + th * 2 // 3
+                lbl_h = th // 3
+                p.fillRect(bx + 1, lbl_y, lbl_w, lbl_h, QColor(0, 0, 0, 160))
                 p.setFont(FONT_BTN)
                 p.setPen(C_NUM)
-                p.drawText(bx + 2, ty + th * 2 // 3, 28, th // 3,
+                p.drawText(bx + 2, lbl_y, lbl_w, lbl_h,
                            Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
-                           str(bar_num))
+                           lbl)
 
         # ── BPM-Timeline in Tom-Zeile (oberes Drittel) ────────────────────────
         if self._sim_bpm_timeline and tom_i is not None:
@@ -655,14 +660,16 @@ class TimelineWidget(QWidget):
             th = TRACKS[tom_i]["h"]
             bpm_y    = ty + 1
             bpm_h    = th * 2 // 3   # obere 2/3 der Zeile (Platz ohne Taktnummern)
-            C_BPM    = QColor(C_AMBER.red(), C_AMBER.green(), C_AMBER.blue(), 200)
+            C_BPM    = QColor(0xee, 0xf0, 0xf6, 240)   # helles Weiß
             p.setFont(FONT_BTN)
-            p.setPen(C_BPM)
             for bpm_t, bpm_val in self._sim_bpm_timeline:
                 bx = LABEL_W + int((bpm_t - seg_t0) * pps) - ox
                 if bx < LABEL_W or bx > w:
                     continue
-                p.drawText(bx + 3, bpm_y, 36, bpm_h,
+                lbl_w = 32
+                p.fillRect(bx + 2, bpm_y, lbl_w, bpm_h, QColor(0, 0, 0, 160))
+                p.setPen(C_BPM)
+                p.drawText(bx + 3, bpm_y, lbl_w, bpm_h,
                            Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
                            str(bpm_val))
 

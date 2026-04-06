@@ -217,9 +217,10 @@ class TimelineWidget(QWidget):
         # Wenn False, Sim-Events als halbtransparentes Violett-Overlay.
         self._sim_overlay: bool = False
 
-        # Sim BPM + Taktgitter
-        self._sim_bpm:       int         = 0
-        self._sim_bar_times: list[float] = []
+        # Sim BPM-Timeline + Taktgitter
+        # _sim_bpm_timeline: list of (abs_wav_t, bpm) — changes only
+        self._sim_bpm_timeline: list[tuple[float, int]] = []
+        self._sim_bar_times:    list[float]             = []
 
         self._hbar = QScrollBar(Qt.Orientation.Horizontal, self)
         self._hbar.valueChanged.connect(self._on_scroll)
@@ -328,16 +329,20 @@ class TimelineWidget(QWidget):
 
     def clear_sim_events(self) -> None:
         """Löscht alle Simulations-Ergebnisse."""
-        self._sim_kicks     = []
-        self._sim_snares    = []
-        self._sim_bpm       = 0
-        self._sim_bar_times = []
+        self._sim_kicks        = []
+        self._sim_snares       = []
+        self._sim_bpm_timeline = []
+        self._sim_bar_times    = []
         self.update()
 
-    def set_sim_bpm_and_bars(self, bpm: int, bar_times: list[float]) -> None:
-        """Setzt BPM-Anzeige und Taktgitter für den Simulations-Overlay."""
-        self._sim_bpm       = bpm
-        self._sim_bar_times = bar_times
+    def set_sim_bpm_and_bars(
+        self,
+        bpm_timeline: list[tuple[float, int]],
+        bar_times: list[float],
+    ) -> None:
+        """Setzt BPM-Timeline und Taktgitter für den Simulations-Overlay."""
+        self._sim_bpm_timeline = bpm_timeline
+        self._sim_bar_times    = bar_times
         self.update()
 
     def set_sim_overlay(self, enabled: bool) -> None:
@@ -591,12 +596,13 @@ class TimelineWidget(QWidget):
     # ── Sim bar grid ──────────────────────────────────────────────────────────
 
     def _paint_sim_bars(self, p: QPainter, vl: int, vr: int) -> None:
-        """Zeichnet Taktstriche über alle Schlagzeug-Tracks (Kick..OH L+R).
+        """Zeichnet Taktstriche + BPM-Verlauf über alle Schlagzeug-Tracks.
 
-        Nur aktiv wenn Sim-Overlay eingeschaltet und Taktgitter berechnet.
-        Jede 5. Taktnummer wird in der Tom-Zeile angezeigt.
+        Taktstriche: halbdurchsichtige weiße Linien über Kick..OH L+R.
+        Taktnummern: alle 5 Takte amber in Tom-Zeile (unterer Bereich).
+        BPM-Anzeige: in Tom-Zeile (oberer Bereich) bei jeder Änderung ≥ 1 BPM.
         """
-        if not self._sim_overlay or not self._sim_bar_times:
+        if not self._sim_overlay:
             return
         if self.segment is None:
             return
@@ -611,7 +617,7 @@ class TimelineWidget(QWidget):
         last_i   = drum_indices[-1]
         y_bottom = TRACK_Y[last_i] + TRACKS[last_i]["h"] - 1
 
-        # Tom-Zeile für Taktnummern
+        # Tom-Zeile für Taktnummern + BPM
         tom_indices = [i for i, t in enumerate(TRACKS) if t["label"] == "Toms"]
         tom_i = tom_indices[0] if tom_indices else None
 
@@ -624,6 +630,7 @@ class TimelineWidget(QWidget):
         pen_bar = QPen(QColor(255, 255, 255, 55), 1)
         C_NUM   = QColor(C_AMBER.red(), C_AMBER.green(), C_AMBER.blue(), 170)
 
+        # ── Taktstriche + Taktnummern ──────────────────────────────────────────
         for bar_num, bar_t in enumerate(self._sim_bar_times, start=1):
             bx = LABEL_W + int((bar_t - seg_t0) * pps) - ox
             if bx < LABEL_W or bx > w:
@@ -635,11 +642,29 @@ class TimelineWidget(QWidget):
             if bar_num % 5 == 0 and tom_i is not None:
                 ty = TRACK_Y[tom_i]
                 th = TRACKS[tom_i]["h"]
+                # Taktnummer im unteren Drittel der Tom-Zeile
                 p.setFont(FONT_BTN)
                 p.setPen(C_NUM)
-                p.drawText(bx + 2, ty + 1, 28, th - 2,
+                p.drawText(bx + 2, ty + th * 2 // 3, 28, th // 3,
                            Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
                            str(bar_num))
+
+        # ── BPM-Timeline in Tom-Zeile (oberes Drittel) ────────────────────────
+        if self._sim_bpm_timeline and tom_i is not None:
+            ty = TRACK_Y[tom_i]
+            th = TRACKS[tom_i]["h"]
+            bpm_y    = ty + 1
+            bpm_h    = th * 2 // 3   # obere 2/3 der Zeile (Platz ohne Taktnummern)
+            C_BPM    = QColor(C_AMBER.red(), C_AMBER.green(), C_AMBER.blue(), 200)
+            p.setFont(FONT_BTN)
+            p.setPen(C_BPM)
+            for bpm_t, bpm_val in self._sim_bpm_timeline:
+                bx = LABEL_W + int((bpm_t - seg_t0) * pps) - ox
+                if bx < LABEL_W or bx > w:
+                    continue
+                p.drawText(bx + 3, bpm_y, 36, bpm_h,
+                           Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
+                           str(bpm_val))
 
     # ── Ruler ─────────────────────────────────────────────────────────────────
 
@@ -1121,20 +1146,9 @@ class TimelineWidget(QWidget):
             # Label text (leave room for S/M buttons on the right)
             p.setFont(FONT_LABEL)
             p.setPen(C_T1 if track["is_sum"] else C_T2)
-            if track["label"] == "Toms" and self._sim_bpm > 0 and self._sim_overlay:
-                # Label in oberer Hälfte, BPM-Anzeige in unterer Hälfte
-                p.drawText(10, y, LABEL_W - 52, th // 2,
-                           Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
-                           track["label"])
-                p.setFont(FONT_BTN)
-                p.setPen(C_AMBER)
-                p.drawText(10, y + th // 2, LABEL_W - 52, th // 2,
-                           Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
-                           f"{self._sim_bpm} BPM")
-            else:
-                p.drawText(10, y, LABEL_W - 52, th,
-                           Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
-                           track["label"])
+            p.drawText(10, y, LABEL_W - 52, th,
+                       Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
+                       track["label"])
 
             # S/M buttons
             btn_y = y + (th - BTN_H) // 2

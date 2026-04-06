@@ -33,6 +33,43 @@ from datetime import datetime as _dt
 import numpy as _np
 
 
+def _compute_bpm_timeline(
+    abs_kicks: list[float],
+    abs_snares: list[float],
+    window: int = 16,
+    step: int = 4,
+) -> list[tuple[float, int]]:
+    """Berechnet BPM in gleitenden Fenstern (window Events, Stride step).
+
+    Returns list of (abs_time, bpm) — nur Einträge wo sich BPM um ≥1 ändert.
+    Erster Eintrag wird immer aufgenommen (BPM am Anfang).
+    """
+    all_t = sorted(abs_kicks + abs_snares)
+    if len(all_t) < window:
+        # Zu wenig Events: globalen BPM als Einzelwert
+        if len(all_t) >= 4:
+            iois = [all_t[i + 1] - all_t[i] for i in range(len(all_t) - 1)]
+            iois = [d for d in iois if 0.27 <= d <= 1.0]
+            if iois:
+                bpm = round(60.0 / float(_np.median(iois)))
+                return [(all_t[0], bpm)]
+        return []
+
+    result: list[tuple[float, int]] = []
+    last_bpm: int = -1
+    for i in range(0, len(all_t) - window + 1, step):
+        w = all_t[i: i + window]
+        iois = [w[j + 1] - w[j] for j in range(len(w) - 1)]
+        iois = [d for d in iois if 0.27 <= d <= 1.0]
+        if not iois:
+            continue
+        bpm = round(60.0 / float(_np.median(iois)))
+        if bpm != last_bpm:
+            result.append((w[0], bpm))
+            last_bpm = bpm
+    return result
+
+
 def _compute_sim_bpm(kicks: list[float], snares: list[float]) -> int:
     """Berechnet BPM aus dem medianen IOI der Kick+Snare-Events.
 
@@ -55,23 +92,22 @@ def _compute_bar_times(bpm: int, seg_start_t: float, seg_end_t: float,
     """Berechnet Takt-Zeitstempel (abs. WAV-Zeit) für ein 4/4-Taktgitter.
 
     Ankerpunkt: erster Kick (ggf. erste Snare).
-    Jeder Taktanfang wird auf das nächste Kick- oder Snare-Event gesnapped
-    (Fenster ±38 % eines Beats), damit Taktstriche immer auf einem
-    sichtbaren Drum-Hit landen.
-    Kein Event in Reichweite → Takt wird übersprungen (keine schwebende Linie).
+    Jeder Taktanfang wird gesnapped:
+      1. Kick im Fenster ±45 % eines Beats → Kick gewinnt (Beat-1-Typisch)
+      2. Kein Kick → Snare im selben Fenster → Snare
+      3. Kein Event → Takt weggelassen (keine schwebende Linie)
+    Bei mehreren Treffern immer derjenige, der dem BPM-Raster am nächsten liegt.
     """
     if bpm <= 0:
         return []
     beat_sec = 60.0 / bpm
     bar_sec  = 4.0 * beat_sec
-    snap_r   = beat_sec * 0.38   # ±38 % eines Beats: genug für Beat-1, zu eng für Beat-2
+    snap_r   = beat_sec * 0.45   # ±45 % — robust gegen leichte BPM-Abweichungen
 
     anchor_pool = abs_kicks if abs_kicks else abs_snares
     if not anchor_pool:
         return []
     anchor = min(anchor_pool)
-
-    all_events = sorted(abs_kicks + abs_snares)
 
     # Rückwärts bis vor seg_start_t iterieren
     t = anchor
@@ -81,11 +117,15 @@ def _compute_bar_times(bpm: int, seg_start_t: float, seg_end_t: float,
     bar_times: list[float] = []
     while t <= seg_end_t + bar_sec * 0.5:
         if t >= seg_start_t - bar_sec * 0.1:
-            # Nächstes Kick/Snare-Event im Snap-Fenster suchen
-            candidates = [e for e in all_events if abs(e - t) <= snap_r]
-            if candidates:
-                bar_times.append(min(candidates, key=lambda e: abs(e - t)))
-            # Kein Event im Fenster → Taktlinie weglassen
+            # Kicks bevorzugen — Taktanfang liegt typischerweise auf Kick
+            kick_c = [e for e in abs_kicks if abs(e - t) <= snap_r]
+            if kick_c:
+                bar_times.append(min(kick_c, key=lambda e: abs(e - t)))
+            else:
+                snare_c = [e for e in abs_snares if abs(e - t) <= snap_r]
+                if snare_c:
+                    bar_times.append(min(snare_c, key=lambda e: abs(e - t)))
+            # Kein Treffer → Taktlinie weglassen
         t += bar_sec
     return bar_times
 
@@ -1592,8 +1632,10 @@ class MainWindow(QMainWindow):
         for t_s in abs_snares:
             self._timeline.add_sim_snare(t_s)
 
-        # BPM aus den detektierten Events berechnen + Taktgitter setzen
-        sim_bpm = _compute_sim_bpm(kicks, snares)   # relative Zeiten reichen
+        # BPM-Timeline + Taktgitter berechnen und in Timeline setzen
+        sim_bpm     = _compute_sim_bpm(kicks, snares)        # globaler Wert für Statusbar
+        bpm_tl      = _compute_bpm_timeline(abs_kicks, abs_snares)
+        bar_times: list[float] = []
         if sim_bpm > 0 and self._current_seg is not None:
             seg = self._current_seg
             bar_times = _compute_bar_times(
@@ -1603,7 +1645,7 @@ class MainWindow(QMainWindow):
                 abs_kicks,
                 abs_snares,
             )
-            self._timeline.set_sim_bpm_and_bars(sim_bpm, bar_times)
+        self._timeline.set_sim_bpm_and_bars(bpm_tl, bar_times)
 
         bpm_str = f"  ~{sim_bpm} BPM" if sim_bpm > 0 else ""
         self._status.showMessage(

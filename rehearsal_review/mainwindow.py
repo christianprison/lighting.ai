@@ -89,45 +89,63 @@ def _compute_sim_bpm(kicks: list[float], snares: list[float]) -> int:
 
 def _compute_bar_times(bpm: int, seg_start_t: float, seg_end_t: float,
                        abs_kicks: list[float], abs_snares: list[float]) -> list[float]:
-    """Berechnet Takt-Zeitstempel (abs. WAV-Zeit) für ein 4/4-Taktgitter.
+    """Berechnet Takt-Zeitstempel (abs. WAV-Zeit) durch greedy Forward-Snap.
 
-    Ankerpunkt: erster Kick (ggf. erste Snare).
-    Jeder Taktanfang wird gesnapped:
-      1. Kick im Fenster ±45 % eines Beats → Kick gewinnt (Beat-1-Typisch)
-      2. Kein Kick → Snare im selben Fenster → Snare
-      3. Kein Event → Takt weggelassen (keine schwebende Linie)
-    Bei mehreren Treffern immer derjenige, der dem BPM-Raster am nächsten liegt.
+    Statt eines fixen BPM-Rasters wird jeder Taktanfang vorwärts gesnapped:
+      1. Kick im Fenster ±45 % eines Beats → Kick gewinnt
+      2. Kein Kick → Snare im selben Fenster
+      3. Kein Event → mathematische Rasterposition als temporärer Anker,
+         kein Taktstrich gesetzt (verhindert schwebende Linien)
+    Bei mehreren Kandidaten gewinnt immer der dem Raster nächstgelegene.
+    Da jeder Takt am tatsächlich detektierten Hit verankert wird, folgt das
+    Gitter dem echten Tempo und driftet nicht bei BPM-Abweichungen.
     """
     if bpm <= 0:
         return []
     beat_sec = 60.0 / bpm
     bar_sec  = 4.0 * beat_sec
-    snap_r   = beat_sec * 0.45   # ±45 % — robust gegen leichte BPM-Abweichungen
+    snap_r   = beat_sec * 0.45
 
     anchor_pool = abs_kicks if abs_kicks else abs_snares
     if not anchor_pool:
         return []
-    anchor = min(anchor_pool)
 
-    # Rückwärts bis vor seg_start_t iterieren
-    t = anchor
-    while t > seg_start_t:
+    first_t = min(anchor_pool)
+
+    # ── Rückwärts: mathematisches Raster vor first_t bis seg_start_t ─────────
+    # (vor dem ersten Kick gibt es meist keinen anderen Hit — math. Raster genügt)
+    pre_times: list[float] = []
+    t = first_t - bar_sec
+    while t >= seg_start_t - bar_sec * 0.1:
+        pre_times.append(t)
         t -= bar_sec
+    pre_times.reverse()
 
-    bar_times: list[float] = []
-    while t <= seg_end_t + bar_sec * 0.5:
-        if t >= seg_start_t - bar_sec * 0.1:
-            # Kicks bevorzugen — Taktanfang liegt typischerweise auf Kick
-            kick_c = [e for e in abs_kicks if abs(e - t) <= snap_r]
-            if kick_c:
-                bar_times.append(min(kick_c, key=lambda e: abs(e - t)))
-            else:
-                snare_c = [e for e in abs_snares if abs(e - t) <= snap_r]
-                if snare_c:
-                    bar_times.append(min(snare_c, key=lambda e: abs(e - t)))
-            # Kein Treffer → Taktlinie weglassen
-        t += bar_sec
-    return bar_times
+    # ── Vorwärts: greedy ab first_t ──────────────────────────────────────────
+    bar_times: list[float] = [first_t]
+    t = first_t
+
+    while t < seg_end_t:
+        t_grid = t + bar_sec   # erwarteter nächster Takt
+
+        # Kick suchen — muss nach aktuellem Anker liegen (kein Rückschritt)
+        kick_c = [e for e in abs_kicks if t < e and abs(e - t_grid) <= snap_r]
+        if kick_c:
+            t = min(kick_c, key=lambda e: abs(e - t_grid))
+            bar_times.append(t)
+            continue
+
+        # Snare als Fallback
+        snare_c = [e for e in abs_snares if t < e and abs(e - t_grid) <= snap_r]
+        if snare_c:
+            t = min(snare_c, key=lambda e: abs(e - t_grid))
+            bar_times.append(t)
+            continue
+
+        # Kein Event → Raster voranschreiten, kein Taktstrich
+        t = t_grid
+
+    return pre_times + bar_times
 
 
 _APP_STYLE = """

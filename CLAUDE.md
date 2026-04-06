@@ -34,35 +34,45 @@ Das Projekt besteht aus **zwei unabhängigen Teilprojekten**, die in separaten C
 - `db/lighting-ai-db.json` wird auch durch die App committed (auto-save)
 - Audio-Dateien kommen als Binary Blobs rein (kein LFS nötig, Dateien sind klein)
 
-### ⚠️ Paradigma: Gemeinsames Detection-Package `detection/`
+### ⚠️ Paradigma: Simulation = Live — ein Algorithmus, keine Ausnahmen
 
-**Live-App und Rehearsal-App nutzen IMMER denselben Erkennungs-Code.**  
-Alle Algorithmen zur Audio-Erkennung und Taktanalyse gehören in das Paket `detection/`
-und dürfen **niemals** nur in einer der beiden Apps implementiert werden.
+**Die Simulation ist kein separater Modus. Sie ist das Testbett für den Live-Algorithmus.**
+
+Der Sinn der Rehearsal-App-Simulation ist es, Fehler im Live-Algorithmus zu erkennen
+und ihn robuster zu machen. Das funktioniert nur, wenn Simulation und Live-Betrieb
+**exakt denselben Code** ausführen — Block für Block, Event für Event, ohne jede
+Fallunterscheidung.
+
+**Konkret bedeutet das:**
+- Alle Erkennungsalgorithmen gehören in `detection/` und werden von beiden Apps importiert
+- Es darf **keine** "Batch-Variante für die Simulation" und "Online-Variante für Live" geben
+- Auch Komfort-Funktionen wie Bar-Tracking müssen als Streaming-Algorithmus gebaut sein,
+  der sowohl auf aufgezeichnetem Audio (Simulation) als auch auf Live-Eingang (Echtzeit)
+  funktioniert — **derselbe Code, dieselbe Reihenfolge der Operationen**
+- Wer versucht ist, "in der Simulation können wir ja alle Events auf einmal sehen":
+  **Nein.** Der Algorithmus sieht nur was er bisher gehört hat, genau wie im Live-Betrieb
 
 ```
 detection/
-├── beat_detector.py   # OnsetDetector: Kick/Snare-Erkennung (Echtzeit + Simulation)
-├── bar_tracker.py     # (geplant) Greedy Bar-Tracking + Phasen-Histogram
-├── fingerprint.py     # Feature-Extraktion (chroma, MFCC, onset, RMS)
-├── hmm.py             # HMM-basierte Takt-Positionsschätzung
-└── reference_db.py    # SQLite-Backend für Songs, Takte, Feature-Vektoren
+├── beat_detector.py   # OnsetDetector: Kick/Snare-Erkennung (streaming)
+├── bar_tracker.py     # (TODO) BarTracker: Takt-Tracking (streaming, kein Batch)
+├── fingerprint.py     # Feature-Extraktion
+├── hmm.py             # HMM-basierte Positionsschätzung
+└── reference_db.py    # SQLite-Backend
 ```
 
-**Warum:** Wenn eine Verbesserung am Algorithmus nötig ist, darf es nur eine Stelle geben.
-Doppelter Code = divergierende Algorithmen = Bugs im Live-Betrieb, die in der Simulation
-nicht aufgefallen sind.
-
-**Importpfad:**
+**Importpfad (identisch in beiden Apps):**
 - Live-App (`live/server/`): `from detection.beat_detector import OnsetDetector`
-- Rehearsal-App (`rehearsal_review/`): identischer Import (Repo-Root liegt in `sys.path`)
+- Rehearsal-App (`rehearsal_review/`): identischer Import (Repo-Root in `sys.path`)
 - Simulator (`rehearsal_review/simulator.py`): identischer Import
 
-**Aktuell bekannte Ausnahme / TODO:**  
-`_compute_bar_times()` und `_find_anchor_by_phase()` liegen noch in
-`rehearsal_review/mainwindow.py` (entstanden in einer Session, die dieses Paradigma
-nicht beachtet hat). Sie gehören in `detection/bar_tracker.py`, sobald der Live-App
-ein Bar-Tracker hinzugefügt wird. **Nicht noch einmal parallel implementieren.**
+**Bekannter Fehler aus Session 2026-04 — TODO:**  
+`_compute_bar_times()` und `_find_anchor_by_phase()` in `rehearsal_review/mainwindow.py`
+sind **falsch architekturiert**: Sie analysieren alle Events auf einmal (Batch/Post-Processing)
+und weichen damit vom Live-Verhalten ab. Ein Phasen-Histogram über alle Kicks ist im
+Live-Betrieb nicht möglich. Diese Funktionen müssen durch einen echten Streaming-
+`BarTracker` in `detection/bar_tracker.py` ersetzt werden — einen, der mit jedem
+eingehenden Kick-Event inkrementell arbeitet und in Simulation wie Live identisch läuft.
 
 ### ⚠️ MCP-Tool-Limitation: Dateigröße
 

@@ -86,7 +86,6 @@ def _find_anchor_by_phase(
     abs_kicks: list[float],
     bar_sec: float,
     snap_r: float,
-    snares: Optional[list[float]] = None,
 ) -> float:
     """Findet den ersten Kick der dominanten Beat-1-Phase.
 
@@ -96,19 +95,12 @@ def _find_anchor_by_phase(
     Phase (viele Stimmen) → die Sieger-Phase ist automatisch der echte
     Beat-1-Offset.
 
-    Snare-Phasen-Korrektur: bei 4-on-the-floor-Kicks (alle 4 Viertel haben
-    Kicks) sind alle Beat-Phasen gleichwertig — ein Pickup-Snare-Treffer
-    (fälschlich als Kick erkannt) kann die Abstimmung um 1 Viertel kippen.
-    Wenn Snares nachweislich nur auf dem Offbeat (Beat 2+4) schlagen, wird
-    die Sieger-Phase anhand der Snare-Offbeat-Verteilung korrigiert.
-
     Gibt den frühesten Kick zurück, dessen Phase mit der Sieger-Phase
     übereinstimmt. Fallback: min(abs_kicks) falls zu wenig Daten.
     """
     if len(abs_kicks) < _MIN_KICKS_FOR_PHASE:
         return min(abs_kicks)
 
-    beat_sec = bar_sec / 4.0
     phases = [t % bar_sec for t in abs_kicks]
 
     best_phase: float = phases[0]
@@ -119,42 +111,65 @@ def _find_anchor_by_phase(
             best_count = count
             best_phase = p
 
-    # Snare-Phasen-Korrektur: wenn Snare nur auf Offbeat (Beat 2+4) schlägt,
-    # prüfe ob die gewählte Kick-Phase die Snares korrekt auf Beat 2+4 erklärt.
-    # Falls nicht, verschiebe die Phase um 1–3 Viertel bis die Offbeat-
-    # Ausrichtung am besten passt. Damit wird der "Pickup-Snare-als-Downbeat"-
-    # Fehler korrigiert, ohne den Algorithmus bei All-Beat-Snares zu stören.
-    if snares and len(snares) >= 4:
-        pattern = _snare_pattern(sorted(snares), beat_sec)
-        if pattern == "offbeat":
-            snare_phases = [t % bar_sec for t in snares]
-            best_shift = 0
-            best_offbeat_count = -1
-            for shift in range(4):
-                candidate = (best_phase + shift * beat_sec) % bar_sec
-                offbeat_count = sum(
-                    1 for sp in snare_phases
-                    if (_circ_dist(sp, (candidate + beat_sec) % bar_sec, bar_sec) <= snap_r
-                        or _circ_dist(sp, (candidate + 3.0 * beat_sec) % bar_sec, bar_sec) <= snap_r)
-                )
-                if offbeat_count > best_offbeat_count:
-                    best_offbeat_count = offbeat_count
-                    best_shift = shift
-
-            if best_shift != 0:
-                corrected = (best_phase + best_shift * beat_sec) % bar_sec
-                log.debug(
-                    "_find_anchor_by_phase: Snare-Korrektur +%d Viertel "
-                    "(%.3f → %.3f), offbeat_count=%d",
-                    best_shift, best_phase, corrected, best_offbeat_count,
-                )
-                best_phase = corrected
-
     for t in sorted(abs_kicks):
         if _circ_dist(t % bar_sec, best_phase, bar_sec) <= snap_r:
             return t
 
     return min(abs_kicks)
+
+
+def _snare_phase_correct(
+    first_t: float,
+    bar_sec: float,
+    beat_sec: float,
+    snares: list[float],
+    snap_r: float,
+) -> float:
+    """Korrigiert den Taktanker so dass Snares auf Beat 2+4 (Offbeat) landen.
+
+    Nach der Anker-Bestimmung aus Kicks prüft diese Funktion, ob Snares
+    tatsächlich auf Beat 2 und 4 fallen (Phase ≈ beat_sec bzw. 3·beat_sec
+    relativ zum Anker). Falls nicht, testet sie alle 4 Viertel-Offsets
+    und wählt den mit den meisten Offbeat-Snares.
+
+    Anwendungsfall: ein Pickup-Snareschlag auf der "4" vor Takt 1 wird vom
+    Onset-Detector fälschlich als Kick erkannt und kippt das Phasen-Histogramm
+    um ein Viertel. Die Snare-Korrektur erkennt dies und verschiebt den Anker
+    zurück auf Beat 1.
+
+    Nur aktiv wenn Snares nachweislich im Offbeat-Muster schlagen
+    (medianer Snare-IOI > 1.3 × beat_sec). Bei durchgehenden Viertel-Snares
+    (z.B. Shuffle/Disco) wird nicht korrigiert.
+    """
+    if len(snares) < 4:
+        return first_t
+    if _snare_pattern(sorted(snares), beat_sec) != "offbeat":
+        return first_t
+
+    best_shift = 0
+    best_score = -1
+
+    for shift in range(4):
+        candidate = first_t + shift * beat_sec
+        score = sum(
+            1 for s in snares
+            if (_circ_dist((s - candidate) % bar_sec, beat_sec, bar_sec) <= snap_r
+                or _circ_dist((s - candidate) % bar_sec, 3.0 * beat_sec, bar_sec) <= snap_r)
+        )
+        if score > best_score:
+            best_score = score
+            best_shift = shift
+
+    if best_shift == 0:
+        return first_t
+
+    corrected = first_t + best_shift * beat_sec
+    log.debug(
+        "_snare_phase_correct: Anker %.3f → %.3f (+%d Viertel), "
+        "offbeat_score=%d/%d Snares",
+        first_t, corrected, best_shift, best_score, len(snares),
+    )
+    return corrected
 
 
 def _compute_bar_grid(
@@ -189,9 +204,15 @@ def _compute_bar_grid(
         return []
 
     if kicks:
-        first_t = _find_anchor_by_phase(kicks, bar_sec, snap_r, snares=snares)
+        first_t = _find_anchor_by_phase(kicks, bar_sec, snap_r)
     else:
         first_t = min(anchor_pool)
+
+    # Snare-Phasen-Korrektur: sicherstellen dass Snares auf Beat 2+4 fallen.
+    # Arbeitet auf dem berechneten Anker (nicht auf dem Phasen-Histogramm),
+    # um auch Fehler aus dem Forward-Snap abzufangen.
+    if snares:
+        first_t = _snare_phase_correct(first_t, bar_sec, beat_sec, snares, snap_r)
 
     # Rückwärts: mathematisches Raster vor first_t bis seg_start_t
     pre_times: list[float] = []

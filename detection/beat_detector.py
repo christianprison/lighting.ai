@@ -127,6 +127,10 @@ class ChannelOnsetDetector:
         fblock = self._apply_filter(block.astype(np.float32))
         sub_rms = self._sub_window_rms(fblock)
 
+        # Zu kurzer Block (< SUB_WIN Samples) → kein ODF berechenbar
+        if sub_rms.size == 0:
+            return False, 0.0
+
         # Peak-ODF über Sub-Windows (Blockgrenze mitführen)
         all_rms = np.concatenate([[self._prev_sub_rms], sub_rms])
         peak_odf = float(np.max(np.maximum(0.0, np.diff(all_rms))))
@@ -190,8 +194,8 @@ def _make_filters(sample_rate: int) -> tuple[Optional[np.ndarray], Optional[np.n
     try:
         from scipy.signal import butter
         nyq = sample_rate / 2.0
-        # Kick: Tiefpass 250 Hz — Kick-Body, verwirft Snare/Gitarren-Bleed
-        kick_sos = butter(4, 250.0 / nyq, btype="low", output="sos")
+        # Kick: Tiefpass 150 Hz — Kick-Body, verwirft Snare/Gitarren-Bleed
+        kick_sos = butter(4, 150.0 / nyq, btype="low", output="sos")
         # Snare: Bandpass 800–9 000 Hz — Snare-Crack, verwirft Kick-Bleed (<500 Hz)
         snare_sos = butter(4, [800.0 / nyq, 9000.0 / nyq], btype="band", output="sos")
         return kick_sos, snare_sos
@@ -213,7 +217,7 @@ class OnsetDetector:
         snare_cd = int(SNARE_COOLDOWN_SEC * sample_rate)
         kick_sos, snare_sos = _make_filters(sample_rate)
         self._kick  = ChannelOnsetDetector(
-            threshold_factor=2.5,
+            threshold_factor=3.0,
             history_len=50,
             cooldown_samples=kick_cd,
             filter_sos=kick_sos,

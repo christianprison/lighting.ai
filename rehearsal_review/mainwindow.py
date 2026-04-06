@@ -87,35 +87,82 @@ def _compute_sim_bpm(kicks: list[float], snares: list[float]) -> int:
     return round(60.0 / beat_sec)
 
 
+def _find_anchor_by_phase(
+    abs_kicks: list[float],
+    bar_sec: float,
+    snap_r: float,
+) -> float:
+    """Findet den ersten Kick der dominanten Beat-1-Phase aller Kicks.
+
+    Statt naiv den *ersten* Kick zu nehmen, wird per Phasen-Histogram
+    ermittelt, welche Phase (Position innerhalb eines Taktes) die meisten
+    Kicks hat.  Intro-Noise trifft zufällige Phasen (je ~1 Stimme),
+    Hauptteil-Kicks clustern auf einer Phase (viele Stimmen) → die
+    Sieger-Phase ist automatisch der echte Beat-1-Offset.
+
+    Gibt den ersten Kick zurück, dessen Phase mit der Sieger-Phase
+    übereinstimmt (zirkulärer Abstand ≤ snap_r).
+    Fallback: min(abs_kicks) falls zu wenig Daten.
+    """
+    if len(abs_kicks) < 6:
+        return min(abs_kicks)
+
+    # Phase jedes Kicks modulo Taktlänge
+    phases = [t % bar_sec for t in abs_kicks]
+
+    def _circ_dist(a: float, b: float) -> float:
+        d = abs(a - b) % bar_sec
+        return min(d, bar_sec - d)
+
+    # Phasen-Histogram: für jede Kandidaten-Phase zählen wie viele Kicks
+    # innerhalb snap_r liegen
+    best_phase: float = phases[0]
+    best_count: int   = 0
+    for p in phases:
+        count = sum(1 for q in phases if _circ_dist(p, q) <= snap_r)
+        if count > best_count:
+            best_count = count
+            best_phase = p
+
+    # Ersten Kick mit dieser Phase zurückgeben
+    for t in sorted(abs_kicks):
+        if _circ_dist(t % bar_sec, best_phase) <= snap_r:
+            return t
+
+    return min(abs_kicks)
+
+
 def _compute_bar_times(bpm: int, seg_start_t: float, seg_end_t: float,
                        abs_kicks: list[float], abs_snares: list[float]) -> list[float]:
     """Berechnet Takt-Zeitstempel (abs. WAV-Zeit) durch greedy Forward-Snap.
 
-    Statt eines fixen BPM-Rasters wird jeder Taktanfang vorwärts gesnapped:
-      1. Kick im Fenster ±45 % eines Beats → Kick gewinnt
-      2. Kein Kick → Snare im selben Fenster
-      3. Kein Event → mathematische Rasterposition als temporärer Anker,
-         kein Taktstrich gesetzt (verhindert schwebende Linien)
-    Bei mehreren Kandidaten gewinnt immer der dem Raster nächstgelegene.
-    Da jeder Takt am tatsächlich detektierten Hit verankert wird, folgt das
-    Gitter dem echten Tempo und driftet nicht bei BPM-Abweichungen.
+    Statt des ersten Kicks wird via Phasen-Histogram der erste Kick der
+    dominanten Beat-1-Phase als Anker genutzt — dadurch wird Intro-Noise
+    (zufällige Phasen, wenige Hits) automatisch ignoriert.
 
-    snap_r = 70 % eines Beats — sicher, weil Beat-2-Snare genau 1 Beat
-    (= 100 %) vom Taktanfang entfernt liegt und damit nie ins Fenster fällt.
+    Jeder folgende Takt wird vorwärts gesnapped:
+      1. Kick im Fenster ±70 % eines Beats → Kick gewinnt
+      2. Kein Kick → Snare im selben Fenster
+      3. Kein Event → mathematische Rasterposition, kein Taktstrich
+
+    snap_r = 70 % eines Beats: Beat-2-Snare (100 % weg) und Beat-3-Kick
+    (200 % weg) fallen nie ins Fenster.
     """
     if bpm <= 0:
         return []
     beat_sec = 60.0 / bpm
     bar_sec  = 4.0 * beat_sec
-    # 70 % des Beat-Abstands: fängt auch Kicks die ~200-300 ms daneben liegen.
-    # Sicher nach oben durch Beat-2-Snare (100 % weg) und Beat-3-Kick (200 % weg).
     snap_r   = beat_sec * 0.70
 
     anchor_pool = abs_kicks if abs_kicks else abs_snares
     if not anchor_pool:
         return []
 
-    first_t = min(anchor_pool)
+    # Dominante Beat-1-Phase aus Kick-Verteilung ermitteln
+    if abs_kicks:
+        first_t = _find_anchor_by_phase(abs_kicks, bar_sec, snap_r)
+    else:
+        first_t = min(anchor_pool)
 
     # ── Rückwärts: mathematisches Raster vor first_t bis seg_start_t ─────────
     # (vor dem ersten Kick gibt es meist keinen anderen Hit — math. Raster genügt)

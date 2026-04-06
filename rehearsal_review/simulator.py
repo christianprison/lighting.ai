@@ -106,8 +106,14 @@ class SimulatorWorker(QThread):
 
         total_frames = end_sample - start_sample
 
-        # ── Detektor initialisieren ───────────────────────────────────────────
+        # ── Detektor + BarTracker initialisieren ─────────────────────────────
         detector = OnsetDetector(sample_rate=sr)
+        from detection.bar_tracker import BarTracker
+        tracker = BarTracker(
+            bpm=self._bpm,
+            seg_start_t=self._seg_start_t,
+            seg_end_t=self._seg_end_t,
+        )
 
         kicks:  list[float] = []
         snares: list[float] = []
@@ -144,12 +150,14 @@ class SimulatorWorker(QThread):
 
                 t_mid = blocks_done * BLOCK_SIZE / sr + (block.shape[0] / 2) / sr
 
-                # ── Onset-Detection ───────────────────────────────────────────
+                # ── Onset-Detection + BarTracker (streaming) ─────────────────
                 for ev in detector.process_block(block):
                     if ev.type == "kick":
                         kicks.append(t_mid)
+                        tracker.process_kick(self._seg_start_t + t_mid)
                     else:
                         snares.append(t_mid)
+                        tracker.process_snare(self._seg_start_t + t_mid)
                     jf.write(_json.dumps({
                         "t": round(t_mid, 4),
                         "type": ev.type,
@@ -175,4 +183,6 @@ class SimulatorWorker(QThread):
             "n_snares":   len(snares),
             "kicks":      kicks,
             "snares":     snares,
+            "bar_times":  tracker.get_latest_bars(),
+            "bpm":        tracker.get_bpm(),
         })

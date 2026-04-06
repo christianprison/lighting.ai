@@ -55,7 +55,7 @@ Fallunterscheidung.
 ```
 detection/
 ├── beat_detector.py   # OnsetDetector: Kick/Snare-Erkennung (streaming)
-├── bar_tracker.py     # (TODO) BarTracker: Takt-Tracking (streaming, kein Batch)
+├── bar_tracker.py     # BarTracker: Takt-Tracking (streaming, kein Batch)
 ├── fingerprint.py     # Feature-Extraktion
 ├── hmm.py             # HMM-basierte Positionsschätzung
 └── reference_db.py    # SQLite-Backend
@@ -66,13 +66,13 @@ detection/
 - Rehearsal-App (`rehearsal_review/`): identischer Import (Repo-Root in `sys.path`)
 - Simulator (`rehearsal_review/simulator.py`): identischer Import
 
-**Bekannter Fehler aus Session 2026-04 — TODO:**  
-`_compute_bar_times()` und `_find_anchor_by_phase()` in `rehearsal_review/mainwindow.py`
-sind **falsch architekturiert**: Sie analysieren alle Events auf einmal (Batch/Post-Processing)
-und weichen damit vom Live-Verhalten ab. Ein Phasen-Histogram über alle Kicks ist im
-Live-Betrieb nicht möglich. Diese Funktionen müssen durch einen echten Streaming-
-`BarTracker` in `detection/bar_tracker.py` ersetzt werden — einen, der mit jedem
-eingehenden Kick-Event inkrementell arbeitet und in Simulation wie Live identisch läuft.
+**Implementiert in Session 2026-04:**  
+`detection/bar_tracker.py` enthält den `BarTracker` — einen echten Streaming-Algorithmus,
+der mit jedem eingehenden Kick-/Snare-Event inkrementell arbeitet und in Simulation wie
+Live identisch läuft. Die Batch-Funktionen `_compute_bar_times()` und
+`_find_anchor_by_phase()` wurden aus `rehearsal_review/mainwindow.py` entfernt.
+`rehearsal_review/simulator.py` nutzt `BarTracker` direkt während der Simulation und
+liefert `bar_times` + `bpm` im `finished`-Signal.
 
 ### ⚠️ MCP-Tool-Limitation: Dateigröße
 

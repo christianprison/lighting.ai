@@ -70,134 +70,7 @@ def _compute_bpm_timeline(
     return result
 
 
-def _compute_sim_bpm(kicks: list[float], snares: list[float]) -> int:
-    """Berechnet BPM aus dem medianen IOI der Kick+Snare-Events.
 
-    Returns 0 wenn nicht genügend Events vorhanden.
-    """
-    all_t = sorted(kicks + snares)
-    if len(all_t) < 4:
-        return 0
-    iois = [all_t[i + 1] - all_t[i] for i in range(len(all_t) - 1)]
-    # Plausible Beat-Intervalle: 60–220 BPM → 0.27–1.0 s
-    iois = [d for d in iois if 0.27 <= d <= 1.0]
-    if not iois:
-        return 0
-    beat_sec = float(_np.median(iois))
-    return round(60.0 / beat_sec)
-
-
-def _find_anchor_by_phase(
-    abs_kicks: list[float],
-    bar_sec: float,
-    snap_r: float,
-) -> float:
-    """Findet den ersten Kick der dominanten Beat-1-Phase aller Kicks.
-
-    Statt naiv den *ersten* Kick zu nehmen, wird per Phasen-Histogram
-    ermittelt, welche Phase (Position innerhalb eines Taktes) die meisten
-    Kicks hat.  Intro-Noise trifft zufällige Phasen (je ~1 Stimme),
-    Hauptteil-Kicks clustern auf einer Phase (viele Stimmen) → die
-    Sieger-Phase ist automatisch der echte Beat-1-Offset.
-
-    Gibt den ersten Kick zurück, dessen Phase mit der Sieger-Phase
-    übereinstimmt (zirkulärer Abstand ≤ snap_r).
-    Fallback: min(abs_kicks) falls zu wenig Daten.
-    """
-    if len(abs_kicks) < 6:
-        return min(abs_kicks)
-
-    # Phase jedes Kicks modulo Taktlänge
-    phases = [t % bar_sec for t in abs_kicks]
-
-    def _circ_dist(a: float, b: float) -> float:
-        d = abs(a - b) % bar_sec
-        return min(d, bar_sec - d)
-
-    # Phasen-Histogram: für jede Kandidaten-Phase zählen wie viele Kicks
-    # innerhalb snap_r liegen
-    best_phase: float = phases[0]
-    best_count: int   = 0
-    for p in phases:
-        count = sum(1 for q in phases if _circ_dist(p, q) <= snap_r)
-        if count > best_count:
-            best_count = count
-            best_phase = p
-
-    # Ersten Kick mit dieser Phase zurückgeben
-    for t in sorted(abs_kicks):
-        if _circ_dist(t % bar_sec, best_phase) <= snap_r:
-            return t
-
-    return min(abs_kicks)
-
-
-def _compute_bar_times(bpm: int, seg_start_t: float, seg_end_t: float,
-                       abs_kicks: list[float], abs_snares: list[float]) -> list[float]:
-    """Berechnet Takt-Zeitstempel (abs. WAV-Zeit) durch greedy Forward-Snap.
-
-    Statt des ersten Kicks wird via Phasen-Histogram der erste Kick der
-    dominanten Beat-1-Phase als Anker genutzt — dadurch wird Intro-Noise
-    (zufällige Phasen, wenige Hits) automatisch ignoriert.
-
-    Jeder folgende Takt wird vorwärts gesnapped:
-      1. Kick im Fenster ±70 % eines Beats → Kick gewinnt
-      2. Kein Kick → Snare im selben Fenster
-      3. Kein Event → mathematische Rasterposition, kein Taktstrich
-
-    snap_r = 70 % eines Beats: Beat-2-Snare (100 % weg) und Beat-3-Kick
-    (200 % weg) fallen nie ins Fenster.
-    """
-    if bpm <= 0:
-        return []
-    beat_sec = 60.0 / bpm
-    bar_sec  = 4.0 * beat_sec
-    snap_r   = beat_sec * 0.70
-
-    anchor_pool = abs_kicks if abs_kicks else abs_snares
-    if not anchor_pool:
-        return []
-
-    # Dominante Beat-1-Phase aus Kick-Verteilung ermitteln
-    if abs_kicks:
-        first_t = _find_anchor_by_phase(abs_kicks, bar_sec, snap_r)
-    else:
-        first_t = min(anchor_pool)
-
-    # ── Rückwärts: mathematisches Raster vor first_t bis seg_start_t ─────────
-    # (vor dem ersten Kick gibt es meist keinen anderen Hit — math. Raster genügt)
-    pre_times: list[float] = []
-    t = first_t - bar_sec
-    while t >= seg_start_t - bar_sec * 0.1:
-        pre_times.append(t)
-        t -= bar_sec
-    pre_times.reverse()
-
-    # ── Vorwärts: greedy ab first_t ──────────────────────────────────────────
-    bar_times: list[float] = [first_t]
-    t = first_t
-
-    while t < seg_end_t:
-        t_grid = t + bar_sec   # erwarteter nächster Takt
-
-        # Kick suchen — muss nach aktuellem Anker liegen (kein Rückschritt)
-        kick_c = [e for e in abs_kicks if t < e and abs(e - t_grid) <= snap_r]
-        if kick_c:
-            t = min(kick_c, key=lambda e: abs(e - t_grid))
-            bar_times.append(t)
-            continue
-
-        # Snare als Fallback
-        snare_c = [e for e in abs_snares if t < e and abs(e - t_grid) <= snap_r]
-        if snare_c:
-            t = min(snare_c, key=lambda e: abs(e - t_grid))
-            bar_times.append(t)
-            continue
-
-        # Kein Event → Raster voranschreiten, kein Taktstrich
-        t = t_grid
-
-    return pre_times + bar_times
 
 
 _APP_STYLE = """
@@ -1702,19 +1575,10 @@ class MainWindow(QMainWindow):
         for t_s in abs_snares:
             self._timeline.add_sim_snare(t_s)
 
-        # BPM-Timeline + Taktgitter berechnen und in Timeline setzen
-        sim_bpm     = _compute_sim_bpm(kicks, snares)        # globaler Wert für Statusbar
-        bpm_tl      = _compute_bpm_timeline(abs_kicks, abs_snares)
-        bar_times: list[float] = []
-        if sim_bpm > 0 and self._current_seg is not None:
-            seg = self._current_seg
-            bar_times = _compute_bar_times(
-                sim_bpm,
-                self._sim_start_wav_t,
-                self._sim_start_wav_t + seg.duration,
-                abs_kicks,
-                abs_snares,
-            )
+        # BPM-Timeline + Taktgitter (vom BarTracker im Simulator berechnet)
+        sim_bpm  = result.get("bpm", 0)
+        bpm_tl   = _compute_bpm_timeline(abs_kicks, abs_snares)
+        bar_times: list[float] = result.get("bar_times", [])
         self._timeline.set_sim_bpm_and_bars(bpm_tl, bar_times)
 
         bpm_str = f"  ~{sim_bpm} BPM" if sim_bpm > 0 else ""

@@ -86,14 +86,18 @@ def _find_anchor_by_phase(
     abs_kicks: list[float],
     bar_sec: float,
     snap_r: float,
+    kick_energies: list[float] = [],
 ) -> float:
     """Findet den ersten Kick der dominanten Beat-1-Phase.
 
-    Phasen-Histogram über alle bisher gesehenen Kicks: die Phase mit den
-    meisten Stimmen ist der echte Beat-1-Offset. Intro-Noise trifft
+    Phasen-Histogram über alle bisher gesehenen Kicks: die Phase mit dem
+    höchsten Energie-Gewicht ist der echte Beat-1-Offset. Intro-Noise trifft
     zufällige Phasen (je ~1 Stimme), Hauptteil-Kicks clustern auf einer
-    Phase (viele Stimmen) → die Sieger-Phase ist automatisch der echte
+    Phase (hohe Energie) → die Sieger-Phase ist automatisch der echte
     Beat-1-Offset.
+
+    kick_energies: ODF-Energie pro Kick (gewichtet statt 1 pro Kick).
+    Wenn leer, wird jeder Kick mit 1.0 gewichtet (identisches Verhalten).
 
     Gibt den frühesten Kick zurück, dessen Phase mit der Sieger-Phase
     übereinstimmt. Fallback: min(abs_kicks) falls zu wenig Daten.
@@ -101,14 +105,18 @@ def _find_anchor_by_phase(
     if len(abs_kicks) < _MIN_KICKS_FOR_PHASE:
         return min(abs_kicks)
 
+    energies = kick_energies if len(kick_energies) == len(abs_kicks) else [1.0] * len(abs_kicks)
     phases = [t % bar_sec for t in abs_kicks]
 
     best_phase: float = phases[0]
-    best_count: int = 0
-    for p in phases:
-        count = sum(1 for q in phases if _circ_dist(p, q, bar_sec) <= snap_r)
-        if count > best_count:
-            best_count = count
+    best_score: float = 0.0
+    for j, p in enumerate(phases):
+        score = sum(
+            energies[k] for k, q in enumerate(phases)
+            if _circ_dist(p, q, bar_sec) <= snap_r
+        )
+        if score > best_score:
+            best_score = score
             best_phase = p
 
     for t in sorted(abs_kicks):
@@ -257,6 +265,7 @@ def _compute_bar_grid(
     kicks: list[float],
     snares: list[float],
     snap_factor: float = 0.70,
+    kick_energies: list[float] = [],
 ) -> list[float]:
     """Berechnet Takt-Zeitstempel durch greedy Forward-Snap.
 
@@ -284,7 +293,8 @@ def _compute_bar_grid(
         return []
 
     if kicks:
-        first_t = _find_anchor_by_phase(kicks, bar_sec, snap_r)
+        _energies = kick_energies if kick_energies else [1.0] * len(kicks)
+        first_t = _find_anchor_by_phase(kicks, bar_sec, snap_r, _energies)
     else:
         first_t = min(anchor_pool)
 
@@ -401,19 +411,23 @@ class BarTracker:
 
         self._kicks:     list[float] = []
         self._snares:    list[float] = []
+        self._kick_energies:  list[float] = []
+        self._snare_energies: list[float] = []
         self._bar_times: list[float] = []
         self._current_bpm: int = int(bpm) if bpm > 0 else 0
 
     # ── Streaming-Interface ──────────────────────────────────────────────────
 
-    def process_kick(self, t: float) -> None:
+    def process_kick(self, t: float, energy: float = 1.0) -> None:
         """Registriert einen Kick-Onset zum Zeitpunkt t (absolute WAV-Zeit)."""
         self._kicks.append(t)
+        self._kick_energies.append(energy)
         self._update()
 
-    def process_snare(self, t: float) -> None:
+    def process_snare(self, t: float, energy: float = 1.0) -> None:
         """Registriert einen Snare-Onset zum Zeitpunkt t (absolute WAV-Zeit)."""
         self._snares.append(t)
+        self._snare_energies.append(energy)
         self._update()
 
     # ── Abfrage-Interface ───────────────────────────────────────────────────
@@ -430,6 +444,8 @@ class BarTracker:
         """Setzt den Tracker zurück (alle Events und Berechnungen gelöscht)."""
         self._kicks.clear()
         self._snares.clear()
+        self._kick_energies.clear()
+        self._snare_energies.clear()
         self._bar_times.clear()
         self._current_bpm = int(self._bpm_initial) if self._bpm_initial > 0 else 0
 
@@ -453,6 +469,7 @@ class BarTracker:
             self._kicks,
             self._snares,
             self._snap_factor,
+            self._kick_energies,
         )
         log.debug(
             "BarTracker update: bpm=%d  kicks=%d  snares=%d  bars=%d",

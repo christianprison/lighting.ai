@@ -165,30 +165,89 @@ def _snare_phase_correct(
 
     best_shift = max(range(4), key=lambda i: scores[i])
 
-    print(
-        f"[BAR] _snare_phase_correct: first_t={first_t:.3f}  "
-        f"scores(+0/+1/+2/+3)={scores}  best_shift={best_shift}",
-        file=sys.stderr,
-    )
-
     if best_shift == 0:
         return first_t
 
     # Korrektur nur wenn bester Shift strikt besser als Shift-0
     if scores[best_shift] <= scores[0]:
-        print(
-            f"[BAR] Korrektur abgelehnt: kein klarer Gewinner",
-            file=sys.stderr,
-        )
         return first_t
 
     corrected = first_t + best_shift * beat_sec
     print(
-        f"[BAR] Anker korrigiert: {first_t:.3f} → {corrected:.3f} "
-        f"(+{best_shift} Viertel)",
+        f"[BAR] _snare_phase_correct: {first_t:.3f} → {corrected:.3f} "
+        f"(+{best_shift} Beats, scores={scores})",
         file=sys.stderr,
     )
     return corrected
+
+
+def _snare_beat1_anchor(
+    first_t: float,
+    bar_sec: float,
+    beat_sec: float,
+    kicks: list[float],
+    snares: list[float],
+    snap_r: float,
+) -> float:
+    """Versucht den Anker auf Beat 1 zu fixieren, indem Snares auf Beat 2+4 geprüft werden.
+
+    Die Symmetrie-Grundlage: Beat 1 und Beat 3 erzeugen bei K/S-Scoring
+    identische Scores ([X,Y,X,Y]). Darum hier ein anderer Ansatz:
+
+    1. Berechne für Shift 0 und Shift 2 (die einzigen unterscheidbaren Klassen)
+       den Snare-on-beat2-Score separat.
+    2. Beat 1 als Anker → Snare bei +1 Beat; Beat 3 als Anker → Snare bei -1 Beat
+       (= +3 Beat). Da Snare IOI = 2 Beats, sind die Abstände zum nächsten Snare
+       von Beat 1 vs Beat 3 aus identisch. ABER: der erste Snare im Segment liegt
+       näher an Beat 2 (1 Beat nach Beat 1) als an Beat 4 (3 Beats nach Beat 1).
+       Damit ist der früheste Snare relativ zur Segmentmitte ein Indikator.
+
+    Implementierung: Wähle zwischen first_t und first_t+2*beat_sec den Anker,
+    bei dem der *früheste* Snare im Fenster [anchor+0.5*beat, anchor+1.5*beat]
+    landet (= Beat-2-Position). Damit landet der früheste Snare auf Beat 2
+    (nicht Beat 4), was die kanonische Taktposition sicherstellt.
+
+    Gibt den unveränderten first_t zurück, wenn nicht eindeutig entscheidbar.
+    """
+    import sys
+
+    if len(snares) < 2:
+        return first_t
+
+    # Kandidaten: Shift 0 (first_t) und Shift 2 (= + halbe Bar)
+    candidates = [first_t, first_t + 2.0 * beat_sec]
+    best_anchor = first_t
+    best_score = -1
+
+    beat2_lo = beat_sec * 0.5
+    beat2_hi = beat_sec * 1.5
+
+    for cand in candidates:
+        # Zähle Snares, die auf Beat 2 oder Beat 4 relativ zu cand fallen
+        score = 0
+        for s in snares:
+            rel = (s - cand) % bar_sec
+            if beat2_lo <= rel <= beat2_hi:          # Beat 2
+                score += 2  # stärker gewichten — Beat 2 ist das erste Snare
+            elif (3.0 * beat_sec - beat_sec * 0.5) <= rel <= (3.0 * beat_sec + beat_sec * 0.5):
+                score += 1  # Beat 4
+
+        print(
+            f"[BAR] beat1_anchor: cand={cand:.3f}  beat2+4_score={score}",
+            file=sys.stderr,
+        )
+
+        if score > best_score:
+            best_score = score
+            best_anchor = cand
+
+    if best_anchor != first_t:
+        print(
+            f"[BAR] beat1 korrigiert: {first_t:.3f} → {best_anchor:.3f} (+2 Beats)",
+            file=sys.stderr,
+        )
+
+    return best_anchor
 
 
 def _compute_bar_grid(
@@ -212,6 +271,8 @@ def _compute_bar_grid(
     snap_r = 70 % eines Beats: Beat-2-Snare (100 % weg) und Beat-3-Kick
     (200 % weg) fallen nie ins Fenster.
     """
+    import sys
+
     if bpm <= 0:
         return []
     beat_sec = 60.0 / bpm
@@ -232,6 +293,22 @@ def _compute_bar_grid(
     # um auch Fehler aus dem Forward-Snap abzufangen.
     if snares:
         first_t = _snare_phase_correct(first_t, bar_sec, beat_sec, kicks, snares, snap_r)
+
+    # Beat-1-vs-Beat-3-Korrektur: prüft ob Snares auf Beat 2 (erster Snare
+    # nach dem Anker) oder Beat 4 fallen, und korrigiert um +2 Beats.
+    # Nur wenn genug Daten vorhanden sind (Rauschen vermeiden).
+    _DIAG = len(kicks) + len(snares) >= 20
+    if snares and len(kicks) >= _MIN_KICKS_FOR_PHASE and _DIAG:
+        first_t = _snare_beat1_anchor(first_t, bar_sec, beat_sec, kicks, snares, snap_r)
+
+    # ── Diagnostik (nur bei ausreichend Events, um Rauschen zu vermeiden) ─────
+    if _DIAG:
+        print(
+            f"[BAR] grid: seg_start={seg_start_t:.3f}  anchor={first_t:.3f}"
+            f"  offset={(first_t - seg_start_t) / beat_sec:+.2f} beats"
+            f"  bpm={bpm}",
+            file=sys.stderr,
+        )
 
     # Rückwärts: mathematisches Raster vor first_t bis seg_start_t
     pre_times: list[float] = []
@@ -262,7 +339,30 @@ def _compute_bar_grid(
 
         t = t_grid  # kein Event → Raster voranschreiben, kein Taktstrich
 
-    return pre_times + bar_times
+    all_bars = pre_times + bar_times
+
+    # ── Abschluss-Diagnostik (nur wenn genug Daten da sind) ───────────────────
+    if len(kicks) + len(snares) >= 20 and all_bars and snares:
+        import bisect
+        sorted_bars = sorted(all_bars)
+        snare_positions = []
+        for s in sorted(snares)[:10]:
+            bi = bisect.bisect_right(sorted_bars, s) - 1
+            if 0 <= bi < len(sorted_bars):
+                pos = (s - sorted_bars[bi]) / beat_sec
+                snare_positions.append(f"{pos:.2f}")
+        print(
+            f"[BAR] Snare-Positionen in Takten (Beat 2≈1.0, Beat 4≈3.0): "
+            f"{snare_positions}",
+            file=sys.stderr,
+        )
+        print(
+            f"[BAR] Erste 5 Takte (abs): "
+            f"{[f'{t:.3f}' for t in sorted_bars[:5]]}",
+            file=sys.stderr,
+        )
+
+    return all_bars
 
 
 # ---------------------------------------------------------------------------

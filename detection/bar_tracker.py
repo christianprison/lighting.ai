@@ -122,23 +122,26 @@ def _snare_phase_correct(
     first_t: float,
     bar_sec: float,
     beat_sec: float,
+    kicks: list[float],
     snares: list[float],
     snap_r: float,
 ) -> float:
-    """Korrigiert den Taktanker so dass Snares auf Beat 2+4 (Offbeat) landen.
+    """Korrigiert den Taktanker durch kombiniertes Kick+Snare-Scoring.
 
     Testet alle 4 Viertel-Offsets des Ankers und wählt den, bei dem die
-    meisten Snares auf Beat 2 oder Beat 4 (Offbeat) fallen.
+    meisten Kicks auf Beat 1+3 UND die meisten Snares auf Beat 2+4 fallen
+    (kombinierter Score).
 
     Anwendungsfall: ein Pickup-Snareschlag auf der "4" vor Takt 1 wird vom
     Onset-Detector fälschlich als Kick erkannt → Phasen-Histogram wählt
     Beat-4-Phase als Anker → Taktgitter 1 Viertel zu früh.
 
-    Korrektur erfolgt nur wenn der gewinnende Shift deutlich mehr Offbeat-
-    Snares erklärt als kein Shift (Faktor ≥ 2 oder Abstand ≥ 4 Votes).
-    Das verhindert falsche Korrekturen bei sehr verrauschten Snare-Signalen
-    (Ghost Notes, HiHat-Bleed) — bei solchen Songs gewinnt Shift 0 oder der
-    Abstand ist zu gering.
+    Das kombinierte Kick+Snare-Scoring ist robust gegenüber HiHat-Bleed:
+    Echte Kicks auf Beat 1+3 erhöhen den Score des richtigen Shifts deutlich
+    gegenüber dem falschen Shift — auch wenn Snare-Bleed die Snare-Scores
+    angleicht.
+
+    Korrektur wird nur angewendet wenn der beste Shift strikt besser ist.
     """
     if len(snares) < 4:
         return first_t
@@ -148,12 +151,17 @@ def _snare_phase_correct(
     scores = []
     for shift in range(4):
         candidate = first_t + shift * beat_sec
-        score = sum(
+        snare_score = sum(
             1 for s in snares
             if (_circ_dist((s - candidate) % bar_sec, beat_sec, bar_sec) <= snap_r
                 or _circ_dist((s - candidate) % bar_sec, 3.0 * beat_sec, bar_sec) <= snap_r)
         )
-        scores.append(score)
+        kick_score = sum(
+            1 for k in kicks
+            if (_circ_dist((k - candidate) % bar_sec, 0.0, bar_sec) <= snap_r
+                or _circ_dist((k - candidate) % bar_sec, 2.0 * beat_sec, bar_sec) <= snap_r)
+        )
+        scores.append(snare_score + kick_score)
 
     best_shift = max(range(4), key=lambda i: scores[i])
 
@@ -166,13 +174,10 @@ def _snare_phase_correct(
     if best_shift == 0:
         return first_t
 
-    # Korrektur nur wenn klarer Vorsprung vor Shift-0
-    score0 = scores[0]
-    score_best = scores[best_shift]
-    if score_best < 2 * max(1, score0) and score_best - score0 < 4:
+    # Korrektur nur wenn bester Shift strikt besser als Shift-0
+    if scores[best_shift] <= scores[0]:
         print(
-            f"[BAR] Korrektur abgelehnt: score_best={score_best} "
-            f"nicht klar vor score0={score0}",
+            f"[BAR] Korrektur abgelehnt: kein klarer Gewinner",
             file=sys.stderr,
         )
         return first_t
@@ -226,7 +231,7 @@ def _compute_bar_grid(
     # Arbeitet auf dem berechneten Anker (nicht auf dem Phasen-Histogramm),
     # um auch Fehler aus dem Forward-Snap abzufangen.
     if snares:
-        first_t = _snare_phase_correct(first_t, bar_sec, beat_sec, snares, snap_r)
+        first_t = _snare_phase_correct(first_t, bar_sec, beat_sec, kicks, snares, snap_r)
 
     # Rückwärts: mathematisches Raster vor first_t bis seg_start_t
     pre_times: list[float] = []

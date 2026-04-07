@@ -1581,6 +1581,10 @@ class MainWindow(QMainWindow):
         bar_times: list[float] = result.get("bar_times", [])
         self._timeline.set_sim_bpm_and_bars(bpm_tl, bar_times)
 
+        chroma_data = result.get("chroma_data", [])
+        if chroma_data:
+            self._timeline.set_chroma_data(chroma_data)
+
         bpm_str = f"  ~{sim_bpm} BPM" if sim_bpm > 0 else ""
         self._status.showMessage(
             f"Simulation: ◆ {n_kicks} Kicks (amber)  | ◆ {n_snares} Snares (cyan){bpm_str}",

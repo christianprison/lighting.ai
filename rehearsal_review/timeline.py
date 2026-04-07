@@ -212,6 +212,9 @@ class TimelineWidget(QWidget):
         self._sim_kicks:  list[float] = []
         self._sim_snares: list[float] = []
 
+        # Chroma-Daten pro Beat (aus chroma_viz)
+        self._chroma_data: list[dict] = []   # list of {t, chroma} from chroma_viz
+
         # Overlay-Modus: wenn True, JSONL-Events bei 25 % Opazität,
         # Sim-Events in vollen AMBER/CYAN-Farben (wie JSONL-Events).
         # Wenn False, Sim-Events als halbtransparentes Violett-Overlay.
@@ -333,6 +336,12 @@ class TimelineWidget(QWidget):
         self._sim_snares       = []
         self._sim_bpm_timeline = []
         self._sim_bar_times    = []
+        self._chroma_data      = []
+        self.update()
+
+    def set_chroma_data(self, data: list[dict]) -> None:
+        """Setzt Chroma-Daten (Liste von {t, chroma}) für die Lead-Guitar-Zeile."""
+        self._chroma_data = data
         self.update()
 
     def set_sim_bpm_and_bars(
@@ -556,6 +565,53 @@ class TimelineWidget(QWidget):
 
         QToolTip.hideText()
 
+    # ── Tooltip / ToolTip event ───────────────────────────────────────────────
+
+    def event(self, ev) -> bool:
+        from PyQt6.QtCore import QEvent
+        if ev.type() == QEvent.Type.ToolTip:
+            pos = ev.pos()
+            tip = self._chroma_tip_at(pos)
+            if tip:
+                QToolTip.showText(ev.globalPos(), tip, self)
+                return True
+            QToolTip.hideText()
+            return True
+        return super().event(ev)
+
+    def _chroma_tip_at(self, pos) -> str:
+        """Gibt Tooltip-Text zurück wenn die Maus nahe einem Chroma-Shape ist."""
+        if not self._chroma_data or self.segment is None:
+            return ""
+
+        lg_idx = next(
+            (i for i, t in enumerate(TRACKS) if t["label"] == "Lead Guitar"),
+            None,
+        )
+        if lg_idx is None:
+            return ""
+
+        ty = TRACK_Y[lg_idx]
+        th = TRACKS[lg_idx]["h"]
+
+        if not (ty <= pos.y() <= ty + th):
+            return ""
+
+        seg_t0 = self.segment.start_t
+        pps    = self._pps
+        ox     = self._scroll_x
+        CLICK_R = 10
+
+        for entry in self._chroma_data:
+            bx = LABEL_W + int((entry["t"] - seg_t0) * pps) - ox
+            if abs(bx - pos.x()) <= CLICK_R:
+                try:
+                    from chroma_viz import chroma_tooltip
+                    return chroma_tooltip(entry["chroma"])
+                except ImportError:
+                    return ""
+        return ""
+
     # ── Paint ─────────────────────────────────────────────────────────────────
 
     def paintEvent(self, _event) -> None:
@@ -584,6 +640,9 @@ class TimelineWidget(QWidget):
 
         # Taktstriche über alle Drum-Tracks (wenn Sim-Overlay aktiv)
         self._paint_sim_bars(p, vl, vr)
+
+        # Chroma-Shapes im Lead-Guitar-Track (wenn Sim-Overlay aktiv)
+        self._paint_chroma_shapes(p, vl, vr)
 
         # Sticky labels drawn OVER waveforms
         self._paint_labels(p, h)
@@ -672,6 +731,87 @@ class TimelineWidget(QWidget):
                 p.drawText(bx + 3, bpm_y, lbl_w, bpm_h,
                            Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
                            str(bpm_val))
+
+    # ── Chroma shapes (Lead Guitar row) ──────────────────────────────────────
+
+    def _paint_chroma_shapes(self, p: QPainter, vl: int, vr: int) -> None:
+        """Zeichnet Chroma-Shapes im Lead-Guitar-Track (nur im Sim-Overlay-Modus)."""
+        if not self._sim_overlay:
+            return
+        if not self._chroma_data or self.segment is None:
+            return
+
+        # Lead-Guitar-Track finden
+        lg_idx = next(
+            (i for i, t in enumerate(TRACKS) if t["label"] == "Lead Guitar"),
+            None,
+        )
+        if lg_idx is None:
+            return
+
+        try:
+            from chroma_viz import chroma_to_rgb, chroma_shape_type
+        except ImportError:
+            return
+
+        seg_t0 = self.segment.start_t
+        pps    = self._pps
+        ox     = self._scroll_x
+        w      = self.width()
+
+        ty = TRACK_Y[lg_idx]
+        th = TRACKS[lg_idx]["h"]
+        cy = ty + th // 2
+
+        p.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+
+        for entry in self._chroma_data:
+            bx = LABEL_W + int((entry["t"] - seg_t0) * pps) - ox
+            if bx < LABEL_W or bx > w:
+                continue
+
+            chroma = entry["chroma"]
+            rgb = chroma_to_rgb(chroma)
+            color = QColor(rgb[0], rgb[1], rgb[2], 220)
+            shape = chroma_shape_type(chroma)
+
+            r = min(th // 2 - 2, 8)
+            if r < 1:
+                continue
+
+            p.setPen(QPen(color, 1))
+            p.setBrush(QBrush(color))
+
+            if shape == "line":
+                pen = QPen(color, 2)
+                p.setPen(pen)
+                p.setBrush(Qt.BrushStyle.NoBrush)
+                p.drawLine(bx, cy - r, bx, cy + r)
+            elif shape == "triangle":
+                poly = QPolygon([
+                    QPoint(bx,     cy - r),
+                    QPoint(bx - r, cy + r),
+                    QPoint(bx + r, cy + r),
+                ])
+                p.setPen(QPen(color, 1))
+                p.setBrush(QBrush(color))
+                p.drawPolygon(poly)
+            elif shape == "diamond":
+                poly = QPolygon([
+                    QPoint(bx,     cy - r),
+                    QPoint(bx + r, cy),
+                    QPoint(bx,     cy + r),
+                    QPoint(bx - r, cy),
+                ])
+                p.setPen(QPen(color, 1))
+                p.setBrush(QBrush(color))
+                p.drawPolygon(poly)
+            else:  # circle
+                p.setPen(QPen(color, 1))
+                p.setBrush(QBrush(color))
+                p.drawEllipse(QPoint(bx, cy), r, r)
+
+        p.setRenderHint(QPainter.RenderHint.Antialiasing, False)
 
     # ── Ruler ─────────────────────────────────────────────────────────────────
 

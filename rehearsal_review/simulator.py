@@ -154,10 +154,10 @@ class SimulatorWorker(QThread):
                 for ev in detector.process_block(block):
                     if ev.type == "kick":
                         kicks.append(t_mid)
-                        tracker.process_kick(self._seg_start_t + t_mid)
+                        tracker.process_kick(self._seg_start_t + t_mid, energy=float(ev.energy))
                     else:
                         snares.append(t_mid)
-                        tracker.process_snare(self._seg_start_t + t_mid)
+                        tracker.process_snare(self._seg_start_t + t_mid, energy=float(ev.energy))
                     jf.write(_json.dumps({
                         "t": round(t_mid, 4),
                         "type": ev.type,
@@ -176,13 +176,34 @@ class SimulatorWorker(QThread):
             f"→ {self._output_jsonl.name}",
             file=sys.stderr,
         )
+
+        # ── Chroma-Extraktion auf Beat-Positionen ────────────────────────────
+        bar_times_final = tracker.get_latest_bars()
+        bpm_final = tracker.get_bpm()
+
+        chroma_data = []
+        if bar_times_final and bpm_final > 0:
+            try:
+                from chroma_viz import extract_chroma_at_beats, compute_beat_times
+                beat_times = compute_beat_times(bar_times_final, bpm_final)
+                beat_times = [t for t in beat_times
+                              if self._seg_start_t <= t <= self._seg_end_t]
+                chroma_data = extract_chroma_at_beats(
+                    self._wav_path, beat_times, channel=4,
+                    sample_rate=sr, window_sec=0.28,
+                )
+                print(f"[SIM] Chroma: {len(chroma_data)} Beats extrahiert", file=sys.stderr)
+            except Exception as e:
+                print(f"[SIM] Chroma-Extraktion fehlgeschlagen: {e}", file=sys.stderr)
+
         self.progress.emit(1.0)
         self.finished.emit({
-            "jsonl_path": self._output_jsonl,
-            "n_kicks":    len(kicks),
-            "n_snares":   len(snares),
-            "kicks":      kicks,
-            "snares":     snares,
-            "bar_times":  tracker.get_latest_bars(),
-            "bpm":        tracker.get_bpm(),
+            "jsonl_path":  self._output_jsonl,
+            "n_kicks":     len(kicks),
+            "n_snares":    len(snares),
+            "kicks":       kicks,
+            "snares":      snares,
+            "bar_times":   tracker.get_latest_bars(),
+            "bpm":         tracker.get_bpm(),
+            "chroma_data": chroma_data,
         })

@@ -4724,18 +4724,18 @@
     "EfmiXn": {
       "name": "Every You Every Me",
       "artist": "Placebo",
-      "bpm": 0,
+      "bpm": 148,
       "key": "C moll",
       "year": "1999",
       "pick": "",
       "gema_nr": "4666736-001",
-      "duration": "3:47",
-      "duration_sec": 227,
+      "duration": "3:10",
+      "duration_sec": 190,
       "notes": "Placebo 4 Strophen immer Strophe Refrain durchziehen in der 3. Oder 4. Strophe dezent die Gitarre mal ein bisschen aus das Schlagzeug setzt vielleicht auch mal kurz aus und am Ende spielt die Gitarre noch ein paar overdubs",
       "qlc_id": 95,
       "audio_ref": "audio/Every You Every Me/Every You Every Me - Full Song.mp3",
       "audio_ref_name": "Every You Every Me - Full Song.mp3",
-      "lyrics_raw": "[Verse 1]Sucker love is heaven sent\nYou pucker up, our passion's spent\nMy heart's a tart, your body's rent\nMy body's broken, yours is bent\nCarve your name into my arm\nInstead of stressed, I lie here charmed\n'Cause there's nothing else to do\nEvery me and every you\n\n[Verse 2]\nSucker love, a box I choose\nNo other box I choose to use\nAnother love I would abuse\nNo circumstances could excuse\nIn the shape of things to come\nToo much poison come undone\n'Cause there's nothing else to do\nEvery me and every you\n[Chorus]\nEvery me and every you\nEvery me\n\n[Verse 3]\nSucker love is known to swing\nProne to cling and waste these things\nPucker up for heaven's sake\nThere's never been so much at stake\nI serve my head up on a plate\nIt's only comfort, calling late\n'Cause there's nothing else to do\nEvery me and every you\n\n[Chorus]\nEvery me and every you\nEvery me\nEvery me and every you\nEvery me\n\n[Verse 4]\nLike the naked leads the blind\nI know I'm selfish, I'm unkind\nSucker love I always find\nSomeone to bruise and leave behind\nAll alone in space and time\nThere's nothing here but what here's mine\nSomething borrowed, something blue\nEvery me and every you",
+      "lyrics_raw": "Sucker love is heaven sent. You pucker up, our passion's spent. My hearts a tart, your body's rent. My body's broken, yours is spent. Carve your name into my arm. Instead of stressed, I lie here charmed. Cuz there's nothing else to do, Every me and every you. Sucker love, a box I choose. No other box I choose to use. Another love I would abuse, No circumstances could excuse. In the shape of things to come. Too much poison come undone. Cuz there's nothing else to do, Every me and every you. Every me and every you, Every Me...he Sucker love is known to swing. Prone to cling and waste these things. Pucker up for heavens sake. There's never been so much at stake. I serve my head up on a plate. It's only comfort, calling late. Cuz there's nothing else to do, Every me and every you. Every me and every you, Every Me...he Every me and every you, Every Me...he Like the naked leads the blind. I know I'm selfish, I'm unkind. Sucker love I always find, Someone to bruise and leave behind. All alone in space and time. There's nothing here but what here's here's mine. Something borrowed, something blue. Every me and every you. Every me and every you, Every Me...he Every me and every you, Every Me...he (x4)",
       "tms": {
         "manual_done": [
           "bar_markers",
@@ -16096,525 +16096,525 @@
     "B1381": {
       "song_id": "EfmiXn",
       "bar_num": 25,
-      "lyrics": "",
+      "lyrics": "Sucker love",
       "audio": "",
       "has_accents": false
     },
     "B1382": {
       "song_id": "EfmiXn",
       "bar_num": 26,
-      "lyrics": "",
+      "lyrics": "is heaven sent.",
       "audio": "",
       "has_accents": false
     },
     "B1383": {
       "song_id": "EfmiXn",
       "bar_num": 27,
-      "lyrics": "",
+      "lyrics": "You pucker",
       "audio": "",
       "has_accents": false
     },
     "B1384": {
       "song_id": "EfmiXn",
       "bar_num": 28,
-      "lyrics": "",
+      "lyrics": "up, our passion's spent.",
       "audio": "",
       "has_accents": false
     },
     "B1385": {
       "song_id": "EfmiXn",
       "bar_num": 29,
-      "lyrics": "",
+      "lyrics": "My hearts a tart,",
       "audio": "",
       "has_accents": false
     },
     "B1386": {
       "song_id": "EfmiXn",
       "bar_num": 30,
-      "lyrics": "",
+      "lyrics": "your body's rent.",
       "audio": "",
       "has_accents": false
     },
     "B1387": {
       "song_id": "EfmiXn",
       "bar_num": 31,
-      "lyrics": "",
+      "lyrics": "My body's broken,",
       "audio": "",
       "has_accents": false
     },
     "B1388": {
       "song_id": "EfmiXn",
       "bar_num": 32,
-      "lyrics": "",
+      "lyrics": "yours is spent.\n",
       "audio": "",
       "has_accents": false
     },
     "B1389": {
       "song_id": "EfmiXn",
       "bar_num": 33,
-      "lyrics": "",
+      "lyrics": "Carve your name",
       "audio": "",
       "has_accents": false
     },
     "B1390": {
       "song_id": "EfmiXn",
       "bar_num": 34,
-      "lyrics": "",
+      "lyrics": "into my arm.",
       "audio": "",
       "has_accents": false
     },
     "B1391": {
       "song_id": "EfmiXn",
       "bar_num": 35,
-      "lyrics": "",
+      "lyrics": "Instead of stressed,",
       "audio": "",
       "has_accents": false
     },
     "B1392": {
       "song_id": "EfmiXn",
       "bar_num": 36,
-      "lyrics": "",
+      "lyrics": "I lie here charmed.",
       "audio": "",
       "has_accents": false
     },
     "B1393": {
       "song_id": "EfmiXn",
       "bar_num": 37,
-      "lyrics": "",
+      "lyrics": "Cuz there's",
       "audio": "",
       "has_accents": false
     },
     "B1394": {
       "song_id": "EfmiXn",
       "bar_num": 38,
-      "lyrics": "",
+      "lyrics": "nothing else to do,",
       "audio": "",
       "has_accents": false
     },
     "B1395": {
       "song_id": "EfmiXn",
       "bar_num": 39,
-      "lyrics": "",
+      "lyrics": "Every",
       "audio": "",
       "has_accents": false
     },
     "B1396": {
       "song_id": "EfmiXn",
       "bar_num": 40,
-      "lyrics": "",
+      "lyrics": "me and every you.\n",
       "audio": "",
       "has_accents": false
     },
     "B1397": {
       "song_id": "EfmiXn",
       "bar_num": 41,
-      "lyrics": "",
+      "lyrics": "Sucker love, a",
       "audio": "",
       "has_accents": false
     },
     "B1398": {
       "song_id": "EfmiXn",
       "bar_num": 42,
-      "lyrics": "",
+      "lyrics": "box I choose.",
       "audio": "",
       "has_accents": false
     },
     "B1399": {
       "song_id": "EfmiXn",
       "bar_num": 43,
-      "lyrics": "",
+      "lyrics": "No other box",
       "audio": "",
       "has_accents": false
     },
     "B1400": {
       "song_id": "EfmiXn",
       "bar_num": 44,
-      "lyrics": "",
+      "lyrics": "I choose to",
       "audio": "",
       "has_accents": false
     },
     "B1401": {
       "song_id": "EfmiXn",
       "bar_num": 45,
-      "lyrics": "",
+      "lyrics": "use. Another love",
       "audio": "",
       "has_accents": false
     },
     "B1402": {
       "song_id": "EfmiXn",
       "bar_num": 46,
-      "lyrics": "",
+      "lyrics": "I would abuse,",
       "audio": "",
       "has_accents": false
     },
     "B1403": {
       "song_id": "EfmiXn",
       "bar_num": 47,
-      "lyrics": "",
+      "lyrics": "No circumstances could",
       "audio": "",
       "has_accents": false
     },
     "B1404": {
       "song_id": "EfmiXn",
       "bar_num": 48,
-      "lyrics": "",
+      "lyrics": "excuse. In the\n",
       "audio": "",
       "has_accents": false
     },
     "B1405": {
       "song_id": "EfmiXn",
       "bar_num": 49,
-      "lyrics": "",
+      "lyrics": "shape of things",
       "audio": "",
       "has_accents": false
     },
     "B1406": {
       "song_id": "EfmiXn",
       "bar_num": 50,
-      "lyrics": "",
+      "lyrics": "to come. Too",
       "audio": "",
       "has_accents": false
     },
     "B1407": {
       "song_id": "EfmiXn",
       "bar_num": 51,
-      "lyrics": "",
+      "lyrics": "much poison come",
       "audio": "",
       "has_accents": false
     },
     "B1408": {
       "song_id": "EfmiXn",
       "bar_num": 52,
-      "lyrics": "",
+      "lyrics": "undone. Cuz there's",
       "audio": "",
       "has_accents": false
     },
     "B1409": {
       "song_id": "EfmiXn",
       "bar_num": 53,
-      "lyrics": "",
+      "lyrics": "nothing else to",
       "audio": "",
       "has_accents": false
     },
     "B1410": {
       "song_id": "EfmiXn",
       "bar_num": 54,
-      "lyrics": "",
+      "lyrics": "do, Every me",
       "audio": "",
       "has_accents": false
     },
     "B1411": {
       "song_id": "EfmiXn",
       "bar_num": 55,
-      "lyrics": "",
+      "lyrics": "and every you.",
       "audio": "",
       "has_accents": false
     },
     "B1412": {
       "song_id": "EfmiXn",
       "bar_num": 56,
-      "lyrics": "",
+      "lyrics": "Every me and\n",
       "audio": "",
       "has_accents": false
     },
     "B1413": {
       "song_id": "EfmiXn",
       "bar_num": 57,
-      "lyrics": "",
+      "lyrics": "every you, Every",
       "audio": "",
       "has_accents": false
     },
     "B1414": {
       "song_id": "EfmiXn",
       "bar_num": 58,
-      "lyrics": "",
+      "lyrics": "Me...he Sucker love",
       "audio": "",
       "has_accents": false
     },
     "B1415": {
       "song_id": "EfmiXn",
       "bar_num": 59,
-      "lyrics": "",
+      "lyrics": "is known to",
       "audio": "",
       "has_accents": false
     },
     "B1416": {
       "song_id": "EfmiXn",
       "bar_num": 60,
-      "lyrics": "",
+      "lyrics": "swing. Prone to\n",
       "audio": "",
       "has_accents": false
     },
     "B1417": {
       "song_id": "EfmiXn",
       "bar_num": 61,
-      "lyrics": "",
+      "lyrics": "cling and waste",
       "audio": "",
       "has_accents": false
     },
     "B1418": {
       "song_id": "EfmiXn",
       "bar_num": 62,
-      "lyrics": "",
+      "lyrics": "these things. Pucker",
       "audio": "",
       "has_accents": false
     },
     "B1419": {
       "song_id": "EfmiXn",
       "bar_num": 63,
-      "lyrics": "",
+      "lyrics": "up for heavens",
       "audio": "",
       "has_accents": false
     },
     "B1420": {
       "song_id": "EfmiXn",
       "bar_num": 64,
-      "lyrics": "",
+      "lyrics": "sake. There's never",
       "audio": "",
       "has_accents": false
     },
     "B1421": {
       "song_id": "EfmiXn",
       "bar_num": 65,
-      "lyrics": "",
+      "lyrics": "been so much",
       "audio": "",
       "has_accents": false
     },
     "B1422": {
       "song_id": "EfmiXn",
       "bar_num": 66,
-      "lyrics": "",
+      "lyrics": "at stake. I",
       "audio": "",
       "has_accents": false
     },
     "B1423": {
       "song_id": "EfmiXn",
       "bar_num": 67,
-      "lyrics": "",
+      "lyrics": "serve my head",
       "audio": "",
       "has_accents": false
     },
     "B1424": {
       "song_id": "EfmiXn",
       "bar_num": 68,
-      "lyrics": "",
+      "lyrics": "up on a\n",
       "audio": "",
       "has_accents": false
     },
     "B1425": {
       "song_id": "EfmiXn",
       "bar_num": 69,
-      "lyrics": "",
+      "lyrics": "plate. It's only",
       "audio": "",
       "has_accents": false
     },
     "B1426": {
       "song_id": "EfmiXn",
       "bar_num": 70,
-      "lyrics": "",
+      "lyrics": "comfort, calling late.",
       "audio": "",
       "has_accents": false
     },
     "B1427": {
       "song_id": "EfmiXn",
       "bar_num": 71,
-      "lyrics": "",
+      "lyrics": "Cuz there's nothing",
       "audio": "",
       "has_accents": false
     },
     "B1428": {
       "song_id": "EfmiXn",
       "bar_num": 72,
-      "lyrics": "",
+      "lyrics": "else to do,",
       "audio": "",
       "has_accents": false
     },
     "B1429": {
       "song_id": "EfmiXn",
       "bar_num": 73,
-      "lyrics": "",
+      "lyrics": "Every me and",
       "audio": "",
       "has_accents": false
     },
     "B1430": {
       "song_id": "EfmiXn",
       "bar_num": 74,
-      "lyrics": "",
+      "lyrics": "every you. Every",
       "audio": "",
       "has_accents": false
     },
     "B1431": {
       "song_id": "EfmiXn",
       "bar_num": 75,
-      "lyrics": "",
+      "lyrics": "me and every",
       "audio": "",
       "has_accents": false
     },
     "B1432": {
       "song_id": "EfmiXn",
       "bar_num": 76,
-      "lyrics": "",
+      "lyrics": "you, Every Me...he\n",
       "audio": "",
       "has_accents": false
     },
     "B1433": {
       "song_id": "EfmiXn",
       "bar_num": 77,
-      "lyrics": "",
+      "lyrics": "Every me and",
       "audio": "",
       "has_accents": false
     },
     "B1434": {
       "song_id": "EfmiXn",
       "bar_num": 78,
-      "lyrics": "",
+      "lyrics": "every you, Every",
       "audio": "",
       "has_accents": false
     },
     "B1435": {
       "song_id": "EfmiXn",
       "bar_num": 79,
-      "lyrics": "",
+      "lyrics": "Me...he Like the",
       "audio": "",
       "has_accents": false
     },
     "B1436": {
       "song_id": "EfmiXn",
       "bar_num": 80,
-      "lyrics": "",
+      "lyrics": "naked leads the",
       "audio": "",
       "has_accents": false
     },
     "B1437": {
       "song_id": "EfmiXn",
       "bar_num": 81,
-      "lyrics": "",
+      "lyrics": "blind. I know",
       "audio": "",
       "has_accents": false
     },
     "B1438": {
       "song_id": "EfmiXn",
       "bar_num": 82,
-      "lyrics": "",
+      "lyrics": "I'm selfish, I'm",
       "audio": "",
       "has_accents": false
     },
     "B1439": {
       "song_id": "EfmiXn",
       "bar_num": 83,
-      "lyrics": "",
+      "lyrics": "unkind. Sucker love",
       "audio": "",
       "has_accents": false
     },
     "B1440": {
       "song_id": "EfmiXn",
       "bar_num": 84,
-      "lyrics": "",
+      "lyrics": "I always find,\n",
       "audio": "",
       "has_accents": false
     },
     "B1441": {
       "song_id": "EfmiXn",
       "bar_num": 85,
-      "lyrics": "",
+      "lyrics": "Someone to bruise",
       "audio": "",
       "has_accents": false
     },
     "B1442": {
       "song_id": "EfmiXn",
       "bar_num": 86,
-      "lyrics": "",
+      "lyrics": "and leave behind.",
       "audio": "",
       "has_accents": false
     },
     "B1443": {
       "song_id": "EfmiXn",
       "bar_num": 87,
-      "lyrics": "",
+      "lyrics": "All alone in",
       "audio": "",
       "has_accents": false
     },
     "B1444": {
       "song_id": "EfmiXn",
       "bar_num": 88,
-      "lyrics": "",
+      "lyrics": "space and time.",
       "audio": "",
       "has_accents": false
     },
     "B1445": {
       "song_id": "EfmiXn",
       "bar_num": 89,
-      "lyrics": "",
+      "lyrics": "There's nothing here",
       "audio": "",
       "has_accents": false
     },
     "B1446": {
       "song_id": "EfmiXn",
       "bar_num": 90,
-      "lyrics": "",
+      "lyrics": "but what here's",
       "audio": "",
       "has_accents": false
     },
     "B1447": {
       "song_id": "EfmiXn",
       "bar_num": 91,
-      "lyrics": "",
+      "lyrics": "here's mine. Something",
       "audio": "",
       "has_accents": false
     },
     "B1448": {
       "song_id": "EfmiXn",
       "bar_num": 92,
-      "lyrics": "",
+      "lyrics": "borrowed, something blue.\n",
       "audio": "",
       "has_accents": false
     },
     "B1449": {
       "song_id": "EfmiXn",
       "bar_num": 93,
-      "lyrics": "",
+      "lyrics": "Every me and",
       "audio": "",
       "has_accents": false
     },
     "B1450": {
       "song_id": "EfmiXn",
       "bar_num": 94,
-      "lyrics": "",
+      "lyrics": "every you. Every",
       "audio": "",
       "has_accents": false
     },
     "B1451": {
       "song_id": "EfmiXn",
       "bar_num": 95,
-      "lyrics": "",
+      "lyrics": "me and every",
       "audio": "",
       "has_accents": false
     },
     "B1452": {
       "song_id": "EfmiXn",
       "bar_num": 96,
-      "lyrics": "",
+      "lyrics": "you, Every Me...he",
       "audio": "",
       "has_accents": false
     },
     "B1453": {
       "song_id": "EfmiXn",
       "bar_num": 97,
-      "lyrics": "",
+      "lyrics": "Every me and",
       "audio": "",
       "has_accents": false
     },
     "B1454": {
       "song_id": "EfmiXn",
       "bar_num": 98,
-      "lyrics": "",
+      "lyrics": "every you, Every",
       "audio": "",
       "has_accents": false
     },
     "B1455": {
       "song_id": "EfmiXn",
       "bar_num": 99,
-      "lyrics": "",
+      "lyrics": "Me...he (x4)",
       "audio": "",
       "has_accents": false
     },

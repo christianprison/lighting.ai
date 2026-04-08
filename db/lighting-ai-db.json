@@ -5831,8 +5831,8 @@
       "name": "Goodbye",
       "artist": "Die Happy",
       "bpm": 100,
-      "key": "",
-      "year": "",
+      "key": "D dur",
+      "year": "2002",
       "pick": "",
       "gema_nr": "5469032-001",
       "duration": "3:21",
@@ -5842,7 +5842,8 @@
       "tms": {
         "manual_done": [
           "bar_markers",
-          "parts_identified"
+          "parts_identified",
+          "instr_parts_identified"
         ],
         "user_tasks": [],
         "manual_undone": []

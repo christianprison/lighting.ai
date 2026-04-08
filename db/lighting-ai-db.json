@@ -5846,7 +5846,9 @@
           "instr_parts_identified"
         ],
         "user_tasks": [],
-        "manual_undone": []
+        "manual_undone": [
+          "lyrics_bars"
+        ]
       },
       "total_bars": 81,
       "audio_ref": "audio/Goodbye/Goodbye - Full Song.mp3",

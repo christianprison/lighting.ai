@@ -4731,7 +4731,7 @@
       "gema_nr": "4666736-001",
       "duration": "3:10",
       "duration_sec": 190,
-      "notes": "Placebo 4 Strophen immer Strophe Refrain durchziehen in der 3. Oder 4. Strophe dezent die Gitarre mal ein bisschen aus das Schlagzeug setzt vielleicht auch mal kurz aus und am Ende spielt die Gitarre noch ein paar overdubs",
+      "notes": "4 Strophen\n immer Strophe Refrain durchziehen\n in der 3. Oder 4. Strophe dezent die Gitarre mal ein bisschen aus \ndas Schlagzeug setzt vielleicht auch mal kurz aus und am Ende spielt die Gitarre noch ein paar overdubs",
       "qlc_id": 95,
       "audio_ref": "audio/Every You Every Me/Every You Every Me - Full Song.mp3",
       "audio_ref_name": "Every You Every Me - Full Song.mp3",
@@ -4742,7 +4742,14 @@
           "parts_identified",
           "templates_set"
         ],
-        "user_tasks": [],
+        "user_tasks": [
+          {
+            "id": "ut_1775672800235_xmfy",
+            "cat": "lyrics",
+            "label": "Lyrics korrekt in die richtigen Takte verschieben",
+            "done": false
+          }
+        ],
         "manual_undone": []
       },
       "total_bars": 117,
@@ -5843,12 +5850,18 @@
         "manual_done": [
           "bar_markers",
           "parts_identified",
-          "instr_parts_identified"
-        ],
-        "user_tasks": [],
-        "manual_undone": [
+          "instr_parts_identified",
           "lyrics_bars"
-        ]
+        ],
+        "user_tasks": [
+          {
+            "id": "ut_1775672824951_7g4t",
+            "cat": "audio",
+            "label": "Lyrics korrekt in die richtigen Takte verschieben",
+            "done": false
+          }
+        ],
+        "manual_undone": []
       },
       "total_bars": 81,
       "audio_ref": "audio/Goodbye/Goodbye - Full Song.mp3",

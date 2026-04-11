@@ -135,6 +135,8 @@ class AudioProcess:
             seg_end_t=86400.0,
         )
         self._bar_tracker_lock = threading.Lock()
+        # Anzahl bereits in JSONL geloggter Takt-Einträge (verhindert Duplikate).
+        self._logged_bar_count: int = 0
 
     # --- Lifecycle ------------------------------------------------------------
 
@@ -225,6 +227,7 @@ class AudioProcess:
                 seg_end_t=t0 + 86400.0,
                 grundrhythmus=grundrhythmus,
             )
+            self._logged_bar_count = 0
         log.info(
             "BarTracker konfiguriert: bpm=%.1f  grundrhythmus=%s",
             bpm, grundrhythmus is not None,
@@ -347,6 +350,24 @@ class AudioProcess:
                     self._bar_tracker.process_snare(t_ev, energy=ev.energy)
                 elif ev.type == "crash":
                     self._bar_tracker.process_crash(t_ev, energy=ev.energy)
+
+                # Bar-Events in JSONL schreiben: alle Takte, die vor t_ev liegen
+                # und noch nicht geloggt wurden (fortlaufende Numerierung).
+                if el is not None:
+                    bar_times = sorted(self._bar_tracker.get_latest_bars())
+                    bpm_val   = self._bar_tracker.get_bpm()
+                    for bar_idx, bt in enumerate(bar_times):
+                        if bar_idx < self._logged_bar_count:
+                            continue  # bereits geloggt
+                        if bt > t_ev:
+                            break     # Zukunft — noch nicht spielen
+                        el.log(
+                            "bar",
+                            wav_offset=bt,
+                            bar_num=bar_idx + 1,
+                            bpm=bpm_val,
+                        )
+                        self._logged_bar_count = bar_idx + 1
 
     # --- Emit (thread-safe → asyncio) ----------------------------------------
 

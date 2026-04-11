@@ -626,6 +626,9 @@ Wenn ein Song kein `grundrhythmus` hat, wird Phasen-Histogramm + Crash-Fallback 
   muss aus dem FastAPI-Event-Loop via `await asyncio.to_thread(audio_process.set_song, ...)` aufgerufen werden
 - Kick/Snare/Crash-Events werden per `process_kick/snare/crash(t_ev, energy)` in BarTracker eingespeist
 - `_bar_tracker_lock` (threading.Lock) schützt alle BarTracker-Zugriffe
+- **Bar-Events in JSONL**: nach jedem Onset-Event werden neue Takte (bt ≤ aktueller Zeitstempel)
+  als `{"t": bt, "type": "bar", "bar_num": N, "bpm": B}` in die JSONL geschrieben
+  — `_logged_bar_count` verhindert Duplikate; wird beim `set_song()` zurückgesetzt
 
 #### ⚠️ Offene Punkte für nächste Session
 

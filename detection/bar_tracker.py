@@ -41,14 +41,18 @@ _IOI_MAX = 1.0
 # ---------------------------------------------------------------------------
 
 def _compute_bpm_from_events(kicks: list[float], snares: list[float]) -> int:
-    """Berechnet BPM aus dem medianen IOI der Kick+Snare-Events.
+    """Berechnet BPM aus dem medianen IOI der letzten 8 Kick+Snare-Events.
+
+    Nur die jüngsten 8 Events werden verwendet, damit eine Tempo-Änderung
+    im Song oder nach einer Pause schnell übernommen wird.
 
     Returns 0 wenn nicht genügend Events vorhanden.
     """
     all_t = sorted(kicks + snares)
-    if len(all_t) < 4:
+    recent = all_t[-8:]   # nur die letzten 8 Events
+    if len(recent) < 4:
         return 0
-    iois = [all_t[i + 1] - all_t[i] for i in range(len(all_t) - 1)]
+    iois = [recent[i + 1] - recent[i] for i in range(len(recent) - 1)]
     iois = [d for d in iois if _IOI_MIN <= d <= _IOI_MAX]
     if not iois:
         return 0

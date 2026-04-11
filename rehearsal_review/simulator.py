@@ -123,6 +123,12 @@ class SimulatorWorker(QThread):
         crashes: list[tuple[float, float]] = []   # (t_rel, rms_energy)
         blocks_done = 0
 
+        # Chroma-Kanal (CH 4 = Lead Guitar L) wird im selben Pass gepuffert,
+        # damit kein zweites File-Read nötig ist — Prime Directive einhalten.
+        CHROMA_CH = 4
+        chroma_buf: list[np.ndarray] = []
+        _crash_rms_max = 0.0   # Diagnosewert: höchster OH-RMS im Durchlauf
+
         self._output_jsonl.parent.mkdir(parents=True, exist_ok=True)
         with (
             sf.SoundFile(self._wav_path) as wav_f,
@@ -154,6 +160,18 @@ class SimulatorWorker(QThread):
 
                 t_mid = blocks_done * BLOCK_SIZE / sr + (block.shape[0] / 2) / sr
 
+                # Chroma-Kanal puffern (ein Block = Lead Guitar L)
+                if block.shape[1] > CHROMA_CH:
+                    chroma_buf.append(block[:, CHROMA_CH].copy())
+
+                # Diagnosewert: max OH-RMS (ohne Highpass, zur Schwellwert-Kalibrierung)
+                if block.shape[1] > 14:
+                    oh_mix = np.maximum(
+                        np.abs(block[:, 13].astype(np.float32)),
+                        np.abs(block[:, 14].astype(np.float32)),
+                    )
+                    _crash_rms_max = max(_crash_rms_max, float(np.sqrt(np.mean(oh_mix ** 2))))
+
                 # ── Onset-Detection + BarTracker (streaming) ─────────────────
                 for ev in detector.process_block(block):
                     if ev.type == "kick":
@@ -173,9 +191,8 @@ class SimulatorWorker(QThread):
 
                 blocks_done += 1
                 if blocks_done % 50 == 0:
-                    # Main-Loop: 0 % – 80 % des Fortschrittsbalkens
                     raw = (blocks_done * BLOCK_SIZE) / max(1, total_frames)
-                    self.progress.emit(min(0.80, raw * 0.80))
+                    self.progress.emit(min(0.95, raw * 0.95))
 
         print(
             f"[SIM] Fertig: {blocks_done} Blöcke, "
@@ -183,37 +200,43 @@ class SimulatorWorker(QThread):
             f"→ {self._output_jsonl.name}",
             file=sys.stderr,
         )
+        print(
+            f"[SIM] Crashes: {len(crashes)} erkannt  "
+            f"(threshold RMS >{_CrashDetector.CRASH_RMS_MIN:.4f}, "
+            f"max OH-RMS im Segment ohne HPF: {_crash_rms_max:.4f})",
+            file=sys.stderr,
+        )
 
-        # ── Chroma-Extraktion auf Beat-Positionen ────────────────────────────
+        # ── Chroma-Extraktion aus gepuffertem Audio (kein zweites File-Read) ─
+        # audio_ch4 enthält den Lead-Guitar-Kanal ab seg_start_t,
+        # identisch zu dem, was im Live-Betrieb als Ring-Buffer vorläge.
         bar_times_final = tracker.get_latest_bars()
         bpm_final = tracker.get_bpm()
 
         chroma_data = []
-        if bar_times_final and bpm_final > 0:
+        if chroma_buf and bar_times_final and bpm_final > 0:
             try:
-                from chroma_viz import extract_chroma_at_beats, compute_beat_times
+                from chroma_viz import extract_chroma_at_beats_from_array, compute_beat_times
+                audio_ch4 = np.concatenate(chroma_buf)
                 beat_times = compute_beat_times(bar_times_final, bpm_final)
                 beat_times = [t for t in beat_times
                               if self._seg_start_t <= t <= self._seg_end_t]
-                def _chroma_progress(frac: float) -> None:
-                    # Chroma-Extraktion: 80 % – 100 % des Fortschrittsbalkens
-                    self.progress.emit(0.80 + frac * 0.20)
 
-                chroma_data = extract_chroma_at_beats(
-                    self._wav_path, beat_times, channel=4,
-                    sample_rate=sr, window_sec=0.28,
+                def _chroma_progress(frac: float) -> None:
+                    self.progress.emit(0.95 + frac * 0.05)
+
+                chroma_data = extract_chroma_at_beats_from_array(
+                    audio_ch4,
+                    seg_start_t=self._seg_start_t,
+                    sample_rate=sr,
+                    beat_times_abs=beat_times,
+                    window_sec=0.28,
                     song_key=self._song_key,
                     progress_callback=_chroma_progress,
                 )
-                print(f"[SIM] Chroma: {len(chroma_data)} Beats extrahiert", file=sys.stderr)
+                print(f"[SIM] Chroma: {len(chroma_data)} Beats extrahiert (aus Buffer)", file=sys.stderr)
             except Exception as e:
                 print(f"[SIM] Chroma-Extraktion fehlgeschlagen: {e}", file=sys.stderr)
-
-        print(
-            f"[SIM] Crashes: {len(crashes)} erkannt  "
-            f"(threshold RMS >{_CrashDetector.CRASH_RMS_MIN})",
-            file=sys.stderr,
-        )
         self.progress.emit(1.0)
         self.finished.emit({
             "jsonl_path":  self._output_jsonl,

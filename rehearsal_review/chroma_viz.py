@@ -134,6 +134,61 @@ def extract_chroma_at_beats(
     return results
 
 
+def extract_chroma_at_beats_from_array(
+    audio: "np.ndarray",
+    seg_start_t: float,
+    sample_rate: int,
+    beat_times_abs: list[float],
+    window_sec: float = 0.28,
+    song_key: str = "",
+    progress_callback=None,
+) -> list[dict]:
+    """Wie extract_chroma_at_beats, aber aus einem bereits eingelesenen Audio-Array.
+
+    audio:         1-D float32-Array ab seg_start_t (kein zweites File-Read nötig).
+    seg_start_t:   Absolute WAV-Zeit des ersten Samples in `audio` (Sekunden).
+    sample_rate:   Sample-Rate des Arrays.
+
+    Im Live-Betrieb entspricht `audio` dem bisher empfangenen Kanal-Buffer —
+    kein Zurückspulen, kein zweites Öffnen der Datei.
+    """
+    try:
+        import librosa
+    except ImportError:
+        raise ImportError("librosa nicht verfügbar — Chroma-Extraktion nicht möglich")
+
+    key_pcs   = key_pitch_classes(song_key) if song_key else []
+    half_win  = int(window_sec / 2.0 * sample_rate)
+    n_samples = len(audio)
+    results: list[dict] = []
+    n_beats   = max(1, len(beat_times_abs))
+
+    for bi, bt in enumerate(beat_times_abs):
+        center = int((bt - seg_start_t) * sample_rate)
+        start  = max(0, center - half_win)
+        end    = min(n_samples, center + half_win)
+        if end <= start:
+            continue
+
+        clip = audio[start:end]
+
+        y_harm = librosa.effects.harmonic(clip, margin=8)
+        chroma = librosa.feature.chroma_cqt(
+            y=y_harm, sr=sample_rate, n_chroma=12, hop_length=512,
+        )
+        chroma_mean = chroma.mean(axis=1).tolist()
+
+        if key_pcs:
+            chroma_mean = apply_key_weight(chroma_mean, key_pcs, weight=2.0)
+
+        results.append({"t": bt, "chroma": chroma_mean})
+
+        if progress_callback is not None:
+            progress_callback((bi + 1) / n_beats)
+
+    return results
+
+
 def chroma_to_rgb(chroma: list[float]) -> tuple[int, int, int]:
     """Mappt einen 12-dim Chroma-Vektor auf RGB via zirkulären Mittelwert.
 

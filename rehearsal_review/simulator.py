@@ -50,6 +50,7 @@ class SimulatorWorker(QThread):
         output_jsonl: Path,
         ref_db_path=None,   # nicht mehr verwendet, bleibt für API-Compat
         use_hmm: bool = False,  # nicht mehr verwendet
+        song_key: str = "",
         parent=None,
     ) -> None:
         super().__init__(parent)
@@ -60,6 +61,7 @@ class SimulatorWorker(QThread):
         self._song_name    = song_name
         self._bpm          = bpm
         self._output_jsonl = output_jsonl
+        self._song_key     = song_key
 
     # ── Haupt-Loop ────────────────────────────────────────────────────────────
 
@@ -191,6 +193,7 @@ class SimulatorWorker(QThread):
                 chroma_data = extract_chroma_at_beats(
                     self._wav_path, beat_times, channel=4,
                     sample_rate=sr, window_sec=0.28,
+                    song_key=self._song_key,
                 )
                 print(f"[SIM] Chroma: {len(chroma_data)} Beats extrahiert", file=sys.stderr)
             except Exception as e:

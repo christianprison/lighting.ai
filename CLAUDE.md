@@ -503,7 +503,8 @@ probe_events   (id, session_id, wav_offset, song_id, bar_num, part_name, confide
 
 - `get_parts_for_song(song_id)` → Liste von `{part_name, first_bar, last_bar, bar_count}` — nützlich um `start_bar_num` zu setzen
 - Inkrementelles Averaging: `new_mean = (old × n + new) / (n+1)` via `sample_count`
-- Schema-Migration: `recording_importer.py` legt `sample_count`-Spalte automatisch an falls fehlend
+- Schema-Migration: `recording_importer.py` UND `ReferenceDB._ensure_sample_count_column()` legen `sample_count`-Spalte automatisch an falls fehlend
+- `upsert_bar_chroma(song_id, bar_num, chroma)`: speichert Lead-Guitar-Chroma per Takt; legt Stub-Feature-Vector an falls noch keiner vorhanden (mfcc/onset = 0); bei vorhandenem Vektor: inkrementelles Averaging nur für chroma
 
 #### Keyboard Shortcuts (Rehearsal App)
 
@@ -639,7 +640,11 @@ Wenn ein Song kein `grundrhythmus` hat, wird Phasen-Histogramm + Crash-Fallback 
 2. **select_song in main.py**: Bei Songwechsel über WebSocket (`action=select_song`) muss
    `audio_process.set_song(bpm, grundrhythmus)` aufgerufen werden (noch nicht implementiert).
 
-3. **Feldtest Beat-1-Korrektur**: Simulation auf verschiedenen Songs laufen lassen und prüfen:
+3. **Chroma für Live-Vergleich nutzen**: `upsert_bar_chroma` speichert Lead-Guitar-Chroma
+   aus der Simulation in reference.db. Für den Live-Part/Takt-Abgleich muss noch ein
+   Vergleichs-Algorithmus (z.B. Kosinus-Ähnlichkeit) in audio_process.py implementiert werden.
+
+4. **Feldtest Beat-1-Korrektur**: Simulation auf verschiedenen Songs laufen lassen und prüfen:
    - Crash-Detektion: Status-Bar zeigt `★ N Crashes`? Wenn 0 → `CRASH_RMS_MIN` (0.012) senken
    - Energy-Korrektur: `[BAR] energy_beat1: ratio=Z` auf stderr — Z > 1.05 = Korrektur greift
    - Taktgitter landet auf Beat 1 (Snare-Positionen ≈ 1.0 und 3.0 beats in Diagnostik)

@@ -62,6 +62,7 @@ def extract_chroma_at_beats(
     sample_rate: int,
     window_sec: float = 0.28,
     song_key: str = "",
+    progress_callback=None,
 ) -> list[dict]:
     """Extrahiert Chroma-Vektoren an Beat-Positionen aus einem WAV-Kanal.
 
@@ -94,7 +95,8 @@ def extract_chroma_at_beats(
         if channel >= wav_ch:
             return []
 
-        for bt in beat_times_abs:
+        n_beats = max(1, len(beat_times_abs))
+        for bi, bt in enumerate(beat_times_abs):
             start_frame = max(0, int((bt - half_win) * wav_sr))
             end_frame   = min(wav_frames, int((bt + half_win) * wav_sr))
             if end_frame <= start_frame:
@@ -125,6 +127,9 @@ def extract_chroma_at_beats(
                 chroma_mean = apply_key_weight(chroma_mean, key_pcs, weight=2.0)
 
             results.append({"t": bt, "chroma": chroma_mean})
+
+            if progress_callback is not None:
+                progress_callback((bi + 1) / n_beats)
 
     return results
 

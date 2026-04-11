@@ -43,8 +43,10 @@ log = logging.getLogger("detection.onset")
 # ---------------------------------------------------------------------------
 # Kanal-Indizes (0-basiert, XR18 USB)
 # ---------------------------------------------------------------------------
-CH_KICK  = 8
-CH_SNARE = 9
+CH_KICK   = 8
+CH_SNARE  = 9
+CH_OH_L   = 13   # Overhead Left  — enthält Crash-Cymbals
+CH_OH_R   = 14   # Overhead Right — enthält Crash-Cymbals
 
 # Absoluter ODF-Boden (Sub-Window-Ebene, 256 Samples = 5.3 ms)
 ONSET_MIN_ODF = 4e-3
@@ -69,7 +71,7 @@ SILENCE_ODF_THRESH = 1e-3
 @dataclass
 class OnsetEvent:
     """Erkanntes Onset-Ereignis."""
-    type: str       # "kick" | "snare"
+    type: str       # "kick" | "snare" | "crash"
     energy: float   # Peak-ODF-Wert beim Onset
 
 
@@ -186,10 +188,12 @@ class ChannelOnsetDetector:
 # Frequenzfilter-Fabrik
 # ---------------------------------------------------------------------------
 
-def _make_filters(sample_rate: int) -> tuple[Optional[np.ndarray], Optional[np.ndarray]]:
-    """Butterworth-IIR-Filter für Kick und Snare.
+def _make_filters(
+    sample_rate: int,
+) -> tuple[Optional[np.ndarray], Optional[np.ndarray], Optional[np.ndarray]]:
+    """Butterworth-IIR-Filter für Kick, Snare und Crash.
 
-    Returns (kick_sos, snare_sos) oder (None, None) wenn scipy fehlt.
+    Returns (kick_sos, snare_sos, crash_sos) oder (None, None, None) wenn scipy fehlt.
     """
     try:
         from scipy.signal import butter
@@ -198,10 +202,13 @@ def _make_filters(sample_rate: int) -> tuple[Optional[np.ndarray], Optional[np.n
         kick_sos = butter(4, 150.0 / nyq, btype="low", output="sos")
         # Snare: Bandpass 800–9 000 Hz — Snare-Crack, verwirft Kick-Bleed (<500 Hz)
         snare_sos = butter(4, [800.0 / nyq, 9000.0 / nyq], btype="band", output="sos")
-        return kick_sos, snare_sos
+        # Crash: Hochpass 5 000 Hz — isoliert Crash-Oberton-Cluster, unterdrückt HiHat-Körper
+        # Crashes haben sehr hohe Energie in 5–20 kHz (Nyquist bei 48 kHz = 24 kHz)
+        crash_sos = butter(4, 5000.0 / nyq, btype="high", output="sos")
+        return kick_sos, snare_sos, crash_sos
     except Exception as exc:
         log.warning("scipy nicht verfügbar — Onset-Detection ohne Frequenzfilter: %s", exc)
-        return None, None
+        return None, None, None
 
 
 # ---------------------------------------------------------------------------
@@ -209,13 +216,17 @@ def _make_filters(sample_rate: int) -> tuple[Optional[np.ndarray], Optional[np.n
 # ---------------------------------------------------------------------------
 
 class OnsetDetector:
-    """Erkennt Kick- und Snare-Onsets aus mehrkanaligem XR18-Audio (48 kHz)."""
+    """Erkennt Kick-, Snare- und Crash-Onsets aus mehrkanaligem XR18-Audio (48 kHz)."""
+
+    # Crash-Cooldown: Cymbals halten lange (mindestens 1,5 s pro Crash)
+    CRASH_COOLDOWN_SEC = 1.5
 
     def __init__(self, sample_rate: int = 48_000) -> None:
         self._sr = sample_rate
         kick_cd  = int(KICK_COOLDOWN_SEC  * sample_rate)
         snare_cd = int(SNARE_COOLDOWN_SEC * sample_rate)
-        kick_sos, snare_sos = _make_filters(sample_rate)
+        crash_cd = int(self.CRASH_COOLDOWN_SEC * sample_rate)
+        kick_sos, snare_sos, crash_sos = _make_filters(sample_rate)
         self._kick  = ChannelOnsetDetector(
             threshold_factor=3.0,
             history_len=50,
@@ -230,11 +241,22 @@ class OnsetDetector:
             filter_sos=snare_sos,
             abs_rms_min=3e-3,
         )
+        # Crash: hoher threshold_factor + hoher abs_rms_min → nur starke Crashes
+        # Der adaptive Median auf dem Hochpass-Signal ist niedrig (wenig Energie >5 kHz),
+        # daher threshold_factor=3.5 und abs_rms_min=8e-3 für Selektivität.
+        self._crash = ChannelOnsetDetector(
+            threshold_factor=3.5,
+            history_len=50,
+            cooldown_samples=crash_cd,
+            filter_sos=crash_sos,
+            abs_rms_min=8e-3,
+        )
 
     def process_block(self, block: np.ndarray) -> list[OnsetEvent]:
         """Verarbeitet einen Audio-Block und gibt Onset-Ereignisse zurück.
 
-        block: shape (frames, channels), float32, ≥10 Kanäle (XR18-Belegung).
+        block: shape (frames, channels), float32, XR18-Belegung (mind. 15 Kanäle).
+        Gibt "kick", "snare" und "crash" Events zurück.
         """
         n_ch = block.shape[1] if block.ndim > 1 else 1
 
@@ -253,9 +275,26 @@ class OnsetDetector:
         if snare_onset:
             events.append(OnsetEvent(type="snare", energy=snare_odf))
 
+        # Crash: L+R summiert (max) → mehr Energie, robustere Erkennung
+        if n_ch > max(CH_OH_L, CH_OH_R):
+            oh_mix = np.maximum(
+                np.abs(block[:, CH_OH_L].astype(np.float32)),
+                np.abs(block[:, CH_OH_R].astype(np.float32)),
+            )
+        elif n_ch > CH_OH_L:
+            oh_mix = block[:, CH_OH_L].astype(np.float32)
+        else:
+            oh_mix = None
+
+        if oh_mix is not None:
+            crash_onset, crash_odf = self._crash.process(oh_mix)
+            if crash_onset:
+                events.append(OnsetEvent(type="crash", energy=crash_odf))
+
         return events
 
     def reset(self) -> None:
         self._kick.reset()
         self._snare.reset()
+        self._crash.reset()
         log.debug("OnsetDetector zurückgesetzt")

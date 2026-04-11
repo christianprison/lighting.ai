@@ -710,18 +710,16 @@ class MainWindow(QMainWindow):
             f"  --  {_fmt_dur(session.total_duration)}"
         )
 
-        # Start overview peak extraction (full session, Main L+R or mixdown ch 0+1)
+        # Start overview peak extraction (full session, Main L+R: CH 16+17)
         if self._overview_worker and self._overview_worker.isRunning():
             self._overview_worker.cancel()
             self._overview_worker.wait(300)
 
-        src = session.mixdown_path if session.mixdown_path else session.wav_path
-        ch_indices = [0, 1] if session.mixdown_path else [16, 17]
         self._overview.set_session(session)
 
         ov_worker = PeakWorker(
-            wav_path=src,
-            ch_indices=ch_indices,
+            wav_path=session.wav_path,
+            ch_indices=[16, 17],
             start_t=0.0,
             end_t=session.total_duration,
             sample_rate=session.sample_rate,

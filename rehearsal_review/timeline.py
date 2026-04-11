@@ -30,7 +30,7 @@ from annotation import BarMarker
 LABEL_W   = 196
 RULER_H   = 28
 EVENTS_H  = 26   # halved from 52
-ANNOT_H   = 32   # manual bar/part annotation strip
+ANNOT_H   = 0    # annotation strip entfernt (war immer leer)
 MIX_H     = 44
 TRACK_H   = 27
 TRACK_GAP = 2
@@ -78,19 +78,9 @@ KICK_MARKER_CHS: frozenset[int] = frozenset({8})         # Kick
 _DIAMOND_R = 4   # half-size of diamond marker (pixels)
 
 # ── Track definitions (in display order) ─────────────────────────────────────
+# Main L+R entfernt — die Overview-Zeile oben zeigt dieselbe Hüllkurve (CH 16+17)
 
-# Combined Main L+R as single virtual track (ch=-1, merges ch 16+17)
-TRACKS: list[dict] = [
-    {
-        "ch":           -1,
-        "combined_chs": (16, 17),
-        "label":        "Main L+R",
-        "color":        WF_SUM,
-        "fill":         WF_SUM_F,
-        "h":            MIX_H,
-        "is_sum":       True,
-    },
-]
+TRACKS: list[dict] = []
 
 # Tom channels merged into one overlay track
 _TOM_CHS = (10, 11, 12)
@@ -872,6 +862,8 @@ class TimelineWidget(QWidget):
 
     def _paint_annotation_strip(self, p: QPainter, vl: int, vr: int) -> None:
         """Zeichnet den Takt-Annotations-Streifen unterhalb der Events-Spur."""
+        if ANNOT_H <= 0:
+            return
         y0 = RULER_H + EVENTS_H
         w = self.width()
 
@@ -1257,28 +1249,6 @@ class TimelineWidget(QWidget):
         p.drawText(6, RULER_H, LABEL_W - 10, EVENTS_H,
                    Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
                    summary)
-
-        # Annotation cell
-        annot_y = RULER_H + EVENTS_H
-        annot_bg = QColor("#1c1028") if self._annotation_mode else C_BG2
-        p.fillRect(0, annot_y, LABEL_W, ANNOT_H, annot_bg)
-        if self._annotation_mode:
-            # Amber top border + left accent bar
-            p.setPen(QPen(QColor("#f0a030"), 2))
-            p.drawLine(0, annot_y, LABEL_W, annot_y)
-            p.fillRect(0, annot_y, 3, ANNOT_H, QColor("#f0a030"))
-        n_markers = len(self._bar_markers)
-        annot_label = f"● ANNOT  {n_markers}T" if self._annotation_mode else (
-            f"ANNOT  {n_markers}T" if n_markers else "ANNOT"
-        )
-        annot_color = QColor("#f0a030") if self._annotation_mode else C_T3
-        p.setFont(FONT_MONO)
-        p.setPen(annot_color)
-        p.drawText(8, annot_y, LABEL_W - 12, ANNOT_H,
-                   Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
-                   annot_label)
-        p.setPen(C_BORDER)
-        p.drawLine(0, annot_y + ANNOT_H - 1, LABEL_W, annot_y + ANNOT_H - 1)
 
         # Track cells
         for i, track in enumerate(TRACKS):

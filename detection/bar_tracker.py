@@ -258,6 +258,56 @@ def _snare_beat1_anchor(
     return best_anchor
 
 
+def _crash_beat1_correct(
+    first_t: float,
+    bar_sec: float,
+    beat_sec: float,
+    crashes: list[float],
+    snap_r: float,
+) -> float:
+    """Löst Beat-1-vs-Beat-3-Ambiguität per Crash-Cymbal-Events.
+
+    Crashes passieren fast immer auf Beat 1 (seltener Beat 3, fast nie Beat 2/4).
+    Gegeben zwei Kandidaten für den Taktanker (first_t = Beat-1 ODER Beat-3):
+    Wähle den Kandidaten, auf den die meisten Crashes als Beat 1 fallen.
+
+    Crash auf Beat 1: (crash_t - cand) % bar_sec ≈ 0
+    Crash auf Beat 3: (crash_t - (cand+2*beat)) % bar_sec ≈ 0
+      → das ist dann ein Beat-3-Crash, kein Beat-1-Crash
+
+    Wenn kein eindeutiger Gewinner → first_t unverändert.
+    """
+    import sys
+
+    if not crashes:
+        return first_t
+
+    # Kandidat A: first_t ist Beat 1  (unverändert)
+    # Kandidat B: first_t ist Beat 3  → echter Beat 1 = first_t + 2 * beat_sec
+    candidates = [first_t, first_t + 2.0 * beat_sec]
+    scores = []
+    for cand in candidates:
+        # Zähle Crashes, die auf Beat 1 (Phase ≈ 0) relativ zu cand fallen
+        s = sum(
+            1 for c in crashes
+            if _circ_dist((c - cand) % bar_sec, 0.0, bar_sec) <= snap_r
+        )
+        scores.append(s)
+
+    best = max(range(2), key=lambda i: scores[i])
+
+    if best == 0 or scores[best] == scores[0]:
+        return first_t   # kein eindeutiger Gewinner oder bereits richtig
+
+    corrected = candidates[best]
+    print(
+        f"[BAR] crash_beat1_correct: {first_t:.3f} → {corrected:.3f} "
+        f"(+{best * 2} Beats, crash_scores={scores})",
+        file=sys.stderr,
+    )
+    return corrected
+
+
 def _compute_bar_grid(
     bpm: int,
     seg_start_t: float,
@@ -266,6 +316,7 @@ def _compute_bar_grid(
     snares: list[float],
     snap_factor: float = 0.70,
     kick_energies: list[float] = [],
+    crashes: list[float] = [],
 ) -> list[float]:
     """Berechnet Takt-Zeitstempel durch greedy Forward-Snap.
 
@@ -304,12 +355,18 @@ def _compute_bar_grid(
     if snares:
         first_t = _snare_phase_correct(first_t, bar_sec, beat_sec, kicks, snares, snap_r)
 
-    # Beat-1-vs-Beat-3-Korrektur: prüft ob Snares auf Beat 2 (erster Snare
-    # nach dem Anker) oder Beat 4 fallen, und korrigiert um +2 Beats.
+    # Beat-1-vs-Beat-3-Korrektur (Snare-basiert): prüft ob Snares auf Beat 2
+    # (erster Snare nach dem Anker) oder Beat 4 fallen, korrigiert um +2 Beats.
     # Nur wenn genug Daten vorhanden sind (Rauschen vermeiden).
     _DIAG = len(kicks) + len(snares) >= 20
     if snares and len(kicks) >= _MIN_KICKS_FOR_PHASE and _DIAG:
         first_t = _snare_beat1_anchor(first_t, bar_sec, beat_sec, kicks, snares, snap_r)
+
+    # Beat-1-vs-Beat-3-Korrektur (Crash-basiert): Crashes passieren fast nur auf
+    # Beat 1 → sehr zuverlässige Phasen-Fixierung. Überschreibt Snare-Korrektur
+    # wenn Crash-Signal stärker ist.
+    if crashes:
+        first_t = _crash_beat1_correct(first_t, bar_sec, beat_sec, crashes, snap_r)
 
     # ── Diagnostik (nur bei ausreichend Events, um Rauschen zu vermeiden) ─────
     if _DIAG:
@@ -411,6 +468,7 @@ class BarTracker:
 
         self._kicks:     list[float] = []
         self._snares:    list[float] = []
+        self._crashes:   list[float] = []
         self._kick_energies:  list[float] = []
         self._snare_energies: list[float] = []
         self._bar_times: list[float] = []
@@ -430,6 +488,14 @@ class BarTracker:
         self._snare_energies.append(energy)
         self._update()
 
+    def process_crash(self, t: float, energy: float = 1.0) -> None:
+        """Registriert einen Crash-Cymbal-Onset zum Zeitpunkt t (absolute WAV-Zeit).
+
+        Crashes werden für die Beat-1-vs-Beat-3-Phasenkorrektur genutzt.
+        Sie lösen keine Taktgitter-Neuberechnung aus (crashes ändern das BPM nicht).
+        """
+        self._crashes.append(t)
+
     # ── Abfrage-Interface ───────────────────────────────────────────────────
 
     def get_latest_bars(self) -> list[float]:
@@ -444,6 +510,7 @@ class BarTracker:
         """Setzt den Tracker zurück (alle Events und Berechnungen gelöscht)."""
         self._kicks.clear()
         self._snares.clear()
+        self._crashes.clear()
         self._kick_energies.clear()
         self._snare_energies.clear()
         self._bar_times.clear()
@@ -470,6 +537,7 @@ class BarTracker:
             self._snares,
             self._snap_factor,
             self._kick_energies,
+            self._crashes,
         )
         log.debug(
             "BarTracker update: bpm=%d  kicks=%d  snares=%d  bars=%d",

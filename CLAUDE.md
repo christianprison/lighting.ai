@@ -34,7 +34,10 @@ Das Projekt besteht aus **zwei unabhängigen Teilprojekten**, die in separaten C
 - `db/lighting-ai-db.json` wird auch durch die App committed (auto-save)
 - Audio-Dateien kommen als Binary Blobs rein (kein LFS nötig, Dateien sind klein)
 
-### ⚠️ Paradigma: Simulation = Live — ein Algorithmus, keine Ausnahmen
+### ⚠️ PRIME DIRECTIVE: Simulation = Live — ein Algorithmus, keine Ausnahmen
+
+> **Diese Regel hat höchste Priorität und darf NIEMALS gebrochen werden.**  
+> Jede neue Session muss diese Regel verstehen und einhalten, bevor sie irgendetwas implementiert.
 
 **Die Simulation ist kein separater Modus. Sie ist das Testbett für den Live-Algorithmus.**
 
@@ -51,10 +54,11 @@ Fallunterscheidung.
   funktioniert — **derselbe Code, dieselbe Reihenfolge der Operationen**
 - Wer versucht ist, "in der Simulation können wir ja alle Events auf einmal sehen":
   **Nein.** Der Algorithmus sieht nur was er bisher gehört hat, genau wie im Live-Betrieb
+- Jede Verbesserung an `detection/` ist automatisch eine Verbesserung an beiden Apps
 
 ```
 detection/
-├── beat_detector.py   # OnsetDetector: Kick/Snare-Erkennung (streaming)
+├── beat_detector.py   # OnsetDetector: Kick/Snare/Crash-Erkennung (streaming)
 ├── bar_tracker.py     # BarTracker: Takt-Tracking (streaming, kein Batch)
 ├── fingerprint.py     # Feature-Extraktion
 ├── hmm.py             # HMM-basierte Positionsschätzung
@@ -449,11 +453,15 @@ venv: `/opt/lighting-venv` (PyQt6, sounddevice, soundfile, numpy, librosa)
 ```
 RULER_H  = 28    # Zeitlineal oben
 EVENTS_H = 26    # Beat/Position-Events-Streifen
-ANNOT_H  = 32    # Takt-Annotations-Streifen
+ANNOT_H  = 0     # Takt-Annotations-Streifen (deaktiviert — war immer leer)
 LABEL_W  = 196   # Sticky-Label-Spalte links
 ```
 
-ANNOT-Strip Marker-Farben (obere Hälfte, manuelle Annotationen):
+ANNOT-Strip ist deaktiviert (ANNOT_H = 0). Der Code für Marker-Darstellung existiert noch,
+wird aber durch den frühen `return`-Guard in `_paint_annotation_strip()` nie ausgeführt.
+Wenn der ANNOT-Strip reaktiviert werden soll, ANNOT_H = 32 setzen.
+
+ANNOT-Strip Marker-Farben (für Reaktivierung):
 - **amber** (#f0a030): normaler Takt-Marker
 - **grün** (#00dc82): Part-Start-Marker
 - **weiß** (#ffffff, 2px): Fragment-Start-Marker (`restart_bar_num` gesetzt), Label `→T{n}`
@@ -466,7 +474,7 @@ Events-Strip — Normal-Modus (JSONL-Events aus Probenaufnahme):
 
 Events-Strip — Sim-Overlay-Modus (`_sim_overlay=True`):
 - JSONL-Events **komplett ausgeblendet** (wenn Sim-Events vorhanden)
-- Sim-Diamonds im Events-Strip: amber = Sim-Kick (r=4, unten), cyan = Sim-Snare (r=4, oben)
+- Sim-Diamonds im Events-Strip: amber = Sim-Kick (r=4, unten), cyan = Sim-Snare (r=4, oben), rot = Sim-Crash (r=7, Mitte)
 
 Kanal-Rows mit Event-Markern (`_paint_event_markers()`):
 - **OH L+R** (`BEAT_MARKER_CHS = {13,14}`): alle Beats — amber = Beat, rot = Downbeat
@@ -513,12 +521,15 @@ probe_events   (id, session_id, wav_offset, song_id, bar_num, part_name, confide
 
 `SimulatorWorker(QThread)` repliziert die Erkennungspipeline **offline** (so schnell wie möglich, kein Echtzeit-Throttling):
 - Liest WAV **immer ab Segment-Anfang** in BLOCK_SIZE=2048-Blöcken
-- Schickt jeden Block durch `OnsetDetector.process_block()` (Kick CH08, Snare CH09)
+- Schickt jeden Block durch `OnsetDetector.process_block()` (Kick CH08, Snare CH09, Crash CH13+14)
 - Schreibt alle Events in eine **JSONL-Datei** (`{stem}_sim_{song_id}_{HHmmss}.jsonl`)
-- Während der Simulation: **Progress-Modal** (`QProgressDialog`) statt separatem Fenster
+- Während der Simulation: **Progress-Modal** (`QProgressDialog`) — 0–80% für Onset-Loop, 80–100% für Chroma-Extraktion
 - Emittiert `progress(float)` und `finished(dict)`, kein Echtzeit-Streaming
-- `finished`-Dict: `jsonl_path`, `n_kicks`, `n_snares`, `kicks: list[float]`, `snares: list[float]`
+- `finished`-Dict: `jsonl_path`, `n_kicks`, `n_snares`, `n_crashes`, `kicks`, `snares`, `crashes` (alle `list[float]`), `bar_times`, `bpm`, `chroma_data`
 - Sim-JSONL-Dateien werden im Dateiauswahldialog automatisch ausgeblendet (`_HideSimFiles` Proxy)
+- Parameter `song_key` (aus DB, z.B. `"D dur"`) wird an `extract_chroma_at_beats()` übergeben → In-Key-Pitchklassen ×2 gewichtet
+- Nach Simulation: Status-Bar zeigt `★ N Crashes` wenn Crashes erkannt wurden
+- Diagnose stderr: `[SIM] Crashes: N erkannt (threshold RMS >0.025)`
 
 **Sim-Overlay-Modus** (Toggle `⊙ Simulation` in Toolbar, wird nach Sim-Ende automatisch aktiviert):
 - `_sim_overlay=True` → JSONL-Probe-Events komplett ausgeblendet (wenn Sim-Events vorhanden)
@@ -532,26 +543,83 @@ probe_events   (id, session_id, wav_offset, song_id, bar_num, part_name, confide
 Band-gefilterter ODF auf Sub-Window-Ebene (kein PLL, kein HMM, kein BPM-Tracking):
 
 1. **Frequenzfilter** (Butterworth IIR, scipy, graceful fallback):
-   - Kick CH08: Tiefpass 250 Hz — isoliert Kick-Body
+   - Kick CH08: Tiefpass 150 Hz — isoliert Kick-Body
    - Snare CH09: Bandpass 800–9000 Hz — verwirft Kick-Bleed
+   - Crash CH13+14: Hochpass 8000 Hz — Crashes haben dort deutlich mehr Energie als HiHats
 
-2. **Sub-Window ODF** (5.3 ms-Auflösung statt 42.7 ms-Block):
+2. **Sub-Window ODF** für Kick/Snare (5.3 ms-Auflösung statt 42.7 ms-Block):
    - Block 2048 Samples → 8 × 256-Sample-Sub-Fenster
    - `peak_odf = max(max(0, rms[n] − rms[n−1]))` — halbrektifizierte erste Ableitung des RMS
    - `_prev_sub_rms` über Blockgrenzen mitgeführt
 
-3. **Dual-Gate**: Onset nur wenn BEIDE Bedingungen:
+3. **Dual-Gate** für Kick/Snare: Onset nur wenn BEIDE Bedingungen:
    - `peak_odf > max(median(odf_hist) × factor, ONSET_MIN_ODF)` (adaptiver Median über 50 Blöcke)
    - `mean_rms > abs_rms_min` (absoluter RMS-Boden)
 
-4. **Silence-Aware Warmup**:
+4. **Silence-Aware Warmup** für Kick/Snare:
    - Nach ≥ 12 stillen Blöcken (~0,5 s): erster Spike nach Stille wird unterdrückt
    - Verhindert False Positives beim Neueinsatz des Songs
 
+5. **`_CrashDetector`** (RMS-basiert, kein adaptiver Median):
+   - Crash CH13+14: `max(abs(OH_L), abs(OH_R))` → Hochpass 8 kHz → RMS
+   - `CRASH_RMS_MIN = 0.025` — klare Separation: HiHat-RMS ~0.005–0.02, Crash ~0.03–0.30
+   - Cooldown: 0.8 s (erlaubt Crash auf jedem Takt bei 90+ BPM)
+   - Erkennte Crashes gehen an `BarTracker.process_crash()` zur Beat-1-Phasen-Korrektur
+
 Parameter:
-- Kick: `threshold_factor=2.5`, `abs_rms_min=5e-3`, `cooldown=220 ms`
+- Kick: `threshold_factor=3.0`, `abs_rms_min=5e-3`, `cooldown=220 ms`
 - Snare: `threshold_factor=2.2`, `abs_rms_min=3e-3`, `cooldown=280 ms`
+- Crash: `CRASH_RMS_MIN=0.025`, `cooldown=800 ms`
 - `ONSET_MIN_ODF=4e-3`, `SILENCE_BLOCKS=12`, `SUB_WIN=256`
+
+#### BarTracker (`detection/bar_tracker.py`)
+
+Streaming Takt-Tracker — verarbeitet Kick/Snare/Crash-Events inkrementell, kein Lookahead:
+
+**Anker-Berechnung** (`_find_anchor_by_phase`):
+- ODF-energie-gewichtetes Phasen-Histogramm über alle Kicks → erste Taktposition
+
+**Dreistufige Phase-Korrektur** (in dieser Reihenfolge, jede Stufe überschreibt die vorherige):
+1. **`_snare_phase_correct`** — kombiniertes Kick+Snare-Scoring über 4 Viertel-Offsets.  
+   Korrigiert ±1/2/3-Beat-Fehler wenn Snare-Pattern (Beat 2+4) klar erkennbar.
+2. **`_energy_beat1_correct`** — vergleicht mittlere Kick-ODF-Energie auf Beat-1-Phase vs. Beat-3-Phase.  
+   Beat 1 (Downbeat) wird typischerweise stärker angeschlagen → höhere ODF.  
+   Korrigiert +2-Beat-Fehler wenn alternative Phase >10% energiereicher (`avg_alt > avg_curr * 1.10`).  
+   ⚠️ **Offen: Braucht Feldtest.** Funktioniert nur wenn Drummer Beat 1 konsistent lauter spielt.
+3. **`_crash_beat1_correct`** — Crashes landen fast immer auf Beat 1 (selten Beat 3, nie Beat 2/4).  
+   Zählt Crashes bei `phase ≈ 0` für Kandidat A vs. Kandidat B → bevorzugt Kandidat mit mehr Beat-1-Crashes.  
+   Überschreibt `_energy_beat1_correct`. Sehr zuverlässig bei Songs mit Crash-Cymbals.
+   ⚠️ **Offen: Braucht Feldtest.** Threshold `CRASH_RMS_MIN=0.025` ggf. anpassen.
+
+**Diagnostik auf stderr** (bei ≥20 Events / ≥10 Kicks):
+- `[BAR] energy_beat1: phase_curr_avg=X phase_alt_avg=Y ratio=Z` — Z>1.10 = Korrektur ausgelöst
+- `[BAR] _snare_phase_correct: T → T' (+N Beats, scores=[...])` — welche Korrektur angewendet
+- `[BAR] Snare-Positionen in Takten (Beat 2≈1.0, Beat 4≈3.0): [...]` — Qualitätsprüfung
+- `[SIM] Crashes: N erkannt (threshold RMS >0.025)` — Crash-Detektion-Diagnose
+
+#### Overview-Waveform (`mainwindow.py` + `overview.py`)
+
+- Zeigt Main L+R (CH 16+17 aus dem 18-Kanal-WAV) als volle Session-Hüllkurve
+- Fallback: wenn `session.n_channels < 18` → CH 0+1
+- **Playhead-Synchronisation**: Wird aktualisiert von:
+  - `_on_seek()` (Klick in Timeline) — neu hinzugefügt, war vorher fehlend
+  - `_on_position()` (Playback-Tick)
+  - `_on_overview_seek()` (Klick in Overview selbst)
+  - `_on_song_combo_changed()` — reset auf `seg.start_t`
+
+#### ⚠️ Offene Punkte für nächste Session
+
+1. **Feldtest Beat-1-Korrektur**: Simulation auf verschiedenen Songs laufen lassen und prüfen:
+   - Crash-Detektion: Status-Bar zeigt `★ N Crashes`? Wenn 0 → `CRASH_RMS_MIN` (0.025) senken
+   - Energy-Korrektur: `[BAR] energy_beat1: ratio=Z` auf stderr — Z > 1.10 = Korrektur greift
+   - Taktgitter landet auf Beat 1 (Snare-Positionen ≈ 1.0 und 3.0 beats in Diagnostik)
+
+2. **Chroma-Visualisierung**: `chroma_data` wird nach Simulation übergeben, aber die Darstellung
+   im Lead-Guitar-Track könnte überprüft werden.
+
+3. **Koordinatensystem Sim-Events**: Sim-Events verwenden `t_k * pps` ohne Subtraktion von
+   `seg.start_t`, JSONL-Events verwenden `(ev.t - seg.start_t) * pps` — potentieller Offset-Bug
+   für Segmente die nicht bei WAV-Zeit 0 beginnen. Bisher nicht reproduziert.
 
 ### Tech Stack (Live-App)
 

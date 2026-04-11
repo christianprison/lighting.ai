@@ -110,6 +110,7 @@ class SimulatorWorker(QThread):
 
         # ── Detektor + BarTracker initialisieren ─────────────────────────────
         detector = OnsetDetector(sample_rate=sr)
+        from detection.beat_detector import _CrashDetector
         from detection.bar_tracker import BarTracker
         tracker = BarTracker(
             bpm=self._bpm,
@@ -117,8 +118,9 @@ class SimulatorWorker(QThread):
             seg_end_t=self._seg_end_t,
         )
 
-        kicks:  list[float] = []
-        snares: list[float] = []
+        kicks:   list[float] = []
+        snares:  list[float] = []
+        crashes: list[float] = []
         blocks_done = 0
 
         self._output_jsonl.parent.mkdir(parents=True, exist_ok=True)
@@ -161,6 +163,7 @@ class SimulatorWorker(QThread):
                         snares.append(t_mid)
                         tracker.process_snare(self._seg_start_t + t_mid, energy=float(ev.energy))
                     elif ev.type == "crash":
+                        crashes.append(t_mid)
                         tracker.process_crash(self._seg_start_t + t_mid, energy=float(ev.energy))
                     jf.write(_json.dumps({
                         "t": round(t_mid, 4),
@@ -206,13 +209,20 @@ class SimulatorWorker(QThread):
             except Exception as e:
                 print(f"[SIM] Chroma-Extraktion fehlgeschlagen: {e}", file=sys.stderr)
 
+        print(
+            f"[SIM] Crashes: {len(crashes)} erkannt  "
+            f"(threshold RMS >{_CrashDetector.CRASH_RMS_MIN})",
+            file=sys.stderr,
+        )
         self.progress.emit(1.0)
         self.finished.emit({
             "jsonl_path":  self._output_jsonl,
             "n_kicks":     len(kicks),
             "n_snares":    len(snares),
+            "n_crashes":   len(crashes),
             "kicks":       kicks,
             "snares":      snares,
+            "crashes":     crashes,
             "bar_times":   tracker.get_latest_bars(),
             "bpm":         tracker.get_bpm(),
             "chroma_data": chroma_data,

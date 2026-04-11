@@ -198,9 +198,10 @@ class TimelineWidget(QWidget):
         self._scan_windows: list[tuple[float, bool]] = []
         self._scan_pos: float = -1.0   # current scan head (seconds)
 
-        # Simulation results (kick/snare onsets, t = absoluter WAV-Zeitstempel)
-        self._sim_kicks:  list[float] = []
-        self._sim_snares: list[float] = []
+        # Simulation results (kick/snare/crash onsets, t = absoluter WAV-Zeitstempel)
+        self._sim_kicks:   list[float] = []
+        self._sim_snares:  list[float] = []
+        self._sim_crashes: list[float] = []
 
         # Chroma-Daten pro Beat (aus chroma_viz)
         self._chroma_data: list[dict] = []   # list of {t, chroma} from chroma_viz
@@ -320,10 +321,15 @@ class TimelineWidget(QWidget):
         self._sim_snares.append(t)
         self.update()
 
+    def add_sim_crash(self, t: float) -> None:
+        self._sim_crashes.append(t)
+        self.update()
+
     def clear_sim_events(self) -> None:
         """Löscht alle Simulations-Ergebnisse."""
         self._sim_kicks        = []
         self._sim_snares       = []
+        self._sim_crashes      = []
         self._sim_bpm_timeline = []
         self._sim_bar_times    = []
         self._chroma_data      = []
@@ -991,7 +997,9 @@ class TimelineWidget(QWidget):
         ox = self._scroll_x
 
         # Im Overlay-Modus mit Sim-Events: Original-JSONL komplett ausblenden
-        _hide_orig = self._sim_overlay and bool(self._sim_kicks or self._sim_snares)
+        _hide_orig = self._sim_overlay and bool(
+            self._sim_kicks or self._sim_snares or self._sim_crashes
+        )
 
         if not _hide_orig:
             if self._sim_overlay:
@@ -1072,6 +1080,17 @@ class TimelineWidget(QWidget):
                 bx = LABEL_W + int(t_k * pps) - ox
                 if LABEL_W <= bx <= w:
                     p.drawPolygon(_diamond(bx, cy_bottom, R))
+
+        # Crash-Onsets: rotes Stern-Symbol in der Mitte des Events-Strips
+        if self._sim_crashes:
+            C_CRASH = QColor("#ff3b5c")
+            cy_mid = y0 + EVENTS_H // 2
+            p.setBrush(QBrush(C_CRASH))
+            p.setPen(Qt.PenStyle.NoPen)
+            for t_c in self._sim_crashes:
+                bx = LABEL_W + int(t_c * pps) - ox
+                if LABEL_W <= bx <= w:
+                    p.drawPolygon(_diamond(bx, cy_mid, R + 3))   # größer als Kick/Snare
 
         p.setOpacity(1.0)
 

@@ -133,30 +133,34 @@ def _snare_phase_correct(
     kicks: list[float],
     snares: list[float],
     snap_r: float,
+    kick_energies: list[float] = [],
 ) -> float:
     """Korrigiert den Taktanker durch kombiniertes Kick+Snare-Scoring.
 
     Testet alle 4 Viertel-Offsets des Ankers und wählt den, bei dem die
     meisten Kicks auf Beat 1+3 UND die meisten Snares auf Beat 2+4 fallen
-    (kombinierter Score).
+    (energie-gewichteter kombinierter Score).
 
     Anwendungsfall: ein Pickup-Snareschlag auf der "4" vor Takt 1 wird vom
     Onset-Detector fälschlich als Kick erkannt → Phasen-Histogram wählt
     Beat-4-Phase als Anker → Taktgitter 1 Viertel zu früh.
 
-    Das kombinierte Kick+Snare-Scoring ist robust gegenüber HiHat-Bleed:
-    Echte Kicks auf Beat 1+3 erhöhen den Score des richtigen Shifts deutlich
-    gegenüber dem falschen Shift — auch wenn Snare-Bleed die Snare-Scores
-    angleicht.
+    Kick-Score ist energie-gewichtet: Downbeat (Beat 1) wird typischerweise
+    lauter gespielt → höhere ODF-Energie → shift, der Beat 1 auf mehr Energie
+    konzentriert, gewinnt bei Gleichstand.
 
     Korrektur wird nur angewendet wenn der beste Shift strikt besser ist.
+    Bei Gleichstand zwischen Shift 0 und Shift 2 (Beat-1-vs-Beat-3-Ambiguität)
+    entscheidet die Energie-Summe auf der jeweiligen Phase.
     """
     if len(snares) < 4:
         return first_t
 
     import sys
 
-    scores = []
+    energies = kick_energies if len(kick_energies) == len(kicks) else [1.0] * len(kicks)
+
+    scores: list[float] = []
     for shift in range(4):
         candidate = first_t + shift * beat_sec
         snare_score = sum(
@@ -164,12 +168,20 @@ def _snare_phase_correct(
             if (_circ_dist((s - candidate) % bar_sec, beat_sec, bar_sec) <= snap_r
                 or _circ_dist((s - candidate) % bar_sec, 3.0 * beat_sec, bar_sec) <= snap_r)
         )
+        # Energie-gewichteter Kick-Score: stärkere Kicks auf Beat 1+3 erhöhen Score
         kick_score = sum(
+            e for k, e in zip(kicks, energies)
+            if (_circ_dist((k - candidate) % bar_sec, 0.0, bar_sec) <= snap_r
+                or _circ_dist((k - candidate) % bar_sec, 2.0 * beat_sec, bar_sec) <= snap_r)
+        )
+        # Snares zählen ganzzahlig, Kick-Energie normiert auf Vergleichbarkeit
+        n_kicks_on_beat = sum(
             1 for k in kicks
             if (_circ_dist((k - candidate) % bar_sec, 0.0, bar_sec) <= snap_r
                 or _circ_dist((k - candidate) % bar_sec, 2.0 * beat_sec, bar_sec) <= snap_r)
         )
-        scores.append(snare_score + kick_score)
+        avg_kick_e = kick_score / max(1, n_kicks_on_beat)
+        scores.append(snare_score + avg_kick_e)
 
     best_shift = max(range(4), key=lambda i: scores[i])
 
@@ -178,84 +190,140 @@ def _snare_phase_correct(
 
     # Korrektur nur wenn bester Shift strikt besser als Shift-0
     if scores[best_shift] <= scores[0]:
+        # Beat-1-vs-Beat-3-Gleichstand: Energie-Summe als Tie-Breaker.
+        # shift=2 landet auf dem anderen Kandidaten (beat1↔beat3).
+        # Der mit höherer Gesamt-Kick-Energie ist typischerweise Beat 1 (Downbeat).
+        if abs(scores[2] - scores[0]) < 1e-6 and len(kick_energies) == len(kicks):
+            phase_0 = first_t % bar_sec
+            phase_2 = (first_t + 2.0 * beat_sec) % bar_sec
+            e_0 = sum(e for t, e in zip(kicks, kick_energies)
+                      if _circ_dist(t % bar_sec, phase_0, bar_sec) <= snap_r)
+            e_2 = sum(e for t, e in zip(kicks, kick_energies)
+                      if _circ_dist(t % bar_sec, phase_2, bar_sec) <= snap_r)
+            if e_2 > e_0 * 1.03:  # alternative Phase 3 %+ energiereicher → Beat 1
+                corrected = first_t + 2.0 * beat_sec
+                print(
+                    f"[BAR] _snare_phase_correct tie-break: {first_t:.3f} → {corrected:.3f} "
+                    f"(+2 Beats via Energie-Tie-Breaker, e0={e_0:.4f} e2={e_2:.4f})",
+                    file=sys.stderr,
+                )
+                return corrected
         return first_t
 
     corrected = first_t + best_shift * beat_sec
     print(
         f"[BAR] _snare_phase_correct: {first_t:.3f} → {corrected:.3f} "
-        f"(+{best_shift} Beats, scores={scores})",
+        f"(+{best_shift} Beats, scores={[f'{s:.2f}' for s in scores]})",
         file=sys.stderr,
     )
     return corrected
 
 
-def _snare_beat1_anchor(
+def _energy_beat1_correct(
     first_t: float,
     bar_sec: float,
     beat_sec: float,
     kicks: list[float],
-    snares: list[float],
+    kick_energies: list[float],
     snap_r: float,
 ) -> float:
-    """Versucht den Anker auf Beat 1 zu fixieren, indem Snares auf Beat 2+4 geprüft werden.
+    """Vergleicht mittlere Kick-ODF-Energie auf Beat-1-Phase vs Beat-3-Phase.
 
-    Die Symmetrie-Grundlage: Beat 1 und Beat 3 erzeugen bei K/S-Scoring
-    identische Scores ([X,Y,X,Y]). Darum hier ein anderer Ansatz:
+    Hintergrund: Drummer akzentuieren Beat 1 (Downbeat) typischerweise etwas stärker
+    als Beat 3 (sekundärer Downbeat) — höhere ODF-Energie beim Kick.
+    Ist die alternative Phase (first_t + 2*beat) SIGNIFIKANT energiereicher,
+    ist sie wahrscheinlicher Beat 1.
 
-    1. Berechne für Shift 0 und Shift 2 (die einzigen unterscheidbaren Klassen)
-       den Snare-on-beat2-Score separat.
-    2. Beat 1 als Anker → Snare bei +1 Beat; Beat 3 als Anker → Snare bei -1 Beat
-       (= +3 Beat). Da Snare IOI = 2 Beats, sind die Abstände zum nächsten Snare
-       von Beat 1 vs Beat 3 aus identisch. ABER: der erste Snare im Segment liegt
-       näher an Beat 2 (1 Beat nach Beat 1) als an Beat 4 (3 Beats nach Beat 1).
-       Damit ist der früheste Snare relativ zur Segmentmitte ein Indikator.
-
-    Implementierung: Wähle zwischen first_t und first_t+2*beat_sec den Anker,
-    bei dem der *früheste* Snare im Fenster [anchor+0.5*beat, anchor+1.5*beat]
-    landet (= Beat-2-Position). Damit landet der früheste Snare auf Beat 2
-    (nicht Beat 4), was die kanonische Taktposition sicherstellt.
-
-    Gibt den unveränderten first_t zurück, wenn nicht eindeutig entscheidbar.
+    Schwelle: alt_avg > curr_avg * 1.05  →  Korrektur (5 % Unterschied reicht).
+    Gibt first_t unverändert zurück wenn kein klarer Gewinner.
     """
     import sys
 
-    if len(snares) < 2:
+    if not kick_energies or len(kick_energies) != len(kicks):
         return first_t
 
-    # Kandidaten: Shift 0 (first_t) und Shift 2 (= + halbe Bar)
+    phase_curr = first_t % bar_sec
+    phase_alt  = (first_t + 2.0 * beat_sec) % bar_sec
+
+    e_curr = [e for t, e in zip(kicks, kick_energies)
+              if _circ_dist(t % bar_sec, phase_curr, bar_sec) <= snap_r]
+    e_alt  = [e for t, e in zip(kicks, kick_energies)
+              if _circ_dist(t % bar_sec, phase_alt,  bar_sec) <= snap_r]
+
+    if not e_curr or not e_alt:
+        return first_t
+
+    avg_curr = sum(e_curr) / len(e_curr)
+    avg_alt  = sum(e_alt)  / len(e_alt)
+
+    _DIAG = len(kicks) >= 10
+    if _DIAG:
+        print(
+            f"[BAR] energy_beat1: phase_curr_avg={avg_curr:.4f}  "
+            f"phase_alt_avg={avg_alt:.4f}  ratio={avg_alt/max(avg_curr,1e-9):.2f}",
+            file=sys.stderr,
+        )
+
+    if avg_alt > avg_curr * 1.05:   # alternative Phase >5 % energiereicher → Beat 1
+        corrected = first_t + 2.0 * beat_sec
+        print(
+            f"[BAR] energy_beat1: {first_t:.3f} → {corrected:.3f} (+2 Beats, "
+            f"avg {avg_curr:.4f} → {avg_alt:.4f})",
+            file=sys.stderr,
+        )
+        return corrected
+
+    return first_t
+
+
+def _crash_beat1_correct(
+    first_t: float,
+    bar_sec: float,
+    beat_sec: float,
+    crashes: list[float],
+    snap_r: float,
+) -> float:
+    """Löst Beat-1-vs-Beat-3-Ambiguität per Crash-Cymbal-Events.
+
+    Crashes passieren fast immer auf Beat 1 (seltener Beat 3, fast nie Beat 2/4).
+    Gegeben zwei Kandidaten für den Taktanker (first_t = Beat-1 ODER Beat-3):
+    Wähle den Kandidaten, auf den die meisten Crashes als Beat 1 fallen.
+
+    Crash auf Beat 1: (crash_t - cand) % bar_sec ≈ 0
+    Crash auf Beat 3: (crash_t - (cand+2*beat)) % bar_sec ≈ 0
+      → das ist dann ein Beat-3-Crash, kein Beat-1-Crash
+
+    Wenn kein eindeutiger Gewinner → first_t unverändert.
+    """
+    import sys
+
+    if not crashes:
+        return first_t
+
+    # Kandidat A: first_t ist Beat 1  (unverändert)
+    # Kandidat B: first_t ist Beat 3  → echter Beat 1 = first_t + 2 * beat_sec
     candidates = [first_t, first_t + 2.0 * beat_sec]
-    best_anchor = first_t
-    best_score = -1
-
-    beat2_lo = beat_sec * 0.5
-    beat2_hi = beat_sec * 1.5
-
+    scores = []
     for cand in candidates:
-        # Zähle Snares, die auf Beat 2 oder Beat 4 relativ zu cand fallen
-        score = 0
-        for s in snares:
-            rel = (s - cand) % bar_sec
-            if beat2_lo <= rel <= beat2_hi:          # Beat 2
-                score += 2  # stärker gewichten — Beat 2 ist das erste Snare
-            elif (3.0 * beat_sec - beat_sec * 0.5) <= rel <= (3.0 * beat_sec + beat_sec * 0.5):
-                score += 1  # Beat 4
-
-        print(
-            f"[BAR] beat1_anchor: cand={cand:.3f}  beat2+4_score={score}",
-            file=sys.stderr,
+        # Zähle Crashes, die auf Beat 1 (Phase ≈ 0) relativ zu cand fallen
+        s = sum(
+            1 for c in crashes
+            if _circ_dist((c - cand) % bar_sec, 0.0, bar_sec) <= snap_r
         )
+        scores.append(s)
 
-        if score > best_score:
-            best_score = score
-            best_anchor = cand
+    best = max(range(2), key=lambda i: scores[i])
 
-    if best_anchor != first_t:
-        print(
-            f"[BAR] beat1 korrigiert: {first_t:.3f} → {best_anchor:.3f} (+2 Beats)",
-            file=sys.stderr,
-        )
+    if best == 0 or scores[best] == scores[0]:
+        return first_t   # kein eindeutiger Gewinner oder bereits richtig
 
-    return best_anchor
+    corrected = candidates[best]
+    print(
+        f"[BAR] crash_beat1_correct: {first_t:.3f} → {corrected:.3f} "
+        f"(+{best * 2} Beats, crash_scores={scores})",
+        file=sys.stderr,
+    )
+    return corrected
 
 
 def _compute_bar_grid(
@@ -266,6 +334,7 @@ def _compute_bar_grid(
     snares: list[float],
     snap_factor: float = 0.70,
     kick_energies: list[float] = [],
+    crashes: list[float] = [],
 ) -> list[float]:
     """Berechnet Takt-Zeitstempel durch greedy Forward-Snap.
 
@@ -299,17 +368,26 @@ def _compute_bar_grid(
         first_t = min(anchor_pool)
 
     # Snare-Phasen-Korrektur: sicherstellen dass Snares auf Beat 2+4 fallen.
-    # Arbeitet auf dem berechneten Anker (nicht auf dem Phasen-Histogramm),
-    # um auch Fehler aus dem Forward-Snap abzufangen.
+    # Energie-gewichteter Score + Energie-Tie-Breaker für Beat-1-vs-Beat-3.
     if snares:
-        first_t = _snare_phase_correct(first_t, bar_sec, beat_sec, kicks, snares, snap_r)
+        _keng = kick_energies if kick_energies else []
+        first_t = _snare_phase_correct(
+            first_t, bar_sec, beat_sec, kicks, snares, snap_r, _keng
+        )
 
-    # Beat-1-vs-Beat-3-Korrektur: prüft ob Snares auf Beat 2 (erster Snare
-    # nach dem Anker) oder Beat 4 fallen, und korrigiert um +2 Beats.
-    # Nur wenn genug Daten vorhanden sind (Rauschen vermeiden).
+    # Beat-1-vs-Beat-3-Korrektur (Energie-basiert): vergleicht mittlere Kick-ODF
+    # auf den beiden Phasen. Beat 1 ist typischerweise lauter → höhere ODF.
+    # Unabhängiges Signal von Snare-Scoring — bricht die Kick/Snare-Symmetrie.
     _DIAG = len(kicks) + len(snares) >= 20
-    if snares and len(kicks) >= _MIN_KICKS_FOR_PHASE and _DIAG:
-        first_t = _snare_beat1_anchor(first_t, bar_sec, beat_sec, kicks, snares, snap_r)
+    if kick_energies and len(kicks) >= _MIN_KICKS_FOR_PHASE:
+        first_t = _energy_beat1_correct(
+            first_t, bar_sec, beat_sec, kicks, kick_energies, snap_r
+        )
+
+    # Beat-1-vs-Beat-3-Korrektur (Crash-basiert): Crashes passieren fast nur auf
+    # Beat 1 → sehr zuverlässige Phasen-Fixierung. Überschreibt Energie-Korrektur.
+    if crashes:
+        first_t = _crash_beat1_correct(first_t, bar_sec, beat_sec, crashes, snap_r)
 
     # ── Diagnostik (nur bei ausreichend Events, um Rauschen zu vermeiden) ─────
     if _DIAG:
@@ -411,6 +489,7 @@ class BarTracker:
 
         self._kicks:     list[float] = []
         self._snares:    list[float] = []
+        self._crashes:   list[float] = []
         self._kick_energies:  list[float] = []
         self._snare_energies: list[float] = []
         self._bar_times: list[float] = []
@@ -430,6 +509,14 @@ class BarTracker:
         self._snare_energies.append(energy)
         self._update()
 
+    def process_crash(self, t: float, energy: float = 1.0) -> None:
+        """Registriert einen Crash-Cymbal-Onset zum Zeitpunkt t (absolute WAV-Zeit).
+
+        Crashes werden für die Beat-1-vs-Beat-3-Phasenkorrektur genutzt.
+        Sie lösen keine Taktgitter-Neuberechnung aus (crashes ändern das BPM nicht).
+        """
+        self._crashes.append(t)
+
     # ── Abfrage-Interface ───────────────────────────────────────────────────
 
     def get_latest_bars(self) -> list[float]:
@@ -444,6 +531,7 @@ class BarTracker:
         """Setzt den Tracker zurück (alle Events und Berechnungen gelöscht)."""
         self._kicks.clear()
         self._snares.clear()
+        self._crashes.clear()
         self._kick_energies.clear()
         self._snare_energies.clear()
         self._bar_times.clear()
@@ -470,6 +558,7 @@ class BarTracker:
             self._snares,
             self._snap_factor,
             self._kick_energies,
+            self._crashes,
         )
         log.debug(
             "BarTracker update: bpm=%d  kicks=%d  snares=%d  bars=%d",

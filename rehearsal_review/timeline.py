@@ -30,7 +30,7 @@ from annotation import BarMarker
 LABEL_W   = 196
 RULER_H   = 28
 EVENTS_H  = 26   # halved from 52
-ANNOT_H   = 32   # manual bar/part annotation strip
+ANNOT_H   = 0    # annotation strip entfernt (war immer leer)
 MIX_H     = 44
 TRACK_H   = 27
 TRACK_GAP = 2
@@ -78,19 +78,9 @@ KICK_MARKER_CHS: frozenset[int] = frozenset({8})         # Kick
 _DIAMOND_R = 4   # half-size of diamond marker (pixels)
 
 # ── Track definitions (in display order) ─────────────────────────────────────
+# Main L+R entfernt — die Overview-Zeile oben zeigt dieselbe Hüllkurve (CH 16+17)
 
-# Combined Main L+R as single virtual track (ch=-1, merges ch 16+17)
-TRACKS: list[dict] = [
-    {
-        "ch":           -1,
-        "combined_chs": (16, 17),
-        "label":        "Main L+R",
-        "color":        WF_SUM,
-        "fill":         WF_SUM_F,
-        "h":            MIX_H,
-        "is_sum":       True,
-    },
-]
+TRACKS: list[dict] = []
 
 # Tom channels merged into one overlay track
 _TOM_CHS = (10, 11, 12)
@@ -208,9 +198,10 @@ class TimelineWidget(QWidget):
         self._scan_windows: list[tuple[float, bool]] = []
         self._scan_pos: float = -1.0   # current scan head (seconds)
 
-        # Simulation results (kick/snare onsets, t = absoluter WAV-Zeitstempel)
-        self._sim_kicks:  list[float] = []
-        self._sim_snares: list[float] = []
+        # Simulation results (kick/snare onsets = abs WAV t; crashes = (abs WAV t, rms_energy))
+        self._sim_kicks:   list[float] = []
+        self._sim_snares:  list[float] = []
+        self._sim_crashes: list[tuple[float, float]] = []   # (abs_wav_t, rms_energy)
 
         # Chroma-Daten pro Beat (aus chroma_viz)
         self._chroma_data: list[dict] = []   # list of {t, chroma} from chroma_viz
@@ -330,10 +321,15 @@ class TimelineWidget(QWidget):
         self._sim_snares.append(t)
         self.update()
 
+    def add_sim_crash(self, t: float, energy: float = 0.0) -> None:
+        self._sim_crashes.append((t, energy))
+        self.update()
+
     def clear_sim_events(self) -> None:
         """Löscht alle Simulations-Ergebnisse."""
-        self._sim_kicks        = []
-        self._sim_snares       = []
+        self._sim_kicks:   list[float]             = []
+        self._sim_snares:  list[float]             = []
+        self._sim_crashes: list[tuple[float,float]]= []
         self._sim_bpm_timeline = []
         self._sim_bar_times    = []
         self._chroma_data      = []
@@ -542,6 +538,35 @@ class TimelineWidget(QWidget):
         pps = self._pps
         ox = self._scroll_x
         hit_r = _DIAMOND_R + 4   # hit radius in px
+        crash_r = _DIAMOND_R + 3 + 4   # crash diamond is larger
+
+        # ── Sim-Crash-Tooltip auf OH L+R Row ──────────────────────────────────
+        if self._sim_overlay and self._sim_crashes:
+            oh_idx = next((i for i, t in enumerate(TRACKS) if t["label"] == "OH L+R"), None)
+            if oh_idx is not None:
+                oh_ty = TRACK_Y[oh_idx]
+                oh_th = TRACKS[oh_idx]["h"]
+                if oh_ty <= y < oh_ty + oh_th:
+                    crash_cy = oh_ty + oh_th // 2
+                    if abs(y - crash_cy) <= crash_r:
+                        for t_c, e_c in self._sim_crashes:
+                            ex = LABEL_W + int((t_c - seg.start_t) * pps) - ox
+                            if abs(ex - x) <= crash_r:
+                                # Confidence: RMS relativ zu CRASH_RMS_MIN
+                                try:
+                                    from detection.beat_detector import _CrashDetector
+                                    thresh = _CrashDetector.CRASH_RMS_MIN
+                                except Exception:
+                                    thresh = 0.025
+                                conf_pct = min(100, int(e_c / max(thresh, 1e-9) * 50))
+                                t_rel = t_c - seg.start_t
+                                m, s = divmod(t_rel, 60)
+                                ts = f"{int(m)}:{s:05.2f}"
+                                tip = (f"Crash  {ts}\n"
+                                       f"RMS {e_c:.3f}  |  "
+                                       f"Erkennungssicherheit ~{conf_pct} %")
+                                QToolTip.showText(event.globalPosition().toPoint(), tip, self)
+                                return
 
         for track, ty in zip(TRACKS, TRACK_Y):
             th = track["h"]
@@ -872,6 +897,8 @@ class TimelineWidget(QWidget):
 
     def _paint_annotation_strip(self, p: QPainter, vl: int, vr: int) -> None:
         """Zeichnet den Takt-Annotations-Streifen unterhalb der Events-Spur."""
+        if ANNOT_H <= 0:
+            return
         y0 = RULER_H + EVENTS_H
         w = self.width()
 
@@ -999,7 +1026,9 @@ class TimelineWidget(QWidget):
         ox = self._scroll_x
 
         # Im Overlay-Modus mit Sim-Events: Original-JSONL komplett ausblenden
-        _hide_orig = self._sim_overlay and bool(self._sim_kicks or self._sim_snares)
+        _hide_orig = self._sim_overlay and bool(
+            self._sim_kicks or self._sim_snares or self._sim_crashes
+        )
 
         if not _hide_orig:
             if self._sim_overlay:
@@ -1080,6 +1109,17 @@ class TimelineWidget(QWidget):
                 bx = LABEL_W + int(t_k * pps) - ox
                 if LABEL_W <= bx <= w:
                     p.drawPolygon(_diamond(bx, cy_bottom, R))
+
+        # Crash-Onsets: rotes Stern-Symbol in der Mitte des Events-Strips
+        if self._sim_crashes:
+            C_CRASH = QColor("#ff3b5c")
+            cy_mid = y0 + EVENTS_H // 2
+            p.setBrush(QBrush(C_CRASH))
+            p.setPen(Qt.PenStyle.NoPen)
+            for t_c in self._sim_crashes:
+                bx = LABEL_W + int(t_c * pps) - ox
+                if LABEL_W <= bx <= w:
+                    p.drawPolygon(_diamond(bx, cy_mid, R + 3))   # größer als Kick/Snare
 
         p.setOpacity(1.0)
 
@@ -1239,6 +1279,27 @@ class TimelineWidget(QWidget):
                     if LABEL_W - r <= ex <= w + r:
                         _draw_diamond(ex, C_AMBER, alpha=220)
 
+        # ── Sim-Crashes auf OH L+R Row (roter Diamond, größer) ────────────────
+        if self._sim_overlay and self._sim_crashes and (track_chs & BEAT_MARKER_CHS):
+            seg_t0 = seg.start_t
+            crash_cy = ty + th // 2   # vertikal zentriert (nicht unten wie Beats)
+            for t_c, _e_c in self._sim_crashes:
+                ex = LABEL_W + int((t_c - seg_t0) * pps) - ox
+                if not (LABEL_W - r - 2 <= ex <= w + r + 2):
+                    continue
+                cr = r + 3   # größerer Radius für Crash
+                d = QPolygon([
+                    QPoint(ex,          crash_cy - cr),
+                    QPoint(ex + cr, crash_cy),
+                    QPoint(ex,          crash_cy + cr),
+                    QPoint(ex - cr, crash_cy),
+                ])
+                fill = QColor(C_RED)
+                fill.setAlpha(200)
+                p.setPen(QPen(C_RED, 1))
+                p.setBrush(QBrush(fill))
+                p.drawPolygon(d)
+
         p.setRenderHint(QPainter.RenderHint.Antialiasing, False)
 
     # ── Labels column (sticky) ────────────────────────────────────────────────
@@ -1257,28 +1318,6 @@ class TimelineWidget(QWidget):
         p.drawText(6, RULER_H, LABEL_W - 10, EVENTS_H,
                    Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
                    summary)
-
-        # Annotation cell
-        annot_y = RULER_H + EVENTS_H
-        annot_bg = QColor("#1c1028") if self._annotation_mode else C_BG2
-        p.fillRect(0, annot_y, LABEL_W, ANNOT_H, annot_bg)
-        if self._annotation_mode:
-            # Amber top border + left accent bar
-            p.setPen(QPen(QColor("#f0a030"), 2))
-            p.drawLine(0, annot_y, LABEL_W, annot_y)
-            p.fillRect(0, annot_y, 3, ANNOT_H, QColor("#f0a030"))
-        n_markers = len(self._bar_markers)
-        annot_label = f"● ANNOT  {n_markers}T" if self._annotation_mode else (
-            f"ANNOT  {n_markers}T" if n_markers else "ANNOT"
-        )
-        annot_color = QColor("#f0a030") if self._annotation_mode else C_T3
-        p.setFont(FONT_MONO)
-        p.setPen(annot_color)
-        p.drawText(8, annot_y, LABEL_W - 12, ANNOT_H,
-                   Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
-                   annot_label)
-        p.setPen(C_BORDER)
-        p.drawLine(0, annot_y + ANNOT_H - 1, LABEL_W, annot_y + ANNOT_H - 1)
 
         # Track cells
         for i, track in enumerate(TRACKS):

@@ -710,18 +710,19 @@ class MainWindow(QMainWindow):
             f"  --  {_fmt_dur(session.total_duration)}"
         )
 
-        # Start overview peak extraction (full session, Main L+R or mixdown ch 0+1)
+        # Start overview peak extraction (full session, Main L+R: CH 16+17)
         if self._overview_worker and self._overview_worker.isRunning():
             self._overview_worker.cancel()
             self._overview_worker.wait(300)
 
-        src = session.mixdown_path if session.mixdown_path else session.wav_path
-        ch_indices = [0, 1] if session.mixdown_path else [16, 17]
         self._overview.set_session(session)
 
+        # Use Main L+R (ch 16+17) for 18-ch recordings; fall back to ch 0+1
+        # for sessions with fewer channels (e.g. test recordings).
+        ov_chs = [16, 17] if session.n_channels >= 18 else [0, 1]
         ov_worker = PeakWorker(
-            wav_path=src,
-            ch_indices=ch_indices,
+            wav_path=session.wav_path,
+            ch_indices=ov_chs,
             start_t=0.0,
             end_t=session.total_duration,
             sample_rate=session.sample_rate,
@@ -765,6 +766,7 @@ class MainWindow(QMainWindow):
 
         self._timeline.set_segment(seg, None)
         self._overview.set_segment(seg)
+        self._overview.set_playhead(seg.start_t)
 
         # Clear fragment detection results from previous song
         self._detected_fragments = []
@@ -921,7 +923,9 @@ class MainWindow(QMainWindow):
     def _on_seek(self, t_in_seg: float) -> None:
         self._player.seek(t_in_seg)
         if self._current_seg:
-            self._timeline.set_cursor(self._current_seg.start_t + t_in_seg)
+            wav_t = self._current_seg.start_t + t_in_seg
+            self._timeline.set_cursor(wav_t)
+            self._overview.set_playhead(wav_t)
 
     def _on_position(self, wav_t: float) -> None:
         self._timeline.set_cursor(wav_t)
@@ -1442,15 +1446,18 @@ class MainWindow(QMainWindow):
 
         seg = self._current_seg
 
-        # BPM aus der Songdatenbank holen (falls vorhanden)
+        # BPM + Tonart aus der Songdatenbank holen (falls vorhanden)
         bpm = 120.0
+        song_key = ""
         try:
             repo_root = self._session.jsonl_path.parent.parent.parent.parent
             db_json   = repo_root / "db" / "lighting-ai-db.json"
             if db_json.exists():
                 import json as _json
                 db = _json.loads(db_json.read_text("utf-8"))
-                bpm = float(db.get("songs", {}).get(seg.song_id, {}).get("bpm", 120.0))
+                song_db  = db.get("songs", {}).get(seg.song_id, {})
+                bpm      = float(song_db.get("bpm", 120.0))
+                song_key = song_db.get("key", "")
         except Exception:
             pass
 
@@ -1518,6 +1525,7 @@ class MainWindow(QMainWindow):
             output_jsonl=out_jsonl,
             ref_db_path=ref_db_path,
             use_hmm=False,
+            song_key=song_key,
             parent=self,
         )
         prog.canceled.connect(worker.requestInterruption)
@@ -1551,10 +1559,12 @@ class MainWindow(QMainWindow):
         self._sim_clear_act.setEnabled(True)
         self._sim_worker = None
 
-        n_kicks  = result.get("n_kicks",  0)
-        n_snares = result.get("n_snares", 0)
-        kicks    = result.get("kicks",  [])
-        snares   = result.get("snares", [])
+        n_kicks   = result.get("n_kicks",   0)
+        n_snares  = result.get("n_snares",  0)
+        n_crashes = result.get("n_crashes", 0)
+        kicks     = result.get("kicks",   [])
+        snares    = result.get("snares",  [])
+        crashes   = result.get("crashes", [])
 
         if n_kicks == 0 and n_snares == 0:
             QMessageBox.warning(
@@ -1568,12 +1578,19 @@ class MainWindow(QMainWindow):
             return
 
         # Timeline mit Sim-Events befüllen (t = absoluter WAV-Zeitstempel)
-        abs_kicks  = [self._sim_start_wav_t + t_k for t_k in kicks]
-        abs_snares = [self._sim_start_wav_t + t_s for t_s in snares]
+        abs_kicks   = [self._sim_start_wav_t + t_k for t_k in kicks]
+        abs_snares  = [self._sim_start_wav_t + t_s for t_s in snares]
         for t_k in abs_kicks:
             self._timeline.add_sim_kick(t_k)
         for t_s in abs_snares:
             self._timeline.add_sim_snare(t_s)
+        # crashes: list[tuple[float, float]] = (t_rel, rms_energy)
+        for item in crashes:
+            if isinstance(item, (list, tuple)) and len(item) == 2:
+                t_c, e_c = item
+            else:
+                t_c, e_c = float(item), 0.0   # fallback for old format
+            self._timeline.add_sim_crash(self._sim_start_wav_t + t_c, e_c)
 
         # BPM-Timeline + Taktgitter (vom BarTracker im Simulator berechnet)
         sim_bpm  = result.get("bpm", 0)
@@ -1586,8 +1603,10 @@ class MainWindow(QMainWindow):
             self._timeline.set_chroma_data(chroma_data)
 
         bpm_str = f"  ~{sim_bpm} BPM" if sim_bpm > 0 else ""
+        crash_str = f"  | ★ {n_crashes} Crashes" if n_crashes > 0 else ""
         self._status.showMessage(
-            f"Simulation: ◆ {n_kicks} Kicks (amber)  | ◆ {n_snares} Snares (cyan){bpm_str}",
+            f"Simulation: ◆ {n_kicks} Kicks (amber)  | ◆ {n_snares} Snares (cyan)"
+            f"{crash_str}{bpm_str}",
             12000,
         )
 

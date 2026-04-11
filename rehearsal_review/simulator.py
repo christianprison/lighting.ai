@@ -50,6 +50,7 @@ class SimulatorWorker(QThread):
         output_jsonl: Path,
         ref_db_path=None,   # nicht mehr verwendet, bleibt für API-Compat
         use_hmm: bool = False,  # nicht mehr verwendet
+        song_key: str = "",
         parent=None,
     ) -> None:
         super().__init__(parent)
@@ -60,6 +61,7 @@ class SimulatorWorker(QThread):
         self._song_name    = song_name
         self._bpm          = bpm
         self._output_jsonl = output_jsonl
+        self._song_key     = song_key
 
     # ── Haupt-Loop ────────────────────────────────────────────────────────────
 
@@ -108,6 +110,7 @@ class SimulatorWorker(QThread):
 
         # ── Detektor + BarTracker initialisieren ─────────────────────────────
         detector = OnsetDetector(sample_rate=sr)
+        from detection.beat_detector import _CrashDetector
         from detection.bar_tracker import BarTracker
         tracker = BarTracker(
             bpm=self._bpm,
@@ -115,8 +118,9 @@ class SimulatorWorker(QThread):
             seg_end_t=self._seg_end_t,
         )
 
-        kicks:  list[float] = []
-        snares: list[float] = []
+        kicks:   list[float] = []
+        snares:  list[float] = []
+        crashes: list[tuple[float, float]] = []   # (t_rel, rms_energy)
         blocks_done = 0
 
         self._output_jsonl.parent.mkdir(parents=True, exist_ok=True)
@@ -155,9 +159,12 @@ class SimulatorWorker(QThread):
                     if ev.type == "kick":
                         kicks.append(t_mid)
                         tracker.process_kick(self._seg_start_t + t_mid, energy=float(ev.energy))
-                    else:
+                    elif ev.type == "snare":
                         snares.append(t_mid)
                         tracker.process_snare(self._seg_start_t + t_mid, energy=float(ev.energy))
+                    elif ev.type == "crash":
+                        crashes.append((t_mid, float(ev.energy)))
+                        tracker.process_crash(self._seg_start_t + t_mid, energy=float(ev.energy))
                     jf.write(_json.dumps({
                         "t": round(t_mid, 4),
                         "type": ev.type,
@@ -166,9 +173,9 @@ class SimulatorWorker(QThread):
 
                 blocks_done += 1
                 if blocks_done % 50 == 0:
-                    self.progress.emit(
-                        min(1.0, (blocks_done * BLOCK_SIZE) / max(1, total_frames))
-                    )
+                    # Main-Loop: 0 % – 80 % des Fortschrittsbalkens
+                    raw = (blocks_done * BLOCK_SIZE) / max(1, total_frames)
+                    self.progress.emit(min(0.80, raw * 0.80))
 
         print(
             f"[SIM] Fertig: {blocks_done} Blöcke, "
@@ -188,21 +195,34 @@ class SimulatorWorker(QThread):
                 beat_times = compute_beat_times(bar_times_final, bpm_final)
                 beat_times = [t for t in beat_times
                               if self._seg_start_t <= t <= self._seg_end_t]
+                def _chroma_progress(frac: float) -> None:
+                    # Chroma-Extraktion: 80 % – 100 % des Fortschrittsbalkens
+                    self.progress.emit(0.80 + frac * 0.20)
+
                 chroma_data = extract_chroma_at_beats(
                     self._wav_path, beat_times, channel=4,
                     sample_rate=sr, window_sec=0.28,
+                    song_key=self._song_key,
+                    progress_callback=_chroma_progress,
                 )
                 print(f"[SIM] Chroma: {len(chroma_data)} Beats extrahiert", file=sys.stderr)
             except Exception as e:
                 print(f"[SIM] Chroma-Extraktion fehlgeschlagen: {e}", file=sys.stderr)
 
+        print(
+            f"[SIM] Crashes: {len(crashes)} erkannt  "
+            f"(threshold RMS >{_CrashDetector.CRASH_RMS_MIN})",
+            file=sys.stderr,
+        )
         self.progress.emit(1.0)
         self.finished.emit({
             "jsonl_path":  self._output_jsonl,
             "n_kicks":     len(kicks),
             "n_snares":    len(snares),
+            "n_crashes":   len(crashes),
             "kicks":       kicks,
             "snares":      snares,
+            "crashes":     crashes,   # list[tuple[float, float]]: (t_rel, rms_energy)
             "bar_times":   tracker.get_latest_bars(),
             "bpm":         tracker.get_bpm(),
             "chroma_data": chroma_data,

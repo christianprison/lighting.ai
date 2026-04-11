@@ -1442,15 +1442,18 @@ class MainWindow(QMainWindow):
 
         seg = self._current_seg
 
-        # BPM aus der Songdatenbank holen (falls vorhanden)
+        # BPM + Tonart aus der Songdatenbank holen (falls vorhanden)
         bpm = 120.0
+        song_key = ""
         try:
             repo_root = self._session.jsonl_path.parent.parent.parent.parent
             db_json   = repo_root / "db" / "lighting-ai-db.json"
             if db_json.exists():
                 import json as _json
                 db = _json.loads(db_json.read_text("utf-8"))
-                bpm = float(db.get("songs", {}).get(seg.song_id, {}).get("bpm", 120.0))
+                song_db  = db.get("songs", {}).get(seg.song_id, {})
+                bpm      = float(song_db.get("bpm", 120.0))
+                song_key = song_db.get("key", "")
         except Exception:
             pass
 
@@ -1518,6 +1521,7 @@ class MainWindow(QMainWindow):
             output_jsonl=out_jsonl,
             ref_db_path=ref_db_path,
             use_hmm=False,
+            song_key=song_key,
             parent=self,
         )
         prog.canceled.connect(worker.requestInterruption)

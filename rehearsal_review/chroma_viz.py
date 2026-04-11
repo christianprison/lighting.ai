@@ -12,6 +12,48 @@ import numpy as np
 
 PITCH_CLASSES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 
+# Tonartenname → MIDI-Pitch-Class (0=C … 11=H)
+_ROOT_TO_PC: dict[str, int] = {
+    'C': 0, 'C#': 1, 'Db': 1, 'D': 2, 'D#': 3, 'Eb': 3,
+    'E': 4, 'F': 5, 'F#': 6, 'Gb': 6, 'G': 7, 'G#': 8,
+    'Ab': 8, 'A': 9, 'A#': 10, 'Bb': 10, 'B': 11, 'H': 11,
+}
+_MAJOR_STEPS = [0, 2, 4, 5, 7, 9, 11]   # Dur-Tonleiter (7 Töne)
+_MINOR_STEPS = [0, 2, 3, 5, 7, 8, 10]   # Natürliches Moll (7 Töne)
+
+
+def key_pitch_classes(key_str: str) -> list[int]:
+    """Parst eine Tonart-Zeichenkette und gibt die 7 Pitch-Classes zurück.
+
+    Format: "{Grundton} {Modus}"  —  z.B. "D dur", "E moll", "Bb dur".
+    Gibt [] zurück wenn nicht parsbar.
+    """
+    parts = key_str.strip().split()
+    if len(parts) < 2:
+        return []
+    root = _ROOT_TO_PC.get(parts[0])
+    if root is None:
+        return []
+    steps = _MAJOR_STEPS if parts[1].lower() == "dur" else _MINOR_STEPS
+    return [(root + s) % 12 for s in steps]
+
+
+def apply_key_weight(
+    chroma: list[float],
+    key_pcs: list[int],
+    weight: float = 2.0,
+) -> list[float]:
+    """Gewichtet Töne der Tonart stärker und normiert auf max=1.
+
+    Tonarteigene Pitch-Classes werden mit `weight` multipliziert,
+    danach wird der Vektor auf max=1 normiert.
+    """
+    arr = [v * (weight if i in key_pcs else 1.0) for i, v in enumerate(chroma)]
+    m = max(arr) if arr else 0.0
+    if m > 0:
+        arr = [v / m for v in arr]
+    return arr
+
 
 def extract_chroma_at_beats(
     wav_path,
@@ -19,15 +61,19 @@ def extract_chroma_at_beats(
     channel: int,
     sample_rate: int,
     window_sec: float = 0.28,
+    song_key: str = "",
 ) -> list[dict]:
     """Extrahiert Chroma-Vektoren an Beat-Positionen aus einem WAV-Kanal.
 
-    Liest die WAV-Datei mit soundfile, extrahiert für jeden Beat-Zeitpunkt
-    ein Fenster der Länge window_sec (zentriert auf beat_time), berechnet
-    librosa.feature.chroma_stft und gibt eine Liste von Dicts zurück:
-    [{'t': float, 'chroma': list[float] (12-dim)}, ...]
+    Verwendet chroma_cqt (Constant-Q-Transformation) statt STFT für bessere
+    Frequenzauflösung bei tiefen Gitarrenfrequenzen. Zusätzlich werden
+    harmonische Anteile per HPSS (Harmonic-Percussive Source Separation) isoliert,
+    um Anschlags-Transienten zu unterdrücken.
 
-    Skips beats where audio is unavailable.
+    Falls song_key angegeben (z.B. "D dur"), werden tonarteigene Töne doppelt
+    gewichtet (apply_key_weight), um tonartfremde Oberton-Artefakte zu dämpfen.
+
+    Gibt zurück: [{'t': float, 'chroma': list[float] (12-dim)}, ...]
     """
     try:
         import librosa
@@ -36,6 +82,7 @@ def extract_chroma_at_beats(
 
     import soundfile as sf
 
+    key_pcs = key_pitch_classes(song_key) if song_key else []
     half_win = window_sec / 2.0
     results: list[dict] = []
 
@@ -48,10 +95,8 @@ def extract_chroma_at_beats(
             return []
 
         for bt in beat_times_abs:
-            start_sec = bt - half_win
-            end_sec = bt + half_win
-            start_frame = max(0, int(start_sec * wav_sr))
-            end_frame = min(wav_frames, int(end_sec * wav_sr))
+            start_frame = max(0, int((bt - half_win) * wav_sr))
+            end_frame   = min(wav_frames, int((bt + half_win) * wav_sr))
             if end_frame <= start_frame:
                 continue
 
@@ -62,15 +107,23 @@ def extract_chroma_at_beats(
 
             audio = block[:, channel]
 
-            # Chroma mit librosa berechnen
-            chroma = librosa.feature.chroma_stft(
-                y=audio,
+            # HPSS: nur harmonische Anteile → unterdrückt Anschlags-Transienten
+            y_harm = librosa.effects.harmonic(audio, margin=8)
+
+            # CQT-basierte Chroma: logarithmisches Frequenzraster,
+            # bessere Auflösung bei tiefen Gitarrenfrequenzen
+            chroma = librosa.feature.chroma_cqt(
+                y=y_harm,
                 sr=wav_sr,
                 n_chroma=12,
                 hop_length=512,
             )
-            # Mitteln über Zeit → 12-dim Vektor
             chroma_mean = chroma.mean(axis=1).tolist()
+
+            # Tonart-Gewichtung (tonarteigene Töne ×2, dann normiert)
+            if key_pcs:
+                chroma_mean = apply_key_weight(chroma_mean, key_pcs, weight=2.0)
+
             results.append({"t": bt, "chroma": chroma_mean})
 
     return results

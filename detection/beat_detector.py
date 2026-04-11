@@ -185,6 +185,61 @@ class ChannelOnsetDetector:
 
 
 # ---------------------------------------------------------------------------
+# Crash-Cymbal-Detektor (RMS-basiert, kein adaptiver Schwellwert)
+# ---------------------------------------------------------------------------
+
+class _CrashDetector:
+    """Erkennt Crash-Cymbals auf dem Overhead-Kanal über absoluten RMS-Schwellwert.
+
+    Verwendet Hochpass >8 kHz. Crash-Cymbals haben dort deutlich mehr Energie
+    als HiHats → absoluter RMS-Schwellwert statt adaptivem Median zuverlässiger.
+    """
+
+    # Absoluter RMS-Schwellwert nach Hochpass >8 kHz.
+    # HiHat-RMS bei >8 kHz: ca. 0.005–0.02
+    # Crash-RMS  bei >8 kHz: ca. 0.03–0.30 → klare Separation
+    CRASH_RMS_MIN: float = 0.025
+
+    def __init__(
+        self,
+        sample_rate: int,
+        filter_sos: Optional[np.ndarray],
+        cooldown_samples: int,
+    ) -> None:
+        self._sos = filter_sos
+        self._sos_zi = (
+            np.zeros((filter_sos.shape[0], 2)) if filter_sos is not None else None
+        )
+        self._cooldown_left = 0
+        self._cooldown_samples = cooldown_samples
+
+    def process(self, block: np.ndarray) -> tuple[bool, float]:
+        """Returns (crash_detected, rms_after_hpf)."""
+        if self._sos is not None:
+            from scipy.signal import sosfilt
+            y, self._sos_zi = sosfilt(self._sos, block.astype(np.float32), zi=self._sos_zi)
+        else:
+            y = block.astype(np.float32)
+
+        rms = float(np.sqrt(np.mean(y ** 2)))
+
+        if self._cooldown_left > 0:
+            self._cooldown_left -= len(block)
+            return False, rms
+
+        if rms >= self.CRASH_RMS_MIN:
+            self._cooldown_left = self._cooldown_samples
+            return True, rms
+
+        return False, rms
+
+    def reset(self) -> None:
+        self._cooldown_left = 0
+        if self._sos_zi is not None:
+            self._sos_zi[:] = 0.0
+
+
+# ---------------------------------------------------------------------------
 # Frequenzfilter-Fabrik
 # ---------------------------------------------------------------------------
 
@@ -202,9 +257,9 @@ def _make_filters(
         kick_sos = butter(4, 150.0 / nyq, btype="low", output="sos")
         # Snare: Bandpass 800–9 000 Hz — Snare-Crack, verwirft Kick-Bleed (<500 Hz)
         snare_sos = butter(4, [800.0 / nyq, 9000.0 / nyq], btype="band", output="sos")
-        # Crash: Hochpass 5 000 Hz — isoliert Crash-Oberton-Cluster, unterdrückt HiHat-Körper
-        # Crashes haben sehr hohe Energie in 5–20 kHz (Nyquist bei 48 kHz = 24 kHz)
-        crash_sos = butter(4, 5000.0 / nyq, btype="high", output="sos")
+        # Crash: Hochpass 8 000 Hz — Crashes haben dort deutlich mehr Energie als HiHats.
+        # Bei >8 kHz: Crash-Cymbal stark, geschlossene/offene HiHat schwächer.
+        crash_sos = butter(4, 8000.0 / nyq, btype="high", output="sos")
         return kick_sos, snare_sos, crash_sos
     except Exception as exc:
         log.warning("scipy nicht verfügbar — Onset-Detection ohne Frequenzfilter: %s", exc)
@@ -218,8 +273,8 @@ def _make_filters(
 class OnsetDetector:
     """Erkennt Kick-, Snare- und Crash-Onsets aus mehrkanaligem XR18-Audio (48 kHz)."""
 
-    # Crash-Cooldown: Cymbals halten lange (mindestens 1,5 s pro Crash)
-    CRASH_COOLDOWN_SEC = 1.5
+    # Crash-Cooldown: 0,8 s — erlaubt Crashes auf jedem Takt auch bei 90 BPM (bar≈2,7 s)
+    CRASH_COOLDOWN_SEC = 0.8
 
     def __init__(self, sample_rate: int = 48_000) -> None:
         self._sr = sample_rate
@@ -241,15 +296,13 @@ class OnsetDetector:
             filter_sos=snare_sos,
             abs_rms_min=3e-3,
         )
-        # Crash: hoher threshold_factor + hoher abs_rms_min → nur starke Crashes
-        # Der adaptive Median auf dem Hochpass-Signal ist niedrig (wenig Energie >5 kHz),
-        # daher threshold_factor=3.5 und abs_rms_min=8e-3 für Selektivität.
-        self._crash = ChannelOnsetDetector(
-            threshold_factor=3.5,
-            history_len=50,
-            cooldown_samples=crash_cd,
+        # Crash: RMS-basiert statt ODF. Hi-Hats haben bei >8 kHz wenig Energie;
+        # Crash-Cymbals übersteigen deutlich CRASH_RMS_MIN (absoluter Schwellwert).
+        # Kein adaptiver Median nötig — Crash-Amplitude ist klar over-threshold.
+        self._crash = _CrashDetector(
+            sample_rate=sample_rate,
             filter_sos=crash_sos,
-            abs_rms_min=8e-3,
+            cooldown_samples=crash_cd,
         )
 
     def process_block(self, block: np.ndarray) -> list[OnsetEvent]:

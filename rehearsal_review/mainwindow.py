@@ -1553,10 +1553,12 @@ class MainWindow(QMainWindow):
         self._sim_clear_act.setEnabled(True)
         self._sim_worker = None
 
-        n_kicks  = result.get("n_kicks",  0)
-        n_snares = result.get("n_snares", 0)
-        kicks    = result.get("kicks",  [])
-        snares   = result.get("snares", [])
+        n_kicks   = result.get("n_kicks",   0)
+        n_snares  = result.get("n_snares",  0)
+        n_crashes = result.get("n_crashes", 0)
+        kicks     = result.get("kicks",   [])
+        snares    = result.get("snares",  [])
+        crashes   = result.get("crashes", [])
 
         if n_kicks == 0 and n_snares == 0:
             QMessageBox.warning(
@@ -1570,12 +1572,15 @@ class MainWindow(QMainWindow):
             return
 
         # Timeline mit Sim-Events befüllen (t = absoluter WAV-Zeitstempel)
-        abs_kicks  = [self._sim_start_wav_t + t_k for t_k in kicks]
-        abs_snares = [self._sim_start_wav_t + t_s for t_s in snares]
+        abs_kicks   = [self._sim_start_wav_t + t_k for t_k in kicks]
+        abs_snares  = [self._sim_start_wav_t + t_s for t_s in snares]
+        abs_crashes = [self._sim_start_wav_t + t_c for t_c in crashes]
         for t_k in abs_kicks:
             self._timeline.add_sim_kick(t_k)
         for t_s in abs_snares:
             self._timeline.add_sim_snare(t_s)
+        for t_c in abs_crashes:
+            self._timeline.add_sim_crash(t_c)
 
         # BPM-Timeline + Taktgitter (vom BarTracker im Simulator berechnet)
         sim_bpm  = result.get("bpm", 0)
@@ -1588,8 +1593,10 @@ class MainWindow(QMainWindow):
             self._timeline.set_chroma_data(chroma_data)
 
         bpm_str = f"  ~{sim_bpm} BPM" if sim_bpm > 0 else ""
+        crash_str = f"  | ★ {n_crashes} Crashes" if n_crashes > 0 else ""
         self._status.showMessage(
-            f"Simulation: ◆ {n_kicks} Kicks (amber)  | ◆ {n_snares} Snares (cyan){bpm_str}",
+            f"Simulation: ◆ {n_kicks} Kicks (amber)  | ◆ {n_snares} Snares (cyan)"
+            f"{crash_str}{bpm_str}",
             12000,
         )
 

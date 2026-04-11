@@ -14,8 +14,9 @@ from PyQt6.QtCore import QThread, pyqtSignal
 
 
 # Channels shown in the timeline (0-indexed).
-# CH 7 (index 7) and CH 16 (index 15) are skipped — not connected.
-DISPLAY_CHANNELS: list[int] = [16, 17, 0, 1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14]
+# CH 7 (index 7) skipped — not connected.
+# CH 16+17 (Main L/R) entfernt — werden im Overview oben dargestellt, nicht im Timeline-Track.
+DISPLAY_CHANNELS: list[int] = [0, 1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14]
 
 CHANNEL_LABELS: dict[int, str] = {
     0: "Pete Vox", 1: "Axel Vox", 2: "Bibo Vox", 3: "Rhythm Guitar",

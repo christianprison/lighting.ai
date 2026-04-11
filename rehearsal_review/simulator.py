@@ -157,9 +157,11 @@ class SimulatorWorker(QThread):
                     if ev.type == "kick":
                         kicks.append(t_mid)
                         tracker.process_kick(self._seg_start_t + t_mid, energy=float(ev.energy))
-                    else:
+                    elif ev.type == "snare":
                         snares.append(t_mid)
                         tracker.process_snare(self._seg_start_t + t_mid, energy=float(ev.energy))
+                    elif ev.type == "crash":
+                        tracker.process_crash(self._seg_start_t + t_mid, energy=float(ev.energy))
                     jf.write(_json.dumps({
                         "t": round(t_mid, 4),
                         "type": ev.type,
@@ -168,9 +170,9 @@ class SimulatorWorker(QThread):
 
                 blocks_done += 1
                 if blocks_done % 50 == 0:
-                    self.progress.emit(
-                        min(1.0, (blocks_done * BLOCK_SIZE) / max(1, total_frames))
-                    )
+                    # Main-Loop: 0 % – 80 % des Fortschrittsbalkens
+                    raw = (blocks_done * BLOCK_SIZE) / max(1, total_frames)
+                    self.progress.emit(min(0.80, raw * 0.80))
 
         print(
             f"[SIM] Fertig: {blocks_done} Blöcke, "
@@ -190,10 +192,15 @@ class SimulatorWorker(QThread):
                 beat_times = compute_beat_times(bar_times_final, bpm_final)
                 beat_times = [t for t in beat_times
                               if self._seg_start_t <= t <= self._seg_end_t]
+                def _chroma_progress(frac: float) -> None:
+                    # Chroma-Extraktion: 80 % – 100 % des Fortschrittsbalkens
+                    self.progress.emit(0.80 + frac * 0.20)
+
                 chroma_data = extract_chroma_at_beats(
                     self._wav_path, beat_times, channel=4,
                     sample_rate=sr, window_sec=0.28,
                     song_key=self._song_key,
+                    progress_callback=_chroma_progress,
                 )
                 print(f"[SIM] Chroma: {len(chroma_data)} Beats extrahiert", file=sys.stderr)
             except Exception as e:

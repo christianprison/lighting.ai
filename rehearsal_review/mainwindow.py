@@ -717,9 +717,12 @@ class MainWindow(QMainWindow):
 
         self._overview.set_session(session)
 
+        # Use Main L+R (ch 16+17) for 18-ch recordings; fall back to ch 0+1
+        # for sessions with fewer channels (e.g. test recordings).
+        ov_chs = [16, 17] if session.n_channels >= 18 else [0, 1]
         ov_worker = PeakWorker(
             wav_path=session.wav_path,
-            ch_indices=[16, 17],
+            ch_indices=ov_chs,
             start_t=0.0,
             end_t=session.total_duration,
             sample_rate=session.sample_rate,
@@ -763,6 +766,7 @@ class MainWindow(QMainWindow):
 
         self._timeline.set_segment(seg, None)
         self._overview.set_segment(seg)
+        self._overview.set_playhead(seg.start_t)
 
         # Clear fragment detection results from previous song
         self._detected_fragments = []
@@ -919,7 +923,9 @@ class MainWindow(QMainWindow):
     def _on_seek(self, t_in_seg: float) -> None:
         self._player.seek(t_in_seg)
         if self._current_seg:
-            self._timeline.set_cursor(self._current_seg.start_t + t_in_seg)
+            wav_t = self._current_seg.start_t + t_in_seg
+            self._timeline.set_cursor(wav_t)
+            self._overview.set_playhead(wav_t)
 
     def _on_position(self, wav_t: float) -> None:
         self._timeline.set_cursor(wav_t)

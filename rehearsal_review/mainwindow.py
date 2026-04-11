@@ -1580,13 +1580,17 @@ class MainWindow(QMainWindow):
         # Timeline mit Sim-Events befüllen (t = absoluter WAV-Zeitstempel)
         abs_kicks   = [self._sim_start_wav_t + t_k for t_k in kicks]
         abs_snares  = [self._sim_start_wav_t + t_s for t_s in snares]
-        abs_crashes = [self._sim_start_wav_t + t_c for t_c in crashes]
         for t_k in abs_kicks:
             self._timeline.add_sim_kick(t_k)
         for t_s in abs_snares:
             self._timeline.add_sim_snare(t_s)
-        for t_c in abs_crashes:
-            self._timeline.add_sim_crash(t_c)
+        # crashes: list[tuple[float, float]] = (t_rel, rms_energy)
+        for item in crashes:
+            if isinstance(item, (list, tuple)) and len(item) == 2:
+                t_c, e_c = item
+            else:
+                t_c, e_c = float(item), 0.0   # fallback for old format
+            self._timeline.add_sim_crash(self._sim_start_wav_t + t_c, e_c)
 
         # BPM-Timeline + Taktgitter (vom BarTracker im Simulator berechnet)
         sim_bpm  = result.get("bpm", 0)

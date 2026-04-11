@@ -198,10 +198,10 @@ class TimelineWidget(QWidget):
         self._scan_windows: list[tuple[float, bool]] = []
         self._scan_pos: float = -1.0   # current scan head (seconds)
 
-        # Simulation results (kick/snare/crash onsets, t = absoluter WAV-Zeitstempel)
+        # Simulation results (kick/snare onsets = abs WAV t; crashes = (abs WAV t, rms_energy))
         self._sim_kicks:   list[float] = []
         self._sim_snares:  list[float] = []
-        self._sim_crashes: list[float] = []
+        self._sim_crashes: list[tuple[float, float]] = []   # (abs_wav_t, rms_energy)
 
         # Chroma-Daten pro Beat (aus chroma_viz)
         self._chroma_data: list[dict] = []   # list of {t, chroma} from chroma_viz
@@ -321,15 +321,15 @@ class TimelineWidget(QWidget):
         self._sim_snares.append(t)
         self.update()
 
-    def add_sim_crash(self, t: float) -> None:
-        self._sim_crashes.append(t)
+    def add_sim_crash(self, t: float, energy: float = 0.0) -> None:
+        self._sim_crashes.append((t, energy))
         self.update()
 
     def clear_sim_events(self) -> None:
         """Löscht alle Simulations-Ergebnisse."""
-        self._sim_kicks        = []
-        self._sim_snares       = []
-        self._sim_crashes      = []
+        self._sim_kicks:   list[float]             = []
+        self._sim_snares:  list[float]             = []
+        self._sim_crashes: list[tuple[float,float]]= []
         self._sim_bpm_timeline = []
         self._sim_bar_times    = []
         self._chroma_data      = []
@@ -538,6 +538,35 @@ class TimelineWidget(QWidget):
         pps = self._pps
         ox = self._scroll_x
         hit_r = _DIAMOND_R + 4   # hit radius in px
+        crash_r = _DIAMOND_R + 3 + 4   # crash diamond is larger
+
+        # ── Sim-Crash-Tooltip auf OH L+R Row ──────────────────────────────────
+        if self._sim_overlay and self._sim_crashes:
+            oh_idx = next((i for i, t in enumerate(TRACKS) if t["label"] == "OH L+R"), None)
+            if oh_idx is not None:
+                oh_ty = TRACK_Y[oh_idx]
+                oh_th = TRACKS[oh_idx]["h"]
+                if oh_ty <= y < oh_ty + oh_th:
+                    crash_cy = oh_ty + oh_th // 2
+                    if abs(y - crash_cy) <= crash_r:
+                        for t_c, e_c in self._sim_crashes:
+                            ex = LABEL_W + int((t_c - seg.start_t) * pps) - ox
+                            if abs(ex - x) <= crash_r:
+                                # Confidence: RMS relativ zu CRASH_RMS_MIN
+                                try:
+                                    from detection.beat_detector import _CrashDetector
+                                    thresh = _CrashDetector.CRASH_RMS_MIN
+                                except Exception:
+                                    thresh = 0.025
+                                conf_pct = min(100, int(e_c / max(thresh, 1e-9) * 50))
+                                t_rel = t_c - seg.start_t
+                                m, s = divmod(t_rel, 60)
+                                ts = f"{int(m)}:{s:05.2f}"
+                                tip = (f"Crash  {ts}\n"
+                                       f"RMS {e_c:.3f}  |  "
+                                       f"Erkennungssicherheit ~{conf_pct} %")
+                                QToolTip.showText(event.globalPosition().toPoint(), tip, self)
+                                return
 
         for track, ty in zip(TRACKS, TRACK_Y):
             th = track["h"]
@@ -1249,6 +1278,27 @@ class TimelineWidget(QWidget):
                     ex = LABEL_W + int((t_k - seg_t0) * pps) - ox
                     if LABEL_W - r <= ex <= w + r:
                         _draw_diamond(ex, C_AMBER, alpha=220)
+
+        # ── Sim-Crashes auf OH L+R Row (roter Diamond, größer) ────────────────
+        if self._sim_overlay and self._sim_crashes and (track_chs & BEAT_MARKER_CHS):
+            seg_t0 = seg.start_t
+            crash_cy = ty + th // 2   # vertikal zentriert (nicht unten wie Beats)
+            for t_c, _e_c in self._sim_crashes:
+                ex = LABEL_W + int((t_c - seg_t0) * pps) - ox
+                if not (LABEL_W - r - 2 <= ex <= w + r + 2):
+                    continue
+                cr = r + 3   # größerer Radius für Crash
+                d = QPolygon([
+                    QPoint(ex,          crash_cy - cr),
+                    QPoint(ex + cr, crash_cy),
+                    QPoint(ex,          crash_cy + cr),
+                    QPoint(ex - cr, crash_cy),
+                ])
+                fill = QColor(C_RED)
+                fill.setAlpha(200)
+                p.setPen(QPen(C_RED, 1))
+                p.setBrush(QBrush(fill))
+                p.drawPolygon(d)
 
         p.setRenderHint(QPainter.RenderHint.Antialiasing, False)
 

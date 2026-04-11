@@ -120,7 +120,7 @@ class SimulatorWorker(QThread):
 
         kicks:   list[float] = []
         snares:  list[float] = []
-        crashes: list[float] = []
+        crashes: list[tuple[float, float]] = []   # (t_rel, rms_energy)
         blocks_done = 0
 
         self._output_jsonl.parent.mkdir(parents=True, exist_ok=True)
@@ -163,7 +163,7 @@ class SimulatorWorker(QThread):
                         snares.append(t_mid)
                         tracker.process_snare(self._seg_start_t + t_mid, energy=float(ev.energy))
                     elif ev.type == "crash":
-                        crashes.append(t_mid)
+                        crashes.append((t_mid, float(ev.energy)))
                         tracker.process_crash(self._seg_start_t + t_mid, energy=float(ev.energy))
                     jf.write(_json.dumps({
                         "t": round(t_mid, 4),
@@ -222,7 +222,7 @@ class SimulatorWorker(QThread):
             "n_crashes":   len(crashes),
             "kicks":       kicks,
             "snares":      snares,
-            "crashes":     crashes,
+            "crashes":     crashes,   # list[tuple[float, float]]: (t_rel, rms_energy)
             "bar_times":   tracker.get_latest_bars(),
             "bpm":         tracker.get_bpm(),
             "chroma_data": chroma_data,

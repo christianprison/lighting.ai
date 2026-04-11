@@ -65,6 +65,66 @@ def _circ_dist(a: float, b: float, period: float) -> float:
     return min(d, period - d)
 
 
+def _find_anchor_by_pattern(
+    abs_kicks: list[float],
+    abs_snares: list[float],
+    grundrhythmus: dict,
+    bar_sec: float,
+    beat_sec: float,
+    snap_r: float,
+) -> Optional[float]:
+    """Findet den Taktanker durch Pattern-Matching gegen den Song-Grundrhythmus.
+
+    grundrhythmus: {"kick": [0.0, 2.0], "snare": [1.0, 3.0]}
+    Positionen in Viertelschlägen (0.0=Beat1, 1.0=Beat2, 2.0=Beat3, 3.0=Beat4).
+
+    Für jedes beobachtete Event und jede passende Pattern-Position wird eine
+    Beat-1-Hypothese (= Beat-1-Zeit) erzeugt. Die Hypothese mit dem höchsten
+    Pattern-Match-Score (Anzahl übereinstimmender Events) wird zurückgegeben.
+    Bei Gleichstand gewinnt der früheste Kandidat (kleinste Zeit).
+
+    Gibt None zurück wenn keine Events vorhanden oder kein Pattern definiert.
+    """
+    gr_kick_offsets  = [p * beat_sec for p in grundrhythmus.get("kick",  [])]
+    gr_snare_offsets = [p * beat_sec for p in grundrhythmus.get("snare", [])]
+
+    if not gr_kick_offsets and not gr_snare_offsets:
+        return None
+
+    all_events = [(t, "kick")  for t in abs_kicks ] \
+               + [(t, "snare") for t in abs_snares]
+    if not all_events:
+        return None
+
+    # Kandidaten: für jeden Event und jede passende Pattern-Offset → Beat-1-Zeit
+    candidates: list[float] = []
+    for t_ev, ev_type in all_events:
+        offsets = gr_kick_offsets if ev_type == "kick" else gr_snare_offsets
+        for off in offsets:
+            candidates.append(t_ev - off)
+
+    if not candidates:
+        return None
+
+    def match_score(anchor: float) -> int:
+        """Anzahl beobachteter Events, die auf eine Pattern-Position passen."""
+        count = 0
+        for t_ev, ev_type in all_events:
+            offsets = gr_kick_offsets if ev_type == "kick" else gr_snare_offsets
+            rel = (t_ev - anchor) % bar_sec
+            for off in offsets:
+                if _circ_dist(rel, off, bar_sec) <= snap_r:
+                    count += 1
+                    break  # jedes Event zählt maximal 1
+        return count
+
+    # Scores vorberechnen (O(n²)), bei Gleichstand frühester Kandidat
+    scored = [(c, match_score(c)) for c in candidates]
+    best_score = max(s for _, s in scored)
+    earliest_best = min(c for c, s in scored if s == best_score)
+    return earliest_best
+
+
 def _snare_pattern(snares: list[float], beat_sec: float) -> str:
     """Bestimmt ob Snare auf Offbeat (Beat 2+4) oder auf allen Vierteln schlägt.
 
@@ -339,6 +399,7 @@ def _compute_bar_grid(
     snap_factor: float = 0.70,
     kick_energies: list[float] = [],
     crashes: list[float] = [],
+    grundrhythmus: Optional[dict] = None,
 ) -> list[float]:
     """Berechnet Takt-Zeitstempel durch greedy Forward-Snap.
 
@@ -352,6 +413,12 @@ def _compute_bar_grid(
 
     snap_r = 70 % eines Beats: Beat-2-Snare (100 % weg) und Beat-3-Kick
     (200 % weg) fallen nie ins Fenster.
+
+    Anker-Strategie (in Prioritätsreihenfolge):
+      1. grundrhythmus vorhanden → Pattern-Matching gegen Song-Rhythmus
+      2. Kein grundrhythmus, Crashes vorhanden → Crashes als Beat-1-Anker
+      3. Kein grundrhythmus, keine Crashes, Kicks vorhanden → Energie-Histogramm
+      4. Fallback: früheste Snare
     """
     import sys
 
@@ -361,15 +428,33 @@ def _compute_bar_grid(
     bar_sec  = 4.0 * beat_sec
     snap_r   = beat_sec * snap_factor
 
-    anchor_pool = kicks if kicks else snares
-    if not anchor_pool:
+    if not kicks and not snares and not crashes:
         return []
 
-    if kicks:
+    # ── Anker-Berechnung ─────────────────────────────────────────────────────
+    if grundrhythmus is not None:
+        # Pattern-Matching: direkter Abgleich gegen Song-Rhythmus-Muster
+        pattern_anchor = _find_anchor_by_pattern(
+            kicks, snares, grundrhythmus, bar_sec, beat_sec, snap_r
+        )
+        if pattern_anchor is not None:
+            first_t = pattern_anchor
+        elif kicks:
+            first_t = min(kicks)
+        elif snares:
+            first_t = min(snares)
+        else:
+            return []
+    elif crashes:
+        # Kein Grundrhythmus: Crashes als Anker (landen fast immer auf Beat 1)
+        first_t = _find_anchor_by_phase(crashes, bar_sec, snap_r)
+    elif kicks:
         _energies = kick_energies if kick_energies else [1.0] * len(kicks)
         first_t = _find_anchor_by_phase(kicks, bar_sec, snap_r, _energies)
+    elif snares:
+        first_t = min(snares)
     else:
-        first_t = min(anchor_pool)
+        return []
 
     # Snare-Phasen-Korrektur: sicherstellen dass Snares auf Beat 2+4 fallen.
     # Energie-gewichteter Score + Energie-Tie-Breaker für Beat-1-vs-Beat-3.
@@ -484,12 +569,14 @@ class BarTracker:
         seg_end_t: float,
         snap_factor: float = 0.70,
         use_observed_bpm: bool = True,
+        grundrhythmus: Optional[dict] = None,
     ) -> None:
         self._bpm_initial    = float(bpm)
         self._seg_start_t    = seg_start_t
         self._seg_end_t      = seg_end_t
         self._snap_factor    = snap_factor
         self._use_observed   = use_observed_bpm
+        self._grundrhythmus  = grundrhythmus   # {"kick": [...], "snare": [...]} oder None
 
         self._kicks:     list[float] = []
         self._snares:    list[float] = []
@@ -563,6 +650,7 @@ class BarTracker:
             self._snap_factor,
             self._kick_energies,
             self._crashes,
+            self._grundrhythmus,
         )
         log.debug(
             "BarTracker update: bpm=%d  kicks=%d  snares=%d  bars=%d",

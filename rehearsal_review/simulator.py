@@ -51,17 +51,19 @@ class SimulatorWorker(QThread):
         ref_db_path=None,   # nicht mehr verwendet, bleibt für API-Compat
         use_hmm: bool = False,  # nicht mehr verwendet
         song_key: str = "",
+        grundrhythmus: dict | None = None,
         parent=None,
     ) -> None:
         super().__init__(parent)
-        self._wav_path     = wav_path
-        self._seg_start_t  = seg_start_t
-        self._seg_end_t    = seg_end_t
-        self._song_id      = song_id
-        self._song_name    = song_name
-        self._bpm          = bpm
-        self._output_jsonl = output_jsonl
-        self._song_key     = song_key
+        self._wav_path      = wav_path
+        self._seg_start_t   = seg_start_t
+        self._seg_end_t     = seg_end_t
+        self._song_id       = song_id
+        self._song_name     = song_name
+        self._bpm           = bpm
+        self._output_jsonl  = output_jsonl
+        self._song_key      = song_key
+        self._grundrhythmus = grundrhythmus
 
     # ── Haupt-Loop ────────────────────────────────────────────────────────────
 
@@ -116,6 +118,7 @@ class SimulatorWorker(QThread):
             bpm=self._bpm,
             seg_start_t=self._seg_start_t,
             seg_end_t=self._seg_end_t,
+            grundrhythmus=self._grundrhythmus,
         )
 
         kicks:   list[float] = []

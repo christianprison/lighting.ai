@@ -216,6 +216,7 @@ lighting.ai/
       "artist": "Neon Trees",
       "bpm": 164,
       "key": "D dur",
+      "grundrhythmus": {"kick": [0.0, 2.0], "snare": [1.0, 3.0]},
       "year": "2009",
       "pick": "",
       "gema_nr": "11739277-001",
@@ -618,17 +619,32 @@ Wenn ein Song kein `grundrhythmus` hat, wird Phasen-Histogramm + Crash-Fallback 
   - `_on_overview_seek()` (Klick in Overview selbst)
   - `_on_song_combo_changed()` — reset auf `seg.start_t`
 
+#### AudioProcess (`live/server/audio/audio_process.py`)
+
+- `OnsetDetector` + `BarTracker` laufen im sounddevice-Callback (selber Thread, Lock-geschützt)
+- `set_song(bpm, grundrhythmus=None, seg_start_t=None)`: konfiguriert BarTracker bei Songwechsel,
+  muss aus dem FastAPI-Event-Loop via `await asyncio.to_thread(audio_process.set_song, ...)` aufgerufen werden
+- Kick/Snare/Crash-Events werden per `process_kick/snare/crash(t_ev, energy)` in BarTracker eingespeist
+- `_bar_tracker_lock` (threading.Lock) schützt alle BarTracker-Zugriffe
+
 #### ⚠️ Offene Punkte für nächste Session
 
-1. **Feldtest Beat-1-Korrektur**: Simulation auf verschiedenen Songs laufen lassen und prüfen:
-   - Crash-Detektion: Status-Bar zeigt `★ N Crashes`? Wenn 0 → `CRASH_RMS_MIN` (0.025) senken
-   - Energy-Korrektur: `[BAR] energy_beat1: ratio=Z` auf stderr — Z > 1.10 = Korrektur greift
+1. **Grundrhythmus pflegen**: In der DB-Pflege-App `grundrhythmus`-Feld pro Song einpflegen:
+   - Format: `{"kick": [0.0, 2.0], "snare": [1.0, 3.0]}` (Beat-Positionen 0.0–3.99)
+   - Ohne grundrhythmus wird Crash-Fallback → Phasen-Histogramm verwendet
+
+2. **select_song in main.py**: Bei Songwechsel über WebSocket (`action=select_song`) muss
+   `audio_process.set_song(bpm, grundrhythmus)` aufgerufen werden (noch nicht implementiert).
+
+3. **Feldtest Beat-1-Korrektur**: Simulation auf verschiedenen Songs laufen lassen und prüfen:
+   - Crash-Detektion: Status-Bar zeigt `★ N Crashes`? Wenn 0 → `CRASH_RMS_MIN` (0.012) senken
+   - Energy-Korrektur: `[BAR] energy_beat1: ratio=Z` auf stderr — Z > 1.05 = Korrektur greift
    - Taktgitter landet auf Beat 1 (Snare-Positionen ≈ 1.0 und 3.0 beats in Diagnostik)
 
-2. **Chroma-Visualisierung**: `chroma_data` wird nach Simulation übergeben, aber die Darstellung
+4. **Chroma-Visualisierung**: `chroma_data` wird nach Simulation übergeben, aber die Darstellung
    im Lead-Guitar-Track könnte überprüft werden.
 
-3. **Koordinatensystem Sim-Events**: Sim-Events verwenden `t_k * pps` ohne Subtraktion von
+5. **Koordinatensystem Sim-Events**: Sim-Events verwenden `t_k * pps` ohne Subtraktion von
    `seg.start_t`, JSONL-Events verwenden `(ev.t - seg.start_t) * pps` — potentieller Offset-Bug
    für Segmente die nicht bei WAV-Zeit 0 beginnen. Bisher nicht reproduziert.
 

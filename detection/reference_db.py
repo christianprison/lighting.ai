@@ -301,6 +301,70 @@ class ReferenceDB:
                 ),
             )
 
+    def upsert_bar_chroma(
+        self,
+        song_id: str,
+        bar_num: int,
+        chroma: "np.ndarray",
+    ) -> bool:
+        """Speichert/aktualisiert den Chroma-Vektor für (song_id, bar_num).
+
+        Wenn bereits ein FeatureVector existiert: inkrementelles Averaging der
+        Chroma-Werte (new = (old × n + new) / (n+1)), sample_count hochzählen.
+        Wenn noch kein FeatureVector existiert: Stub anlegen (mfcc/onset = 0,
+        rms = 0.0, sample_count = 1) — nur Chroma wird gesetzt.
+
+        Gibt True zurück wenn der Bar in der DB gefunden wurde, sonst False.
+        """
+        bar = self.get_bar_by_num(song_id, bar_num)
+        if bar is None:
+            return False
+
+        chroma_arr = np.array(chroma, dtype=np.float32)
+        self._ensure_sample_count_column()
+
+        with self._conn() as con:
+            row = con.execute(
+                "SELECT chroma, COALESCE(sample_count, 1) AS n "
+                "FROM feature_vectors WHERE bar_id=?",
+                (bar.bar_id,),
+            ).fetchone()
+
+            if row is None:
+                # Neu anlegen: nur Chroma vorhanden, Rest = 0
+                zero20 = np.zeros(20, dtype=np.float32)
+                zero16 = np.zeros(16, dtype=np.float32)
+                con.execute(
+                    "INSERT INTO feature_vectors "
+                    "(bar_id, chroma, mfcc, onset, rms, sample_count) "
+                    "VALUES (?, ?, ?, ?, 0.0, 1)",
+                    (bar.bar_id, _blob(chroma_arr), _blob(zero20), _blob(zero16)),
+                )
+            else:
+                # Inkrementelles Averaging
+                n = int(row["n"])
+                old_chroma = _from_blob(row["chroma"])
+                new_chroma = ((old_chroma * n) + chroma_arr) / (n + 1)
+                con.execute(
+                    "UPDATE feature_vectors "
+                    "SET chroma=?, sample_count=? "
+                    "WHERE bar_id=?",
+                    (_blob(new_chroma.astype(np.float32)), n + 1, bar.bar_id),
+                )
+        return True
+
+    def _ensure_sample_count_column(self) -> None:
+        """Fügt sample_count-Spalte zu feature_vectors hinzu falls fehlend (Migration)."""
+        with self._conn() as con:
+            cols = [row[1] for row in
+                    con.execute("PRAGMA table_info(feature_vectors)").fetchall()]
+            if "sample_count" not in cols:
+                con.execute(
+                    "ALTER TABLE feature_vectors "
+                    "ADD COLUMN sample_count INTEGER DEFAULT 1"
+                )
+                log.info("feature_vectors.sample_count-Spalte angelegt (Migration)")
+
     def get_feature(self, bar_id: str) -> FeatureVector | None:
         with self._conn() as con:
             row = con.execute(

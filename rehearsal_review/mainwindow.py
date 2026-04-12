@@ -1461,18 +1461,20 @@ class MainWindow(QMainWindow):
 
         seg = self._current_seg
 
-        # BPM + Tonart aus der Songdatenbank holen (falls vorhanden)
+        # BPM + Tonart + Grundrhythmus aus der Songdatenbank holen (falls vorhanden)
         bpm = 120.0
         song_key = ""
+        grundrhythmus: dict | None = None
         try:
             repo_root = self._session.jsonl_path.parent.parent.parent.parent
             db_json   = repo_root / "db" / "lighting-ai-db.json"
             if db_json.exists():
                 import json as _json
                 db = _json.loads(db_json.read_text("utf-8"))
-                song_db  = db.get("songs", {}).get(seg.song_id, {})
-                bpm      = float(song_db.get("bpm", 120.0))
-                song_key = song_db.get("key", "")
+                song_db      = db.get("songs", {}).get(seg.song_id, {})
+                bpm          = float(song_db.get("bpm", 120.0))
+                song_key     = song_db.get("key", "")
+                grundrhythmus = song_db.get("grundrhythmus") or None
         except Exception:
             pass
 
@@ -1542,6 +1544,7 @@ class MainWindow(QMainWindow):
             ref_db_path=ref_db_path,
             use_hmm=False,
             song_key=song_key,
+            grundrhythmus=grundrhythmus,
             parent=self,
         )
         prog.canceled.connect(worker.requestInterruption)
@@ -1631,6 +1634,50 @@ class MainWindow(QMainWindow):
                 bar_times=bar_times,
                 bpm=sim_bpm,
             )
+
+        # Chroma-Werte in reference.db speichern (Beats → Takt-Nummern abbilden)
+        if chroma_data and bar_times and self._current_seg is not None:
+            try:
+                import bisect as _bisect
+                import numpy as _np
+                from detection.reference_db import ReferenceDB as _RDB
+
+                # ref_db neben dem WAV-Verzeichnis suchen
+                _rdb_path = None
+                if self._session:
+                    _cand = self._session.wav_path.parent.parent / "reference.db"
+                    if _cand.exists():
+                        _rdb_path = _cand
+                if _rdb_path is None:
+                    raise FileNotFoundError("reference.db nicht gefunden")
+
+                _rdb  = _RDB(_rdb_path)
+                _song = self._current_seg.song_id
+                _bars_sorted = sorted(bar_times)
+
+                # Beats auf Takt-Nummern abbilden: Takt = letzter Bar-Start <= Beat
+                _bar_chromas: dict[int, list] = {}
+                for entry in chroma_data:
+                    _idx = _bisect.bisect_right(_bars_sorted, entry["t"]) - 1
+                    if _idx >= 0:
+                        _bn = _idx + 1   # 1-basierte Taktnummer
+                        _bar_chromas.setdefault(_bn, []).append(entry["chroma"])
+
+                # Durchschnitt pro Takt bilden und in DB speichern
+                _n_stored = 0
+                for _bn, _chromas in _bar_chromas.items():
+                    _avg = _np.mean(_chromas, axis=0).astype(_np.float32)
+                    if _rdb.upsert_bar_chroma(_song, _bn, _avg):
+                        _n_stored += 1
+
+                if _n_stored > 0:
+                    self._status.showMessage(
+                        self._status.currentMessage()
+                        + f"  | ♪ {_n_stored} Chroma-Takte gespeichert",
+                        12000,
+                    )
+            except Exception as _ce:
+                print(f"[SIM] Chroma-Speicherung fehlgeschlagen: {_ce}", file=sys.stderr)
 
         bpm_str = f"  ~{sim_bpm} BPM" if sim_bpm > 0 else ""
         crash_str = f"  | ★ {n_crashes} Crashes" if n_crashes > 0 else ""

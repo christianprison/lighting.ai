@@ -217,6 +217,7 @@ lighting.ai/
       "artist": "Neon Trees",
       "bpm": 164,
       "key": "D dur",
+      "grundrhythmus": {"kick": [0.0, 2.0], "snare": [1.0, 3.0]},
       "year": "2009",
       "pick": "",
       "gema_nr": "11739277-001",
@@ -487,7 +488,7 @@ Taktgitter im Sim-Overlay (`_paint_sim_bars()`):
 - Halbdurchsichtige weiße vertikale Linien (`rgba(255,255,255,55)`) über alle Drum-Tracks (Kick..OH L+R)
 - Taktnummer alle 5 Takte in amber (FONT_BTN) in der Tom-Zeile
 - Tom-Label-Zelle zeigt bei aktiver Sim `"{sim_bpm} BPM"` in amber unter dem Spurnahmen
-- BPM wird aus dem medianen IOI aller Kick+Snare-Events berechnet (Filter: 60–220 BPM)
+- BPM wird aus dem medianen IOI der **letzten 8** Kick+Snare-Events berechnet (Filter: 60–220 BPM) — schnelle Reaktion auf Tempo-Änderungen
 
 Annotation-Strip zeigt amber Oberkante + lila Hintergrund wenn Modus aktiv.
 "Annotieren"-Button ist grün/invertiert wenn aktiv (`:checked` CSS).
@@ -503,7 +504,8 @@ probe_events   (id, session_id, wav_offset, song_id, bar_num, part_name, confide
 
 - `get_parts_for_song(song_id)` → Liste von `{part_name, first_bar, last_bar, bar_count}` — nützlich um `start_bar_num` zu setzen
 - Inkrementelles Averaging: `new_mean = (old × n + new) / (n+1)` via `sample_count`
-- Schema-Migration: `recording_importer.py` legt `sample_count`-Spalte automatisch an falls fehlend
+- Schema-Migration: `recording_importer.py` UND `ReferenceDB._ensure_sample_count_column()` legen `sample_count`-Spalte automatisch an falls fehlend
+- `upsert_bar_chroma(song_id, bar_num, chroma)`: speichert Lead-Guitar-Chroma per Takt; legt Stub-Feature-Vector an falls noch keiner vorhanden (mfcc/onset = 0); bei vorhandenem Vektor: inkrementelles Averaging nur für chroma
 
 #### Keyboard Shortcuts (Rehearsal App)
 
@@ -590,26 +592,37 @@ Parameter:
 
 Streaming Takt-Tracker — verarbeitet Kick/Snare/Crash-Events inkrementell, kein Lookahead:
 
-**Anker-Berechnung** (`_find_anchor_by_phase`):
-- ODF-energie-gewichtetes Phasen-Histogramm über alle Kicks → erste Taktposition
+**BPM-Schätzung** (`_compute_bpm_from_events`):
+- Nur die **letzten 8** kombinierten Kick+Snare-Events (medianer IOI, 60–220 BPM)
+- Reagiert schnell auf Tempo-Änderungen; frühe Events beeinflussen BPM nicht mehr
+
+**Anker-Berechnung** — zwei Modi, abhängig von `grundrhythmus`:
+- **Mit Grundrhythmus** (`_find_anchor_by_pattern`): Pattern-Matching gegen song-spezifisches Kick/Snare-Muster
+- **Ohne Grundrhythmus**: ODF-energie-gewichtetes Phasen-Histogramm über alle Kicks → erste Taktposition (`_find_anchor_by_phase`)
+- **Fallback** (kein Grundrhythmus + keine Kicks): Crashes als einziger Anker (Crashes landen fast immer auf Beat 1)
 
 **Dreistufige Phase-Korrektur** (in dieser Reihenfolge, jede Stufe überschreibt die vorherige):
 1. **`_snare_phase_correct`** — kombiniertes Kick+Snare-Scoring über 4 Viertel-Offsets.  
    Korrigiert ±1/2/3-Beat-Fehler wenn Snare-Pattern (Beat 2+4) klar erkennbar.
 2. **`_energy_beat1_correct`** — vergleicht mittlere Kick-ODF-Energie auf Beat-1-Phase vs. Beat-3-Phase.  
    Beat 1 (Downbeat) wird typischerweise stärker angeschlagen → höhere ODF.  
-   Korrigiert +2-Beat-Fehler wenn alternative Phase >10% energiereicher (`avg_alt > avg_curr * 1.10`).  
-   ⚠️ **Offen: Braucht Feldtest.** Funktioniert nur wenn Drummer Beat 1 konsistent lauter spielt.
+   Korrigiert +2-Beat-Fehler wenn alternative Phase >5% energiereicher (`avg_alt > avg_curr * 1.05`).
 3. **`_crash_beat1_correct`** — Crashes landen fast immer auf Beat 1 (selten Beat 3, nie Beat 2/4).  
    Zählt Crashes bei `phase ≈ 0` für Kandidat A vs. Kandidat B → bevorzugt Kandidat mit mehr Beat-1-Crashes.  
    Überschreibt `_energy_beat1_correct`. Sehr zuverlässig bei Songs mit Crash-Cymbals.
-   ⚠️ **Offen: Braucht Feldtest.** Threshold `CRASH_RMS_MIN=0.025` ggf. anpassen.
+
+**Grundrhythmus-Metadaten** (in `db/lighting-ai-db.json` pro Song):
+```json
+"grundrhythmus": {"kick": [0.0, 2.0], "snare": [1.0, 3.0]}
+```
+Positionen in Viertelschlägen (0.0 = Beat 1, 1.0 = Beat 2 … 3.99 = kurz vor Beat 4).  
+Wenn ein Song kein `grundrhythmus` hat, wird Phasen-Histogramm + Crash-Fallback verwendet.
 
 **Diagnostik auf stderr** (bei ≥20 Events / ≥10 Kicks):
-- `[BAR] energy_beat1: phase_curr_avg=X phase_alt_avg=Y ratio=Z` — Z>1.10 = Korrektur ausgelöst
+- `[BAR] energy_beat1: phase_curr_avg=X phase_alt_avg=Y ratio=Z` — Z>1.05 = Korrektur ausgelöst
 - `[BAR] _snare_phase_correct: T → T' (+N Beats, scores=[...])` — welche Korrektur angewendet
 - `[BAR] Snare-Positionen in Takten (Beat 2≈1.0, Beat 4≈3.0): [...]` — Qualitätsprüfung
-- `[SIM] Crashes: N erkannt (threshold RMS >0.025)` — Crash-Detektion-Diagnose
+- `[SIM] Crashes: N erkannt (threshold RMS >0.012)` — Crash-Detektion-Diagnose
 
 #### Overview-Waveform (`mainwindow.py` + `overview.py`)
 
@@ -621,18 +634,39 @@ Streaming Takt-Tracker — verarbeitet Kick/Snare/Crash-Events inkrementell, kei
   - `_on_overview_seek()` (Klick in Overview selbst)
   - `_on_song_combo_changed()` — reset auf `seg.start_t`
 
+#### AudioProcess (`live/server/audio/audio_process.py`)
+
+- `OnsetDetector` + `BarTracker` laufen im sounddevice-Callback (selber Thread, Lock-geschützt)
+- `set_song(bpm, grundrhythmus=None, seg_start_t=None)`: konfiguriert BarTracker bei Songwechsel,
+  muss aus dem FastAPI-Event-Loop via `await asyncio.to_thread(audio_process.set_song, ...)` aufgerufen werden
+- Kick/Snare/Crash-Events werden per `process_kick/snare/crash(t_ev, energy)` in BarTracker eingespeist
+- `_bar_tracker_lock` (threading.Lock) schützt alle BarTracker-Zugriffe
+- **Bar-Events in JSONL**: nach jedem Onset-Event werden neue Takte (bt ≤ aktueller Zeitstempel)
+  als `{"t": bt, "type": "bar", "bar_num": N, "bpm": B}` in die JSONL geschrieben
+  — `_logged_bar_count` verhindert Duplikate; wird beim `set_song()` zurückgesetzt
+
 #### ⚠️ Offene Punkte für nächste Session
 
-1. **Feldtest Beat-1-Korrektur**: Simulation auf verschiedenen Songs laufen lassen und prüfen:
-   - Crash-Detektion: Status-Bar zeigt `★ N Crashes`? Wenn 0 → `CRASH_RMS_MIN` (0.025) senken
-   - Energy-Korrektur: `[BAR] energy_beat1: ratio=Z` auf stderr — Z > 1.10 = Korrektur greift
+1. **Grundrhythmus pflegen**: In der DB-Pflege-App `grundrhythmus`-Feld pro Song einpflegen:
+   - Format: `{"kick": [0.0, 2.0], "snare": [1.0, 3.0]}` (Beat-Positionen 0.0–3.99)
+   - Ohne grundrhythmus wird Crash-Fallback → Phasen-Histogramm verwendet
+
+2. **select_song in main.py**: Bei Songwechsel über WebSocket (`action=select_song`) muss
+   `audio_process.set_song(bpm, grundrhythmus)` aufgerufen werden (noch nicht implementiert).
+
+3. **Chroma für Live-Vergleich nutzen**: `upsert_bar_chroma` speichert Lead-Guitar-Chroma
+   aus der Simulation in reference.db. Für den Live-Part/Takt-Abgleich muss noch ein
+   Vergleichs-Algorithmus (z.B. Kosinus-Ähnlichkeit) in audio_process.py implementiert werden.
+
+4. **Feldtest Beat-1-Korrektur**: Simulation auf verschiedenen Songs laufen lassen und prüfen:
+   - Crash-Detektion: Status-Bar zeigt `★ N Crashes`? Wenn 0 → `CRASH_RMS_MIN` (0.012) senken
+   - Energy-Korrektur: `[BAR] energy_beat1: ratio=Z` auf stderr — Z > 1.05 = Korrektur greift
    - Taktgitter landet auf Beat 1 (Snare-Positionen ≈ 1.0 und 3.0 beats in Diagnostik)
 
-4. **Feldtest Chroma/Bass-Visualisierung**: Nach Simulation sollten Lead-Guitar-Chroma-Shapes und Bass-Shapes im jeweiligen Track sichtbar sein. Tooltips zeigen Pitch-Klassen und (für Bass) Rhythmus-Score.
+4. **Chroma-Visualisierung**: `chroma_data` wird nach Simulation übergeben, aber die Darstellung
+   im Lead-Guitar-Track könnte überprüft werden.
 
-5. **Bass Live-Vergleich**: `bass_data` wird aktuell nur visualisiert. Für Live-Part-Erkennung müssten Bass-Chroma-Vektoren ebenfalls in `reference.db` gespeichert werden (analog `upsert_bar_chroma`).
-
-6. **Koordinatensystem Sim-Events**: Sim-Events verwenden `t_k * pps` ohne Subtraktion von
+5. **Koordinatensystem Sim-Events**: Sim-Events verwenden `t_k * pps` ohne Subtraktion von
    `seg.start_t`, JSONL-Events verwenden `(ev.t - seg.start_t) * pps` — potentieller Offset-Bug
    für Segmente die nicht bei WAV-Zeit 0 beginnen. Bisher nicht reproduziert.
 

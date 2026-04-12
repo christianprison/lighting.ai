@@ -27,6 +27,7 @@ from typing import Any
 import numpy as np
 
 from detection.beat_detector import OnsetDetector, OnsetEvent as _OnsetEvent
+from detection.bar_tracker import BarTracker
 from .recorder import MultitrackRecorder
 
 log = logging.getLogger("live.audio.process")
@@ -126,6 +127,17 @@ class AudioProcess:
         # ADC-Zeitstempel des ersten Audio-Callbacks nach Aufnahme-Start.
         self._adc_start: float | None = None
 
+        # BarTracker für Takt-Tracking (wird per set_song() konfiguriert).
+        # seg_end_t = sehr großer Wert — Live-Betrieb hat kein bekanntes Ende.
+        self._bar_tracker: BarTracker = BarTracker(
+            bpm=120.0,
+            seg_start_t=0.0,
+            seg_end_t=86400.0,
+        )
+        self._bar_tracker_lock = threading.Lock()
+        # Anzahl bereits in JSONL geloggter Takt-Einträge (verhindert Duplikate).
+        self._logged_bar_count: int = 0
+
     # --- Lifecycle ------------------------------------------------------------
 
     def start(self) -> None:
@@ -184,6 +196,42 @@ class AudioProcess:
             channels=CHANNELS_TOTAL,
             error=self._error,
         ).to_dict()
+
+    def set_song(
+        self,
+        bpm: float,
+        grundrhythmus: dict | None = None,
+        seg_start_t: float | None = None,
+    ) -> None:
+        """Konfiguriert BarTracker für einen neuen Song / Songwechsel.
+
+        Setzt den Tracker zurück und initialisiert ihn mit den neuen Song-Metadaten.
+        Thread-safe — kann aus dem FastAPI-Event-Loop aufgerufen werden.
+
+        Parameters
+        ----------
+        bpm:
+            BPM aus der Songdatenbank.
+        grundrhythmus:
+            Optional. {"kick": [0.0, 2.0], "snare": [1.0, 3.0]} — Beat-Positionen
+            (0.0=Beat1 … 3.99) für Pattern-Matching-Anker. None = Fallback auf
+            Phasen-Histogramm / Crashes.
+        seg_start_t:
+            Segment-Startzeit (absolute WAV-Zeit). None = aktuelle ADC-Zeit oder 0.
+        """
+        t0 = seg_start_t if seg_start_t is not None else (self._adc_start or 0.0)
+        with self._bar_tracker_lock:
+            self._bar_tracker = BarTracker(
+                bpm=bpm,
+                seg_start_t=t0,
+                seg_end_t=t0 + 86400.0,
+                grundrhythmus=grundrhythmus,
+            )
+            self._logged_bar_count = 0
+        log.info(
+            "BarTracker konfiguriert: bpm=%.1f  grundrhythmus=%s",
+            bpm, grundrhythmus is not None,
+        )
 
     # --- Main Thread ----------------------------------------------------------
 
@@ -286,12 +334,40 @@ class AudioProcess:
         with self._rms_lock:
             self._channel_rms = rms_per_ch
 
-        # --- Onset-Detection: Kick (CH09) + Snare (CH10) ---
+        # --- Onset-Detection: Kick (CH09) + Snare (CH10) + Crash (OH L+R) ---
         onsets = self.onset_detector.process_block(indata)
         for ev in onsets:
             self._emit(OnsetUpdate(onset_type=ev.type, energy=ev.energy))
             if el is not None:
                 el.log(ev.type, wav_offset=wav_offset, energy=round(ev.energy, 6))
+
+            # BarTracker: Onset-Events einspeisen (thread-safe via Lock)
+            t_ev = wav_offset if wav_offset is not None else 0.0
+            with self._bar_tracker_lock:
+                if ev.type == "kick":
+                    self._bar_tracker.process_kick(t_ev, energy=ev.energy)
+                elif ev.type == "snare":
+                    self._bar_tracker.process_snare(t_ev, energy=ev.energy)
+                elif ev.type == "crash":
+                    self._bar_tracker.process_crash(t_ev, energy=ev.energy)
+
+                # Bar-Events in JSONL schreiben: alle Takte, die vor t_ev liegen
+                # und noch nicht geloggt wurden (fortlaufende Numerierung).
+                if el is not None:
+                    bar_times = sorted(self._bar_tracker.get_latest_bars())
+                    bpm_val   = self._bar_tracker.get_bpm()
+                    for bar_idx, bt in enumerate(bar_times):
+                        if bar_idx < self._logged_bar_count:
+                            continue  # bereits geloggt
+                        if bt > t_ev:
+                            break     # Zukunft — noch nicht spielen
+                        el.log(
+                            "bar",
+                            wav_offset=bt,
+                            bar_num=bar_idx + 1,
+                            bpm=bpm_val,
+                        )
+                        self._logged_bar_count = bar_idx + 1
 
     # --- Emit (thread-safe → asyncio) ----------------------------------------
 

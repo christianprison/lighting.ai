@@ -90,8 +90,9 @@ Bei Dateien über dieser Grenze wird der `content`-Parameter einfach verworfen �
 
 - **Bei jeder Änderung an der DB-Pflege-App die Version in `js/app.js` hochsetzen** (Konstante `APP_VERSION` am Anfang der Datei)
 - **Bei jeder Änderung an der Live-App die Version in `live/ui/index.html` hochsetzen**
-- Patch-Version hochzählen (z.B. v0.9.7 → v0.9.8) bei normalen Änderungen
-- Minor-Version bei größeren Features (z.B. v0.9.x → v0.10.0)
+- **Bei jeder Änderung an der Rehearsal-App die Version in `rehearsal_review/mainwindow.py` hochsetzen** (Konstante `APP_VERSION` direkt unterhalb von `_ZOOM_PRESETS`)
+- Patch-Version hochzählen (z.B. v1.0.0 → v1.0.1) bei normalen Änderungen
+- Minor-Version bei größeren Features (z.B. v1.0.x → v1.1.0)
 
 ### Entwicklungsrichtlinien
 

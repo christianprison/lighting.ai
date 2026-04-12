@@ -113,6 +113,8 @@ QComboBox#zoom_combo          { font-family:'DM Mono',monospace; font-size:10px;
                                 min-width:90px; max-width:110px; }
 """
 
+APP_VERSION = "1.1.0"
+
 _ZOOM_PRESETS: list[int] = [2, 5, 10, 20, 40, 80, 160, 320, 640, 1280, 2560, 5120, 10240, 20480, 40960]
 
 
@@ -364,7 +366,7 @@ class _ImportWorker(QThread):
 class MainWindow(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
-        self.setWindowTitle("Rehearsal Post-Preparation — lighting.ai")
+        self.setWindowTitle(f"Rehearsal Post-Preparation v{APP_VERSION} — lighting.ai")
         self.setStyleSheet(_APP_STYLE)
 
         # Explicitly allow resize + maximize (prevents KDE/X11 from treating
@@ -452,6 +454,12 @@ class MainWindow(QMainWindow):
             "font-family:'DM Mono',monospace; font-size:10px; color:#a0a4b8;"
         )
         self._status.addPermanentWidget(self._pos_label)
+        _ver_label = QLabel(f"v{APP_VERSION}")
+        _ver_label.setStyleSheet(
+            "font-family:'DM Mono',monospace; font-size:10px; color:#5c6080;"
+            " padding-right:4px;"
+        )
+        self._status.addPermanentWidget(_ver_label)
 
     def _build_menu(self) -> None:
         mb = self.menuBar()

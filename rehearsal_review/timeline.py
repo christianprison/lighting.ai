@@ -170,6 +170,8 @@ class TimelineWidget(QWidget):
     event_label_clicked = pyqtSignal(float)
     # Annotation: emitted when user right-clicks a bar marker to remove it
     bar_marker_remove_requested = pyqtSignal(float)  # t_in_seg of nearest marker
+    # Debug: Rechtsklick auf OH-Track → Crash-Diagnose für diesen Zeitpunkt
+    debug_crash_requested = pyqtSignal(float)         # absolute WAV time
 
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
@@ -538,6 +540,18 @@ class TimelineWidget(QWidget):
             t = max(0.0, min(t, self.segment.duration))
             self.bar_marker_remove_requested.emit(t)
             return
+
+        # Rechtsklick auf OH L+R Track → Crash-Debug-Dialog
+        if event.button() == Qt.MouseButton.RightButton and self.segment and x >= LABEL_W:
+            oh_idx = next((i for i, t in enumerate(TRACKS) if t["label"] == "OH L+R"), None)
+            if oh_idx is not None:
+                oh_ty = TRACK_Y[oh_idx]
+                oh_th = TRACKS[oh_idx]["h"]
+                if oh_ty <= y < oh_ty + oh_th:
+                    t_rel = (x - LABEL_W + self._scroll_x) / self._pps
+                    wav_t = self.segment.start_t + max(0.0, min(t_rel, self.segment.duration))
+                    self.debug_crash_requested.emit(wav_t)
+                    return
 
         if event.button() == Qt.MouseButton.LeftButton and self.segment:
             t = (x - LABEL_W + self._scroll_x) / self._pps

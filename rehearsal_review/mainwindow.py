@@ -431,6 +431,7 @@ class MainWindow(QMainWindow):
         self._timeline.solo_mute_changed.connect(self._on_solo_mute_changed)
         self._timeline.event_label_clicked.connect(self._on_event_label_clicked)
         self._timeline.bar_marker_remove_requested.connect(self._on_remove_bar_marker)
+        self._timeline.debug_crash_requested.connect(self._debug_crash_at)
 
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
@@ -1571,6 +1572,135 @@ class MainWindow(QMainWindow):
         if self._sim_progress_dlg is not None:
             self._sim_progress_dlg.close()
             self._sim_progress_dlg = None
+
+    # ── Crash-Debug-Dialog ────────────────────────────────────────────────────
+
+    def _debug_crash_at(self, wav_t: float) -> None:
+        """Analysiert ±200ms um wav_t und erklärt, warum kein Crash erkannt wurde.
+
+        Liest das Audio direkt aus der WAV-Datei, wendet denselben 8kHz-HPF an
+        wie der CrashDetector, und zeigt alle Entscheidungsgrößen in einem Dialog.
+        """
+        import numpy as _np
+        if self._session is None:
+            return
+
+        try:
+            import soundfile as _sf
+            from scipy.signal import butter as _butter, sosfilt as _sosfilt
+            from detection.beat_detector import (
+                _CrashDetector, CH_SNARE, CH_OH_L, CH_OH_R, _make_filters,
+            )
+        except Exception as e:
+            from PyQt6.QtWidgets import QMessageBox
+            QMessageBox.warning(self, "Crash-Debug", f"Import-Fehler: {e}")
+            return
+
+        wav_path = self._session.wav_path
+        WINDOW = 0.200   # ±200ms
+
+        try:
+            with _sf.SoundFile(wav_path) as f:
+                sr      = f.samplerate
+                n_ch    = f.channels
+                t_start = max(0.0, wav_t - WINDOW)
+                t_end   = wav_t + WINDOW
+                f.seek(int(t_start * sr))
+                n_read  = int((t_end - t_start) * sr)
+                block   = f.read(n_read, dtype="float32", always_2d=True)
+        except Exception as e:
+            from PyQt6.QtWidgets import QMessageBox
+            QMessageBox.warning(self, "Crash-Debug", f"WAV-Lesefehler: {e}")
+            return
+
+        # ── OH-Mix und Snare-Kanal extrahieren ───────────────────────────────
+        def _ch(idx):
+            if n_ch > idx:
+                return block[:, idx].astype(_np.float32)
+            return _np.zeros(len(block), dtype=_np.float32)
+
+        if n_ch > max(CH_OH_L, CH_OH_R):
+            oh_mix = 0.5 * (_ch(CH_OH_L) + _ch(CH_OH_R))
+        elif n_ch > CH_OH_L:
+            oh_mix = _ch(CH_OH_L)
+        else:
+            oh_mix = _np.zeros(len(block), dtype=_np.float32)
+
+        snare_ch = _ch(CH_SNARE)
+
+        # ── 8 kHz HPF (identisch mit CrashDetector) ─────────────────────────
+        _, _, crash_sos = _make_filters(sr)
+        if crash_sos is not None:
+            oh_hpf    = _sosfilt(crash_sos, oh_mix.astype(_np.float64)).astype(_np.float32)
+            snare_hpf = _sosfilt(crash_sos, snare_ch.astype(_np.float64)).astype(_np.float32)
+        else:
+            oh_hpf    = oh_mix
+            snare_hpf = snare_ch
+
+        # ── Kennwerte berechnen ───────────────────────────────────────────────
+        oh_raw_rms   = float(_np.sqrt(_np.mean(oh_mix   ** 2)))
+        oh_hf_rms    = float(_np.sqrt(_np.mean(oh_hpf   ** 2)))
+        snare_hf_rms = float(_np.sqrt(_np.mean(snare_hpf ** 2)))
+        ratio        = snare_hf_rms / max(oh_hf_rms, 1e-9)
+
+        thresh       = _CrashDetector.CRASH_RMS_MIN
+        gate_ratio   = _CrashDetector.SNARE_BLEED_RATIO
+
+        # ── Entscheidungsbaum ─────────────────────────────────────────────────
+        rms_ok   = oh_hf_rms   >= thresh
+        gate_ok  = snare_hf_rms <= oh_hf_rms * gate_ratio   # True = kein Bleed
+
+        if rms_ok and gate_ok:
+            verdict = "✓  Crash WÜRDE erkannt werden — prüfe Cooldown!"
+        elif not rms_ok and not gate_ok:
+            verdict = ("✗  BEIDE Bedingungen nicht erfüllt:\n"
+                       "   RMS zu niedrig UND Snare-Gate aktiv")
+        elif not rms_ok:
+            verdict = (f"✗  OH-HPF-RMS ({oh_hf_rms:.4f}) < Schwellwert ({thresh:.4f})\n"
+                       f"   Benötigt: {thresh / max(oh_hf_rms, 1e-9):.1f}× mehr Pegel")
+        else:
+            verdict = (f"✗  Snare-Sidechain-Gate aktiv:\n"
+                       f"   snare_hf ({snare_hf_rms:.4f}) > oh_hf ({oh_hf_rms:.4f}) × {gate_ratio}\n"
+                       f"   → Snare-Bleed erkannt. Gate würde bei Ratio < {gate_ratio:.2f} öffnen.\n"
+                       f"   Aktuell: {ratio:.3f}  |  Limit: {gate_ratio:.2f}")
+
+        # ── Peak-Analyse: Wo im Fenster ist das Maximum? ─────────────────────
+        if len(oh_hpf) > 0:
+            peak_idx   = int(_np.argmax(_np.abs(oh_hpf)))
+            peak_t_rel = peak_idx / sr - WINDOW
+            peak_sign  = "+" if peak_t_rel >= 0 else ""
+            peak_info  = f"{peak_sign}{peak_t_rel*1000:.0f} ms vom Klick"
+        else:
+            peak_info = "n/a"
+
+        # ── Dialog anzeigen ───────────────────────────────────────────────────
+        m, s = divmod(wav_t, 60)
+        ts   = f"{int(m)}:{s:06.3f}"
+
+        msg = (
+            f"Crash-Diagnose @ {ts}  (±{int(WINDOW*1000)} ms)\n"
+            f"{'─'*48}\n"
+            f"OH-Mix roh       RMS  =  {oh_raw_rms:.5f}\n"
+            f"OH-Mix >8 kHz    RMS  =  {oh_hf_rms:.5f}  "
+            f"  (Schwellwert: {thresh:.4f})\n"
+            f"Snare >8 kHz     RMS  =  {snare_hf_rms:.5f}\n"
+            f"Snare/OH-Ratio        =  {ratio:.3f}"
+            f"  (Gate-Limit: {gate_ratio:.2f})\n"
+            f"HPF-Peak im Fenster   =  {peak_info}\n"
+            f"{'─'*48}\n"
+            f"{verdict}\n"
+            f"{'─'*48}\n"
+            f"Tipp: CRASH_RMS_MIN={thresh:.4f}, SNARE_BLEED_RATIO={gate_ratio:.2f}\n"
+            f"Zum Anpassen: detection/beat_detector.py, Klasse _CrashDetector"
+        )
+
+        from PyQt6.QtWidgets import QMessageBox
+        from PyQt6.QtGui import QFont as _QFont
+        dlg = QMessageBox(self)
+        dlg.setWindowTitle("Crash-Debug")
+        dlg.setText(msg)
+        dlg.setFont(_QFont("DM Mono", 10))
+        dlg.exec()
 
     def _on_sim_finished(self, result: dict) -> None:
         self._close_sim_progress()

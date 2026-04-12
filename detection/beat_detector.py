@@ -3,7 +3,7 @@
 Detektionsprinzip: Band-gefilterter ODF auf Sub-Window-Ebene
 ------------------------------------------------------------
 1. **Frequenzfilter** (IIR Butterworth, scipy):
-   - Kick:  Tiefpass   250 Hz  — isoliert Kick-Body, verwirft Snare/Gitarren-Bleed
+   - Kick:  Tiefpass   150 Hz  — isoliert Kick-Body, verwirft Snare/Gitarren-Bleed
    - Snare: Bandpass 800–9 kHz — verwirft Kick-Bleed (Kick-Energie fällt >500 Hz stark ab)
 
 2. **Sub-Window ODF** (positive erste Ableitung auf 5.3 ms-Ebene):
@@ -21,6 +21,11 @@ Detektionsprinzip: Band-gefilterter ODF auf Sub-Window-Ebene
      Detektor als "kalt" (z.B. nach Pause oder Neuansatz des Songs)
    - Der erste ODF-Spike nach der Stille triggert NICHT, damit der adaptive
      Median sich zunächst auf das neue Signalniveau einstellen kann
+
+5. **Snare-Sidechain-Gating für Crash-Detektion**:
+   - Snare-Direct-Mic (CH09) wird als Referenz für Bleed-Unterdrückung genutzt
+   - Crash-Trigger wird unterdrückt, wenn snare_hf_rms > oh_hf_rms × 0.3
+   - Eliminiert Snare-Bleed-Fehlauslösungen ohne Phasenversatz-Problem
 
 Kein PLL, kein BPM-Tracking, kein Beat-Counting, kein HMM.
 
@@ -43,6 +48,9 @@ log = logging.getLogger("detection.onset")
 # ---------------------------------------------------------------------------
 # Kanal-Indizes (0-basiert, XR18 USB)
 # ---------------------------------------------------------------------------
+CH_LEAD_VOCAL  = 0   # CH01 = Lead Vocal (Pete)
+CH_BACKING_1   = 1   # CH02 = Backing Vox (Axel)
+CH_BACKING_2   = 2   # CH03 = Backing Vox (Bibo/Christian)
 CH_KICK   = 8
 CH_SNARE  = 9
 CH_OH_L   = 13   # Overhead Left  — enthält Crash-Cymbals
@@ -193,13 +201,24 @@ class _CrashDetector:
 
     Verwendet Hochpass >8 kHz. Crash-Cymbals haben dort deutlich mehr Energie
     als HiHats → absoluter RMS-Schwellwert statt adaptivem Median zuverlässiger.
+
+    Snare-Sidechain-Gating:
+    Snare-Bleed in die Overheads ist die Hauptquelle für Fehlauslösungen.
+    Physikalisch gilt: Bei einem Snare-Hit ist die Snare-Direct-Mic (CH09) viel
+    lauter als die OHs nach HPF >8 kHz. Bei einem Crash-Hit ist die Snare-Mic
+    nahezu still. → Wenn snare_hf_rms > oh_hf_rms × SNARE_BLEED_RATIO → kein Crash.
+    Kein Phasenversatz-Problem, da nur RMS verglichen wird.
     """
 
-    # Absoluter RMS-Schwellwert nach Hochpass >8 kHz.
-    # HiHat-RMS bei >8 kHz: ca. 0.002–0.008 (signed L+R Mix nach HPF)
-    # Crash-RMS  bei >8 kHz: ca. 0.004–0.20
-    # Cooldown 0.8 s verhindert HiHat-Fehlauslösungen (HiHats schlagen << 0.8 s).
+    # Absoluter RMS-Schwellwert nach Hochpass >8 kHz (signed L+R Mix).
+    # Nach HPF: HiHat ca. 0.003–0.015, Crash ca. 0.004–0.10
     CRASH_RMS_MIN: float = 0.004
+
+    # Snare-Sidechain: Wenn snare_hf_rms > oh_hf_rms * dieser Faktor → Snare-Bleed.
+    # Snare-Direct bei Snare-Hit: ~10–50× lauter als OH-Bleed bei >8 kHz.
+    # Bei Crash-Hit: Snare-Mic picks up almost nothing (ratio typisch < 0.05).
+    # Konservativer Wert 0.3 → sicher nur echte Crashes durchlassen.
+    SNARE_BLEED_RATIO: float = 0.3
 
     def __init__(
         self,
@@ -211,11 +230,23 @@ class _CrashDetector:
         self._sos_zi = (
             np.zeros((filter_sos.shape[0], 2)) if filter_sos is not None else None
         )
+        # Separate IIR-Zustand für Snare-Sidechain (gleicher HPF-Filter)
+        self._snare_zi = (
+            np.zeros((filter_sos.shape[0], 2)) if filter_sos is not None else None
+        )
         self._cooldown_left = 0
         self._cooldown_samples = cooldown_samples
 
-    def process(self, block: np.ndarray) -> tuple[bool, float]:
-        """Returns (crash_detected, rms_after_hpf)."""
+    def process(
+        self,
+        block: np.ndarray,
+        snare_block: Optional[np.ndarray] = None,
+    ) -> tuple[bool, float]:
+        """Returns (crash_detected, rms_after_hpf).
+
+        snare_block: optionaler Mono-Block des Snare-Direct-Kanals (CH09).
+                     Wenn vorhanden, wird Snare-Bleed-Gating angewendet.
+        """
         if self._sos is not None:
             from scipy.signal import sosfilt
             y, self._sos_zi = sosfilt(self._sos, block.astype(np.float32), zi=self._sos_zi)
@@ -224,11 +255,27 @@ class _CrashDetector:
 
         rms = float(np.sqrt(np.mean(y ** 2)))
 
+        # Snare-Sidechain: IIR-Zustand immer aktuell halten (auch im Cooldown)
+        snare_rms = 0.0
+        if snare_block is not None and self._sos is not None and self._snare_zi is not None:
+            from scipy.signal import sosfilt
+            snare_y, self._snare_zi = sosfilt(
+                self._sos, snare_block.astype(np.float32), zi=self._snare_zi
+            )
+            snare_rms = float(np.sqrt(np.mean(snare_y ** 2)))
+
         if self._cooldown_left > 0:
             self._cooldown_left -= len(block)
             return False, rms
 
         if rms >= self.CRASH_RMS_MIN:
+            # Snare-Bleed-Gate: Snare-Direct lauter als OH → kein Crash
+            if snare_rms > rms * self.SNARE_BLEED_RATIO:
+                log.debug(
+                    "Crash unterdrückt (Snare-Bleed): snare_hf=%.4f oh_hf=%.4f ratio=%.2f",
+                    snare_rms, rms, snare_rms / (rms + 1e-9),
+                )
+                return False, rms
             self._cooldown_left = self._cooldown_samples
             return True, rms
 
@@ -238,6 +285,8 @@ class _CrashDetector:
         self._cooldown_left = 0
         if self._sos_zi is not None:
             self._sos_zi[:] = 0.0
+        if self._snare_zi is not None:
+            self._snare_zi[:] = 0.0
 
 
 # ---------------------------------------------------------------------------
@@ -343,7 +392,9 @@ class OnsetDetector:
             oh_mix = None
 
         if oh_mix is not None:
-            crash_onset, crash_odf = self._crash.process(oh_mix)
+            # Snare-Kanal als Sidechain übergeben: unterdrückt Snare-Bleed-Fehlauslösungen
+            snare_for_gate = _ch(CH_SNARE) if n_ch > CH_SNARE else None
+            crash_onset, crash_odf = self._crash.process(oh_mix, snare_for_gate)
             if crash_onset:
                 events.append(OnsetEvent(type="crash", energy=crash_odf))
 

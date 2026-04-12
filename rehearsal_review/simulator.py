@@ -1,8 +1,19 @@
 """simulator.py — Offline-Simulation der Kick/Snare-Erkennung.
 
-Läuft so schnell wie möglich (kein Echtzeit-Throttling), schreibt alle
-erkannten Events als JSONL-Datei und emittiert dann `finished`.
-Die Darstellung erfolgt nachgelagert über SimMonitorDialog.load_jsonl().
+Läuft so schnell wie möglich (kein Echtzeit-Throttling).
+
+Zwei separate Worker:
+
+SimulatorWorker  — Kernsimulation (identisch mit Live-Betrieb):
+    Schreibt alle erkannten Events als JSONL-Datei, puffert Rohsignal für
+    Lead-Guitar- (CH4) und Bass-Kanal (CH5). Fortschritt 0→100 % für
+    den Onset-Loop. Emittiert `finished` mit Kick/Snare/Crash/BarTimes/BPM
+    + Rohsignal-Arrays für PostProcessWorker.
+
+PostProcessWorker — Chroma + Bass-Visualisierung (nur Sim, nicht Live):
+    Verarbeitet die gepufferten Rohsignale mit librosa.
+    Läuft nach dem SimulatorWorker, hat einen eigenen Fortschrittsbalken.
+    Emittiert `finished` mit chroma_data + bass_data.
 
 JSONL-Format (eine JSON-Zeile pro Event, t relativ zu seg_start_t):
     {"t": 0.0,  "type": "sim_start", "data": {"song_id": …, …}}
@@ -22,19 +33,19 @@ BLOCK_SIZE = 2048
 
 
 # ---------------------------------------------------------------------------
-# Worker
+# SimulatorWorker — Kernsimulation (Prime Directive: identisch mit Live)
 # ---------------------------------------------------------------------------
 
 class SimulatorWorker(QThread):
-    """QThread der die Kick/Snare-Erkennung offline auf einer WAV-Datei ausführt.
+    """Offline-Simulation der Erkennungspipeline (Kick/Snare/Crash + BarTracker).
 
-    Batch-Processing, schreibt alle Events in eine JSONL-Datei.
-    Keine Echtzeit-Signale — Darstellung über SimMonitorDialog.load_jsonl().
+    Fortschritt 0→100 % für den Onset-Loop.  Chroma/Bass-Extraktion läuft
+    separat im PostProcessWorker — so schließt der Simulations-Dialog sobald
+    die eigentliche Erkennung fertig ist.
     """
 
     progress = pyqtSignal(float)   # 0.0–1.0
-    finished = pyqtSignal(object)  # dict: {jsonl_path, n_kicks, n_snares,
-                                   #        kicks: list[float], snares: list[float]}
+    finished = pyqtSignal(object)  # dict mit Ergebnissen + Rohsignal-Arrays
     error    = pyqtSignal(str)
 
     def __init__(
@@ -73,7 +84,8 @@ class SimulatorWorker(QThread):
 
     def _run_inner(self) -> None:
         import soundfile as sf
-        from detection.beat_detector import OnsetDetector
+        from detection.beat_detector import OnsetDetector, _CrashDetector
+        from detection.bar_tracker import BarTracker
 
         # ── WAV-Datei vorab prüfen ────────────────────────────────────────────
         with sf.SoundFile(self._wav_path) as f:
@@ -110,8 +122,6 @@ class SimulatorWorker(QThread):
 
         # ── Detektor + BarTracker initialisieren ─────────────────────────────
         detector = OnsetDetector(sample_rate=sr)
-        from detection.beat_detector import _CrashDetector
-        from detection.bar_tracker import BarTracker
         tracker = BarTracker(
             bpm=self._bpm,
             seg_start_t=self._seg_start_t,
@@ -168,13 +178,11 @@ class SimulatorWorker(QThread):
                 if block.shape[1] > BASS_CH:
                     bass_buf.append(block[:, BASS_CH].copy())
 
-                # Diagnosewert: max OH-RMS (ohne Highpass, zur Schwellwert-Kalibrierung)
+                # Diagnosewert: max OH-RMS (signed, ohne Highpass)
                 if block.shape[1] > 14:
-                    oh_mix = np.maximum(
-                        np.abs(block[:, 13].astype(np.float32)),
-                        np.abs(block[:, 14].astype(np.float32)),
-                    )
-                    _crash_rms_max = max(_crash_rms_max, float(np.sqrt(np.mean(oh_mix ** 2))))
+                    oh_diag = 0.5 * (block[:, 13].astype(np.float32)
+                                     + block[:, 14].astype(np.float32))
+                    _crash_rms_max = max(_crash_rms_max, float(np.sqrt(np.mean(oh_diag ** 2))))
 
                 # ── Onset-Detection + BarTracker (streaming) ─────────────────
                 for ev in detector.process_block(block):
@@ -196,7 +204,12 @@ class SimulatorWorker(QThread):
                 blocks_done += 1
                 if blocks_done % 50 == 0:
                     raw = (blocks_done * BLOCK_SIZE) / max(1, total_frames)
-                    self.progress.emit(min(0.90, raw * 0.90))
+                    self.progress.emit(min(0.99, raw))
+
+        # ── Finale Taktgitter-Berechnung (letzte Events einbeziehen) ─────────
+        tracker.finalize()
+        bar_times_final = tracker.get_latest_bars()
+        bpm_final       = tracker.get_bpm()
 
         print(
             f"[SIM] Fertig: {blocks_done} Blöcke, "
@@ -207,63 +220,9 @@ class SimulatorWorker(QThread):
         print(
             f"[SIM] Crashes: {len(crashes)} erkannt  "
             f"(threshold RMS >{_CrashDetector.CRASH_RMS_MIN:.4f}, "
-            f"max OH-RMS im Segment ohne HPF: {_crash_rms_max:.4f})",
+            f"max OH-RMS im Segment: {_crash_rms_max:.4f})",
             file=sys.stderr,
         )
-
-        # ── Chroma-Extraktion aus gepuffertem Audio (kein zweites File-Read) ─
-        # audio_ch4 enthält den Lead-Guitar-Kanal ab seg_start_t,
-        # identisch zu dem, was im Live-Betrieb als Ring-Buffer vorläge.
-        bar_times_final = tracker.get_latest_bars()
-        bpm_final = tracker.get_bpm()
-
-        chroma_data = []
-        if chroma_buf and bar_times_final and bpm_final > 0:
-            try:
-                from chroma_viz import extract_chroma_at_beats_from_array, compute_beat_times
-                audio_ch4 = np.concatenate(chroma_buf)
-                beat_times = compute_beat_times(bar_times_final, bpm_final)
-                beat_times = [t for t in beat_times
-                              if self._seg_start_t <= t <= self._seg_end_t]
-
-                def _chroma_progress(frac: float) -> None:
-                    self.progress.emit(0.90 + frac * 0.05)
-
-                chroma_data = extract_chroma_at_beats_from_array(
-                    audio_ch4,
-                    seg_start_t=self._seg_start_t,
-                    sample_rate=sr,
-                    beat_times_abs=beat_times,
-                    window_sec=0.28,
-                    song_key=self._song_key,
-                    progress_callback=_chroma_progress,
-                )
-                print(f"[SIM] Chroma: {len(chroma_data)} Beats extrahiert (aus Buffer)", file=sys.stderr)
-            except Exception as e:
-                print(f"[SIM] Chroma-Extraktion fehlgeschlagen: {e}", file=sys.stderr)
-
-        # ── Bass-Extraktion (Chroma + Rhythmus-Score, pro Takt) ───────────────
-        bass_data = []
-        if bass_buf and bar_times_final and bpm_final > 0:
-            try:
-                from chroma_viz import extract_bass_at_bars_from_array
-                audio_ch5 = np.concatenate(bass_buf)
-
-                def _bass_progress(frac: float) -> None:
-                    self.progress.emit(0.95 + frac * 0.05)
-
-                bass_data = extract_bass_at_bars_from_array(
-                    audio_ch5,
-                    seg_start_t=self._seg_start_t,
-                    sample_rate=sr,
-                    bar_times_abs=bar_times_final,
-                    bpm=bpm_final,
-                    song_key=self._song_key,
-                    progress_callback=_bass_progress,
-                )
-                print(f"[SIM] Bass: {len(bass_data)} Takte extrahiert (aus Buffer)", file=sys.stderr)
-            except Exception as e:
-                print(f"[SIM] Bass-Extraktion fehlgeschlagen: {e}", file=sys.stderr)
 
         self.progress.emit(1.0)
         self.finished.emit({
@@ -273,9 +232,104 @@ class SimulatorWorker(QThread):
             "n_crashes":   len(crashes),
             "kicks":       kicks,
             "snares":      snares,
-            "crashes":     crashes,   # list[tuple[float, float]]: (t_rel, rms_energy)
-            "bar_times":   tracker.get_latest_bars(),
-            "bpm":         tracker.get_bpm(),
-            "chroma_data": chroma_data,
-            "bass_data":   bass_data,  # list[dict]: {t, chroma, rhythm}
+            "crashes":     crashes,
+            "bar_times":   bar_times_final,
+            "bpm":         bpm_final,
+            # Rohsignal-Arrays für PostProcessWorker (Chroma + Bass-Visualisierung)
+            "chroma_buf":  np.concatenate(chroma_buf) if chroma_buf else np.array([], dtype=np.float32),
+            "bass_buf":    np.concatenate(bass_buf)   if bass_buf   else np.array([], dtype=np.float32),
+            "sample_rate": sr,
+            "seg_start_t": self._seg_start_t,
+            "seg_end_t":   self._seg_end_t,
+            "song_key":    self._song_key,
         })
+
+
+# ---------------------------------------------------------------------------
+# PostProcessWorker — Chroma + Bass-Visualisierung (nur Sim, nicht Live)
+# ---------------------------------------------------------------------------
+
+class PostProcessWorker(QThread):
+    """Extrahiert Chroma (Lead Guitar) und Bass-Chroma+Rhythmus nach der Simulation.
+
+    Läuft separat vom SimulatorWorker, damit der Simulations-Dialog (der den
+    Live-Algorithmus repräsentiert) sofort schließt und ein eigener
+    Post-Processing-Dialog die Visualisierungs-Arbeit zeigt.
+    """
+
+    progress = pyqtSignal(float)   # 0.0–1.0
+    finished = pyqtSignal(object)  # dict: {chroma_data, bass_data}
+
+    def __init__(
+        self,
+        chroma_buf: np.ndarray,
+        bass_buf: np.ndarray,
+        sample_rate: int,
+        seg_start_t: float,
+        seg_end_t: float,
+        bar_times: list[float],
+        bpm: int,
+        song_key: str = "",
+        parent=None,
+    ) -> None:
+        super().__init__(parent)
+        self._chroma_buf  = chroma_buf
+        self._bass_buf    = bass_buf
+        self._sr          = sample_rate
+        self._seg_start_t = seg_start_t
+        self._seg_end_t   = seg_end_t
+        self._bar_times   = bar_times
+        self._bpm         = bpm
+        self._song_key    = song_key
+
+    def run(self) -> None:
+        try:
+            self._run_inner()
+        except Exception as exc:
+            print(f"[POST] Fehler: {exc}", file=sys.stderr)
+            self.finished.emit({"chroma_data": [], "bass_data": []})
+
+    def _run_inner(self) -> None:
+        chroma_data: list[dict] = []
+        bass_data:   list[dict] = []
+
+        # ── Chroma (Lead Guitar, pro Beat) ────────────────────────────────────
+        if len(self._chroma_buf) > 0 and self._bar_times and self._bpm > 0:
+            try:
+                from chroma_viz import extract_chroma_at_beats_from_array, compute_beat_times
+                beat_times = compute_beat_times(self._bar_times, self._bpm)
+                beat_times = [t for t in beat_times
+                              if self._seg_start_t <= t <= self._seg_end_t]
+
+                chroma_data = extract_chroma_at_beats_from_array(
+                    self._chroma_buf,
+                    seg_start_t=self._seg_start_t,
+                    sample_rate=self._sr,
+                    beat_times_abs=beat_times,
+                    window_sec=0.28,
+                    song_key=self._song_key,
+                    progress_callback=lambda f: self.progress.emit(f * 0.5),
+                )
+                print(f"[POST] Chroma: {len(chroma_data)} Beats extrahiert", file=sys.stderr)
+            except Exception as e:
+                print(f"[POST] Chroma fehlgeschlagen: {e}", file=sys.stderr)
+
+        # ── Bass (pro Takt) ────────────────────────────────────────────────────
+        if len(self._bass_buf) > 0 and self._bar_times and self._bpm > 0:
+            try:
+                from chroma_viz import extract_bass_at_bars_from_array
+                bass_data = extract_bass_at_bars_from_array(
+                    self._bass_buf,
+                    seg_start_t=self._seg_start_t,
+                    sample_rate=self._sr,
+                    bar_times_abs=self._bar_times,
+                    bpm=self._bpm,
+                    song_key=self._song_key,
+                    progress_callback=lambda f: self.progress.emit(0.5 + f * 0.5),
+                )
+                print(f"[POST] Bass: {len(bass_data)} Takte extrahiert", file=sys.stderr)
+            except Exception as e:
+                print(f"[POST] Bass fehlgeschlagen: {e}", file=sys.stderr)
+
+        self.progress.emit(1.0)
+        self.finished.emit({"chroma_data": chroma_data, "bass_data": bass_data})

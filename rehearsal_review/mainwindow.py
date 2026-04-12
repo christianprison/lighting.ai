@@ -27,7 +27,7 @@ from annotation import (
     BarMarker, SongAnnotation,
     load_annotations, save_annotations,
 )
-from simulator import SimulatorWorker
+from simulator import SimulatorWorker, PostProcessWorker
 from datetime import datetime as _dt
 
 import numpy as _np
@@ -113,7 +113,7 @@ QComboBox#zoom_combo          { font-family:'DM Mono',monospace; font-size:10px;
                                 min-width:90px; max-width:110px; }
 """
 
-_ZOOM_PRESETS: list[int] = [10, 20, 40, 80, 160, 320, 640, 1280, 2560, 5120, 10240, 20480, 40960]
+_ZOOM_PRESETS: list[int] = [2, 5, 10, 20, 40, 80, 160, 320, 640, 1280, 2560, 5120, 10240, 20480, 40960]
 
 
 _PANEL_STYLE = """
@@ -398,6 +398,12 @@ class MainWindow(QMainWindow):
         self._sim_start_wav_t: float = 0.0  # WAV-Offset bei Simulations-Start
         self._sim_t_in_seg:    float = 0.0  # Segment-relative Startposition für Seek
         self._sim_bpm:         float = 120.0  # BPM zum Zeitpunkt des Sim-Starts
+        self._sim_song_key:    str   = ""   # Tonart des simulierten Songs (für Post-Processing)
+        self._last_bar_times:  list  = []   # Taktzeiten des letzten Sim-Durchlaufs
+
+        # Post-Processing (Chroma + Bass, läuft nach SimulatorWorker)
+        self._post_worker:       Optional[PostProcessWorker] = None
+        self._post_progress_dlg: Optional[QProgressDialog] = None
 
         self._player = AudioPlayer(self)
         self._player.position_changed.connect(self._on_position)
@@ -517,7 +523,7 @@ class MainWindow(QMainWindow):
         self._zoom_combo.setObjectName("zoom_combo")
         for v in _ZOOM_PRESETS:
             self._zoom_combo.addItem(f"{v} px/s", v)
-        self._zoom_combo.setCurrentIndex(3)
+        self._zoom_combo.setCurrentIndex(5)
         self._zoom_combo.currentIndexChanged.connect(self._on_zoom_combo_changed)
         tb1.addWidget(self._zoom_combo)
 
@@ -727,6 +733,7 @@ class MainWindow(QMainWindow):
             end_t=session.total_duration,
             sample_rate=session.sample_rate,
             n_points=2000,
+            use_rms=True,
         )
         self._overview_worker = ov_worker
         ov_worker.finished.connect(self._on_overview_peaks_done)
@@ -1486,6 +1493,7 @@ class MainWindow(QMainWindow):
         self._sim_start_wav_t = sim_start_wav_t
         self._sim_t_in_seg    = t_in_seg_start
         self._sim_bpm         = bpm
+        self._sim_song_key    = song_key
 
         # Progress-Overlay Modal während der Simulation
         prog = QProgressDialog(
@@ -1598,58 +1606,23 @@ class MainWindow(QMainWindow):
         bar_times: list[float] = result.get("bar_times", [])
         self._timeline.set_sim_bpm_and_bars(bpm_tl, bar_times)
 
-        chroma_data = result.get("chroma_data", [])
-        if chroma_data:
-            self._timeline.set_chroma_data(chroma_data)
-
-        bass_data = result.get("bass_data", [])
-        if bass_data:
-            self._timeline.set_bass_data(bass_data)
-
-        # Chroma-Werte in reference.db speichern (Beats → Takt-Nummern abbilden)
-        if chroma_data and bar_times and self._current_seg is not None:
-            try:
-                import bisect as _bisect
-                import numpy as _np
-                from detection.reference_db import ReferenceDB as _RDB
-
-                # ref_db neben dem WAV-Verzeichnis suchen
-                _rdb_path = None
-                if self._session:
-                    _cand = self._session.wav_path.parent.parent / "reference.db"
-                    if _cand.exists():
-                        _rdb_path = _cand
-                if _rdb_path is None:
-                    raise FileNotFoundError("reference.db nicht gefunden")
-
-                _rdb  = _RDB(_rdb_path)
-                _song = self._current_seg.song_id
-                _bars_sorted = sorted(bar_times)
-
-                # Beats auf Takt-Nummern abbilden: Takt = letzter Bar-Start <= Beat
-                _bar_chromas: dict[int, list] = {}
-                for entry in chroma_data:
-                    _idx = _bisect.bisect_right(_bars_sorted, entry["t"]) - 1
-                    if _idx >= 0:
-                        _bn = _idx + 1   # 1-basierte Taktnummer
-                        _bar_chromas.setdefault(_bn, []).append(entry["chroma"])
-
-                # Durchschnitt pro Takt bilden und in DB speichern
-                _n_stored = 0
-                for _bn, _chromas in _bar_chromas.items():
-                    _avg = _np.mean(_chromas, axis=0).astype(_np.float32)
-                    if _rdb.upsert_bar_chroma(_song, _bn, _avg):
-                        _n_stored += 1
-
-                if _n_stored > 0:
-                    self._status.showMessage(
-                        self._status.currentMessage()
-                        + f"  | ♪ {_n_stored} Chroma-Takte gespeichert",
-                        12000,
-                    )
-            except Exception as _ce:
-                print(f"[SIM] Chroma-Speicherung fehlgeschlagen: {_ce}", file=sys.stderr)
-
+        # Rohsignal-Puffer für Post-Processing (Chroma + Bass-Visualisierung)
+        self._last_bar_times = bar_times
+        chroma_buf = result.get("chroma_buf")
+        bass_buf   = result.get("bass_buf")
+        sr         = result.get("sample_rate", 48000)
+        seg_start  = result.get("seg_start_t", self._sim_start_wav_t)
+        seg_end    = result.get("seg_end_t",   seg_start + 1.0)
+        if chroma_buf is not None and (len(chroma_buf) > 0 or (bass_buf is not None and len(bass_buf) > 0)):
+            self._start_post_process(
+                chroma_buf=chroma_buf,
+                bass_buf=bass_buf if bass_buf is not None else _np.array([], dtype=_np.float32),
+                sample_rate=sr,
+                seg_start_t=seg_start,
+                seg_end_t=seg_end,
+                bar_times=bar_times,
+                bpm=sim_bpm,
+            )
 
         bpm_str = f"  ~{sim_bpm} BPM" if sim_bpm > 0 else ""
         crash_str = f"  | ★ {n_crashes} Crashes" if n_crashes > 0 else ""
@@ -1674,6 +1647,131 @@ class MainWindow(QMainWindow):
         self._sim_clear_act.setEnabled(False)
         self._status.showMessage(f"Simulation fehlgeschlagen: {err}", 8000)
         QMessageBox.critical(self, "Simulation", f"Fehler:\n{err}")
+
+    # ── Post-Processing (Chroma + Bass, läuft nach SimulatorWorker) ───────────
+
+    def _start_post_process(
+        self,
+        chroma_buf,
+        bass_buf,
+        sample_rate: int,
+        seg_start_t: float,
+        seg_end_t: float,
+        bar_times: list,
+        bpm: float,
+    ) -> None:
+        """Startet den PostProcessWorker für Chroma + Bass-Visualisierung."""
+        if self._post_worker is not None:
+            self._post_worker.requestInterruption()
+            self._post_worker = None
+
+        prog = QProgressDialog(
+            "Visualisierungsdaten berechnen …", "Abbrechen", 0, 100, self
+        )
+        prog.setWindowTitle("Post-Processing")
+        prog.setWindowModality(Qt.WindowModality.WindowModal)
+        prog.setMinimumDuration(0)
+        prog.setAutoClose(False)
+        prog.setAutoReset(False)
+        prog.setValue(0)
+        prog.setStyleSheet("""
+            QProgressDialog { background:#08090d; color:#eef0f6; }
+            QLabel           { color:#eef0f6; font-family:'Sora',sans-serif;
+                               font-size:11px; padding:8px 0 4px 0; }
+            QProgressBar     { background:#151820; border:1px solid #1e2230;
+                               border-radius:3px; text-align:center; color:#eef0f6;
+                               height:18px; min-height:18px; }
+            QProgressBar::chunk { background:#38bdf8; border-radius:3px; }
+            QPushButton      { background:#ff3b5c22; border:1px solid #ff3b5c;
+                               color:#ff3b5c; padding:4px 16px;
+                               font-family:'DM Mono',monospace; font-size:10px;
+                               border-radius:3px; }
+            QPushButton:hover { background:#ff3b5c44; }
+        """)
+        self._post_progress_dlg = prog
+
+        worker = PostProcessWorker(
+            chroma_buf=chroma_buf,
+            bass_buf=bass_buf,
+            sample_rate=sample_rate,
+            seg_start_t=seg_start_t,
+            seg_end_t=seg_end_t,
+            bar_times=bar_times,
+            bpm=int(round(bpm)) if bpm > 0 else 120,
+            song_key=self._sim_song_key,
+            parent=self,
+        )
+        prog.canceled.connect(worker.requestInterruption)
+        worker.progress.connect(lambda v: prog.setValue(int(v * 100)))
+        worker.finished.connect(self._on_post_process_finished)
+        self._post_worker = worker
+        worker.start()
+        prog.show()
+
+    def _on_post_process_finished(self, result: dict) -> None:
+        """Empfängt Chroma + Bass-Daten vom PostProcessWorker."""
+        if self._post_progress_dlg is not None:
+            self._post_progress_dlg.close()
+            self._post_progress_dlg = None
+        self._post_worker = None
+
+        chroma_data = result.get("chroma_data", [])
+        if chroma_data:
+            self._timeline.set_chroma_data(chroma_data)
+
+        bass_data = result.get("bass_data", [])
+        if bass_data:
+            self._timeline.set_bass_data(bass_data)
+
+        # Chroma-Werte in reference.db speichern (Beats → Takt-Nummern abbilden)
+        bar_times = self._last_bar_times
+        if chroma_data and bar_times and self._current_seg is not None:
+            try:
+                import bisect as _bisect
+                from detection.reference_db import ReferenceDB as _RDB
+
+                _rdb_path = None
+                if self._session:
+                    _cand = self._session.wav_path.parent.parent / "reference.db"
+                    if _cand.exists():
+                        _rdb_path = _cand
+                if _rdb_path is None:
+                    raise FileNotFoundError("reference.db nicht gefunden")
+
+                _rdb  = _RDB(_rdb_path)
+                _song = self._current_seg.song_id
+                _bars_sorted = sorted(bar_times)
+
+                _bar_chromas: dict[int, list] = {}
+                for entry in chroma_data:
+                    _idx = _bisect.bisect_right(_bars_sorted, entry["t"]) - 1
+                    if _idx >= 0:
+                        _bn = _idx + 1
+                        _bar_chromas.setdefault(_bn, []).append(entry["chroma"])
+
+                _n_stored = 0
+                for _bn, _chromas in _bar_chromas.items():
+                    _avg = _np.mean(_chromas, axis=0).astype(_np.float32)
+                    if _rdb.upsert_bar_chroma(_song, _bn, _avg):
+                        _n_stored += 1
+
+                if _n_stored > 0:
+                    self._status.showMessage(
+                        self._status.currentMessage()
+                        + f"  | ♪ {_n_stored} Chroma-Takte gespeichert",
+                        12000,
+                    )
+            except Exception as _ce:
+                print(f"[POST] Chroma-Speicherung fehlgeschlagen: {_ce}", file=sys.stderr)
+
+        n_bass = len(bass_data)
+        n_chroma = len(chroma_data)
+        if n_chroma > 0 or n_bass > 0:
+            self._status.showMessage(
+                self._status.currentMessage()
+                + f"  | ♫ {n_chroma} Chroma-Beats  {n_bass} Bass-Takte",
+                12000,
+            )
 
     def _zoom_fit(self) -> None:
         if self._current_seg is None:

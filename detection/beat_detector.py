@@ -329,12 +329,14 @@ class OnsetDetector:
         if snare_onset:
             events.append(OnsetEvent(type="snare", energy=snare_odf))
 
-        # Crash: L+R summiert (max) → mehr Energie, robustere Erkennung
+        # Crash: SIGNED L+R-Mix (kein abs vor dem Filter!).
+        # abs() vor dem Hochpass zerstört den Hochfrequenz-Inhalt: der Filter sieht
+        # dann die Hüllkurve des gleichgerichteten Signals, nicht das Originalsignal.
+        # RMS des gefilterten Originalsignals ist ~10x größer als RMS der gefilterten
+        # Hüllkurve → CRASH_RMS_MIN wäre sonst nie erreichbar.
         if n_ch > max(CH_OH_L, CH_OH_R):
-            oh_mix = np.maximum(
-                np.abs(block[:, CH_OH_L].astype(np.float32)),
-                np.abs(block[:, CH_OH_R].astype(np.float32)),
-            )
+            oh_mix = 0.5 * (block[:, CH_OH_L].astype(np.float32)
+                            + block[:, CH_OH_R].astype(np.float32))
         elif n_ch > CH_OH_L:
             oh_mix = block[:, CH_OH_L].astype(np.float32)
         else:

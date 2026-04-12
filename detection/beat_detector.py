@@ -48,6 +48,9 @@ log = logging.getLogger("detection.onset")
 # ---------------------------------------------------------------------------
 # Kanal-Indizes (0-basiert, XR18 USB)
 # ---------------------------------------------------------------------------
+CH_LEAD_VOCAL  = 0   # CH01 = Lead Vocal (Pete)
+CH_BACKING_1   = 1   # CH02 = Backing Vox (Axel)
+CH_BACKING_2   = 2   # CH03 = Backing Vox (Bibo/Christian)
 CH_KICK   = 8
 CH_SNARE  = 9
 CH_OH_L   = 13   # Overhead Left  — enthält Crash-Cymbals

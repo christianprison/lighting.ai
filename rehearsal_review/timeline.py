@@ -209,6 +209,9 @@ class TimelineWidget(QWidget):
         # Bass-Daten pro Takt — {t, chroma, rhythm}
         self._bass_data: list[dict] = []
 
+        # Vocal-VAD pro 50ms-Fenster — {t, active, rms}
+        self._vocal_data: list[dict] = []
+
         # Overlay-Modus: wenn True, JSONL-Events bei 25 % Opazität,
         # Sim-Events in vollen AMBER/CYAN-Farben (wie JSONL-Events).
         # Wenn False, Sim-Events als halbtransparentes Violett-Overlay.
@@ -337,6 +340,7 @@ class TimelineWidget(QWidget):
         self._sim_bar_times    = []
         self._chroma_data      = []
         self._bass_data        = []
+        self._vocal_data       = []
         self.update()
 
     def set_chroma_data(self, data: list[dict]) -> None:
@@ -347,6 +351,11 @@ class TimelineWidget(QWidget):
     def set_bass_data(self, data: list[dict]) -> None:
         """Setzt Bass-Daten (Liste von {t, chroma, rhythm}) für die Bass-Zeile."""
         self._bass_data = data
+        self.update()
+
+    def set_vocal_data(self, data: list[dict]) -> None:
+        """Setzt Vocal-VAD-Daten (Liste von {t, active, rms}) für den Lead-Vocal-Track."""
+        self._vocal_data = data
         self.update()
 
     def set_sim_bpm_and_bars(
@@ -1291,6 +1300,10 @@ class TimelineWidget(QWidget):
         p.setPen(C_BORDER)
         p.drawLine(LABEL_W, y + h - 1, w, y + h - 1)
 
+        # Vocal-VAD-Overlay auf dem Lead-Vocal-Track (CH01, idx 0)
+        if track.get("ch") == 0 and self._vocal_data:
+            self._paint_vocal_overlay(p, y, h, vl, vr)
+
         p.setPen(QPen(C_T4, 1))
         p.drawLine(LABEL_W, mid, w, mid)
 
@@ -1366,6 +1379,53 @@ class TimelineWidget(QWidget):
 
         # Beat / snare / downbeat diamonds on designated tracks
         self._paint_event_markers(p, track, y, h, vl, vr)
+
+    def _paint_vocal_overlay(self, p: QPainter, y: int, h: int,
+                              vl: int, vr: int) -> None:
+        """Zeichnet Vokal-Aktivitäts-Overlay auf den Lead-Vocal-Track.
+
+        Aktive Fenster (50ms) werden als halbtransparenter violetter Hintergrund
+        hervorgehoben. Stille Fenster bleiben dunkel.
+        """
+        if not self.segment or not self._vocal_data:
+            return
+
+        seg  = self.segment
+        pps  = self._pps
+        ox   = self._scroll_x
+
+        # Fensterdauer in Pixeln (aus erstem Paar ableiten; Fallback 3px)
+        if len(self._vocal_data) >= 2:
+            dt_sec  = self._vocal_data[1]["t"] - self._vocal_data[0]["t"]
+            win_px  = max(2, int(dt_sec * pps))
+        else:
+            win_px = 3
+
+        # Violettes Semi-Transparent für aktive Fensterbereiche
+        VOCAL_ACTIVE = QColor(0xa0, 0x70, 0xff, 45)
+
+        p.setPen(Qt.PenStyle.NoPen)
+        p.setBrush(QBrush(VOCAL_ACTIVE))
+
+        # Nur sichtbare Fenster rendern — binäre Suche auf t-Werten
+        t0_vis = seg.start_t + (vl - LABEL_W + ox) / pps
+        t1_vis = seg.start_t + (vr         + ox) / pps
+
+        import bisect as _bisect
+        ts = [e["t"] for e in self._vocal_data]
+        i_start = max(0, _bisect.bisect_left(ts, t0_vis) - 1)
+
+        for i in range(i_start, len(self._vocal_data)):
+            entry = self._vocal_data[i]
+            if entry["t"] > t1_vis:
+                break
+            if not entry["active"]:
+                continue
+            x = LABEL_W + int((entry["t"] - seg.start_t) * pps) - ox
+            x0 = max(LABEL_W, x)
+            x1 = min(self.width(), x + win_px)
+            if x1 > x0:
+                p.fillRect(x0, y, x1 - x0, h, VOCAL_ACTIVE)
 
     def _paint_event_markers(self, p: QPainter, track: dict,
                               ty: int, th: int, vl: int, vr: int) -> None:

@@ -136,12 +136,14 @@ class SimulatorWorker(QThread):
         crashes: list[tuple[float, float]] = []   # (t_rel, rms_energy)
         blocks_done = 0
 
-        # Chroma- und Bass-Kanal im selben Pass puffern — kein zweites File-Read
+        # Chroma-, Bass- und Vocal-Kanal im selben Pass puffern — kein zweites File-Read
         # (Prime Directive: Simulation = Live, ein Algorithmus, kein Lookahead).
         CHROMA_CH = 4   # CH05 = Lead Guitar L
         BASS_CH   = 5   # CH06 = Bass
+        VOCAL_CH  = 0   # CH01 = Lead Vocal (Pete)
         chroma_buf: list[np.ndarray] = []
         bass_buf:   list[np.ndarray] = []
+        vocal_buf:  list[np.ndarray] = []
         _crash_rms_max = 0.0   # Diagnosewert: höchster OH-RMS im Durchlauf
 
         self._output_jsonl.parent.mkdir(parents=True, exist_ok=True)
@@ -175,11 +177,13 @@ class SimulatorWorker(QThread):
 
                 t_mid = blocks_done * BLOCK_SIZE / sr + (block.shape[0] / 2) / sr
 
-                # Chroma-Kanal puffern (Lead Guitar L) + Bass-Kanal puffern
+                # Chroma-Kanal puffern (Lead Guitar L) + Bass- + Vocal-Kanal
                 if block.shape[1] > CHROMA_CH:
                     chroma_buf.append(block[:, CHROMA_CH].copy())
                 if block.shape[1] > BASS_CH:
                     bass_buf.append(block[:, BASS_CH].copy())
+                if block.shape[1] > VOCAL_CH:
+                    vocal_buf.append(block[:, VOCAL_CH].copy())
 
                 # Diagnosewert: max OH-RMS (signed, ohne Highpass)
                 if block.shape[1] > 14:
@@ -238,9 +242,10 @@ class SimulatorWorker(QThread):
             "crashes":     crashes,
             "bar_times":   bar_times_final,
             "bpm":         bpm_final,
-            # Rohsignal-Arrays für PostProcessWorker (Chroma + Bass-Visualisierung)
+            # Rohsignal-Arrays für PostProcessWorker (Chroma + Bass + Vocal)
             "chroma_buf":  np.concatenate(chroma_buf) if chroma_buf else np.array([], dtype=np.float32),
             "bass_buf":    np.concatenate(bass_buf)   if bass_buf   else np.array([], dtype=np.float32),
+            "vocal_buf":   np.concatenate(vocal_buf)  if vocal_buf  else np.array([], dtype=np.float32),
             "sample_rate": sr,
             "seg_start_t": self._seg_start_t,
             "seg_end_t":   self._seg_end_t,
@@ -253,20 +258,23 @@ class SimulatorWorker(QThread):
 # ---------------------------------------------------------------------------
 
 class PostProcessWorker(QThread):
-    """Extrahiert Chroma (Lead Guitar) und Bass-Chroma+Rhythmus nach der Simulation.
+    """Extrahiert Chroma (Lead Guitar), Bass-Chroma+Rhythmus und Vocal-VAD nach der Simulation.
 
     Läuft separat vom SimulatorWorker, damit der Simulations-Dialog (der den
     Live-Algorithmus repräsentiert) sofort schließt und ein eigener
     Post-Processing-Dialog die Visualisierungs-Arbeit zeigt.
+
+    Fortschritt: 0–40 % Chroma, 40–80 % Bass, 80–100 % Vocal-VAD.
     """
 
     progress = pyqtSignal(float)   # 0.0–1.0
-    finished = pyqtSignal(object)  # dict: {chroma_data, bass_data}
+    finished = pyqtSignal(object)  # dict: {chroma_data, bass_data, vocal_data}
 
     def __init__(
         self,
         chroma_buf: np.ndarray,
         bass_buf: np.ndarray,
+        vocal_buf: np.ndarray,
         sample_rate: int,
         seg_start_t: float,
         seg_end_t: float,
@@ -278,6 +286,7 @@ class PostProcessWorker(QThread):
         super().__init__(parent)
         self._chroma_buf  = chroma_buf
         self._bass_buf    = bass_buf
+        self._vocal_buf   = vocal_buf
         self._sr          = sample_rate
         self._seg_start_t = seg_start_t
         self._seg_end_t   = seg_end_t
@@ -290,13 +299,14 @@ class PostProcessWorker(QThread):
             self._run_inner()
         except Exception as exc:
             print(f"[POST] Fehler: {exc}", file=sys.stderr)
-            self.finished.emit({"chroma_data": [], "bass_data": []})
+            self.finished.emit({"chroma_data": [], "bass_data": [], "vocal_data": []})
 
     def _run_inner(self) -> None:
         chroma_data: list[dict] = []
         bass_data:   list[dict] = []
+        vocal_data:  list[dict] = []
 
-        # ── Chroma (Lead Guitar, pro Beat) ────────────────────────────────────
+        # ── Chroma (Lead Guitar, pro Beat) — 0–40 % ───────────────────────────
         if len(self._chroma_buf) > 0 and self._bar_times and self._bpm > 0:
             try:
                 from chroma_viz import extract_chroma_at_beats_from_array, compute_beat_times
@@ -311,13 +321,13 @@ class PostProcessWorker(QThread):
                     beat_times_abs=beat_times,
                     window_sec=0.28,
                     song_key=self._song_key,
-                    progress_callback=lambda f: self.progress.emit(f * 0.5),
+                    progress_callback=lambda f: self.progress.emit(f * 0.4),
                 )
                 print(f"[POST] Chroma: {len(chroma_data)} Beats extrahiert", file=sys.stderr)
             except Exception as e:
                 print(f"[POST] Chroma fehlgeschlagen: {e}", file=sys.stderr)
 
-        # ── Bass (pro Takt) ────────────────────────────────────────────────────
+        # ── Bass (pro Takt) — 40–80 % ─────────────────────────────────────────
         if len(self._bass_buf) > 0 and self._bar_times and self._bpm > 0:
             try:
                 from chroma_viz import extract_bass_at_bars_from_array
@@ -328,11 +338,34 @@ class PostProcessWorker(QThread):
                     bar_times_abs=self._bar_times,
                     bpm=self._bpm,
                     song_key=self._song_key,
-                    progress_callback=lambda f: self.progress.emit(0.5 + f * 0.5),
+                    progress_callback=lambda f: self.progress.emit(0.4 + f * 0.4),
                 )
                 print(f"[POST] Bass: {len(bass_data)} Takte extrahiert", file=sys.stderr)
             except Exception as e:
                 print(f"[POST] Bass fehlgeschlagen: {e}", file=sys.stderr)
 
+        # ── Vocal VAD (Lead Vocal, pro 50ms-Fenster) — 80–100 % ──────────────
+        if len(self._vocal_buf) > 0:
+            try:
+                from chroma_viz import extract_vocal_activity
+                self.progress.emit(0.8)
+                vocal_data = extract_vocal_activity(
+                    self._vocal_buf,
+                    sample_rate=self._sr,
+                    seg_start_t=self._seg_start_t,
+                )
+                n_active = sum(1 for e in vocal_data if e["active"])
+                print(
+                    f"[POST] Vocal VAD: {len(vocal_data)} Fenster, "
+                    f"{n_active} aktiv ({100*n_active//max(1,len(vocal_data))} %)",
+                    file=sys.stderr,
+                )
+            except Exception as e:
+                print(f"[POST] Vocal VAD fehlgeschlagen: {e}", file=sys.stderr)
+
         self.progress.emit(1.0)
-        self.finished.emit({"chroma_data": chroma_data, "bass_data": bass_data})
+        self.finished.emit({
+            "chroma_data": chroma_data,
+            "bass_data":   bass_data,
+            "vocal_data":  vocal_data,
+        })

@@ -13,6 +13,7 @@ import numpy as np
 PITCH_CLASSES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 
 # XR18-Kanal-Indizes (0-basiert) für Audio-Feature-Extraktion
+CH_LEAD_VOCAL  = 0   # CH01 = Lead Vocal (Pete)
 CH_LEAD_GUITAR = 4   # CH05 = Lead Guitar L
 CH_BASS        = 5   # CH06 = Bass
 
@@ -288,6 +289,65 @@ def compute_beat_times(bar_times: list[float], bpm: float) -> list[float]:
         beats.add(round(last_bar + k * beat_sec, 6))
 
     return sorted(beats)
+
+
+def extract_vocal_activity(
+    vocal_buf: "np.ndarray",
+    sample_rate: int,
+    seg_start_t: float = 0.0,
+    window_sec: float = 0.05,
+    rms_threshold: "float | None" = None,
+) -> list[dict]:
+    """Extrahiert Vokal-Aktivität (VAD) aus dem Lead-Vocal-Kanal.
+
+    Algorithmus: Bandpass 200–4000 Hz (verwirft Kick/Bass), RMS pro 50ms-Fenster,
+    adaptiver Schwellwert (40 % des 75. Perzentils; Minimum 2 mV).
+
+    Args:
+        vocal_buf:      Mono-Puffer float32 des Lead-Vocal-Kanals.
+        sample_rate:    Abtastrate in Hz.
+        seg_start_t:    Absoluter WAV-Zeitstempel des ersten Samples.
+        window_sec:     Fenstergröße für RMS-Berechnung (Standard: 50 ms).
+        rms_threshold:  Fester RMS-Schwellwert; None = auto-adaptiv.
+
+    Returns:
+        list[dict] mit {"t": float, "active": bool, "rms": float} pro Fenster.
+        Erweiterbar um "f0", "voiced", "chroma" für spätere pyin-Integration.
+    """
+    if len(vocal_buf) == 0:
+        return []
+
+    try:
+        from scipy.signal import butter, sosfilt
+        nyq = sample_rate / 2.0
+        # Bandpass 200–4000 Hz: Gesangsstimme, verwirft Kick/Bass und HF-Rauschen
+        _sos = butter(4, [200.0 / nyq, 4000.0 / nyq], btype="band", output="sos")
+        filtered = sosfilt(_sos, vocal_buf.astype(np.float64)).astype(np.float32)
+    except Exception:
+        filtered = vocal_buf.astype(np.float32)
+
+    win_samples = max(1, int(window_sec * sample_rate))
+    n_windows   = len(filtered) // win_samples
+    if n_windows == 0:
+        return []
+
+    # RMS pro Fenster (vektorisiert)
+    frames = filtered[: n_windows * win_samples].reshape(n_windows, win_samples)
+    rms_arr = np.sqrt(np.mean(frames ** 2, axis=1))   # shape (n_windows,)
+
+    # Adaptiver Schwellwert: 40 % des 75. Perzentils, mindestens 2 mV
+    if rms_threshold is None:
+        p75 = float(np.percentile(rms_arr, 75))
+        rms_threshold = max(2e-3, p75 * 0.4)
+
+    result: list[dict] = []
+    for i, rms in enumerate(rms_arr):
+        result.append({
+            "t":      round(seg_start_t + i * window_sec, 4),
+            "active": bool(float(rms) >= rms_threshold),
+            "rms":    round(float(rms), 6),
+        })
+    return result
 
 
 def bass_rhythm_score(

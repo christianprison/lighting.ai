@@ -113,7 +113,7 @@ QComboBox#zoom_combo          { font-family:'DM Mono',monospace; font-size:10px;
                                 min-width:90px; max-width:110px; }
 """
 
-APP_VERSION = "1.1.0"
+APP_VERSION = "1.1.3"
 
 _ZOOM_PRESETS: list[int] = [2, 5, 10, 20, 40, 80, 160, 320, 640, 1280, 2560, 5120, 10240, 20480, 40960]
 
@@ -1617,17 +1617,20 @@ class MainWindow(QMainWindow):
         bar_times: list[float] = result.get("bar_times", [])
         self._timeline.set_sim_bpm_and_bars(bpm_tl, bar_times)
 
-        # Rohsignal-Puffer für Post-Processing (Chroma + Bass-Visualisierung)
+        # Rohsignal-Puffer für Post-Processing (Chroma + Bass + Vocal-VAD)
         self._last_bar_times = bar_times
         chroma_buf = result.get("chroma_buf")
         bass_buf   = result.get("bass_buf")
+        vocal_buf  = result.get("vocal_buf")
         sr         = result.get("sample_rate", 48000)
         seg_start  = result.get("seg_start_t", self._sim_start_wav_t)
         seg_end    = result.get("seg_end_t",   seg_start + 1.0)
-        if chroma_buf is not None and (len(chroma_buf) > 0 or (bass_buf is not None and len(bass_buf) > 0)):
+        _empty = _np.array([], dtype=_np.float32)
+        if chroma_buf is not None and (len(chroma_buf) > 0 or (bass_buf is not None and len(bass_buf) > 0) or (vocal_buf is not None and len(vocal_buf) > 0)):
             self._start_post_process(
                 chroma_buf=chroma_buf,
-                bass_buf=bass_buf if bass_buf is not None else _np.array([], dtype=_np.float32),
+                bass_buf=bass_buf  if bass_buf  is not None else _empty,
+                vocal_buf=vocal_buf if vocal_buf is not None else _empty,
                 sample_rate=sr,
                 seg_start_t=seg_start,
                 seg_end_t=seg_end,
@@ -1709,13 +1712,14 @@ class MainWindow(QMainWindow):
         self,
         chroma_buf,
         bass_buf,
+        vocal_buf,
         sample_rate: int,
         seg_start_t: float,
         seg_end_t: float,
         bar_times: list,
         bpm: float,
     ) -> None:
-        """Startet den PostProcessWorker für Chroma + Bass-Visualisierung."""
+        """Startet den PostProcessWorker für Chroma + Bass + Vocal-VAD-Visualisierung."""
         if self._post_worker is not None:
             self._post_worker.requestInterruption()
             self._post_worker = None
@@ -1748,6 +1752,7 @@ class MainWindow(QMainWindow):
         worker = PostProcessWorker(
             chroma_buf=chroma_buf,
             bass_buf=bass_buf,
+            vocal_buf=vocal_buf,
             sample_rate=sample_rate,
             seg_start_t=seg_start_t,
             seg_end_t=seg_end_t,
@@ -1764,7 +1769,7 @@ class MainWindow(QMainWindow):
         prog.show()
 
     def _on_post_process_finished(self, result: dict) -> None:
-        """Empfängt Chroma + Bass-Daten vom PostProcessWorker."""
+        """Empfängt Chroma + Bass + Vocal-VAD-Daten vom PostProcessWorker."""
         if self._post_progress_dlg is not None:
             self._post_progress_dlg.close()
             self._post_progress_dlg = None
@@ -1777,6 +1782,10 @@ class MainWindow(QMainWindow):
         bass_data = result.get("bass_data", [])
         if bass_data:
             self._timeline.set_bass_data(bass_data)
+
+        vocal_data = result.get("vocal_data", [])
+        if vocal_data:
+            self._timeline.set_vocal_data(vocal_data)
 
         # Chroma-Werte in reference.db speichern (Beats → Takt-Nummern abbilden)
         bar_times = self._last_bar_times

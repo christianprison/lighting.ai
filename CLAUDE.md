@@ -522,25 +522,32 @@ probe_events   (id, session_id, wav_offset, song_id, bar_num, part_name, confide
 
 #### Simulation (simulator.py)
 
-`SimulatorWorker(QThread)` repliziert die Erkennungspipeline **offline** (so schnell wie möglich, kein Echtzeit-Throttling):
+Zwei Worker — **Prime Directive bleibt**: SimulatorWorker = Live-Algorithmus, PostProcessWorker = reine Visualisierung.
+
+`SimulatorWorker(QThread)` repliziert die Erkennungspipeline **offline**:
 - Liest WAV **immer ab Segment-Anfang** in BLOCK_SIZE=2048-Blöcken
 - Schickt jeden Block durch `OnsetDetector.process_block()` (Kick CH08, Snare CH09, Crash CH13+14)
 - Schreibt alle Events in eine **JSONL-Datei** (`{stem}_sim_{song_id}_{HHmmss}.jsonl`)
-- Während der Simulation: **Progress-Modal** (`QProgressDialog`) — 0–90% Onset-Loop, 90–95% Chroma, 95–100% Bass
-- Emittiert `progress(float)` und `finished(dict)`, kein Echtzeit-Streaming
-- `finished`-Dict: `jsonl_path`, `n_kicks`, `n_snares`, `n_crashes`, `kicks`, `snares`, `crashes` (alle `list[float]`), `bar_times`, `bpm`, `chroma_data`, `bass_data`
-- `bass_data`: `list[dict]` — `{"t": float, "chroma": list[float], "rhythm": float}` pro Takt
+- Puffert Chroma-Kanal (CH4) und Bass-Kanal (CH5) als Rohsignal-Arrays
+- Ruft `tracker.finalize()` am Ende des Onset-Loops auf (flusht letzte <8 Events)
+- Progress-Modal: 0–100 % für Onset-Loop
+- `finished`-Dict: `jsonl_path`, `n_kicks`, `n_snares`, `n_crashes`, `kicks`, `snares`, `crashes`, `bar_times`, `bpm`, **`chroma_buf`** (np.ndarray), **`bass_buf`** (np.ndarray), `sample_rate`, `seg_start_t`, `seg_end_t`, `song_key`
 - Sim-JSONL-Dateien werden im Dateiauswahldialog automatisch ausgeblendet (`_HideSimFiles` Proxy)
-- Parameter `song_key` (aus DB, z.B. `"D dur"`) wird an `extract_chroma_at_beats()` und `extract_bass_at_bars_from_array()` übergeben → In-Key-Pitchklassen ×2 gewichtet
 - Nach Simulation: Status-Bar zeigt `★ N Crashes` wenn Crashes erkannt wurden
-- Diagnose stderr: `[SIM] Crashes: N erkannt (threshold RMS >0.025)`
-- Diagnose stderr: `[SIM] Bass: N Takte extrahiert (aus Buffer)`
+- Diagnose stderr: `[SIM] Crashes: N erkannt (threshold RMS >0.0040, max OH-RMS im Segment: X.XXXX)`
+
+`PostProcessWorker(QThread)` — nur Visualisierung, nicht Live:
+- Empfängt `chroma_buf` + `bass_buf` von `SimulatorWorker.finished`
+- Eigenes Progress-Modal (cyan Fortschrittsbalken): 0–50 % Chroma, 50–100 % Bass
+- `finished`-Dict: `{"chroma_data": list[dict], "bass_data": list[dict]}`
+- `chroma_data`: `[{"t": float, "chroma": list[float]}, ...]` pro Beat
+- `bass_data`: `[{"t": float, "chroma": list[float], "rhythm": float}, ...]` pro Takt
 
 **Bass-Analyse (`chroma_viz.py`):**
 - `CH_BASS = 5` (CH06 = Bass); `CH_LEAD_GUITAR = 4`
 - `bass_rhythm_score(audio_clip, sample_rate, bpm) -> float`: librosa `onset_strength` + `onset_detect` → IOIs (gefiltert: 0.05 s bis 4 Takte) → `max(0, 1 - 2 * |ioi - nächstes_8tel_vielfaches| / eighth_sec)` → Mittelwert. Wert 1.0 = perfekte 8tel, 0.0 = Rhythmus weicht um halbe 8tel-Periode ab
-- `extract_bass_at_bars_from_array(audio, seg_start_t, sample_rate, bar_times_abs, bpm, song_key, progress_callback) -> list[dict]`: CQT-Chroma mit HPSS margin=4 (harmonic component), Rhythmus-Score auf Rohsignal; pro Takt: Fenster von `bar_times_abs[i]` bis `bar_times_abs[i+1]`
-- `chroma_shape_type(chroma) -> str`: `"line"` (1 Klasse), `"triangle"` (2), `"diamond"` (3), `"pentagon"` (4–5), `"circle"` (6+)
+- `extract_bass_at_bars_from_array(...)`: Bandpass **30–300 Hz** (scipy Butterworth, einmalig berechnet) isoliert Bass-Grundtöne; HPSS **margin=8**; `chroma_cqt` mit `fmin=C1`; **Power-Normalisierung** (chroma² dann L2-norm) für scharfe Pitch-Klassen-Peaks; stille Takte (RMS < 2×10⁻⁴) werden übersprungen; `hop_length=256`
+- `chroma_shape_type(chroma) -> str`: `"line"` (1–2 Klassen), `"triangle"` (3), `"diamond"` (4), `"pentagon"` (5), `"circle"` (6+)
 
 **Bass-Visualisierung (Timeline):**
 - `set_bass_data(data)`: setzt `_bass_data` und triggert `update()`
@@ -577,20 +584,24 @@ Band-gefilterter ODF auf Sub-Window-Ebene (kein PLL, kein HMM, kein BPM-Tracking
    - Verhindert False Positives beim Neueinsatz des Songs
 
 5. **`_CrashDetector`** (RMS-basiert, kein adaptiver Median):
-   - Crash CH13+14: `max(abs(OH_L), abs(OH_R))` → Hochpass 8 kHz → RMS
-   - `CRASH_RMS_MIN = 0.025` — klare Separation: HiHat-RMS ~0.005–0.02, Crash ~0.03–0.30
+   - Crash CH13+14: signed L+R Mix `0.5*(OH_L + OH_R)` → Hochpass 8 kHz → RMS
+   - `CRASH_RMS_MIN = 0.004` — nach 8kHz-HPF bleiben vom Rohsignal nur ~0.004–0.009 übrig; kein `abs()` vor dem Filter (würde Hochfrequenzanteil zerstören)
    - Cooldown: 0.8 s (erlaubt Crash auf jedem Takt bei 90+ BPM)
    - Erkennte Crashes gehen an `BarTracker.process_crash()` zur Beat-1-Phasen-Korrektur
 
 Parameter:
 - Kick: `threshold_factor=3.0`, `abs_rms_min=5e-3`, `cooldown=220 ms`
 - Snare: `threshold_factor=2.2`, `abs_rms_min=3e-3`, `cooldown=280 ms`
-- Crash: `CRASH_RMS_MIN=0.025`, `cooldown=800 ms`
+- Crash: `CRASH_RMS_MIN=0.004`, `cooldown=800 ms`
 - `ONSET_MIN_ODF=4e-3`, `SILENCE_BLOCKS=12`, `SUB_WIN=256`
 
 #### BarTracker (`detection/bar_tracker.py`)
 
 Streaming Takt-Tracker — verarbeitet Kick/Snare/Crash-Events inkrementell, kein Lookahead:
+
+**Update-Throttling + Finalisierung**:
+- `_UPDATE_EVERY = 8` — `_update()` wird nur alle 8 Kick+Snare-Events aufgerufen (Performance)
+- `finalize()` — muss nach dem Onset-Loop aufgerufen werden (z.B. in `SimulatorWorker`), löst ein letztes `_update()` aus und füllt `bar_times` bis zum Segment-Ende auf
 
 **BPM-Schätzung** (`_compute_bpm_from_events`):
 - Nur die **letzten 8** kombinierten Kick+Snare-Events (medianer IOI, 60–220 BPM)
@@ -622,12 +633,13 @@ Wenn ein Song kein `grundrhythmus` hat, wird Phasen-Histogramm + Crash-Fallback 
 - `[BAR] energy_beat1: phase_curr_avg=X phase_alt_avg=Y ratio=Z` — Z>1.05 = Korrektur ausgelöst
 - `[BAR] _snare_phase_correct: T → T' (+N Beats, scores=[...])` — welche Korrektur angewendet
 - `[BAR] Snare-Positionen in Takten (Beat 2≈1.0, Beat 4≈3.0): [...]` — Qualitätsprüfung
-- `[SIM] Crashes: N erkannt (threshold RMS >0.012)` — Crash-Detektion-Diagnose
+- `[SIM] Crashes: N erkannt (threshold RMS >0.0040)` — Crash-Detektion-Diagnose
 
 #### Overview-Waveform (`mainwindow.py` + `overview.py`)
 
-- Zeigt Main L+R (CH 16+17 aus dem 18-Kanal-WAV) als volle Session-Hüllkurve
-- Fallback: wenn `session.n_channels < 18` → CH 0+1
+- Zeigt **mittleren RMS aller `DISPLAY_CHANNELS` (0–13)** als volle Session-Hüllkurve — alle Instrumentenspuren, nicht nur Main L/R Bus
+- `PeakWorker` läuft mit `use_rms=True`: speichert ±RMS statt min/max-Peaksamples pro Punkt
+- Normalisierung auf 95. Perzentile (`np.percentile(pk_max, 95)`) damit kleine RMS-Werte (0.01–0.1) sichtbar werden
 - **Playhead-Synchronisation**: Wird aktualisiert von:
   - `_on_seek()` (Klick in Timeline) — neu hinzugefügt, war vorher fehlend
   - `_on_position()` (Playback-Tick)
@@ -659,12 +671,9 @@ Wenn ein Song kein `grundrhythmus` hat, wird Phasen-Histogramm + Crash-Fallback 
    Vergleichs-Algorithmus (z.B. Kosinus-Ähnlichkeit) in audio_process.py implementiert werden.
 
 4. **Feldtest Beat-1-Korrektur**: Simulation auf verschiedenen Songs laufen lassen und prüfen:
-   - Crash-Detektion: Status-Bar zeigt `★ N Crashes`? Wenn 0 → `CRASH_RMS_MIN` (0.012) senken
+   - Crash-Detektion: Status-Bar zeigt `★ N Crashes`? Wenn 0 → `CRASH_RMS_MIN` (aktuell 0.004) weiter senken
    - Energy-Korrektur: `[BAR] energy_beat1: ratio=Z` auf stderr — Z > 1.05 = Korrektur greift
    - Taktgitter landet auf Beat 1 (Snare-Positionen ≈ 1.0 und 3.0 beats in Diagnostik)
-
-4. **Chroma-Visualisierung**: `chroma_data` wird nach Simulation übergeben, aber die Darstellung
-   im Lead-Guitar-Track könnte überprüft werden.
 
 5. **Koordinatensystem Sim-Events**: Sim-Events verwenden `t_k * pps` ohne Subtraktion von
    `seg.start_t`, JSONL-Events verwenden `(ev.t - seg.start_t) * pps` — potentieller Offset-Bug

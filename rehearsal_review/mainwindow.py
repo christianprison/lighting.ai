@@ -1602,6 +1602,55 @@ class MainWindow(QMainWindow):
         if chroma_data:
             self._timeline.set_chroma_data(chroma_data)
 
+        bass_data = result.get("bass_data", [])
+        if bass_data:
+            self._timeline.set_bass_data(bass_data)
+
+        # Chroma-Werte in reference.db speichern (Beats → Takt-Nummern abbilden)
+        if chroma_data and bar_times and self._current_seg is not None:
+            try:
+                import bisect as _bisect
+                import numpy as _np
+                from detection.reference_db import ReferenceDB as _RDB
+
+                # ref_db neben dem WAV-Verzeichnis suchen
+                _rdb_path = None
+                if self._session:
+                    _cand = self._session.wav_path.parent.parent / "reference.db"
+                    if _cand.exists():
+                        _rdb_path = _cand
+                if _rdb_path is None:
+                    raise FileNotFoundError("reference.db nicht gefunden")
+
+                _rdb  = _RDB(_rdb_path)
+                _song = self._current_seg.song_id
+                _bars_sorted = sorted(bar_times)
+
+                # Beats auf Takt-Nummern abbilden: Takt = letzter Bar-Start <= Beat
+                _bar_chromas: dict[int, list] = {}
+                for entry in chroma_data:
+                    _idx = _bisect.bisect_right(_bars_sorted, entry["t"]) - 1
+                    if _idx >= 0:
+                        _bn = _idx + 1   # 1-basierte Taktnummer
+                        _bar_chromas.setdefault(_bn, []).append(entry["chroma"])
+
+                # Durchschnitt pro Takt bilden und in DB speichern
+                _n_stored = 0
+                for _bn, _chromas in _bar_chromas.items():
+                    _avg = _np.mean(_chromas, axis=0).astype(_np.float32)
+                    if _rdb.upsert_bar_chroma(_song, _bn, _avg):
+                        _n_stored += 1
+
+                if _n_stored > 0:
+                    self._status.showMessage(
+                        self._status.currentMessage()
+                        + f"  | ♪ {_n_stored} Chroma-Takte gespeichert",
+                        12000,
+                    )
+            except Exception as _ce:
+                print(f"[SIM] Chroma-Speicherung fehlgeschlagen: {_ce}", file=sys.stderr)
+
+
         bpm_str = f"  ~{sim_bpm} BPM" if sim_bpm > 0 else ""
         crash_str = f"  | ★ {n_crashes} Crashes" if n_crashes > 0 else ""
         self._status.showMessage(

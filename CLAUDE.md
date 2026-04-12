@@ -523,13 +523,26 @@ probe_events   (id, session_id, wav_offset, song_id, bar_num, part_name, confide
 - Liest WAV **immer ab Segment-Anfang** in BLOCK_SIZE=2048-Blöcken
 - Schickt jeden Block durch `OnsetDetector.process_block()` (Kick CH08, Snare CH09, Crash CH13+14)
 - Schreibt alle Events in eine **JSONL-Datei** (`{stem}_sim_{song_id}_{HHmmss}.jsonl`)
-- Während der Simulation: **Progress-Modal** (`QProgressDialog`) — 0–80% für Onset-Loop, 80–100% für Chroma-Extraktion
+- Während der Simulation: **Progress-Modal** (`QProgressDialog`) — 0–90% Onset-Loop, 90–95% Chroma, 95–100% Bass
 - Emittiert `progress(float)` und `finished(dict)`, kein Echtzeit-Streaming
-- `finished`-Dict: `jsonl_path`, `n_kicks`, `n_snares`, `n_crashes`, `kicks`, `snares`, `crashes` (alle `list[float]`), `bar_times`, `bpm`, `chroma_data`
+- `finished`-Dict: `jsonl_path`, `n_kicks`, `n_snares`, `n_crashes`, `kicks`, `snares`, `crashes` (alle `list[float]`), `bar_times`, `bpm`, `chroma_data`, `bass_data`
+- `bass_data`: `list[dict]` — `{"t": float, "chroma": list[float], "rhythm": float}` pro Takt
 - Sim-JSONL-Dateien werden im Dateiauswahldialog automatisch ausgeblendet (`_HideSimFiles` Proxy)
-- Parameter `song_key` (aus DB, z.B. `"D dur"`) wird an `extract_chroma_at_beats()` übergeben → In-Key-Pitchklassen ×2 gewichtet
+- Parameter `song_key` (aus DB, z.B. `"D dur"`) wird an `extract_chroma_at_beats()` und `extract_bass_at_bars_from_array()` übergeben → In-Key-Pitchklassen ×2 gewichtet
 - Nach Simulation: Status-Bar zeigt `★ N Crashes` wenn Crashes erkannt wurden
 - Diagnose stderr: `[SIM] Crashes: N erkannt (threshold RMS >0.025)`
+- Diagnose stderr: `[SIM] Bass: N Takte extrahiert (aus Buffer)`
+
+**Bass-Analyse (`chroma_viz.py`):**
+- `CH_BASS = 5` (CH06 = Bass); `CH_LEAD_GUITAR = 4`
+- `bass_rhythm_score(audio_clip, sample_rate, bpm) -> float`: librosa `onset_strength` + `onset_detect` → IOIs (gefiltert: 0.05 s bis 4 Takte) → `max(0, 1 - 2 * |ioi - nächstes_8tel_vielfaches| / eighth_sec)` → Mittelwert. Wert 1.0 = perfekte 8tel, 0.0 = Rhythmus weicht um halbe 8tel-Periode ab
+- `extract_bass_at_bars_from_array(audio, seg_start_t, sample_rate, bar_times_abs, bpm, song_key, progress_callback) -> list[dict]`: CQT-Chroma mit HPSS margin=4 (harmonic component), Rhythmus-Score auf Rohsignal; pro Takt: Fenster von `bar_times_abs[i]` bis `bar_times_abs[i+1]`
+- `chroma_shape_type(chroma) -> str`: `"line"` (1 Klasse), `"triangle"` (2), `"diamond"` (3), `"pentagon"` (4–5), `"circle"` (6+)
+
+**Bass-Visualisierung (Timeline):**
+- `set_bass_data(data)`: setzt `_bass_data` und triggert `update()`
+- `_paint_bass_shapes(p, vl, vr)`: Shapes im Bass-Track — Farbe = Chroma → RGB (Pitch), Form = Pitch-Klassen-Anzahl, Alpha = Rhythmus-Score × 180 + 40 (40 = unregelmäßig … 220 = perfekte 8tel)
+- Tooltip `_bass_tip_at(pos)`: zeigt Chroma-Noten + `8tel-Rhythmus: XX %  (präzise/mäßig/unregelmäßig)`
 
 **Sim-Overlay-Modus** (Toggle `⊙ Simulation` in Toolbar, wird nach Sim-Ende automatisch aktiviert):
 - `_sim_overlay=True` → JSONL-Probe-Events komplett ausgeblendet (wenn Sim-Events vorhanden)
@@ -614,10 +627,11 @@ Streaming Takt-Tracker — verarbeitet Kick/Snare/Crash-Events inkrementell, kei
    - Energy-Korrektur: `[BAR] energy_beat1: ratio=Z` auf stderr — Z > 1.10 = Korrektur greift
    - Taktgitter landet auf Beat 1 (Snare-Positionen ≈ 1.0 und 3.0 beats in Diagnostik)
 
-2. **Chroma-Visualisierung**: `chroma_data` wird nach Simulation übergeben, aber die Darstellung
-   im Lead-Guitar-Track könnte überprüft werden.
+4. **Feldtest Chroma/Bass-Visualisierung**: Nach Simulation sollten Lead-Guitar-Chroma-Shapes und Bass-Shapes im jeweiligen Track sichtbar sein. Tooltips zeigen Pitch-Klassen und (für Bass) Rhythmus-Score.
 
-3. **Koordinatensystem Sim-Events**: Sim-Events verwenden `t_k * pps` ohne Subtraktion von
+5. **Bass Live-Vergleich**: `bass_data` wird aktuell nur visualisiert. Für Live-Part-Erkennung müssten Bass-Chroma-Vektoren ebenfalls in `reference.db` gespeichert werden (analog `upsert_bar_chroma`).
+
+6. **Koordinatensystem Sim-Events**: Sim-Events verwenden `t_k * pps` ohne Subtraktion von
    `seg.start_t`, JSONL-Events verwenden `(ev.t - seg.start_t) * pps` — potentieller Offset-Bug
    für Segmente die nicht bei WAV-Zeit 0 beginnen. Bisher nicht reproduziert.
 

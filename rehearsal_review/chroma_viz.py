@@ -12,6 +12,10 @@ import numpy as np
 
 PITCH_CLASSES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 
+# XR18-Kanal-Indizes (0-basiert) für Audio-Feature-Extraktion
+CH_LEAD_GUITAR = 4   # CH05 = Lead Guitar L
+CH_BASS        = 5   # CH06 = Bass
+
 # Tonartenname → MIDI-Pitch-Class (0=C … 11=H)
 _ROOT_TO_PC: dict[str, int] = {
     'C': 0, 'C#': 1, 'Db': 1, 'D': 2, 'D#': 3, 'Eb': 3,
@@ -235,6 +239,8 @@ def chroma_shape_type(chroma: list[float], threshold: float = 0.5) -> str:
         return "triangle"
     if count == 4:
         return "diamond"
+    if count == 5:
+        return "pentagon"
     return "circle"
 
 
@@ -282,3 +288,137 @@ def compute_beat_times(bar_times: list[float], bpm: float) -> list[float]:
         beats.add(round(last_bar + k * beat_sec, 6))
 
     return sorted(beats)
+
+
+def bass_rhythm_score(
+    audio_clip: "np.ndarray",
+    sample_rate: int,
+    bpm: float,
+) -> float:
+    """Berechnet Rhythmus-Score: 1.0 = perfekte 8tel-Noten, 0.0 = unregelmäßig.
+
+    Misst wie nah die Inter-Onset-Intervalle an einem Vielfachen einer 8tel-Note
+    liegen. Score 1.0: alle Onsets landen exakt auf 8tel-Positionen.
+    Score 0.0: Onsets liegen genau zwischen zwei 8tel-Positionen.
+
+    Verwendet librosa onset_strength + onset_detect. Gibt 0.5 zurück wenn
+    zu wenig Onsets vorhanden (< 2), damit kein Rauschen entsteht.
+    """
+    try:
+        import librosa
+    except ImportError:
+        return 0.5
+
+    if len(audio_clip) < 512 or bpm <= 0:
+        return 0.0
+
+    eighth_sec = 60.0 / bpm / 2.0
+    hop = 256
+
+    try:
+        env = librosa.onset.onset_strength(
+            y=audio_clip.astype(np.float32),
+            sr=sample_rate,
+            hop_length=hop,
+        )
+        onset_frames = librosa.onset.onset_detect(
+            onset_envelope=env,
+            sr=sample_rate,
+            hop_length=hop,
+            backtrack=True,
+        )
+    except Exception:
+        return 0.5
+
+    if len(onset_frames) < 2:
+        return 0.5   # zu wenig Onsets → neutral
+
+    onset_times = librosa.frames_to_time(onset_frames, sr=sample_rate, hop_length=hop)
+
+    # IOIs filtern: >50 ms (kein Glissando-Artefakt), < 4 Takte (kein Rauschen)
+    max_ioi = 4.0 * 4.0 * (60.0 / bpm)
+    iois = [float(d) for d in np.diff(onset_times) if 0.05 <= d <= max_ioi]
+    if not iois:
+        return 0.5
+
+    scores = []
+    for ioi in iois:
+        n = max(1, round(ioi / eighth_sec))     # nächstes Vielfaches der 8tel-Note
+        expected = n * eighth_sec
+        dev = abs(ioi - expected) / eighth_sec  # Abweichung in 8tel-Note-Einheiten
+        scores.append(max(0.0, 1.0 - 2.0 * dev))   # 0.5 Einheiten → Score 0
+
+    return float(np.mean(scores))
+
+
+def extract_bass_at_bars_from_array(
+    audio: "np.ndarray",
+    seg_start_t: float,
+    sample_rate: int,
+    bar_times_abs: list[float],
+    bpm: float,
+    song_key: str = "",
+    progress_callback=None,
+) -> list[dict]:
+    """Extrahiert Bass-Chroma und Rhythmus-Score pro Takt aus einem Audio-Array.
+
+    audio:         1-D float32-Array des Bass-Kanals ab seg_start_t.
+    seg_start_t:   Absolute WAV-Zeit des ersten Samples (Sekunden).
+    sample_rate:   Samplerate.
+    bar_times_abs: Liste absoluter Takt-Startzeiten.
+    bpm:           Song-BPM für 8tel-Note-Berechnung.
+    song_key:      Optional, für Tonart-Gewichtung (gleiche Logik wie Lead Guitar).
+
+    Pro Takt wird das Audio vom Taktstart bis zum nächsten Takt (bzw. + 1 Takt
+    bei letztem Takt) verarbeitet:
+      - Chroma: HPSS-harmonischer Anteil → chroma_cqt (margin=4, Bass-optimiert)
+      - Rhythm: onset-basierter 8tel-Noten-Regulärheits-Score (0..1)
+
+    Gibt zurück: [{"t": float, "chroma": list[float], "rhythm": float}, ...]
+    """
+    try:
+        import librosa
+    except ImportError:
+        raise ImportError("librosa nicht verfügbar — Bass-Extraktion nicht möglich")
+
+    if not bar_times_abs or bpm <= 0:
+        return []
+
+    key_pcs  = key_pitch_classes(song_key) if song_key else []
+    beat_sec = 60.0 / bpm
+    bar_sec  = 4.0 * beat_sec
+    n_samples = len(audio)
+    results: list[dict] = []
+    n_bars   = max(1, len(bar_times_abs))
+
+    for bi, bt in enumerate(bar_times_abs):
+        bt_end = bar_times_abs[bi + 1] if bi + 1 < len(bar_times_abs) else bt + bar_sec
+
+        start = max(0, int((bt     - seg_start_t) * sample_rate))
+        end   = min(n_samples, int((bt_end - seg_start_t) * sample_rate))
+
+        if end - start < 512:
+            continue
+
+        clip = audio[start:end]
+
+        # Chroma: harmonischer Anteil (HPSS margin=4 — weniger aggressiv als
+        # Lead Guitar margin=8, weil Bass Transienten wichtig für Takt-Tracking)
+        y_harm = librosa.effects.harmonic(clip, margin=4)
+        chroma = librosa.feature.chroma_cqt(
+            y=y_harm, sr=sample_rate, n_chroma=12, hop_length=512,
+        )
+        chroma_mean = chroma.mean(axis=1).tolist()
+
+        if key_pcs:
+            chroma_mean = apply_key_weight(chroma_mean, key_pcs, weight=2.0)
+
+        # Rhythmus-Score aus dem Roh-Signal (nicht harmonisch gefiltert)
+        rhythm = bass_rhythm_score(clip, sample_rate, bpm)
+
+        results.append({"t": bt, "chroma": chroma_mean, "rhythm": rhythm})
+
+        if progress_callback is not None:
+            progress_callback((bi + 1) / n_bars)
+
+    return results

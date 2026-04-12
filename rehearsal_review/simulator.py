@@ -123,10 +123,12 @@ class SimulatorWorker(QThread):
         crashes: list[tuple[float, float]] = []   # (t_rel, rms_energy)
         blocks_done = 0
 
-        # Chroma-Kanal (CH 4 = Lead Guitar L) wird im selben Pass gepuffert,
-        # damit kein zweites File-Read nötig ist — Prime Directive einhalten.
-        CHROMA_CH = 4
+        # Chroma- und Bass-Kanal im selben Pass puffern — kein zweites File-Read
+        # (Prime Directive: Simulation = Live, ein Algorithmus, kein Lookahead).
+        CHROMA_CH = 4   # CH05 = Lead Guitar L
+        BASS_CH   = 5   # CH06 = Bass
         chroma_buf: list[np.ndarray] = []
+        bass_buf:   list[np.ndarray] = []
         _crash_rms_max = 0.0   # Diagnosewert: höchster OH-RMS im Durchlauf
 
         self._output_jsonl.parent.mkdir(parents=True, exist_ok=True)
@@ -160,9 +162,11 @@ class SimulatorWorker(QThread):
 
                 t_mid = blocks_done * BLOCK_SIZE / sr + (block.shape[0] / 2) / sr
 
-                # Chroma-Kanal puffern (ein Block = Lead Guitar L)
+                # Chroma-Kanal puffern (Lead Guitar L) + Bass-Kanal puffern
                 if block.shape[1] > CHROMA_CH:
                     chroma_buf.append(block[:, CHROMA_CH].copy())
+                if block.shape[1] > BASS_CH:
+                    bass_buf.append(block[:, BASS_CH].copy())
 
                 # Diagnosewert: max OH-RMS (ohne Highpass, zur Schwellwert-Kalibrierung)
                 if block.shape[1] > 14:
@@ -192,7 +196,7 @@ class SimulatorWorker(QThread):
                 blocks_done += 1
                 if blocks_done % 50 == 0:
                     raw = (blocks_done * BLOCK_SIZE) / max(1, total_frames)
-                    self.progress.emit(min(0.95, raw * 0.95))
+                    self.progress.emit(min(0.90, raw * 0.90))
 
         print(
             f"[SIM] Fertig: {blocks_done} Blöcke, "
@@ -223,7 +227,7 @@ class SimulatorWorker(QThread):
                               if self._seg_start_t <= t <= self._seg_end_t]
 
                 def _chroma_progress(frac: float) -> None:
-                    self.progress.emit(0.95 + frac * 0.05)
+                    self.progress.emit(0.90 + frac * 0.05)
 
                 chroma_data = extract_chroma_at_beats_from_array(
                     audio_ch4,
@@ -237,6 +241,30 @@ class SimulatorWorker(QThread):
                 print(f"[SIM] Chroma: {len(chroma_data)} Beats extrahiert (aus Buffer)", file=sys.stderr)
             except Exception as e:
                 print(f"[SIM] Chroma-Extraktion fehlgeschlagen: {e}", file=sys.stderr)
+
+        # ── Bass-Extraktion (Chroma + Rhythmus-Score, pro Takt) ───────────────
+        bass_data = []
+        if bass_buf and bar_times_final and bpm_final > 0:
+            try:
+                from chroma_viz import extract_bass_at_bars_from_array
+                audio_ch5 = np.concatenate(bass_buf)
+
+                def _bass_progress(frac: float) -> None:
+                    self.progress.emit(0.95 + frac * 0.05)
+
+                bass_data = extract_bass_at_bars_from_array(
+                    audio_ch5,
+                    seg_start_t=self._seg_start_t,
+                    sample_rate=sr,
+                    bar_times_abs=bar_times_final,
+                    bpm=bpm_final,
+                    song_key=self._song_key,
+                    progress_callback=_bass_progress,
+                )
+                print(f"[SIM] Bass: {len(bass_data)} Takte extrahiert (aus Buffer)", file=sys.stderr)
+            except Exception as e:
+                print(f"[SIM] Bass-Extraktion fehlgeschlagen: {e}", file=sys.stderr)
+
         self.progress.emit(1.0)
         self.finished.emit({
             "jsonl_path":  self._output_jsonl,
@@ -249,4 +277,5 @@ class SimulatorWorker(QThread):
             "bar_times":   tracker.get_latest_bars(),
             "bpm":         tracker.get_bpm(),
             "chroma_data": chroma_data,
+            "bass_data":   bass_data,  # list[dict]: {t, chroma, rhythm}
         })

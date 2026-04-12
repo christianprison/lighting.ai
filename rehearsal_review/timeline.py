@@ -203,8 +203,11 @@ class TimelineWidget(QWidget):
         self._sim_snares:  list[float] = []
         self._sim_crashes: list[tuple[float, float]] = []   # (abs_wav_t, rms_energy)
 
-        # Chroma-Daten pro Beat (aus chroma_viz)
-        self._chroma_data: list[dict] = []   # list of {t, chroma} from chroma_viz
+        # Chroma-Daten pro Beat (aus chroma_viz) — Lead Guitar
+        self._chroma_data: list[dict] = []   # list of {t, chroma}
+
+        # Bass-Daten pro Takt — {t, chroma, rhythm}
+        self._bass_data: list[dict] = []
 
         # Overlay-Modus: wenn True, JSONL-Events bei 25 % Opazität,
         # Sim-Events in vollen AMBER/CYAN-Farben (wie JSONL-Events).
@@ -333,11 +336,17 @@ class TimelineWidget(QWidget):
         self._sim_bpm_timeline = []
         self._sim_bar_times    = []
         self._chroma_data      = []
+        self._bass_data        = []
         self.update()
 
     def set_chroma_data(self, data: list[dict]) -> None:
         """Setzt Chroma-Daten (Liste von {t, chroma}) für die Lead-Guitar-Zeile."""
         self._chroma_data = data
+        self.update()
+
+    def set_bass_data(self, data: list[dict]) -> None:
+        """Setzt Bass-Daten (Liste von {t, chroma, rhythm}) für die Bass-Zeile."""
+        self._bass_data = data
         self.update()
 
     def set_sim_bpm_and_bars(
@@ -596,7 +605,7 @@ class TimelineWidget(QWidget):
         from PyQt6.QtCore import QEvent
         if ev.type() == QEvent.Type.ToolTip:
             pos = ev.pos()
-            tip = self._chroma_tip_at(pos)
+            tip = self._chroma_tip_at(pos) or self._bass_tip_at(pos)
             if tip:
                 QToolTip.showText(ev.globalPos(), tip, self)
                 return True
@@ -637,6 +646,47 @@ class TimelineWidget(QWidget):
                     return ""
         return ""
 
+    def _bass_tip_at(self, pos) -> str:
+        """Gibt Tooltip-Text zurück wenn die Maus nahe einem Bass-Shape ist."""
+        if not self._bass_data or self.segment is None:
+            return ""
+
+        bass_idx = next(
+            (i for i, t in enumerate(TRACKS) if t["label"] == "Bass"),
+            None,
+        )
+        if bass_idx is None:
+            return ""
+
+        ty = TRACK_Y[bass_idx]
+        th = TRACKS[bass_idx]["h"]
+
+        if not (ty <= pos.y() <= ty + th):
+            return ""
+
+        seg_t0  = self.segment.start_t
+        pps     = self._pps
+        ox      = self._scroll_x
+        CLICK_R = 14   # größer als Beat-Shapes, da Takt-Shapes selten sind
+
+        for entry in self._bass_data:
+            bx = LABEL_W + int((entry["t"] - seg_t0) * pps) - ox
+            if abs(bx - pos.x()) <= CLICK_R:
+                try:
+                    from chroma_viz import chroma_tooltip
+                    rhythm = float(entry.get("rhythm", 0.5))
+                    rhythm_desc = (
+                        "präzise" if rhythm >= 0.8 else
+                        "mäßig"   if rhythm >= 0.5 else
+                        "unregelmäßig"
+                    )
+                    tip = chroma_tooltip(entry["chroma"])
+                    tip += f"\n8tel-Rhythmus: {int(rhythm * 100)} %  ({rhythm_desc})"
+                    return tip
+                except ImportError:
+                    return ""
+        return ""
+
     # ── Paint ─────────────────────────────────────────────────────────────────
 
     def paintEvent(self, _event) -> None:
@@ -668,6 +718,9 @@ class TimelineWidget(QWidget):
 
         # Chroma-Shapes im Lead-Guitar-Track (wenn Sim-Overlay aktiv)
         self._paint_chroma_shapes(p, vl, vr)
+
+        # Bass-Shapes im Bass-Track (wenn Sim-Overlay aktiv)
+        self._paint_bass_shapes(p, vl, vr)
 
         # Sticky labels drawn OVER waveforms
         self._paint_labels(p, h)
@@ -831,6 +884,107 @@ class TimelineWidget(QWidget):
                 p.setPen(QPen(color, 1))
                 p.setBrush(QBrush(color))
                 p.drawPolygon(poly)
+            elif shape == "pentagon":
+                pts = [
+                    QPoint(bx + int(round(r * math.cos(-math.pi / 2 + 2 * math.pi * i / 5))),
+                           cy + int(round(r * math.sin(-math.pi / 2 + 2 * math.pi * i / 5))))
+                    for i in range(5)
+                ]
+                p.setPen(QPen(color, 1))
+                p.setBrush(QBrush(color))
+                p.drawPolygon(QPolygon(pts))
+            else:  # circle
+                p.setPen(QPen(color, 1))
+                p.setBrush(QBrush(color))
+                p.drawEllipse(QPoint(bx, cy), r, r)
+
+        p.setRenderHint(QPainter.RenderHint.Antialiasing, False)
+
+    # ── Bass shapes (Bass row) ────────────────────────────────────────────────
+
+    def _paint_bass_shapes(self, p: QPainter, vl: int, vr: int) -> None:
+        """Zeichnet Bass-Shapes pro Takt im Bass-Track.
+
+        Farbe = Chroma → RGB (gleich wie Lead Guitar).
+        Form  = Anzahl dominanter Pitch-Klassen (Linie / Dreieck / Raute /
+                Fünfeck / Kreis).
+        Alpha = Rhythmus-Score × 180 + 40 — 1.0 = klare 8tel-Noten (voll
+                sichtbar), 0.0 = unregelmäßig (blass).
+        """
+        if not self._sim_overlay:
+            return
+        if not self._bass_data or self.segment is None:
+            return
+
+        bass_idx = next(
+            (i for i, t in enumerate(TRACKS) if t["label"] == "Bass"),
+            None,
+        )
+        if bass_idx is None:
+            return
+
+        try:
+            from chroma_viz import chroma_to_rgb, chroma_shape_type
+        except ImportError:
+            return
+
+        seg_t0 = self.segment.start_t
+        pps    = self._pps
+        ox     = self._scroll_x
+        w      = self.width()
+
+        ty = TRACK_Y[bass_idx]
+        th = TRACKS[bass_idx]["h"]
+        cy = ty + th // 2
+
+        p.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+
+        for entry in self._bass_data:
+            bx = LABEL_W + int((entry["t"] - seg_t0) * pps) - ox
+            if bx < LABEL_W or bx > w:
+                continue
+
+            chroma = entry["chroma"]
+            rhythm = float(entry.get("rhythm", 0.5))
+
+            rgb   = chroma_to_rgb(chroma)
+            alpha = max(40, int(40 + rhythm * 180))   # 40 (unregelmäßig) … 220 (perfekte 8tel)
+            color = QColor(rgb[0], rgb[1], rgb[2], alpha)
+            shape = chroma_shape_type(chroma)
+            r     = min(th // 2 - 2, 8)
+            if r < 1:
+                continue
+
+            if shape == "line":
+                p.setPen(QPen(color, 2))
+                p.setBrush(Qt.BrushStyle.NoBrush)
+                p.drawLine(bx, cy - r, bx, cy + r)
+            elif shape == "triangle":
+                p.setPen(QPen(color, 1))
+                p.setBrush(QBrush(color))
+                p.drawPolygon(QPolygon([
+                    QPoint(bx,     cy - r),
+                    QPoint(bx - r, cy + r),
+                    QPoint(bx + r, cy + r),
+                ]))
+            elif shape == "diamond":
+                p.setPen(QPen(color, 1))
+                p.setBrush(QBrush(color))
+                p.drawPolygon(QPolygon([
+                    QPoint(bx,     cy - r),
+                    QPoint(bx + r, cy),
+                    QPoint(bx,     cy + r),
+                    QPoint(bx - r, cy),
+                ]))
+            elif shape == "pentagon":
+                pts = [
+                    QPoint(bx + int(round(r * math.cos(-math.pi / 2 + 2 * math.pi * i / 5))),
+                           cy + int(round(r * math.sin(-math.pi / 2 + 2 * math.pi * i / 5))))
+                    for i in range(5)
+                ]
+                p.setPen(QPen(color, 1))
+                p.setBrush(QBrush(color))
+                p.drawPolygon(QPolygon(pts))
             else:  # circle
                 p.setPen(QPen(color, 1))
                 p.setBrush(QBrush(color))

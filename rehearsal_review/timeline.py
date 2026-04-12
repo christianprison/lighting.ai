@@ -1293,7 +1293,7 @@ class TimelineWidget(QWidget):
             cy_mid = y0 + EVENTS_H // 2
             p.setBrush(QBrush(C_CRASH))
             p.setPen(Qt.PenStyle.NoPen)
-            for t_c in self._sim_crashes:
+            for t_c, _e_c in self._sim_crashes:
                 bx = LABEL_W + int(t_c * pps) - ox
                 if LABEL_W <= bx <= w:
                     p.drawPolygon(_diamond(bx, cy_mid, R + 3))   # größer als Kick/Snare

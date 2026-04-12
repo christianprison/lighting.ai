@@ -732,9 +732,11 @@ class MainWindow(QMainWindow):
 
         self._overview.set_session(session)
 
-        # Use Main L+R (ch 16+17) for 18-ch recordings; fall back to ch 0+1
-        # for sessions with fewer channels (e.g. test recordings).
-        ov_chs = [16, 17] if session.n_channels >= 18 else [0, 1]
+        # Use all display channels for a composite sum — matches the individual
+        # track waveforms. Channels capped at session.n_channels.
+        ov_chs = [ch for ch in DISPLAY_CHANNELS if ch < session.n_channels]
+        if not ov_chs:
+            ov_chs = [0]
         ov_worker = PeakWorker(
             wav_path=session.wav_path,
             ch_indices=ov_chs,
@@ -959,12 +961,16 @@ class MainWindow(QMainWindow):
         chs = list(track_peaks.channel_peaks.values())
         if not chs:
             return
-        if len(chs) == 1:
-            pk_max = chs[0].peaks_max
-            pk_min = chs[0].peaks_min
-        else:
-            pk_max = np.maximum(chs[0].peaks_max, chs[1].peaks_max)
-            pk_min = np.minimum(chs[0].peaks_min, chs[1].peaks_min)
+        # Mean RMS across all display channels → true composite activity waveform
+        all_max = np.stack([cp.peaks_max for cp in chs], axis=0)
+        all_min = np.stack([cp.peaks_min for cp in chs], axis=0)
+        pk_max = np.mean(all_max, axis=0)
+        pk_min = np.mean(all_min, axis=0)
+        # Normalize to 95th-percentile so the waveform fills the display height
+        scale = float(np.percentile(pk_max, 95)) if len(pk_max) > 0 else 0.0
+        if scale > 1e-6:
+            pk_max = pk_max / scale
+            pk_min = pk_min / scale
         self._overview.set_peaks(pk_max, pk_min)
 
     def _on_overview_seek(self, wav_t: float) -> None:
@@ -1767,50 +1773,6 @@ class MainWindow(QMainWindow):
                 bar_times=bar_times,
                 bpm=sim_bpm,
             )
-
-        # Chroma-Werte in reference.db speichern (Beats → Takt-Nummern abbilden)
-        if chroma_data and bar_times and self._current_seg is not None:
-            try:
-                import bisect as _bisect
-                import numpy as _np
-                from detection.reference_db import ReferenceDB as _RDB
-
-                # ref_db neben dem WAV-Verzeichnis suchen
-                _rdb_path = None
-                if self._session:
-                    _cand = self._session.wav_path.parent.parent / "reference.db"
-                    if _cand.exists():
-                        _rdb_path = _cand
-                if _rdb_path is None:
-                    raise FileNotFoundError("reference.db nicht gefunden")
-
-                _rdb  = _RDB(_rdb_path)
-                _song = self._current_seg.song_id
-                _bars_sorted = sorted(bar_times)
-
-                # Beats auf Takt-Nummern abbilden: Takt = letzter Bar-Start <= Beat
-                _bar_chromas: dict[int, list] = {}
-                for entry in chroma_data:
-                    _idx = _bisect.bisect_right(_bars_sorted, entry["t"]) - 1
-                    if _idx >= 0:
-                        _bn = _idx + 1   # 1-basierte Taktnummer
-                        _bar_chromas.setdefault(_bn, []).append(entry["chroma"])
-
-                # Durchschnitt pro Takt bilden und in DB speichern
-                _n_stored = 0
-                for _bn, _chromas in _bar_chromas.items():
-                    _avg = _np.mean(_chromas, axis=0).astype(_np.float32)
-                    if _rdb.upsert_bar_chroma(_song, _bn, _avg):
-                        _n_stored += 1
-
-                if _n_stored > 0:
-                    self._status.showMessage(
-                        self._status.currentMessage()
-                        + f"  | ♪ {_n_stored} Chroma-Takte gespeichert",
-                        12000,
-                    )
-            except Exception as _ce:
-                print(f"[SIM] Chroma-Speicherung fehlgeschlagen: {_ce}", file=sys.stderr)
 
         bpm_str = f"  ~{sim_bpm} BPM" if sim_bpm > 0 else ""
         crash_str = f"  | ★ {n_crashes} Crashes" if n_crashes > 0 else ""

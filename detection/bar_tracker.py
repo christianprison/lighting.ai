@@ -63,11 +63,12 @@ def _compute_bpm_from_events(kicks: list[float], snares: list[float]) -> int:
     Nur die letzten 8 kombinierten Events werden verwendet — stabiler und
     O(1) statt O(n log n).  Returns 0 wenn nicht genügend Events vorhanden.
     """
-    all_t = sorted(kicks + snares)
-    recent = all_t[-8:]   # nur die letzten 8 Events
-    if len(recent) < 4:
+    k_last = kicks[-8:] if len(kicks) >= 8 else kicks
+    s_last = snares[-8:] if len(snares) >= 8 else snares
+    all_t = sorted(k_last + s_last)[-8:]
+    if len(all_t) < 4:
         return 0
-    iois = [recent[i + 1] - recent[i] for i in range(len(recent) - 1)]
+    iois = [all_t[i + 1] - all_t[i] for i in range(len(all_t) - 1)]
     iois = [d for d in iois if _IOI_MIN <= d <= _IOI_MAX]
     if not iois:
         return 0

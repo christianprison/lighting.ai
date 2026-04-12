@@ -558,6 +558,17 @@ def extract_bass_at_bars_from_array(
     results: list[dict] = []
     n_bars = max(1, len(bar_times_abs))
 
+    # Bandpass-Filter 30–300 Hz: isoliert Bass-Grundtöne, einmalig berechnet
+    _bass_sos = None
+    try:
+        from scipy.signal import butter as _butter, sosfilt as _sosfilt
+        _nyq = sample_rate / 2.0
+        _bass_sos = _butter(4, [30.0 / _nyq, 300.0 / _nyq], btype='band', output='sos')
+    except Exception:
+        _sosfilt = None
+
+    _fmin = librosa.note_to_hz('C1')   # 32.7 Hz — unterste Bass-Oktave
+
     for bi, bt in enumerate(bar_times_abs):
         bt_end = bar_times_abs[bi + 1] if bi + 1 < len(bar_times_abs) else bt + bar_sec
 

@@ -64,6 +64,7 @@ class PeakWorker(QThread):
         end_t: float,
         sample_rate: int = 48_000,
         n_points: int = 0,
+        use_rms: bool = False,
         parent=None,
     ) -> None:
         super().__init__(parent)
@@ -74,6 +75,7 @@ class PeakWorker(QThread):
         self.end_t = end_t
         self.sample_rate = sample_rate
         self._n_points = n_points if n_points > 0 else self.N_POINTS
+        self._use_rms = use_rms
 
     def cancel(self) -> None:
         self._cancelled = True
@@ -125,8 +127,13 @@ class PeakWorker(QThread):
                     seg = buf[pi * spp: (pi + 1) * spp]
                     for ch in self.ch_indices:
                         if ch < seg.shape[1]:
-                            pmins[ch][point] = seg[:, ch].min()
-                            pmaxs[ch][point] = seg[:, ch].max()
+                            if self._use_rms:
+                                rms = float(np.sqrt(np.mean(seg[:, ch] ** 2)))
+                                pmins[ch][point] = -rms
+                                pmaxs[ch][point] =  rms
+                            else:
+                                pmins[ch][point] = seg[:, ch].min()
+                                pmaxs[ch][point] = seg[:, ch].max()
                     point += 1
 
                 # Keep remainder for next iteration
@@ -139,8 +146,13 @@ class PeakWorker(QThread):
         if leftover is not None and len(leftover) > 0 and point < n:
             for ch in self.ch_indices:
                 if ch < leftover.shape[1]:
-                    pmins[ch][point] = leftover[:, ch].min()
-                    pmaxs[ch][point] = leftover[:, ch].max()
+                    if self._use_rms:
+                        rms = float(np.sqrt(np.mean(leftover[:, ch] ** 2)))
+                        pmins[ch][point] = -rms
+                        pmaxs[ch][point] =  rms
+                    else:
+                        pmins[ch][point] = leftover[:, ch].min()
+                        pmaxs[ch][point] = leftover[:, ch].max()
             point += 1
 
         self.progress.emit(100)

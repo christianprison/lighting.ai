@@ -113,7 +113,7 @@ QComboBox#zoom_combo          { font-family:'DM Mono',monospace; font-size:10px;
                                 min-width:90px; max-width:110px; }
 """
 
-APP_VERSION = "1.1.1"
+APP_VERSION = "1.1.2"
 
 _ZOOM_PRESETS: list[int] = [2, 5, 10, 20, 40, 80, 160, 320, 640, 1280, 2560, 5120, 10240, 20480, 40960]
 
@@ -731,9 +731,11 @@ class MainWindow(QMainWindow):
 
         self._overview.set_session(session)
 
-        # Use Main L+R (ch 16+17) for 18-ch recordings; fall back to ch 0+1
-        # for sessions with fewer channels (e.g. test recordings).
-        ov_chs = [16, 17] if session.n_channels >= 18 else [0, 1]
+        # Use all display channels for a composite sum — matches the individual
+        # track waveforms. Channels capped at session.n_channels.
+        ov_chs = [ch for ch in DISPLAY_CHANNELS if ch < session.n_channels]
+        if not ov_chs:
+            ov_chs = [0]
         ov_worker = PeakWorker(
             wav_path=session.wav_path,
             ch_indices=ov_chs,
@@ -958,15 +960,13 @@ class MainWindow(QMainWindow):
         chs = list(track_peaks.channel_peaks.values())
         if not chs:
             return
-        if len(chs) == 1:
-            pk_max = chs[0].peaks_max
-            pk_min = chs[0].peaks_min
-        else:
-            pk_max = np.maximum(chs[0].peaks_max, chs[1].peaks_max)
-            pk_min = np.minimum(chs[0].peaks_min, chs[1].peaks_min)
-        # Normalize so the 95th-percentile amplitude fills the display height.
-        # Needed when use_rms=True returns values much smaller than ±1.0.
-        scale = float(np.percentile(np.abs(pk_max), 95)) if len(pk_max) > 0 else 0.0
+        # Mean RMS across all display channels → true composite activity waveform
+        all_max = np.stack([cp.peaks_max for cp in chs], axis=0)
+        all_min = np.stack([cp.peaks_min for cp in chs], axis=0)
+        pk_max = np.mean(all_max, axis=0)
+        pk_min = np.mean(all_min, axis=0)
+        # Normalize to 95th-percentile so the waveform fills the display height
+        scale = float(np.percentile(pk_max, 95)) if len(pk_max) > 0 else 0.0
         if scale > 1e-6:
             pk_max = pk_max / scale
             pk_min = pk_min / scale

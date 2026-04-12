@@ -197,9 +197,9 @@ class _CrashDetector:
 
     # Absoluter RMS-Schwellwert nach Hochpass >8 kHz.
     # HiHat-RMS bei >8 kHz: ca. 0.002–0.008 (signed L+R Mix nach HPF)
-    # Crash-RMS  bei >8 kHz: ca. 0.006–0.20
+    # Crash-RMS  bei >8 kHz: ca. 0.004–0.20
     # Cooldown 0.8 s verhindert HiHat-Fehlauslösungen (HiHats schlagen << 0.8 s).
-    CRASH_RMS_MIN: float = 0.006
+    CRASH_RMS_MIN: float = 0.004
 
     def __init__(
         self,

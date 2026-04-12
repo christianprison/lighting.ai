@@ -371,7 +371,9 @@ def extract_bass_at_bars_from_array(
 
     Pro Takt wird das Audio vom Taktstart bis zum nächsten Takt (bzw. + 1 Takt
     bei letztem Takt) verarbeitet:
-      - Chroma: HPSS-harmonischer Anteil → chroma_cqt (margin=4, Bass-optimiert)
+      - Bandpass 30–300 Hz isoliert Bass-Grundtöne, entfernt Gitarren/Drum-Bleed
+      - HPSS margin=8 isoliert harmonischen Anteil (aggressiver als Lead Guitar)
+      - Chroma: chroma_cqt mit fmin=C1, Power-Normalisierung (²) → schärfere Töne
       - Rhythm: onset-basierter 8tel-Noten-Regulärheits-Score (0..1)
 
     Gibt zurück: [{"t": float, "chroma": list[float], "rhythm": float}, ...]
@@ -391,6 +393,17 @@ def extract_bass_at_bars_from_array(
     results: list[dict] = []
     n_bars   = max(1, len(bar_times_abs))
 
+    # Bandpass-Filter 30–300 Hz: isoliert Bass-Grundtöne, einmalig berechnet
+    _bass_sos = None
+    try:
+        from scipy.signal import butter as _butter, sosfilt as _sosfilt
+        _nyq = sample_rate / 2.0
+        _bass_sos = _butter(4, [30.0 / _nyq, 300.0 / _nyq], btype='band', output='sos')
+    except Exception:
+        _sosfilt = None
+
+    _fmin = librosa.note_to_hz('C1')   # 32.7 Hz — unterste Bass-Oktave
+
     for bi, bt in enumerate(bar_times_abs):
         bt_end = bar_times_abs[bi + 1] if bi + 1 < len(bar_times_abs) else bt + bar_sec
 
@@ -402,18 +415,36 @@ def extract_bass_at_bars_from_array(
 
         clip = audio[start:end]
 
-        # Chroma: harmonischer Anteil (HPSS margin=4 — weniger aggressiv als
-        # Lead Guitar margin=8, weil Bass Transienten wichtig für Takt-Tracking)
-        y_harm = librosa.effects.harmonic(clip, margin=4)
+        # Bandpass 30–300 Hz: Bass-Grundtöne isolieren
+        if _bass_sos is not None:
+            clip_bp = _sosfilt(_bass_sos, clip.astype(np.float64)).astype(np.float32)
+        else:
+            clip_bp = clip
+
+        # Stille Takte überspringen (kein Bass)
+        if float(np.sqrt(np.mean(clip_bp ** 2))) < 2e-4:
+            continue
+
+        # HPSS margin=8: aggressivere Trennung harmonisch/perkussiv
+        y_harm = librosa.effects.harmonic(clip_bp, margin=8)
+
         chroma = librosa.feature.chroma_cqt(
-            y=y_harm, sr=sample_rate, n_chroma=12, hop_length=512,
+            y=y_harm, sr=sample_rate, n_chroma=12, hop_length=256,
+            fmin=_fmin,
         )
-        chroma_mean = chroma.mean(axis=1).tolist()
+
+        # Power-Normalisierung: Quadrieren → schärft dominante Pitch-Klassen,
+        # dann L2-Normierung damit Werte in vergleichbarem Bereich bleiben
+        chroma_mean = chroma.mean(axis=1) ** 2
+        norm = float(np.linalg.norm(chroma_mean))
+        if norm < 1e-8:
+            continue
+        chroma_mean = (chroma_mean / norm).tolist()
 
         if key_pcs:
             chroma_mean = apply_key_weight(chroma_mean, key_pcs, weight=2.0)
 
-        # Rhythmus-Score aus dem Roh-Signal (nicht harmonisch gefiltert)
+        # Rhythmus-Score aus dem ungefilterten Roh-Signal
         rhythm = bass_rhythm_score(clip, sample_rate, bpm)
 
         results.append({"t": bt, "chroma": chroma_mean, "rhythm": rhythm})

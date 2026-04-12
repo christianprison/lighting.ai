@@ -585,14 +585,15 @@ Band-gefilterter ODF auf Sub-Window-Ebene (kein PLL, kein HMM, kein BPM-Tracking
 
 5. **`_CrashDetector`** (RMS-basiert, kein adaptiver Median):
    - Crash CH13+14: signed L+R Mix `0.5*(OH_L + OH_R)` → Hochpass 8 kHz → RMS
-   - `CRASH_RMS_MIN = 0.004` — nach 8kHz-HPF bleiben vom Rohsignal nur ~0.004–0.009 übrig; kein `abs()` vor dem Filter (würde Hochfrequenzanteil zerstören)
+   - `CRASH_RMS_MIN = 0.001` — gemessene Crashes nach HPF: 0.001–0.010; kein `abs()` vor dem Filter
+   - `SNARE_BLEED_RATIO = 2.0` — Gate feuert nur wenn Snare >2× lauter als OH (echter Snare-Hit: 10–50×); verhindert Fehlauslösung durch Crash-Bleed auf Snare-Mic (Ratio dort ~1.0–2.0)
    - Cooldown: 0.8 s (erlaubt Crash auf jedem Takt bei 90+ BPM)
    - Erkennte Crashes gehen an `BarTracker.process_crash()` zur Beat-1-Phasen-Korrektur
 
 Parameter:
 - Kick: `threshold_factor=3.0`, `abs_rms_min=5e-3`, `cooldown=220 ms`
 - Snare: `threshold_factor=2.2`, `abs_rms_min=3e-3`, `cooldown=280 ms`
-- Crash: `CRASH_RMS_MIN=0.004`, `cooldown=800 ms`
+- Crash: `CRASH_RMS_MIN=0.001`, `SNARE_BLEED_RATIO=2.0`, `cooldown=800 ms`
 - `ONSET_MIN_ODF=4e-3`, `SILENCE_BLOCKS=12`, `SUB_WIN=256`
 
 #### BarTracker (`detection/bar_tracker.py`)

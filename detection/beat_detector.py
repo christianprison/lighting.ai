@@ -211,14 +211,15 @@ class _CrashDetector:
     """
 
     # Absoluter RMS-Schwellwert nach Hochpass >8 kHz (signed L+R Mix).
-    # Nach HPF: HiHat ca. 0.003–0.015, Crash ca. 0.004–0.10
-    CRASH_RMS_MIN: float = 0.004
+    # Gemessener Crash-RMS nach HPF in realen Aufnahmen: 0.001–0.010
+    # HiHat: 0.001–0.005 (Cooldown 0.8s verhindert HiHat-Fehlauslösungen)
+    CRASH_RMS_MIN: float = 0.001
 
-    # Snare-Sidechain: Wenn snare_hf_rms > oh_hf_rms * dieser Faktor → Snare-Bleed.
-    # Snare-Direct bei Snare-Hit: ~10–50× lauter als OH-Bleed bei >8 kHz.
-    # Bei Crash-Hit: Snare-Mic picks up almost nothing (ratio typisch < 0.05).
-    # Konservativer Wert 0.3 → sicher nur echte Crashes durchlassen.
-    SNARE_BLEED_RATIO: float = 0.3
+    # Snare-Sidechain-Gate: Schwelle für Snare-Bleed-Erkennung.
+    # Beim echten Snare-Hit: Snare-Mic ist 10–50× lauter als OH nach HPF → Ratio 10–50.
+    # Bei Crash-Bleed auf Snare-Mic: Snare-Mic ~gleich laut wie OH → Ratio ~1.0–2.0.
+    # → Gate nur auslösen wenn Snare klar dominant (Ratio > 2.0), nicht bei Crash-Bleed.
+    SNARE_BLEED_RATIO: float = 2.0
 
     def __init__(
         self,

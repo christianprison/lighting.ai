@@ -1650,25 +1650,35 @@ class MainWindow(QMainWindow):
         ratio        = snare_hf_rms / max(oh_hf_rms, 1e-9)
 
         thresh       = _CrashDetector.CRASH_RMS_MIN
+        raw_thresh   = _CrashDetector.OH_RAW_RMS_MIN
         gate_ratio   = _CrashDetector.SNARE_BLEED_RATIO
 
-        # ── Entscheidungsbaum ─────────────────────────────────────────────────
-        rms_ok   = oh_hf_rms   >= thresh
+        # ── Entscheidungsbaum (Dual-Gate + Snare-Sidechain) ──────────────────
+        hf_ok    = oh_hf_rms  >= thresh
+        raw_ok   = oh_raw_rms >= raw_thresh
         gate_ok  = snare_hf_rms <= oh_hf_rms * gate_ratio   # True = kein Bleed
 
-        if rms_ok and gate_ok:
+        fails = []
+        if not hf_ok:
+            fails.append(
+                f"HF-RMS ({oh_hf_rms:.4f}) < CRASH_RMS_MIN ({thresh:.4f})  "
+                f"[{thresh/max(oh_hf_rms,1e-9):.1f}× zu klein]"
+            )
+        if not raw_ok:
+            fails.append(
+                f"Vollband-RMS ({oh_raw_rms:.4f}) < OH_RAW_RMS_MIN ({raw_thresh:.4f})  "
+                f"[HiHat-Gate aktiv — Crash muss lauter sein]"
+            )
+        if not gate_ok:
+            fails.append(
+                f"Snare-Gate aktiv: snare_hf ({snare_hf_rms:.4f}) > oh_hf ({oh_hf_rms:.4f}) × {gate_ratio}  "
+                f"[Ratio={ratio:.3f}]"
+            )
+
+        if not fails:
             verdict = "✓  Crash WÜRDE erkannt werden — prüfe Cooldown!"
-        elif not rms_ok and not gate_ok:
-            verdict = ("✗  BEIDE Bedingungen nicht erfüllt:\n"
-                       "   RMS zu niedrig UND Snare-Gate aktiv")
-        elif not rms_ok:
-            verdict = (f"✗  OH-HPF-RMS ({oh_hf_rms:.4f}) < Schwellwert ({thresh:.4f})\n"
-                       f"   Benötigt: {thresh / max(oh_hf_rms, 1e-9):.1f}× mehr Pegel")
         else:
-            verdict = (f"✗  Snare-Sidechain-Gate aktiv:\n"
-                       f"   snare_hf ({snare_hf_rms:.4f}) > oh_hf ({oh_hf_rms:.4f}) × {gate_ratio}\n"
-                       f"   → Snare-Bleed erkannt. Gate würde bei Ratio < {gate_ratio:.2f} öffnen.\n"
-                       f"   Aktuell: {ratio:.3f}  |  Limit: {gate_ratio:.2f}")
+            verdict = "✗  Crash NICHT erkannt:\n" + "\n".join(f"   • {f}" for f in fails)
 
         # ── Peak-Analyse: Wo im Fenster ist das Maximum? ─────────────────────
         if len(oh_hpf) > 0:
@@ -1686,8 +1696,9 @@ class MainWindow(QMainWindow):
         msg = (
             f"Crash-Diagnose @ {ts}  (±{int(WINDOW*1000)} ms)\n"
             f"{'─'*48}\n"
-            f"OH-Mix roh       RMS  =  {oh_raw_rms:.5f}\n"
-            f"OH-Mix >8 kHz    RMS  =  {oh_hf_rms:.5f}  "
+            f"OH-Mix roh       RMS  =  {oh_raw_rms:.5f}"
+            f"  (Schwellwert: {raw_thresh:.4f})\n"
+            f"OH-Mix >8 kHz    RMS  =  {oh_hf_rms:.5f}"
             f"  (Schwellwert: {thresh:.4f})\n"
             f"Snare >8 kHz     RMS  =  {snare_hf_rms:.5f}\n"
             f"Snare/OH-Ratio        =  {ratio:.3f}"
@@ -1696,7 +1707,8 @@ class MainWindow(QMainWindow):
             f"{'─'*48}\n"
             f"{verdict}\n"
             f"{'─'*48}\n"
-            f"Tipp: CRASH_RMS_MIN={thresh:.4f}, SNARE_BLEED_RATIO={gate_ratio:.2f}\n"
+            f"Tipp: CRASH_RMS_MIN={thresh:.4f}, OH_RAW_RMS_MIN={raw_thresh:.4f}, "
+            f"SNARE_BLEED_RATIO={gate_ratio:.2f}\n"
             f"Zum Anpassen: detection/beat_detector.py, Klasse _CrashDetector"
         )
 

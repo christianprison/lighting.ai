@@ -210,10 +210,16 @@ class _CrashDetector:
     Kein Phasenversatz-Problem, da nur RMS verglichen wird.
     """
 
-    # Absoluter RMS-Schwellwert nach Hochpass >8 kHz (signed L+R Mix).
-    # Gemessener Crash-RMS nach HPF in realen Aufnahmen: 0.001–0.010
-    # HiHat: 0.001–0.005 (Cooldown 0.8s verhindert HiHat-Fehlauslösungen)
+    # Schwellwert 1: OH >8 kHz RMS nach Hochpass (signed L+R Mix).
+    # Gemessene Crashes nach HPF: 0.001–0.010; HiHats können ähnliche Werte erreichen
+    # → reicht allein nicht zur Unterscheidung. Zusammen mit OH_RAW_RMS_MIN eindeutig.
     CRASH_RMS_MIN: float = 0.001
+
+    # Schwellwert 2: OH Vollband-RMS VOR dem Hochpass.
+    # Ein Crash-Cymbal-Hit ist viel lauter als ein HiHat-Hit im gesamten Spektrum:
+    # Gemessener Crash: oh_raw_rms ≈ 0.006; HiHat: oh_raw_rms ≈ 0.001–0.003.
+    # → Zweites Gate verhindert HiHat-False-Positives auch bei niedrigem CRASH_RMS_MIN.
+    OH_RAW_RMS_MIN: float = 0.004
 
     # Snare-Sidechain-Gate: Schwelle für Snare-Bleed-Erkennung.
     # Beim echten Snare-Hit: Snare-Mic ist 10–50× lauter als OH nach HPF → Ratio 10–50.
@@ -248,11 +254,15 @@ class _CrashDetector:
         snare_block: optionaler Mono-Block des Snare-Direct-Kanals (CH09).
                      Wenn vorhanden, wird Snare-Bleed-Gating angewendet.
         """
+        oh_block = block.astype(np.float32)
+        # Vollband-RMS VOR dem HPF: Crashes sind viel lauter als HiHats
+        raw_rms = float(np.sqrt(np.mean(oh_block ** 2)))
+
         if self._sos is not None:
             from scipy.signal import sosfilt
-            y, self._sos_zi = sosfilt(self._sos, block.astype(np.float32), zi=self._sos_zi)
+            y, self._sos_zi = sosfilt(self._sos, oh_block, zi=self._sos_zi)
         else:
-            y = block.astype(np.float32)
+            y = oh_block
 
         rms = float(np.sqrt(np.mean(y ** 2)))
 
@@ -269,7 +279,10 @@ class _CrashDetector:
             self._cooldown_left -= len(block)
             return False, rms
 
-        if rms >= self.CRASH_RMS_MIN:
+        # Dual-Gate: HF-Energie UND Vollband-Energie müssen über Schwellwert liegen.
+        # HiHat: rms ≈ 0.001–0.003 aber raw_rms ≈ 0.001–0.003 (dünn, hochfrequent).
+        # Crash: rms ≈ 0.001–0.010 und raw_rms ≈ 0.004–0.020 (breitbandig, laut).
+        if rms >= self.CRASH_RMS_MIN and raw_rms >= self.OH_RAW_RMS_MIN:
             # Snare-Bleed-Gate: Snare-Direct lauter als OH → kein Crash
             if snare_rms > rms * self.SNARE_BLEED_RATIO:
                 log.debug(

@@ -658,14 +658,27 @@ Wenn ein Song kein `grundrhythmus` hat, wird Phasen-Histogramm + Crash-Fallback 
 
 #### AudioProcess (`live/server/audio/audio_process.py`)
 
-- `OnsetDetector` + `BarTracker` laufen im sounddevice-Callback (selber Thread, Lock-geschützt)
-- `set_song(bpm, grundrhythmus=None, seg_start_t=None)`: konfiguriert BarTracker bei Songwechsel,
+- `OnsetDetector` + `BarTracker` + `StreamingChromaExtractor` laufen im Audio-Thread
+- `set_song(bpm, grundrhythmus=None, seg_start_t=None, song_id="")`: konfiguriert BarTracker +
+  Chroma-Extraktoren bei Songwechsel; lädt Referenz-Chromas aus `ref_db` (wenn übergeben);
   muss aus dem FastAPI-Event-Loop via `await asyncio.to_thread(audio_process.set_song, ...)` aufgerufen werden
 - Kick/Snare/Crash-Events werden per `process_kick/snare/crash(t_ev, energy)` in BarTracker eingespeist
 - `_bar_tracker_lock` (threading.Lock) schützt alle BarTracker-Zugriffe
 - **Bar-Events in JSONL**: nach jedem Onset-Event werden neue Takte (bt ≤ aktueller Zeitstempel)
   als `{"t": bt, "type": "bar", "bar_num": N, "bpm": B}` in die JSONL geschrieben
   — `_logged_bar_count` verhindert Duplikate; wird beim `set_song()` zurückgesetzt
+- **Streaming Chroma (Prime Directive)**: identisch mit SimulatorWorker
+  - `_guitar_extractor` (STFT, 0,5s Window): befüllt im Callback via `push_block()` (schnell, kein librosa)
+  - `_bass_extractor` (CQT, BPM-abhängiges Window, 8kHz, 30–300Hz): ebenso
+  - Bei kick/snare: `snapshot()` (Buffer-Kopie) → `_chroma_queue` → `_chroma_worker`-Thread
+  - Bei neuem Takt: `snapshot()` des Bass-Extraktors → `_chroma_queue`
+- **`_chroma_worker`** (Daemon-Thread): STFT/CQT + Power-Normierung → Kosinus-Ähnlichkeit
+  gegen `_ref_chromas` → emittiert `ChromaUpdate` über asyncio-Queue
+- **`ChromaUpdate`**: `{"type": "chroma_update", "kind": "guitar"|"bass", "t": float,
+  "chroma": [12 floats], "bar_num": int, "confidence": float}` → WebSocket
+- **`latest_chroma()`**: gibt letzten `ChromaUpdate` als dict zurück (thread-safe)
+- **Constructor-Parameter `ref_db`**: optional `ReferenceDB`-Instanz; wenn None → kein Takt-Matching
+- `detection/reference_db.py`: neues `get_all_bar_chromas(song_id) -> dict[int, np.ndarray]`
 
 #### ⚠️ Offene Punkte für nächste Session
 
@@ -674,20 +687,34 @@ Wenn ein Song kein `grundrhythmus` hat, wird Phasen-Histogramm + Crash-Fallback 
    - Ohne grundrhythmus wird Crash-Fallback → Phasen-Histogramm verwendet
 
 2. **select_song in main.py**: Bei Songwechsel über WebSocket (`action=select_song`) muss
-   `audio_process.set_song(bpm, grundrhythmus)` aufgerufen werden (noch nicht implementiert).
+   `audio_process.set_song(bpm, grundrhythmus, song_id=song_id)` aufgerufen werden (noch nicht implementiert).
+   `ref_db` muss beim Konstruktor übergeben werden: `AudioProcess(..., ref_db=ReferenceDB())`.
 
-3. **Chroma für Live-Vergleich nutzen**: `upsert_bar_chroma` speichert Lead-Guitar-Chroma
-   aus der Simulation in reference.db. Für den Live-Part/Takt-Abgleich muss noch ein
-   Vergleichs-Algorithmus (z.B. Kosinus-Ähnlichkeit) in audio_process.py implementiert werden.
-
-4. **Feldtest Beat-1-Korrektur**: Simulation auf verschiedenen Songs laufen lassen und prüfen:
-   - Crash-Detektion: Status-Bar zeigt `★ N Crashes`? Wenn 0 → `CRASH_RMS_MIN` (aktuell 0.004) weiter senken
+3. **Feldtest Beat-1-Korrektur**: Simulation auf verschiedenen Songs laufen lassen und prüfen:
+   - Crash-Detektion: Status-Bar zeigt `★ N Crashes`? Wenn 0 → `CRASH_RMS_MIN` (aktuell 0.001) weiter senken
    - Energy-Korrektur: `[BAR] energy_beat1: ratio=Z` auf stderr — Z > 1.05 = Korrektur greift
    - Taktgitter landet auf Beat 1 (Snare-Positionen ≈ 1.0 und 3.0 beats in Diagnostik)
 
-5. **Koordinatensystem Sim-Events**: Sim-Events verwenden `t_k * pps` ohne Subtraktion von
+4. **Koordinatensystem Sim-Events**: Sim-Events verwenden `t_k * pps` ohne Subtraktion von
    `seg.start_t`, JSONL-Events verwenden `(ev.t - seg.start_t) * pps` — potentieller Offset-Bug
    für Segmente die nicht bei WAV-Zeit 0 beginnen. Bisher nicht reproduziert.
+
+#### Anker-Feature (DB-Pflege-App v2.2.26)
+
+Jeder Song kann eine geordnete Liste von **Ankern** (`song.anchors`) enthalten — beschreibende
+akustische Erkennungsmerkmale, die der Lichttechniker in der DB-Pflege-App pflegt:
+
+```json
+"anchors": [
+  {"id": "anc_abc123_xyz", "pos": 1, "type": "vocal",  "description": "Song beginnt mit Schrei von Pete", "part_hint": "Intro"},
+  {"id": "anc_def456_uvw", "pos": 2, "type": "drum",   "description": "Snare Drum setzt ein",             "part_hint": "Intro"},
+  {"id": "anc_ghi789_rst", "pos": 3, "type": "drum",   "description": "Crash + Kick → Intro beginnt",    "part_hint": "Verse 1"}
+]
+```
+
+- **Felder**: `id` (eindeutig), `pos` (Reihenfolge 1-basiert), `type` (vocal/drum/guitar/bass/keys/silence/other), `description` (Freitext), `part_hint` (Part-Name als Orientierung)
+- **UI**: Neuer Tab „ANKER" in der DB-Pflege-App. Inline-editierbar, mit ↑/↓ zum Umordnen und ✕ zum Löschen.
+- **Nutzung Live/Sim**: Zukunft — Anker dienen als textuelle Fingerabdrücke für Positions-Erkennung.
 
 ### Tech Stack (Live-App)
 

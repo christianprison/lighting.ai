@@ -149,15 +149,41 @@ nach jedem vollständigen Takt (d.h. nach jedem Bar-Event aus BarTracker).
 
 ---
 
-## Schicht 3: Chroma-Matching (neu bewertet)
+## Schicht 3: Chroma-Matching gegen Akkord-Erwartung
 
-### Warum jetzt realistischer
-Da CH05 ein Direktsignal ohne Bleed ist, ist Chroma-Qualität ausreichend für:
-- Bestätigung ob der erkannte Akkord plausibel ist
-- Erkennung von Akkordwechseln (Delta-Signal)
-- Konfidenz-Boost für Schicht 1+2 bei eindeutigen Akkordfolgen
+### Grundprinzip
 
-### Akkord-Erwartungswerte in DB-Pflege-App erfassen
+Da CH05 ein bleed-freies Direktsignal ist, ist Chroma-Qualität hoch genug für  
+einen Vergleich gegen **sehr spezifische Erwartungsvektoren pro Takt**.
+
+Der entscheidende Unterschied zu generischer Tonart-Gewichtung:
+
+| Ansatz | Bedingung | Spezifität |
+|--------|-----------|-----------|
+| `apply_key_weight()` | "einer dieser 7 Töne der Tonart" | grob — 7 von 12 Pitch-Classes |
+| Akkord pro Takt | "genau diese 3–4 Töne" | scharf — 3–4 von 12 Pitch-Classes |
+
+Beispiel für Takt 14 (Em):
+
+```
+Erwarteter Vektor:  E=1.0  G=0.8  H=0.8  alle anderen ≈ 0
+Live CH05 Chroma:   E=0.71 G=0.58 H=0.52 D=0.12 ...
+Kosinus-Ähnlichkeit: 0.89  →  "ja, das ist Em"
+```
+
+Weil nur 3–4 von 12 Pitch-Classes aktiv sein sollten, ist jede Abweichung  
+sofort auffällig — auch bei Distortion-Obertönen, die zwar vorhanden sind,  
+aber außerhalb des Erwartungsvektors liegen und die Ähnlichkeit senken.
+
+### Doppelter Nutzen
+
+1. **Live-Algorithmus**: Konfidenz-Boost für Schicht 1+2, Erkennung von Fehlern  
+   ("live Chroma passt nicht zum erwarteten Akkord → Drift oder falscher Akkord")
+2. **Bandkommunikation**: Timo sieht in der DB-Pflege-App pro Takt welcher Akkord  
+   erwartet wird — konkrete Diskussionsgrundlage in der Probe  
+   ("in Takt 23 steht G, du spielst aber D")
+
+### Akkord-Feld in DB-Pflege-App
 
 Neues optionales Feld `chord` pro Takt in `db.bars`:
 
@@ -173,34 +199,52 @@ Neues optionales Feld `chord` pro Takt in `db.bars`:
 }
 ```
 
-Format: Standard-Akkord-Symbole — `"Em"`, `"G"`, `"D/F#"`, `"Bm7"`.  
-Leer = unbekannt / nicht eingetragen.
+Format: Standard-Akkord-Symbole — `"Em"`, `"G"`, `"D/F#"`, `"Bm7"`, `"E5"`.  
+Leer = unbekannt / nicht eingetragen (Matching wird für diesen Takt übersprungen).
 
-**Chroma-Vektor aus Akkord-Symbol berechnen** (deterministisch):
+### Erwartungsvektor berechnen (`detection/chord_templates.py`, neu)
 
 ```python
+# Intervall-Templates relativ zum Grundton (0 = Grundton)
 CHORD_TEMPLATES = {
-    'maj':  [1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0],  # 1-3-5
-    'min':  [1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0],  # 1-b3-5
-    'maj7': [1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1],
-    'min7': [1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0],
-    '5':    [1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],  # Power-Chord
-    # ...
+    'maj':  [0, 4, 7],         # Dur: Grundton, große Terz, Quinte
+    'min':  [0, 3, 7],         # Moll: Grundton, kleine Terz, Quinte
+    'maj7': [0, 4, 7, 11],     # Dur-Sept
+    'min7': [0, 3, 7, 10],     # Moll-Sept
+    'dom7': [0, 4, 7, 10],     # Dominant-Sept
+    'sus2': [0, 2, 7],
+    'sus4': [0, 5, 7],
+    '5':    [0, 7],            # Power-Chord (kein Terz → Oberton-robust)
+    'dim':  [0, 3, 6],
+    'aug':  [0, 4, 8],
 }
 
 def chord_to_chroma(chord_str: str) -> list[float]:
-    """'Em' → 12-dim Chroma-Vektor (normiert)."""
-    root, quality = parse_chord(chord_str)
-    template = CHORD_TEMPLATES.get(quality, CHORD_TEMPLATES['maj'])
-    rotated = template[12 - root:] + template[:12 - root]
-    # Oberton-Gewichtung: Grundton + Quinte stärker als Terz
-    arr = [v * (1.5 if i in (0, 7) else 1.0) for i, v in enumerate(rotated)]
-    norm = sum(v**2 for v in arr) ** 0.5
-    return [v / norm for v in arr] if norm > 0 else arr
+    """'Em' → 12-dim normierten Chroma-Erwartungsvektor.
+
+    Deterministisch — unabhängig von Audio-Aufnahmen.
+    Power-Chords (z.B. 'E5') haben nur 2 Töne → sehr scharfe Bedingung.
+    """
+    root, quality = _parse_chord(chord_str)   # ('E', 'min') für 'Em'
+    intervals = CHORD_TEMPLATES.get(quality, CHORD_TEMPLATES['maj'])
+    root_pc = _ROOT_TO_PC[root]               # 'E' → 4
+
+    chroma = [0.0] * 12
+    for interval in intervals:
+        pc = (root_pc + interval) % 12
+        chroma[pc] = 1.0
+
+    norm = sum(v ** 2 for v in chroma) ** 0.5
+    return [v / norm for v in chroma] if norm > 0 else chroma
 ```
 
-Dies gibt einen **deterministischen Erwartungsvektor** — unabhängig von der Aufnahme.  
-Vergleich live Chroma vs. Erwartung via Kosinus-Ähnlichkeit.
+Vergleich im Live-Algorithmus:
+
+```python
+expected = chord_to_chroma(bar_record.chord)   # aus DB
+live     = guitar_extractor.get_chroma()       # von CH05
+confidence = cosine_similarity(live, expected)  # 0.0–1.0
+```
 
 ### Wo in reference.db speichern
 

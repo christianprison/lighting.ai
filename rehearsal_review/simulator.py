@@ -2,18 +2,18 @@
 
 Läuft so schnell wie möglich (kein Echtzeit-Throttling).
 
-Zwei separate Worker:
+Prime Directive: SimulatorWorker = Live-Algorithmus, kein Lookahead.
+Chroma (Gitarre, Bass) und Vokal-VAD werden STREAMING berechnet —
+identisch mit dem, was audio_process.py im Live-Betrieb tut.
+Kein PostProcessWorker mehr: alle Features entstehen während des Onset-Loops.
 
-SimulatorWorker  — Kernsimulation (identisch mit Live-Betrieb):
-    Schreibt alle erkannten Events als JSONL-Datei, puffert Rohsignal für
-    Lead-Guitar- (CH4) und Bass-Kanal (CH5). Fortschritt 0→100 % für
-    den Onset-Loop. Emittiert `finished` mit Kick/Snare/Crash/BarTimes/BPM
-    + Rohsignal-Arrays für PostProcessWorker.
-
-PostProcessWorker — Chroma + Bass-Visualisierung (nur Sim, nicht Live):
-    Verarbeitet die gepufferten Rohsignale mit librosa.
-    Läuft nach dem SimulatorWorker, hat einen eigenen Fortschrittsbalken.
-    Emittiert `finished` mit chroma_data + bass_data.
+SimulatorWorker — Kernsimulation + Streaming Feature-Extraktion:
+    Schreibt alle erkannten Events als JSONL-Datei.
+    Berechnet Guitar-Chroma pro Beat und Bass-Chroma+Rhythmus pro Takt
+    über StreamingChromaExtractor (Rolling-Buffer, kein HPSS, kein Batch-CQT).
+    Berechnet Vokal-VAD am Ende des Loops (fensterweise, zustandslos → identisch).
+    Fortschritt 0→100 % für den Onset-Loop.
+    Emittiert `finished` mit allen Ergebnissen.
 
 JSONL-Format (eine JSON-Zeile pro Event, t relativ zu seg_start_t):
     {"t": 0.0,  "type": "sim_start", "data": {"song_id": …, …}}
@@ -33,19 +33,26 @@ BLOCK_SIZE = 2048
 
 
 # ---------------------------------------------------------------------------
-# SimulatorWorker — Kernsimulation (Prime Directive: identisch mit Live)
+# SimulatorWorker — Kernsimulation + Streaming Feature-Extraktion
 # ---------------------------------------------------------------------------
 
 class SimulatorWorker(QThread):
-    """Offline-Simulation der Erkennungspipeline (Kick/Snare/Crash + BarTracker).
+    """Offline-Simulation der Erkennungspipeline (Kick/Snare/Crash + BarTracker
+    + Streaming Chroma/Bass/VAD).
 
-    Fortschritt 0→100 % für den Onset-Loop.  Chroma/Bass-Extraktion läuft
-    separat im PostProcessWorker — so schließt der Simulations-Dialog sobald
-    die eigentliche Erkennung fertig ist.
+    Fortschritt 0→100 % für den Onset-Loop.
+
+    finished-Dict:
+        jsonl_path, n_kicks, n_snares, n_crashes,
+        kicks, snares, crashes, bar_times, bpm,
+        chroma_data  — list[{"t": float, "chroma": list[float]}] pro Beat
+        bass_data    — list[{"t": float, "chroma": list[float], "rhythm": float}] pro Takt
+        vocal_data   — list[{"t": float, "active": bool, "rms": float}] pro 50ms-Fenster
+        sample_rate, seg_start_t, seg_end_t, song_key
     """
 
     progress = pyqtSignal(float)   # 0.0–1.0
-    finished = pyqtSignal(object)  # dict mit Ergebnissen + Rohsignal-Arrays
+    finished = pyqtSignal(object)  # dict mit Ergebnissen
     error    = pyqtSignal(str)
 
     def __init__(
@@ -86,8 +93,11 @@ class SimulatorWorker(QThread):
 
     def _run_inner(self) -> None:
         import soundfile as sf
-        from detection.beat_detector import OnsetDetector, _CrashDetector
+        from detection.beat_detector import (
+            OnsetDetector, _CrashDetector, CH_GUITAR, CH_BASS, CH_LEAD_VOCAL,
+        )
         from detection.bar_tracker import BarTracker
+        from detection.chroma_extractor import StreamingChromaExtractor
 
         # ── WAV-Datei vorab prüfen ────────────────────────────────────────────
         with sf.SoundFile(self._wav_path) as f:
@@ -122,6 +132,27 @@ class SimulatorWorker(QThread):
 
         total_frames = end_sample - start_sample
 
+        # ── Streaming Feature-Extraktoren ─────────────────────────────────────
+        # Guitar-Chroma: 0,5s Rolling-Buffer, STFT-Chroma.
+        # Kein HPSS (Prime Directive: identisch live — HPSS benötigt vollen Puffer).
+        guitar_extractor = StreamingChromaExtractor(
+            sample_rate=sr,
+            window_sec=0.5,
+            use_cqt=False,
+        )
+
+        # Bass-Chroma: Rolling-Buffer (1 Takt + Puffer), CQT bei 8 kHz (30–300 Hz).
+        bar_sec = max(2.0, 4.0 * 60.0 / self._bpm) if self._bpm > 0 else 2.5
+        bass_extractor = StreamingChromaExtractor(
+            sample_rate=sr,
+            window_sec=min(bar_sec * 1.2, 3.0),
+            target_sr=8_000,
+            bp_low=30.0,
+            bp_high=300.0,
+            use_cqt=True,
+            fmin_hz=32.703,   # C1 ≈ 32,7 Hz
+        )
+
         # ── Detektor + BarTracker initialisieren ─────────────────────────────
         detector = OnsetDetector(sample_rate=sr)
         tracker = BarTracker(
@@ -136,14 +167,15 @@ class SimulatorWorker(QThread):
         crashes: list[tuple[float, float]] = []   # (t_rel, rms_energy)
         blocks_done = 0
 
-        # Chroma-, Bass- und Vocal-Kanal im selben Pass puffern — kein zweites File-Read
-        # (Prime Directive: Simulation = Live, ein Algorithmus, kein Lookahead).
-        CHROMA_CH = 4   # CH05 = Lead Guitar L
-        BASS_CH   = 5   # CH06 = Bass
-        VOCAL_CH  = 0   # CH01 = Lead Vocal (Pete)
-        chroma_buf: list[np.ndarray] = []
-        bass_buf:   list[np.ndarray] = []
-        vocal_buf:  list[np.ndarray] = []
+        # Streaming Feature-Ergebnisse
+        chroma_data: list[dict] = []   # Guitar-Chroma pro Beat
+        bass_data:   list[dict] = []   # Bass-Chroma+Rhythmus pro Takt
+        _last_n_bars = 0               # Anzahl bereits extrahierter Takte
+
+        # Vokal-Kanal puffern — VAD ist fensterweise/zustandslos,
+        # Ergebnis identisch ob inline oder am Ende berechnet.
+        vocal_buf: list[np.ndarray] = []
+
         _crash_rms_max = 0.0   # Diagnosewert: höchster OH-RMS im Durchlauf
 
         self._output_jsonl.parent.mkdir(parents=True, exist_ok=True)
@@ -177,13 +209,15 @@ class SimulatorWorker(QThread):
 
                 t_mid = blocks_done * BLOCK_SIZE / sr + (block.shape[0] / 2) / sr
 
-                # Chroma-Kanal puffern (Lead Guitar L) + Bass- + Vocal-Kanal
-                if block.shape[1] > CHROMA_CH:
-                    chroma_buf.append(block[:, CHROMA_CH].copy())
-                if block.shape[1] > BASS_CH:
-                    bass_buf.append(block[:, BASS_CH].copy())
-                if block.shape[1] > VOCAL_CH:
-                    vocal_buf.append(block[:, VOCAL_CH].copy())
+                # ── Streaming Feature-Extraktoren befüllen ────────────────────
+                # Zuerst befüllen, dann Onset-Detection: der Buffer enthält das
+                # aktuelle Audio wenn get_chroma() beim Beat-Event aufgerufen wird.
+                if block.shape[1] > CH_GUITAR:
+                    guitar_extractor.push_block(block[:, CH_GUITAR])
+                if block.shape[1] > CH_BASS:
+                    bass_extractor.push_block(block[:, CH_BASS])
+                if block.shape[1] > CH_LEAD_VOCAL:
+                    vocal_buf.append(block[:, CH_LEAD_VOCAL].copy())
 
                 # Diagnosewert: max OH-RMS (signed, ohne Highpass)
                 if block.shape[1] > 14:
@@ -193,40 +227,102 @@ class SimulatorWorker(QThread):
 
                 # ── Onset-Detection + BarTracker (streaming) ─────────────────
                 for ev in detector.process_block(block):
+                    t_abs = self._seg_start_t + t_mid
+
                     if ev.type == "kick":
                         kicks.append(t_mid)
-                        tracker.process_kick(self._seg_start_t + t_mid, energy=float(ev.energy))
+                        tracker.process_kick(t_abs, energy=float(ev.energy))
+                        # Guitar-Chroma am Beat: aktueller Rolling-Buffer
+                        chroma_vec = guitar_extractor.get_chroma()
+                        if chroma_vec is not None:
+                            chroma_data.append({"t": t_abs, "chroma": chroma_vec})
+
                     elif ev.type == "snare":
                         snares.append(t_mid)
-                        tracker.process_snare(self._seg_start_t + t_mid, energy=float(ev.energy))
+                        tracker.process_snare(t_abs, energy=float(ev.energy))
+                        # Guitar-Chroma am Beat: aktueller Rolling-Buffer
+                        chroma_vec = guitar_extractor.get_chroma()
+                        if chroma_vec is not None:
+                            chroma_data.append({"t": t_abs, "chroma": chroma_vec})
+
                     elif ev.type == "crash":
                         crashes.append((t_mid, float(ev.energy)))
-                        tracker.process_crash(self._seg_start_t + t_mid, energy=float(ev.energy))
+                        tracker.process_crash(t_abs, energy=float(ev.energy))
+
                     jf.write(_json.dumps({
                         "t": round(t_mid, 4),
                         "type": ev.type,
                         "data": {"energy": round(float(ev.energy), 6)},
                     }) + "\n")
 
+                # ── Neue Takte prüfen → Bass-Chroma extrahieren ───────────────
+                # BarTracker bestätigt Takt-Starts in Arrears (nach jeweils 8 Events).
+                # Wenn ein neuer Takt erscheint, enthält der Bass-Rolling-Buffer
+                # die Audio-Daten des zuletzt gespielten Takts — identisch mit Live.
+                current_bars = tracker.get_latest_bars()
+                for bar_t in current_bars[_last_n_bars:]:
+                    bass_chroma = bass_extractor.get_chroma()
+                    bass_rhythm = bass_extractor.get_rhythm_score(self._bpm)
+                    if bass_chroma is not None:
+                        bass_data.append({
+                            "t":      bar_t,
+                            "chroma": bass_chroma,
+                            "rhythm": bass_rhythm,
+                        })
+                _last_n_bars = len(current_bars)
+
                 blocks_done += 1
                 if blocks_done % 50 == 0:
                     raw = (blocks_done * BLOCK_SIZE) / max(1, total_frames)
                     self.progress.emit(min(0.99, raw))
+
+        # ── Vokal-VAD (fensterweise RMS — zustandslos → am Ende = live-identisch) ──
+        vocal_data: list[dict] = []
+        if vocal_buf:
+            try:
+                from chroma_viz import extract_vocal_activity
+                vocal_data = extract_vocal_activity(
+                    np.concatenate(vocal_buf),
+                    sample_rate=sr,
+                    seg_start_t=self._seg_start_t,
+                )
+                n_active = sum(1 for e in vocal_data if e["active"])
+                print(
+                    f"[SIM] Vocal VAD: {len(vocal_data)} Fenster, "
+                    f"{n_active} aktiv ({100*n_active//max(1,len(vocal_data))} %)",
+                    file=sys.stderr,
+                )
+            except Exception as e:
+                print(f"[SIM] Vocal VAD fehlgeschlagen: {e}", file=sys.stderr)
 
         # ── Finale Taktgitter-Berechnung (letzte Events einbeziehen) ─────────
         tracker.finalize()
         bar_times_final = tracker.get_latest_bars()
         bpm_final       = tracker.get_bpm()
 
+        # Verbleibende Takte nach finalize() → Bass-Chroma für letzten Takt
+        for bar_t in bar_times_final[_last_n_bars:]:
+            bass_chroma = bass_extractor.get_chroma()
+            bass_rhythm = bass_extractor.get_rhythm_score(self._bpm)
+            if bass_chroma is not None:
+                bass_data.append({
+                    "t":      bar_t,
+                    "chroma": bass_chroma,
+                    "rhythm": bass_rhythm,
+                })
+
         print(
             f"[SIM] Fertig: {blocks_done} Blöcke, "
-            f"{len(kicks)} Kicks, {len(snares)} Snares "
+            f"{len(kicks)} Kicks, {len(snares)} Snares, "
+            f"{len(chroma_data)} Guitar-Chroma, "
+            f"{len(bass_data)} Bass-Takte "
             f"→ {self._output_jsonl.name}",
             file=sys.stderr,
         )
         print(
             f"[SIM] Crashes: {len(crashes)} erkannt  "
             f"(threshold RMS >{_CrashDetector.CRASH_RMS_MIN:.4f}, "
+            f"raw OH >{_CrashDetector.OH_RAW_RMS_MIN:.4f}, "
             f"max OH-RMS im Segment: {_crash_rms_max:.4f})",
             file=sys.stderr,
         )
@@ -242,130 +338,12 @@ class SimulatorWorker(QThread):
             "crashes":     crashes,
             "bar_times":   bar_times_final,
             "bpm":         bpm_final,
-            # Rohsignal-Arrays für PostProcessWorker (Chroma + Bass + Vocal)
-            "chroma_buf":  np.concatenate(chroma_buf) if chroma_buf else np.array([], dtype=np.float32),
-            "bass_buf":    np.concatenate(bass_buf)   if bass_buf   else np.array([], dtype=np.float32),
-            "vocal_buf":   np.concatenate(vocal_buf)  if vocal_buf  else np.array([], dtype=np.float32),
+            # Streaming Features (Prime Directive: kein Batch-HPSS mehr)
+            "chroma_data": chroma_data,   # Guitar-Chroma pro Beat
+            "bass_data":   bass_data,     # Bass-Chroma+Rhythmus pro Takt
+            "vocal_data":  vocal_data,    # Vokal-VAD pro 50ms-Fenster
             "sample_rate": sr,
             "seg_start_t": self._seg_start_t,
             "seg_end_t":   self._seg_end_t,
             "song_key":    self._song_key,
-        })
-
-
-# ---------------------------------------------------------------------------
-# PostProcessWorker — Chroma + Bass-Visualisierung (nur Sim, nicht Live)
-# ---------------------------------------------------------------------------
-
-class PostProcessWorker(QThread):
-    """Extrahiert Chroma (Lead Guitar), Bass-Chroma+Rhythmus und Vocal-VAD nach der Simulation.
-
-    Läuft separat vom SimulatorWorker, damit der Simulations-Dialog (der den
-    Live-Algorithmus repräsentiert) sofort schließt und ein eigener
-    Post-Processing-Dialog die Visualisierungs-Arbeit zeigt.
-
-    Fortschritt: 0–40 % Chroma, 40–80 % Bass, 80–100 % Vocal-VAD.
-    """
-
-    progress = pyqtSignal(float)   # 0.0–1.0
-    finished = pyqtSignal(object)  # dict: {chroma_data, bass_data, vocal_data}
-
-    def __init__(
-        self,
-        chroma_buf: np.ndarray,
-        bass_buf: np.ndarray,
-        vocal_buf: np.ndarray,
-        sample_rate: int,
-        seg_start_t: float,
-        seg_end_t: float,
-        bar_times: list[float],
-        bpm: int,
-        song_key: str = "",
-        parent=None,
-    ) -> None:
-        super().__init__(parent)
-        self._chroma_buf  = chroma_buf
-        self._bass_buf    = bass_buf
-        self._vocal_buf   = vocal_buf
-        self._sr          = sample_rate
-        self._seg_start_t = seg_start_t
-        self._seg_end_t   = seg_end_t
-        self._bar_times   = bar_times
-        self._bpm         = bpm
-        self._song_key    = song_key
-
-    def run(self) -> None:
-        try:
-            self._run_inner()
-        except Exception as exc:
-            print(f"[POST] Fehler: {exc}", file=sys.stderr)
-            self.finished.emit({"chroma_data": [], "bass_data": [], "vocal_data": []})
-
-    def _run_inner(self) -> None:
-        chroma_data: list[dict] = []
-        bass_data:   list[dict] = []
-        vocal_data:  list[dict] = []
-
-        # ── Chroma (Lead Guitar, pro Beat) — 0–40 % ───────────────────────────
-        if len(self._chroma_buf) > 0 and self._bar_times and self._bpm > 0:
-            try:
-                from chroma_viz import extract_chroma_at_beats_from_array, compute_beat_times
-                beat_times = compute_beat_times(self._bar_times, self._bpm)
-                beat_times = [t for t in beat_times
-                              if self._seg_start_t <= t <= self._seg_end_t]
-
-                chroma_data = extract_chroma_at_beats_from_array(
-                    self._chroma_buf,
-                    seg_start_t=self._seg_start_t,
-                    sample_rate=self._sr,
-                    beat_times_abs=beat_times,
-                    window_sec=0.28,
-                    song_key=self._song_key,
-                    progress_callback=lambda f: self.progress.emit(f * 0.4),
-                )
-                print(f"[POST] Chroma: {len(chroma_data)} Beats extrahiert", file=sys.stderr)
-            except Exception as e:
-                print(f"[POST] Chroma fehlgeschlagen: {e}", file=sys.stderr)
-
-        # ── Bass (pro Takt) — 40–80 % ─────────────────────────────────────────
-        if len(self._bass_buf) > 0 and self._bar_times and self._bpm > 0:
-            try:
-                from chroma_viz import extract_bass_at_bars_from_array
-                bass_data = extract_bass_at_bars_from_array(
-                    self._bass_buf,
-                    seg_start_t=self._seg_start_t,
-                    sample_rate=self._sr,
-                    bar_times_abs=self._bar_times,
-                    bpm=self._bpm,
-                    song_key=self._song_key,
-                    progress_callback=lambda f: self.progress.emit(0.4 + f * 0.4),
-                )
-                print(f"[POST] Bass: {len(bass_data)} Takte extrahiert", file=sys.stderr)
-            except Exception as e:
-                print(f"[POST] Bass fehlgeschlagen: {e}", file=sys.stderr)
-
-        # ── Vocal VAD (Lead Vocal, pro 50ms-Fenster) — 80–100 % ──────────────
-        if len(self._vocal_buf) > 0:
-            try:
-                from chroma_viz import extract_vocal_activity
-                self.progress.emit(0.8)
-                vocal_data = extract_vocal_activity(
-                    self._vocal_buf,
-                    sample_rate=self._sr,
-                    seg_start_t=self._seg_start_t,
-                )
-                n_active = sum(1 for e in vocal_data if e["active"])
-                print(
-                    f"[POST] Vocal VAD: {len(vocal_data)} Fenster, "
-                    f"{n_active} aktiv ({100*n_active//max(1,len(vocal_data))} %)",
-                    file=sys.stderr,
-                )
-            except Exception as e:
-                print(f"[POST] Vocal VAD fehlgeschlagen: {e}", file=sys.stderr)
-
-        self.progress.emit(1.0)
-        self.finished.emit({
-            "chroma_data": chroma_data,
-            "bass_data":   bass_data,
-            "vocal_data":  vocal_data,
         })

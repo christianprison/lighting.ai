@@ -27,7 +27,7 @@ from annotation import (
     BarMarker, SongAnnotation,
     load_annotations, save_annotations,
 )
-from simulator import SimulatorWorker, PostProcessWorker
+from simulator import SimulatorWorker
 from datetime import datetime as _dt
 
 import numpy as _np
@@ -113,7 +113,7 @@ QComboBox#zoom_combo          { font-family:'DM Mono',monospace; font-size:10px;
                                 min-width:90px; max-width:110px; }
 """
 
-APP_VERSION = "1.1.3"
+APP_VERSION = "1.2.0"
 
 _ZOOM_PRESETS: list[int] = [2, 5, 10, 20, 40, 80, 160, 320, 640, 1280, 2560, 5120, 10240, 20480, 40960]
 
@@ -400,12 +400,8 @@ class MainWindow(QMainWindow):
         self._sim_start_wav_t: float = 0.0  # WAV-Offset bei Simulations-Start
         self._sim_t_in_seg:    float = 0.0  # Segment-relative Startposition für Seek
         self._sim_bpm:         float = 120.0  # BPM zum Zeitpunkt des Sim-Starts
-        self._sim_song_key:    str   = ""   # Tonart des simulierten Songs (für Post-Processing)
+        self._sim_song_key:    str   = ""   # Tonart des simulierten Songs
         self._last_bar_times:  list  = []   # Taktzeiten des letzten Sim-Durchlaufs
-
-        # Post-Processing (Chroma + Bass, läuft nach SimulatorWorker)
-        self._post_worker:       Optional[PostProcessWorker] = None
-        self._post_progress_dlg: Optional[QProgressDialog] = None
 
         self._player = AudioPlayer(self)
         self._player.position_changed.connect(self._on_position)
@@ -1765,134 +1761,20 @@ class MainWindow(QMainWindow):
         bar_times: list[float] = result.get("bar_times", [])
         self._timeline.set_sim_bpm_and_bars(bpm_tl, bar_times)
 
-        # Rohsignal-Puffer für Post-Processing (Chroma + Bass + Vocal-VAD)
+        # Streaming Features direkt aus SimulatorWorker (Prime Directive: kein PostProcess mehr)
         self._last_bar_times = bar_times
-        chroma_buf = result.get("chroma_buf")
-        bass_buf   = result.get("bass_buf")
-        vocal_buf  = result.get("vocal_buf")
-        sr         = result.get("sample_rate", 48000)
-        seg_start  = result.get("seg_start_t", self._sim_start_wav_t)
-        seg_end    = result.get("seg_end_t",   seg_start + 1.0)
-        _empty = _np.array([], dtype=_np.float32)
-        if chroma_buf is not None and (len(chroma_buf) > 0 or (bass_buf is not None and len(bass_buf) > 0) or (vocal_buf is not None and len(vocal_buf) > 0)):
-            self._start_post_process(
-                chroma_buf=chroma_buf,
-                bass_buf=bass_buf  if bass_buf  is not None else _empty,
-                vocal_buf=vocal_buf if vocal_buf is not None else _empty,
-                sample_rate=sr,
-                seg_start_t=seg_start,
-                seg_end_t=seg_end,
-                bar_times=bar_times,
-                bpm=sim_bpm,
-            )
-
-        bpm_str = f"  ~{sim_bpm} BPM" if sim_bpm > 0 else ""
-        crash_str = f"  | ★ {n_crashes} Crashes" if n_crashes > 0 else ""
-        self._status.showMessage(
-            f"Simulation: ◆ {n_kicks} Kicks (amber)  | ◆ {n_snares} Snares (cyan)"
-            f"{crash_str}{bpm_str}",
-            12000,
-        )
-
-        # Overlay-Toggle freischalten und Simulation-Ansicht aktivieren
-        self._sim_overlay_act.setEnabled(True)
-        self._sim_overlay_act.setChecked(True)
-
-        # Zoom auf 80 px/s setzen für gut lesbare Diamond-Darstellung
-        self._timeline.set_zoom(80.0)
-        self._sync_zoom_combo()
-
-    def _on_sim_error(self, err: str) -> None:
-        self._close_sim_progress()
-        self._sim_act.setEnabled(True)
-        self._sim_worker = None
-        self._sim_clear_act.setEnabled(False)
-        self._status.showMessage(f"Simulation fehlgeschlagen: {err}", 8000)
-        QMessageBox.critical(self, "Simulation", f"Fehler:\n{err}")
-
-    # ── Post-Processing (Chroma + Bass, läuft nach SimulatorWorker) ───────────
-
-    def _start_post_process(
-        self,
-        chroma_buf,
-        bass_buf,
-        vocal_buf,
-        sample_rate: int,
-        seg_start_t: float,
-        seg_end_t: float,
-        bar_times: list,
-        bpm: float,
-    ) -> None:
-        """Startet den PostProcessWorker für Chroma + Bass + Vocal-VAD-Visualisierung."""
-        if self._post_worker is not None:
-            self._post_worker.requestInterruption()
-            self._post_worker = None
-
-        prog = QProgressDialog(
-            "Visualisierungsdaten berechnen …", "Abbrechen", 0, 100, self
-        )
-        prog.setWindowTitle("Post-Processing")
-        prog.setWindowModality(Qt.WindowModality.WindowModal)
-        prog.setMinimumDuration(0)
-        prog.setAutoClose(False)
-        prog.setAutoReset(False)
-        prog.setValue(0)
-        prog.setStyleSheet("""
-            QProgressDialog { background:#08090d; color:#eef0f6; }
-            QLabel           { color:#eef0f6; font-family:'Sora',sans-serif;
-                               font-size:11px; padding:8px 0 4px 0; }
-            QProgressBar     { background:#151820; border:1px solid #1e2230;
-                               border-radius:3px; text-align:center; color:#eef0f6;
-                               height:18px; min-height:18px; }
-            QProgressBar::chunk { background:#38bdf8; border-radius:3px; }
-            QPushButton      { background:#ff3b5c22; border:1px solid #ff3b5c;
-                               color:#ff3b5c; padding:4px 16px;
-                               font-family:'DM Mono',monospace; font-size:10px;
-                               border-radius:3px; }
-            QPushButton:hover { background:#ff3b5c44; }
-        """)
-        self._post_progress_dlg = prog
-
-        worker = PostProcessWorker(
-            chroma_buf=chroma_buf,
-            bass_buf=bass_buf,
-            vocal_buf=vocal_buf,
-            sample_rate=sample_rate,
-            seg_start_t=seg_start_t,
-            seg_end_t=seg_end_t,
-            bar_times=bar_times,
-            bpm=int(round(bpm)) if bpm > 0 else 120,
-            song_key=self._sim_song_key,
-            parent=self,
-        )
-        prog.canceled.connect(worker.requestInterruption)
-        worker.progress.connect(lambda v: prog.setValue(int(v * 100)))
-        worker.finished.connect(self._on_post_process_finished)
-        self._post_worker = worker
-        worker.start()
-        prog.show()
-
-    def _on_post_process_finished(self, result: dict) -> None:
-        """Empfängt Chroma + Bass + Vocal-VAD-Daten vom PostProcessWorker."""
-        if self._post_progress_dlg is not None:
-            self._post_progress_dlg.close()
-            self._post_progress_dlg = None
-        self._post_worker = None
-
         chroma_data = result.get("chroma_data", [])
+        bass_data   = result.get("bass_data",   [])
+        vocal_data  = result.get("vocal_data",  [])
+
         if chroma_data:
             self._timeline.set_chroma_data(chroma_data)
-
-        bass_data = result.get("bass_data", [])
         if bass_data:
             self._timeline.set_bass_data(bass_data)
-
-        vocal_data = result.get("vocal_data", [])
         if vocal_data:
             self._timeline.set_vocal_data(vocal_data)
 
         # Chroma-Werte in reference.db speichern (Beats → Takt-Nummern abbilden)
-        bar_times = self._last_bar_times
         if chroma_data and bar_times and self._current_seg is not None:
             try:
                 import bisect as _bisect
@@ -1930,16 +1812,41 @@ class MainWindow(QMainWindow):
                         12000,
                     )
             except Exception as _ce:
-                print(f"[POST] Chroma-Speicherung fehlgeschlagen: {_ce}", file=sys.stderr)
+                print(f"[SIM] Chroma-Speicherung fehlgeschlagen: {_ce}", file=sys.stderr)
 
-        n_bass = len(bass_data)
         n_chroma = len(chroma_data)
+        n_bass   = len(bass_data)
         if n_chroma > 0 or n_bass > 0:
             self._status.showMessage(
                 self._status.currentMessage()
                 + f"  | ♫ {n_chroma} Chroma-Beats  {n_bass} Bass-Takte",
                 12000,
             )
+
+        bpm_str = f"  ~{sim_bpm} BPM" if sim_bpm > 0 else ""
+        crash_str = f"  | ★ {n_crashes} Crashes" if n_crashes > 0 else ""
+        self._status.showMessage(
+            f"Simulation: ◆ {n_kicks} Kicks (amber)  | ◆ {n_snares} Snares (cyan)"
+            f"{crash_str}{bpm_str}",
+            12000,
+        )
+
+        # Overlay-Toggle freischalten und Simulation-Ansicht aktivieren
+        self._sim_overlay_act.setEnabled(True)
+        self._sim_overlay_act.setChecked(True)
+
+        # Zoom auf 80 px/s setzen für gut lesbare Diamond-Darstellung
+        self._timeline.set_zoom(80.0)
+        self._sync_zoom_combo()
+
+    def _on_sim_error(self, err: str) -> None:
+        self._close_sim_progress()
+        self._sim_act.setEnabled(True)
+        self._sim_worker = None
+        self._sim_clear_act.setEnabled(False)
+        self._status.showMessage(f"Simulation fehlgeschlagen: {err}", 8000)
+        QMessageBox.critical(self, "Simulation", f"Fehler:\n{err}")
+
 
     def _zoom_fit(self) -> None:
         if self._current_seg is None:

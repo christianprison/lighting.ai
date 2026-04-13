@@ -51,6 +51,8 @@ log = logging.getLogger("detection.onset")
 CH_LEAD_VOCAL  = 0   # CH01 = Lead Vocal (Pete)
 CH_BACKING_1   = 1   # CH02 = Backing Vox (Axel)
 CH_BACKING_2   = 2   # CH03 = Backing Vox (Bibo/Christian)
+CH_GUITAR = 4   # CH05 = Lead Guitar L
+CH_BASS   = 5   # CH06 = Bass
 CH_KICK   = 8
 CH_SNARE  = 9
 CH_OH_L   = 13   # Overhead Left  — enthält Crash-Cymbals

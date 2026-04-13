@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.2.25';
+const APP_VERSION = 'v2.2.26';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -222,6 +222,7 @@ function cacheDom() {
     tabLyrics:     document.getElementById('tab-lyrics'),
     tabAccents:    document.getElementById('tab-accents'),
     tabSetlist:    document.getElementById('tab-setlist'),
+    tabAnker:      document.getElementById('tab-anker'),
     btnSettings:   document.getElementById('btn-settings'),
     btnSave:       document.getElementById('btn-save'),
     btnUndo:       document.getElementById('btn-undo'),
@@ -1286,6 +1287,7 @@ function switchTab(tab) {
   els.tabLyrics?.classList.toggle('active', tab === 'lyrics');
   els.tabAccents?.classList.toggle('active', tab === 'accents');
   els.tabSetlist?.classList.toggle('active', tab === 'setlist');
+  els.tabAnker?.classList.toggle('active', tab === 'anker');
   renderContent();
   showTabTip(tab);
 }
@@ -1302,6 +1304,7 @@ function renderContent() {
   else if (activeTab === 'lyrics') renderLyricsTab();
   else if (activeTab === 'accents') renderAccentsTab();
   else if (activeTab === 'setlist') renderSetlistTab();
+  else if (activeTab === 'anker') renderAnchorsTab();
   updateDebugPanel();
 }
 
@@ -2027,6 +2030,154 @@ function renderPartsTab() {
       renderPartsTab();
     });
   }
+}
+
+/* ══════════════════════════════════════════════════════
+   ANKER TAB — Beschreibung akustischer Erkennungsmerkmale
+   ══════════════════════════════════════════════════════ */
+
+const ANCHOR_TYPES = [
+  { value: 'vocal',   label: '🎤 Gesang' },
+  { value: 'drum',    label: '🥁 Schlagzeug' },
+  { value: 'guitar',  label: '🎸 Gitarre' },
+  { value: 'bass',    label: '🎵 Bass' },
+  { value: 'keys',    label: '🎹 Keys' },
+  { value: 'silence', label: '🔇 Stille' },
+  { value: 'other',   label: '◆ Sonstiges' },
+];
+
+function renderAnchorsTab() {
+  if (!selectedSongId || !db.songs[selectedSongId]) {
+    els.content.innerHTML = `<div class="empty-state"><div class="icon">&#9875;</div><p>Song auswählen</p></div>`;
+    return;
+  }
+  const song = db.songs[selectedSongId];
+  if (!Array.isArray(song.anchors)) song.anchors = [];
+  const anchors = song.anchors;
+  const parts = getPartsForSong(selectedSongId);
+
+  let html = `<div class="anker-tab-panel">`;
+  html += `<div class="anker-tab-header">`;
+  html += `<h2>${esc(song.name)} <span class="anker-tab-count">${anchors.length} Anker</span></h2>`;
+  html += `<p class="anker-tab-hint">Beschreibe die akustischen Erkennungsmerkmale des Songs in der richtigen Reihenfolge — die Live-App und die Simulation nutzen diese Anker um zu erkennen, an welcher Stelle im Song sie sich befinden.</p>`;
+  html += `</div>`;
+
+  if (anchors.length === 0) {
+    html += `<div class="anker-empty">Noch keine Anker definiert.<br>Klicke unten auf <strong>+ Anker</strong> um das erste Erkennungsmerkmal anzulegen.<br><br>Beispiel: <em>"Song beginnt mit Schrei von Pete"</em> → <em>"Snare Drum setzt ein"</em> → <em>"Crash + Kick, Intro beginnt"</em></div>`;
+  } else {
+    const partOptions = `<option value="">— kein —</option>` +
+      parts.map(p => `<option value="${esc(p.name)}">${esc(p.name)}</option>`).join('');
+
+    html += `<table class="anker-table"><thead><tr>`;
+    html += `<th class="ak-num">#</th>`;
+    html += `<th class="ak-type">Typ</th>`;
+    html += `<th class="ak-desc">Beschreibung (was ist zu hören?)</th>`;
+    html += `<th class="ak-part">Part</th>`;
+    html += `<th class="ak-actions"></th>`;
+    html += `</tr></thead><tbody>`;
+
+    for (let i = 0; i < anchors.length; i++) {
+      const a = anchors[i];
+      const typeOpts = ANCHOR_TYPES.map(t =>
+        `<option value="${t.value}"${a.type === t.value ? ' selected' : ''}>${t.label}</option>`
+      ).join('');
+      const rowPartOpts = parts
+        .map(p => `<option value="${esc(p.name)}"${a.part_hint === p.name ? ' selected' : ''}>${esc(p.name)}</option>`)
+        .join('');
+
+      html += `<tr data-anchor-id="${a.id}">`;
+      html += `<td class="ak-num">${i + 1}</td>`;
+      html += `<td class="ak-type"><select class="ak-type-sel" data-anchor-id="${a.id}" data-anchor-field="type">${typeOpts}</select></td>`;
+      html += `<td class="ak-desc"><input type="text" class="ak-desc-inp" data-anchor-id="${a.id}" data-anchor-field="description" value="${esc(a.description || '')}" placeholder="z.B. Song beginnt mit Schrei von Pete…"></td>`;
+      html += `<td class="ak-part"><select class="ak-part-sel" data-anchor-id="${a.id}" data-anchor-field="part_hint"><option value="">— kein —</option>${rowPartOpts}</select></td>`;
+      html += `<td class="ak-actions">`;
+      if (i > 0)
+        html += `<button class="ak-up-btn" data-anchor-idx="${i}" title="Nach oben">▲</button>`;
+      if (i < anchors.length - 1)
+        html += `<button class="ak-down-btn" data-anchor-idx="${i}" title="Nach unten">▼</button>`;
+      html += `<button class="ak-del-btn" data-anchor-id="${a.id}" title="Löschen">✕</button>`;
+      html += `</td></tr>`;
+    }
+
+    html += `</tbody></table>`;
+  }
+
+  html += `<div class="anker-add-row"><button class="anker-add-btn" id="anker-add-btn">+ Anker</button></div>`;
+  html += `</div>`;
+  els.content.innerHTML = html;
+
+  document.getElementById('anker-add-btn')?.addEventListener('click', () => {
+    if (!Array.isArray(song.anchors)) song.anchors = [];
+    song.anchors.push({
+      id: 'anc_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 6),
+      pos: song.anchors.length + 1,
+      type: 'other',
+      description: '',
+      part_hint: '',
+    });
+    markDirty();
+    renderAnchorsTab();
+    // Focus the new description input
+    const inputs = document.querySelectorAll('.ak-desc-inp');
+    if (inputs.length > 0) inputs[inputs.length - 1].focus();
+  });
+}
+
+function handleAnchorsClick(e) {
+  const song = selectedSongId && db.songs[selectedSongId];
+  if (!song || !Array.isArray(song.anchors)) return;
+
+  const delBtn = e.target.closest('.ak-del-btn');
+  if (delBtn) {
+    const id = delBtn.dataset.anchorId;
+    song.anchors = song.anchors.filter(a => a.id !== id);
+    _renumberAnchors(song);
+    markDirty();
+    renderAnchorsTab();
+    return;
+  }
+
+  const upBtn = e.target.closest('.ak-up-btn');
+  if (upBtn) {
+    const idx = parseInt(upBtn.dataset.anchorIdx);
+    if (idx > 0) {
+      [song.anchors[idx - 1], song.anchors[idx]] = [song.anchors[idx], song.anchors[idx - 1]];
+      _renumberAnchors(song);
+      markDirty();
+      renderAnchorsTab();
+    }
+    return;
+  }
+
+  const downBtn = e.target.closest('.ak-down-btn');
+  if (downBtn) {
+    const idx = parseInt(downBtn.dataset.anchorIdx);
+    if (idx < song.anchors.length - 1) {
+      [song.anchors[idx], song.anchors[idx + 1]] = [song.anchors[idx + 1], song.anchors[idx]];
+      _renumberAnchors(song);
+      markDirty();
+      renderAnchorsTab();
+    }
+    return;
+  }
+}
+
+function handleAnchorsChange(e) {
+  const song = selectedSongId && db.songs[selectedSongId];
+  if (!song || !Array.isArray(song.anchors)) return;
+  const el = e.target;
+  const anchorId = el.dataset.anchorId;
+  const field = el.dataset.anchorField;
+  if (!anchorId || !field) return;
+  const anchor = song.anchors.find(a => a.id === anchorId);
+  if (!anchor) return;
+  anchor[field] = el.value;
+  markDirty();
+}
+
+function _renumberAnchors(song) {
+  if (!Array.isArray(song.anchors)) return;
+  song.anchors.forEach((a, i) => { a.pos = i + 1; });
 }
 
 function partsTabTogglePlay(part) {
@@ -8066,6 +8217,7 @@ function wireEvents() {
   els.tabLyrics?.addEventListener('click', () => switchTab('lyrics'));
   els.tabAccents?.addEventListener('click', () => switchTab('accents'));
   els.tabSetlist?.addEventListener('click', () => switchTab('setlist'));
+  els.tabAnker?.addEventListener('click',   () => switchTab('anker'));
 
   // Settings
   els.syncStatus.addEventListener('click', () => {
@@ -8172,11 +8324,13 @@ function wireEvents() {
     else if (activeTab === 'lyrics') handleLyricsClick(e);
     else if (activeTab === 'accents') handleAccentsTabClick(e);
     else if (activeTab === 'setlist') handleSetlistClick(e);
+    else if (activeTab === 'anker') handleAnchorsClick(e);
   });
   els.content.addEventListener('change', (e) => {
     if (activeTab === 'takte') handleTakteTabChange(e);
     else if (activeTab === 'lyrics') handleLyricsChange(e);
     else if (activeTab === 'setlist') handleSetlistChange(e);
+    else if (activeTab === 'anker') handleAnchorsChange(e);
   });
   // + scroll focused input into view after iOS keyboard opens
   els.content.addEventListener('focus', (e) => {

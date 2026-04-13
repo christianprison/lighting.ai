@@ -398,6 +398,24 @@ class ReferenceDB:
             for r in rows
         ]
 
+    def get_all_bar_chromas(self, song_id: str) -> "dict[int, np.ndarray]":
+        """Gibt alle Chroma-Vektoren eines Songs als {bar_num: array} zurück.
+
+        Nur Takte mit vorhandenem Feature-Vektor werden zurückgegeben.
+        Nützlich um beim Live-Betrieb den aktuellen Takt per Kosinus-Ähnlichkeit
+        zu erkennen (wird in AudioProcess.set_song() geladen).
+        """
+        with self._conn() as con:
+            rows = con.execute(
+                """SELECT b.bar_num, fv.chroma
+                   FROM bars b
+                   JOIN feature_vectors fv ON fv.bar_id = b.bar_id
+                   WHERE b.song_id = ?
+                   ORDER BY b.bar_num""",
+                (song_id,),
+            ).fetchall()
+        return {r["bar_num"]: _from_blob(r["chroma"]) for r in rows}
+
     def bars_without_features(self) -> list[BarRecord]:
         """Return bars that have an audio_path but no feature vector yet."""
         with self._conn() as con:

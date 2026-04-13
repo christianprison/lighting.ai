@@ -207,6 +207,21 @@ class StreamingChromaExtractor:
 
     # ── Hilfsmethoden ─────────────────────────────────────────────────────────
 
+    def snapshot(self) -> dict:
+        """Buffer-Snapshot für asynchrone Chroma-Berechnung im Background-Thread.
+
+        Gibt eine Kopie des aktuellen Rolling-Buffers mit allen nötigen Parametern
+        zurück. Thread-safe: kopiert den Buffer bevor er zurückgegeben wird.
+        Der Aufrufer kann die Chroma dann in einem Background-Thread berechnen,
+        ohne den Audio-Callback zu blockieren.
+        """
+        return {
+            "buf":     self._buf.copy(),
+            "out_sr":  self._out_sr,
+            "use_cqt": self._use_cqt,
+            "fmin":    self._fmin,
+        }
+
     def reset(self) -> None:
         """Setzt Buffer und Filter-Zustand zurück (z.B. bei Songwechsel)."""
         self._buf[:] = 0.0

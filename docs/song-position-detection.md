@@ -179,9 +179,9 @@ aber außerhalb des Erwartungsvektors liegen und die Ähnlichkeit senken.
 
 1. **Live-Algorithmus**: Konfidenz-Boost für Schicht 1+2, Erkennung von Fehlern  
    ("live Chroma passt nicht zum erwarteten Akkord → Drift oder falscher Akkord")
-2. **Bandkommunikation**: Timo sieht in der DB-Pflege-App pro Takt welcher Akkord  
-   erwartet wird — konkrete Diskussionsgrundlage in der Probe  
-   ("in Takt 23 steht G, du spielst aber D")
+2. **Post-Preparation**: Timo hört die Aufnahme durch und bemerkt Abweichungen  
+   ("in Takt 23 steht G, die Gitarre spielt aber D") — konkrete Diskussionsgrundlage  
+   für die nächste Probe
 
 ### Akkord-Feld in DB-Pflege-App
 

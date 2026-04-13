@@ -536,17 +536,26 @@ Zwei Worker — **Prime Directive bleibt**: SimulatorWorker = Live-Algorithmus, 
 - Nach Simulation: Status-Bar zeigt `★ N Crashes` wenn Crashes erkannt wurden
 - Diagnose stderr: `[SIM] Crashes: N erkannt (threshold RMS >0.0040, max OH-RMS im Segment: X.XXXX)`
 
-`PostProcessWorker(QThread)` — nur Visualisierung, nicht Live:
-- Empfängt `chroma_buf` + `bass_buf` von `SimulatorWorker.finished`
-- Eigenes Progress-Modal (cyan Fortschrittsbalken): 0–50 % Chroma, 50–100 % Bass
-- `finished`-Dict: `{"chroma_data": list[dict], "bass_data": list[dict]}`
-- `chroma_data`: `[{"t": float, "chroma": list[float]}, ...]` pro Beat
-- `bass_data`: `[{"t": float, "chroma": list[float], "rhythm": float}, ...]` pro Takt
+**PostProcessWorker entfernt (Prime Directive)** — war nur Visualisierung, nicht Live-kompatibel.
+Alle Features werden jetzt streaming im `SimulatorWorker` berechnet, identisch mit Live.
 
-**Bass-Analyse (`chroma_viz.py`):**
-- `CH_BASS = 5` (CH06 = Bass); `CH_LEAD_GUITAR = 4`
-- `bass_rhythm_score(audio_clip, sample_rate, bpm) -> float`: librosa `onset_strength` + `onset_detect` → IOIs (gefiltert: 0.05 s bis 4 Takte) → `max(0, 1 - 2 * |ioi - nächstes_8tel_vielfaches| / eighth_sec)` → Mittelwert. Wert 1.0 = perfekte 8tel, 0.0 = Rhythmus weicht um halbe 8tel-Periode ab
-- `extract_bass_at_bars_from_array(...)`: Bandpass **30–300 Hz** (scipy Butterworth, einmalig berechnet) isoliert Bass-Grundtöne; HPSS **margin=8**; `chroma_cqt` mit `fmin=C1`; **Power-Normalisierung** (chroma² dann L2-norm) für scharfe Pitch-Klassen-Peaks; stille Takte (RMS < 2×10⁻⁴) werden übersprungen; `hop_length=256`
+**`detection/chroma_extractor.py`** — `StreamingChromaExtractor`:
+- Rolling-Buffer bei optional reduzierter Abtastrate (`target_sr`)
+- `push_block(mono_samples)`: Bandpass (optional) → Dezimierung → Rolling-Buffer
+- `get_chroma() -> list[float] | None`: STFT-Chroma (Gitarre) oder CQT-Chroma (Bass, `fmin=C1`), Power-normiert; kein HPSS (Prime Directive: nicht streaming-fähig)
+- `get_rhythm_score(bpm) -> float`: `onset_strength` + `onset_detect` auf Rolling-Buffer → IOI-Score
+- `reset()`: Buffer + Filter-Zustand zurücksetzen (bei Songwechsel)
+- Gitarre: `window_sec=0.5, use_cqt=False` (STFT, schnell)
+- Bass: `window_sec=2.0, target_sr=8_000, bp_low=30, bp_high=300, use_cqt=True, fmin_hz=32.7` (C1)
+
+**Streaming Feature-Extraktion im `SimulatorWorker`:**
+- Pro Block: `guitar_extractor.push_block()` + `bass_extractor.push_block()` + Vokal puffern
+- Pro Beat-Event (Kick/Snare): `guitar_extractor.get_chroma()` → `chroma_data`
+- Pro neuem Takt (BarTracker): `bass_extractor.get_chroma()` + `get_rhythm_score()` → `bass_data`
+- Am Loop-Ende: `extract_vocal_activity(vocal_buf)` (zustandslos → identisch egal wann)
+- `finished`-Dict: `chroma_data`, `bass_data`, `vocal_data` (statt `chroma_buf`, `bass_buf`)
+
+**Bass-Visualisierung (`chroma_viz.py` — Hilfsfunktionen bleiben):**
 - `chroma_shape_type(chroma) -> str`: `"line"` (1–2 Klassen), `"triangle"` (3), `"diamond"` (4), `"pentagon"` (5), `"circle"` (6+)
 
 **Bass-Visualisierung (Timeline):**

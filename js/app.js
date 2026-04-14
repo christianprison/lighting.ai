@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.2.27';
+const APP_VERSION = 'v2.2.28';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -2089,14 +2089,54 @@ function renderPartsTab() {
    ══════════════════════════════════════════════════════ */
 
 const ANCHOR_TYPES = [
-  { value: 'vocal',   label: '🎤 Gesang' },
-  { value: 'drum',    label: '🥁 Schlagzeug' },
-  { value: 'guitar',  label: '🎸 Gitarre' },
-  { value: 'bass',    label: '🎵 Bass' },
-  { value: 'keys',    label: '🎹 Keys' },
-  { value: 'silence', label: '🔇 Stille' },
-  { value: 'other',   label: '◆ Sonstiges' },
+  { value: 'pete',      label: 'Pete (Gesang)' },
+  { value: 'axel',      label: 'Axel (Gesang)' },
+  { value: 'christian', label: 'Christian (Gesang)' },
+  { value: 'drum',      label: 'Schlagzeug' },
+  { value: 'guitar',    label: 'Gitarre' },
+  { value: 'bass',      label: 'Bass' },
+  { value: 'keys',      label: 'Keys' },
+  { value: 'silence',   label: 'Stille' },
+  { value: 'other',     label: 'Sonstiges' },
 ];
+
+/** Katalog erkennbarer Ereignisse pro Typ */
+const ANCHOR_EVENTS = {
+  pete:      ['Setzt ein', 'Hört auf', 'Schrei / Ausruf', 'Refrain-Phrase', 'Harmony'],
+  axel:      ['Setzt ein', 'Hört auf', 'Harmony', 'Refrain-Phrase'],
+  christian: ['Setzt ein', 'Hört auf', 'Harmony'],
+  drum:      ['Crash (Beat 1)', 'Fill mit Crash', 'Drum-Fill', 'Beat beginnt', 'Breakbeat', 'Nur Kick', 'Snare-Roll'],
+  guitar:    ['Riff beginnt', 'Powerchords', 'Solo beginnt', 'Solo endet', 'Arpeggio'],
+  bass:      ['Bass-Linie beginnt', 'Bass-Fill'],
+  keys:      ['Setzt ein', 'Pad-Fläche', 'Riff / Motiv'],
+  silence:   ['Song-Anfang (Stille)', 'Komplette Stille', 'Nur Schlagzeug', 'Breakdown'],
+  other:     ['Markantes Ereignis'],
+};
+
+/** Gibt die absoluten Taktnummern aller Takte eines Parts zurück. */
+function _barsForPart(songId, partName) {
+  if (!partName) return [];
+  const part = getPartsForSong(songId).find(p => p.name === partName);
+  if (!part || !part.barCount) return [];
+  return Array.from({ length: part.barCount }, (_, i) => part.barNum + i);
+}
+
+function _buildEventOptions(type, selectedEvent) {
+  const events = ANCHOR_EVENTS[type] || [];
+  let opts = `<option value="">— wählen —</option>`;
+  opts += events.map(ev =>
+    `<option value="${esc(ev)}"${selectedEvent === ev ? ' selected' : ''}>${esc(ev)}</option>`
+  ).join('');
+  return opts;
+}
+
+function _buildBarOptions(bars, selectedBar) {
+  let opts = `<option value="">— kein —</option>`;
+  opts += bars.map(n =>
+    `<option value="${n}"${String(selectedBar) === String(n) ? ' selected' : ''}>Takt ${n}</option>`
+  ).join('');
+  return opts;
+}
 
 function renderAnchorsTab() {
   if (!selectedSongId || !db.songs[selectedSongId]) {
@@ -2123,8 +2163,9 @@ function renderAnchorsTab() {
     html += `<table class="anker-table"><thead><tr>`;
     html += `<th class="ak-num">#</th>`;
     html += `<th class="ak-type">Typ</th>`;
-    html += `<th class="ak-desc">Beschreibung (was ist zu hören?)</th>`;
+    html += `<th class="ak-event">Ereignis</th>`;
     html += `<th class="ak-part">Part</th>`;
+    html += `<th class="ak-bar">Takt</th>`;
     html += `<th class="ak-actions"></th>`;
     html += `</tr></thead><tbody>`;
 
@@ -2136,12 +2177,14 @@ function renderAnchorsTab() {
       const rowPartOpts = parts
         .map(p => `<option value="${esc(p.name)}"${a.part_hint === p.name ? ' selected' : ''}>${esc(p.name)}</option>`)
         .join('');
+      const bars = _barsForPart(selectedSongId, a.part_hint);
 
       html += `<tr data-anchor-id="${a.id}">`;
       html += `<td class="ak-num">${i + 1}</td>`;
       html += `<td class="ak-type"><select class="ak-type-sel" data-anchor-id="${a.id}" data-anchor-field="type">${typeOpts}</select></td>`;
-      html += `<td class="ak-desc"><input type="text" class="ak-desc-inp" data-anchor-id="${a.id}" data-anchor-field="description" value="${esc(a.description || '')}" placeholder="z.B. Song beginnt mit Schrei von Pete…"></td>`;
+      html += `<td class="ak-event"><select class="ak-event-sel" data-anchor-id="${a.id}" data-anchor-field="event">${_buildEventOptions(a.type, a.event)}</select></td>`;
       html += `<td class="ak-part"><select class="ak-part-sel" data-anchor-id="${a.id}" data-anchor-field="part_hint"><option value="">— kein —</option>${rowPartOpts}</select></td>`;
+      html += `<td class="ak-bar"><select class="ak-bar-sel" data-anchor-id="${a.id}" data-anchor-field="bar_num">${_buildBarOptions(bars, a.bar_num)}</select></td>`;
       html += `<td class="ak-actions">`;
       if (i > 0)
         html += `<button class="ak-up-btn" data-anchor-idx="${i}" title="Nach oben">▲</button>`;
@@ -2163,15 +2206,16 @@ function renderAnchorsTab() {
     song.anchors.push({
       id: 'anc_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 6),
       pos: song.anchors.length + 1,
-      type: 'other',
-      description: '',
+      type: 'drum',
+      event: '',
       part_hint: '',
+      bar_num: null,
     });
     markDirty();
     renderAnchorsTab();
-    // Focus the new description input
-    const inputs = document.querySelectorAll('.ak-desc-inp');
-    if (inputs.length > 0) inputs[inputs.length - 1].focus();
+    // Focus the type select of the new row
+    const typeSels = document.querySelectorAll('.ak-type-sel');
+    if (typeSels.length > 0) typeSels[typeSels.length - 1].focus();
   });
 }
 
@@ -2223,7 +2267,34 @@ function handleAnchorsChange(e) {
   if (!anchorId || !field) return;
   const anchor = song.anchors.find(a => a.id === anchorId);
   if (!anchor) return;
-  anchor[field] = el.value;
+
+  if (field === 'bar_num') {
+    anchor.bar_num = el.value ? parseInt(el.value, 10) : null;
+  } else {
+    anchor[field] = el.value;
+  }
+
+  // Typ geändert → Event-Dropdown neu befüllen
+  if (field === 'type') {
+    const row = el.closest('tr');
+    const evSel = row?.querySelector('.ak-event-sel');
+    if (evSel) {
+      evSel.innerHTML = _buildEventOptions(el.value, '');
+      anchor.event = '';
+    }
+  }
+
+  // Part geändert → Takt-Dropdown neu befüllen
+  if (field === 'part_hint') {
+    const row = el.closest('tr');
+    const barSel = row?.querySelector('.ak-bar-sel');
+    if (barSel) {
+      const bars = _barsForPart(selectedSongId, el.value);
+      barSel.innerHTML = _buildBarOptions(bars, null);
+      anchor.bar_num = null;
+    }
+  }
+
   markDirty();
 }
 

@@ -4681,11 +4681,12 @@ td.ak-num {
   text-align: center;
   font-size: 0.75rem;
 }
-td.ak-type { width: 150px; }
-td.ak-desc { min-width: 260px; }
-td.ak-part { width: 140px; }
+td.ak-type  { width: 140px; }
+td.ak-event { width: 190px; }
+td.ak-part  { width: 130px; }
+td.ak-bar   { width: 90px; }
 td.ak-actions { width: 90px; white-space: nowrap; text-align: right; }
-.ak-type-sel, .ak-part-sel {
+.ak-type-sel, .ak-event-sel, .ak-part-sel, .ak-bar-sel {
   width: 100%;
   padding: 5px 7px;
   background: var(--bg3);
@@ -4695,7 +4696,7 @@ td.ak-actions { width: 90px; white-space: nowrap; text-align: right; }
   font-family: 'DM Mono', monospace;
   font-size: 0.78rem;
 }
-.ak-type-sel:focus, .ak-part-sel:focus {
+.ak-type-sel:focus, .ak-event-sel:focus, .ak-part-sel:focus, .ak-bar-sel:focus {
   border-color: var(--cyan);
   outline: none;
 }

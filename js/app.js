@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.2.26';
+const APP_VERSION = 'v2.2.27';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -1337,6 +1337,35 @@ function renderEditorTab() {
 
 /* ── Song Progress Panel (moved to TMS Modal) ────── */
 
+/* ── Grundrhythmus Helpers ──────────────────────────── */
+
+/**
+ * Returns comma-separated beat positions for kick or snare from song.grundrhythmus.
+ * E.g. [0.0, 2.0] → "0, 2"
+ * @param {Object} song
+ * @param {'kick'|'snare'} part
+ * @returns {string}
+ */
+function _grundrhythmusBeats(song, part) {
+  const gr = song.grundrhythmus;
+  if (!gr || !Array.isArray(gr[part]) || gr[part].length === 0) return '';
+  return gr[part].map(v => String(parseFloat(v))).join(', ');
+}
+
+/**
+ * Parses a comma-separated string of beat positions into a sorted array of floats.
+ * Invalid values are silently dropped. Returns null if empty.
+ * @param {string} str
+ * @returns {number[]|null}
+ */
+function _parseBeats(str) {
+  const vals = str.split(/[,\s]+/)
+    .map(s => parseFloat(s.trim()))
+    .filter(v => !isNaN(v) && v >= 0 && v < 4);
+  vals.sort((a, b) => a - b);
+  return vals.length ? vals : null;
+}
+
 /* ── Song Fields ───────────────────────────────────── */
 
 function renderSongFields() {
@@ -1380,6 +1409,14 @@ function renderSongFields() {
       <div>
         <label>Pick</label>
         <input type="text" value="${esc(song.pick || '')}" data-song-field="pick">
+      </div>
+      <div>
+        <label title="Grundrhythmus Kick \u2014 Beat-Positionen 0.0\u20133.99, z.B. 0, 2">Kick (Grundrhythmus)</label>
+        <input type="text" value="${esc(_grundrhythmusBeats(song, 'kick'))}" data-song-field="grundrhythmus_kick" class="mono" placeholder="z.B. 0, 2">
+      </div>
+      <div>
+        <label title="Grundrhythmus Snare \u2014 Beat-Positionen 0.0\u20133.99, z.B. 1, 3">Snare (Grundrhythmus)</label>
+        <input type="text" value="${esc(_grundrhythmusBeats(song, 'snare'))}" data-song-field="grundrhythmus_snare" class="mono" placeholder="z.B. 1, 3">
       </div>
       <div class="sf-full">
         <label>Notes</label>
@@ -1536,6 +1573,21 @@ function handleEditorChange(e) {
       song.notes = el.value;
     } else if (field === 'duration') {
       return; // readonly
+    } else if (field === 'grundrhythmus_kick' || field === 'grundrhythmus_snare') {
+      const part = field === 'grundrhythmus_kick' ? 'kick' : 'snare';
+      const beats = _parseBeats(el.value);
+      if (!song.grundrhythmus || typeof song.grundrhythmus !== 'object') {
+        song.grundrhythmus = {};
+      }
+      if (beats) {
+        song.grundrhythmus[part] = beats;
+      } else {
+        delete song.grundrhythmus[part];
+        // Remove empty grundrhythmus object entirely
+        if (!song.grundrhythmus.kick && !song.grundrhythmus.snare) {
+          delete song.grundrhythmus;
+        }
+      }
     } else {
       song[field] = el.value;
       if (field === 'name' || field === 'artist') renderSongList(els.searchBox.value);

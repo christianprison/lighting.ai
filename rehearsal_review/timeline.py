@@ -1269,12 +1269,14 @@ class TimelineWidget(QWidget):
 
         C_VIO = QColor("#a78bfa")
 
+        seg_t0 = seg.start_t  # absolute → relative Koordinaten (Bug-Fix: t*pps war falsch)
+
         if self._sim_snares:
             c = C_CYAN if self._sim_overlay else C_VIO
             p.setBrush(QBrush(c))
             p.setPen(Qt.PenStyle.NoPen)
             for t_s in self._sim_snares:
-                bx = LABEL_W + int(t_s * pps) - ox
+                bx = LABEL_W + int((t_s - seg_t0) * pps) - ox
                 if LABEL_W <= bx <= w:
                     p.drawPolygon(_diamond(bx, cy_top, R))
 
@@ -1283,7 +1285,7 @@ class TimelineWidget(QWidget):
             p.setBrush(QBrush(c))
             p.setPen(Qt.PenStyle.NoPen)
             for t_k in self._sim_kicks:
-                bx = LABEL_W + int(t_k * pps) - ox
+                bx = LABEL_W + int((t_k - seg_t0) * pps) - ox
                 if LABEL_W <= bx <= w:
                     p.drawPolygon(_diamond(bx, cy_bottom, R))
 
@@ -1294,7 +1296,7 @@ class TimelineWidget(QWidget):
             p.setBrush(QBrush(C_CRASH))
             p.setPen(Qt.PenStyle.NoPen)
             for t_c, _e_c in self._sim_crashes:
-                bx = LABEL_W + int(t_c * pps) - ox
+                bx = LABEL_W + int((t_c - seg_t0) * pps) - ox
                 if LABEL_W <= bx <= w:
                     p.drawPolygon(_diamond(bx, cy_mid, R + 3))   # größer als Kick/Snare
 

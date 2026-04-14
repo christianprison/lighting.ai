@@ -772,6 +772,16 @@ async def _handle_ws_action(action: str, msg: dict) -> dict | None:
         if osc and chaser and chaser.steps:
             await osc.trigger_function_async(chaser.steps[0].function_id)
 
+        if audio_process:
+            bpm = float(song.get("bpm") or 0)
+            grundrhythmus = song.get("grundrhythmus") or None
+            await asyncio.to_thread(
+                audio_process.set_song,
+                bpm,
+                grundrhythmus,
+                None,
+                song_id,
+            )
 
         return {"ok": True, "song_id": song_id, "has_chaser": chaser is not None}
 

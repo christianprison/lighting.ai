@@ -162,7 +162,7 @@ async def startup():
 
     loop = asyncio.get_event_loop()
     audio_device = getattr(cfg, "audio_device", None)
-    audio_process = AudioProcess(_audio_queue, loop, device=audio_device)
+    audio_process = AudioProcess(_audio_queue, loop, device=audio_device, ref_db=ref_db)
     audio_process.start()
 
     # Logging-Handler registrieren: WARNING/ERROR → aktives Event-Logfile

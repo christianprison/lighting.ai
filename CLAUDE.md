@@ -682,22 +682,13 @@ Wenn ein Song kein `grundrhythmus` hat, wird Phasen-Histogramm + Crash-Fallback 
 
 #### ⚠️ Offene Punkte für nächste Session
 
-1. **Grundrhythmus pflegen**: In der DB-Pflege-App `grundrhythmus`-Feld pro Song einpflegen:
-   - Format: `{"kick": [0.0, 2.0], "snare": [1.0, 3.0]}` (Beat-Positionen 0.0–3.99)
-   - Ohne grundrhythmus wird Crash-Fallback → Phasen-Histogramm verwendet
-
-2. **select_song in main.py**: Bei Songwechsel über WebSocket (`action=select_song`) muss
-   `audio_process.set_song(bpm, grundrhythmus, song_id=song_id)` aufgerufen werden (noch nicht implementiert).
-   `ref_db` muss beim Konstruktor übergeben werden: `AudioProcess(..., ref_db=ReferenceDB())`.
-
-3. **Feldtest Beat-1-Korrektur**: Simulation auf verschiedenen Songs laufen lassen und prüfen:
+1. **Feldtest Beat-1-Korrektur**: Simulation auf verschiedenen Songs laufen lassen und prüfen:
    - Crash-Detektion: Status-Bar zeigt `★ N Crashes`? Wenn 0 → `CRASH_RMS_MIN` (aktuell 0.001) weiter senken
    - Energy-Korrektur: `[BAR] energy_beat1: ratio=Z` auf stderr — Z > 1.05 = Korrektur greift
    - Taktgitter landet auf Beat 1 (Snare-Positionen ≈ 1.0 und 3.0 beats in Diagnostik)
-
-4. **Koordinatensystem Sim-Events**: Sim-Events verwenden `t_k * pps` ohne Subtraktion von
-   `seg.start_t`, JSONL-Events verwenden `(ev.t - seg.start_t) * pps` — potentieller Offset-Bug
-   für Segmente die nicht bei WAV-Zeit 0 beginnen. Bisher nicht reproduziert.
+   - **grundrhythmus-Daten einpflegen**: Für jeden Song die Kick/Snare-Positionen in der
+     DB-Pflege-App eintragen (Felder seit v2.2.27), damit Pattern-Matching statt
+     Phasen-Histogramm greift
 
 #### Anker-Feature (DB-Pflege-App v2.2.26)
 

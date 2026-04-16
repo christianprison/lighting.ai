@@ -5840,20 +5840,21 @@
       "duration": "3:21",
       "duration_sec": 201,
       "notes": "nach dem interlude nicht Ref sondern Strophe; ; 1. Strophe; 2. Strophe; ; Chorus; ; 3. Strophe; ; Chorus; ; Bridge; ; Strophe 4; ; Chorus; Chorus (Bah-dababah); Ende auf G",
-      "lyrics_raw": "Love - a fairytale in my old book of fantasy Trust - but better control before you want to believe Warmth - you're totally hot or out there in the cold Wrong - is what I was thinking - Say that I am your boy and that you love me only Time - is rushing away and you're still not here with me Cool - I should be when you say that you don't like my hair Why - am I even with you, why d' I stay? Our love is history 'Cause you don't care for me I'm leaving, this is goodbye Goodbye, yeah You're never by my side I want to live my life This is the end Can't you see Say - that all is ok and that you are still my girl Time - it is slipping away and you are not here again Cold - is your face when you're talking about our life Why Are you my lover... or is it more? I should have known That it was wrong To think that love is everlasting I should have never been together with you! Our love is history 'Cause you don't care for me I'm leaving, this is goodbye Goodbye, yeah You're never by my side I want to live my life This is the end Can't you see it Can't you see it You were mine and I thought I could be anytime alone You were mine and I thought This is love But it's now that the story is dead I will never be sad You were playing with me all the time Why didn't you ever say You prefer the other way You're not like the other guys around Our love is history 'Cause you don't care for me I'm leaving, this is goodbye Goodbye, yeah You're never by my side I want to live my life This is the end Can't you see it Can't you see it padapapa I'm free, yeah",
+      "lyrics_raw": "Love - a fairytale in my old book of fantasy Trust - but better control before you want to believe Warmth - you're totally hot or out there in the cold Wrong - is what I was thinking - Say that I am your boy and that you love me only Time - is rushing away and you're still not here with me Cool - I should be when you say that you don't like my hair Why - am I even with you, why d' I stay? Our love is history 'Cause you don't care for me I'm leaving, this is goodbye Goodbye, yeah You're never by my side I want to live my life This is the end Can't you see it Say - that all is ok and that you are still my girl Time - it is slipping away and you are not here again Cold - is your face when you're talking about our life Why Are you my lover... or is it more? I should have known That it was wrong To think that love is everlasting I should have never been together with you! Our love is history 'Cause you don't care for me I'm leaving, this is goodbye Goodbye, yeah You're never by my side I want to live my life This is the you see it Can't you see it You were mine and I thought I could be anytime end alone You were mine and I thought This is love But it's now that the story is dead I will never be sad You other were playing with me Can't all the time Why didn't you ever say You prefer the way You're not like the other guys around Our love is history 'Cause you don't care for me I'm leaving, this is goodbye Goodbye, yeah You're never by my side I want to live my life This is the end Can't you see it Can't you see it Now I'm free, yeah can‘t you see it now I‘m free all yeah Love is that I wanted and it's all that I feel, I am losing you I'm free, yeah all the time why you ever say you prefer the other way you're not like the other guys around didn't",
       "tms": {
         "manual_done": [
           "bar_markers",
           "parts_identified",
           "instr_parts_identified",
-          "lyrics_bars"
+          "lyrics_bars",
+          "instr_bars_identified"
         ],
         "user_tasks": [
           {
             "id": "ut_1775672824951_7g4t",
             "cat": "audio",
             "label": "Lyrics korrekt in die richtigen Takte verschieben",
-            "done": false
+            "done": true
           }
         ],
         "manual_undone": []
@@ -6110,7 +6111,8 @@
         "part_starts": [
           {
             "bar_num": 1,
-            "name": "Intro"
+            "name": "Intro",
+            "light_template": "Spot auf Pete"
           },
           {
             "bar_num": 9,
@@ -18363,7 +18365,7 @@
     "B1698": {
       "song_id": "E3pvFC",
       "bar_num": 24,
-      "lyrics": "Can't you see\n",
+      "lyrics": "Can't you see it\n",
       "audio": "",
       "has_accents": false
     },
@@ -18398,14 +18400,14 @@
     "B1703": {
       "song_id": "E3pvFC",
       "bar_num": 29,
-      "lyrics": "Cold - is your face when you're",
+      "lyrics": "Cold - is your face when",
       "audio": "",
       "has_accents": false
     },
     "B1704": {
       "song_id": "E3pvFC",
       "bar_num": 30,
-      "lyrics": "talking about our life",
+      "lyrics": "you're talking about our life",
       "audio": "",
       "has_accents": false
     },
@@ -18510,14 +18512,14 @@
     "B1719": {
       "song_id": "E3pvFC",
       "bar_num": 45,
-      "lyrics": "This is the end",
+      "lyrics": "This is the",
       "audio": "",
       "has_accents": false
     },
     "B1720": {
       "song_id": "E3pvFC",
       "bar_num": 46,
-      "lyrics": "Can't you see it",
+      "lyrics": "you see it",
       "audio": "",
       "has_accents": false
     },
@@ -18538,105 +18540,105 @@
     "B1723": {
       "song_id": "E3pvFC",
       "bar_num": 49,
-      "lyrics": "and I thought I could",
+      "lyrics": "and I thought",
       "audio": "",
       "has_accents": false
     },
     "B1724": {
       "song_id": "E3pvFC",
       "bar_num": 50,
-      "lyrics": "be anytime alone You were",
+      "lyrics": "I",
       "audio": "",
       "has_accents": false
     },
     "B1725": {
       "song_id": "E3pvFC",
       "bar_num": 51,
-      "lyrics": "mine and I thought",
+      "lyrics": "could be anytime",
       "audio": "",
       "has_accents": false
     },
     "B1726": {
       "song_id": "E3pvFC",
       "bar_num": 52,
-      "lyrics": "This is love But it's now",
+      "lyrics": "end alone You were mine",
       "audio": "",
       "has_accents": false
     },
     "B1727": {
       "song_id": "E3pvFC",
       "bar_num": 53,
-      "lyrics": "that the story is dead I will",
+      "lyrics": "and I thought",
       "audio": "",
       "has_accents": false
     },
     "B1728": {
       "song_id": "E3pvFC",
       "bar_num": 54,
-      "lyrics": "never be sad You were",
+      "lyrics": "This is love",
       "audio": "",
       "has_accents": false
     },
     "B1729": {
       "song_id": "E3pvFC",
       "bar_num": 55,
-      "lyrics": "playing with me all the time Why didn't you\n",
+      "lyrics": "But it's\n",
       "audio": "",
       "has_accents": false
     },
     "B1730": {
       "song_id": "E3pvFC",
       "bar_num": 56,
-      "lyrics": "ever say You prefer the",
+      "lyrics": "now that the story is dead",
       "audio": "",
       "has_accents": false
     },
     "B1731": {
       "song_id": "E3pvFC",
       "bar_num": 57,
-      "lyrics": "other way You're not like",
+      "lyrics": "I will never be sad",
       "audio": "",
       "has_accents": false
     },
     "B1732": {
       "song_id": "E3pvFC",
       "bar_num": 58,
-      "lyrics": "the other guys around",
+      "lyrics": "You other were playing with me",
       "audio": "",
       "has_accents": false
     },
     "B1733": {
       "song_id": "E3pvFC",
       "bar_num": 59,
-      "lyrics": "",
+      "lyrics": "Can't all the time\n",
       "audio": "",
       "has_accents": false
     },
     "B1734": {
       "song_id": "E3pvFC",
       "bar_num": 60,
-      "lyrics": "",
+      "lyrics": "Why didn't you ever say",
       "audio": "",
       "has_accents": false
     },
     "B1735": {
       "song_id": "E3pvFC",
       "bar_num": 61,
-      "lyrics": "",
+      "lyrics": "You prefer the way",
       "audio": "",
       "has_accents": false
     },
     "B1736": {
       "song_id": "E3pvFC",
       "bar_num": 62,
-      "lyrics": "",
+      "lyrics": "You're not",
       "audio": "",
       "has_accents": false
     },
     "B1737": {
       "song_id": "E3pvFC",
       "bar_num": 63,
-      "lyrics": "",
+      "lyrics": "like the other guys around\n",
       "audio": "",
       "has_accents": false
     },
@@ -18692,7 +18694,7 @@
     "B1745": {
       "song_id": "E3pvFC",
       "bar_num": 71,
-      "lyrics": "Can't you see it Can't you see it padapapa I'm free, yeah\n",
+      "lyrics": "Can't you see it\n",
       "audio": "",
       "has_accents": false
     },
@@ -18701,26 +18703,27 @@
       "bar_num": 72,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B1747": {
       "song_id": "E3pvFC",
       "bar_num": 73,
-      "lyrics": "",
+      "lyrics": "Can't you see it",
       "audio": "",
       "has_accents": false
     },
     "B1748": {
       "song_id": "E3pvFC",
       "bar_num": 74,
-      "lyrics": "",
+      "lyrics": "Now I'm",
       "audio": "",
       "has_accents": false
     },
     "B1749": {
       "song_id": "E3pvFC",
       "bar_num": 75,
-      "lyrics": "",
+      "lyrics": "free, yeah",
       "audio": "",
       "has_accents": false
     },
@@ -18729,12 +18732,13 @@
       "bar_num": 76,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B1751": {
       "song_id": "E3pvFC",
       "bar_num": 77,
-      "lyrics": "",
+      "lyrics": "can‘t you see it",
       "audio": "",
       "has_accents": false
     },
@@ -18743,26 +18747,27 @@
       "bar_num": 78,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B1753": {
       "song_id": "E3pvFC",
       "bar_num": 79,
-      "lyrics": "",
+      "lyrics": "now I‘m",
       "audio": "",
       "has_accents": false
     },
     "B1754": {
       "song_id": "E3pvFC",
       "bar_num": 80,
-      "lyrics": "",
+      "lyrics": "free all yeah\n",
       "audio": "",
       "has_accents": false
     },
     "B1755": {
       "song_id": "E3pvFC",
       "bar_num": 81,
-      "lyrics": "",
+      "lyrics": "Love is that I wanted and it's all that I feel, I am losing you I'm free, yeah all the time why you ever say you prefer the other way you're not like the other guys around didn't",
       "audio": "",
       "has_accents": false
     },

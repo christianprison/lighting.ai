@@ -18588,7 +18588,7 @@
       "bar_num": 54,
       "lyrics": "This is love",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B1729": {
       "song_id": "E3pvFC",
@@ -22735,6 +22735,12 @@
     "A0229": {
       "bar_id": "B2037",
       "pos_16th": 13,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0230": {
+      "bar_id": "B1728",
+      "pos_16th": 1,
       "type": "hl",
       "notes": ""
     }

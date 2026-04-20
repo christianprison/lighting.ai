@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.2.28';
+const APP_VERSION = 'v2.2.29';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -2138,6 +2138,16 @@ function _buildBarOptions(bars, selectedBar) {
   return opts;
 }
 
+const ANCHOR_BEATS = ['1', '1+', '2', '2+', '3', '3+', '4', '4+'];
+
+function _buildBeatOptions(selected) {
+  let opts = `<option value="">— kein —</option>`;
+  opts += ANCHOR_BEATS.map(b =>
+    `<option value="${b}"${selected === b ? ' selected' : ''}>${b}</option>`
+  ).join('');
+  return opts;
+}
+
 function renderAnchorsTab() {
   if (!selectedSongId || !db.songs[selectedSongId]) {
     els.content.innerHTML = `<div class="empty-state"><div class="icon">&#9875;</div><p>Song auswählen</p></div>`;
@@ -2166,6 +2176,7 @@ function renderAnchorsTab() {
     html += `<th class="ak-event">Ereignis</th>`;
     html += `<th class="ak-part">Part</th>`;
     html += `<th class="ak-bar">Takt</th>`;
+    html += `<th class="ak-beat">Zählzeit</th>`;
     html += `<th class="ak-actions"></th>`;
     html += `</tr></thead><tbody>`;
 
@@ -2185,6 +2196,7 @@ function renderAnchorsTab() {
       html += `<td class="ak-event"><select class="ak-event-sel" data-anchor-id="${a.id}" data-anchor-field="event">${_buildEventOptions(a.type, a.event)}</select></td>`;
       html += `<td class="ak-part"><select class="ak-part-sel" data-anchor-id="${a.id}" data-anchor-field="part_hint"><option value="">— kein —</option>${rowPartOpts}</select></td>`;
       html += `<td class="ak-bar"><select class="ak-bar-sel" data-anchor-id="${a.id}" data-anchor-field="bar_num">${_buildBarOptions(bars, a.bar_num)}</select></td>`;
+      html += `<td class="ak-beat"><select class="ak-beat-sel" data-anchor-id="${a.id}" data-anchor-field="beat">${_buildBeatOptions(a.beat)}</select></td>`;
       html += `<td class="ak-actions">`;
       if (i > 0)
         html += `<button class="ak-up-btn" data-anchor-idx="${i}" title="Nach oben">▲</button>`;
@@ -2210,6 +2222,7 @@ function renderAnchorsTab() {
       event: '',
       part_hint: '',
       bar_num: null,
+      beat: '',
     });
     markDirty();
     renderAnchorsTab();

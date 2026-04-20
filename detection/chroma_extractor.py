@@ -143,9 +143,13 @@ class StreamingChromaExtractor:
 
         if self._use_cqt:
             # CQT: bessere Auflösung bei tiefen Frequenzen (Bass-Grundtöne ab C1)
+            # n_bins auf sichere Oktaven begrenzen (Nyquist-Grenze: sr/2)
+            _bpo = 36  # bins_per_octave — librosa-Default für chroma_cqt
+            _safe_oct = max(1, int(np.floor(np.log2((self._out_sr / 2) / self._fmin))))
             chroma = librosa.feature.chroma_cqt(
                 y=y, sr=self._out_sr, hop_length=128,
                 fmin=self._fmin, n_chroma=12,
+                n_bins=_safe_oct * _bpo, bins_per_octave=_bpo,
             )
         else:
             # STFT-Chroma: schneller, ausreichend für Gitarre (mittlere/hohe Töne)

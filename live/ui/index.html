@@ -50,6 +50,24 @@ background:var(--bg);padding:2px 8px;border-radius:4px;white-space:nowrap;align-
 .part.active .part-badge{color:var(--green);background:#00dc820d}
 .part-prog{position:absolute;bottom:0;left:0;height:2.5px;background:var(--green);transition:width .3s;box-shadow:0 0 8px var(--green)}
 
+/* ═══ ANKER (LEFT PANEL BOTTOM) ═══ */
+.panel-anker{flex:0 0 auto;min-height:0;display:flex;flex-direction:column;border-top:1px solid var(--border)}
+.panel-anker .scroll{flex:1 1 0;min-height:80px;max-height:220px;overflow-y:auto;padding:4px 6px;scrollbar-width:none}
+.panel-anker .scroll::-webkit-scrollbar{display:none}
+.anker-item{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:6px;
+  padding:5px 8px;margin-bottom:2px;border-radius:6px;background:var(--bg2);border:1px solid transparent;
+  transition:all .1s;min-height:36px}
+.anker-item.done{opacity:.3}
+.anker-item.next{background:var(--bg3);border-color:var(--border2)}
+.anker-item.upcoming{background:var(--amber2);border-color:var(--amber);box-shadow:0 0 12px #f0a03018}
+.anker-badge{font-family:'DM Mono',monospace;font-size:8px;font-weight:500;letter-spacing:.5px;
+  padding:2px 5px;border-radius:4px;color:#08090d;white-space:nowrap;flex-shrink:0}
+.anker-body{display:flex;flex-direction:column;gap:1px;overflow:hidden;min-width:0}
+.anker-event{font-size:11px;font-weight:500;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.anker-item.done .anker-event{color:var(--t3)}
+.anker-pos{font-family:'DM Mono',monospace;font-size:9px;color:var(--t3);white-space:nowrap;flex-shrink:0;text-align:right}
+.anker-item.upcoming .anker-pos{color:var(--amber)}
+
 /* ═══ CENTER ═══ */
 .center{flex:1 1 0;min-width:0;min-height:0;display:flex;flex-direction:column;overflow:hidden;
 background:var(--bg);border-right:1px solid var(--border)}
@@ -407,10 +425,14 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
 <div class="app">
 <div class="main">
 
-<!-- LEFT: PARTS -->
+<!-- LEFT: PARTS + ANKER -->
 <div class="panel">
   <div class="panel-head"><div class="ind"></div>PARTS</div>
   <div class="scroll" id="parts"></div>
+  <div class="panel-anker">
+    <div class="panel-head" style="border-bottom:1px solid var(--border)">ANKER</div>
+    <div class="scroll" id="anker"></div>
+  </div>
 </div>
 
 <!-- CENTER -->
@@ -427,7 +449,7 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
     <div class="badges">
       <div class="badge live" id="badgeLive"><div class="pulse"></div>LIVE</div>
       <div class="badge" id="badgeQlc">QLC+ &#x25CF;</div>
-      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.04.13a</div>
+      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.04.20a</div>
     </div>
     <div class="beat-area">
       <div class="beat-row">
@@ -779,6 +801,67 @@ function renderTimeline() {
 
 /// ─── Render: Full update ──────────────────────
 var _lastRenderedSongId = '';
+// ─── Render: Anker (left panel bottom) ───────────────────────────
+var ANKER_COLORS = {
+  pete: '#38bdf8', axel: '#f0a030', christian: '#00dc82',
+  drum: '#ff3b5c', guitar: '#a78bfa', bass: '#34d399',
+  keys: '#60a5fa', silence: '#5c6080', other: '#a0a4b8'
+};
+var ANKER_LABELS = {
+  pete: 'PETE', axel: 'AXEL', christian: 'CHRIS',
+  drum: 'DRUM', guitar: 'GTR', bass: 'BASS',
+  keys: 'KEYS', silence: 'STILL', other: 'AKT'
+};
+
+function renderAnchors() {
+  var el = document.getElementById('anker');
+  if (!el) return;
+  var sid = state.current_song_id;
+  if (!sid || !songs[sid]) { el.innerHTML = ''; return; }
+  var anchors = songs[sid].anchors;
+  if (!Array.isArray(anchors) || anchors.length === 0) {
+    el.innerHTML = '<div style="padding:12px 8px;font-size:11px;color:var(--t3)">Keine Anker definiert</div>';
+    return;
+  }
+
+  // currentBar: 1-basiert (tlLocalBarIdx ist 0-basiert)
+  var currentBar = tlLocalBarIdx + 1;
+  var firstUpcoming = true;
+  var h = '';
+  for (var i = 0; i < anchors.length; i++) {
+    var a = anchors[i];
+    var barNum = a.bar_num ? parseInt(a.bar_num) : null;
+    var cls = '';
+    if (barNum != null) {
+      if (barNum < currentBar) {
+        cls = 'done';
+      } else if (firstUpcoming) {
+        cls = 'upcoming';
+        firstUpcoming = false;
+      }
+    }
+    var color = ANKER_COLORS[a.type] || ANKER_COLORS.other;
+    var label = ANKER_LABELS[a.type] || 'AKT';
+    var posStr = '';
+    if (barNum != null) posStr += 'T' + barNum;
+    if (a.beat) posStr += (posStr ? '\u00b7' : '') + a.beat;
+
+    h += '<div class="anker-item ' + cls + '">';
+    h += '<span class="anker-badge" style="background:' + color + '">' + label + '</span>';
+    h += '<div class="anker-body">';
+    h += '<span class="anker-event">' + escHtml(a.event || '\u2014') + '</span>';
+    if (a.part_hint) h += '<span style="font-size:9px;color:var(--t3);font-family:\'DM Mono\',monospace">' + escHtml(a.part_hint) + '</span>';
+    h += '</div>';
+    if (posStr) h += '<span class="anker-pos">' + posStr + '</span>';
+    h += '</div>';
+  }
+  el.innerHTML = h;
+
+  // Scroll zum ersten upcoming Anker
+  var upcoming = el.querySelector('.upcoming');
+  if (upcoming) scrollIntoContainer(el, upcoming);
+}
+
 function renderAll() {
   // Reset playhead on song change
   if (state.current_song_id && state.current_song_id !== _lastRenderedSongId) {
@@ -800,6 +883,7 @@ function renderAll() {
 
   renderSetlist();
   renderParts();
+  renderAnchors();
 
   // Load bars if song changed, then render timeline
   if (state.current_song_id && state.current_song_id !== lastBarsSongId) {
@@ -841,6 +925,7 @@ function updatePlayheadUI(barIdx) {
     var sc = document.getElementById('tlScroll');
     if (sc) sc.scrollLeft = target.offsetLeft - sc.clientWidth / 2 + target.offsetWidth / 2;
   }
+  renderAnchors();
 }
 
 function restartBeatSim(bpm) {

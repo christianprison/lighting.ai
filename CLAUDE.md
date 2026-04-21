@@ -483,6 +483,7 @@ Kanal-Rows mit Event-Markern (`_paint_event_markers()`):
 - **Snare** (`SNARE_MARKER_CHS = {9}`): snare-Events — cyan Diamond
 - **Kick** (`KICK_MARKER_CHS = {8}`): nur `trigger="kick"` Beats — amber = Kick, rot = Kick+Downbeat
 - Im Sim-Overlay: Original-Marker komplett ausgeblendet (wenn Sim-Events vorhanden), Sim-Events alpha=220
+- **Koordinaten-Fix** (`_paint_events()`): Sim-Events werden als absolute WAV-Zeiten gespeichert und müssen beim Zeichnen um `seg.start_t` korrigiert werden (`bx = LABEL_W + int((t_k - seg_t0) * pps) - ox`). Bug war nur bei Songs sichtbar, die nicht bei WAV-Zeit 0 beginnen (2. Song+ in einer Session). Behoben in v1.2.1.
 
 Taktgitter im Sim-Overlay (`_paint_sim_bars()`):
 - Halbdurchsichtige weiße vertikale Linien (`rgba(255,255,255,55)`) über alle Drum-Tracks (Kick..OH L+R)
@@ -542,7 +543,7 @@ Alle Features werden jetzt streaming im `SimulatorWorker` berechnet, identisch m
 **`detection/chroma_extractor.py`** — `StreamingChromaExtractor`:
 - Rolling-Buffer bei optional reduzierter Abtastrate (`target_sr`)
 - `push_block(mono_samples)`: Bandpass (optional) → Dezimierung → Rolling-Buffer
-- `get_chroma() -> list[float] | None`: STFT-Chroma (Gitarre) oder CQT-Chroma (Bass, `fmin=C1`), Power-normiert; kein HPSS (Prime Directive: nicht streaming-fähig)
+- `get_chroma() -> list[float] | None`: STFT-Chroma (Gitarre) oder CQT-Chroma (Bass, `fmin=C1`), Power-normiert; kein HPSS (Prime Directive: nicht streaming-fähig). CQT begrenzt `n_octaves` auf `floor(log2(sr/2 / fmin))` — verhindert Nyquist-Fehler bei `target_sr=8000`
 - `get_rhythm_score(bpm) -> float`: `onset_strength` + `onset_detect` auf Rolling-Buffer → IOI-Score
 - `reset()`: Buffer + Filter-Zustand zurücksetzen (bei Songwechsel)
 - Gitarre: `window_sec=0.5, use_cqt=False` (STFT, schnell)
@@ -677,7 +678,8 @@ Wenn ein Song kein `grundrhythmus` hat, wird Phasen-Histogramm + Crash-Fallback 
 - **`ChromaUpdate`**: `{"type": "chroma_update", "kind": "guitar"|"bass", "t": float,
   "chroma": [12 floats], "bar_num": int, "confidence": float}` → WebSocket
 - **`latest_chroma()`**: gibt letzten `ChromaUpdate` als dict zurück (thread-safe)
-- **Constructor-Parameter `ref_db`**: optional `ReferenceDB`-Instanz; wenn None → kein Takt-Matching
+- **Constructor-Parameter `ref_db`**: optional `ReferenceDB`-Instanz; wenn None → kein Takt-Matching. `AudioProcess` wird in `main.py` mit `ref_db=ref_db` konstruiert.
+- **`select_song` WebSocket-Action** ruft `await asyncio.to_thread(audio_process.set_song, bpm, grundrhythmus, None, song_id)` auf — `BarTracker` + Chroma-Extraktoren werden bei jedem Song-Wechsel konfiguriert
 - `detection/reference_db.py`: neues `get_all_bar_chromas(song_id) -> dict[int, np.ndarray]`
 
 #### ⚠️ Offene Punkte für nächste Session
@@ -690,22 +692,35 @@ Wenn ein Song kein `grundrhythmus` hat, wird Phasen-Histogramm + Crash-Fallback 
      DB-Pflege-App eintragen (Felder seit v2.2.27), damit Pattern-Matching statt
      Phasen-Histogramm greift
 
-#### Anker-Feature (DB-Pflege-App v2.2.26)
+#### Anker-Feature (DB-Pflege-App v2.2.29)
 
-Jeder Song kann eine geordnete Liste von **Ankern** (`song.anchors`) enthalten — beschreibende
-akustische Erkennungsmerkmale, die der Lichttechniker in der DB-Pflege-App pflegt:
+Jeder Song kann eine geordnete Liste von **Ankern** (`song.anchors`) enthalten — erkennbare
+akustische Ereignisse, die der Lichttechniker in der DB-Pflege-App pflegt:
 
 ```json
 "anchors": [
-  {"id": "anc_abc123_xyz", "pos": 1, "type": "vocal",  "description": "Song beginnt mit Schrei von Pete", "part_hint": "Intro"},
-  {"id": "anc_def456_uvw", "pos": 2, "type": "drum",   "description": "Snare Drum setzt ein",             "part_hint": "Intro"},
-  {"id": "anc_ghi789_rst", "pos": 3, "type": "drum",   "description": "Crash + Kick → Intro beginnt",    "part_hint": "Verse 1"}
+  {"id": "anc_abc123_xyz", "pos": 1, "type": "drum",  "event": "Crash (Beat 1)",  "part_hint": "Intro",   "bar_num": 1,  "beat": "1"},
+  {"id": "anc_def456_uvw", "pos": 2, "type": "pete",  "event": "Setzt ein",       "part_hint": "Intro",   "bar_num": 3,  "beat": "1"},
+  {"id": "anc_ghi789_rst", "pos": 3, "type": "drum",  "event": "Fill mit Crash",  "part_hint": "Verse 1", "bar_num": 9,  "beat": "4+"}
 ]
 ```
 
-- **Felder**: `id` (eindeutig), `pos` (Reihenfolge 1-basiert), `type` (vocal/drum/guitar/bass/keys/silence/other), `description` (Freitext), `part_hint` (Part-Name als Orientierung)
-- **UI**: Neuer Tab „ANKER" in der DB-Pflege-App. Inline-editierbar, mit ↑/↓ zum Umordnen und ✕ zum Löschen.
-- **Nutzung Live/Sim**: Zukunft — Anker dienen als textuelle Fingerabdrücke für Positions-Erkennung.
+- **Felder**: `id` (eindeutig), `pos` (Reihenfolge 1-basiert), `type`, `event`, `part_hint`, `bar_num` (absolut, 1-basiert), `beat` (Zählzeit: `"1"` … `"4+"`)
+- **Typ-Werte**: `pete` / `axel` / `christian` (Gesang), `drum`, `guitar`, `bass`, `keys`, `silence`, `other`
+- **Event-Katalog** pro Typ (Dropdown in der App):
+  - Pete/Axel/Christian: Setzt ein | Hört auf | Schrei / Ausruf | Refrain-Phrase | Harmony
+  - Drum: Crash (Beat 1) | Fill mit Crash | Drum-Fill | Beat beginnt | Breakbeat | Nur Kick | Snare-Roll
+  - Guitar: Riff beginnt | Powerchords | Solo beginnt | Solo endet | Arpeggio
+  - Bass: Bass-Linie beginnt | Bass-Fill
+  - Keys: Setzt ein | Pad-Fläche | Riff / Motiv
+  - Silence: Song-Anfang (Stille) | Komplette Stille | Nur Schlagzeug | Breakdown
+- **UI (DB-Pflege-App)**: Tab „ANKER" mit 5 Spalten: Typ | Ereignis | Part | Takt | Zählzeit.
+  Takt-Dropdown befüllt sich dynamisch mit den Takten des gewählten Parts.
+- **Anzeige (Live-App)**: ANKER-Panel im linken Panel unterhalb der Parts-Liste.
+  Farbige Typ-Badges (PETE=cyan, AXEL=amber, CHRIS=grün, DRUM=rot, GTR=violett, BASS=mint).
+  Nächster anstehender Anker = amber hervorgehoben; vergangene = ausgegraut (30%).
+  Scrollt automatisch zum nächsten Anker mit dem Playhead.
+- **Nutzung Live/Sim (Zukunft)**: Anker als strukturierte akustische Fingerabdrücke für automatische Positionserkennung.
 
 ### Tech Stack (Live-App)
 

@@ -1,6 +1,6 @@
 # lighting.ai Live-App — Bedienungsanleitung
 
-**Version:** 2026-03
+**Version:** 2026-04
 **Zielgruppe:** Lichttechniker (Timo)
 **Gerät:** iPad (Hauptbedienung) oder Laptop (alternativ)
 
@@ -106,16 +106,19 @@ Das Interface ist in vier Bereiche aufgeteilt:
 
 ```
 ┌──────────────┬────────────────────┬──────────────┐
-│              │                    │              │
-│  PARTS       │  PLAYBACK-CENTER   │  SETLIST     │
-│  (links)     │  (mitte)           │  (rechts)    │
-│              │                    │              │
+│  PARTS       │                    │              │
+│  (oben       │  PLAYBACK-CENTER   │  SETLIST     │
+│   links)     │  (mitte)           │  (rechts)    │
+│──────────────│                    │              │
+│  ANKER       │                    │              │
+│  (unten      │                    │              │
+│   links)     │                    │              │
 ├──────────────┴────────────────────┴──────────────┤
 │  TIMELINE (unten)                                │
 └──────────────────────────────────────────────────┘
 ```
 
-### Parts-Panel (links)
+### Parts-Panel (links oben)
 
 Zeigt alle Parts (Songteile) des aktuell geladenen Songs:
 - **Grün hervorgehoben** = aktuell aktiver Part
@@ -130,6 +133,25 @@ Beispiel:
   Chorus 1
   ...
 ```
+
+### Anker-Panel (links unten)
+
+Zeigt die **akustischen Erkennungsmarken** (Anker) des aktuellen Songs in chronologischer Reihenfolge. Anker sind markante Momente im Song — etwa ein Schrei, ein Crash-Becken oder ein bestimmter Einsatz — die als Orientierungspunkte dienen.
+
+| Zustand | Darstellung |
+|---------|-------------|
+| Vergangener Anker | Abgedunkelt (30% Opacity) |
+| Nächster Anker | Amber hervorgehoben |
+| Kommende Anker | Normal sichtbar |
+
+Pro Anker wird angezeigt:
+- **Farbiger Typ-Badge** (PETE = cyan, AXEL = amber, CHRIS = grün, DRUM = rot, GTR = violett, BASS = mint)
+- **Ereignis** (z.B. „Crash (Beat 1)", „Setzt ein")
+- **Part + Takt + Zählzeit** (z.B. „Intro · T1 · 1")
+
+Das Panel scrollt automatisch so, dass der nächste Anker sichtbar ist.
+
+Anker werden in der DB-Pflege-App im **ANKER**-Tab gepflegt.
 
 ### Playback-Center (mitte)
 
@@ -398,4 +420,4 @@ server:
 
 ---
 
-*Letzte Aktualisierung: 26. März 2026 — lighting.ai für THE PACT, Haan*
+*Letzte Aktualisierung: 21. April 2026 — lighting.ai für THE PACT, Haan*

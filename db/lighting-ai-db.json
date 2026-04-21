@@ -6087,8 +6087,8 @@
           "type": "pete",
           "event": "Einsatz",
           "part_hint": "Verse 1",
-          "bar_num": null,
-          "beat": ""
+          "bar_num": 10,
+          "beat": "1"
         },
         {
           "id": "anc_mo8u21g1_g3yc",
@@ -6169,6 +6169,15 @@
           "event": "Pause",
           "part_hint": "Thema 2",
           "bar_num": 29,
+          "beat": "1"
+        },
+        {
+          "id": "anc_mo8u8kah_w0a9",
+          "pos": 14,
+          "type": "pete",
+          "event": "Einsatz",
+          "part_hint": "Verse 2",
+          "bar_num": 32,
           "beat": "1"
         }
       ]

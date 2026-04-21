@@ -1975,6 +1975,11 @@ function renderPartsTab() {
     els.content.innerHTML = `<div class="empty-state"><div class="icon">&#127926;</div><p>Song auswählen</p></div>`;
     return;
   }
+
+  // Save scroll position before re-render (used when adding/deleting anchors)
+  const scrollEl = els.content.querySelector('.parts-tab-scroll');
+  const savedScrollTop = scrollEl ? scrollEl.scrollTop : 0;
+
   const song = db.songs[selectedSongId];
   const parts = getPartsForSong(selectedSongId);
   const hasBuf = !!audio.getBuffer();
@@ -2018,6 +2023,12 @@ function renderPartsTab() {
 
   html += `</div></div>`;
   els.content.innerHTML = html;
+
+  // Restore scroll position after re-render
+  if (savedScrollTop > 0) {
+    const newScrollEl = els.content.querySelector('.parts-tab-scroll');
+    if (newScrollEl) newScrollEl.scrollTop = savedScrollTop;
+  }
 
   // Wire toggle buttons
   document.getElementById('parts-view-licht')?.addEventListener('click', () => { _partsTabView = 'licht'; renderPartsTab(); });
@@ -2280,7 +2291,7 @@ const ANCHOR_EVENTS = {
   pete:      ['Einsatz', 'Pause', 'Setzt ein', 'Hört auf', 'Schrei / Ausruf', 'Refrain-Phrase', 'Harmony'],
   axel:      ['Einsatz', 'Pause', 'Setzt ein', 'Hört auf', 'Harmony', 'Refrain-Phrase'],
   christian: ['Einsatz', 'Pause', 'Setzt ein', 'Hört auf', 'Harmony'],
-  drum:      ['Einsatz', 'Pause', 'Crash (Beat 1)', 'Fill mit Crash', 'Drum-Fill', 'Beat beginnt', 'Breakbeat', 'Nur Kick', 'Snare-Roll'],
+  drum:      ['Einsatz', 'Pause', 'Crash (Beat 1)', 'Crash auf 2 (mit Snare)', 'Crash mehrfach', 'Fill mit Crash', 'Drum-Fill', 'Beat beginnt', 'Breakbeat', 'Nur Kick', 'Snare-Roll'],
   guitar:    ['Einsatz', 'Pause', 'Riff beginnt', 'Powerchords', 'Solo beginnt', 'Solo endet', 'Arpeggio'],
   bass:      ['Einsatz', 'Pause', 'Bass-Linie beginnt', 'Bass-Fill'],
   keys:      ['Einsatz', 'Pause', 'Setzt ein', 'Pad-Fläche', 'Riff / Motiv'],

@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.2.29';
+const APP_VERSION = 'v2.3.0';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -222,7 +222,6 @@ function cacheDom() {
     tabLyrics:     document.getElementById('tab-lyrics'),
     tabAccents:    document.getElementById('tab-accents'),
     tabSetlist:    document.getElementById('tab-setlist'),
-    tabAnker:      document.getElementById('tab-anker'),
     btnSettings:   document.getElementById('btn-settings'),
     btnSave:       document.getElementById('btn-save'),
     btnUndo:       document.getElementById('btn-undo'),
@@ -1287,7 +1286,6 @@ function switchTab(tab) {
   els.tabLyrics?.classList.toggle('active', tab === 'lyrics');
   els.tabAccents?.classList.toggle('active', tab === 'accents');
   els.tabSetlist?.classList.toggle('active', tab === 'setlist');
-  els.tabAnker?.classList.toggle('active', tab === 'anker');
   renderContent();
   showTabTip(tab);
 }
@@ -1304,7 +1302,6 @@ function renderContent() {
   else if (activeTab === 'lyrics') renderLyricsTab();
   else if (activeTab === 'accents') renderAccentsTab();
   else if (activeTab === 'setlist') renderSetlistTab();
-  else if (activeTab === 'anker') renderAnchorsTab();
   updateDebugPanel();
 }
 
@@ -1932,6 +1929,7 @@ let _partsTabPlaying = null;    // bar_num of part currently playing
 let _partsTabSrc = null;        // AudioBufferSourceNode for part playback
 let _partsTabQlcSteps = null;   // matched chaser steps for current song
 let _partsTabQlcLoading = false;
+let _partsTabView = 'licht';    // 'licht' | 'anker'
 
 /**
  * Derive parts list from a song's split_markers.part_starts.
@@ -1986,10 +1984,19 @@ function renderPartsTab() {
     loadReferenceAudio().then(() => { if (activeTab === 'parts') renderPartsTab(); });
   }
 
+  const anchors = Array.isArray(song.anchors) ? song.anchors : [];
+
   let html = `<div class="parts-tab-panel">`;
   html += `<div class="parts-tab-header">`;
-  html += `<h2>${song.name} <span class="parts-tab-count">${parts.length} Parts</span></h2>`;
-  html += `<button class="parts-qlc-btn" id="parts-qlc-btn">QLC+ Chaser laden</button>`;
+  html += `<h2>${esc(song.name)} <span class="parts-tab-count">${parts.length} Parts</span></h2>`;
+  html += `<div class="parts-header-right">`;
+  if (_partsTabView === 'licht') {
+    html += `<button class="parts-qlc-btn" id="parts-qlc-btn">QLC+ Chaser laden</button>`;
+  }
+  html += `<div class="parts-view-toggle">`;
+  html += `<button class="parts-view-btn${_partsTabView === 'licht' ? ' active' : ''}" id="parts-view-licht">Licht</button>`;
+  html += `<button class="parts-view-btn${_partsTabView === 'anker' ? ' active' : ''}" id="parts-view-anker">Anker</button>`;
+  html += `</div></div>`;
   html += `</div>`;
   html += `<div class="parts-tab-scroll">`;
 
@@ -1997,11 +2004,61 @@ function renderPartsTab() {
     html += `<div class="parts-tab-empty">Keine Parts definiert.<br>Im <strong>Audio Split</strong> Tab Taktmarker antippen → Kontextmenü → <strong>Part</strong>.</div>`;
     html += `</div></div>`;
     els.content.innerHTML = html;
-    document.getElementById('parts-qlc-btn')?.addEventListener('click', () => partsTabLoadQlc());
+    // Wire toggle
+    document.getElementById('parts-view-licht')?.addEventListener('click', () => { _partsTabView = 'licht'; renderPartsTab(); });
+    document.getElementById('parts-view-anker')?.addEventListener('click', () => { _partsTabView = 'anker'; renderPartsTab(); });
     return;
   }
 
-  html += `<table class="parts-table"><thead><tr>`;
+  if (_partsTabView === 'licht') {
+    html += _renderPartsLichtView(parts, hasBuf);
+  } else {
+    html += _renderPartsAnkerView(song, parts, anchors);
+  }
+
+  html += `</div></div>`;
+  els.content.innerHTML = html;
+
+  // Wire toggle buttons
+  document.getElementById('parts-view-licht')?.addEventListener('click', () => { _partsTabView = 'licht'; renderPartsTab(); });
+  document.getElementById('parts-view-anker')?.addEventListener('click', () => { _partsTabView = 'anker'; renderPartsTab(); });
+
+  if (_partsTabView === 'licht') {
+    document.getElementById('parts-qlc-btn')?.addEventListener('click', () => partsTabLoadQlc());
+    for (const btn of document.querySelectorAll('.pt-play-btn')) {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.idx);
+        partsTabTogglePlay(parts[idx]);
+      });
+    }
+    for (const cb of document.querySelectorAll('.pt-instr-cb')) {
+      cb.addEventListener('change', () => {
+        const idx = parseInt(cb.dataset.idx);
+        partsTabSetInstrumental(parts[idx].barNum, cb.checked);
+        renderPartsTab();
+      });
+    }
+    for (const sel of document.querySelectorAll('.pt-tpl-select')) {
+      sel.addEventListener('change', () => {
+        const idx = parseInt(sel.dataset.idx);
+        partsTabSetTemplate(parts[idx].barNum, sel.value);
+      });
+    }
+    for (const btn of document.querySelectorAll('.pt-qlc-apply')) {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.idx);
+        const tpl = btn.dataset.tpl;
+        partsTabSetTemplate(parts[idx].barNum, tpl);
+        renderPartsTab();
+      });
+    }
+  } else {
+    _wirePakEvents(song, parts);
+  }
+}
+
+function _renderPartsLichtView(parts, hasBuf) {
+  let html = `<table class="parts-table"><thead><tr>`;
   html += `<th class="pt-num">#</th><th class="pt-name">Part</th><th class="pt-bars">Takte</th>`;
   html += `<th class="pt-dur">Dauer</th><th class="pt-play"></th>`;
   html += `<th class="pt-instr" title="Instrumental — Takte werden beim Lyrics-Import übersprungen">Instr.</th>`;
@@ -2014,14 +2071,11 @@ function renderPartsTab() {
     const isPlaying = _partsTabPlaying === p.barNum;
     const durStr = p.duration > 0 ? fmtDur(Math.round(p.duration)) : '—';
 
-    // QLC match: find a chaser step whose note matches this part's name
     let qlcHtml = '<span class="pt-qlc-none">—</span>';
     if (_partsTabQlcSteps) {
-      // Use matchStepToPart in reverse: find step whose note matches part name
       const step = _partsTabQlcSteps.find(s => {
         if (!s.note || s.isTitle) return false;
-        const matched = matchStepToPart(s.note, [{ name: p.name }]);
-        return !!matched;
+        return !!matchStepToPart(s.note, [{ name: p.name }]);
       });
       if (step) {
         const same = p.light_template === step.functionName;
@@ -2036,7 +2090,7 @@ function renderPartsTab() {
 
     html += `<tr class="${isPlaying ? 'pt-row-playing' : ''}${p.instrumental ? ' pt-row-instrumental' : ''}">`;
     html += `<td class="pt-num">${i + 1}</td>`;
-    html += `<td class="pt-name"><span class="pt-name-badge">${p.name}</span></td>`;
+    html += `<td class="pt-name"><span class="pt-name-badge">${esc(p.name)}</span></td>`;
     html += `<td class="pt-bars">${p.barCount}</td>`;
     html += `<td class="pt-dur">${durStr}</td>`;
     html += `<td class="pt-play"><button class="pt-play-btn ${isPlaying ? 'playing' : ''}" data-idx="${i}" ${!hasBuf ? 'disabled' : ''}>${isPlaying ? '&#9724;' : '&#9654;'}</button></td>`;
@@ -2046,41 +2100,135 @@ function renderPartsTab() {
     html += `</tr>`;
   }
 
-  html += `</tbody></table></div></div>`;
-  els.content.innerHTML = html;
+  html += `</tbody></table>`;
+  return html;
+}
 
-  // Wire events
-  document.getElementById('parts-qlc-btn')?.addEventListener('click', () => partsTabLoadQlc());
+function _renderPartsAnkerView(song, parts, anchors) {
+  let html = `<table class="pak-table"><thead><tr>`;
+  html += `<th class="pak-pos">#</th>`;
+  html += `<th class="pak-type">Typ</th>`;
+  html += `<th class="pak-event">Ereignis</th>`;
+  html += `<th class="pak-bar">Takt</th>`;
+  html += `<th class="pak-beat">Zählzeit</th>`;
+  html += `<th class="pak-actions"></th>`;
+  html += `</tr></thead><tbody>`;
 
-  for (const btn of document.querySelectorAll('.pt-play-btn')) {
-    btn.addEventListener('click', () => {
-      const idx = parseInt(btn.dataset.idx);
-      partsTabTogglePlay(parts[idx]);
-    });
+  for (const part of parts) {
+    const partAnchors = anchors.filter(a => a.part_hint === part.name);
+    const ankCount = partAnchors.length;
+
+    // Part group header
+    html += `<tr class="pak-group-row">`;
+    html += `<td colspan="6" class="pak-group-cell">`;
+    html += `<span class="pt-name-badge">${esc(part.name)}</span>`;
+    html += `<span class="pak-group-meta">${part.barCount} Takte</span>`;
+    if (ankCount > 0) html += `<span class="pak-anchor-count">${ankCount} Anker</span>`;
+    html += `<button class="pak-add-btn" data-part-name="${esc(part.name)}">+ Anker</button>`;
+    html += `</td></tr>`;
+
+    if (ankCount === 0) {
+      html += `<tr class="pak-empty-row"><td colspan="6" class="pak-empty-cell">Noch keine Anker für diesen Part</td></tr>`;
+    } else {
+      for (let i = 0; i < anchors.length; i++) {
+        const a = anchors[i];
+        if (a.part_hint !== part.name) continue;
+        const bars = _barsForPart(song.anchors ? selectedSongId : '', part.name);
+        const typeOpts = ANCHOR_TYPES.map(t =>
+          `<option value="${t.value}"${a.type === t.value ? ' selected' : ''}>${t.label}</option>`
+        ).join('');
+
+        html += `<tr class="pak-anchor-row" data-anchor-id="${a.id}">`;
+        html += `<td class="pak-pos">${a.pos}</td>`;
+        html += `<td class="pak-type"><select class="ak-type-sel" data-anchor-id="${a.id}" data-anchor-field="type">${typeOpts}</select></td>`;
+        html += `<td class="pak-event"><select class="ak-event-sel" data-anchor-id="${a.id}" data-anchor-field="event">${_buildEventOptions(a.type, a.event)}</select></td>`;
+        html += `<td class="pak-bar"><select class="ak-bar-sel" data-anchor-id="${a.id}" data-anchor-field="bar_num">${_buildBarOptions(bars, a.bar_num)}</select></td>`;
+        html += `<td class="pak-beat"><select class="ak-beat-sel" data-anchor-id="${a.id}" data-anchor-field="beat">${_buildBeatOptions(a.beat)}</select></td>`;
+        html += `<td class="pak-actions">`;
+        if (i > 0) html += `<button class="ak-up-btn" data-anchor-idx="${i}" title="Nach oben">▲</button>`;
+        if (i < anchors.length - 1) html += `<button class="ak-down-btn" data-anchor-idx="${i}" title="Nach unten">▼</button>`;
+        html += `<button class="ak-del-btn" data-anchor-id="${a.id}" title="Löschen">✕</button>`;
+        html += `</td></tr>`;
+      }
+    }
   }
 
-  for (const cb of document.querySelectorAll('.pt-instr-cb')) {
-    cb.addEventListener('change', () => {
-      const idx = parseInt(cb.dataset.idx);
-      partsTabSetInstrumental(parts[idx].barNum, cb.checked);
+  // Unassigned anchors (part_hint doesn't match any current part)
+  const partNames = new Set(parts.map(p => p.name));
+  const unassigned = anchors.filter(a => !a.part_hint || !partNames.has(a.part_hint));
+  if (unassigned.length > 0) {
+    html += `<tr class="pak-group-row"><td colspan="6" class="pak-group-cell">`;
+    html += `<span class="pak-group-meta pak-group-unassigned">Nicht zugeordnet</span>`;
+    html += `<button class="pak-add-btn" data-part-name="">+ Anker</button>`;
+    html += `</td></tr>`;
+    for (let i = 0; i < anchors.length; i++) {
+      const a = anchors[i];
+      if (a.part_hint && partNames.has(a.part_hint)) continue;
+      const typeOpts = ANCHOR_TYPES.map(t =>
+        `<option value="${t.value}"${a.type === t.value ? ' selected' : ''}>${t.label}</option>`
+      ).join('');
+      html += `<tr class="pak-anchor-row" data-anchor-id="${a.id}">`;
+      html += `<td class="pak-pos">${a.pos}</td>`;
+      html += `<td class="pak-type"><select class="ak-type-sel" data-anchor-id="${a.id}" data-anchor-field="type">${typeOpts}</select></td>`;
+      html += `<td class="pak-event"><select class="ak-event-sel" data-anchor-id="${a.id}" data-anchor-field="event">${_buildEventOptions(a.type, a.event)}</select></td>`;
+      html += `<td class="pak-bar"><select class="ak-bar-sel" data-anchor-id="${a.id}" data-anchor-field="bar_num">${_buildBarOptions([], a.bar_num)}</select></td>`;
+      html += `<td class="pak-beat"><select class="ak-beat-sel" data-anchor-id="${a.id}" data-anchor-field="beat">${_buildBeatOptions(a.beat)}</select></td>`;
+      html += `<td class="pak-actions">`;
+      if (i > 0) html += `<button class="ak-up-btn" data-anchor-idx="${i}" title="Nach oben">▲</button>`;
+      if (i < anchors.length - 1) html += `<button class="ak-down-btn" data-anchor-idx="${i}" title="Nach unten">▼</button>`;
+      html += `<button class="ak-del-btn" data-anchor-id="${a.id}" title="Löschen">✕</button>`;
+      html += `</td></tr>`;
+    }
+  }
+
+  html += `</tbody></table>`;
+  html += `<div class="anker-add-row"><button class="anker-add-btn" id="pak-add-global">+ Anker</button></div>`;
+  return html;
+}
+
+function _wirePakEvents(song, parts) {
+  if (!Array.isArray(song.anchors)) song.anchors = [];
+
+  // "+ Anker" per Part
+  for (const btn of document.querySelectorAll('.pak-add-btn')) {
+    btn.addEventListener('click', () => {
+      song.anchors.push({
+        id: 'anc_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 6),
+        pos: song.anchors.length + 1,
+        type: 'drum',
+        event: '',
+        part_hint: btn.dataset.partName || '',
+        bar_num: null,
+        beat: '',
+      });
+      markDirty();
       renderPartsTab();
     });
   }
 
-  for (const sel of document.querySelectorAll('.pt-tpl-select')) {
-    sel.addEventListener('change', () => {
-      const idx = parseInt(sel.dataset.idx);
-      partsTabSetTemplate(parts[idx].barNum, sel.value);
+  // Global "+ Anker"
+  document.getElementById('pak-add-global')?.addEventListener('click', () => {
+    song.anchors.push({
+      id: 'anc_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 6),
+      pos: song.anchors.length + 1,
+      type: 'drum',
+      event: '',
+      part_hint: '',
+      bar_num: null,
+      beat: '',
     });
+    markDirty();
+    renderPartsTab();
+  });
+
+  // Anchor field changes
+  for (const sel of document.querySelectorAll('.ak-type-sel, .ak-event-sel, .ak-bar-sel, .ak-beat-sel')) {
+    sel.addEventListener('change', handleAnchorsChange);
   }
 
-  for (const btn of document.querySelectorAll('.pt-qlc-apply')) {
-    btn.addEventListener('click', () => {
-      const idx = parseInt(btn.dataset.idx);
-      const tpl = btn.dataset.tpl;
-      partsTabSetTemplate(parts[idx].barNum, tpl);
-      renderPartsTab();
-    });
+  // Anchor action buttons (▲▼✕)
+  for (const btn of document.querySelectorAll('.ak-up-btn, .ak-down-btn, .ak-del-btn')) {
+    btn.addEventListener('click', handleAnchorsClick);
   }
 }
 
@@ -2102,15 +2250,15 @@ const ANCHOR_TYPES = [
 
 /** Katalog erkennbarer Ereignisse pro Typ */
 const ANCHOR_EVENTS = {
-  pete:      ['Setzt ein', 'Hört auf', 'Schrei / Ausruf', 'Refrain-Phrase', 'Harmony'],
-  axel:      ['Setzt ein', 'Hört auf', 'Harmony', 'Refrain-Phrase'],
-  christian: ['Setzt ein', 'Hört auf', 'Harmony'],
-  drum:      ['Crash (Beat 1)', 'Fill mit Crash', 'Drum-Fill', 'Beat beginnt', 'Breakbeat', 'Nur Kick', 'Snare-Roll'],
-  guitar:    ['Riff beginnt', 'Powerchords', 'Solo beginnt', 'Solo endet', 'Arpeggio'],
-  bass:      ['Bass-Linie beginnt', 'Bass-Fill'],
-  keys:      ['Setzt ein', 'Pad-Fläche', 'Riff / Motiv'],
-  silence:   ['Song-Anfang (Stille)', 'Komplette Stille', 'Nur Schlagzeug', 'Breakdown'],
-  other:     ['Markantes Ereignis'],
+  pete:      ['Einsatz', 'Pause', 'Setzt ein', 'Hört auf', 'Schrei / Ausruf', 'Refrain-Phrase', 'Harmony'],
+  axel:      ['Einsatz', 'Pause', 'Setzt ein', 'Hört auf', 'Harmony', 'Refrain-Phrase'],
+  christian: ['Einsatz', 'Pause', 'Setzt ein', 'Hört auf', 'Harmony'],
+  drum:      ['Einsatz', 'Pause', 'Crash (Beat 1)', 'Fill mit Crash', 'Drum-Fill', 'Beat beginnt', 'Breakbeat', 'Nur Kick', 'Snare-Roll'],
+  guitar:    ['Einsatz', 'Pause', 'Riff beginnt', 'Powerchords', 'Solo beginnt', 'Solo endet', 'Arpeggio'],
+  bass:      ['Einsatz', 'Pause', 'Bass-Linie beginnt', 'Bass-Fill'],
+  keys:      ['Einsatz', 'Pause', 'Setzt ein', 'Pad-Fläche', 'Riff / Motiv'],
+  silence:   ['Einsatz', 'Pause', 'Song-Anfang (Stille)', 'Komplette Stille', 'Nur Schlagzeug', 'Breakdown'],
+  other:     ['Einsatz', 'Pause', 'Markantes Ereignis'],
 };
 
 /** Gibt die absoluten Taktnummern aller Takte eines Parts zurück. */
@@ -2148,89 +2296,6 @@ function _buildBeatOptions(selected) {
   return opts;
 }
 
-function renderAnchorsTab() {
-  if (!selectedSongId || !db.songs[selectedSongId]) {
-    els.content.innerHTML = `<div class="empty-state"><div class="icon">&#9875;</div><p>Song auswählen</p></div>`;
-    return;
-  }
-  const song = db.songs[selectedSongId];
-  if (!Array.isArray(song.anchors)) song.anchors = [];
-  const anchors = song.anchors;
-  const parts = getPartsForSong(selectedSongId);
-
-  let html = `<div class="anker-tab-panel">`;
-  html += `<div class="anker-tab-header">`;
-  html += `<h2>${esc(song.name)} <span class="anker-tab-count">${anchors.length} Anker</span></h2>`;
-  html += `<p class="anker-tab-hint">Beschreibe die akustischen Erkennungsmerkmale des Songs in der richtigen Reihenfolge — die Live-App und die Simulation nutzen diese Anker um zu erkennen, an welcher Stelle im Song sie sich befinden.</p>`;
-  html += `</div>`;
-
-  if (anchors.length === 0) {
-    html += `<div class="anker-empty">Noch keine Anker definiert.<br>Klicke unten auf <strong>+ Anker</strong> um das erste Erkennungsmerkmal anzulegen.<br><br>Beispiel: <em>"Song beginnt mit Schrei von Pete"</em> → <em>"Snare Drum setzt ein"</em> → <em>"Crash + Kick, Intro beginnt"</em></div>`;
-  } else {
-    const partOptions = `<option value="">— kein —</option>` +
-      parts.map(p => `<option value="${esc(p.name)}">${esc(p.name)}</option>`).join('');
-
-    html += `<table class="anker-table"><thead><tr>`;
-    html += `<th class="ak-num">#</th>`;
-    html += `<th class="ak-type">Typ</th>`;
-    html += `<th class="ak-event">Ereignis</th>`;
-    html += `<th class="ak-part">Part</th>`;
-    html += `<th class="ak-bar">Takt</th>`;
-    html += `<th class="ak-beat">Zählzeit</th>`;
-    html += `<th class="ak-actions"></th>`;
-    html += `</tr></thead><tbody>`;
-
-    for (let i = 0; i < anchors.length; i++) {
-      const a = anchors[i];
-      const typeOpts = ANCHOR_TYPES.map(t =>
-        `<option value="${t.value}"${a.type === t.value ? ' selected' : ''}>${t.label}</option>`
-      ).join('');
-      const rowPartOpts = parts
-        .map(p => `<option value="${esc(p.name)}"${a.part_hint === p.name ? ' selected' : ''}>${esc(p.name)}</option>`)
-        .join('');
-      const bars = _barsForPart(selectedSongId, a.part_hint);
-
-      html += `<tr data-anchor-id="${a.id}">`;
-      html += `<td class="ak-num">${i + 1}</td>`;
-      html += `<td class="ak-type"><select class="ak-type-sel" data-anchor-id="${a.id}" data-anchor-field="type">${typeOpts}</select></td>`;
-      html += `<td class="ak-event"><select class="ak-event-sel" data-anchor-id="${a.id}" data-anchor-field="event">${_buildEventOptions(a.type, a.event)}</select></td>`;
-      html += `<td class="ak-part"><select class="ak-part-sel" data-anchor-id="${a.id}" data-anchor-field="part_hint"><option value="">— kein —</option>${rowPartOpts}</select></td>`;
-      html += `<td class="ak-bar"><select class="ak-bar-sel" data-anchor-id="${a.id}" data-anchor-field="bar_num">${_buildBarOptions(bars, a.bar_num)}</select></td>`;
-      html += `<td class="ak-beat"><select class="ak-beat-sel" data-anchor-id="${a.id}" data-anchor-field="beat">${_buildBeatOptions(a.beat)}</select></td>`;
-      html += `<td class="ak-actions">`;
-      if (i > 0)
-        html += `<button class="ak-up-btn" data-anchor-idx="${i}" title="Nach oben">▲</button>`;
-      if (i < anchors.length - 1)
-        html += `<button class="ak-down-btn" data-anchor-idx="${i}" title="Nach unten">▼</button>`;
-      html += `<button class="ak-del-btn" data-anchor-id="${a.id}" title="Löschen">✕</button>`;
-      html += `</td></tr>`;
-    }
-
-    html += `</tbody></table>`;
-  }
-
-  html += `<div class="anker-add-row"><button class="anker-add-btn" id="anker-add-btn">+ Anker</button></div>`;
-  html += `</div>`;
-  els.content.innerHTML = html;
-
-  document.getElementById('anker-add-btn')?.addEventListener('click', () => {
-    if (!Array.isArray(song.anchors)) song.anchors = [];
-    song.anchors.push({
-      id: 'anc_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 6),
-      pos: song.anchors.length + 1,
-      type: 'drum',
-      event: '',
-      part_hint: '',
-      bar_num: null,
-      beat: '',
-    });
-    markDirty();
-    renderAnchorsTab();
-    // Focus the type select of the new row
-    const typeSels = document.querySelectorAll('.ak-type-sel');
-    if (typeSels.length > 0) typeSels[typeSels.length - 1].focus();
-  });
-}
 
 function handleAnchorsClick(e) {
   const song = selectedSongId && db.songs[selectedSongId];
@@ -2242,7 +2307,7 @@ function handleAnchorsClick(e) {
     song.anchors = song.anchors.filter(a => a.id !== id);
     _renumberAnchors(song);
     markDirty();
-    renderAnchorsTab();
+    renderPartsTab();
     return;
   }
 
@@ -2253,7 +2318,7 @@ function handleAnchorsClick(e) {
       [song.anchors[idx - 1], song.anchors[idx]] = [song.anchors[idx], song.anchors[idx - 1]];
       _renumberAnchors(song);
       markDirty();
-      renderAnchorsTab();
+      renderPartsTab();
     }
     return;
   }
@@ -2265,7 +2330,7 @@ function handleAnchorsClick(e) {
       [song.anchors[idx], song.anchors[idx + 1]] = [song.anchors[idx + 1], song.anchors[idx]];
       _renumberAnchors(song);
       markDirty();
-      renderAnchorsTab();
+      renderPartsTab();
     }
     return;
   }
@@ -8353,7 +8418,6 @@ function wireEvents() {
   els.tabLyrics?.addEventListener('click', () => switchTab('lyrics'));
   els.tabAccents?.addEventListener('click', () => switchTab('accents'));
   els.tabSetlist?.addEventListener('click', () => switchTab('setlist'));
-  els.tabAnker?.addEventListener('click',   () => switchTab('anker'));
 
   // Settings
   els.syncStatus.addEventListener('click', () => {
@@ -8460,13 +8524,11 @@ function wireEvents() {
     else if (activeTab === 'lyrics') handleLyricsClick(e);
     else if (activeTab === 'accents') handleAccentsTabClick(e);
     else if (activeTab === 'setlist') handleSetlistClick(e);
-    else if (activeTab === 'anker') handleAnchorsClick(e);
   });
   els.content.addEventListener('change', (e) => {
     if (activeTab === 'takte') handleTakteTabChange(e);
     else if (activeTab === 'lyrics') handleLyricsChange(e);
     else if (activeTab === 'setlist') handleSetlistChange(e);
-    else if (activeTab === 'anker') handleAnchorsChange(e);
   });
   // + scroll focused input into view after iOS keyboard opens
   els.content.addEventListener('focus', (e) => {

@@ -320,6 +320,7 @@ Zählweise: 1   e   +   e   2   e   +   e   3   e   +   e   4   e   +   e
 - [x] Takte-Tab: "Alle Takte löschen" Button mit Bestätigung
 - [x] Lyrics-Tab: Parts ein-/ausklappen (einzeln + alle auf einmal)
 - [x] Lyrics-Tab: Instrumental-Checkbox pro Part
+- [x] Parts-Tab: LICHT/ANKER-Umschaltung — „Anker"-Ansicht zeigt Anker nach Parts gruppiert (ersetzt separaten ANKER-Tab)
 
 #### Meilenstein 3: Audio Split
 
@@ -692,7 +693,7 @@ Wenn ein Song kein `grundrhythmus` hat, wird Phasen-Histogramm + Crash-Fallback 
      DB-Pflege-App eintragen (Felder seit v2.2.27), damit Pattern-Matching statt
      Phasen-Histogramm greift
 
-#### Anker-Feature (DB-Pflege-App v2.2.29)
+#### Anker-Feature (DB-Pflege-App v2.3.0)
 
 Jeder Song kann eine geordnete Liste von **Ankern** (`song.anchors`) enthalten — erkennbare
 akustische Ereignisse, die der Lichttechniker in der DB-Pflege-App pflegt:
@@ -700,22 +701,26 @@ akustische Ereignisse, die der Lichttechniker in der DB-Pflege-App pflegt:
 ```json
 "anchors": [
   {"id": "anc_abc123_xyz", "pos": 1, "type": "drum",  "event": "Crash (Beat 1)",  "part_hint": "Intro",   "bar_num": 1,  "beat": "1"},
-  {"id": "anc_def456_uvw", "pos": 2, "type": "pete",  "event": "Setzt ein",       "part_hint": "Intro",   "bar_num": 3,  "beat": "1"},
+  {"id": "anc_def456_uvw", "pos": 2, "type": "pete",  "event": "Einsatz",         "part_hint": "Intro",   "bar_num": 3,  "beat": "1"},
   {"id": "anc_ghi789_rst", "pos": 3, "type": "drum",  "event": "Fill mit Crash",  "part_hint": "Verse 1", "bar_num": 9,  "beat": "4+"}
 ]
 ```
 
 - **Felder**: `id` (eindeutig), `pos` (Reihenfolge 1-basiert), `type`, `event`, `part_hint`, `bar_num` (absolut, 1-basiert), `beat` (Zählzeit: `"1"` … `"4+"`)
 - **Typ-Werte**: `pete` / `axel` / `christian` (Gesang), `drum`, `guitar`, `bass`, `keys`, `silence`, `other`
-- **Event-Katalog** pro Typ (Dropdown in der App):
-  - Pete/Axel/Christian: Setzt ein | Hört auf | Schrei / Ausruf | Refrain-Phrase | Harmony
-  - Drum: Crash (Beat 1) | Fill mit Crash | Drum-Fill | Beat beginnt | Breakbeat | Nur Kick | Snare-Roll
-  - Guitar: Riff beginnt | Powerchords | Solo beginnt | Solo endet | Arpeggio
-  - Bass: Bass-Linie beginnt | Bass-Fill
-  - Keys: Setzt ein | Pad-Fläche | Riff / Motiv
-  - Silence: Song-Anfang (Stille) | Komplette Stille | Nur Schlagzeug | Breakdown
-- **UI (DB-Pflege-App)**: Tab „ANKER" mit 5 Spalten: Typ | Ereignis | Part | Takt | Zählzeit.
-  Takt-Dropdown befüllt sich dynamisch mit den Takten des gewählten Parts.
+- **Event-Katalog** pro Typ (Dropdown in der App) — alle Typen haben `Einsatz` und `Pause` an erster Stelle:
+  - Pete/Axel/Christian: Einsatz | Pause | Setzt ein | Hört auf | Schrei / Ausruf | Refrain-Phrase | Harmony
+  - Drum: Einsatz | Pause | Crash (Beat 1) | Fill mit Crash | Drum-Fill | Beat beginnt | Breakbeat | Nur Kick | Snare-Roll
+  - Guitar: Einsatz | Pause | Riff beginnt | Powerchords | Solo beginnt | Solo endet | Arpeggio
+  - Bass: Einsatz | Pause | Bass-Linie beginnt | Bass-Fill
+  - Keys: Einsatz | Pause | Setzt ein | Pad-Fläche | Riff / Motiv
+  - Silence: Einsatz | Pause | Song-Anfang (Stille) | Komplette Stille | Nur Schlagzeug | Breakdown
+  - Other: Einsatz | Pause | Markantes Ereignis
+- **UI (DB-Pflege-App)**: Integriert im **PARTS-Tab** unter der Umschaltfläche **„Anker"** (neben „Licht").
+  Die Anker werden nach Parts gruppiert angezeigt. Spalten: Typ | Ereignis | Takt | Zählzeit | Aktionen.
+  Kein separater ANKER-Tab mehr — der Part-Kontext ist durch die Gruppierung implizit.
+  Per `+ Anker` Button unterhalb jeder Part-Gruppe wird ein neuer Anker für diesen Part angelegt.
+  `part_hint` wird automatisch auf den Part-Namen gesetzt, unter dem der Anker angelegt wird.
 - **Anzeige (Live-App)**: ANKER-Panel im linken Panel unterhalb der Parts-Liste.
   Farbige Typ-Badges (PETE=cyan, AXEL=amber, CHRIS=grün, DRUM=rot, GTR=violett, BASS=mint).
   Nächster anstehender Anker = amber hervorgehoben; vergangene = ausgegraut (30%).

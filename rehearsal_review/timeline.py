@@ -854,8 +854,8 @@ class TimelineWidget(QWidget):
 
             if matched:
                 r_draw = 8
-                # Weißer Außenring (Glow-Effekt)
-                ring_c = QColor(255, 255, 255, 100)
+                # Farbiger Außenring (type-Farbe, halbtransparent)
+                ring_c = QColor(base_color); ring_c.setAlpha(80)
                 p.setBrush(Qt.BrushStyle.NoBrush)
                 p.setPen(QPen(ring_c, 1))
                 p.drawPolygon(QPolygon([
@@ -864,11 +864,10 @@ class TimelineWidget(QWidget):
                     QPoint(x,              cy + r_draw + 3),
                     QPoint(x - r_draw - 3, cy),
                 ]))
-                # Gefüllter Kern
-                dc = QColor(base_color)
-                dc.setAlpha(255)
+                # Gefüllter Kern (leicht transparent)
+                dc = QColor(base_color); dc.setAlpha(200)
                 p.setBrush(QBrush(dc))
-                p.setPen(QPen(dc, 1))
+                p.setPen(Qt.PenStyle.NoPen)
                 p.drawPolygon(QPolygon([
                     QPoint(x,          cy - r_draw),
                     QPoint(x + r_draw, cy),
@@ -879,8 +878,7 @@ class TimelineWidget(QWidget):
                 label = anc.get("event", "")
                 if len(label) > 14:
                     label = label[:13] + "…"
-                tc = QColor(base_color)
-                tc.setAlpha(220)
+                tc = QColor(base_color); tc.setAlpha(200)
                 p.setPen(tc)
                 p.setFont(FONT_BTN)
                 p.drawText(x + r_draw + 4, y0, 110, ANCHOR_H,
@@ -888,8 +886,7 @@ class TimelineWidget(QWidget):
                            label)
             else:
                 r_draw = 4
-                dc = QColor(base_color)
-                dc.setAlpha(40)
+                dc = QColor(base_color); dc.setAlpha(70)
                 p.setBrush(QBrush(dc))
                 p.setPen(Qt.PenStyle.NoPen)
                 p.drawPolygon(QPolygon([
@@ -1419,7 +1416,8 @@ class TimelineWidget(QWidget):
         seg_t0 = seg.start_t  # absolute → relative Koordinaten (Bug-Fix: t*pps war falsch)
 
         if self._sim_snares:
-            c = C_CYAN if self._sim_overlay else C_VIO
+            base = C_CYAN if self._sim_overlay else C_VIO
+            c = QColor(base); c.setAlpha(160)
             p.setBrush(QBrush(c))
             p.setPen(Qt.PenStyle.NoPen)
             for t_s in self._sim_snares:
@@ -1428,7 +1426,8 @@ class TimelineWidget(QWidget):
                     p.drawPolygon(_diamond(bx, cy_top, R))
 
         if self._sim_kicks:
-            c = C_AMBER if self._sim_overlay else C_VIO
+            base = C_AMBER if self._sim_overlay else C_VIO
+            c = QColor(base); c.setAlpha(160)
             p.setBrush(QBrush(c))
             p.setPen(Qt.PenStyle.NoPen)
             for t_k in self._sim_kicks:
@@ -1648,13 +1647,13 @@ class TimelineWidget(QWidget):
                 for t_s in self._sim_snares:
                     ex = LABEL_W + int((t_s - seg_t0) * pps) - ox
                     if LABEL_W - r <= ex <= w + r:
-                        _draw_diamond(ex, C_CYAN, alpha=220)
+                        _draw_diamond(ex, C_CYAN, alpha=160)
 
             if track_chs & KICK_MARKER_CHS:
                 for t_k in self._sim_kicks:
                     ex = LABEL_W + int((t_k - seg_t0) * pps) - ox
                     if LABEL_W - r <= ex <= w + r:
-                        _draw_diamond(ex, C_AMBER, alpha=220)
+                        _draw_diamond(ex, C_AMBER, alpha=160)
 
         # ── Sim-Crashes auf OH L+R Row (roter Diamond, größer) ────────────────
         if self._sim_overlay and self._sim_crashes and (track_chs & BEAT_MARKER_CHS):
@@ -1761,34 +1760,38 @@ class TimelineWidget(QWidget):
         if self.segment is None:
             return
 
-        # ── Event-Playhead (amber, gestrichelt) — BarTracker-Schätzung ──────
+        anchor_top = RULER_H + EVENTS_H + ANNOT_H
+        anchor_bot = anchor_top + ANCHOR_H   # == TRACK_Y[0]
+        track_top  = anchor_bot
+
+        # ── Simulations-Playhead (amber) — NUR Anker-Spur ────────────────────
         if self._event_cursor_t >= 0:
             et = self._event_cursor_t - self.segment.start_t
             ex = LABEL_W + int(et * self._pps) - self._scroll_x
             if LABEL_W <= ex <= self.width():
-                ev_top = RULER_H + EVENTS_H + ANNOT_H  # läuft durch den Anker-Strip
-                p.setPen(QPen(C_AMBER, 1, Qt.PenStyle.DashLine))
-                p.drawLine(ex, ev_top, ex, h)
-                # Aufwärtspfeil unten
+                p.setPen(QPen(C_AMBER, 2))
+                p.drawLine(ex, anchor_top, ex, anchor_bot)
+                # Pfeil nach unten (zeigt Richtung Wellenform)
                 p.setBrush(QBrush(C_AMBER))
                 p.setPen(Qt.PenStyle.NoPen)
                 p.drawPolygon(QPolygon([
-                    QPoint(ex - 4, h),
-                    QPoint(ex + 4, h),
-                    QPoint(ex, h - 8),
+                    QPoint(ex - 4, anchor_bot),
+                    QPoint(ex + 4, anchor_bot),
+                    QPoint(ex,     anchor_bot + 7),
                 ]))
 
-        # ── Haupt-Playhead (rot, durchgezogen) — Audio-Position ─────────────
-        t = self.cursor_t - self.segment.start_t
+        # ── Wiedergabe-Playhead (rot) — NUR Wellenform-Tracks ────────────────
+        t  = self.cursor_t - self.segment.start_t
         cx = LABEL_W + int(t * self._pps) - self._scroll_x
         if cx < LABEL_W or cx > self.width():
             return
         p.setPen(QPen(CURSOR_C, 2))
-        p.drawLine(cx, RULER_H, cx, h)
+        p.drawLine(cx, track_top, cx, h)
+        # Dreieck-Markierung am oberen Rand der Waveform-Zone
         p.setBrush(QBrush(CURSOR_C))
         p.setPen(Qt.PenStyle.NoPen)
         p.drawPolygon(QPolygon([
-            QPoint(cx - 5, RULER_H),
-            QPoint(cx + 5, RULER_H),
-            QPoint(cx, RULER_H + 9),
+            QPoint(cx - 5, track_top),
+            QPoint(cx + 5, track_top),
+            QPoint(cx,     track_top + 9),
         ]))

@@ -51,9 +51,15 @@ class SimulatorWorker(QThread):
         sample_rate, seg_start_t, seg_end_t, song_key
     """
 
-    progress = pyqtSignal(float)   # 0.0–1.0
-    finished = pyqtSignal(object)  # dict mit Ergebnissen
-    error    = pyqtSignal(str)
+    progress       = pyqtSignal(float)   # 0.0–1.0
+    finished       = pyqtSignal(object)  # dict mit Ergebnissen
+    error          = pyqtSignal(str)
+    # Live-Signale für Echtzeit-Monitor (t_rel = Sekunden relativ zu seg_start_t)
+    kick_detected  = pyqtSignal(float)
+    snare_detected = pyqtSignal(float)
+    crash_detected = pyqtSignal(float)
+    bar_detected   = pyqtSignal(int, float, float)  # (bar_num, t_rel, bpm)
+    anchor_matched = pyqtSignal(object)              # anchor dict
 
     def __init__(
         self,
@@ -70,6 +76,8 @@ class SimulatorWorker(QThread):
         use_hmm: bool = False,  # nicht mehr verwendet
         song_key: str = "",
         grundrhythmus: dict | None = None,
+        realtime: bool = False,
+        anchors: list | None = None,
         parent=None,
     ) -> None:
         super().__init__(parent)
@@ -82,6 +90,8 @@ class SimulatorWorker(QThread):
         self._output_jsonl  = output_jsonl
         self._song_key      = song_key
         self._grundrhythmus = grundrhythmus
+        self._realtime      = realtime
+        self._anchors       = anchors or []
 
     # ── Haupt-Loop ────────────────────────────────────────────────────────────
 
@@ -131,6 +141,33 @@ class SimulatorWorker(QThread):
             return
 
         total_frames = end_sample - start_sample
+
+        # ── Echtzeit-Modus: Stereo-Mix laden + Playback starten ──────────────
+        import time as _time
+        _sd = None          # sounddevice-Modul (gesetzt wenn Playback klappt)
+        _sd_playing = False
+        _stereo_buf = None  # muss am Leben bleiben solange sd.play() läuft
+        _wall_start = 0.0
+
+        if self._realtime:
+            try:
+                import sounddevice as _sd
+                with sf.SoundFile(self._wav_path) as f2:
+                    f2.seek(start_sample)
+                    raw_all = f2.read(end_sample - start_sample,
+                                     dtype="float32", always_2d=True)
+                ch_l = min(16, raw_all.shape[1] - 1)
+                ch_r = min(17, raw_all.shape[1] - 1)
+                _stereo_buf = np.ascontiguousarray(raw_all[:, [ch_l, ch_r]])
+                del raw_all
+                _sd.play(_stereo_buf, sr, device="pulse", blocksize=4096)
+                _sd_playing = True
+                print("[SIM] Echtzeit-Modus: Audio gestartet", file=sys.stderr)
+            except Exception as exc:
+                _sd = None
+                print(f"[SIM] Audio-Playback fehlgeschlagen: {exc}",
+                      file=sys.stderr)
+            _wall_start = _time.monotonic()
 
         # ── Streaming Feature-Extraktoren ─────────────────────────────────────
         # Guitar-Chroma: 0,5s Rolling-Buffer, STFT-Chroma.
@@ -232,22 +269,23 @@ class SimulatorWorker(QThread):
                     if ev.type == "kick":
                         kicks.append(t_mid)
                         tracker.process_kick(t_abs, energy=float(ev.energy))
-                        # Guitar-Chroma am Beat: aktueller Rolling-Buffer
                         chroma_vec = guitar_extractor.get_chroma()
                         if chroma_vec is not None:
                             chroma_data.append({"t": t_abs, "chroma": chroma_vec})
+                        self.kick_detected.emit(t_mid)
 
                     elif ev.type == "snare":
                         snares.append(t_mid)
                         tracker.process_snare(t_abs, energy=float(ev.energy))
-                        # Guitar-Chroma am Beat: aktueller Rolling-Buffer
                         chroma_vec = guitar_extractor.get_chroma()
                         if chroma_vec is not None:
                             chroma_data.append({"t": t_abs, "chroma": chroma_vec})
+                        self.snare_detected.emit(t_mid)
 
                     elif ev.type == "crash":
                         crashes.append((t_mid, float(ev.energy)))
                         tracker.process_crash(t_abs, energy=float(ev.energy))
+                        self.crash_detected.emit(t_mid)
 
                     jf.write(_json.dumps({
                         "t": round(t_mid, 4),
@@ -256,11 +294,12 @@ class SimulatorWorker(QThread):
                     }) + "\n")
 
                 # ── Neue Takte prüfen → Bass-Chroma extrahieren ───────────────
-                # BarTracker bestätigt Takt-Starts in Arrears (nach jeweils 8 Events).
-                # Wenn ein neuer Takt erscheint, enthält der Bass-Rolling-Buffer
-                # die Audio-Daten des zuletzt gespielten Takts — identisch mit Live.
                 current_bars = tracker.get_latest_bars()
-                for bar_t in current_bars[_last_n_bars:]:
+                bpm_now = tracker.get_bpm() or self._bpm
+                for i, bar_t in enumerate(current_bars):
+                    if i < _last_n_bars:
+                        continue
+                    bar_num = i + 1
                     bass_chroma = bass_extractor.get_chroma()
                     bass_rhythm = bass_extractor.get_rhythm_score(self._bpm)
                     if bass_chroma is not None:
@@ -269,12 +308,33 @@ class SimulatorWorker(QThread):
                             "chroma": bass_chroma,
                             "rhythm": bass_rhythm,
                         })
+                    self.bar_detected.emit(bar_num, bar_t - self._seg_start_t, bpm_now)
+                    for anc in self._anchors:
+                        if anc.get("bar_num") == bar_num:
+                            self.anchor_matched.emit(dict(anc))
                 _last_n_bars = len(current_bars)
 
                 blocks_done += 1
                 if blocks_done % 50 == 0:
                     raw = (blocks_done * BLOCK_SIZE) / max(1, total_frames)
                     self.progress.emit(min(0.99, raw))
+
+                # ── Echtzeit-Throttle ─────────────────────────────────────────
+                if self._realtime:
+                    audio_done = blocks_done * BLOCK_SIZE / sr
+                    wall_elapsed = _time.monotonic() - _wall_start
+                    sleep_s = audio_done - wall_elapsed
+                    if sleep_s > 0.001:
+                        _time.sleep(sleep_s)
+
+        # ── Abbruch-Cleanup ───────────────────────────────────────────────────
+        if self.isInterruptionRequested():
+            if _sd is not None and _sd_playing:
+                try:
+                    _sd.stop()
+                except Exception:
+                    pass
+            return
 
         # ── Vokal-VAD (fensterweise RMS — zustandslos → am Ende = live-identisch) ──
         vocal_data: list[dict] = []
@@ -326,6 +386,13 @@ class SimulatorWorker(QThread):
             f"max OH-RMS im Segment: {_crash_rms_max:.4f})",
             file=sys.stderr,
         )
+
+        # Playback stoppen falls noch aktiv (normalerweise bereits ausgelaufen)
+        if _sd is not None and _sd_playing:
+            try:
+                _sd.stop()
+            except Exception:
+                pass
 
         self.progress.emit(1.0)
         self.finished.emit({

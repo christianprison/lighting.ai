@@ -28,6 +28,7 @@ from annotation import (
     load_annotations, save_annotations,
 )
 from simulator import SimulatorWorker
+from sim_monitor import SimMonitorDialog
 from datetime import datetime as _dt
 
 import numpy as _np
@@ -113,7 +114,7 @@ QComboBox#zoom_combo          { font-family:'DM Mono',monospace; font-size:10px;
                                 min-width:90px; max-width:110px; }
 """
 
-APP_VERSION = "1.2.2"
+APP_VERSION = "1.3.0"
 
 _ZOOM_PRESETS: list[int] = [2, 5, 10, 20, 40, 80, 160, 320, 640, 1280, 2560, 5120, 10240, 20480, 40960]
 
@@ -394,8 +395,9 @@ class MainWindow(QMainWindow):
         self._fragment_worker: Optional[_FragmentWorker] = None
 
         # Simulation
-        self._sim_worker:       Optional[SimulatorWorker] = None
-        self._sim_progress_dlg: Optional[QProgressDialog] = None
+        self._sim_worker:       Optional[SimulatorWorker]   = None
+        self._sim_monitor:      Optional[SimMonitorDialog]   = None
+        self._sim_progress_dlg: Optional[QProgressDialog]   = None
         self._sim_overlay_act: Optional[object] = None   # QAction, gesetzt in _build_toolbar
         self._sim_start_wav_t: float = 0.0  # WAV-Offset bei Simulations-Start
         self._sim_t_in_seg:    float = 0.0  # Segment-relative Startposition für Seek
@@ -794,6 +796,9 @@ class MainWindow(QMainWindow):
         if self._sim_worker is not None:
             self._sim_worker.requestInterruption()
             self._sim_worker = None
+        if self._sim_monitor is not None:
+            self._sim_monitor.close()
+            self._sim_monitor = None
         self._timeline.clear_sim_events()
         self._timeline.set_sim_overlay(False)
         if self._sim_overlay_act:
@@ -1464,20 +1469,22 @@ class MainWindow(QMainWindow):
 
         seg = self._current_seg
 
-        # BPM + Tonart + Grundrhythmus aus der Songdatenbank holen (falls vorhanden)
+        # BPM + Tonart + Grundrhythmus + Anker aus der Songdatenbank holen
         bpm = 120.0
         song_key = ""
         grundrhythmus: dict | None = None
+        anchors: list = []
         try:
             repo_root = self._session.jsonl_path.parent.parent.parent.parent
             db_json   = repo_root / "db" / "lighting-ai-db.json"
             if db_json.exists():
                 import json as _json
                 db = _json.loads(db_json.read_text("utf-8"))
-                song_db      = db.get("songs", {}).get(seg.song_id, {})
-                bpm          = float(song_db.get("bpm", 120.0))
-                song_key     = song_db.get("key", "")
+                song_db       = db.get("songs", {}).get(seg.song_id, {})
+                bpm           = float(song_db.get("bpm", 120.0))
+                song_key      = song_db.get("key", "")
                 grundrhythmus = song_db.get("grundrhythmus") or None
+                anchors       = song_db.get("anchors", []) or []
         except Exception:
             pass
 
@@ -1508,31 +1515,16 @@ class MainWindow(QMainWindow):
         self._sim_bpm         = bpm
         self._sim_song_key    = song_key
 
-        # Progress-Overlay Modal während der Simulation
-        prog = QProgressDialog(
-            f'Analysiere "{seg.song_name}" …', "Abbrechen", 0, 100, self
-        )
-        prog.setWindowTitle("Simulation")
-        prog.setWindowModality(Qt.WindowModality.WindowModal)
-        prog.setMinimumDuration(0)
-        prog.setAutoClose(False)
-        prog.setAutoReset(False)
-        prog.setValue(0)
-        prog.setStyleSheet("""
-            QProgressDialog { background:#08090d; color:#eef0f6; }
-            QLabel           { color:#eef0f6; font-family:'Sora',sans-serif;
-                               font-size:11px; padding:8px 0 4px 0; }
-            QProgressBar     { background:#151820; border:1px solid #1e2230;
-                               border-radius:3px; text-align:center; color:#eef0f6;
-                               height:18px; min-height:18px; }
-            QProgressBar::chunk { background:#00dc82; border-radius:3px; }
-            QPushButton      { background:#ff3b5c22; border:1px solid #ff3b5c;
-                               color:#ff3b5c; padding:4px 16px;
-                               font-family:'DM Mono',monospace; font-size:10px;
-                               border-radius:3px; }
-            QPushButton:hover { background:#ff3b5c44; }
-        """)
-        self._sim_progress_dlg = prog
+        # Laufenden Playback stoppen (Simulation spielt eigenes Audio ab)
+        self._player.stop()
+
+        # SimMonitorDialog erstellen (nicht-modal — Hauptfenster bleibt bedienbar)
+        seg_dur = seg.end_t - sim_start_wav_t
+        monitor = SimMonitorDialog(bpm, seg.song_name, parent=self)
+        if anchors:
+            monitor.set_anchors(anchors, bpm)
+        monitor.show()
+        self._sim_monitor = monitor
 
         worker = SimulatorWorker(
             wav_path=self._session.wav_path,
@@ -1548,20 +1540,28 @@ class MainWindow(QMainWindow):
             use_hmm=False,
             song_key=song_key,
             grundrhythmus=grundrhythmus,
+            realtime=True,
+            anchors=anchors,
             parent=self,
         )
-        prog.canceled.connect(worker.requestInterruption)
-        worker.progress.connect(lambda v: prog.setValue(int(v * 100)))
+        worker.kick_detected.connect(monitor.add_kick)
+        worker.snare_detected.connect(monitor.add_snare)
+        worker.bar_detected.connect(monitor.add_bar)
+        worker.anchor_matched.connect(monitor.mark_anchor_matched)
         worker.finished.connect(self._on_sim_finished)
         worker.error.connect(self._on_sim_error)
+        monitor.cancel_requested.connect(worker.requestInterruption)
         self._sim_worker = worker
         worker.start()
-        prog.show()
+        monitor.start_realtime(seg_dur)
 
     def _clear_simulation(self) -> None:
         if self._sim_worker is not None:
             self._sim_worker.requestInterruption()
             self._sim_worker = None
+        if self._sim_monitor is not None:
+            self._sim_monitor.close()
+            self._sim_monitor = None
         self._timeline.clear_sim_events()
         self._timeline.set_sim_overlay(False)
         self._sim_act.setEnabled(True)
@@ -1717,6 +1717,12 @@ class MainWindow(QMainWindow):
         dlg.exec()
 
     def _on_sim_finished(self, result: dict) -> None:
+        if self._sim_monitor is not None:
+            self._sim_monitor.stop_sim(
+                result.get("n_kicks", 0),
+                result.get("n_snares", 0),
+                result.get("n_crashes", 0),
+            )
         self._close_sim_progress()
         self._sim_act.setEnabled(True)
         self._sim_clear_act.setEnabled(True)
@@ -1840,6 +1846,9 @@ class MainWindow(QMainWindow):
         self._sync_zoom_combo()
 
     def _on_sim_error(self, err: str) -> None:
+        if self._sim_monitor is not None:
+            self._sim_monitor.stop_sim(0, 0, 0)
+            self._sim_monitor.set_status(f"Fehler: {err}")
         self._close_sim_progress()
         self._sim_act.setEnabled(True)
         self._sim_worker = None

@@ -1,6 +1,6 @@
 # Rehearsal Post-Preparation App — Bedienungsanleitung
 
-**Version:** 2026-04 (rev 3)
+**Version:** 2026-04 (rev 4)
 **Zielgruppe:** Timo (Lichttechniker)
 **Plattform:** Linux Mint Steuer-Laptop
 
@@ -323,6 +323,12 @@ Keine Beat-Events in der JSONL vorhanden (XR18 war nicht verbunden oder Beat-Det
 
 ### sounddevice nicht gefunden
 App über `./start.sh` starten (aktiviert venv `/opt/lighting-venv`).
+
+### Fehler: „Wavelet basis … would exceed Nyquist" beim CQT
+Tritt auf wenn Bass-CQT mit `target_sr=8000` und vielen Oktaven berechnet wird. Behoben in **v1.2.2** (`chroma_extractor.py`): `n_octaves` wird automatisch auf `floor(log2(sr/2 / fmin))` = 6 Oktaven begrenzt (max. Frequenz 2093 Hz < Nyquist 4000 Hz). Kein Handlungsbedarf wenn die App auf aktuellem Stand ist.
+
+### Sim-Events erscheinen an falscher Position (zweiter Song im Set)
+Sim-Events wurden mit falschen X-Koordinaten gezeichnet wenn der Song nicht bei WAV-Zeit 0 beginnt. Behoben in **v1.2.1** (`timeline.py`): `seg.start_t` wird jetzt korrekt von allen Sim-Ereignis-Zeitstempeln abgezogen.
 
 ---
 

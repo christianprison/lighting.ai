@@ -389,8 +389,17 @@ class TimelineWidget(QWidget):
         self.update()
 
     def set_sim_anchors(self, anchors: list[dict]) -> None:
-        """Setzt Anker-Info für die Simulation (absolute WAV-Zeiten im Feld t_abs)."""
-        self._sim_anchors = list(anchors)
+        """Setzt Anker-Info für die Simulation (absolute WAV-Zeiten im Feld t_abs).
+
+        Anker ohne ID bekommen einen generierten Fallback-Key, damit
+        mark_sim_anchor_matched() greift (leere Strings werden ignoriert).
+        """
+        self._sim_anchors = []
+        for i, anc in enumerate(anchors):
+            a = dict(anc)
+            if not a.get("id"):
+                a["id"] = f"_anc_{i}"
+            self._sim_anchors.append(a)
         self._sim_matched_ids.clear()
         self.update()
 

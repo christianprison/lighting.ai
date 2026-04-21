@@ -5814,7 +5814,8 @@
           {
             "bar_num": 26,
             "name": "Chorus 1",
-            "light_template": "blind (accent)"
+            "light_template": "blind (accent)",
+            "instrumental": true
           },
           {
             "bar_num": 28,
@@ -6051,7 +6052,99 @@
           "light_template": "01 statisch bunt",
           "notes": ""
         }
-      }
+      },
+      "anchors": [
+        {
+          "id": "anc_mo8s6nmc_gryo",
+          "pos": 1,
+          "type": "pete",
+          "event": "Einsatz",
+          "part_hint": "Geschraddel bis „Kick it“",
+          "bar_num": 1,
+          "beat": "3"
+        },
+        {
+          "id": "anc_mo8s70ly_f0pv",
+          "pos": 2,
+          "type": "drum",
+          "event": "Snare-Roll",
+          "part_hint": "Geschraddel bis „Kick it“",
+          "bar_num": 1,
+          "beat": "4"
+        },
+        {
+          "id": "anc_mo8u0h9j_qdmj",
+          "pos": 3,
+          "type": "drum",
+          "event": "Crash (Beat 1)",
+          "part_hint": "Thema 1 (Intro)",
+          "bar_num": 2,
+          "beat": "1"
+        },
+        {
+          "id": "anc_mo8u17uf_zvm6",
+          "pos": 4,
+          "type": "pete",
+          "event": "Einsatz",
+          "part_hint": "Verse 1",
+          "bar_num": null,
+          "beat": ""
+        },
+        {
+          "id": "anc_mo8u21g1_g3yc",
+          "pos": 5,
+          "type": "drum",
+          "event": "Pause",
+          "part_hint": "Chorus 1",
+          "bar_num": 26,
+          "beat": "1"
+        },
+        {
+          "id": "anc_mo8u2r77_gpky",
+          "pos": 6,
+          "type": "bass",
+          "event": "Pause",
+          "part_hint": "Chorus 1",
+          "bar_num": 26,
+          "beat": "1"
+        },
+        {
+          "id": "anc_mo8u3cmc_60yx",
+          "pos": 7,
+          "type": "guitar",
+          "event": "Pause",
+          "part_hint": "Chorus 1",
+          "bar_num": 26,
+          "beat": "1"
+        },
+        {
+          "id": "anc_mo8u3ugr_2i35",
+          "pos": 8,
+          "type": "drum",
+          "event": "Einsatz",
+          "part_hint": "Chorus 1",
+          "bar_num": 26,
+          "beat": "2"
+        },
+        {
+          "id": "anc_mo8u4vql_08wc",
+          "pos": 9,
+          "type": "bass",
+          "event": "Einsatz",
+          "part_hint": "Chorus 1",
+          "bar_num": 26,
+          "beat": "2"
+        },
+        {
+          "id": "anc_mo8u51e3_1r70",
+          "pos": 10,
+          "type": "guitar",
+          "event": "Einsatz",
+          "part_hint": "Chorus 1",
+          "bar_num": 26,
+          "beat": "2"
+        }
+      ]
     },
     "E3pvFC": {
       "name": "Goodbye",

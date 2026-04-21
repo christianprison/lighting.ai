@@ -31,6 +31,7 @@ LABEL_W   = 196
 RULER_H   = 28
 EVENTS_H  = 26   # halved from 52
 ANNOT_H   = 0    # annotation strip entfernt (war immer leer)
+ANCHOR_H  = 40   # Anker-Zeile (nur während Simulation sichtbar)
 MIX_H     = 44
 TRACK_H   = 27
 TRACK_GAP = 2
@@ -128,8 +129,21 @@ for _ch in DISPLAY_CHANNELS:
         "is_sum": False,
     })
 
-# Pre-compute y offsets
-_y = RULER_H + EVENTS_H + ANNOT_H
+# Anchor type colours (matching Live-App badge colours)
+_ANCHOR_COLORS: dict[str, QColor] = {
+    "pete":      QColor("#38bdf8"),
+    "axel":      QColor("#f0a030"),
+    "christian": QColor("#00dc82"),
+    "drum":      QColor("#ff3b5c"),
+    "guitar":    QColor("#a78bfa"),
+    "bass":      QColor("#34d399"),
+    "keys":      QColor("#fbbf24"),
+    "silence":   QColor("#64748b"),
+    "other":     QColor("#a0a4b8"),
+}
+
+# Pre-compute y offsets — ANCHOR_H sits between Events strip and first Track
+_y = RULER_H + EVENTS_H + ANNOT_H + ANCHOR_H
 TRACK_Y: list[int] = []
 for _t in TRACKS:
     TRACK_Y.append(_y)
@@ -204,6 +218,9 @@ class TimelineWidget(QWidget):
         self._sim_kicks:   list[float] = []
         self._sim_snares:  list[float] = []
         self._sim_crashes: list[tuple[float, float]] = []   # (abs_wav_t, rms_energy)
+        # Anchor data: {id, t_abs, type, event, bar_num}; matched = set of ids
+        self._sim_anchors:     list[dict] = []
+        self._sim_matched_ids: set[str]   = set()
 
         # Chroma-Daten pro Beat (aus chroma_viz) — Lead Guitar
         self._chroma_data: list[dict] = []   # list of {t, chroma}
@@ -334,15 +351,48 @@ class TimelineWidget(QWidget):
         self.update()
 
     def clear_sim_events(self) -> None:
-        """Löscht alle Simulations-Ergebnisse."""
-        self._sim_kicks:   list[float]             = []
-        self._sim_snares:  list[float]             = []
-        self._sim_crashes: list[tuple[float,float]]= []
+        """Löscht alle Simulations-Ergebnisse inkl. Anker."""
+        self._sim_kicks        = []
+        self._sim_snares       = []
+        self._sim_crashes      = []
         self._sim_bpm_timeline = []
         self._sim_bar_times    = []
         self._chroma_data      = []
         self._bass_data        = []
         self._vocal_data       = []
+        self._sim_anchors.clear()
+        self._sim_matched_ids.clear()
+        self.update()
+
+    def clear_sim_beats(self) -> None:
+        """Löscht nur Kick/Snare/Crash/Bar-Daten (Übergang Live→Final, Anker bleiben)."""
+        self._sim_kicks        = []
+        self._sim_snares       = []
+        self._sim_crashes      = []
+        self._sim_bpm_timeline = []
+        self._sim_bar_times    = []
+        self.update()
+
+    def set_sim_anchors(self, anchors: list[dict]) -> None:
+        """Setzt Anker-Info für die Simulation (absolute WAV-Zeiten im Feld t_abs)."""
+        self._sim_anchors = list(anchors)
+        self._sim_matched_ids.clear()
+        self.update()
+
+    def mark_sim_anchor_matched(self, anchor_id: str) -> None:
+        """Markiert einen Anker als vom BarTracker erkannt."""
+        if anchor_id:
+            self._sim_matched_ids.add(anchor_id)
+            self.update()
+
+    def add_sim_bar_time(self, t_abs: float, bpm: float = 0.0) -> None:
+        """Fügt einen Takt zum Gitter hinzu (Live-Streaming während Simulation)."""
+        self._sim_bar_times.append(t_abs)
+        if bpm > 0:
+            # BPM-Timeline: nur eintragen wenn sich BPM nennenswert ändert
+            if (not self._sim_bpm_timeline
+                    or abs(self._sim_bpm_timeline[-1][1] - round(bpm)) >= 2):
+                self._sim_bpm_timeline.append((t_abs, round(bpm)))
         self.update()
 
     def set_chroma_data(self, data: list[dict]) -> None:
@@ -733,6 +783,7 @@ class TimelineWidget(QWidget):
         self._paint_ruler(p, vl, vr)
         self._paint_events(p, vl, vr)
         self._paint_annotation_strip(p, vl, vr)
+        self._paint_anchor_strip(p, vl, vr)
         for i, track in enumerate(TRACKS):
             self._paint_track(p, i, track, TRACK_Y[i], vl, vr)
 
@@ -752,6 +803,64 @@ class TimelineWidget(QWidget):
         self._paint_cursor(p, h)
 
         p.end()
+
+    # ── Anchor strip (Simulation) ─────────────────────────────────────────────
+
+    def _paint_anchor_strip(self, p: QPainter, vl: int, vr: int) -> None:
+        """Zeichnet die Anker-Zeile zwischen Events-Strip und Tracks.
+
+        Hintergrund immer gezeichnet (verschiebt Tracks nach unten).
+        Anker-Diamonds nur wenn _sim_anchors gesetzt (während/nach Simulation).
+        """
+        y0 = RULER_H + EVENTS_H + ANNOT_H
+        w  = self.width()
+
+        p.fillRect(LABEL_W, y0, w - LABEL_W, ANCHOR_H, C_BG2)
+        p.setPen(C_BORDER)
+        p.drawLine(LABEL_W, y0 + ANCHOR_H - 1, w, y0 + ANCHOR_H - 1)
+
+        if not self._sim_anchors or self.segment is None:
+            return
+
+        seg_start = self.segment.start_t
+        cy = y0 + ANCHOR_H // 2
+        r  = 5
+
+        p.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+        for anc in self._sim_anchors:
+            t_abs = float(anc.get("t_abs", 0.0))
+            px    = int((t_abs - seg_start) * self._pps) - vl
+            x     = LABEL_W + px
+            if x < LABEL_W - 12 or x > w + 12:
+                continue
+
+            matched    = anc.get("id", "") in self._sim_matched_ids
+            base_color = _ANCHOR_COLORS.get(anc.get("type", "other"), C_T3)
+            alpha      = 230 if matched else 55
+
+            dc = QColor(base_color)
+            dc.setAlpha(alpha)
+            p.setBrush(QBrush(dc))
+            p.setPen(QPen(dc, 1))
+            p.drawPolygon(QPolygon([
+                QPoint(x,     cy - r),
+                QPoint(x + r, cy    ),
+                QPoint(x,     cy + r),
+                QPoint(x - r, cy    ),
+            ]))
+
+            if matched:
+                label = anc.get("event", "")
+                if len(label) > 14:
+                    label = label[:13] + "…"
+                tc = QColor(base_color)
+                tc.setAlpha(200)
+                p.setPen(tc)
+                p.setFont(FONT_BTN)
+                p.drawText(x + 8, y0, 100, ANCHOR_H,
+                           Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
+                           label)
+        p.setRenderHint(QPainter.RenderHint.Antialiasing, False)
 
     # ── Sim bar grid ──────────────────────────────────────────────────────────
 
@@ -1548,6 +1657,20 @@ class TimelineWidget(QWidget):
         p.drawText(6, RULER_H, LABEL_W - 10, EVENTS_H,
                    Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
                    summary)
+
+        # Anchor cell (between Events strip and first Track)
+        y0_anc = RULER_H + EVENTS_H + ANNOT_H
+        p.fillRect(0, y0_anc, LABEL_W, ANCHOR_H, C_BG2)
+        if self._sim_anchors:
+            matched_n = len(self._sim_matched_ids)
+            total_n   = len(self._sim_anchors)
+            p.setFont(FONT_BTN)
+            p.setPen(C_AMBER if matched_n > 0 else C_T4)
+            p.drawText(6, y0_anc, LABEL_W - 10, ANCHOR_H,
+                       Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
+                       f"⚓ Anker  {matched_n}/{total_n}")
+        p.setPen(C_BORDER)
+        p.drawLine(0, y0_anc + ANCHOR_H - 1, LABEL_W, y0_anc + ANCHOR_H - 1)
 
         # Track cells
         for i, track in enumerate(TRACKS):

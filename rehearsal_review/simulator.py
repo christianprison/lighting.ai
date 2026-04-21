@@ -54,7 +54,8 @@ class SimulatorWorker(QThread):
     progress       = pyqtSignal(float)   # 0.0–1.0
     finished       = pyqtSignal(object)  # dict mit Ergebnissen
     error          = pyqtSignal(str)
-    # Live-Signale für Echtzeit-Monitor (t_rel = Sekunden relativ zu seg_start_t)
+    sim_started    = pyqtSignal(float)   # wall-clock time.monotonic() wenn Audio startet
+    # Live-Signale (t_rel = Sekunden relativ zu seg_start_t)
     kick_detected  = pyqtSignal(float)
     snare_detected = pyqtSignal(float)
     crash_detected = pyqtSignal(float)
@@ -162,12 +163,14 @@ class SimulatorWorker(QThread):
                 del raw_all
                 _sd.play(_stereo_buf, sr, device="pulse", blocksize=4096)
                 _sd_playing = True
+                _wall_start = _time.monotonic()
+                self.sim_started.emit(_wall_start)
                 print("[SIM] Echtzeit-Modus: Audio gestartet", file=sys.stderr)
             except Exception as exc:
                 _sd = None
+                _wall_start = _time.monotonic()
                 print(f"[SIM] Audio-Playback fehlgeschlagen: {exc}",
                       file=sys.stderr)
-            _wall_start = _time.monotonic()
 
         # ── Streaming Feature-Extraktoren ─────────────────────────────────────
         # Guitar-Chroma: 0,5s Rolling-Buffer, STFT-Chroma.

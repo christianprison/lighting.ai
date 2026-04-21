@@ -6,6 +6,7 @@ import math
 import os
 import re
 import sys
+import time
 from pathlib import Path
 from typing import Optional
 
@@ -395,15 +396,21 @@ class MainWindow(QMainWindow):
         self._fragment_worker: Optional[_FragmentWorker] = None
 
         # Simulation
-        self._sim_worker:       Optional[SimulatorWorker]   = None
-        self._sim_monitor:      Optional[SimMonitorDialog]   = None
-        self._sim_progress_dlg: Optional[QProgressDialog]   = None
+        self._sim_worker:       Optional[SimulatorWorker] = None
+        self._sim_monitor:      Optional[object]          = None   # unused, kept for compat
+        self._sim_progress_dlg: Optional[QProgressDialog] = None
         self._sim_overlay_act: Optional[object] = None   # QAction, gesetzt in _build_toolbar
         self._sim_start_wav_t: float = 0.0  # WAV-Offset bei Simulations-Start
         self._sim_t_in_seg:    float = 0.0  # Segment-relative Startposition für Seek
-        self._sim_bpm:         float = 120.0  # BPM zum Zeitpunkt des Sim-Starts
-        self._sim_song_key:    str   = ""   # Tonart des simulierten Songs
-        self._last_bar_times:  list  = []   # Taktzeiten des letzten Sim-Durchlaufs
+        self._sim_bpm:         float = 120.0
+        self._sim_song_key:    str   = ""
+        self._sim_wall_start:  float = 0.0  # Echtzeit-Startpunkt (time.monotonic)
+        self._last_bar_times:  list  = []
+
+        # Playhead-Timer für Echtzeit-Simulation (40 ms ≈ 25 fps)
+        self._sim_playhead_timer = QTimer(self)
+        self._sim_playhead_timer.setInterval(40)
+        self._sim_playhead_timer.timeout.connect(self._on_sim_playhead_tick)
 
         self._player = AudioPlayer(self)
         self._player.position_changed.connect(self._on_position)
@@ -1518,13 +1525,26 @@ class MainWindow(QMainWindow):
         # Laufenden Playback stoppen (Simulation spielt eigenes Audio ab)
         self._player.stop()
 
-        # SimMonitorDialog erstellen (nicht-modal — Hauptfenster bleibt bedienbar)
-        seg_dur = seg.end_t - sim_start_wav_t
-        monitor = SimMonitorDialog(bpm, seg.song_name, parent=self)
+        # Anker in Timeline vorabladen (BPM-basierte Erwartungs-Zeiten)
         if anchors:
-            monitor.set_anchors(anchors, bpm)
-        monitor.show()
-        self._sim_monitor = monitor
+            bar_dur = 4 * 60.0 / bpm
+            anchors_info = []
+            for anc in anchors:
+                bar_num = anc.get("bar_num", 1)
+                anchors_info.append({
+                    "id":       anc.get("id", ""),
+                    "t_abs":    sim_start_wav_t + (bar_num - 1) * bar_dur,
+                    "type":     anc.get("type", "other"),
+                    "event":    anc.get("event", ""),
+                    "bar_num":  bar_num,
+                    "part_hint": anc.get("part_hint", ""),
+                })
+            self._timeline.set_sim_anchors(anchors_info)
+
+        # Overlay sofort aktivieren — Events erscheinen live in Amber/Cyan
+        self._sim_overlay_act.setEnabled(True)
+        self._sim_overlay_act.setChecked(True)
+        self._timeline.set_sim_overlay(True)
 
         worker = SimulatorWorker(
             wav_path=self._session.wav_path,
@@ -1544,24 +1564,50 @@ class MainWindow(QMainWindow):
             anchors=anchors,
             parent=self,
         )
-        worker.kick_detected.connect(monitor.add_kick)
-        worker.snare_detected.connect(monitor.add_snare)
-        worker.bar_detected.connect(monitor.add_bar)
-        worker.anchor_matched.connect(monitor.mark_anchor_matched)
+
+        # Live-Events direkt in die Timeline streamen (abs. WAV-Zeit)
+        start_t = sim_start_wav_t   # captured by lambdas
+        worker.kick_detected.connect(
+            lambda t: self._timeline.add_sim_kick(start_t + t))
+        worker.snare_detected.connect(
+            lambda t: self._timeline.add_sim_snare(start_t + t))
+        worker.crash_detected.connect(
+            lambda t: self._timeline.add_sim_crash(start_t + t, 0.0))
+        worker.bar_detected.connect(
+            lambda n, t, bpm_v: self._timeline.add_sim_bar_time(start_t + t, bpm_v))
+        worker.anchor_matched.connect(
+            lambda anc: self._timeline.mark_sim_anchor_matched(anc.get("id", "")))
+        worker.sim_started.connect(self._on_sim_started)
         worker.finished.connect(self._on_sim_finished)
         worker.error.connect(self._on_sim_error)
-        monitor.cancel_requested.connect(worker.requestInterruption)
         self._sim_worker = worker
         worker.start()
-        monitor.start_realtime(seg_dur)
+
+    def _on_sim_started(self, wall_t: float) -> None:
+        """Audio-Playback hat gestartet — Playhead-Timer auf diesen Zeitpunkt synchro."""
+        self._sim_wall_start = wall_t
+        self._sim_playhead_timer.start()
+        self._status.showMessage("Simulation läuft …", 0)
+
+    def _on_sim_playhead_tick(self) -> None:
+        """25-fps-Timer: Playhead während Echtzeit-Simulation aktualisieren."""
+        if self._current_seg is None:
+            self._sim_playhead_timer.stop()
+            return
+        elapsed = time.monotonic() - self._sim_wall_start
+        wav_t   = self._sim_start_wav_t + elapsed
+        if wav_t >= self._current_seg.end_t + 1.0:
+            self._sim_playhead_timer.stop()
+            return
+        self._timeline.set_cursor(wav_t)
+        self._overview.set_playhead(wav_t)
+        self._pos_label.setText(_fmt_t_precise(wav_t - self._current_seg.start_t))
 
     def _clear_simulation(self) -> None:
+        self._sim_playhead_timer.stop()
         if self._sim_worker is not None:
             self._sim_worker.requestInterruption()
             self._sim_worker = None
-        if self._sim_monitor is not None:
-            self._sim_monitor.close()
-            self._sim_monitor = None
         self._timeline.clear_sim_events()
         self._timeline.set_sim_overlay(False)
         self._sim_act.setEnabled(True)
@@ -1717,12 +1763,7 @@ class MainWindow(QMainWindow):
         dlg.exec()
 
     def _on_sim_finished(self, result: dict) -> None:
-        if self._sim_monitor is not None:
-            self._sim_monitor.stop_sim(
-                result.get("n_kicks", 0),
-                result.get("n_snares", 0),
-                result.get("n_crashes", 0),
-            )
+        self._sim_playhead_timer.stop()
         self._close_sim_progress()
         self._sim_act.setEnabled(True)
         self._sim_clear_act.setEnabled(True)
@@ -1746,19 +1787,19 @@ class MainWindow(QMainWindow):
             )
             return
 
-        # Timeline mit Sim-Events befüllen (t = absoluter WAV-Zeitstempel)
+        # Live-gestreamte Events löschen und finales Set (mit Crash-Energien) einfügen
+        self._timeline.clear_sim_beats()
         abs_kicks   = [self._sim_start_wav_t + t_k for t_k in kicks]
         abs_snares  = [self._sim_start_wav_t + t_s for t_s in snares]
         for t_k in abs_kicks:
             self._timeline.add_sim_kick(t_k)
         for t_s in abs_snares:
             self._timeline.add_sim_snare(t_s)
-        # crashes: list[tuple[float, float]] = (t_rel, rms_energy)
         for item in crashes:
             if isinstance(item, (list, tuple)) and len(item) == 2:
                 t_c, e_c = item
             else:
-                t_c, e_c = float(item), 0.0   # fallback for old format
+                t_c, e_c = float(item), 0.0
             self._timeline.add_sim_crash(self._sim_start_wav_t + t_c, e_c)
 
         # BPM-Timeline + Taktgitter (vom BarTracker im Simulator berechnet)
@@ -1846,9 +1887,7 @@ class MainWindow(QMainWindow):
         self._sync_zoom_combo()
 
     def _on_sim_error(self, err: str) -> None:
-        if self._sim_monitor is not None:
-            self._sim_monitor.stop_sim(0, 0, 0)
-            self._sim_monitor.set_status(f"Fehler: {err}")
+        self._sim_playhead_timer.stop()
         self._close_sim_progress()
         self._sim_act.setEnabled(True)
         self._sim_worker = None

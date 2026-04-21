@@ -2013,7 +2013,7 @@ function renderPartsTab() {
   if (_partsTabView === 'licht') {
     html += _renderPartsLichtView(parts, hasBuf);
   } else {
-    html += _renderPartsAnkerView(song, parts, anchors);
+    html += _renderPartsAnkerView(song, parts, anchors, hasBuf);
   }
 
   html += `</div></div>`;
@@ -2104,9 +2104,16 @@ function _renderPartsLichtView(parts, hasBuf) {
   return html;
 }
 
-function _renderPartsAnkerView(song, parts, anchors) {
-  let html = `<table class="pak-table"><thead><tr>`;
-  html += `<th class="pak-pos">#</th>`;
+function _renderPartsAnkerView(song, parts, anchors, hasBuf) {
+  // Same table structure as LICHT view: left 6 cols always visible,
+  // right cols replaced by anchor fields (Typ | Ereignis | Takt | Zählzeit | Actions).
+  // Parts with multiple anchors use rowspan on the left cells.
+  const partNames = new Set(parts.map(p => p.name));
+
+  let html = `<table class="parts-table pak-mode"><thead><tr>`;
+  html += `<th class="pt-num">#</th><th class="pt-name">Part</th><th class="pt-bars">Takte</th>`;
+  html += `<th class="pt-dur">Dauer</th><th class="pt-play"></th>`;
+  html += `<th class="pt-instr" title="Instrumental">Instr.</th>`;
   html += `<th class="pak-type">Typ</th>`;
   html += `<th class="pak-event">Ereignis</th>`;
   html += `<th class="pak-bar">Takt</th>`;
@@ -2114,82 +2121,117 @@ function _renderPartsAnkerView(song, parts, anchors) {
   html += `<th class="pak-actions"></th>`;
   html += `</tr></thead><tbody>`;
 
-  for (const part of parts) {
-    const partAnchors = anchors.filter(a => a.part_hint === part.name);
-    const ankCount = partAnchors.length;
+  for (let pi = 0; pi < parts.length; pi++) {
+    const p = parts[pi];
+    const isPlaying = _partsTabPlaying === p.barNum;
+    const durStr = p.duration > 0 ? fmtDur(Math.round(p.duration)) : '—';
+    const bars = _barsForPart(selectedSongId, p.name);
 
-    // Part group header
-    html += `<tr class="pak-group-row">`;
-    html += `<td colspan="6" class="pak-group-cell">`;
-    html += `<span class="pt-name-badge">${esc(part.name)}</span>`;
-    html += `<span class="pak-group-meta">${part.barCount} Takte</span>`;
-    if (ankCount > 0) html += `<span class="pak-anchor-count">${ankCount} Anker</span>`;
-    html += `<button class="pak-add-btn" data-part-name="${esc(part.name)}">+ Anker</button>`;
-    html += `</td></tr>`;
+    // Collect indices of anchors belonging to this part (in global order)
+    const partAnchorIdxs = [];
+    for (let i = 0; i < anchors.length; i++) {
+      if (anchors[i].part_hint === p.name) partAnchorIdxs.push(i);
+    }
+    const N = partAnchorIdxs.length;
+    const rs = N > 0 ? ` rowspan="${N}"` : '';
+    const vtc = N > 1 ? ' pak-vtop' : '';
 
-    if (ankCount === 0) {
-      html += `<tr class="pak-empty-row"><td colspan="6" class="pak-empty-cell">Noch keine Anker für diesen Part</td></tr>`;
+    if (N === 0) {
+      // Single row, no anchors — right side shows empty + add button
+      html += `<tr class="${isPlaying ? 'pt-row-playing' : ''}${p.instrumental ? ' pt-row-instrumental' : ''}">`;
+      html += `<td class="pt-num">${pi + 1}</td>`;
+      html += `<td class="pt-name"><span class="pt-name-badge">${esc(p.name)}</span></td>`;
+      html += `<td class="pt-bars">${p.barCount}</td>`;
+      html += `<td class="pt-dur">${durStr}</td>`;
+      html += `<td class="pt-play"><button class="pt-play-btn${isPlaying ? ' playing' : ''}" data-idx="${pi}" ${!hasBuf ? 'disabled' : ''}>${isPlaying ? '&#9724;' : '&#9654;'}</button></td>`;
+      html += `<td class="pt-instr"><input type="checkbox" class="pt-instr-cb" data-idx="${pi}" ${p.instrumental ? 'checked' : ''}></td>`;
+      html += `<td colspan="5" class="pak-no-anchors"><span class="pak-empty-text">Noch keine Anker</span><button class="pak-add-btn" data-part-name="${esc(p.name)}">+ Anker</button></td>`;
+      html += `</tr>`;
     } else {
-      for (let i = 0; i < anchors.length; i++) {
-        const a = anchors[i];
-        if (a.part_hint !== part.name) continue;
-        const bars = _barsForPart(song.anchors ? selectedSongId : '', part.name);
+      // N anchor rows; first row carries left cells with rowspan=N
+      for (let aj = 0; aj < N; aj++) {
+        const globalIdx = partAnchorIdxs[aj];
+        const a = anchors[globalIdx];
+        const isFirst = aj === 0;
+        const isLast = aj === N - 1;
         const typeOpts = ANCHOR_TYPES.map(t =>
           `<option value="${t.value}"${a.type === t.value ? ' selected' : ''}>${t.label}</option>`
         ).join('');
 
-        html += `<tr class="pak-anchor-row" data-anchor-id="${a.id}">`;
-        html += `<td class="pak-pos">${a.pos}</td>`;
+        html += `<tr${isFirst && (isPlaying || p.instrumental) ? ` class="${isPlaying ? 'pt-row-playing' : ''}${p.instrumental ? ' pt-row-instrumental' : ''}"` : ''}>`;
+        if (isFirst) {
+          html += `<td class="pt-num${vtc}"${rs}>${pi + 1}</td>`;
+          html += `<td class="pt-name${vtc}"${rs}><span class="pt-name-badge">${esc(p.name)}</span></td>`;
+          html += `<td class="pt-bars${vtc}"${rs}>${p.barCount}</td>`;
+          html += `<td class="pt-dur${vtc}"${rs}>${durStr}</td>`;
+          html += `<td class="pt-play${vtc}"${rs}><button class="pt-play-btn${isPlaying ? ' playing' : ''}" data-idx="${pi}" ${!hasBuf ? 'disabled' : ''}>${isPlaying ? '&#9724;' : '&#9654;'}</button></td>`;
+          html += `<td class="pt-instr${vtc}"${rs}><input type="checkbox" class="pt-instr-cb" data-idx="${pi}" ${p.instrumental ? 'checked' : ''}></td>`;
+        }
         html += `<td class="pak-type"><select class="ak-type-sel" data-anchor-id="${a.id}" data-anchor-field="type">${typeOpts}</select></td>`;
         html += `<td class="pak-event"><select class="ak-event-sel" data-anchor-id="${a.id}" data-anchor-field="event">${_buildEventOptions(a.type, a.event)}</select></td>`;
         html += `<td class="pak-bar"><select class="ak-bar-sel" data-anchor-id="${a.id}" data-anchor-field="bar_num">${_buildBarOptions(bars, a.bar_num)}</select></td>`;
         html += `<td class="pak-beat"><select class="ak-beat-sel" data-anchor-id="${a.id}" data-anchor-field="beat">${_buildBeatOptions(a.beat)}</select></td>`;
         html += `<td class="pak-actions">`;
-        if (i > 0) html += `<button class="ak-up-btn" data-anchor-idx="${i}" title="Nach oben">▲</button>`;
-        if (i < anchors.length - 1) html += `<button class="ak-down-btn" data-anchor-idx="${i}" title="Nach unten">▼</button>`;
+        if (globalIdx > 0) html += `<button class="ak-up-btn" data-anchor-idx="${globalIdx}" title="Nach oben">▲</button>`;
+        if (globalIdx < anchors.length - 1) html += `<button class="ak-down-btn" data-anchor-idx="${globalIdx}" title="Nach unten">▼</button>`;
         html += `<button class="ak-del-btn" data-anchor-id="${a.id}" title="Löschen">✕</button>`;
+        if (isLast) html += `<button class="pak-add-btn pak-add-inline" data-part-name="${esc(p.name)}" title="Anker hinzufügen">+</button>`;
         html += `</td></tr>`;
       }
     }
   }
 
-  // Unassigned anchors (part_hint doesn't match any current part)
-  const partNames = new Set(parts.map(p => p.name));
-  const unassigned = anchors.filter(a => !a.part_hint || !partNames.has(a.part_hint));
-  if (unassigned.length > 0) {
-    html += `<tr class="pak-group-row"><td colspan="6" class="pak-group-cell">`;
-    html += `<span class="pak-group-meta pak-group-unassigned">Nicht zugeordnet</span>`;
-    html += `<button class="pak-add-btn" data-part-name="">+ Anker</button>`;
-    html += `</td></tr>`;
-    for (let i = 0; i < anchors.length; i++) {
-      const a = anchors[i];
-      if (a.part_hint && partNames.has(a.part_hint)) continue;
+  // Unassigned anchors (part_hint missing or not matching any current part)
+  const unassignedIdxs = anchors.reduce((acc, a, i) => {
+    if (!a.part_hint || !partNames.has(a.part_hint)) acc.push(i);
+    return acc;
+  }, []);
+  if (unassignedIdxs.length > 0) {
+    html += `<tr class="pak-unassigned-hdr"><td colspan="11" class="pak-unassigned-cell">Nicht zugeordnet</td></tr>`;
+    for (const globalIdx of unassignedIdxs) {
+      const a = anchors[globalIdx];
       const typeOpts = ANCHOR_TYPES.map(t =>
         `<option value="${t.value}"${a.type === t.value ? ' selected' : ''}>${t.label}</option>`
       ).join('');
-      html += `<tr class="pak-anchor-row" data-anchor-id="${a.id}">`;
-      html += `<td class="pak-pos">${a.pos}</td>`;
+      html += `<tr>`;
+      html += `<td class="pt-num pak-unasgn-spacer" colspan="6"></td>`;
       html += `<td class="pak-type"><select class="ak-type-sel" data-anchor-id="${a.id}" data-anchor-field="type">${typeOpts}</select></td>`;
       html += `<td class="pak-event"><select class="ak-event-sel" data-anchor-id="${a.id}" data-anchor-field="event">${_buildEventOptions(a.type, a.event)}</select></td>`;
       html += `<td class="pak-bar"><select class="ak-bar-sel" data-anchor-id="${a.id}" data-anchor-field="bar_num">${_buildBarOptions([], a.bar_num)}</select></td>`;
       html += `<td class="pak-beat"><select class="ak-beat-sel" data-anchor-id="${a.id}" data-anchor-field="beat">${_buildBeatOptions(a.beat)}</select></td>`;
       html += `<td class="pak-actions">`;
-      if (i > 0) html += `<button class="ak-up-btn" data-anchor-idx="${i}" title="Nach oben">▲</button>`;
-      if (i < anchors.length - 1) html += `<button class="ak-down-btn" data-anchor-idx="${i}" title="Nach unten">▼</button>`;
+      if (globalIdx > 0) html += `<button class="ak-up-btn" data-anchor-idx="${globalIdx}" title="Nach oben">▲</button>`;
+      if (globalIdx < anchors.length - 1) html += `<button class="ak-down-btn" data-anchor-idx="${globalIdx}" title="Nach unten">▼</button>`;
       html += `<button class="ak-del-btn" data-anchor-id="${a.id}" title="Löschen">✕</button>`;
       html += `</td></tr>`;
     }
   }
 
   html += `</tbody></table>`;
-  html += `<div class="anker-add-row"><button class="anker-add-btn" id="pak-add-global">+ Anker</button></div>`;
   return html;
 }
 
 function _wirePakEvents(song, parts) {
   if (!Array.isArray(song.anchors)) song.anchors = [];
 
-  // "+ Anker" per Part
+  // Play buttons (same as LICHT view)
+  for (const btn of document.querySelectorAll('.pt-play-btn')) {
+    btn.addEventListener('click', () => {
+      const idx = parseInt(btn.dataset.idx);
+      partsTabTogglePlay(parts[idx]);
+    });
+  }
+
+  // Instr. checkboxes (same as LICHT view)
+  for (const cb of document.querySelectorAll('.pt-instr-cb')) {
+    cb.addEventListener('change', () => {
+      const idx = parseInt(cb.dataset.idx);
+      partsTabSetInstrumental(parts[idx].barNum, cb.checked);
+      renderPartsTab();
+    });
+  }
+
+  // "+ Anker" per Part (also handles inline "+" on last anchor row)
   for (const btn of document.querySelectorAll('.pak-add-btn')) {
     btn.addEventListener('click', () => {
       song.anchors.push({
@@ -2205,21 +2247,6 @@ function _wirePakEvents(song, parts) {
       renderPartsTab();
     });
   }
-
-  // Global "+ Anker"
-  document.getElementById('pak-add-global')?.addEventListener('click', () => {
-    song.anchors.push({
-      id: 'anc_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 6),
-      pos: song.anchors.length + 1,
-      type: 'drum',
-      event: '',
-      part_hint: '',
-      bar_num: null,
-      beat: '',
-    });
-    markDirty();
-    renderPartsTab();
-  });
 
   // Anchor field changes
   for (const sel of document.querySelectorAll('.ak-type-sel, .ak-event-sel, .ak-bar-sel, .ak-beat-sel')) {

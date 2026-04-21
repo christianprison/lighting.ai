@@ -115,7 +115,7 @@ QComboBox#zoom_combo          { font-family:'DM Mono',monospace; font-size:10px;
                                 min-width:90px; max-width:110px; }
 """
 
-APP_VERSION = "1.3.1"
+APP_VERSION = "1.3.2"
 
 _ZOOM_PRESETS: list[int] = [2, 5, 10, 20, 40, 80, 160, 320, 640, 1280, 2560, 5120, 10240, 20480, 40960]
 
@@ -1827,6 +1827,16 @@ class MainWindow(QMainWindow):
         bpm_tl   = _compute_bpm_timeline(abs_kicks, abs_snares)
         bar_times: list[float] = result.get("bar_times", [])
         self._timeline.set_sim_bpm_and_bars(bpm_tl, bar_times)
+
+        # Retroaktiver Anker-Abgleich: Anker die im Streaming-Loop verpasst wurden
+        # (z.B. Takt 1–3 vor Drum-Einsatz) gegen das finale BarTracker-Grid prüfen.
+        # Ein Anker gilt als erkannt wenn sein bar_num im finalen Grid vorhanden ist.
+        if bar_times and self._timeline._sim_anchors:
+            n_bars = len(bar_times)
+            for anc in self._timeline._sim_anchors:
+                bar_n = anc.get("bar_num")
+                if bar_n is not None and 1 <= bar_n <= n_bars:
+                    self._timeline.mark_sim_anchor_matched(anc.get("id", ""))
 
         # Streaming Features direkt aus SimulatorWorker (Prime Directive: kein PostProcess mehr)
         self._last_bar_times = bar_times

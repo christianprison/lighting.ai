@@ -1766,7 +1766,7 @@ class TimelineWidget(QWidget):
             et = self._event_cursor_t - self.segment.start_t
             ex = LABEL_W + int(et * self._pps) - self._scroll_x
             if LABEL_W <= ex <= self.width():
-                ev_top = RULER_H + EVENTS_H + ANNOT_H + ANCHOR_H
+                ev_top = RULER_H + EVENTS_H + ANNOT_H  # läuft durch den Anker-Strip
                 p.setPen(QPen(C_AMBER, 1, Qt.PenStyle.DashLine))
                 p.drawLine(ex, ev_top, ex, h)
                 # Aufwärtspfeil unten

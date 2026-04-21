@@ -4442,7 +4442,7 @@
           "id": "anc_mo8j7r0o_586d",
           "pos": 12,
           "type": "drum",
-          "event": "",
+          "event": "Einsatz",
           "part_hint": "Mittelteil",
           "bar_num": null,
           "beat": ""
@@ -4453,8 +4453,17 @@
           "type": "christian",
           "event": "Einsatz",
           "part_hint": "Interlude 2",
-          "bar_num": null,
-          "beat": ""
+          "bar_num": 64,
+          "beat": "3"
+        },
+        {
+          "id": "anc_mo8rl8m2_44pw",
+          "pos": 14,
+          "type": "axel",
+          "event": "Einsatz",
+          "part_hint": "Interlude 2",
+          "bar_num": 64,
+          "beat": "3"
         }
       ]
     },

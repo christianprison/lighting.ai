@@ -6143,6 +6143,33 @@
           "part_hint": "Chorus 1",
           "bar_num": 26,
           "beat": "2"
+        },
+        {
+          "id": "anc_mo8u6o8b_9fsx",
+          "pos": 11,
+          "type": "pete",
+          "event": "Pause",
+          "part_hint": "Thema 2",
+          "bar_num": 29,
+          "beat": "1"
+        },
+        {
+          "id": "anc_mo8u6zyr_ugmh",
+          "pos": 12,
+          "type": "axel",
+          "event": "Pause",
+          "part_hint": "Thema 2",
+          "bar_num": 29,
+          "beat": "1"
+        },
+        {
+          "id": "anc_mo8u7is4_5tyn",
+          "pos": 13,
+          "type": "christian",
+          "event": "Pause",
+          "part_hint": "Thema 2",
+          "bar_num": 29,
+          "beat": "1"
         }
       ]
     },

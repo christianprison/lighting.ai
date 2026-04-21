@@ -4448,8 +4448,17 @@
           "beat": "1"
         },
         {
-          "id": "anc_mo8j8ro3_541g",
+          "id": "anc_mo8rpx86_35jb",
           "pos": 13,
+          "type": "guitar",
+          "event": "Solo beginnt",
+          "part_hint": "Mittelteil",
+          "bar_num": 71,
+          "beat": "1"
+        },
+        {
+          "id": "anc_mo8j8ro3_541g",
+          "pos": 14,
           "type": "christian",
           "event": "Einsatz",
           "part_hint": "Interlude 2",
@@ -4458,7 +4467,7 @@
         },
         {
           "id": "anc_mo8rl8m2_44pw",
-          "pos": 14,
+          "pos": 15,
           "type": "axel",
           "event": "Einsatz",
           "part_hint": "Interlude 2",
@@ -4467,12 +4476,93 @@
         },
         {
           "id": "anc_mo8rm0ej_on9z",
-          "pos": 15,
+          "pos": 16,
           "type": "pete",
           "event": "Pause",
           "part_hint": "Mittelteil",
           "bar_num": 71,
           "beat": "1"
+        },
+        {
+          "id": "anc_mo8rmn5z_946k",
+          "pos": 17,
+          "type": "drum",
+          "event": "Crash (Beat 1)",
+          "part_hint": "Mittelteil",
+          "bar_num": 71,
+          "beat": "1"
+        },
+        {
+          "id": "anc_mo8rmv4c_6tne",
+          "pos": 18,
+          "type": "drum",
+          "event": "Crash (Beat 1)",
+          "part_hint": "Mittelteil",
+          "bar_num": 85,
+          "beat": "1"
+        },
+        {
+          "id": "anc_mo8rnp4e_esp2",
+          "pos": 19,
+          "type": "drum",
+          "event": "Snare-Roll",
+          "part_hint": "Mittelteil",
+          "bar_num": 86,
+          "beat": "3"
+        },
+        {
+          "id": "anc_mo8rpmgx_kqx2",
+          "pos": 20,
+          "type": "pete",
+          "event": "Einsatz",
+          "part_hint": "Verse 3",
+          "bar_num": 87,
+          "beat": "1"
+        },
+        {
+          "id": "anc_mo8rrfo1_frmm",
+          "pos": 21,
+          "type": "axel",
+          "event": "Einsatz",
+          "part_hint": "Chorus 3",
+          "bar_num": 104,
+          "beat": "3"
+        },
+        {
+          "id": "anc_mo8rrqhw_3rmp",
+          "pos": 22,
+          "type": "christian",
+          "event": "Einsatz",
+          "part_hint": "Chorus 3",
+          "bar_num": 104,
+          "beat": "3"
+        },
+        {
+          "id": "anc_mo8rtan6_mf8l",
+          "pos": 23,
+          "type": "drum",
+          "event": "Pause",
+          "part_hint": "Verse 3",
+          "bar_num": 99,
+          "beat": "1+"
+        },
+        {
+          "id": "anc_mo8ru09d_yl6y",
+          "pos": 24,
+          "type": "bass",
+          "event": "Pause",
+          "part_hint": "Verse 3",
+          "bar_num": 99,
+          "beat": "1+"
+        },
+        {
+          "id": "anc_mo8rud4t_hjjd",
+          "pos": 25,
+          "type": "guitar",
+          "event": "Pause",
+          "part_hint": "Verse 3",
+          "bar_num": 99,
+          "beat": "1+"
         }
       ]
     },

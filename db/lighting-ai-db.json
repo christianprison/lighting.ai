@@ -4464,6 +4464,15 @@
           "part_hint": "Interlude 2",
           "bar_num": 64,
           "beat": "3"
+        },
+        {
+          "id": "anc_mo8rm0ej_on9z",
+          "pos": 15,
+          "type": "pete",
+          "event": "Pause",
+          "part_hint": "Mittelteil",
+          "bar_num": 71,
+          "beat": "1"
         }
       ]
     },

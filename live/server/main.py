@@ -18,7 +18,7 @@ from .qlc_parser import parse, qlc_data_to_dict, QlcData, ACCENT_FUNCTIONS, BASE
 from .qlc_osc import QlcOsc, FUNCTION_TO_COLLECTION
 from .ws_handler import WsHandler
 from detection.reference_db import ReferenceDB, DEFAULT_DB_PATH
-from .audio.audio_process import AudioProcess, OnsetUpdate, AudioStatus
+from .audio.audio_process import AudioProcess, OnsetUpdate, AudioStatus, BarUpdate
 
 logging.basicConfig(
     level=logging.INFO,
@@ -253,6 +253,8 @@ async def _consume_audio_queue() -> None:
         if isinstance(event, OnsetUpdate):
             await ws_handler.broadcast(event.to_dict())
         elif isinstance(event, AudioStatus):
+            await ws_handler.broadcast(event.to_dict())
+        elif isinstance(event, BarUpdate):
             await ws_handler.broadcast(event.to_dict())
 
 

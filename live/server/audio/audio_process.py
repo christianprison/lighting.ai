@@ -110,6 +110,22 @@ class AudioStatus:
         }
 
 
+@dataclass
+class BarUpdate:
+    """Neuer Takt wurde vom BarTracker erkannt."""
+    bar_num: int    # 1-basiert
+    bpm: float      # aktuelles BPM-Schätzung
+
+    def to_dict(self) -> dict:
+        return {
+            "type":        "beat_update",
+            "bar_num":     self.bar_num,
+            "bpm":         round(self.bpm, 1),
+            "beat_num":    1,
+            "is_downbeat": True,
+        }
+
+
 # ---------------------------------------------------------------------------
 # Haupt-Klasse
 # ---------------------------------------------------------------------------
@@ -482,6 +498,7 @@ class AudioProcess:
                     if el is not None:
                         el.log("bar", wav_offset=bt, bar_num=bar_idx + 1, bpm=bpm_val)
                     self._logged_bar_count = bar_idx + 1
+                    self._emit(BarUpdate(bar_num=bar_idx + 1, bpm=bpm_val or 0.0))
                     # Bass-Chroma-Snapshot für neuen Takt → Background-Worker
                     try:
                         snap = self._bass_extractor.snapshot()
@@ -584,7 +601,7 @@ class AudioProcess:
 
     # --- Emit (thread-safe → asyncio) ----------------------------------------
 
-    def _emit(self, event: OnsetUpdate | AudioStatus | ChromaUpdate) -> None:
+    def _emit(self, event: OnsetUpdate | AudioStatus | ChromaUpdate | BarUpdate) -> None:
         self.loop.call_soon_threadsafe(self.event_queue.put_nowait, event)
 
     def _send_status(self) -> None:

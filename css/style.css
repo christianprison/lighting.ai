@@ -4827,6 +4827,22 @@ td.ak-actions { width: 90px; white-space: nowrap; text-align: right; }
   font-weight: 600;
 }
 
+/* Copy-from-part select (appears next to + Anker button) */
+.pak-copy-sel {
+  margin-left: 10px;
+  padding: 3px 6px;
+  background: var(--bg3);
+  color: var(--t3);
+  border: 1px dashed var(--border2);
+  border-radius: 4px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.74rem;
+  cursor: pointer;
+  max-width: 175px;
+}
+.pak-copy-sel:hover,
+.pak-copy-sel:focus { border-color: var(--amber); color: var(--amber); outline: none; }
+
 /* Unassigned section header */
 .parts-table.pak-mode td.pak-unassigned-cell {
   color: var(--amber);

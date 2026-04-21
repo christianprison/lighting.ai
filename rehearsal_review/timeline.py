@@ -241,6 +241,10 @@ class TimelineWidget(QWidget):
         self._sim_bpm_timeline: list[tuple[float, int]] = []
         self._sim_bar_times:    list[float]             = []
 
+        # Event-Playhead: vom BarTracker geschätzte aktuelle Position
+        # -1.0 = inaktiv (nicht anzeigen)
+        self._event_cursor_t: float = -1.0
+
         self._hbar = QScrollBar(Qt.Orientation.Horizontal, self)
         self._hbar.valueChanged.connect(self._on_scroll)
 
@@ -362,6 +366,7 @@ class TimelineWidget(QWidget):
         self._vocal_data       = []
         self._sim_anchors.clear()
         self._sim_matched_ids.clear()
+        self._event_cursor_t   = -1.0
         self.update()
 
     def clear_sim_beats(self) -> None:
@@ -371,6 +376,16 @@ class TimelineWidget(QWidget):
         self._sim_crashes      = []
         self._sim_bpm_timeline = []
         self._sim_bar_times    = []
+        self._event_cursor_t   = -1.0
+        self.update()
+
+    def set_event_cursor(self, wav_t: float) -> None:
+        """Setzt den Event-Playhead (amber, gestrichelt) in absoluter WAV-Zeit.
+
+        Zeigt die vom BarTracker interpolierte aktuelle Position.
+        wav_t=-1.0 deaktiviert den Event-Playhead.
+        """
+        self._event_cursor_t = wav_t
         self.update()
 
     def set_sim_anchors(self, anchors: list[dict]) -> None:
@@ -831,35 +846,58 @@ class TimelineWidget(QWidget):
             t_abs = float(anc.get("t_abs", 0.0))
             px    = int((t_abs - seg_start) * self._pps) - vl
             x     = LABEL_W + px
-            if x < LABEL_W - 12 or x > w + 12:
+            if x < LABEL_W - 16 or x > w + 16:
                 continue
 
             matched    = anc.get("id", "") in self._sim_matched_ids
             base_color = _ANCHOR_COLORS.get(anc.get("type", "other"), C_T3)
-            alpha      = 230 if matched else 55
-
-            dc = QColor(base_color)
-            dc.setAlpha(alpha)
-            p.setBrush(QBrush(dc))
-            p.setPen(QPen(dc, 1))
-            p.drawPolygon(QPolygon([
-                QPoint(x,     cy - r),
-                QPoint(x + r, cy    ),
-                QPoint(x,     cy + r),
-                QPoint(x - r, cy    ),
-            ]))
 
             if matched:
+                r_draw = 8
+                # Weißer Außenring (Glow-Effekt)
+                ring_c = QColor(255, 255, 255, 100)
+                p.setBrush(Qt.BrushStyle.NoBrush)
+                p.setPen(QPen(ring_c, 1))
+                p.drawPolygon(QPolygon([
+                    QPoint(x,              cy - r_draw - 3),
+                    QPoint(x + r_draw + 3, cy),
+                    QPoint(x,              cy + r_draw + 3),
+                    QPoint(x - r_draw - 3, cy),
+                ]))
+                # Gefüllter Kern
+                dc = QColor(base_color)
+                dc.setAlpha(255)
+                p.setBrush(QBrush(dc))
+                p.setPen(QPen(dc, 1))
+                p.drawPolygon(QPolygon([
+                    QPoint(x,          cy - r_draw),
+                    QPoint(x + r_draw, cy),
+                    QPoint(x,          cy + r_draw),
+                    QPoint(x - r_draw, cy),
+                ]))
+                # Ereignis-Label rechts neben dem Diamond
                 label = anc.get("event", "")
                 if len(label) > 14:
                     label = label[:13] + "…"
                 tc = QColor(base_color)
-                tc.setAlpha(200)
+                tc.setAlpha(220)
                 p.setPen(tc)
                 p.setFont(FONT_BTN)
-                p.drawText(x + 8, y0, 100, ANCHOR_H,
+                p.drawText(x + r_draw + 4, y0, 110, ANCHOR_H,
                            Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
                            label)
+            else:
+                r_draw = 4
+                dc = QColor(base_color)
+                dc.setAlpha(40)
+                p.setBrush(QBrush(dc))
+                p.setPen(Qt.PenStyle.NoPen)
+                p.drawPolygon(QPolygon([
+                    QPoint(x,          cy - r_draw),
+                    QPoint(x + r_draw, cy),
+                    QPoint(x,          cy + r_draw),
+                    QPoint(x - r_draw, cy),
+                ]))
         p.setRenderHint(QPainter.RenderHint.Antialiasing, False)
 
     # ── Sim bar grid ──────────────────────────────────────────────────────────
@@ -1722,6 +1760,25 @@ class TimelineWidget(QWidget):
     def _paint_cursor(self, p: QPainter, h: int) -> None:
         if self.segment is None:
             return
+
+        # ── Event-Playhead (amber, gestrichelt) — BarTracker-Schätzung ──────
+        if self._event_cursor_t >= 0:
+            et = self._event_cursor_t - self.segment.start_t
+            ex = LABEL_W + int(et * self._pps) - self._scroll_x
+            if LABEL_W <= ex <= self.width():
+                ev_top = RULER_H + EVENTS_H + ANNOT_H + ANCHOR_H
+                p.setPen(QPen(C_AMBER, 1, Qt.PenStyle.DashLine))
+                p.drawLine(ex, ev_top, ex, h)
+                # Aufwärtspfeil unten
+                p.setBrush(QBrush(C_AMBER))
+                p.setPen(Qt.PenStyle.NoPen)
+                p.drawPolygon(QPolygon([
+                    QPoint(ex - 4, h),
+                    QPoint(ex + 4, h),
+                    QPoint(ex, h - 8),
+                ]))
+
+        # ── Haupt-Playhead (rot, durchgezogen) — Audio-Position ─────────────
         t = self.cursor_t - self.segment.start_t
         cx = LABEL_W + int(t * self._pps) - self._scroll_x
         if cx < LABEL_W or cx > self.width():

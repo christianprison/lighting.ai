@@ -457,12 +457,20 @@ venv: `/opt/lighting-venv` (PyQt6, sounddevice, soundfile, numpy, librosa)
 RULER_H  = 28    # Zeitlineal oben
 EVENTS_H = 26    # Beat/Position-Events-Streifen
 ANNOT_H  = 0     # Takt-Annotations-Streifen (deaktiviert — war immer leer)
+ANCHOR_H = 40    # Anker-Zeile (permanent; zwischen Events-Strip und erstem Track)
 LABEL_W  = 196   # Sticky-Label-Spalte links
 ```
 
 ANNOT-Strip ist deaktiviert (ANNOT_H = 0). Der Code für Marker-Darstellung existiert noch,
 wird aber durch den frühen `return`-Guard in `_paint_annotation_strip()` nie ausgeführt.
 Wenn der ANNOT-Strip reaktiviert werden soll, ANNOT_H = 32 setzen.
+
+**Anker-Strip (`ANCHOR_H = 40`, permanent):** Liegt zwischen Events-Strip und den Track-Rows.
+Hintergrund immer C_BG2. Anker-Diamonds erscheinen nur wenn `_sim_anchors` gesetzt.
+- Erkannte Anker (`_sim_matched_ids`): Diamond r=8, volle Deckkraft, weißer Außenring (Glow)
+- Nicht erkannte Anker: Diamond r=4, alpha=40 (sehr dezent)
+- Label (Ereignisname) rechts neben dem Diamond bei erkannten Ankern
+- Label-Spalte zeigt `⚓ Anker N/M` (N erkannt von M gesamt)
 
 ANNOT-Strip Marker-Farben (für Reaktivierung):
 - **amber** (#f0a030): normaler Takt-Marker
@@ -495,6 +503,14 @@ Taktgitter im Sim-Overlay (`_paint_sim_bars()`):
 Annotation-Strip zeigt amber Oberkante + lila Hintergrund wenn Modus aktiv.
 "Annotieren"-Button ist grün/invertiert wenn aktiv (`:checked` CSS).
 
+**Dual-Playhead (während Simulation):**
+- **Roter Playhead** (durchgezogen, 2px): Audio-Position — getrieben von `_sim_wall_start + elapsed`
+- **Amber Playhead** (gestrichelt, 1px): BarTracker-Schätzung — `set_event_cursor(wav_t)`.
+  Wird in `_on_sim_playhead_tick()` aus dem letzten erkannten Takt + Wanduhr-Interpolation berechnet.
+  Kleiner Aufwärtspfeil am unteren Rand. Startet ab `EVENTS_H + ANNOT_H + ANCHOR_H`.
+  Abweichung zum roten Playhead = Erkennungsverzögerung / -drift — sofort sichtbar.
+  `_event_cursor_t = -1.0` deaktiviert ihn; wird in `clear_sim_events/beats()` zurückgesetzt.
+
 #### reference.db Schema
 
 ```sql
@@ -524,19 +540,33 @@ probe_events   (id, session_id, wav_offset, song_id, bar_num, part_name, confide
 
 #### Simulation (simulator.py)
 
-Zwei Worker — **Prime Directive bleibt**: SimulatorWorker = Live-Algorithmus, PostProcessWorker = reine Visualisierung.
+**Prime Directive**: SimulatorWorker = Live-Algorithmus, kein separater Batch-Worker.
+**SimMonitorDialog entfernt** — alle Ergebnisse werden live direkt in den Timeline-Rows des Hauptfensters dargestellt.
 
 `SimulatorWorker(QThread)` repliziert die Erkennungspipeline **offline**:
 - Liest WAV **immer ab Segment-Anfang** in BLOCK_SIZE=2048-Blöcken
 - Schickt jeden Block durch `OnsetDetector.process_block()` (Kick CH08, Snare CH09, Crash CH13+14)
 - Schreibt alle Events in eine **JSONL-Datei** (`{stem}_sim_{song_id}_{HHmmss}.jsonl`)
-- Puffert Chroma-Kanal (CH4) und Bass-Kanal (CH5) als Rohsignal-Arrays
 - Ruft `tracker.finalize()` am Ende des Onset-Loops auf (flusht letzte <8 Events)
 - Progress-Modal: 0–100 % für Onset-Loop
-- `finished`-Dict: `jsonl_path`, `n_kicks`, `n_snares`, `n_crashes`, `kicks`, `snares`, `crashes`, `bar_times`, `bpm`, **`chroma_buf`** (np.ndarray), **`bass_buf`** (np.ndarray), `sample_rate`, `seg_start_t`, `seg_end_t`, `song_key`
+- `finished`-Dict: `jsonl_path`, `n_kicks`, `n_snares`, `n_crashes`, `kicks`, `snares`, `crashes`, `bar_times`, `bpm`, `chroma_data`, `bass_data`, `vocal_data`, `sample_rate`, `seg_start_t`, `seg_end_t`, `song_key`
 - Sim-JSONL-Dateien werden im Dateiauswahldialog automatisch ausgeblendet (`_HideSimFiles` Proxy)
 - Nach Simulation: Status-Bar zeigt `★ N Crashes` wenn Crashes erkannt wurden
 - Diagnose stderr: `[SIM] Crashes: N erkannt (threshold RMS >0.0040, max OH-RMS im Segment: X.XXXX)`
+
+**Live-Signale** (während Echtzeit-Simulation, t_rel relativ zu seg_start_t):
+- `sim_started(float)`: emittiert `time.monotonic()` exakt nach `sd.play()` — Ankerpunkt für Playhead-Timer
+- `kick_detected(float)`, `snare_detected(float)`, `crash_detected(float)`: t_rel → Timeline-Diamonds
+- `bar_detected(int, float, float)`: (bar_num, t_rel, bpm) → Taktgitter + Event-Playhead-Tracking
+- `anchor_matched(object)`: anchor-dict wenn bar_num eines Ankers erkannt → `mark_sim_anchor_matched()`
+
+**Echtzeit-Playback + Dual-Playhead (mainwindow.py):**
+- `_sim_wall_start`: Wall-Clock bei `sim_started` — Basis des roten Audio-Playheads
+- `_ev_playhead_wav_t` / `_ev_playhead_wall_t`: letzter erkannter Takt + dessen Wall-Clock-Zeit
+  (gesetzt in `_on_bar_detected_ev()`; Formel: `wall = _sim_wall_start + t_rel`)
+- `_sim_playhead_timer` (40ms): treibt beide Playheads; amber Playhead = `last_bar_t + elapsed_since_bar`
+- `clear_sim_beats()`: löscht Live-gestreamte Events (Übergang Live→Final) — Anker bleiben erhalten
+- `_on_sim_finished()`: fügt finales Set (mit echten Crash-Energien) nach `clear_sim_beats()` ein
 
 **PostProcessWorker entfernt (Prime Directive)** — war nur Visualisierung, nicht Live-kompatibel.
 Alle Features werden jetzt streaming im `SimulatorWorker` berechnet, identisch mit Live.
@@ -568,9 +598,10 @@ Alle Features werden jetzt streaming im `SimulatorWorker` berechnet, identisch m
 **Sim-Overlay-Modus** (Toggle `⊙ Simulation` in Toolbar, wird nach Sim-Ende automatisch aktiviert):
 - `_sim_overlay=True` → JSONL-Probe-Events komplett ausgeblendet (wenn Sim-Events vorhanden)
 - Sim-Diamonds: amber = Kick, cyan = Snare (Events-Strip + Kanal-Rows)
+- Anker-Strip (ANCHOR_H = 40): erkannte Anker hervorgehoben (r=8, Glow), nicht erkannte sehr dezent (r=4, alpha=40)
 - Taktgitter + BPM-Anzeige automatisch berechnet und eingeblendet
 - Zoom wird nach Sim auf 80 px/s gesetzt
-- `✕ Sim`-Button: löscht alle Sim-Events, BPM, Taktgitter; deaktiviert Overlay
+- `✕ Sim`-Button: löscht alle Sim-Events, BPM, Taktgitter, Anker-Strip; deaktiviert Overlay
 
 #### OnsetDetector (`detection/beat_detector.py`)
 
@@ -685,15 +716,17 @@ Wenn ein Song kein `grundrhythmus` hat, wird Phasen-Histogramm + Crash-Fallback 
 
 #### ⚠️ Offene Punkte für nächste Session
 
-1. **Feldtest Beat-1-Korrektur**: Simulation auf verschiedenen Songs laufen lassen und prüfen:
+1. **Feldtest Beat-1-Korrektur + Dual-Playhead**: Simulation auf verschiedenen Songs laufen lassen:
    - Crash-Detektion: Status-Bar zeigt `★ N Crashes`? Wenn 0 → `CRASH_RMS_MIN` (aktuell 0.001) weiter senken
    - Energy-Korrektur: `[BAR] energy_beat1: ratio=Z` auf stderr — Z > 1.05 = Korrektur greift
    - Taktgitter landet auf Beat 1 (Snare-Positionen ≈ 1.0 und 3.0 beats in Diagnostik)
+   - **Dual-Playhead prüfen**: Abweichung rot ↔ amber = Erkennungslatenz. Typisch ~1–2 Takte (= 1–2s bei 120 BPM). Größere Abweichung → BarTracker braucht mehr Events zum Einrasten.
    - **grundrhythmus-Daten einpflegen**: Für jeden Song die Kick/Snare-Positionen in der
      DB-Pflege-App eintragen (Felder seit v2.2.27), damit Pattern-Matching statt
      Phasen-Histogramm greift
+2. **Anker-Matching mit echten Timestamps**: Aktuell werden Anker anhand `bar_num` erkannt (BarTracker zählt Takte). Nächster Schritt: nach der Simulation die erkannten `bar_times` mit den Anker-`bar_num`-Werten abgleichen und die `t_abs`-Felder der Anker korrigieren (Nachkalibrierung).
 
-#### Anker-Feature (DB-Pflege-App v2.3.0)
+#### Anker-Feature (DB-Pflege-App v2.3.2)
 
 Jeder Song kann eine geordnete Liste von **Ankern** (`song.anchors`) enthalten — erkennbare
 akustische Ereignisse, die der Lichttechniker in der DB-Pflege-App pflegt:
@@ -710,7 +743,7 @@ akustische Ereignisse, die der Lichttechniker in der DB-Pflege-App pflegt:
 - **Typ-Werte**: `pete` / `axel` / `christian` (Gesang), `drum`, `guitar`, `bass`, `keys`, `silence`, `other`
 - **Event-Katalog** pro Typ (Dropdown in der App) — alle Typen haben `Einsatz` und `Pause` an erster Stelle:
   - Pete/Axel/Christian: Einsatz | Pause | Setzt ein | Hört auf | Schrei / Ausruf | Refrain-Phrase | Harmony
-  - Drum: Einsatz | Pause | Crash (Beat 1) | Fill mit Crash | Drum-Fill | Beat beginnt | Breakbeat | Nur Kick | Snare-Roll
+  - Drum: Einsatz | Pause | **Crash** | **Snare** | Crash (Beat 1) | Crash auf 2 (mit Snare) | Crash mehrfach | Fill mit Crash | Drum-Fill | Beat beginnt | Breakbeat | Nur Kick | Snare-Roll
   - Guitar: Einsatz | Pause | Riff beginnt | Powerchords | Solo beginnt | Solo endet | Arpeggio
   - Bass: Einsatz | Pause | Bass-Linie beginnt | Bass-Fill
   - Keys: Einsatz | Pause | Setzt ein | Pad-Fläche | Riff / Motiv
@@ -721,6 +754,10 @@ akustische Ereignisse, die der Lichttechniker in der DB-Pflege-App pflegt:
   Kein separater ANKER-Tab mehr — der Part-Kontext ist durch die Gruppierung implizit.
   Per `+ Anker` Button unterhalb jeder Part-Gruppe wird ein neuer Anker für diesen Part angelegt.
   `part_hint` wird automatisch auf den Part-Namen gesetzt, unter dem der Anker angelegt wird.
+  **Anker übernehmen**: Dropdown `↩ übernehmen aus…` neben `+ Anker` listet alle anderen Parts mit Ankern.
+  Bei Auswahl werden die Anker kopiert und die Taktnummern relativ umgerechnet:
+  `neuer_takt = ziel_first_bar + (quell_takt − quell_first_bar)` — funktioniert damit automatisch
+  für Verse 2 aus Verse 1, Intro Reprise aus Intro etc. (`_copyAnchorsFromPart()` in `js/app.js`).
 - **Anzeige (Live-App)**: ANKER-Panel im linken Panel unterhalb der Parts-Liste.
   Farbige Typ-Badges (PETE=cyan, AXEL=amber, CHRIS=grün, DRUM=rot, GTR=violett, BASS=mint).
   Nächster anstehender Anker = amber hervorgehoben; vergangene = ausgegraut (30%).

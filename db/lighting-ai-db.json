@@ -4442,10 +4442,10 @@
           "id": "anc_mo8j7r0o_586d",
           "pos": 12,
           "type": "drum",
-          "event": "Einsatz",
+          "event": "Crash (Beat 1)",
           "part_hint": "Mittelteil",
-          "bar_num": null,
-          "beat": ""
+          "bar_num": 71,
+          "beat": "1"
         },
         {
           "id": "anc_mo8j8ro3_541g",

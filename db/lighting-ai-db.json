@@ -4285,12 +4285,14 @@
           {
             "bar_num": 39,
             "name": "Verse 2",
-            "light_template": "05 left'n'right"
+            "light_template": "05 left'n'right",
+            "instrumental": true
           },
           {
             "bar_num": 55,
             "name": "Chorus 2",
-            "light_template": "04 up'n'down"
+            "light_template": "04 up'n'down",
+            "instrumental": true
           },
           {
             "bar_num": 63,
@@ -4335,7 +4337,126 @@
             "instrumental": true
           }
         ]
-      }
+      },
+      "anchors": [
+        {
+          "id": "anc_mo8izo4i_uvhv",
+          "pos": 1,
+          "type": "drum",
+          "event": "Einsatz",
+          "part_hint": "Intro (nur Drums)",
+          "bar_num": 1,
+          "beat": "1"
+        },
+        {
+          "id": "anc_mo8izz4j_bix0",
+          "pos": 2,
+          "type": "guitar",
+          "event": "Einsatz",
+          "part_hint": "+ Guitar",
+          "bar_num": 5,
+          "beat": "1"
+        },
+        {
+          "id": "anc_mo8j0b64_9f7a",
+          "pos": 3,
+          "type": "bass",
+          "event": "Einsatz",
+          "part_hint": "+ Bass",
+          "bar_num": 9,
+          "beat": "1"
+        },
+        {
+          "id": "anc_mo8j0o81_zw4u",
+          "pos": 4,
+          "type": "pete",
+          "event": "Einsatz",
+          "part_hint": "Verse 1",
+          "bar_num": 13,
+          "beat": "1"
+        },
+        {
+          "id": "anc_mo8j5inw_go2g",
+          "pos": 5,
+          "type": "drum",
+          "event": "Crash (Beat 1)",
+          "part_hint": "Chorus 1",
+          "bar_num": 29,
+          "beat": "1"
+        },
+        {
+          "id": "anc_mo8j1h5g_pi9h",
+          "pos": 6,
+          "type": "christian",
+          "event": "Einsatz",
+          "part_hint": "Chorus 1",
+          "bar_num": 30,
+          "beat": "3"
+        },
+        {
+          "id": "anc_mo8j1xcg_t7ok",
+          "pos": 7,
+          "type": "axel",
+          "event": "Einsatz",
+          "part_hint": "Chorus 1",
+          "bar_num": 30,
+          "beat": "3"
+        },
+        {
+          "id": "anc_mo8j2uy9_h5xk",
+          "pos": 8,
+          "type": "pete",
+          "event": "Einsatz",
+          "part_hint": "Verse 2",
+          "bar_num": 39,
+          "beat": "1"
+        },
+        {
+          "id": "anc_mo8j4y8w_zu1q",
+          "pos": 9,
+          "type": "drum",
+          "event": "Crash (Beat 1)",
+          "part_hint": "Chorus 2",
+          "bar_num": 55,
+          "beat": "1"
+        },
+        {
+          "id": "anc_mo8j63xw_t51g",
+          "pos": 10,
+          "type": "christian",
+          "event": "Einsatz",
+          "part_hint": "Chorus 2",
+          "bar_num": 56,
+          "beat": "3"
+        },
+        {
+          "id": "anc_mo8j6brm_y1a1",
+          "pos": 11,
+          "type": "axel",
+          "event": "Einsatz",
+          "part_hint": "Chorus 2",
+          "bar_num": 56,
+          "beat": "3"
+        },
+        {
+          "id": "anc_mo8j7r0o_586d",
+          "pos": 12,
+          "type": "drum",
+          "event": "",
+          "part_hint": "Mittelteil",
+          "bar_num": null,
+          "beat": ""
+        },
+        {
+          "id": "anc_mo8j8ro3_541g",
+          "pos": 13,
+          "type": "christian",
+          "event": "Einsatz",
+          "part_hint": "Interlude 2",
+          "bar_num": null,
+          "beat": ""
+        }
+      ]
     },
     "9G8cU7": {
       "name": "Down In The Past",

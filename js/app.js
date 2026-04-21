@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.3.1';
+const APP_VERSION = 'v2.3.2';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -2156,7 +2156,7 @@ function _renderPartsAnkerView(song, parts, anchors, hasBuf) {
       html += `<td class="pt-dur">${durStr}</td>`;
       html += `<td class="pt-play"><button class="pt-play-btn${isPlaying ? ' playing' : ''}" data-idx="${pi}" ${!hasBuf ? 'disabled' : ''}>${isPlaying ? '&#9724;' : '&#9654;'}</button></td>`;
       html += `<td class="pt-instr"><input type="checkbox" class="pt-instr-cb" data-idx="${pi}" ${p.instrumental ? 'checked' : ''}></td>`;
-      html += `<td colspan="5" class="pak-no-anchors"><span class="pak-empty-text">Noch keine Anker</span><button class="pak-add-btn" data-part-name="${esc(p.name)}">+ Anker</button></td>`;
+      html += `<td colspan="5" class="pak-no-anchors"><span class="pak-empty-text">Noch keine Anker</span><button class="pak-add-btn" data-part-name="${esc(p.name)}">+ Anker</button>${_buildCopyFromSelect(parts, anchors, p.name)}</td>`;
       html += `</tr>`;
     } else {
       // N anchor rows; first row carries left cells with rowspan=N
@@ -2186,7 +2186,7 @@ function _renderPartsAnkerView(song, parts, anchors, hasBuf) {
         if (globalIdx > 0) html += `<button class="ak-up-btn" data-anchor-idx="${globalIdx}" title="Nach oben">▲</button>`;
         if (globalIdx < anchors.length - 1) html += `<button class="ak-down-btn" data-anchor-idx="${globalIdx}" title="Nach unten">▼</button>`;
         html += `<button class="ak-del-btn" data-anchor-id="${a.id}" title="Löschen">✕</button>`;
-        if (isLast) html += `<button class="pak-add-btn pak-add-inline" data-part-name="${esc(p.name)}" title="Anker hinzufügen">+</button>`;
+        if (isLast) html += `<button class="pak-add-btn pak-add-inline" data-part-name="${esc(p.name)}" title="Anker hinzufügen">+</button>${_buildCopyFromSelect(parts, anchors, p.name)}`;
         html += `</td></tr>`;
       }
     }
@@ -2256,6 +2256,15 @@ function _wirePakEvents(song, parts) {
       });
       markDirty();
       renderPartsTab();
+    });
+  }
+
+  // Copy anchors from another part
+  for (const sel of document.querySelectorAll('.pak-copy-sel')) {
+    sel.addEventListener('change', () => {
+      if (!sel.value) return;
+      _copyAnchorsFromPart(selectedSongId, sel.dataset.partName, sel.value, parts);
+      sel.value = '';
     });
   }
 
@@ -2334,6 +2343,49 @@ function _buildBeatOptions(selected) {
   return opts;
 }
 
+/**
+ * Builds a copy-from select dropdown listing other parts that have anchors.
+ * Returns empty string if no suitable source parts exist.
+ */
+function _buildCopyFromSelect(parts, anchors, targetPartName) {
+  const others = parts.filter(p =>
+    p.name !== targetPartName && anchors.some(a => a.part_hint === p.name)
+  );
+  if (others.length === 0) return '';
+  let opts = `<option value="">↩ übernehmen aus…</option>`;
+  opts += others.map(p => `<option value="${esc(p.name)}">${esc(p.name)}</option>`).join('');
+  return `<select class="pak-copy-sel" data-part-name="${esc(targetPartName)}">${opts}</select>`;
+}
+
+/**
+ * Copies anchors from sourcePartName to targetPartName, adjusting bar numbers
+ * by the relative offset between the two parts' first bars.
+ */
+function _copyAnchorsFromPart(songId, targetPartName, sourcePartName, parts) {
+  const song = db.songs[songId];
+  if (!Array.isArray(song.anchors)) song.anchors = [];
+  const sourcePart = parts.find(p => p.name === sourcePartName);
+  const targetPart = parts.find(p => p.name === targetPartName);
+  if (!sourcePart || !targetPart) return;
+  const sourceAnchors = song.anchors.filter(a => a.part_hint === sourcePartName);
+  if (!sourceAnchors.length) { toast('Quell-Part hat keine Anker', 'warning'); return; }
+  for (const src of sourceAnchors) {
+    const offset = (src.bar_num != null) ? src.bar_num - sourcePart.barNum : null;
+    const newBarNum = (offset != null) ? targetPart.barNum + offset : null;
+    song.anchors.push({
+      id: 'anc_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 6),
+      pos: song.anchors.length + 1,
+      type: src.type,
+      event: src.event,
+      part_hint: targetPartName,
+      bar_num: newBarNum,
+      beat: src.beat || '',
+    });
+  }
+  markDirty();
+  toast(`${sourceAnchors.length} Anker aus „${sourcePartName}" übernommen`, 'success');
+  renderPartsTab();
+}
 
 function handleAnchorsClick(e) {
   const song = selectedSongId && db.songs[selectedSongId];

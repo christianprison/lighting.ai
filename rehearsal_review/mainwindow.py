@@ -115,7 +115,7 @@ QComboBox#zoom_combo          { font-family:'DM Mono',monospace; font-size:10px;
                                 min-width:90px; max-width:110px; }
 """
 
-APP_VERSION = "1.3.0"
+APP_VERSION = "1.3.1"
 
 _ZOOM_PRESETS: list[int] = [2, 5, 10, 20, 40, 80, 160, 320, 640, 1280, 2560, 5120, 10240, 20480, 40960]
 
@@ -406,6 +406,9 @@ class MainWindow(QMainWindow):
         self._sim_song_key:    str   = ""
         self._sim_wall_start:  float = 0.0  # Echtzeit-Startpunkt (time.monotonic)
         self._last_bar_times:  list  = []
+        # Event-Playhead: letzte vom BarTracker erkannte Taktposition
+        self._ev_playhead_wav_t:  float = 0.0  # abs. WAV-Zeit des letzten Takts
+        self._ev_playhead_wall_t: float = 0.0  # Wanduhr-Zeit des letzten Takts
 
         # Playhead-Timer für Echtzeit-Simulation (40 ms ≈ 25 fps)
         self._sim_playhead_timer = QTimer(self)
@@ -1575,6 +1578,7 @@ class MainWindow(QMainWindow):
             lambda t: self._timeline.add_sim_crash(start_t + t, 0.0))
         worker.bar_detected.connect(
             lambda n, t, bpm_v: self._timeline.add_sim_bar_time(start_t + t, bpm_v))
+        worker.bar_detected.connect(self._on_bar_detected_ev)
         worker.anchor_matched.connect(
             lambda anc: self._timeline.mark_sim_anchor_matched(anc.get("id", "")))
         worker.sim_started.connect(self._on_sim_started)
@@ -1589,8 +1593,14 @@ class MainWindow(QMainWindow):
         self._sim_playhead_timer.start()
         self._status.showMessage("Simulation läuft …", 0)
 
+    def _on_bar_detected_ev(self, _bar_num: int, t_rel: float, _bpm: float) -> None:
+        """Speichert letzten erkannten Takt für Event-Playhead-Interpolation."""
+        self._ev_playhead_wav_t  = self._sim_start_wav_t + t_rel
+        # Wall-Clock-Zeit dieses Takts: Audio läuft synchron → _wall_start + t_rel
+        self._ev_playhead_wall_t = self._sim_wall_start + t_rel
+
     def _on_sim_playhead_tick(self) -> None:
-        """25-fps-Timer: Playhead während Echtzeit-Simulation aktualisieren."""
+        """25-fps-Timer: beide Playheads während Echtzeit-Simulation aktualisieren."""
         if self._current_seg is None:
             self._sim_playhead_timer.stop()
             return
@@ -1599,16 +1609,24 @@ class MainWindow(QMainWindow):
         if wav_t >= self._current_seg.end_t + 1.0:
             self._sim_playhead_timer.stop()
             return
+        # Haupt-Playhead (Audioposition, rot)
         self._timeline.set_cursor(wav_t)
         self._overview.set_playhead(wav_t)
         self._pos_label.setText(_fmt_t_precise(wav_t - self._current_seg.start_t))
+        # Event-Playhead (BarTracker-Schätzung, amber gestrichelt)
+        if self._ev_playhead_wav_t > 0 and self._ev_playhead_wall_t > 0:
+            elapsed_since_bar = time.monotonic() - self._ev_playhead_wall_t
+            ev_wav_t = self._ev_playhead_wav_t + elapsed_since_bar
+            self._timeline.set_event_cursor(ev_wav_t)
 
     def _clear_simulation(self) -> None:
         self._sim_playhead_timer.stop()
+        self._ev_playhead_wav_t  = 0.0
+        self._ev_playhead_wall_t = 0.0
         if self._sim_worker is not None:
             self._sim_worker.requestInterruption()
             self._sim_worker = None
-        self._timeline.clear_sim_events()
+        self._timeline.clear_sim_events()   # also resets _event_cursor_t
         self._timeline.set_sim_overlay(False)
         self._sim_act.setEnabled(True)
         self._sim_overlay_act.setChecked(False)
@@ -1764,6 +1782,8 @@ class MainWindow(QMainWindow):
 
     def _on_sim_finished(self, result: dict) -> None:
         self._sim_playhead_timer.stop()
+        self._ev_playhead_wav_t  = 0.0
+        self._ev_playhead_wall_t = 0.0
         self._close_sim_progress()
         self._sim_act.setEnabled(True)
         self._sim_clear_act.setEnabled(True)

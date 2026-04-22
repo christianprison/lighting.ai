@@ -6244,7 +6244,16 @@
           "bar_num": 48,
           "beat": "2"
         }
-      ]
+      ],
+      "grundrhythmus": {
+        "kick": [
+          1,
+          3
+        ],
+        "snare": [
+          2
+        ]
+      }
     },
     "E3pvFC": {
       "name": "Goodbye",

@@ -115,7 +115,7 @@ QComboBox#zoom_combo          { font-family:'DM Mono',monospace; font-size:10px;
                                 min-width:90px; max-width:110px; }
 """
 
-APP_VERSION = "1.3.14"
+APP_VERSION = "1.3.15"
 
 _ZOOM_PRESETS: list[int] = [2, 5, 10, 20, 40, 80, 160, 320, 640, 1280, 2560, 5120, 10240, 20480, 40960]
 
@@ -1580,6 +1580,32 @@ class MainWindow(QMainWindow):
         worker.bar_detected.connect(self._on_bar_detected_ev)
         worker.anchor_matched.connect(self._timeline.add_sim_anchor_detected)
         worker.sim_started.connect(self._on_sim_started)
+
+        # Anker-Fortschritt live in der Status-Bar anzeigen
+        _anchors_sorted = sorted(anchors, key=lambda a: (a.get("pos", 9999), a.get("bar_num", 0)))
+        _mc = [0]
+
+        def _on_anchor_status(anc, _mc=_mc, _al=_anchors_sorted, _st=start_t):
+            n = _mc[0] + 1
+            _mc[0] = n
+            nxt = _al[n] if n < len(_al) else None
+            nxt_str = (f"  → #{n+1}: [{nxt.get('type','')}] {nxt.get('event','')}"
+                       if nxt else "  ✓ alle erkannt")
+            self._status.showMessage(
+                f"⚓ #{n} [{anc.get('type','')}] {anc.get('event','')}  "
+                f"t={anc.get('t_detected', 0.0) - _st:.1f}s{nxt_str}",
+                15000,
+            )
+
+        worker.anchor_matched.connect(_on_anchor_status)
+        if _anchors_sorted:
+            a0 = _anchors_sorted[0]
+            worker.sim_started.connect(
+                lambda _wt, _a=a0: self._status.showMessage(
+                    f"⚓ Warte auf #1: [{_a.get('type','')}] {_a.get('event','')}", 0
+                )
+            )
+
         worker.finished.connect(self._on_sim_finished)
         worker.error.connect(self._on_sim_error)
         self._sim_worker = worker

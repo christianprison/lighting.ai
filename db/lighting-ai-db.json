@@ -8,6 +8,16 @@
         "type": "song",
         "pos": 1,
         "song_id": "BfbgVC"
+      },
+      {
+        "type": "song",
+        "pos": 2,
+        "song_id": "pVmkRc"
+      },
+      {
+        "type": "song",
+        "pos": 3,
+        "song_id": "qVbU6L"
       }
     ]
   },
@@ -6179,6 +6189,60 @@
           "part_hint": "Verse 2",
           "bar_num": 32,
           "beat": "1"
+        },
+        {
+          "id": "anc_mo8uxjks_dci2",
+          "pos": 15,
+          "type": "drum",
+          "event": "Pause",
+          "part_hint": "Chorus 2",
+          "bar_num": 48,
+          "beat": "1"
+        },
+        {
+          "id": "anc_mo8uxjks_7egg",
+          "pos": 16,
+          "type": "bass",
+          "event": "Pause",
+          "part_hint": "Chorus 2",
+          "bar_num": 48,
+          "beat": "1"
+        },
+        {
+          "id": "anc_mo8uxjks_c4iw",
+          "pos": 17,
+          "type": "guitar",
+          "event": "Pause",
+          "part_hint": "Chorus 2",
+          "bar_num": 48,
+          "beat": "1"
+        },
+        {
+          "id": "anc_mo8uxjks_t2rq",
+          "pos": 18,
+          "type": "drum",
+          "event": "Einsatz",
+          "part_hint": "Chorus 2",
+          "bar_num": 48,
+          "beat": "2"
+        },
+        {
+          "id": "anc_mo8uxjks_f7xn",
+          "pos": 19,
+          "type": "bass",
+          "event": "Einsatz",
+          "part_hint": "Chorus 2",
+          "bar_num": 48,
+          "beat": "2"
+        },
+        {
+          "id": "anc_mo8uxjks_e8b3",
+          "pos": 20,
+          "type": "guitar",
+          "event": "Einsatz",
+          "part_hint": "Chorus 2",
+          "bar_num": 48,
+          "beat": "2"
         }
       ]
     },

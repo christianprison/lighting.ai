@@ -23,8 +23,14 @@ JSONL-Format (eine JSON-Zeile pro Event, t relativ zu seg_start_t):
 from __future__ import annotations
 
 import json as _json
+import os as _os
 import sys
 from pathlib import Path
+
+
+def _log(msg: str) -> None:
+    """Schreibt direkt auf fd 2 — umgeht Python-IO-Buffering."""
+    _os.write(2, (msg + "\n").encode("utf-8", errors="replace"))
 
 import numpy as np
 from PyQt6.QtCore import QThread, pyqtSignal
@@ -284,6 +290,8 @@ class SimulatorWorker(QThread):
 
                     if ev.type == "kick":
                         kicks.append(t_mid)
+                        if len(kicks) <= 5:
+                            _log(f"[SIM] kick #{len(kicks)}  t={t_mid:.2f}s  energy={energy_f:.4f}")
                         tracker.process_kick(t_abs, energy=energy_f)
                         chroma_vec = guitar_extractor.get_chroma()
                         if chroma_vec is not None:
@@ -349,6 +357,8 @@ class SimulatorWorker(QThread):
                 if blocks_done % 50 == 0:
                     raw = (blocks_done * BLOCK_SIZE) / max(1, total_frames)
                     self.progress.emit(min(0.99, raw))
+                if blocks_done % 200 == 0:
+                    _log(f"[SIM] ♥ {blocks_done} Blöcke  t={t_mid:.0f}s  kicks={len(kicks)}  snares={len(snares)}")
 
                 # ── Echtzeit-Throttle ─────────────────────────────────────────
                 if self._realtime:

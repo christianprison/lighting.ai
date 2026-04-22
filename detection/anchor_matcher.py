@@ -7,9 +7,15 @@ Prime Directive: identischer Code in Simulation und Live.
 """
 from __future__ import annotations
 
+import os as _os
 import sys
 from collections import deque
 from typing import Optional
+
+
+def _log(msg: str) -> None:
+    """Schreibt direkt auf fd 2 — umgeht jedes Python-IO-Buffering."""
+    _os.write(2, (msg + "\n").encode("utf-8", errors="replace"))
 
 import numpy as np
 
@@ -141,13 +147,12 @@ class AnchorMatcher:
         self._last_logged_cursor: int = -1   # verhindert Wiederholung derselben Wartezeile
         self._last_rms_diag_t: float = -999.0
 
-        print(f"[ANKER] {len(self._anchors)} Anker geladen:", file=sys.stderr, flush=True)
+        _log(f"[ANKER] {len(self._anchors)} Anker geladen:")
         for i, a in enumerate(self._anchors):
             trigger = _event_to_trigger(a.get("type", ""), a.get("event", ""))
-            print(
+            _log(
                 f"[ANKER]   #{i+1:02d}  {a.get('type','?'):10s}  "
-                f"{a.get('event','?'):30s}  trigger={trigger}  bar={a.get('bar_num','?')}",
-                file=sys.stderr, flush=True,
+                f"{a.get('event','?'):30s}  trigger={trigger}  bar={a.get('bar_num','?')}"
             )
         if self._anchors:
             self._log_waiting()
@@ -207,11 +212,10 @@ class AnchorMatcher:
         self._last_logged_cursor = self._cursor
         anc = self._anchors[self._cursor]
         trigger = _event_to_trigger(anc.get("type", ""), anc.get("event", ""))
-        print(
+        _log(
             f"[ANKER] warte auf #{self._cursor+1:02d}  "
             f"{anc.get('type','?'):10s}  {anc.get('event','?'):30s}  "
-            f"trigger={trigger}",
-            file=sys.stderr, flush=True,
+            f"trigger={trigger}"
         )
 
     def _current_trigger(self) -> str:
@@ -227,27 +231,25 @@ class AnchorMatcher:
         if t - self._last_match_t < _MIN_MATCH_GAP:
             t_rel = t - self._seg_start_t
             remaining = _MIN_MATCH_GAP - (t - self._last_match_t)
-            print(
+            _log(
                 f"[ANKER] cooldown aktiv — #{self._cursor+1} noch gesperrt "
-                f"({remaining:.2f}s)  t={t_rel:.2f}s",
-                file=sys.stderr, flush=True,
+                f"({remaining:.2f}s)  t={t_rel:.2f}s"
             )
             return None
         anc = dict(self._anchors[self._cursor])
         anc["t_detected"] = t
         t_rel = t - self._seg_start_t
-        print(
+        _log(
             f"[ANKER] ✓ ERKANNT #{self._cursor+1:02d}  "
             f"{anc.get('type','?'):10s}  {anc.get('event','?'):30s}  "
-            f"t={t_rel:.2f}s",
-            file=sys.stderr, flush=True,
+            f"t={t_rel:.2f}s"
         )
         self._cursor += 1
         self._last_match_t = t
         if not self.done:
             self._last_logged_cursor = -1   # nächste _log_waiting() soll sofort loggen
         else:
-            print("[ANKER] alle Anker erkannt.", file=sys.stderr, flush=True)
+            _log("[ANKER] alle Anker erkannt.")
         return anc
 
     def _avg_rms(self, ch: int) -> float:
@@ -328,10 +330,7 @@ class AnchorMatcher:
                 for ch in (CH_PETE, CH_AXEL, CH_GUITAR, CH_BASS, CH_KICK, CH_SNARE)
             ))
         if info:
-            print(
-                f"[ANKER] RMS  trigger={trigger}  t={t_rel:.1f}s  " + "  ".join(info),
-                file=sys.stderr, flush=True,
-            )
+            _log(f"[ANKER] RMS  trigger={trigger}  t={t_rel:.1f}s  " + "  ".join(info))
 
     def _check_rms_trigger(self, trigger: str, t: float) -> Optional[dict]:
         self._maybe_rms_diag(trigger, t)

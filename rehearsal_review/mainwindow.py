@@ -115,7 +115,7 @@ QComboBox#zoom_combo          { font-family:'DM Mono',monospace; font-size:10px;
                                 min-width:90px; max-width:110px; }
 """
 
-APP_VERSION = "1.3.15"
+APP_VERSION = "1.3.16"
 
 _ZOOM_PRESETS: list[int] = [2, 5, 10, 20, 40, 80, 160, 320, 640, 1280, 2560, 5120, 10240, 20480, 40960]
 
@@ -1579,7 +1579,6 @@ class MainWindow(QMainWindow):
             lambda n, t, bpm_v: self._timeline.add_sim_bar_time(start_t + t, bpm_v))
         worker.bar_detected.connect(self._on_bar_detected_ev)
         worker.anchor_matched.connect(self._timeline.add_sim_anchor_detected)
-        worker.sim_started.connect(self._on_sim_started)
 
         # Anker-Fortschritt live in der Status-Bar anzeigen
         _anchors_sorted = sorted(anchors, key=lambda a: (a.get("pos", 9999), a.get("bar_num", 0)))
@@ -1598,14 +1597,17 @@ class MainWindow(QMainWindow):
             )
 
         worker.anchor_matched.connect(_on_anchor_status)
+        # Initiale Warte-Meldung direkt setzen (vor worker.start), damit sie sofort
+        # sichtbar ist — unabhängig von der Signal-Übertragungslatenz.
         if _anchors_sorted:
             a0 = _anchors_sorted[0]
-            worker.sim_started.connect(
-                lambda _wt, _a=a0: self._status.showMessage(
-                    f"⚓ Warte auf #1: [{_a.get('type','')}] {_a.get('event','')}", 0
-                )
+            self._sim_waiting_msg = (
+                f"⚓ Warte auf #1: [{a0.get('type','')}] {a0.get('event','')}"
             )
+        else:
+            self._sim_waiting_msg = ""
 
+        worker.sim_started.connect(self._on_sim_started)
         worker.finished.connect(self._on_sim_finished)
         worker.error.connect(self._on_sim_error)
         self._sim_worker = worker
@@ -1615,7 +1617,8 @@ class MainWindow(QMainWindow):
         """Audio-Playback hat gestartet — Playhead-Timer auf diesen Zeitpunkt synchro."""
         self._sim_wall_start = wall_t
         self._sim_playhead_timer.start()
-        self._status.showMessage("Simulation läuft …", 0)
+        msg = getattr(self, "_sim_waiting_msg", "") or "Simulation läuft …"
+        self._status.showMessage(msg, 0)
 
     def _on_bar_detected_ev(self, _bar_num: int, t_rel: float, _bpm: float) -> None:
         """Speichert letzten erkannten Takt für Event-Playhead-Interpolation."""

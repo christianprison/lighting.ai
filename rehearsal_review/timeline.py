@@ -388,20 +388,20 @@ class TimelineWidget(QWidget):
         self._event_cursor_t = wav_t
         self.update()
 
-    def set_sim_anchors(self, anchors: list[dict]) -> None:
-        """Setzt Anker-Info für die Simulation (absolute WAV-Zeiten im Feld t_abs).
+    def add_sim_anchor_detected(self, anc: dict) -> None:
+        """Fügt einen erkannten Anker an seiner tatsächlichen erkannten Zeit ein.
 
-        Anker ohne ID bekommen einen generierten Fallback-Key, damit
-        mark_sim_anchor_matched() greift (leere Strings werden ignoriert).
+        t_abs wird aus anc['t_detected'] gesetzt. Der Anker wird sofort
+        als matched markiert (voller Glow, keine Erwartungsposition).
         """
-        self._sim_anchors = []
-        for i, anc in enumerate(anchors):
-            a = dict(anc)
-            if not a.get("id"):
-                a["id"] = f"_anc_{i}"
-            self._sim_anchors.append(a)
-        self._sim_matched_ids.clear()
+        a = dict(anc)
+        if not a.get("id"):
+            a["id"] = f"_anc_{len(self._sim_anchors)}"
+        a["t_abs"] = float(a.get("t_detected", a.get("t_abs", 0.0)))
+        self._sim_anchors.append(a)
+        self._sim_matched_ids.add(a["id"])
         self.update()
+
 
     def mark_sim_anchor_matched(self, anchor_id: str) -> None:
         """Markiert einen Anker als vom BarTracker erkannt."""

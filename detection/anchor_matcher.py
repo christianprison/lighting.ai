@@ -7,6 +7,7 @@ Prime Directive: identischer Code in Simulation und Live.
 """
 from __future__ import annotations
 
+import sys
 from collections import deque
 from typing import Optional
 
@@ -135,6 +136,18 @@ class AnchorMatcher:
         self._rms_prev: dict[int, float]        = {ch: 0.0 for ch in _tracked}
 
         self._last_match_t: float = -999.0
+        self._last_logged_cursor: int = -1   # verhindert Wiederholung derselben Wartezeile
+
+        print(f"[ANKER] {len(self._anchors)} Anker geladen:", file=sys.stderr)
+        for i, a in enumerate(self._anchors):
+            trigger = _event_to_trigger(a.get("type", ""), a.get("event", ""))
+            print(
+                f"[ANKER]   #{i+1:02d}  {a.get('type','?'):10s}  "
+                f"{a.get('event','?'):30s}  trigger={trigger}  bar={a.get('bar_num','?')}",
+                file=sys.stderr,
+            )
+        if self._anchors:
+            self._log_waiting()
 
     # ── Public API ─────────────────────────────────────────────────────────────
 
@@ -184,21 +197,54 @@ class AnchorMatcher:
 
     # ── Internes ───────────────────────────────────────────────────────────────
 
+    def _log_waiting(self) -> None:
+        """Loggt einmalig welchen Anker wir gerade erwarten."""
+        if self._cursor == self._last_logged_cursor or self.done:
+            return
+        self._last_logged_cursor = self._cursor
+        anc = self._anchors[self._cursor]
+        trigger = _event_to_trigger(anc.get("type", ""), anc.get("event", ""))
+        print(
+            f"[ANKER] warte auf #{self._cursor+1:02d}  "
+            f"{anc.get('type','?'):10s}  {anc.get('event','?'):30s}  "
+            f"trigger={trigger}",
+            file=sys.stderr,
+        )
+
     def _current_trigger(self) -> str:
         if self.done:
             return ""
         anc = self._anchors[self._cursor]
+        self._log_waiting()
         return _event_to_trigger(anc.get("type", ""), anc.get("event", ""))
 
     def _try_match(self, t: float) -> Optional[dict]:
         if self.done:
             return None
         if t - self._last_match_t < _MIN_MATCH_GAP:
+            t_rel = t - self._seg_start_t
+            remaining = _MIN_MATCH_GAP - (t - self._last_match_t)
+            print(
+                f"[ANKER] cooldown aktiv — #{self._cursor+1} noch gesperrt "
+                f"({remaining:.2f}s)  t={t_rel:.2f}s",
+                file=sys.stderr,
+            )
             return None
         anc = dict(self._anchors[self._cursor])
         anc["t_detected"] = t
+        t_rel = t - self._seg_start_t
+        print(
+            f"[ANKER] ✓ ERKANNT #{self._cursor+1:02d}  "
+            f"{anc.get('type','?'):10s}  {anc.get('event','?'):30s}  "
+            f"t={t_rel:.2f}s",
+            file=sys.stderr,
+        )
         self._cursor += 1
         self._last_match_t = t
+        if not self.done:
+            self._last_logged_cursor = -1   # nächste _log_waiting() soll sofort loggen
+        else:
+            print("[ANKER] alle Anker erkannt.", file=sys.stderr)
         return anc
 
     def _avg_rms(self, ch: int) -> float:

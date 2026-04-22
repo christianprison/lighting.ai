@@ -115,7 +115,7 @@ QComboBox#zoom_combo          { font-family:'DM Mono',monospace; font-size:10px;
                                 min-width:90px; max-width:110px; }
 """
 
-APP_VERSION = "1.3.9"
+APP_VERSION = "1.3.10"
 
 _ZOOM_PRESETS: list[int] = [2, 5, 10, 20, 40, 80, 160, 320, 640, 1280, 2560, 5120, 10240, 20480, 40960]
 
@@ -944,6 +944,12 @@ class MainWindow(QMainWindow):
 
     def _stop(self) -> None:
         self._player.stop()
+        # Simulation-Audio stoppen falls aktiv (Ergebnisse bleiben erhalten)
+        if self._sim_worker is not None:
+            self._sim_worker.stop_audio()
+            self._sim_worker.requestInterruption()
+            self._sim_playhead_timer.stop()
+            self._sim_worker = None
         self._play_act.setText("Play")
         if self._current_seg:
             self._timeline.set_cursor(self._current_seg.start_t)

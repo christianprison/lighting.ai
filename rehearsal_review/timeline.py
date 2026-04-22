@@ -1355,14 +1355,10 @@ class TimelineWidget(QWidget):
         pps = self._pps
         ox = self._scroll_x
 
-        # Im Overlay-Modus mit Sim-Events: Original-JSONL komplett ausblenden
-        _hide_orig = self._sim_overlay and bool(
-            self._sim_kicks or self._sim_snares or self._sim_crashes
-        )
+        # Im Overlay-Modus: Original-JSONL sofort ausblenden (auch vor ersten Sim-Events)
+        _hide_orig = self._sim_overlay
 
         if not _hide_orig:
-            if self._sim_overlay:
-                p.setOpacity(0.25)
             for ev in seg.events:
                 ex = LABEL_W + int((ev.t - seg.start_t) * pps) - ox
                 if ex < LABEL_W or ex > w:
@@ -1635,10 +1631,10 @@ class TimelineWidget(QWidget):
         p.setRenderHint(QPainter.RenderHint.Antialiasing, True)
 
         # ── Original-JSONL-Events ──────────────────────────────────────────────
-        # Im Overlay-Modus mit Sim-Events: Probe-Marker komplett ausblenden
-        _hide_orig = self._sim_overlay and bool(self._sim_kicks or self._sim_snares)
+        # Im Overlay-Modus: Probe-Marker sofort ausblenden (auch vor ersten Sim-Events)
+        _hide_orig = self._sim_overlay
         if not _hide_orig:
-            orig_alpha = 50 if self._sim_overlay else 180
+            orig_alpha = 180
             for ev in seg.events:
                 ex = LABEL_W + int((ev.t - seg.start_t) * pps) - ox
                 if ex < LABEL_W - r or ex > w + r:
@@ -1704,17 +1700,17 @@ class TimelineWidget(QWidget):
                    Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
                    summary)
 
-        # Anchor cell (between Events strip and first Track)
+        # Anchor cell (between Events strip and first Track) — immer sichtbar
         y0_anc = RULER_H + EVENTS_H + ANNOT_H
         p.fillRect(0, y0_anc, LABEL_W, ANCHOR_H, C_BG2)
-        if self._sim_anchors:
-            matched_n = len(self._sim_matched_ids)
-            total_n   = len(self._sim_anchors)
-            p.setFont(FONT_BTN)
-            p.setPen(C_AMBER if matched_n > 0 else C_T4)
-            p.drawText(6, y0_anc, LABEL_W - 10, ANCHOR_H,
-                       Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
-                       f"⚓ Anker  {matched_n}/{total_n}")
+        matched_n = len(self._sim_matched_ids)
+        total_n   = len(self._sim_anchors)
+        p.setFont(FONT_BTN)
+        p.setPen(C_AMBER if matched_n > 0 else C_T4)
+        anc_label = f"⚓ Anker  {matched_n}/{total_n}" if total_n > 0 else "⚓ Anker"
+        p.drawText(6, y0_anc, LABEL_W - 10, ANCHOR_H,
+                   Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
+                   anc_label)
         p.setPen(C_BORDER)
         p.drawLine(0, y0_anc + ANCHOR_H - 1, LABEL_W, y0_anc + ANCHOR_H - 1)
 

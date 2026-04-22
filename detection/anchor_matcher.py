@@ -38,6 +38,8 @@ _RMS_SILENCE    = 0.002   # alle Kanäle
 # Minimum-Abstand zwischen zwei aufeinanderfolgenden Anker-Matches
 _MIN_MATCH_GAP = 1.5   # Sekunden
 
+_RMS_DIAG_INTERVAL = 5.0   # Sekunden zwischen RMS-Diagnose-Prints
+
 _VOCAL_BY_TYPE: dict[str, int] = {
     "pete":      CH_PETE,
     "axel":      CH_AXEL,
@@ -137,6 +139,7 @@ class AnchorMatcher:
 
         self._last_match_t: float = -999.0
         self._last_logged_cursor: int = -1   # verhindert Wiederholung derselben Wartezeile
+        self._last_rms_diag_t: float = -999.0
 
         print(f"[ANKER] {len(self._anchors)} Anker geladen:", file=sys.stderr, flush=True)
         for i, a in enumerate(self._anchors):
@@ -286,7 +289,52 @@ class AnchorMatcher:
             return self._try_match(t)
         return None
 
+    def _maybe_rms_diag(self, trigger: str, t: float) -> None:
+        """Periodische RMS-Diagnose für aktiven RMS-Trigger (alle 5 s)."""
+        if t - self._last_rms_diag_t < _RMS_DIAG_INTERVAL:
+            return
+        self._last_rms_diag_t = t
+        t_rel = t - self._seg_start_t
+        info: list[str] = []
+        for vtype, ch in _VOCAL_BY_TYPE.items():
+            if trigger.startswith(vtype):
+                curr = self._avg_rms(ch)
+                info.append(
+                    f"{vtype}(CH{ch})={curr:.4f}  "
+                    f"thresh={_RMS_VOCAL_ON:.4f}  prev={self._rms_prev.get(ch, 0.0):.4f}"
+                )
+                break
+        if trigger in ("guitar_onset", "guitar_silence"):
+            curr = self._avg_rms(CH_GUITAR)
+            info.append(
+                f"guitar(CH{CH_GUITAR})={curr:.4f}  "
+                f"thresh={_RMS_GUITAR_ON:.4f}  prev={self._rms_prev.get(CH_GUITAR, 0.0):.4f}"
+            )
+        elif trigger in ("bass_onset", "bass_silence"):
+            curr = self._avg_rms(CH_BASS)
+            info.append(
+                f"bass(CH{CH_BASS})={curr:.4f}  "
+                f"thresh={_RMS_BASS_ON:.4f}  prev={self._rms_prev.get(CH_BASS, 0.0):.4f}"
+            )
+        elif trigger in ("drum_silence", "drums_only"):
+            kick = self._avg_rms(CH_KICK)
+            snare = self._avg_rms(CH_SNARE)
+            info.append(f"kick(CH{CH_KICK})={kick:.4f}  snare(CH{CH_SNARE})={snare:.4f}  thresh={_RMS_DRUM_ON:.4f}")
+        elif trigger == "harmony":
+            info.append("  ".join(f"{vt}(CH{ch})={self._avg_rms(ch):.4f}" for vt, ch in _VOCAL_BY_TYPE.items()))
+        elif trigger == "full_silence":
+            info.append("  ".join(
+                f"CH{ch}={self._avg_rms(ch):.4f}"
+                for ch in (CH_PETE, CH_AXEL, CH_GUITAR, CH_BASS, CH_KICK, CH_SNARE)
+            ))
+        if info:
+            print(
+                f"[ANKER] RMS  trigger={trigger}  t={t_rel:.1f}s  " + "  ".join(info),
+                file=sys.stderr, flush=True,
+            )
+
     def _check_rms_trigger(self, trigger: str, t: float) -> Optional[dict]:
+        self._maybe_rms_diag(trigger, t)
         # Vokal-Trigger
         for vtype, ch in _VOCAL_BY_TYPE.items():
             if trigger == f"{vtype}_onset":

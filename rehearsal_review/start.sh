@@ -41,4 +41,5 @@ python3 -c "import numpy" 2>/dev/null || {
     pip install numpy
 }
 
+export PYTHONUNBUFFERED=1
 exec python3 "$SCRIPT_DIR/main.py" "$@"

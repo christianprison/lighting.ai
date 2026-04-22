@@ -60,7 +60,6 @@ class SimulatorWorker(QThread):
     snare_detected = pyqtSignal(float)
     crash_detected = pyqtSignal(float)
     bar_detected   = pyqtSignal(int, float, float)  # (bar_num, t_rel, bpm)
-    anchor_matched = pyqtSignal(object)              # anchor dict
 
     def __init__(
         self,
@@ -78,7 +77,6 @@ class SimulatorWorker(QThread):
         song_key: str = "",
         grundrhythmus: dict | None = None,
         realtime: bool = False,
-        anchors: list | None = None,
         parent=None,
     ) -> None:
         super().__init__(parent)
@@ -92,7 +90,6 @@ class SimulatorWorker(QThread):
         self._song_key      = song_key
         self._grundrhythmus = grundrhythmus
         self._realtime      = realtime
-        self._anchors       = anchors or []
         self._sd            = None   # sounddevice-Modul, gesetzt sobald sd.play() läuft
 
     def stop_audio(self) -> None:
@@ -322,9 +319,6 @@ class SimulatorWorker(QThread):
                             "rhythm": bass_rhythm,
                         })
                     self.bar_detected.emit(bar_num, bar_t - self._seg_start_t, bpm_now)
-                    for anc in self._anchors:
-                        if anc.get("bar_num") == bar_num:
-                            self.anchor_matched.emit(dict(anc))
                 _last_n_bars = len(current_bars)
 
                 blocks_done += 1

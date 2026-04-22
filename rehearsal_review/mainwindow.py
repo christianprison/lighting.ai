@@ -115,7 +115,7 @@ QComboBox#zoom_combo          { font-family:'DM Mono',monospace; font-size:10px;
                                 min-width:90px; max-width:110px; }
 """
 
-APP_VERSION = "1.3.12"
+APP_VERSION = "1.3.13"
 
 _ZOOM_PRESETS: list[int] = [2, 5, 10, 20, 40, 80, 160, 320, 640, 1280, 2560, 5120, 10240, 20480, 40960]
 
@@ -399,7 +399,6 @@ class MainWindow(QMainWindow):
         self._sim_worker:       Optional[SimulatorWorker] = None
         self._sim_monitor:      Optional[object]          = None   # unused, kept for compat
         self._sim_progress_dlg: Optional[QProgressDialog] = None
-        self._sim_overlay_act: Optional[object] = None   # QAction, gesetzt in _build_toolbar
         self._sim_start_wav_t: float = 0.0  # WAV-Offset bei Simulations-Start
         self._sim_t_in_seg:    float = 0.0  # Segment-relative Startposition für Seek
         self._sim_bpm:         float = 120.0
@@ -638,21 +637,6 @@ class MainWindow(QMainWindow):
         self._sim_btn.clicked.connect(self._on_sim_btn_clicked)
         tb2.addWidget(self._sim_btn)
 
-        self._sim_overlay_act = tb2.addAction("⊙ Simulation")
-        self._sim_overlay_act.setCheckable(True)
-        self._sim_overlay_act.setChecked(False)
-        self._sim_overlay_act.setEnabled(False)
-        self._sim_overlay_act.setToolTip(
-            "Umschalten: Simulation (volle Farben) ↔ Original (volle Farben)\n"
-            "Im Simulation-Modus sind Original-Events auf 25 % gedimmt"
-        )
-        self._sim_overlay_act.toggled.connect(self._timeline.set_sim_overlay)
-
-        self._sim_clear_act = tb2.addAction("✕ Sim")
-        self._sim_clear_act.setEnabled(False)
-        self._sim_clear_act.setToolTip("Simulations-Ergebnisse aus Timeline entfernen")
-        self._sim_clear_act.triggered.connect(self._clear_simulation)
-
     # ── Loading ───────────────────────────────────────────────────────────────
 
     # Regex für simulierte JSONL-Ausgabedateien: stem_sim_songId_HHMMSS.jsonl
@@ -816,10 +800,6 @@ class MainWindow(QMainWindow):
             self._sim_monitor = None
         self._timeline.clear_sim_events()
         self._timeline.set_sim_overlay(False)
-        if self._sim_overlay_act:
-            self._sim_overlay_act.setChecked(False)
-            self._sim_overlay_act.setEnabled(False)
-        self._sim_clear_act.setEnabled(False)
 
         # Show existing annotations for this song
         ann = self._annotations.get(seg.song_id)
@@ -1557,7 +1537,6 @@ class MainWindow(QMainWindow):
 
         self._timeline.clear_sim_events()
         self._sim_btn_set_running(True)
-        self._sim_clear_act.setEnabled(True)
         self._sim_start_wav_t = sim_start_wav_t
         self._sim_t_in_seg    = t_in_seg_start
         self._sim_bpm         = bpm
@@ -1567,8 +1546,6 @@ class MainWindow(QMainWindow):
         self._player.stop()
 
         # Overlay sofort aktivieren — Events erscheinen live in Amber/Cyan
-        self._sim_overlay_act.setEnabled(True)
-        self._sim_overlay_act.setChecked(True)
         self._timeline.set_sim_overlay(True)
 
         worker = SimulatorWorker(
@@ -1639,22 +1616,6 @@ class MainWindow(QMainWindow):
             elapsed_since_bar = time.monotonic() - self._ev_playhead_wall_t
             ev_wav_t = self._ev_playhead_wav_t + elapsed_since_bar
             self._timeline.set_event_cursor(ev_wav_t)
-
-    def _clear_simulation(self) -> None:
-        self._sim_playhead_timer.stop()
-        self._ev_playhead_wav_t  = 0.0
-        self._ev_playhead_wall_t = 0.0
-        if self._sim_worker is not None:
-            self._sim_worker.stop_audio()        # Playback sofort stoppen
-            self._sim_worker.requestInterruption()
-            self._sim_worker = None
-        self._timeline.clear_sim_events()   # also resets _event_cursor_t
-        self._timeline.set_sim_overlay(False)
-        self._sim_btn_set_running(False)
-        self._sim_overlay_act.setChecked(False)
-        self._sim_overlay_act.setEnabled(False)
-        self._sim_clear_act.setEnabled(False)
-        self._status.showMessage("Simulations-Ergebnisse gelöscht", 3000)
 
     def _close_sim_progress(self) -> None:
         if self._sim_progress_dlg is not None:
@@ -1809,7 +1770,6 @@ class MainWindow(QMainWindow):
         self._close_sim_progress()
         self._sim_btn_set_running(False)
         self._sim_btn.setEnabled(True)
-        self._sim_clear_act.setEnabled(True)
         self._sim_worker = None
 
         n_kicks   = result.get("n_kicks",   0)
@@ -1921,10 +1881,6 @@ class MainWindow(QMainWindow):
             12000,
         )
 
-        # Overlay-Toggle freischalten und Simulation-Ansicht aktivieren
-        self._sim_overlay_act.setEnabled(True)
-        self._sim_overlay_act.setChecked(True)
-
         # Zoom auf 80 px/s setzen für gut lesbare Diamond-Darstellung
         self._timeline.set_zoom(80.0)
         self._sync_zoom_combo()
@@ -1935,7 +1891,6 @@ class MainWindow(QMainWindow):
         self._sim_btn_set_running(False)
         self._sim_btn.setEnabled(True)
         self._sim_worker = None
-        self._sim_clear_act.setEnabled(False)
         self._status.showMessage(f"Simulation fehlgeschlagen: {err}", 8000)
         QMessageBox.critical(self, "Simulation", f"Fehler:\n{err}")
 

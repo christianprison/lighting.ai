@@ -115,7 +115,7 @@ QComboBox#zoom_combo          { font-family:'DM Mono',monospace; font-size:10px;
                                 min-width:90px; max-width:110px; }
 """
 
-APP_VERSION = "1.3.6"
+APP_VERSION = "1.3.7"
 
 _ZOOM_PRESETS: list[int] = [2, 5, 10, 20, 40, 80, 160, 320, 640, 1280, 2560, 5120, 10240, 20480, 40960]
 
@@ -1479,11 +1479,10 @@ class MainWindow(QMainWindow):
 
         seg = self._current_seg
 
-        # BPM + Tonart + Grundrhythmus + Anker aus der Songdatenbank holen
+        # BPM + Tonart + Grundrhythmus aus der Songdatenbank holen
         bpm = 120.0
         song_key = ""
         grundrhythmus: dict | None = None
-        anchors: list = []
         try:
             repo_root = self._session.jsonl_path.parent.parent.parent.parent
             db_json   = repo_root / "db" / "lighting-ai-db.json"
@@ -1494,7 +1493,6 @@ class MainWindow(QMainWindow):
                 bpm           = float(song_db.get("bpm", 120.0))
                 song_key      = song_db.get("key", "")
                 grundrhythmus = song_db.get("grundrhythmus") or None
-                anchors       = song_db.get("anchors", []) or []
         except Exception:
             pass
 
@@ -1528,22 +1526,6 @@ class MainWindow(QMainWindow):
         # Laufenden Playback stoppen (Simulation spielt eigenes Audio ab)
         self._player.stop()
 
-        # Anker in Timeline vorabladen (BPM-basierte Erwartungs-Zeiten)
-        if anchors:
-            bar_dur = 4 * 60.0 / bpm
-            anchors_info = []
-            for anc in anchors:
-                bar_num = anc.get("bar_num", 1)
-                anchors_info.append({
-                    "id":       anc.get("id", ""),
-                    "t_abs":    sim_start_wav_t + (bar_num - 1) * bar_dur,
-                    "type":     anc.get("type", "other"),
-                    "event":    anc.get("event", ""),
-                    "bar_num":  bar_num,
-                    "part_hint": anc.get("part_hint", ""),
-                })
-            self._timeline.set_sim_anchors(anchors_info)
-
         # Overlay sofort aktivieren — Events erscheinen live in Amber/Cyan
         self._sim_overlay_act.setEnabled(True)
         self._sim_overlay_act.setChecked(True)
@@ -1564,7 +1546,6 @@ class MainWindow(QMainWindow):
             song_key=song_key,
             grundrhythmus=grundrhythmus,
             realtime=True,
-            anchors=anchors,
             parent=self,
         )
 
@@ -1579,8 +1560,6 @@ class MainWindow(QMainWindow):
         worker.bar_detected.connect(
             lambda n, t, bpm_v: self._timeline.add_sim_bar_time(start_t + t, bpm_v))
         worker.bar_detected.connect(self._on_bar_detected_ev)
-        worker.anchor_matched.connect(
-            lambda anc: self._timeline.mark_sim_anchor_matched(anc.get("id", "")))
         worker.sim_started.connect(self._on_sim_started)
         worker.finished.connect(self._on_sim_finished)
         worker.error.connect(self._on_sim_error)
@@ -1828,42 +1807,6 @@ class MainWindow(QMainWindow):
         bpm_tl   = _compute_bpm_timeline(abs_kicks, abs_snares)
         bar_times: list[float] = result.get("bar_times", [])
         self._timeline.set_sim_bpm_and_bars(bpm_tl, bar_times)
-
-        # Retroaktiver Anker-Abgleich — zwei Pässe
-        if self._timeline._sim_anchors:
-            import bisect as _bisect
-
-            bar_dur = 4.0 * 60.0 / max(1.0, self._sim_bpm)
-
-            # Pass 1: Bar-Count-Matching (BarTracker zählt Takt N → Anker bei N erkannt)
-            n_bars = len(bar_times)
-            for anc in self._timeline._sim_anchors:
-                bar_n = anc.get("bar_num")
-                if bar_n is not None and 1 <= bar_n <= n_bars:
-                    self._timeline.mark_sim_anchor_matched(anc.get("id", ""))
-
-            # Pass 2: Zeitfenster-Matching für noch nicht erkannte Anker.
-            # Vergleicht erwartete Anker-Zeit (DB-BPM + bar_num) gegen tatsächliche
-            # Events (bar_times + kicks + snares). Toleranz = ±1 Takt.
-            # Deckt ab: bar_times kürzer als erwartet, Anker am Songend,
-            # Einsätze/Pausen bei denen der BarTracker nicht akkurat zählt.
-            already = set(self._timeline._sim_matched_ids)
-            if len(already) < len(self._timeline._sim_anchors):
-                all_ref = sorted(list(bar_times) + abs_kicks + abs_snares)
-                tol = bar_dur  # ±1 Takt Toleranz
-                for anc in self._timeline._sim_anchors:
-                    if anc.get("id", "") in already:
-                        continue
-                    bar_n = anc.get("bar_num")
-                    if bar_n is None:
-                        continue
-                    t_exp = self._sim_start_wav_t + (bar_n - 1) * bar_dur
-                    i = _bisect.bisect_left(all_ref, t_exp - tol)
-                    for t_ev in all_ref[i:]:
-                        if t_ev > t_exp + tol:
-                            break
-                        self._timeline.mark_sim_anchor_matched(anc.get("id", ""))
-                        break
 
         # Streaming Features direkt aus SimulatorWorker (Prime Directive: kein PostProcess mehr)
         self._last_bar_times = bar_times

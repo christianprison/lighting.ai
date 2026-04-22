@@ -157,14 +157,7 @@ class AnchorMatcher:
 
     def process_kick(self, t_abs: float, energy: float) -> Optional[dict]:
         self._kick_times.append(t_abs)
-        n = len(self._kick_times)
         trigger = self._current_trigger()
-        if n <= 3:
-            print(
-                f"[ANKER-DBG] process_kick #{n}  t_rel={t_abs-self._seg_start_t:.2f}s"
-                f"  trigger={trigger!r}  cursor={self._cursor}/{len(self._anchors)}",
-                file=sys.stderr, flush=True,
-            )
         if trigger in ("kick", "drum_onset"):
             return self._try_match(t_abs)
         if trigger == "drum_fill":
@@ -227,7 +220,6 @@ class AnchorMatcher:
 
     def _try_match(self, t: float) -> Optional[dict]:
         if self.done:
-            print(f"[ANKER-DBG] _try_match: done=True cursor={self._cursor}/{len(self._anchors)}", file=sys.stderr, flush=True)
             return None
         if t - self._last_match_t < _MIN_MATCH_GAP:
             t_rel = t - self._seg_start_t
@@ -277,15 +269,19 @@ class AnchorMatcher:
     def _onset_transition(self, ch: int, t: float, on: float, off: float) -> Optional[dict]:
         prev = self._rms_prev.get(ch, 0.0)
         curr = self._avg_rms(ch)
-        self._rms_prev[ch] = curr
-        if curr > on and prev < on * 0.5:
-            return self._try_match(t)
+        if curr > on:
+            self._rms_prev[ch] = curr
+            if prev < on * 0.5:
+                return self._try_match(t)
+        elif curr < off:
+            self._rms_prev[ch] = 0.0  # signal clearly quiet → reset so next onset is fresh
         return None
 
     def _silence_transition(self, ch: int, t: float, on: float, off: float) -> Optional[dict]:
         prev = self._rms_prev.get(ch, 0.0)
         curr = self._avg_rms(ch)
-        self._rms_prev[ch] = curr
+        if curr > on:
+            self._rms_prev[ch] = curr  # track high watermark while loud
         if curr < off and prev > on:
             return self._try_match(t)
         return None
@@ -322,10 +318,14 @@ class AnchorMatcher:
             return self._silence_transition(CH_BASS, t, _RMS_BASS_ON, _RMS_BASS_OFF)
 
         elif trigger == "drum_silence":
-            drum_now  = self._avg_rms(CH_KICK) + self._avg_rms(CH_SNARE)
+            kick_now  = self._avg_rms(CH_KICK)
+            snare_now = self._avg_rms(CH_SNARE)
+            drum_now  = kick_now + snare_now
             drum_prev = self._rms_prev.get(CH_KICK, 0.0) + self._rms_prev.get(CH_SNARE, 0.0)
-            self._rms_prev[CH_KICK]  = self._avg_rms(CH_KICK)
-            self._rms_prev[CH_SNARE] = self._avg_rms(CH_SNARE)
+            if kick_now > _RMS_DRUM_ON:
+                self._rms_prev[CH_KICK]  = kick_now
+            if snare_now > _RMS_DRUM_ON:
+                self._rms_prev[CH_SNARE] = snare_now
             if drum_now < _RMS_DRUM_OFF and drum_prev > _RMS_DRUM_ON:
                 return self._try_match(t)
 

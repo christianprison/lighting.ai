@@ -157,7 +157,14 @@ class AnchorMatcher:
 
     def process_kick(self, t_abs: float, energy: float) -> Optional[dict]:
         self._kick_times.append(t_abs)
+        n = len(self._kick_times)
         trigger = self._current_trigger()
+        if n <= 3:
+            print(
+                f"[ANKER-DBG] process_kick #{n}  t_rel={t_abs-self._seg_start_t:.2f}s"
+                f"  trigger={trigger!r}  cursor={self._cursor}/{len(self._anchors)}",
+                file=sys.stderr, flush=True,
+            )
         if trigger in ("kick", "drum_onset"):
             return self._try_match(t_abs)
         if trigger == "drum_fill":
@@ -220,6 +227,7 @@ class AnchorMatcher:
 
     def _try_match(self, t: float) -> Optional[dict]:
         if self.done:
+            print(f"[ANKER-DBG] _try_match: done=True cursor={self._cursor}/{len(self._anchors)}", file=sys.stderr, flush=True)
             return None
         if t - self._last_match_t < _MIN_MATCH_GAP:
             t_rel = t - self._seg_start_t

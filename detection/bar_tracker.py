@@ -255,7 +255,7 @@ def _snare_phase_correct(
                 print(
                     f"[BAR] _snare_phase_correct tie-break: {first_t:.3f} → {corrected:.3f} "
                     f"(+2 Beats via Energie-Tie-Breaker, e0={e_0:.4f} e2={e_2:.4f})",
-                    file=sys.stderr,
+                    file=sys.stderr, flush=True,
                 )
                 return corrected
         return first_t
@@ -264,7 +264,7 @@ def _snare_phase_correct(
     print(
         f"[BAR] _snare_phase_correct: {first_t:.3f} → {corrected:.3f} "
         f"(+{best_shift} Beats, scores={[f'{s:.2f}' for s in scores]})",
-        file=sys.stderr,
+        file=sys.stderr, flush=True,
     )
     return corrected
 
@@ -302,7 +302,7 @@ def _energy_beat1_correct(
         print(
             f"[BAR] energy_beat1: phase_curr_avg={avg_curr:.4f}  "
             f"phase_alt_avg={avg_alt:.4f}  ratio={avg_alt/max(avg_curr,1e-9):.2f}",
-            file=sys.stderr,
+            file=sys.stderr, flush=True,
         )
 
     if avg_alt > avg_curr * 1.05:
@@ -310,7 +310,7 @@ def _energy_beat1_correct(
         print(
             f"[BAR] energy_beat1: {first_t:.3f} → {corrected:.3f} (+2 Beats, "
             f"avg {avg_curr:.4f} → {avg_alt:.4f})",
-            file=sys.stderr,
+            file=sys.stderr, flush=True,
         )
         return corrected
 
@@ -348,7 +348,7 @@ def _crash_beat1_correct(
     print(
         f"[BAR] crash_beat1_correct: {first_t:.3f} → {corrected:.3f} "
         f"(+{best * 2} Beats, crash_scores={scores})",
-        file=sys.stderr,
+        file=sys.stderr, flush=True,
     )
     return corrected
 
@@ -439,7 +439,7 @@ def _compute_bar_grid(
             f"[BAR] grid: seg_start={seg_start_t:.3f}  anchor={first_t:.3f}"
             f"  offset={(first_t - seg_start_t) / beat_sec:+.2f} beats"
             f"  bpm={bpm}",
-            file=sys.stderr,
+            file=sys.stderr, flush=True,
         )
 
     # Rückwärts: mathematisches Raster vor first_t bis seg_start_t
@@ -494,12 +494,12 @@ def _compute_bar_grid(
         print(
             f"[BAR] Snare-Positionen in Takten (Beat 2≈1.0, Beat 4≈3.0): "
             f"{snare_positions}",
-            file=sys.stderr,
+            file=sys.stderr, flush=True,
         )
         print(
             f"[BAR] Erste 5 Takte (abs): "
             f"{[f'{t:.3f}' for t in sorted_bars[:5]]}",
-            file=sys.stderr,
+            file=sys.stderr, flush=True,
         )
 
     return all_bars

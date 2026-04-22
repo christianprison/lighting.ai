@@ -559,7 +559,21 @@ probe_events   (id, session_id, wav_offset, song_id, bar_num, part_name, confide
 - `sim_started(float)`: emittiert `time.monotonic()` exakt nach `sd.play()` — Ankerpunkt für Playhead-Timer
 - `kick_detected(float)`, `snare_detected(float)`, `crash_detected(float)`: t_rel → Timeline-Diamonds
 - `bar_detected(int, float, float)`: (bar_num, t_rel, bpm) → Taktgitter + Event-Playhead-Tracking
-- `anchor_matched(object)`: anchor-dict wenn bar_num eines Ankers erkannt → `mark_sim_anchor_matched()`
+- `anchor_matched(object)`: anchor-dict wenn `AnchorMatcher` einen Anker erkennt → `add_sim_anchor_detected()`
+
+**Initialisierungsreihenfolge in `_run_inner()` (Logging-Timing)**:
+Alle Objekte (ChromaExtraktoren, OnsetDetector, BarTracker, AnchorMatcher) werden **vor** `sd.play()` initialisiert.
+Damit ist das stderr-Logging des AnchorMatchers (`[ANKER] warte auf #01 ...`) zeitlich korrekt zur Audiowiedergabe.
+Frühere Versionen riefen `sd.play()` zuerst auf → Logging lief bis zu mehreren Sekunden verzögert.
+
+**Simulation-Button (mainwindow.py)**:
+- `_sim_btn` ist ein `QPushButton` (checkable), ersetzt den früheren `_sim_act` QAction
+- Idle: nur grüner Rahmen (`border:2px solid #00dc82; background:transparent`)
+- Running: vollflächig grün (`background:#00dc82; color:#08090d; font-weight:bold`)
+- `_sim_btn_set_running(running: bool)`: setzt Text (`▶ Simulation` / `■ Simulation`), Style und `setChecked()`
+- Wird aufgerufen in: `_run_simulation()`, `_stop()`, `_clear_simulation()`, `_on_sim_finished()`, `_on_sim_error()`
+- Space-Taste: wenn Simulation läuft → `_stop()` (stoppt Audio + Worker), sonst → `_toggle_play()`
+- `stop_audio()` in `SimulatorWorker`: stoppt `sd` (als Instanzvariable `self._sd`), aufrufbar aus Main-Thread
 
 **Echtzeit-Playback + Dual-Playhead (mainwindow.py):**
 - `_sim_wall_start`: Wall-Clock bei `sim_started` — Basis des roten Audio-Playheads
@@ -603,6 +617,39 @@ Alle Features werden jetzt streaming im `SimulatorWorker` berechnet, identisch m
 - Taktgitter + BPM-Anzeige automatisch berechnet und eingeblendet
 - Zoom wird nach Sim auf 80 px/s gesetzt
 - `✕ Sim`-Button: löscht alle Sim-Events, BPM, Taktgitter, Anker-Strip; deaktiviert Overlay
+
+#### AnchorMatcher (`detection/anchor_matcher.py`)
+
+Streaming, cursor-basierter Anker-Matcher — wartet stur auf den jeweils nächsten Anker in DB-Reihenfolge, kein Lookahead:
+
+**Grundprinzip**: Die in der DB-Pflege-App gepflegten Anker eines Songs werden beim Sim-Start geladen und sequentiell abgearbeitet. Erst wenn Anker #1 erkannt wurde, wird auf Anker #2 gewartet usw.
+
+**`_event_to_trigger(type, event) -> str`** — Mapping von Anker-Typ/Ereignis auf Trigger-Kategorie:
+- `drum` + crash* → `"crash"` | snare-roll → `"snare_roll"` | fill → `"drum_fill"` | snare → `"snare"` | pause → `"drum_silence"` | sonst → `"kick"`
+- `pete`/`axel`/`christian` + schrei/ausruf → `"{type}_peak"` | pause/hört auf → `"{type}_silence"` | harmony → `"harmony"` | sonst → `"{type}_onset"`
+- `guitar` + pause/endet → `"guitar_silence"` | sonst → `"guitar_onset"`
+- `bass` + pause → `"bass_silence"` | sonst → `"bass_onset"`
+- `silence` + nur schlagzeug → `"drums_only"` | sonst → `"full_silence"`
+- `keys`/`other` → `"kick"` (Fallback: nächster Kick)
+
+**Eintrittspunkte**:
+- `process_kick(t_abs, energy)` — nach Kick-Onset (von OnsetDetector)
+- `process_snare(t_abs, energy)` — nach Snare-Onset
+- `process_crash(t_abs, energy)` — nach Crash-Onset
+- `process_block(block, t_abs)` — einmal pro Block für RMS-basierte Trigger (Vokal/Guitar/Bass/Stille)
+
+**Cooldown**: `_MIN_MATCH_GAP = 1.5 s` zwischen zwei aufeinanderfolgenden Matches (verhindert Doppeltreffer)
+
+**RMS-Schwellwerte** (gleitender Mittelwert über `_RMS_BUF = 30` Blöcke):
+- Vokal: ON=0.012, OFF=0.005 | Guitar: ON=0.008, OFF=0.003 | Bass: ON=0.006, OFF=0.002 | Drum: ON=0.005, OFF=0.002
+
+**Visualisierung**: Erkannte Anker werden per `add_sim_anchor_detected(anc)` in die Timeline geschrieben (Anker-Strip, ANCHOR_H=40). Nur tatsächlich erkannte Anker erscheinen — keine BPM-geschätzte Erwartungsposition.
+
+**Logging** (alle mit `flush=True`):
+- `[ANKER] warte auf #NN ...` — einmalig pro Cursor-Position (Guard `_last_logged_cursor`)
+- `[ANKER] ✓ ERKANNT #NN  type  event  t=X.XXs` — bei Match
+- `[ANKER] cooldown aktiv — #NN noch gesperrt (Y.YYs)  t=X.XXs` — bei Sperrzeit
+- `[ANKER] alle Anker erkannt.` — wenn alle verarbeitet
 
 #### OnsetDetector (`detection/beat_detector.py`)
 
@@ -717,7 +764,13 @@ Wenn ein Song kein `grundrhythmus` hat, wird Phasen-Histogramm + Crash-Fallback 
 
 #### ⚠️ Offene Punkte für nächste Session
 
-1. **Feldtest Beat-1-Korrektur + Dual-Playhead**: Simulation auf verschiedenen Songs laufen lassen:
+1. **Feldtest AnchorMatcher**: Simulation auf Songs mit gepflegten Ankern laufen lassen:
+   - `[ANKER] warte auf #01 ...` erscheint vor dem ersten Audio-Ton (Logging-Timing korrekt?)
+   - Anker werden in der richtigen Reihenfolge erkannt und als Diamonds im Anker-Strip sichtbar
+   - Cooldown-Meldungen zeigen sich bei schnellen aufeinanderfolgenden Ereignissen
+   - RMS-basierte Trigger (Vokal-Einsatz, Guitar-Pause) reagieren auf die richtigen Momente
+   - **Schwellwerte tunen**: Falls zu viele False Positives → `_RMS_VOCAL_ON` / `_RMS_GUITAR_ON` erhöhen; zu wenige → senken
+2. **Feldtest Beat-1-Korrektur + Dual-Playhead**: Simulation auf verschiedenen Songs laufen lassen:
    - Crash-Detektion: Status-Bar zeigt `★ N Crashes`? Wenn 0 → `CRASH_RMS_MIN` (aktuell 0.001) weiter senken
    - Energy-Korrektur: `[BAR] energy_beat1: ratio=Z` auf stderr — Z > 1.05 = Korrektur greift
    - Taktgitter landet auf Beat 1 (Snare-Positionen ≈ 1.0 und 3.0 beats in Diagnostik)
@@ -725,7 +778,7 @@ Wenn ein Song kein `grundrhythmus` hat, wird Phasen-Histogramm + Crash-Fallback 
    - **grundrhythmus-Daten einpflegen**: Für jeden Song die Kick/Snare-Positionen in der
      DB-Pflege-App eintragen (Felder seit v2.2.27), damit Pattern-Matching statt
      Phasen-Histogramm greift
-2. **Anker-Matching mit echten Timestamps**: Aktuell werden Anker anhand `bar_num` erkannt (BarTracker zählt Takte). Nächster Schritt: nach der Simulation die erkannten `bar_times` mit den Anker-`bar_num`-Werten abgleichen und die `t_abs`-Felder der Anker korrigieren (Nachkalibrierung).
+3. **Anker-Positionen in der DB pflegen**: Für Songs ohne Anker-Daten die Anker in der DB-Pflege-App eintragen, damit der AnchorMatcher greifen kann. Besonders drum-Anker (Crash, Snare) sind einfach zu erkennen und liefern schnell Ergebnisse.
 
 #### Anker-Feature (DB-Pflege-App v2.3.2)
 

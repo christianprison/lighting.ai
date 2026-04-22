@@ -15,8 +15,8 @@ from PyQt6.QtGui import QAction, QKeySequence
 from PyQt6.QtWidgets import (
     QApplication, QComboBox, QDialog, QFileDialog, QInputDialog,
     QLabel, QListWidget, QListWidgetItem, QMainWindow, QMessageBox,
-    QProgressDialog, QScrollArea, QSpinBox, QStatusBar, QToolBar,
-    QVBoxLayout, QWidget,
+    QProgressDialog, QPushButton, QScrollArea, QSpinBox, QStatusBar,
+    QToolBar, QVBoxLayout, QWidget,
 )
 
 from session import Session, SongSegment, load_session
@@ -115,7 +115,7 @@ QComboBox#zoom_combo          { font-family:'DM Mono',monospace; font-size:10px;
                                 min-width:90px; max-width:110px; }
 """
 
-APP_VERSION = "1.3.11"
+APP_VERSION = "1.3.12"
 
 _ZOOM_PRESETS: list[int] = [2, 5, 10, 20, 40, 80, 160, 320, 640, 1280, 2560, 5120, 10240, 20480, 40960]
 
@@ -626,12 +626,17 @@ class MainWindow(QMainWindow):
 
         tb2.addSeparator()
 
-        self._sim_act = tb2.addAction("▶ Simulation")
-        self._sim_act.setEnabled(False)
-        self._sim_act.setToolTip(
-            "Beat-Detection offline simulieren — Ergebnis wird in der Timeline dargestellt"
+        self._sim_btn = QPushButton("▶ Simulation")
+        self._sim_btn.setEnabled(False)
+        self._sim_btn.setToolTip(
+            "Beat-Detection offline simulieren\n"
+            "Klick startet — während Simulation: Klick stoppt (Ergebnisse bleiben)"
         )
-        self._sim_act.triggered.connect(self._run_simulation)
+        self._sim_btn.setCheckable(True)
+        self._sim_btn.setChecked(False)
+        self._sim_btn_set_running(False)
+        self._sim_btn.clicked.connect(self._on_sim_btn_clicked)
+        tb2.addWidget(self._sim_btn)
 
         self._sim_overlay_act = tb2.addAction("⊙ Simulation")
         self._sim_overlay_act.setCheckable(True)
@@ -704,7 +709,7 @@ class MainWindow(QMainWindow):
         self._import_act.setEnabled(True)
         self._db_parts_act.setEnabled(True)
         self._detect_frags_act.setEnabled(True)
-        self._sim_act.setEnabled(True)
+        self._sim_btn.setEnabled(True)
 
         # Fill song combo (block signals during rebuild)
         self._song_combo.blockSignals(True)
@@ -950,6 +955,7 @@ class MainWindow(QMainWindow):
             self._sim_worker.requestInterruption()
             self._sim_playhead_timer.stop()
             self._sim_worker = None
+            self._sim_btn_set_running(False)
         self._play_act.setText("Play")
         if self._current_seg:
             self._timeline.set_cursor(self._current_seg.start_t)
@@ -1481,6 +1487,29 @@ class MainWindow(QMainWindow):
 
     # ── Simulation ────────────────────────────────────────────────────────────
 
+    _SIM_BTN_IDLE    = ("▶ Simulation",
+                        "border:2px solid #00dc82; background:transparent;"
+                        " color:#00dc82; padding:4px 10px; border-radius:3px;"
+                        " font-family:'DM Mono',monospace; font-size:10px;")
+    _SIM_BTN_RUNNING = ("■ Simulation",
+                        "border:2px solid #00dc82; background:#00dc82;"
+                        " color:#08090d; padding:4px 10px; border-radius:3px;"
+                        " font-family:'DM Mono',monospace; font-size:10px;"
+                        " font-weight:bold;")
+
+    def _sim_btn_set_running(self, running: bool) -> None:
+        text, style = self._SIM_BTN_RUNNING if running else self._SIM_BTN_IDLE
+        self._sim_btn.setText(text)
+        self._sim_btn.setStyleSheet(style)
+        self._sim_btn.setChecked(running)
+
+    def _on_sim_btn_clicked(self) -> None:
+        if self._sim_worker is not None:
+            # läuft → stoppen (Ergebnisse bleiben)
+            self._stop()
+        else:
+            self._run_simulation()
+
     def _run_simulation(self) -> None:
         """Startet die Offline-Simulation der Live-Erkennung auf dem aktuellen Segment."""
         if self._current_seg is None or self._session is None:
@@ -1527,7 +1556,7 @@ class MainWindow(QMainWindow):
         )
 
         self._timeline.clear_sim_events()
-        self._sim_act.setEnabled(False)
+        self._sim_btn_set_running(True)
         self._sim_clear_act.setEnabled(True)
         self._sim_start_wav_t = sim_start_wav_t
         self._sim_t_in_seg    = t_in_seg_start
@@ -1621,7 +1650,7 @@ class MainWindow(QMainWindow):
             self._sim_worker = None
         self._timeline.clear_sim_events()   # also resets _event_cursor_t
         self._timeline.set_sim_overlay(False)
-        self._sim_act.setEnabled(True)
+        self._sim_btn_set_running(False)
         self._sim_overlay_act.setChecked(False)
         self._sim_overlay_act.setEnabled(False)
         self._sim_clear_act.setEnabled(False)
@@ -1778,7 +1807,8 @@ class MainWindow(QMainWindow):
         self._ev_playhead_wav_t  = 0.0
         self._ev_playhead_wall_t = 0.0
         self._close_sim_progress()
-        self._sim_act.setEnabled(True)
+        self._sim_btn_set_running(False)
+        self._sim_btn.setEnabled(True)
         self._sim_clear_act.setEnabled(True)
         self._sim_worker = None
 
@@ -1902,7 +1932,8 @@ class MainWindow(QMainWindow):
     def _on_sim_error(self, err: str) -> None:
         self._sim_playhead_timer.stop()
         self._close_sim_progress()
-        self._sim_act.setEnabled(True)
+        self._sim_btn_set_running(False)
+        self._sim_btn.setEnabled(True)
         self._sim_worker = None
         self._sim_clear_act.setEnabled(False)
         self._status.showMessage(f"Simulation fehlgeschlagen: {err}", 8000)

@@ -138,13 +138,13 @@ class AnchorMatcher:
         self._last_match_t: float = -999.0
         self._last_logged_cursor: int = -1   # verhindert Wiederholung derselben Wartezeile
 
-        print(f"[ANKER] {len(self._anchors)} Anker geladen:", file=sys.stderr)
+        print(f"[ANKER] {len(self._anchors)} Anker geladen:", file=sys.stderr, flush=True)
         for i, a in enumerate(self._anchors):
             trigger = _event_to_trigger(a.get("type", ""), a.get("event", ""))
             print(
                 f"[ANKER]   #{i+1:02d}  {a.get('type','?'):10s}  "
                 f"{a.get('event','?'):30s}  trigger={trigger}  bar={a.get('bar_num','?')}",
-                file=sys.stderr,
+                file=sys.stderr, flush=True,
             )
         if self._anchors:
             self._log_waiting()
@@ -208,7 +208,7 @@ class AnchorMatcher:
             f"[ANKER] warte auf #{self._cursor+1:02d}  "
             f"{anc.get('type','?'):10s}  {anc.get('event','?'):30s}  "
             f"trigger={trigger}",
-            file=sys.stderr,
+            file=sys.stderr, flush=True,
         )
 
     def _current_trigger(self) -> str:
@@ -227,7 +227,7 @@ class AnchorMatcher:
             print(
                 f"[ANKER] cooldown aktiv — #{self._cursor+1} noch gesperrt "
                 f"({remaining:.2f}s)  t={t_rel:.2f}s",
-                file=sys.stderr,
+                file=sys.stderr, flush=True,
             )
             return None
         anc = dict(self._anchors[self._cursor])
@@ -237,14 +237,14 @@ class AnchorMatcher:
             f"[ANKER] ✓ ERKANNT #{self._cursor+1:02d}  "
             f"{anc.get('type','?'):10s}  {anc.get('event','?'):30s}  "
             f"t={t_rel:.2f}s",
-            file=sys.stderr,
+            file=sys.stderr, flush=True,
         )
         self._cursor += 1
         self._last_match_t = t
         if not self.done:
             self._last_logged_cursor = -1   # nächste _log_waiting() soll sofort loggen
         else:
-            print("[ANKER] alle Anker erkannt.", file=sys.stderr)
+            print("[ANKER] alle Anker erkannt.", file=sys.stderr, flush=True)
         return anc
 
     def _avg_rms(self, ch: int) -> float:

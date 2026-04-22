@@ -115,7 +115,7 @@ QComboBox#zoom_combo          { font-family:'DM Mono',monospace; font-size:10px;
                                 min-width:90px; max-width:110px; }
 """
 
-APP_VERSION = "1.3.10"
+APP_VERSION = "1.3.11"
 
 _ZOOM_PRESETS: list[int] = [2, 5, 10, 20, 40, 80, 160, 320, 640, 1280, 2560, 5120, 10240, 20480, 40960]
 
@@ -1044,7 +1044,10 @@ class MainWindow(QMainWindow):
 
     def keyPressEvent(self, event) -> None:
         if event.key() == Qt.Key.Key_Space:
-            self._toggle_play()
+            if self._sim_worker is not None:
+                self._stop()   # Simulation + Audio sofort stoppen
+            else:
+                self._toggle_play()
         elif event.key() == Qt.Key.Key_B and self._annotation_mode:
             self._add_bar_marker()
         elif event.key() == Qt.Key.Key_P and self._annotation_mode:

@@ -51,15 +51,16 @@ class SimulatorWorker(QThread):
         sample_rate, seg_start_t, seg_end_t, song_key
     """
 
-    progress       = pyqtSignal(float)   # 0.0–1.0
-    finished       = pyqtSignal(object)  # dict mit Ergebnissen
-    error          = pyqtSignal(str)
-    sim_started    = pyqtSignal(float)   # wall-clock time.monotonic() wenn Audio startet
+    progress        = pyqtSignal(float)   # 0.0–1.0
+    finished        = pyqtSignal(object)  # dict mit Ergebnissen
+    error           = pyqtSignal(str)
+    sim_started     = pyqtSignal(float)   # wall-clock time.monotonic() wenn Audio startet
     # Live-Signale (t_rel = Sekunden relativ zu seg_start_t)
-    kick_detected  = pyqtSignal(float)
-    snare_detected = pyqtSignal(float)
-    crash_detected = pyqtSignal(float)
-    bar_detected   = pyqtSignal(int, float, float)  # (bar_num, t_rel, bpm)
+    kick_detected   = pyqtSignal(float)
+    snare_detected  = pyqtSignal(float)
+    crash_detected  = pyqtSignal(float)
+    bar_detected    = pyqtSignal(int, float, float)  # (bar_num, t_rel, bpm)
+    anchor_matched  = pyqtSignal(object)             # anchor dict mit t_detected
 
     def __init__(
         self,
@@ -77,6 +78,7 @@ class SimulatorWorker(QThread):
         song_key: str = "",
         grundrhythmus: dict | None = None,
         realtime: bool = False,
+        anchors: list | None = None,
         parent=None,
     ) -> None:
         super().__init__(parent)
@@ -90,6 +92,7 @@ class SimulatorWorker(QThread):
         self._song_key      = song_key
         self._grundrhythmus = grundrhythmus
         self._realtime      = realtime
+        self._anchors       = anchors or []
         self._sd            = None   # sounddevice-Modul, gesetzt sobald sd.play() läuft
 
     def stop_audio(self) -> None:
@@ -116,6 +119,7 @@ class SimulatorWorker(QThread):
         )
         from detection.bar_tracker import BarTracker
         from detection.chroma_extractor import StreamingChromaExtractor
+        from detection.anchor_matcher import AnchorMatcher
 
         # ── WAV-Datei vorab prüfen ────────────────────────────────────────────
         with sf.SoundFile(self._wav_path) as f:
@@ -200,7 +204,7 @@ class SimulatorWorker(QThread):
             fmin_hz=32.703,   # C1 ≈ 32,7 Hz
         )
 
-        # ── Detektor + BarTracker initialisieren ─────────────────────────────
+        # ── Detektor + BarTracker + AnchorMatcher initialisieren ─────────────
         detector = OnsetDetector(sample_rate=sr)
         tracker = BarTracker(
             bpm=self._bpm,
@@ -208,6 +212,13 @@ class SimulatorWorker(QThread):
             seg_end_t=self._seg_end_t,
             grundrhythmus=self._grundrhythmus,
         )
+        matcher = AnchorMatcher(
+            anchors=self._anchors,
+            bpm=self._bpm,
+            seg_start_t=self._seg_start_t,
+            sample_rate=sr,
+            block_size=BLOCK_SIZE,
+        ) if self._anchors else None
 
         kicks:   list[float] = []
         snares:  list[float] = []
@@ -276,26 +287,40 @@ class SimulatorWorker(QThread):
                 for ev in detector.process_block(block):
                     t_abs = self._seg_start_t + t_mid
 
+                    energy_f = float(ev.energy)
+
                     if ev.type == "kick":
                         kicks.append(t_mid)
-                        tracker.process_kick(t_abs, energy=float(ev.energy))
+                        tracker.process_kick(t_abs, energy=energy_f)
                         chroma_vec = guitar_extractor.get_chroma()
                         if chroma_vec is not None:
                             chroma_data.append({"t": t_abs, "chroma": chroma_vec})
                         self.kick_detected.emit(t_mid)
+                        if matcher:
+                            _m = matcher.process_kick(t_abs, energy_f)
+                            if _m:
+                                self.anchor_matched.emit(_m)
 
                     elif ev.type == "snare":
                         snares.append(t_mid)
-                        tracker.process_snare(t_abs, energy=float(ev.energy))
+                        tracker.process_snare(t_abs, energy=energy_f)
                         chroma_vec = guitar_extractor.get_chroma()
                         if chroma_vec is not None:
                             chroma_data.append({"t": t_abs, "chroma": chroma_vec})
                         self.snare_detected.emit(t_mid)
+                        if matcher:
+                            _m = matcher.process_snare(t_abs, energy_f)
+                            if _m:
+                                self.anchor_matched.emit(_m)
 
                     elif ev.type == "crash":
-                        crashes.append((t_mid, float(ev.energy)))
-                        tracker.process_crash(t_abs, energy=float(ev.energy))
+                        crashes.append((t_mid, energy_f))
+                        tracker.process_crash(t_abs, energy=energy_f)
                         self.crash_detected.emit(t_mid)
+                        if matcher:
+                            _m = matcher.process_crash(t_abs, energy_f)
+                            if _m:
+                                self.anchor_matched.emit(_m)
 
                     jf.write(_json.dumps({
                         "t": round(t_mid, 4),
@@ -320,6 +345,12 @@ class SimulatorWorker(QThread):
                         })
                     self.bar_detected.emit(bar_num, bar_t - self._seg_start_t, bpm_now)
                 _last_n_bars = len(current_bars)
+
+                # ── AnchorMatcher: RMS-basierte Trigger (Einsatz/Pause) ────────
+                if matcher and not matcher.done:
+                    _m = matcher.process_block(block, self._seg_start_t + t_mid)
+                    if _m:
+                        self.anchor_matched.emit(_m)
 
                 blocks_done += 1
                 if blocks_done % 50 == 0:

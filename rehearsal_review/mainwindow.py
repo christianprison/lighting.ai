@@ -115,7 +115,7 @@ QComboBox#zoom_combo          { font-family:'DM Mono',monospace; font-size:10px;
                                 min-width:90px; max-width:110px; }
 """
 
-APP_VERSION = "1.3.7"
+APP_VERSION = "1.3.8"
 
 _ZOOM_PRESETS: list[int] = [2, 5, 10, 20, 40, 80, 160, 320, 640, 1280, 2560, 5120, 10240, 20480, 40960]
 
@@ -1479,10 +1479,11 @@ class MainWindow(QMainWindow):
 
         seg = self._current_seg
 
-        # BPM + Tonart + Grundrhythmus aus der Songdatenbank holen
+        # BPM + Tonart + Grundrhythmus + Anker aus der Songdatenbank holen
         bpm = 120.0
         song_key = ""
         grundrhythmus: dict | None = None
+        anchors: list = []
         try:
             repo_root = self._session.jsonl_path.parent.parent.parent.parent
             db_json   = repo_root / "db" / "lighting-ai-db.json"
@@ -1493,6 +1494,7 @@ class MainWindow(QMainWindow):
                 bpm           = float(song_db.get("bpm", 120.0))
                 song_key      = song_db.get("key", "")
                 grundrhythmus = song_db.get("grundrhythmus") or None
+                anchors       = song_db.get("anchors", []) or []
         except Exception:
             pass
 
@@ -1526,6 +1528,22 @@ class MainWindow(QMainWindow):
         # Laufenden Playback stoppen (Simulation spielt eigenes Audio ab)
         self._player.stop()
 
+        # Anker in Timeline vorabladen (BPM-basierte Erwartungspositionen)
+        if anchors:
+            bar_dur      = 4.0 * 60.0 / max(1.0, bpm)
+            anchors_info = []
+            for anc in anchors:
+                bar_num = anc.get("bar_num", 1)
+                anchors_info.append({
+                    "id":        anc.get("id", ""),
+                    "t_abs":     sim_start_wav_t + (bar_num - 1) * bar_dur,
+                    "type":      anc.get("type", "other"),
+                    "event":     anc.get("event", ""),
+                    "bar_num":   bar_num,
+                    "part_hint": anc.get("part_hint", ""),
+                })
+            self._timeline.set_sim_anchors(anchors_info)
+
         # Overlay sofort aktivieren — Events erscheinen live in Amber/Cyan
         self._sim_overlay_act.setEnabled(True)
         self._sim_overlay_act.setChecked(True)
@@ -1546,6 +1564,7 @@ class MainWindow(QMainWindow):
             song_key=song_key,
             grundrhythmus=grundrhythmus,
             realtime=True,
+            anchors=anchors,
             parent=self,
         )
 
@@ -1560,6 +1579,8 @@ class MainWindow(QMainWindow):
         worker.bar_detected.connect(
             lambda n, t, bpm_v: self._timeline.add_sim_bar_time(start_t + t, bpm_v))
         worker.bar_detected.connect(self._on_bar_detected_ev)
+        worker.anchor_matched.connect(
+            lambda anc: self._timeline.mark_sim_anchor_matched(anc.get("id", "")))
         worker.sim_started.connect(self._on_sim_started)
         worker.finished.connect(self._on_sim_finished)
         worker.error.connect(self._on_sim_error)

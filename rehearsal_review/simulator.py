@@ -93,6 +93,16 @@ class SimulatorWorker(QThread):
         self._grundrhythmus = grundrhythmus
         self._realtime      = realtime
         self._anchors       = anchors or []
+        self._sd            = None   # sounddevice-Modul, gesetzt sobald sd.play() läuft
+
+    def stop_audio(self) -> None:
+        """Stoppt den sounddevice-Playback sofort (aufrufbar von außen)."""
+        sd = self._sd
+        if sd is not None:
+            try:
+                sd.stop()
+            except Exception:
+                pass
 
     # ── Haupt-Loop ────────────────────────────────────────────────────────────
 
@@ -145,14 +155,14 @@ class SimulatorWorker(QThread):
 
         # ── Echtzeit-Modus: Stereo-Mix laden + Playback starten ──────────────
         import time as _time
-        _sd = None          # sounddevice-Modul (gesetzt wenn Playback klappt)
         _sd_playing = False
         _stereo_buf = None  # muss am Leben bleiben solange sd.play() läuft
         _wall_start = 0.0
 
         if self._realtime:
             try:
-                import sounddevice as _sd
+                import sounddevice as _sd_mod
+                self._sd = _sd_mod   # für stop_audio() von außen zugänglich
                 with sf.SoundFile(self._wav_path) as f2:
                     f2.seek(start_sample)
                     raw_all = f2.read(end_sample - start_sample,
@@ -161,13 +171,13 @@ class SimulatorWorker(QThread):
                 ch_r = min(17, raw_all.shape[1] - 1)
                 _stereo_buf = np.ascontiguousarray(raw_all[:, [ch_l, ch_r]])
                 del raw_all
-                _sd.play(_stereo_buf, sr, device="pulse", blocksize=4096)
+                _sd_mod.play(_stereo_buf, sr, device="pulse", blocksize=4096)
                 _sd_playing = True
                 _wall_start = _time.monotonic()
                 self.sim_started.emit(_wall_start)
                 print("[SIM] Echtzeit-Modus: Audio gestartet", file=sys.stderr)
             except Exception as exc:
-                _sd = None
+                self._sd = None
                 _wall_start = _time.monotonic()
                 print(f"[SIM] Audio-Playback fehlgeschlagen: {exc}",
                       file=sys.stderr)
@@ -332,11 +342,7 @@ class SimulatorWorker(QThread):
 
         # ── Abbruch-Cleanup ───────────────────────────────────────────────────
         if self.isInterruptionRequested():
-            if _sd is not None and _sd_playing:
-                try:
-                    _sd.stop()
-                except Exception:
-                    pass
+            self.stop_audio()
             return
 
         # ── Vokal-VAD (fensterweise RMS — zustandslos → am Ende = live-identisch) ──
@@ -391,11 +397,7 @@ class SimulatorWorker(QThread):
         )
 
         # Playback stoppen falls noch aktiv (normalerweise bereits ausgelaufen)
-        if _sd is not None and _sd_playing:
-            try:
-                _sd.stop()
-            except Exception:
-                pass
+        self.stop_audio()
 
         self.progress.emit(1.0)
         self.finished.emit({

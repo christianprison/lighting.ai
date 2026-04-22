@@ -115,7 +115,7 @@ QComboBox#zoom_combo          { font-family:'DM Mono',monospace; font-size:10px;
                                 min-width:90px; max-width:110px; }
 """
 
-APP_VERSION = "1.3.5"
+APP_VERSION = "1.3.6"
 
 _ZOOM_PRESETS: list[int] = [2, 5, 10, 20, 40, 80, 160, 320, 640, 1280, 2560, 5120, 10240, 20480, 40960]
 
@@ -1624,6 +1624,7 @@ class MainWindow(QMainWindow):
         self._ev_playhead_wav_t  = 0.0
         self._ev_playhead_wall_t = 0.0
         if self._sim_worker is not None:
+            self._sim_worker.stop_audio()        # Playback sofort stoppen
             self._sim_worker.requestInterruption()
             self._sim_worker = None
         self._timeline.clear_sim_events()   # also resets _event_cursor_t

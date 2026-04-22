@@ -154,45 +154,16 @@ class SimulatorWorker(QThread):
 
         total_frames = end_sample - start_sample
 
-        # ── Echtzeit-Modus: Stereo-Mix laden + Playback starten ──────────────
         import time as _time
-        _sd_playing = False
-        _stereo_buf = None  # muss am Leben bleiben solange sd.play() läuft
-        _wall_start = 0.0
 
-        if self._realtime:
-            try:
-                import sounddevice as _sd_mod
-                self._sd = _sd_mod   # für stop_audio() von außen zugänglich
-                with sf.SoundFile(self._wav_path) as f2:
-                    f2.seek(start_sample)
-                    raw_all = f2.read(end_sample - start_sample,
-                                     dtype="float32", always_2d=True)
-                ch_l = min(16, raw_all.shape[1] - 1)
-                ch_r = min(17, raw_all.shape[1] - 1)
-                _stereo_buf = np.ascontiguousarray(raw_all[:, [ch_l, ch_r]])
-                del raw_all
-                _sd_mod.play(_stereo_buf, sr, device="pulse", blocksize=4096)
-                _sd_playing = True
-                _wall_start = _time.monotonic()
-                self.sim_started.emit(_wall_start)
-                print("[SIM] Echtzeit-Modus: Audio gestartet", file=sys.stderr)
-            except Exception as exc:
-                self._sd = None
-                _wall_start = _time.monotonic()
-                print(f"[SIM] Audio-Playback fehlgeschlagen: {exc}",
-                      file=sys.stderr)
+        # Setup BEVOR Audio startet — sonst driftet Logging gegenueber Audio
 
-        # ── Streaming Feature-Extraktoren ─────────────────────────────────────
-        # Guitar-Chroma: 0,5s Rolling-Buffer, STFT-Chroma.
-        # Kein HPSS (Prime Directive: identisch live — HPSS benötigt vollen Puffer).
+        # Streaming Feature-Extraktoren
         guitar_extractor = StreamingChromaExtractor(
             sample_rate=sr,
             window_sec=0.5,
             use_cqt=False,
         )
-
-        # Bass-Chroma: Rolling-Buffer (1 Takt + Puffer), CQT bei 8 kHz (30–300 Hz).
         bar_sec = max(2.0, 4.0 * 60.0 / self._bpm) if self._bpm > 0 else 2.5
         bass_extractor = StreamingChromaExtractor(
             sample_rate=sr,
@@ -201,10 +172,10 @@ class SimulatorWorker(QThread):
             bp_low=30.0,
             bp_high=300.0,
             use_cqt=True,
-            fmin_hz=32.703,   # C1 ≈ 32,7 Hz
+            fmin_hz=32.703,
         )
 
-        # ── Detektor + BarTracker + AnchorMatcher initialisieren ─────────────
+        # Detektor + BarTracker + AnchorMatcher (AnchorMatcher loggt Ankerliste)
         detector = OnsetDetector(sample_rate=sr)
         tracker = BarTracker(
             bpm=self._bpm,
@@ -222,19 +193,41 @@ class SimulatorWorker(QThread):
 
         kicks:   list[float] = []
         snares:  list[float] = []
-        crashes: list[tuple[float, float]] = []   # (t_rel, rms_energy)
-        blocks_done = 0
+        crashes: list[tuple[float, float]] = []
+        blocks_done  = 0
+        chroma_data: list[dict] = []
+        bass_data:   list[dict] = []
+        _last_n_bars = 0
+        vocal_buf:   list[np.ndarray] = []
+        _crash_rms_max = 0.0
 
-        # Streaming Feature-Ergebnisse
-        chroma_data: list[dict] = []   # Guitar-Chroma pro Beat
-        bass_data:   list[dict] = []   # Bass-Chroma+Rhythmus pro Takt
-        _last_n_bars = 0               # Anzahl bereits extrahierter Takte
+        # Echtzeit-Modus: nach Setup starten — Logging laeuft synchron zur Audio
+        _sd_playing = False
+        _stereo_buf = None
+        _wall_start = 0.0
 
-        # Vokal-Kanal puffern — VAD ist fensterweise/zustandslos,
-        # Ergebnis identisch ob inline oder am Ende berechnet.
-        vocal_buf: list[np.ndarray] = []
-
-        _crash_rms_max = 0.0   # Diagnosewert: höchster OH-RMS im Durchlauf
+        if self._realtime:
+            try:
+                import sounddevice as _sd_mod
+                self._sd = _sd_mod
+                with sf.SoundFile(self._wav_path) as f2:
+                    f2.seek(start_sample)
+                    raw_all = f2.read(end_sample - start_sample,
+                                     dtype="float32", always_2d=True)
+                ch_l = min(16, raw_all.shape[1] - 1)
+                ch_r = min(17, raw_all.shape[1] - 1)
+                _stereo_buf = np.ascontiguousarray(raw_all[:, [ch_l, ch_r]])
+                del raw_all
+                _sd_mod.play(_stereo_buf, sr, device="pulse", blocksize=4096)
+                _sd_playing = True
+                _wall_start = _time.monotonic()
+                self.sim_started.emit(_wall_start)
+                print("[SIM] Echtzeit-Modus: Audio gestartet", file=sys.stderr, flush=True)
+            except Exception as exc:
+                self._sd = None
+                _wall_start = _time.monotonic()
+                print(f"[SIM] Audio-Playback fehlgeschlagen: {exc}",
+                      file=sys.stderr, flush=True)
 
         self._output_jsonl.parent.mkdir(parents=True, exist_ok=True)
         with (

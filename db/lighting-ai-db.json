@@ -24931,7 +24931,8 @@
       "bar_num": 67,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2389": {
       "song_id": "B3R92r",

@@ -7726,7 +7726,16 @@
         "user_tasks": [],
         "manual_undone": []
       },
-      "total_bars": 0
+      "total_bars": 0,
+      "grundrhythmus": {
+        "kick": [
+          1,
+          3
+        ],
+        "snare": [
+          2
+        ]
+      }
     },
     "gRbHPO": {
       "name": "Last Resort",

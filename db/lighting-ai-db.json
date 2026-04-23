@@ -6611,6 +6611,16 @@
             "light_template": "01 statisch bunt"
           }
         ]
+      },
+      "grundrhythmus": {
+        "kick": [
+          1,
+          3,
+          3
+        ],
+        "snare": [
+          2
+        ]
       }
     },
     "qVbU6L": {

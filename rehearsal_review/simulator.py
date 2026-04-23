@@ -207,16 +207,42 @@ class SimulatorWorker(QThread):
         vocal_buf:   list[np.ndarray] = []
         _crash_rms_max = 0.0
 
-        # Echtzeit-Modus: nach Setup starten — Logging laeuft synchron zur Audio
+        # ── Segment komplett in RAM laden — ein Seek, danach kein Datei-I/O mehr ─
+        # Auf >4 GB WAV mit ungültigem Size-Header löst jeder sf.SoundFile.seek()
+        # einen linearen Scan von Byte 0 aus (~30–60 s bei HDD). Lösung: Segment
+        # einmalig laden; alle Block-Iterationen und Audio-Playback nutzen RAM.
         _sd_playing = False
         _stereo_buf = None
         _wall_start = 0.0
 
+        _log(f"[SIM] Lade Segment in RAM ({total_frames} Frames, ~{int(total_frames * wav_ch * 4 / 1024 / 1024)} MB) ...")
+        with sf.SoundFile(self._wav_path) as _wav_f:
+            _wav_f.seek(start_sample)
+            raw_all = _wav_f.read(total_frames, dtype="float32", always_2d=True)
+        seg_frames = raw_all.shape[0]
+        _log(f"[SIM] Segment geladen: {seg_frames} Frames, {raw_all.shape[1]} Kanäle")
+
+        # ── Echtzeit-Audio starten (aus bereits geladenem Buffer — kein Seek mehr) ──
+        if self._realtime:
+            try:
+                import sounddevice as _sd_mod
+                self._sd = _sd_mod
+                ch_l = min(16, raw_all.shape[1] - 1)
+                ch_r = min(17, raw_all.shape[1] - 1)
+                _stereo_buf = np.ascontiguousarray(raw_all[:, [ch_l, ch_r]])
+                _sd_mod.play(_stereo_buf, sr, device="pulse", blocksize=4096)
+                _sd_playing = True
+                _wall_start = _time.monotonic()
+                self.sim_started.emit(_wall_start)
+                _log("[SIM] Echtzeit-Modus: Audio gestartet")
+            except Exception as exc:
+                self._sd = None
+                _wall_start = _time.monotonic()
+                _log(f"[SIM] Audio-Playback fehlgeschlagen: {exc}")
+
+        # ── JSONL schreiben + Blöcke aus RAM verarbeiten (kein Datei-I/O) ─────
         self._output_jsonl.parent.mkdir(parents=True, exist_ok=True)
-        with (
-            sf.SoundFile(self._wav_path) as wav_f,
-            open(self._output_jsonl, "w", encoding="utf-8") as jf,
-        ):
+        with open(self._output_jsonl, "w", encoding="utf-8") as jf:
             # Header-Zeile
             jf.write(_json.dumps({
                 "t": 0.0,
@@ -231,41 +257,13 @@ class SimulatorWorker(QThread):
                 },
             }) + "\n")
 
-            # Echtzeit-Modus: Stereo-Buffer aus derselben bereits geöffneten Datei lesen.
-            # WICHTIG: wav_f hier einmalig öffnen und wiederverwenden — zweites sf.SoundFile()
-            # auf einer >4 GB WAV mit ungültigem Size-Header würde einen linearen Scan
-            # (~60 Sekunden bei HDD) auslösen.
-            if self._realtime:
-                try:
-                    import sounddevice as _sd_mod
-                    self._sd = _sd_mod
-                    wav_f.seek(start_sample)
-                    raw_all = wav_f.read(end_sample - start_sample,
-                                        dtype="float32", always_2d=True)
-                    ch_l = min(16, raw_all.shape[1] - 1)
-                    ch_r = min(17, raw_all.shape[1] - 1)
-                    _stereo_buf = np.ascontiguousarray(raw_all[:, [ch_l, ch_r]])
-                    del raw_all
-                    _sd_mod.play(_stereo_buf, sr, device="pulse", blocksize=4096)
-                    _sd_playing = True
-                    _wall_start = _time.monotonic()
-                    self.sim_started.emit(_wall_start)
-                    _log("[SIM] Echtzeit-Modus: Audio gestartet")
-                except Exception as exc:
-                    self._sd = None
-                    _wall_start = _time.monotonic()
-                    _log(f"[SIM] Audio-Playback fehlgeschlagen: {exc}")
-
-            # Zurück an den Segment-Anfang — nur ein billiger Zeiger-Sprung, kein Disk-Scan
-            wav_f.seek(start_sample)
-            remaining = end_sample - wav_f.tell()
-
-            while remaining > 0 and not self.isInterruptionRequested():
-                to_read = min(BLOCK_SIZE, remaining)
-                block = wav_f.read(to_read, dtype="float32", always_2d=True)
+            blk_pos = 0
+            while blk_pos < seg_frames and not self.isInterruptionRequested():
+                blk_end = min(blk_pos + BLOCK_SIZE, seg_frames)
+                block   = raw_all[blk_pos:blk_end]
                 if block.shape[0] == 0:
                     break
-                remaining -= block.shape[0]
+                blk_pos = blk_end
 
                 t_mid = blocks_done * BLOCK_SIZE / sr + (block.shape[0] / 2) / sr
 
@@ -358,8 +356,7 @@ class SimulatorWorker(QThread):
 
                 blocks_done += 1
                 if blocks_done % 50 == 0:
-                    raw = (blocks_done * BLOCK_SIZE) / max(1, total_frames)
-                    self.progress.emit(min(0.99, raw))
+                    self.progress.emit(min(0.99, blk_pos / max(1, seg_frames)))
                 if blocks_done % 200 == 0:
                     _log(f"[SIM] ♥ {blocks_done} Blöcke  t={t_mid:.0f}s  kicks={len(kicks)}  snares={len(snares)}")
 
@@ -370,6 +367,8 @@ class SimulatorWorker(QThread):
                     sleep_s = audio_done - wall_elapsed
                     if sleep_s > 0.001:
                         _time.sleep(sleep_s)
+
+        del raw_all  # ~1 GB Segment-Buffer freigeben
 
         # ── Abbruch-Cleanup ───────────────────────────────────────────────────
         if self.isInterruptionRequested():

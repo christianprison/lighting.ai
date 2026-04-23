@@ -215,7 +215,7 @@ def main() -> None:
             sys.exit(1)
         run_test(wav_path, seg["start_t"], seg["end_t"], seg["song_id"], seg["song_name"])
 
-    elif first.suffix in (".wav", ".WAV"):
+    elif first.suffix.lower() in (".wav", ".flac", ".aiff", ".ogg"):
         # Modus 2: WAV + Parameter direkt
         if len(args) < 4:
             _log("Verwendung: test_sim.py <wav> <start_s> <end_s> <song_id>")

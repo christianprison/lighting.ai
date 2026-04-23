@@ -8528,6 +8528,15 @@
           "part_hint": "Stop",
           "bar_num": 150,
           "beat": "1+"
+        },
+        {
+          "id": "anc_mobldgm7_qfhd",
+          "pos": 9,
+          "type": "other",
+          "event": "Einsatz",
+          "part_hint": "Verse 3",
+          "bar_num": 152,
+          "beat": "1"
         }
       ]
     },

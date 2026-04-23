@@ -6685,6 +6685,42 @@
           "part_hint": "Verse 2",
           "bar_num": 25,
           "beat": "2"
+        },
+        {
+          "id": "anc_mobmxtok_4fb9",
+          "pos": 8,
+          "type": "drum",
+          "event": "",
+          "part_hint": "Chorus 2",
+          "bar_num": null,
+          "beat": ""
+        },
+        {
+          "id": "anc_mobmy3ns_d1zp",
+          "pos": 9,
+          "type": "drum",
+          "event": "Nur Kick",
+          "part_hint": "Intro Reprise",
+          "bar_num": 56,
+          "beat": "1"
+        },
+        {
+          "id": "anc_mobmy80h_jw74",
+          "pos": 10,
+          "type": "drum",
+          "event": "Beat beginnt",
+          "part_hint": "Verse 3",
+          "bar_num": 60,
+          "beat": "1"
+        },
+        {
+          "id": "anc_mobmygwj_qhgk",
+          "pos": 11,
+          "type": "drum",
+          "event": "",
+          "part_hint": "Chorus 3",
+          "bar_num": null,
+          "beat": ""
         }
       ]
     },

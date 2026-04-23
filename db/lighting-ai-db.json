@@ -8455,7 +8455,81 @@
           "light_template": "01 statisch bunt",
           "notes": ""
         }
-      }
+      },
+      "anchors": [
+        {
+          "id": "anc_moblae2m_rhi1",
+          "pos": 1,
+          "type": "drum",
+          "event": "Einsatz",
+          "part_hint": "Intro (+ Drums)",
+          "bar_num": 9,
+          "beat": "1"
+        },
+        {
+          "id": "anc_moblalc7_smst",
+          "pos": 2,
+          "type": "bass",
+          "event": "",
+          "part_hint": "Intro (+ Bass)",
+          "bar_num": 17,
+          "beat": "1"
+        },
+        {
+          "id": "anc_moblar8m_9d5b",
+          "pos": 3,
+          "type": "guitar",
+          "event": "",
+          "part_hint": "Intro (+Lead Guitar)",
+          "bar_num": 26,
+          "beat": "1"
+        },
+        {
+          "id": "anc_moblb6j5_ie6s",
+          "pos": 4,
+          "type": "pete",
+          "event": "Einsatz",
+          "part_hint": "Verse 1",
+          "bar_num": 33,
+          "beat": "1"
+        },
+        {
+          "id": "anc_moblbw1m_nmq4",
+          "pos": 5,
+          "type": "bass",
+          "event": "",
+          "part_hint": "Chorus 1",
+          "bar_num": null,
+          "beat": ""
+        },
+        {
+          "id": "anc_moblc93l_4j80",
+          "pos": 6,
+          "type": "pete",
+          "event": "Hört auf",
+          "part_hint": "Guitar Solo",
+          "bar_num": 115,
+          "beat": "1"
+        },
+        {
+          "id": "anc_moblcjll_nuv4",
+          "pos": 7,
+          "type": "pete",
+          "event": "Einsatz",
+          "part_hint": "Chorus 3",
+          "bar_num": 135,
+          "beat": "1"
+        },
+        {
+          "id": "anc_moblctrh_tjuu",
+          "pos": 8,
+          "type": "silence",
+          "event": "Komplette Stille",
+          "part_hint": "Stop",
+          "bar_num": 150,
+          "beat": "1+"
+        }
+      ]
     },
     "gRbHPO": {
       "name": "Last Resort",

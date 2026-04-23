@@ -7985,8 +7985,7 @@
           {
             "bar_num": 1,
             "name": "Intro",
-            "light_template": "16 Searchlight",
-            "instrumental": true
+            "light_template": "16 Searchlight"
           },
           {
             "bar_num": 9,
@@ -24462,14 +24461,16 @@
       "bar_num": 1,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2323": {
       "song_id": "B3R92r",
       "bar_num": 2,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2324": {
       "song_id": "B3R92r",
@@ -24490,14 +24491,16 @@
       "bar_num": 5,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2327": {
       "song_id": "B3R92r",
       "bar_num": 6,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2328": {
       "song_id": "B3R92r",
@@ -24532,14 +24535,14 @@
     "B2332": {
       "song_id": "B3R92r",
       "bar_num": 11,
-      "lyrics": "",
+      "lyrics": "Baby,",
       "audio": "",
       "has_accents": false
     },
     "B2333": {
       "song_id": "B3R92r",
       "bar_num": 12,
-      "lyrics": "",
+      "lyrics": "join me in death",
       "audio": "",
       "has_accents": false
     },
@@ -24562,14 +24565,14 @@
     "B2336": {
       "song_id": "B3R92r",
       "bar_num": 15,
-      "lyrics": "Baby, join me in",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B2337": {
       "song_id": "B3R92r",
       "bar_num": 16,
-      "lyrics": "death Baby, join me",
+      "lyrics": "Baby, join me",
       "audio": "",
       "has_accents": false
     },

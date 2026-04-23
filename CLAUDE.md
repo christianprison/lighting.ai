@@ -545,11 +545,19 @@ probe_events   (id, session_id, wav_offset, song_id, bar_num, part_name, confide
 **SimMonitorDialog entfernt** — alle Ergebnisse werden live direkt in den Timeline-Rows des Hauptfensters dargestellt.
 
 `SimulatorWorker(QThread)` repliziert die Erkennungspipeline **offline**:
-- Liest WAV **immer ab Segment-Anfang** in BLOCK_SIZE=2048-Blöcken
+- Liest WAV in BLOCK_SIZE=2048-Blöcken ab `seg_start_t`
 - Schickt jeden Block durch `OnsetDetector.process_block()` (Kick CH08, Snare CH09, Crash CH13+14)
 - Schreibt alle Events in eine **JSONL-Datei** (`{stem}_sim_{song_id}_{HHmmss}.jsonl`)
 - Ruft `tracker.finalize()` am Ende des Onset-Loops auf (flusht letzte <8 Events)
 - Progress-Modal: 0–100 % für Onset-Loop
+
+**Segment-Lade-Strategie (v1.3.20) — Zwei-Schritt-Ansatz gegen Memory-Pressure:**
+1. WAV-File einmalig öffnen (eine lange Seek bei >4 GB WAV mit ungültigem Size-Header — ca. 30–60 s)
+2. `raw_all` lesen (~1190 MB) → `_stereo_buf` extrahieren (~119 MB) → `del raw_all` sofort
+3. Block-Loop: denselben File-Handle nutzen, O(1)-Seek zurück zu `start_sample` (kein Header-Rescan)
+4. Sequentielle Block-Reads aus OS-Page-Cache (Daten wurden soeben gelesen → Cache warm → ~10 GB/s)
+
+Ohne diesen Ansatz: `raw_all` + `_stereo_buf` = ~1309 MB gleichzeitig → OS swappt `raw_all`-Seiten → jedes `raw_all[blk:end]`-Slice löst Page-Fault aus → 40+ s Delay vor dem ersten Kick.
 - `finished`-Dict: `jsonl_path`, `n_kicks`, `n_snares`, `n_crashes`, `kicks`, `snares`, `crashes`, `bar_times`, `bpm`, `chroma_data`, `bass_data`, `vocal_data`, `sample_rate`, `seg_start_t`, `seg_end_t`, `song_key`
 - Sim-JSONL-Dateien werden im Dateiauswahldialog automatisch ausgeblendet (`_HideSimFiles` Proxy)
 - Nach Simulation: Status-Bar zeigt `★ N Crashes` wenn Crashes erkannt wurden
@@ -779,6 +787,7 @@ Wenn ein Song kein `grundrhythmus` hat, wird Phasen-Histogramm + Crash-Fallback 
      DB-Pflege-App eintragen (Felder seit v2.2.27), damit Pattern-Matching statt
      Phasen-Histogramm greift
 3. **Anker-Positionen in der DB pflegen**: Für Songs ohne Anker-Daten die Anker in der DB-Pflege-App eintragen, damit der AnchorMatcher greifen kann. Besonders drum-Anker (Crash, Snare) sind einfach zu erkennen und liefern schnell Ergebnisse.
+4. **Probenaufnahmen → RF64-Format**: Neue Aufnahmen (seit v2026.04.23a) werden im RF64-Format geschrieben (keine 4-GB-Grenze, korrekte libsndfile-Seeks). Alte WAV-Aufnahmen >4 GB haben einen ungültigen Size-Header — libsndfile scannt das File linear beim Öffnen (30–60 s). Die v1.3.20-Lade-Strategie (Zwei-Schritt-RAM-Ansatz, s.o.) ist der korrekte Workaround dafür.
 
 #### Anker-Feature (DB-Pflege-App v2.3.2)
 

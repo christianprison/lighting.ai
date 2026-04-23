@@ -8309,19 +8309,23 @@
         "part_starts": [
           {
             "bar_num": 1,
-            "name": "Intro (Gitarre)"
+            "name": "Intro (Gitarre)",
+            "instrumental": true
           },
           {
             "bar_num": 9,
-            "name": "Intro (+ Drums)"
+            "name": "Intro (+ Drums)",
+            "instrumental": true
           },
           {
             "bar_num": 17,
-            "name": "Intro (+ Bass)"
+            "name": "Intro (+ Bass)",
+            "instrumental": true
           },
           {
             "bar_num": 26,
-            "name": "Intro (+Lead Guitar)"
+            "name": "Intro (+Lead Guitar)",
+            "instrumental": true
           },
           {
             "bar_num": 33,
@@ -8341,7 +8345,8 @@
           },
           {
             "bar_num": 115,
-            "name": "Guitar Solo"
+            "name": "Guitar Solo",
+            "instrumental": true
           },
           {
             "bar_num": 135,
@@ -8349,7 +8354,8 @@
           },
           {
             "bar_num": 150,
-            "name": "Stop"
+            "name": "Stop",
+            "instrumental": true
           },
           {
             "bar_num": 152,
@@ -8361,7 +8367,8 @@
           },
           {
             "bar_num": 188,
-            "name": "Ausklang"
+            "name": "Ausklang",
+            "instrumental": true
           }
         ]
       }

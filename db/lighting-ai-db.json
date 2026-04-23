@@ -7982,7 +7982,8 @@
         "part_starts": [
           {
             "bar_num": 1,
-            "name": "Intro"
+            "name": "Intro",
+            "instrumental": true
           },
           {
             "bar_num": 9,
@@ -24444,14 +24445,16 @@
       "bar_num": 9,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2331": {
       "song_id": "B3R92r",
       "bar_num": 10,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2332": {
       "song_id": "B3R92r",
@@ -24472,14 +24475,16 @@
       "bar_num": 13,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2335": {
       "song_id": "B3R92r",
       "bar_num": 14,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2336": {
       "song_id": "B3R92r",
@@ -24864,14 +24869,16 @@
       "bar_num": 69,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2391": {
       "song_id": "B3R92r",
       "bar_num": 70,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2392": {
       "song_id": "B3R92r",
@@ -24892,14 +24899,16 @@
       "bar_num": 73,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2395": {
       "song_id": "B3R92r",
       "bar_num": 74,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2396": {
       "song_id": "B3R92r",
@@ -25074,7 +25083,8 @@
       "bar_num": 99,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     }
   },
   "accents": {

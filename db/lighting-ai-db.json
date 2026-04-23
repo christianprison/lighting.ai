@@ -7659,7 +7659,7 @@
       "qlc_id": 178,
       "audio_ref": "audio/Join me in Death/Join me in Death - Full Song.mp3",
       "audio_ref_name": "Join me in Death - Full Song.mp3",
-      "lyrics_raw": "Baby, join me in death Baby, join me in death Baby, join me in death We are so young Our lives have just begun But already, we are considering Escape from this world And we've waited for so long For this moment to come We're so anxious to be together Together in death Whoa-oh Won't you die tonight for love? Baby, join me in death Won't you die? Baby, join me in death But won't you die tonight for love? Baby, join me in death join me in death This world is a cruel place And we're here only to lose So, before life tears us apart Let death bless me with you Whoa-oh Won't you die tonight for love? Baby, join me in death So, won't you die? Baby, join me in death But won't you die tonight for love? Baby, join me in death Join me in death Whoa-oh This life ain't worth livin' This life, it ain't worth livin' (Join me, join me, join me, join me) This life, it ain't worth livin' (Join me, join me) This life ain't worth livin' Won't you die tonight for love? Baby, join me in death So, won't you die? Baby, join me in death But won't you die tonight for love? Baby, join me in death Baby, join me in death",
+      "lyrics_raw": "Baby, join me in death Baby, join me in death Baby, join me in death We are so young Our lives have just begun But already, we are considering Escape from this world And we've waited for so long For this moment to come We're so anxious to be together Together in death Whoa-oh Won't you die tonight for love? Baby, join me in death Won't you die? Baby, join me in death But won't you die tonight for love? Baby, join me in death join me in death This world is a cruel place And we're here only to lose So, before life tears us apart Let death bless me with you Whoa-oh Won't you die tonight for love? Baby, join me in death So, won't you die? Baby, join me in death But won't you die tonight for love? Baby, join me in death Join me in death Whoa-oh This life ain't worth livin' This life, it ain't worth livin' (Join me, join me) This life, it ain't worth livin' (Join me, join me) This life ain't worth livin' Won't you die tonight for love? Baby, join me in death So, won't you die? Baby, join me in death But won't you die tonight for love? Baby, join me in death Baby, join me in death",
       "tms": {
         "manual_done": [
           "bar_markers",
@@ -24944,7 +24944,7 @@
     "B2390": {
       "song_id": "B3R92r",
       "bar_num": 69,
-      "lyrics": "This life ain't worth livin' This life, it ain't worth livin' (Join me, join me, join me, join me) This life, it ain't worth livin' (Join me, join me) This life ain't worth",
+      "lyrics": "",
       "audio": "",
       "has_accents": false,
       "instrumental": true
@@ -24960,14 +24960,14 @@
     "B2392": {
       "song_id": "B3R92r",
       "bar_num": 71,
-      "lyrics": "livin' Won't you",
+      "lyrics": "This life ain't",
       "audio": "",
       "has_accents": false
     },
     "B2393": {
       "song_id": "B3R92r",
       "bar_num": 72,
-      "lyrics": "die tonight for",
+      "lyrics": "worth livin'",
       "audio": "",
       "has_accents": false
     },
@@ -24990,168 +24990,168 @@
     "B2396": {
       "song_id": "B3R92r",
       "bar_num": 75,
-      "lyrics": "love? Baby, join",
+      "lyrics": "This life, it",
       "audio": "",
       "has_accents": false
     },
     "B2397": {
       "song_id": "B3R92r",
       "bar_num": 76,
-      "lyrics": "me in death",
+      "lyrics": "ain't worth livin'",
       "audio": "",
       "has_accents": false
     },
     "B2398": {
       "song_id": "B3R92r",
       "bar_num": 77,
-      "lyrics": "So, won't you",
+      "lyrics": "(Join me,",
       "audio": "",
       "has_accents": false
     },
     "B2399": {
       "song_id": "B3R92r",
       "bar_num": 78,
-      "lyrics": "die? Baby, join",
+      "lyrics": "join me)",
       "audio": "",
       "has_accents": false
     },
     "B2400": {
       "song_id": "B3R92r",
       "bar_num": 79,
-      "lyrics": "me in death",
+      "lyrics": "This life, it",
       "audio": "",
       "has_accents": false
     },
     "B2401": {
       "song_id": "B3R92r",
       "bar_num": 80,
-      "lyrics": "But won't you",
+      "lyrics": "ain't worth livin'",
       "audio": "",
       "has_accents": false
     },
     "B2402": {
       "song_id": "B3R92r",
       "bar_num": 81,
-      "lyrics": "die tonight for",
+      "lyrics": "(Join me,",
       "audio": "",
       "has_accents": false
     },
     "B2403": {
       "song_id": "B3R92r",
       "bar_num": 82,
-      "lyrics": "love? Baby, join",
+      "lyrics": "join me)",
       "audio": "",
       "has_accents": false
     },
     "B2404": {
       "song_id": "B3R92r",
       "bar_num": 83,
-      "lyrics": "me in death",
+      "lyrics": "This life",
       "audio": "",
       "has_accents": true
     },
     "B2405": {
       "song_id": "B3R92r",
       "bar_num": 84,
-      "lyrics": "Baby, join me\n",
+      "lyrics": "ain't worth livin'\n",
       "audio": "",
       "has_accents": true
     },
     "B2406": {
       "song_id": "B3R92r",
       "bar_num": 85,
-      "lyrics": "in death",
+      "lyrics": "Won't you die",
       "audio": "",
       "has_accents": false
     },
     "B2407": {
       "song_id": "B3R92r",
       "bar_num": 86,
-      "lyrics": "",
+      "lyrics": "tonight for love?",
       "audio": "",
       "has_accents": false
     },
     "B2408": {
       "song_id": "B3R92r",
       "bar_num": 87,
-      "lyrics": "",
+      "lyrics": "Baby, join",
       "audio": "",
       "has_accents": false
     },
     "B2409": {
       "song_id": "B3R92r",
       "bar_num": 88,
-      "lyrics": "",
+      "lyrics": "me in death\n",
       "audio": "",
       "has_accents": false
     },
     "B2410": {
       "song_id": "B3R92r",
       "bar_num": 89,
-      "lyrics": "",
+      "lyrics": "So, won't you",
       "audio": "",
       "has_accents": false
     },
     "B2411": {
       "song_id": "B3R92r",
       "bar_num": 90,
-      "lyrics": "",
+      "lyrics": "die?",
       "audio": "",
       "has_accents": false
     },
     "B2412": {
       "song_id": "B3R92r",
       "bar_num": 91,
-      "lyrics": "",
+      "lyrics": "Baby, join",
       "audio": "",
       "has_accents": false
     },
     "B2413": {
       "song_id": "B3R92r",
       "bar_num": 92,
-      "lyrics": "",
+      "lyrics": "me in death\n",
       "audio": "",
       "has_accents": false
     },
     "B2414": {
       "song_id": "B3R92r",
       "bar_num": 93,
-      "lyrics": "",
+      "lyrics": "But won't you",
       "audio": "",
       "has_accents": false
     },
     "B2415": {
       "song_id": "B3R92r",
       "bar_num": 94,
-      "lyrics": "",
+      "lyrics": "die tonight for love?",
       "audio": "",
       "has_accents": false
     },
     "B2416": {
       "song_id": "B3R92r",
       "bar_num": 95,
-      "lyrics": "",
+      "lyrics": "Baby, join",
       "audio": "",
       "has_accents": false
     },
     "B2417": {
       "song_id": "B3R92r",
       "bar_num": 96,
-      "lyrics": "",
+      "lyrics": "me in death\n",
       "audio": "",
       "has_accents": false
     },
     "B2418": {
       "song_id": "B3R92r",
       "bar_num": 97,
-      "lyrics": "",
+      "lyrics": "Baby, join",
       "audio": "",
       "has_accents": false
     },
     "B2419": {
       "song_id": "B3R92r",
       "bar_num": 98,
-      "lyrics": "",
+      "lyrics": "me in death\n",
       "audio": "",
       "has_accents": false
     },

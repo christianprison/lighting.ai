@@ -132,7 +132,7 @@ class MultitrackRecorder:
                 mode="w",
                 samplerate=self.sample_rate,
                 channels=self.channels,
-                format="WAV",
+                format="RF64",
                 subtype="FLOAT",
             )
 

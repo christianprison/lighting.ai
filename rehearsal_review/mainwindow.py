@@ -115,7 +115,7 @@ QComboBox#zoom_combo          { font-family:'DM Mono',monospace; font-size:10px;
                                 min-width:90px; max-width:110px; }
 """
 
-APP_VERSION = "1.3.18"
+APP_VERSION = "1.3.19"
 
 _ZOOM_PRESETS: list[int] = [2, 5, 10, 20, 40, 80, 160, 320, 640, 1280, 2560, 5120, 10240, 20480, 40960]
 
@@ -557,6 +557,20 @@ class MainWindow(QMainWindow):
         self.addToolBarBreak()
         self.addToolBar(tb2)
 
+        self._sim_btn = QPushButton("▶ Simulation")
+        self._sim_btn.setEnabled(False)
+        self._sim_btn.setToolTip(
+            "Beat-Detection offline simulieren\n"
+            "Klick startet — während Simulation: Klick stoppt (Ergebnisse bleiben)"
+        )
+        self._sim_btn.setCheckable(True)
+        self._sim_btn.setChecked(False)
+        self._sim_btn_set_running(False)
+        self._sim_btn.clicked.connect(self._on_sim_btn_clicked)
+        tb2.addWidget(self._sim_btn)
+
+        tb2.addSeparator()
+
         self._annot_act = tb2.addAction("Annotieren")
         self._annot_act.setCheckable(True)
         self._annot_act.setToolTip(
@@ -622,20 +636,6 @@ class MainWindow(QMainWindow):
             "Doppelklick → Start-Takt setzen"
         )
         self._db_parts_act.triggered.connect(self._show_db_parts)
-
-        tb2.addSeparator()
-
-        self._sim_btn = QPushButton("▶ Simulation")
-        self._sim_btn.setEnabled(False)
-        self._sim_btn.setToolTip(
-            "Beat-Detection offline simulieren\n"
-            "Klick startet — während Simulation: Klick stoppt (Ergebnisse bleiben)"
-        )
-        self._sim_btn.setCheckable(True)
-        self._sim_btn.setChecked(False)
-        self._sim_btn_set_running(False)
-        self._sim_btn.clicked.connect(self._on_sim_btn_clicked)
-        tb2.addWidget(self._sim_btn)
 
     # ── Loading ───────────────────────────────────────────────────────────────
 

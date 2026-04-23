@@ -8090,7 +8090,36 @@
           "light_template": "blind (accent)",
           "notes": ""
         }
-      }
+      },
+      "anchors": [
+        {
+          "id": "anc_mobmpuva_c0ld",
+          "pos": 1,
+          "type": "guitar",
+          "event": "Einsatz",
+          "part_hint": "Intro",
+          "bar_num": 1,
+          "beat": "1"
+        },
+        {
+          "id": "anc_mobmqxhj_nphs",
+          "pos": 2,
+          "type": "drum",
+          "event": "Einsatz",
+          "part_hint": "Intro",
+          "bar_num": 8,
+          "beat": "3+"
+        },
+        {
+          "id": "anc_mobms85e_4qqr",
+          "pos": 3,
+          "type": "drum",
+          "event": "Nur Kick",
+          "part_hint": "Interlude",
+          "bar_num": 69,
+          "beat": "2"
+        }
+      ]
     },
     "mBeBeI": {
       "name": "Killing In The Name Of",

@@ -1,6 +1,6 @@
 # Rehearsal Post-Preparation App — Bedienungsanleitung
 
-**Version:** 2026-04 (rev 4)
+**Version:** 2026-04 (rev 5 — v1.3.20)
 **Zielgruppe:** Timo (Lichttechniker)
 **Plattform:** Linux Mint Steuer-Laptop
 
@@ -39,8 +39,8 @@ Optional: Session direkt übergeben:
 ```
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │ [Play] [Stop]  [Song-Auswahl ▾]  [Fragmente]  Zoom: [80px/s ▾]             │
-│ [Annotieren] ab Takt [1] [Takt B] [Part-Start P] [Fragment F] [Undo U]      │
-│ [Speichern] [→ reference.db] [DB-Parts] [▶ Simulation] [✕ Sim]              │
+│ [▶ Simulation] | [Annotieren] ab Takt [1] [Takt B] [Part-Start P] …        │
+│ [Speichern] [→ reference.db] [DB-Parts]  |  [⊙ Simulation] [✕ Sim]        │
 ├──────────────────────────────────────────────────────────────────────────────┤
 │ Minimap (gesamte Session)                                                    │
 ├──────────────────────────────────────────────────────────────────────────────┤
@@ -217,10 +217,12 @@ Mit dem **`▶ Simulation`**-Button wird die gesamte Live-Erkennungspipeline **o
 
 ### Was wird simuliert?
 
-Dieselben Algorithmen wie `AudioProcess` im Live-Betrieb:
+Dieselben Algorithmen wie `AudioProcess` im Live-Betrieb (**Prime Directive: ein Code, keine Ausnahmen**):
 
-1. **BeatDetector (PLL-basiert):** Erkennt Beats, Downbeats und Snares aus Kick (CH09) / Snare (CH10) / Overheads (CH14/15). Seit April 2026 mit **Sub-Block-RMS**: Kick/Snare-Transienten (5–15 ms) werden auch bei Block-Grenzen zuverlässig erkannt.
-2. **AudioHMM** *(optional, HMM-Toggle)*: Schätzt auf jedem Downbeat die Takt-Position per Fingerprint-Matching gegen `reference.db`. Läuft im **Rehearsal Mode** — Suchraum nur auf den aktuellen Song eingeschränkt. Nutzt **Zeit-Prior**: aus verstrichener Zeit + BPM wird der erwartete Takt berechnet (hilft bei harmonisch monotonen Songs wie „Dancing with myself").
+1. **OnsetDetector** (`detection/beat_detector.py`): Band-gefilterter ODF mit Sub-Window-Präzision (5,3 ms). Kick CH09 (Tiefpass 150 Hz), Snare CH10 (Bandpass 800–9000 Hz), Crash CH14/15 (Hochpass 8 kHz). Adaptiver Median-Schwellwert, Silence-Aware Warmup.
+2. **BarTracker** (`detection/bar_tracker.py`): Streaming Takt-Tracking aus Kick/Snare/Crash-Events. BPM-Schätzung aus letzten 8 Events, dreistufige Beat-1-Phasenkorrektur (Snare, Energie, Crash).
+3. **StreamingChromaExtractor** (`detection/chroma_extractor.py`): Guitar-Chroma (STFT, 0,5 s Rolling-Buffer, CH05) pro Beat; Bass-Chroma (CQT 8 kHz, 2 s Buffer, CH07) pro Takt.
+4. **AnchorMatcher** (`detection/anchor_matcher.py`): Sequentieller Anker-Matcher (falls Anker für den Song in der DB gepflegt sind). Gibt erkannte Anker als Diamonds im Anker-Strip aus.
 
 ### Ablauf
 
@@ -235,21 +237,28 @@ Dieselben Algorithmen wie `AudioProcess` im Live-Betrieb:
 Im Overlay-Modus (`⊙ Simulation` = grün/aktiv) zeigt die Timeline:
 
 **Events-Strip** (schmaler Streifen oben):
-- Originale Probe-Events: stark abgedunkelt (25% Opacity)
-- Sim-Diamonds: **grün** = Downbeat ◆, **amber** = Kick-Beat ◆, **cyan** = Snare ◆ (oben)
+- Originale Probe-Events: ausgeblendet wenn Sim-Events vorhanden
+- Sim-Diamonds: **amber** = Kick ◆ (unten), **cyan** = Snare ◆ (oben), **rot** = Crash ◆ (Mitte, größer)
 
-**Kanal-Rows** — im Overlay überlagert:
-| Kanal | Original (abgedunkelt) | Simulation (voll sichtbar) |
-|-------|------------------------|----------------------------|
-| **OH L+R** | alle Beats (amber/rot) | alle Sim-Beats (amber = Beat, grün = Downbeat) |
-| **Snare** | erkannte Snares (cyan) | Sim-Snares (cyan ◆) |
-| **Kick** | kick-getriggerte Beats (amber/rot) | Sim-Kicks: amber = Kick, grün = Kick+Downbeat |
+**Anker-Strip** (zwischen Events-Strip und erstem Track):
+- Erkannte Anker: Diamond r=8, voller Glow, Label rechts
+- Nicht erkannte Anker: Diamond r=4, sehr dezent (alpha=40)
+- Label-Spalte zeigt `⚓ Anker N/M`
 
-> **Lesehinweis Kick-Reihe:** Amber = Kick erkannt (beliebiger Beat), Rot/Grün = dieser Kick war gleichzeitig ein Downbeat (Takt 1). Die Dichte der Diamonds zeigt direkt wie zuverlässig der Kick erkannt wird.
+**Kanal-Rows** — im Overlay:
+| Kanal | Simulation |
+|-------|-----------|
+| **OH L+R** | Sim-Kicks: amber ◆ |
+| **Snare** | Sim-Snares: cyan ◆ |
+| **Kick** | Sim-Kicks: amber ◆ |
 
-**ANNOT-Strip** (Takt-Annotations-Streifen):
-- Manuelle Annotationen (amber/grün/weiß) bleiben sichtbar
-- HMM-Schätzungen (nur wenn HMM aktiv): `~T{n} Part` als cyan Linie, sehr transparent = eingefroren
+**Taktgitter**: Halbdurchsichtige weiße Linien über alle Drum-Tracks; Taktnummer alle 5 Takte in amber; Tom-Label zeigt `"{BPM} BPM"`.
+
+**Dual-Playhead** (während Echtzeit-Simulation):
+- **Roter Playhead** (durchgezogen): Audio-Position
+- **Amber Playhead** (gestrichelt): BarTracker-Schätzung — Abweichung = Erkennungslatenz (typisch 1–2 Takte)
+
+**ANNOT-Strip**: Manuelle Annotationen (amber/grün/weiß) bleiben sichtbar.
 
 ### Overlay ein-/ausschalten
 
@@ -259,18 +268,23 @@ Im Overlay-Modus (`⊙ Simulation` = grün/aktiv) zeigt die Timeline:
 
 ### Ergebnis interpretieren
 
-**Kick-Erkennung beurteilen:**
-- Dichtes Muster in der Kick-Reihe = Kick wird gut erkannt
-- Lücken = Transient lag an Block-Grenze oder unter Schwelle → ggf. `threshold_factor` in `beat_detector.py` senken
+**Kick/Snare-Erkennung beurteilen:**
+- Dichtes Muster in den Kanal-Rows = Erkennung zuverlässig
+- Lücken = Transient lag an Block-Grenze oder unter Schwelle → `threshold_factor` in `beat_detector.py` senken
+- Diagnose auf stderr: `[SIM] ♥ N Blöcke  t=Xs  kicks=K  snares=S`
 
-**BPM-Drift beurteilen:**
-- Downbeats (grün) sollten gleichmäßig verteilt sein
-- Driftet der Abstand → PLL hat Probleme → BPM aus DB prüfen
+**BPM und Taktgitter beurteilen:**
+- Taktlinien sollten gleichmäßig verteilt sein und auf Beat 1 liegen
+- BPM-Anzeige im Tom-Label zeigt aktuellen BarTracker-Wert
+- Snare-Positionen ≈ 1.0 und 3.0 Beats = korrekte Beat-1-Erkennung (stderr-Diagnose)
 
-**HMM-Taktposition beurteilen** *(nur wenn HMM aktiv)*:
-- `~T{n}` Labels im ANNOT-Strip mit manuellen Markern vergleichen
-- Statuszeile zeigt Match-Quote: `Simulation: 48 Downbeats — Takt-Match: 32/48 (67%)`
-- Bei schlechten Ergebnissen: zuerst mehr Probenaufnahmen importieren (`→ reference.db`)
+**Crash-Erkennung:**
+- Status-Bar zeigt `★ N Crashes` nach der Simulation
+- Bei 0 Crashes → `CRASH_RMS_MIN` in `beat_detector.py` senken
+
+**Anker-Erkennung:**
+- Erkannte Anker erscheinen als Glow-Diamonds im Anker-Strip
+- stderr: `[ANKER] ✓ ERKANNT #NN  type  event  t=X.XXs`
 
 ### Wann ist die Simulation sinnvoll?
 
@@ -324,6 +338,9 @@ Keine Beat-Events in der JSONL vorhanden (XR18 war nicht verbunden oder Beat-Det
 ### sounddevice nicht gefunden
 App über `./start.sh` starten (aktiviert venv `/opt/lighting-venv`).
 
+### Simulation: 30–60 s Pause am Anfang (vor erstem Kick)
+Betrifft alte WAV-Aufnahmen >4 GB. Der ungültige Size-Header (WAV-Format, 32-bit-Limit) zwingt libsndfile beim Öffnen zu einem linearen Scan. Ab v1.3.20 werden `raw_all` und `_stereo_buf` nicht gleichzeitig im RAM gehalten, was den nachfolgenden Memory-Pressure-Delay verhindert. Der initiale Scan (30–60 s) beim ersten Öffnen bleibt jedoch — er ist einmalig und tritt nur bei der ersten Simulation einer Session auf. **Neue Aufnahmen** (ab Live-App v2026.04.23a) werden im RF64-Format geschrieben — kein Size-Overflow, libsndfile-Seek O(1).
+
 ### Fehler: „Wavelet basis … would exceed Nyquist" beim CQT
 Tritt auf wenn Bass-CQT mit `target_sr=8000` und vielen Oktaven berechnet wird. Behoben in **v1.2.2** (`chroma_extractor.py`): `n_octaves` wird automatisch auf `floor(log2(sr/2 / fmin))` = 6 Oktaven begrenzt (max. Frequenz 2093 Hz < Nyquist 4000 Hz). Kein Handlungsbedarf wenn die App auf aktuellem Stand ist.
 
@@ -349,23 +366,24 @@ Sim-Events wurden mit falschen X-Koordinaten gezeichnet wenn der Song nicht bei 
 
 ### Toolbar-Buttons Übersicht
 
-| Button | Funktion |
-|--------|----------|
-| **Play / Stop** | Transport |
-| **Song-Dropdown** | Song-Segment wechseln |
-| **Fragmente** | Fragment-Erkennung für aktuellen Song starten |
-| **Annotieren** | Annotations-Modus ein/aus (leuchtet grün wenn aktiv) |
-| **ab Takt [n]** | Starttakt des ersten Fragments (Spinbox) |
-| **Takt [B]** | Takt-Marker setzen (Shortcut: B) |
-| **Part-Start [P]** | Part-Marker setzen mit Namens-Dialog (Shortcut: P) |
-| **Fragment [F]** | Fragment-Start setzen mit Takt-Eingabe (Shortcut: F) |
-| **Undo [U]** | Letzten Marker rückgängig (Shortcut: U) |
-| **Speichern** | Annotationen in JSON speichern |
-| **→ reference.db** | Annotierte Takte als Audio-Features importieren |
-| **DB-Parts** | Parts-Panel aus reference.db ein/ausblenden |
-| **▶ Simulation** | Offline-Simulation starten |
-| **⊙ Simulation** | Sim-Overlay ein/ausschalten (erscheint nach Simulation) |
-| **✕ Sim** | Simulations-Ergebnisse löschen |
+| Button | Toolbar | Funktion |
+|--------|---------|----------|
+| **Play / Stop** | oben | Transport |
+| **Song-Dropdown** | oben | Song-Segment wechseln |
+| **Fragmente** | oben | Fragment-Erkennung für aktuellen Song starten |
+| **Zoom-Dropdown** | oben | Zoom-Stufe direkt wählen |
+| **▶ Simulation** | unten, ganz links | Offline-Simulation starten (grün = läuft) |
+| **Annotieren** | unten | Annotations-Modus ein/aus (leuchtet grün wenn aktiv) |
+| **ab Takt [n]** | unten | Starttakt des ersten Fragments (Spinbox) |
+| **Takt [B]** | unten | Takt-Marker setzen (Shortcut: B) |
+| **Part-Start [P]** | unten | Part-Marker setzen mit Namens-Dialog (Shortcut: P) |
+| **Fragment [F]** | unten | Fragment-Start setzen mit Takt-Eingabe (Shortcut: F) |
+| **Undo [U]** | unten | Letzten Marker rückgängig (Shortcut: U) |
+| **Speichern** | unten | Annotationen in JSON speichern |
+| **→ reference.db** | unten | Annotierte Takte als Audio-Features importieren |
+| **DB-Parts** | unten | Parts-Panel aus reference.db ein/ausblenden |
+| **⊙ Simulation** | unten (nach Sim) | Sim-Overlay ein/ausschalten |
+| **✕ Sim** | unten (nach Sim) | Simulations-Ergebnisse löschen |
 
 ### Dateistruktur
 ```

@@ -23688,7 +23688,7 @@
       "bar_num": 150,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B2284": {
       "song_id": "I9J0Xm",
@@ -25240,6 +25240,12 @@
       "bar_id": "B1728",
       "pos_16th": 1,
       "type": "hl",
+      "notes": ""
+    },
+    "A0231": {
+      "bar_id": "B2283",
+      "pos_16th": 1,
+      "type": "bo",
       "notes": ""
     }
   },

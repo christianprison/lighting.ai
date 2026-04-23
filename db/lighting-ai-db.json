@@ -7,32 +7,32 @@
       {
         "type": "song",
         "pos": 1,
-        "song_id": "pVmkRc"
-      },
-      {
-        "type": "song",
-        "pos": 2,
-        "song_id": "qVbU6L"
-      },
-      {
-        "type": "song",
-        "pos": 3,
         "song_id": "1FXXiL"
       },
       {
         "type": "song",
-        "pos": 4,
+        "pos": 2,
         "song_id": "B3R92r"
       },
       {
         "type": "song",
-        "pos": 5,
+        "pos": 3,
         "song_id": "mBeBeI"
       },
       {
         "type": "song",
-        "pos": 6,
+        "pos": 4,
         "song_id": "I9J0Xm"
+      },
+      {
+        "type": "song",
+        "pos": 5,
+        "song_id": "E3pvFC"
+      },
+      {
+        "type": "song",
+        "pos": 6,
+        "song_id": "qVbU6L"
       }
     ]
   },

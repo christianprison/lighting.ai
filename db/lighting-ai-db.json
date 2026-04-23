@@ -6649,6 +6649,42 @@
           "part_hint": "Verse 1",
           "bar_num": 9,
           "beat": "1"
+        },
+        {
+          "id": "anc_mobmwmt6_z27w",
+          "pos": 4,
+          "type": "drum",
+          "event": "",
+          "part_hint": "Chorus 1",
+          "bar_num": null,
+          "beat": ""
+        },
+        {
+          "id": "anc_mobmwxgl_dh0p",
+          "pos": 5,
+          "type": "drum",
+          "event": "Crash",
+          "part_hint": "Verse 2",
+          "bar_num": 25,
+          "beat": "1"
+        },
+        {
+          "id": "anc_mobmwnml_7xb3",
+          "pos": 6,
+          "type": "christian",
+          "event": "Einsatz",
+          "part_hint": "Verse 2",
+          "bar_num": 25,
+          "beat": "2"
+        },
+        {
+          "id": "anc_mobmx509_iutp",
+          "pos": 7,
+          "type": "axel",
+          "event": "Einsatz",
+          "part_hint": "Verse 2",
+          "bar_num": 25,
+          "beat": "2"
         }
       ]
     },

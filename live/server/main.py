@@ -323,6 +323,7 @@ async def get_songs():
             "duration": s.get("duration", ""),
             "duration_sec": s.get("duration_sec", 0),
             "parts": _get_parts_for_song(sid, s, bars_per_song.get(sid, 0)),
+            "anchors": s.get("anchors", []),
         }
     return result
 
@@ -516,10 +517,10 @@ async def osc_send_template(req: OscSendTemplateRequest):
         log.warning("send_template: unknown template '%s'", req.template)
         return JSONResponse({"error": f"Unknown template: {req.template}"}, status_code=404)
 
-    if qlc is None or not qlc.connected:
+    if osc is None or not osc.connected:
         return JSONResponse({"error": "QLC+ OSC not connected"}, status_code=503)
 
-    ok = await qlc.trigger_function_async(function_id)
+    ok = await osc.trigger_function_async(function_id)
     if ok:
         log.info("send_template '%s' → function %d triggered", req.template, function_id)
         _log_user_action("send_template", {"template": req.template, "function_id": function_id})

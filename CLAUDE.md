@@ -789,6 +789,25 @@ Wenn ein Song kein `grundrhythmus` hat, wird Phasen-Histogramm + Crash-Fallback 
 3. **Anker-Positionen in der DB pflegen**: Für Songs ohne Anker-Daten die Anker in der DB-Pflege-App eintragen, damit der AnchorMatcher greifen kann. Besonders drum-Anker (Crash, Snare) sind einfach zu erkennen und liefern schnell Ergebnisse.
 4. **Probenaufnahmen → RF64-Format**: Neue Aufnahmen (seit v2026.04.23a) werden im RF64-Format geschrieben (keine 4-GB-Grenze, korrekte libsndfile-Seeks). Alte WAV-Aufnahmen >4 GB haben einen ungültigen Size-Header — libsndfile scannt das File linear beim Öffnen (30–60 s). Die v1.3.20-Lade-Strategie (Zwei-Schritt-RAM-Ansatz, s.o.) ist der korrekte Workaround dafür.
 
+#### Behobene Bugs (Session 2026-04-23)
+
+**Rehearsal-App v1.3.21 — SimulatorWorker: 38s Startverzögerung behoben**
+- **Ursache**: `del raw_all` nach dem ersten Laden (~1071 MB) invalidierte den OS-Page-Cache. Der Block-Loop las die 18-Kanal-Daten erneut von Disk (~0,5 MB/s auf HDD → 289 ms/Block → 38 s für 5,6 s Audio).
+- **Fix** (`rehearsal_review/simulator.py`): `raw_all` bleibt während des Block-Loops im RAM. Block-Loop sliced per `raw_all[frames_done:frames_done+read_n]` (O(1) numpy, kein Disk-I/O). `raw_all` wird erst nach dem Block-Loop per `del raw_all` freigegeben. Datei-Handle wird nach dem ersten Lesen geschlossen (`with sf.SoundFile(...) as _wav_file:`).
+- **Nebeneffekt**: Speicherbedarf während der Simulation: ~1071 MB (raw_all) + ~125 MB (stereo) statt nur 125 MB. Kein Problem für einen modernen Laptop.
+
+**Live-App: `qlc` → `osc` NameError in `/api/osc/send_template`**
+- **Ursache**: Endpoint `osc_send_template` in `live/server/main.py` referenzierte undefinierte Variable `qlc` statt `osc`.
+- **Fix**: `qlc` → `osc` (2 Stellen in `osc_send_template`).
+
+**Live-App: Anker werden im Anker-Panel nicht angezeigt**
+- **Ursache**: `/api/songs`-Endpoint gab `anchors` nicht zurück; `songs[sid].anchors` war daher immer `undefined`.
+- **Fix**: `"anchors": s.get("anchors", [])` zum Response-Dict in `get_songs()` hinzugefügt.
+
+**DB-Pflege-App v2.3.3 — 2 neue TMS-Tasks**
+- `grundrhythmus_set` (Kategorie: Stammdaten): auto-check — grünt wenn `song.grundrhythmus.kick` oder `.snare` gesetzt.
+- `anchors_set` (Kategorie: Licht): auto-check — grünt wenn `song.anchors.length > 0`.
+
 #### Anker-Feature (DB-Pflege-App v2.3.2)
 
 Jeder Song kann eine geordnete Liste von **Ankern** (`song.anchors`) enthalten — erkennbare

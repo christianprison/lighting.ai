@@ -212,29 +212,6 @@ class SimulatorWorker(QThread):
         _stereo_buf = None
         _wall_start = 0.0
 
-        if self._realtime:
-            try:
-                import sounddevice as _sd_mod
-                self._sd = _sd_mod
-                with sf.SoundFile(self._wav_path) as f2:
-                    f2.seek(start_sample)
-                    raw_all = f2.read(end_sample - start_sample,
-                                     dtype="float32", always_2d=True)
-                ch_l = min(16, raw_all.shape[1] - 1)
-                ch_r = min(17, raw_all.shape[1] - 1)
-                _stereo_buf = np.ascontiguousarray(raw_all[:, [ch_l, ch_r]])
-                del raw_all
-                _sd_mod.play(_stereo_buf, sr, device="pulse", blocksize=4096)
-                _sd_playing = True
-                _wall_start = _time.monotonic()
-                self.sim_started.emit(_wall_start)
-                print("[SIM] Echtzeit-Modus: Audio gestartet", file=sys.stderr, flush=True)
-            except Exception as exc:
-                self._sd = None
-                _wall_start = _time.monotonic()
-                print(f"[SIM] Audio-Playback fehlgeschlagen: {exc}",
-                      file=sys.stderr, flush=True)
-
         self._output_jsonl.parent.mkdir(parents=True, exist_ok=True)
         with (
             sf.SoundFile(self._wav_path) as wav_f,
@@ -254,6 +231,32 @@ class SimulatorWorker(QThread):
                 },
             }) + "\n")
 
+            # Echtzeit-Modus: Stereo-Buffer aus derselben bereits geöffneten Datei lesen.
+            # WICHTIG: wav_f hier einmalig öffnen und wiederverwenden — zweites sf.SoundFile()
+            # auf einer >4 GB WAV mit ungültigem Size-Header würde einen linearen Scan
+            # (~60 Sekunden bei HDD) auslösen.
+            if self._realtime:
+                try:
+                    import sounddevice as _sd_mod
+                    self._sd = _sd_mod
+                    wav_f.seek(start_sample)
+                    raw_all = wav_f.read(end_sample - start_sample,
+                                        dtype="float32", always_2d=True)
+                    ch_l = min(16, raw_all.shape[1] - 1)
+                    ch_r = min(17, raw_all.shape[1] - 1)
+                    _stereo_buf = np.ascontiguousarray(raw_all[:, [ch_l, ch_r]])
+                    del raw_all
+                    _sd_mod.play(_stereo_buf, sr, device="pulse", blocksize=4096)
+                    _sd_playing = True
+                    _wall_start = _time.monotonic()
+                    self.sim_started.emit(_wall_start)
+                    _log("[SIM] Echtzeit-Modus: Audio gestartet")
+                except Exception as exc:
+                    self._sd = None
+                    _wall_start = _time.monotonic()
+                    _log(f"[SIM] Audio-Playback fehlgeschlagen: {exc}")
+
+            # Zurück an den Segment-Anfang — nur ein billiger Zeiger-Sprung, kein Disk-Scan
             wav_f.seek(start_sample)
             remaining = end_sample - wav_f.tell()
 

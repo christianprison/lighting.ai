@@ -108,7 +108,7 @@ def run_test(wav_path: Path, seg_start_t: float, seg_end_t: float,
     _log(f"sr={sr}  start_sample={start_sample}  end_sample={end_sample}")
     _log("")
 
-    detector = OnsetDetector(sample_rate=sr, block_size=BLOCK_SIZE)
+    detector = OnsetDetector(sample_rate=sr)
     matcher  = AnchorMatcher(
         anchors=anchors,
         bpm=bpm,

@@ -7723,7 +7723,8 @@
       "lyrics_raw": "[Verse 1]\nLast night, she said\n\"Oh, baby, I feel so down\nOh, it turn' me off\nWhen I feel left out\"\nSo I, I turned 'round\n\"Oh, babe, I don't care no more\"\nI know this for sure\nI'm walkin' out that door\nWell, I've been in town for just 'bout fifteen, oh, minutes now\nAnd, baby, I feel so down\nAnd I don't know why\nI keep walkin' for miles...\n[Chorus]\nAnd see, people, they don't understand\nNo, girlfriends, they can't understand\nYour grandsons, they won't understand\nOn top of this, I ain't ever gonna understand\n\n[Verse 2]\nLast night, she said\n\"Oh, baby, don't feel so down\nOh, it turn' me off\nWhen I feel left out\"\nSo I, I turned 'round\n\"Oh, baby, gonna be alright\"\nIt was a great big lie\n'Cause I left that night, yeah\n\n[Guitar Solo]\n\n[Chorus]\nOh, people, they don't understand\nNo, girlfriends, they don't understand\nIn spaceships, they won't understand\nAnd me, I ain't ever gonna understand\n\n[Verse 1]\nLast night, she said\n\"Oh, baby, I feel so down\nSee, it turn' me off\nWhen I feel left out\"\nSo I, I turned 'round\n\"Oh, little girl, I don't care no more\nI know this for sure\nI'm walkin' out that door,\" yeah",
       "tms": {
         "manual_done": [
-          "bar_markers"
+          "bar_markers",
+          "parts_identified"
         ],
         "user_tasks": [],
         "manual_undone": []
@@ -7903,19 +7904,19 @@
             "time": 67.77412944756556
           },
           {
-            "time": 69.10212944756556
+            "time": 69.06741573033709
           },
           {
             "time": 70.36879611423221
           },
           {
-            "time": 71.50746278089888
+            "time": 71.56179775280899
           },
           {
             "time": 72.75812944756554
           },
           {
-            "time": 74.12346278089889
+            "time": 74.08988764044943
           },
           {
             "time": 75.3847961142322
@@ -8191,7 +8192,7 @@
             "time": 186.4514627808989
           },
           {
-            "time": 187.8674627808989
+            "time": 187.7056179775281
           },
           {
             "time": 189.0087961142322
@@ -8325,6 +8326,42 @@
           {
             "bar_num": 33,
             "name": "Verse 1"
+          },
+          {
+            "bar_num": 63,
+            "name": "Chorus 1"
+          },
+          {
+            "bar_num": 79,
+            "name": "Verse 2"
+          },
+          {
+            "bar_num": 99,
+            "name": "Chorus 2"
+          },
+          {
+            "bar_num": 115,
+            "name": "Guitar Solo"
+          },
+          {
+            "bar_num": 135,
+            "name": "Chorus 3"
+          },
+          {
+            "bar_num": 150,
+            "name": "Stop"
+          },
+          {
+            "bar_num": 152,
+            "name": "Verse 3"
+          },
+          {
+            "bar_num": 172,
+            "name": "Chorus 4"
+          },
+          {
+            "bar_num": 188,
+            "name": "Ausklang"
           }
         ]
       }

@@ -132,12 +132,11 @@ letter-spacing:.8px;text-transform:uppercase;color:var(--t2);cursor:pointer;tran
 
 /* Setlist head: REC + Settings */
 .setlist-head{display:flex;align-items:center;gap:6px;padding:8px 10px;flex-shrink:0}
-.rec-main-btn{flex:1;padding:10px 6px;border-radius:var(--r);border:2px solid var(--border2);
-background:var(--bg3);color:var(--t2);font-family:'DM Mono',monospace;font-size:12px;font-weight:600;
+.rec-main-btn{flex:1;padding:10px 6px;border-radius:var(--r);border:2px solid #ff3b5c;
+background:transparent;color:#ff3b5c;font-family:'DM Mono',monospace;font-size:12px;font-weight:600;
 letter-spacing:2px;cursor:pointer;transition:all .12s;touch-action:manipulation}
 .rec-main-btn:active{transform:scale(.97)}
-.rec-main-btn.on{background:#ff3b5c18;border-color:var(--red);color:var(--red)}
-.rec-main-btn.armed{background:var(--amber2);border-color:var(--amber);color:var(--amber)}
+.rec-main-btn.on{background:#ff3b5c;color:#08090d;font-weight:700}
 .nbtn{display:flex;align-items:center;justify-content:center;gap:6px;padding:14px;border-radius:var(--r);
 border:1.5px solid var(--border2);background:var(--bg3);color:var(--t1);font-size:13px;font-weight:600;
 cursor:pointer;transition:all .1s;touch-action:manipulation}
@@ -449,7 +448,7 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
     <div class="badges">
       <div class="badge live" id="badgeLive"><div class="pulse"></div>LIVE</div>
       <div class="badge" id="badgeQlc">QLC+ &#x25CF;</div>
-      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.04.23a</div>
+      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.04.23b</div>
     </div>
     <div class="beat-area">
       <div class="beat-row">
@@ -1425,8 +1424,6 @@ function startAudioPolling() {
 var recRunning = false;
 var recDurTimer = null;
 var recStartedAt = null;
-var recStopArmed = false;
-var recStopArmTimer = null;
 var recLongPressTimer = null;
 
 (function initRecBtn() {
@@ -1472,23 +1469,7 @@ var recLongPressTimer = null;
 function recTap() {
   if (!recRunning) {
     recStart();
-  } else if (!recStopArmed) {
-    // Erster Tap: Stopp-Bestätigung anfordern
-    recStopArmed = true;
-    var btn = document.getElementById('btnRec');
-    btn.classList.remove('on');
-    btn.classList.add('armed');
-    btn.textContent = 'STOPP?';
-    recStopArmTimer = setTimeout(function() {
-      recStopArmed = false;
-      btn.classList.remove('armed');
-      btn.classList.add('on');
-      btn.innerHTML = '<span class="rec-dot"></span>REC';
-    }, 3000);
   } else {
-    // Zweiter Tap: wirklich stoppen
-    clearTimeout(recStopArmTimer);
-    recStopArmed = false;
     recStop();
   }
 }
@@ -1521,7 +1502,7 @@ async function recStop() {
     recRunning = false;
     stopRecDurTimer();
     var btn = document.getElementById('btnRec');
-    btn.classList.remove('on', 'armed');
+    btn.classList.remove('on');
     btn.innerHTML = '&#x23FA; REC';
     var info = data.path ? data.path.split('/').pop() : '';
     showToast('Aufnahme gespeichert' + (info ? ': ' + info : ''));

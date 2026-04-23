@@ -6631,6 +6631,24 @@
           "part_hint": "Intro",
           "bar_num": 1,
           "beat": "1"
+        },
+        {
+          "id": "anc_mobmvnif_9xke",
+          "pos": 2,
+          "type": "drum",
+          "event": "Crash",
+          "part_hint": "Verse 1",
+          "bar_num": 9,
+          "beat": "1"
+        },
+        {
+          "id": "anc_mobmvx04_nbxa",
+          "pos": 3,
+          "type": "drum",
+          "event": "Beat beginnt",
+          "part_hint": "Verse 1",
+          "bar_num": 9,
+          "beat": "1"
         }
       ]
     },

@@ -8312,67 +8312,149 @@
           {
             "bar_num": 1,
             "name": "Intro (Gitarre)",
+            "light_template": "Spot auf Pete",
             "instrumental": true
           },
           {
             "bar_num": 9,
             "name": "Intro (+ Drums)",
+            "light_template": "Spot auf Tim",
             "instrumental": true
           },
           {
             "bar_num": 17,
             "name": "Intro (+ Bass)",
+            "light_template": "Spot auf Bibo",
             "instrumental": true
           },
           {
             "bar_num": 26,
             "name": "Intro (+Lead Guitar)",
+            "light_template": "Spot auf Axel",
             "instrumental": true
           },
           {
             "bar_num": 33,
-            "name": "Verse 1"
+            "name": "Verse 1",
+            "light_template": "02 slow blue"
           },
           {
             "bar_num": 63,
-            "name": "Chorus 1"
+            "name": "Chorus 1",
+            "light_template": "03 walking"
           },
           {
             "bar_num": 79,
-            "name": "Verse 2"
+            "name": "Verse 2",
+            "light_template": "02 slow blue"
           },
           {
             "bar_num": 99,
-            "name": "Chorus 2"
+            "name": "Chorus 2",
+            "light_template": "03 walking"
           },
           {
             "bar_num": 115,
             "name": "Guitar Solo",
+            "light_template": "Spot auf Axel",
             "instrumental": true
           },
           {
             "bar_num": 135,
-            "name": "Chorus 3"
+            "name": "Chorus 3",
+            "light_template": "03 walking"
           },
           {
             "bar_num": 150,
             "name": "Stop",
+            "light_template": "01 statisch bunt",
             "instrumental": true
           },
           {
             "bar_num": 152,
-            "name": "Verse 3"
+            "name": "Verse 3",
+            "light_template": "02 slow blue"
           },
           {
             "bar_num": 172,
-            "name": "Chorus 4"
+            "name": "Chorus 4",
+            "light_template": "03 walking"
           },
           {
             "bar_num": 188,
             "name": "Ausklang",
+            "light_template": "01 statisch bunt",
             "instrumental": true
           }
         ]
+      },
+      "qlc_parts": {
+        "I9J0Xm_QP001": {
+          "pos": 1,
+          "name": "Intro",
+          "light_template": "Spot auf Pete",
+          "notes": ""
+        },
+        "I9J0Xm_QP002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "light_template": "02 slow blue",
+          "notes": ""
+        },
+        "I9J0Xm_QP003": {
+          "pos": 3,
+          "name": "Chorus 1",
+          "light_template": "03 walking",
+          "notes": ""
+        },
+        "I9J0Xm_QP004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "light_template": "02 slow blue",
+          "notes": ""
+        },
+        "I9J0Xm_QP005": {
+          "pos": 5,
+          "name": "Chorus 2",
+          "light_template": "03 walking",
+          "notes": ""
+        },
+        "I9J0Xm_QP006": {
+          "pos": 6,
+          "name": "Solo Axel",
+          "light_template": "Spot auf Axel",
+          "notes": ""
+        },
+        "I9J0Xm_QP007": {
+          "pos": 7,
+          "name": "Chorus 3",
+          "light_template": "03 walking",
+          "notes": ""
+        },
+        "I9J0Xm_QP008": {
+          "pos": 8,
+          "name": "STOP",
+          "light_template": "01 statisch bunt",
+          "notes": ""
+        },
+        "I9J0Xm_QP009": {
+          "pos": 9,
+          "name": "Verse 3",
+          "light_template": "02 slow blue",
+          "notes": ""
+        },
+        "I9J0Xm_QP010": {
+          "pos": 10,
+          "name": "Chorus 4",
+          "light_template": "03 walking",
+          "notes": ""
+        },
+        "I9J0Xm_QP011": {
+          "pos": 11,
+          "name": "Ausklang",
+          "light_template": "01 statisch bunt",
+          "notes": ""
+        }
       }
     },
     "gRbHPO": {

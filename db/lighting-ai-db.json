@@ -6621,7 +6621,18 @@
         "snare": [
           2
         ]
-      }
+      },
+      "anchors": [
+        {
+          "id": "anc_mobmv6bo_e2e9",
+          "pos": 1,
+          "type": "drum",
+          "event": "Nur Kick",
+          "part_hint": "Intro",
+          "bar_num": 1,
+          "beat": "1"
+        }
+      ]
     },
     "qVbU6L": {
       "name": "Hail to the Freaks",

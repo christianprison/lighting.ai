@@ -7662,7 +7662,8 @@
       "lyrics_raw": "[Intro]\nBaby, join me in death\nBaby, join me in death\nBaby, join me in death\n\n[Verse 1]\nWe are so young\nOur lives have just begun\nBut already, we are considering\nEscape from this world\nAnd we've waited for so long\nFor this moment to come\nWe're so anxious to be together\nTogether in death\n[Pre-Chorus]\nWoah-oh\n\n[Chorus]\nWon't you die tonight for love?\nBaby, join me in death\nWon't you die?\nBaby, join me in death\nBut won't you die tonight for love?\nBaby, join me in death\n\n[Verse 2]\nThis world is a cruel place\nAnd we're here only to lose\nSo, before life tears us apart\nLet death bless me with you\n\n[Pre-Chorus]\nWoah-oh\n\n[Chorus]\nWon't you die tonight for love?\nBaby, join me in death\nSo, won't you die?\nBaby, join me in death\nBut won't you die tonight for love?\nBaby, join me in death\n\n[Refrain]\nWoah-oh...\n\n[Bridge]\nThis life ain't worth livin'\nThis life, it ain't worth livin'\n(Join me, join me, join me, join me)\nThis life, it ain't worth livin'\n(Join me, join me)\nThis life ain't worth livin'\n\n[Chorus]\nWon't you die tonight for love?\nBaby, join me in death\nSo, won't you die?\nBaby, join me in death\nBut won't you die tonight for love?\nBaby, join me in death\n\n[Outro]\nBaby, join me in death",
       "tms": {
         "manual_done": [
-          "bar_markers"
+          "bar_markers",
+          "parts_identified"
         ],
         "user_tasks": [],
         "manual_undone": []
@@ -7933,7 +7934,7 @@
             "time": 203.78018307522126
           },
           {
-            "time": 205.75351640855456
+            "time": 205.83837078651686
           },
           {
             "time": 207.84684974188792
@@ -7978,7 +7979,44 @@
             "time": 235.25484974188794
           }
         ],
-        "part_starts": []
+        "part_starts": [
+          {
+            "bar_num": 1,
+            "name": "Intro"
+          },
+          {
+            "bar_num": 9,
+            "name": "Chorus 1"
+          },
+          {
+            "bar_num": 15,
+            "name": "Verse 1"
+          },
+          {
+            "bar_num": 31,
+            "name": "Chorus 2"
+          },
+          {
+            "bar_num": 45,
+            "name": "Verse 2"
+          },
+          {
+            "bar_num": 53,
+            "name": "Chorus 3"
+          },
+          {
+            "bar_num": 69,
+            "name": "Interlude"
+          },
+          {
+            "bar_num": 85,
+            "name": "Chorus 4"
+          },
+          {
+            "bar_num": 99,
+            "name": "Ausklang"
+          }
+        ]
       }
     },
     "mBeBeI": {
@@ -7995,7 +8033,9 @@
       "qlc_id": 252,
       "lyrics_raw": "[Intro]\n(Killing in the name of)\n\n[Verse]\nSome of those that work forces\nAre the same that burn crosses\nSome of those that work forces\nAre the same that burn crosses\nSome of those that work forces\nAre the same that burn crosses\nSome of those that work forces\nAre the same that burn crosses, ugh\n[Refrain]\nKilling in the name of\nKilling in the name of\n\n[Pre-Chorus]\nAnd now you do what they told ya\nAnd now you do what they told ya\nAnd now you do what they told ya\nAnd now you do what they told ya\nAnd now you do what they told ya\nAnd now you do what they told ya\nAnd now you do what they told ya\nAnd now you do what they told ya\nAnd now you do what they told ya\nAnd now you do what they told ya\nBut now you do what they told ya\nWell now you do what they told ya\n\n[Chorus]\nThose who died are justified\nFor wearin' the badge, they're the chosen whites\nYou justify those that died\nBy wearin' the badge, they're the chosen whites\nThose who died are justified\nFor wearin' the badge, they're the chosen whites\nYou justify those that died\nBy wearin' the badge, they're the chosen whites\n[Verse]\nSome of those that work forces\nAre the same that burn crosses\nSome of those that work forces\nAre the same that burn crosses\nSome of those that work forces\nAre the same that burn crosses\nSome of those that work forces\nAre the same that burn crosses, ugh\n\n[Refrain]\nKilling in the name of\nKilling in the name of\n\n[Pre-Chorus]\nAnd now you do what they told ya\nAnd now you do what they told ya\nAnd now you do what they told ya\nAnd now you do what they told ya\nAnd now you do what they told ya (Now you're under control)\nAnd now you do what they told ya (And now you're under control)\nAnd now you do what they told ya (And now you're under control)\nAnd now you do what they told ya (Now you're under control)\nAnd now you do what they told ya (Now you're under control)\nAnd now you do what they told ya (Now you're under control)\nAnd now you do what they told ya (Now you're under control)\nAnd now you do what they told ya\n[Chorus]\nThose who died are justified\nFor wearin' the badge, they're the chosen whites\nYou justify those that died\nBy wearin' the badge, they're the chosen whites\nThose who died are justified\nFor wearin' the badge, they're the chosen whites\nYou justify those that died\nBy wearin' the badge, they're the chosen whites, come on\n\n[Guitar Solo]\nUgh\nYeah\nCome on\nUgh\n\n[Outro]\nFuck you, I won't do what you tell me\nFuck you, I won't do what you tell me\nFuck you, I won't do what you tell me\nFuck you, I won't do what you tell me\nFuck you, I won't do what you tell me\nFuck you, I won't do what you tell me\nFuck you, I won't do what you tell me\nFuck you, I won't do what you tell me\nFuck you, I won't do what you tell me\nFuck you, I won't do what you tell me\nFuck you, I won't do what you tell me\nFuck you, I won't do what you tell me\nFuck you, I won't do what you tell me\nFuck you, I won't do what you tell me\nFuck you, I won't do what you tell me\nFuck you, I won't do what you tell me\nMotherfucker, ugh",
       "tms": {
-        "manual_done": [],
+        "manual_done": [
+          "bar_markers"
+        ],
         "user_tasks": [
           {
             "id": "ut_1773145638870_q96b",

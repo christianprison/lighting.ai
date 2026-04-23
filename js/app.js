@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.3.2';
+const APP_VERSION = 'v2.3.3';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -493,6 +493,8 @@ const SONG_CHECKLIST = [
     check: (s) => !!(s.year && s.year.trim()) },
   { id: 'has_gema',     label: 'GEMA Nr. gesetzt',      cat: 'stammdaten', tab: 'editor',
     check: (s) => !!(s.gema_nr && s.gema_nr.trim()) },
+  { id: 'grundrhythmus_set', label: 'Grundrhythmus festgelegt', cat: 'stammdaten', tab: 'editor',
+    check: (s) => !!(s.grundrhythmus && (s.grundrhythmus.kick?.length || s.grundrhythmus.snare?.length)) },
 
   // ── Audio ──
   { id: 'audio_ref',    label: 'Referenz-Audio geladen', cat: 'audio', tab: 'audio',
@@ -528,6 +530,8 @@ const SONG_CHECKLIST = [
     check: (s, barIds, theDb) => {
       return barIds.some(bId => Object.values(theDb.accents).some(a => a.bar_id === bId));
     }},
+  { id: 'anchors_set',  label: 'Anker gesetzt (mind. 1)', cat: 'licht', tab: 'editor',
+    check: (s) => !!(s.anchors && s.anchors.length > 0) },
 
   // ── Live-Ready ──
   { id: 'in_setlist',    label: 'fertig f\u00fcr Playlist', cat: 'live', tab: 'setlist',

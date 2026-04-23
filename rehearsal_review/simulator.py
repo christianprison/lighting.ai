@@ -207,28 +207,28 @@ class SimulatorWorker(QThread):
         vocal_buf:   list[np.ndarray] = []
         _crash_rms_max = 0.0
 
-        # ── Segment laden → Stereo extrahieren → raw_all sofort freigeben ─────
-        # Zwei-Schritt-Ansatz: raw_all einmalig laden (~1190 MB), Stereo-Buffer
-        # (~119 MB) extrahieren, raw_all sofort löschen BEVOR Block-Loop startet.
-        # Block-Loop liest vom selben File-Handle weiter — O(1)-Seek,
-        # kein erneuter Header-Scan auf >4 GB WAV-Dateien.
+        # ── Segment einmalig laden — raw_all bleibt für Block-Loop im RAM ────────
+        # raw_all wird NICHT sofort gelöscht: del raw_all nach dem ersten Laden
+        # würde den OS-Page-Cache invalidieren, woraufhin der Block-Loop die
+        # Daten erneut von Disk lesen müsste (~0,5 MB/s → 38 s Verzögerung auf HDD).
+        # Stattdessen: Block-Loop sliced direkt aus raw_all (O(1) numpy-Slices),
+        # kein Disk-I/O während der Verarbeitung. raw_all wird nach dem Loop gelöscht.
         _sd_playing = False
         _stereo_buf = None
         _wall_start = 0.0
 
         _log(f"[SIM] Lade Segment ({total_frames} Frames, ~{int(total_frames * wav_ch * 4 / 1024 / 1024)} MB) ...")
-        _wav_file = sf.SoundFile(self._wav_path)
-        _wav_file.seek(start_sample)
-        raw_all = _wav_file.read(total_frames, dtype="float32", always_2d=True)
+        with sf.SoundFile(self._wav_path) as _wav_file:
+            _wav_file.seek(start_sample)
+            raw_all = _wav_file.read(total_frames, dtype="float32", always_2d=True)
         seg_frames = raw_all.shape[0]
         _log(f"[SIM] Segment geladen: {seg_frames} Frames, {raw_all.shape[1]} Kanäle")
 
-        # Stereo extrahieren, raw_all sofort freigeben (~1190 MB → ~119 MB)
+        # Stereo extrahieren für Playback (raw_all bleibt für Block-Loop)
         ch_l = min(16, raw_all.shape[1] - 1)
         ch_r = min(17, raw_all.shape[1] - 1)
         _stereo_buf = np.ascontiguousarray(raw_all[:, [ch_l, ch_r]])
-        del raw_all
-        _log("[SIM] Stereo bereit, raw_all freigegeben")
+        _log(f"[SIM] Stereo bereit ({int(_stereo_buf.nbytes // 1024 // 1024)} MB), Block-Loop liest aus RAM")
 
         # ── Echtzeit-Audio starten ──────────────────────────────────────────────
         if self._realtime:
@@ -245,10 +245,6 @@ class SimulatorWorker(QThread):
                 _wall_start = _time.monotonic()
                 _log(f"[SIM] Audio-Playback fehlgeschlagen: {exc}")
 
-        # ── Block-Loop: O(1)-Seek auf bereits geöffnetem File-Handle ───────────
-        # _wav_file ist bereits offen → kein erneuter Header-Scan.
-        # Page-Cache enthält die gerade gelesenen Daten → sequentielle Reads schnell.
-        _wav_file.seek(start_sample)
         _log("[SIM] Block-Loop startet")
 
         self._output_jsonl.parent.mkdir(parents=True, exist_ok=True)
@@ -270,7 +266,7 @@ class SimulatorWorker(QThread):
             frames_done = 0
             while frames_done < seg_frames and not self.isInterruptionRequested():
                 read_n = min(BLOCK_SIZE, seg_frames - frames_done)
-                block  = _wav_file.read(read_n, dtype="float32", always_2d=True)
+                block  = raw_all[frames_done:frames_done + read_n]
                 if block.shape[0] == 0:
                     break
                 frames_done += block.shape[0]
@@ -378,7 +374,7 @@ class SimulatorWorker(QThread):
                     if sleep_s > 0.001:
                         _time.sleep(sleep_s)
 
-        _wav_file.close()
+        del raw_all  # Speicher freigeben — Block-Loop abgeschlossen
 
         # ── Abbruch-Cleanup ───────────────────────────────────────────────────
         if self.isInterruptionRequested():

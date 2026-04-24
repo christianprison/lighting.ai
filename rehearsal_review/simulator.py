@@ -65,8 +65,9 @@ class SimulatorWorker(QThread):
     kick_detected   = pyqtSignal(float)
     snare_detected  = pyqtSignal(float)
     crash_detected  = pyqtSignal(float)
-    bar_detected    = pyqtSignal(int, float, float)  # (bar_num, t_rel, bpm)
-    anchor_matched  = pyqtSignal(object)             # anchor dict mit t_detected
+    bar_detected        = pyqtSignal(int, float, float)  # (bar_num, t_rel, bpm)
+    anchor_matched      = pyqtSignal(object)             # anchor dict mit t_detected
+    band_event_detected = pyqtSignal(str, float)         # (event_type, t_rel)
 
     def __init__(
         self,
@@ -126,6 +127,7 @@ class SimulatorWorker(QThread):
         from detection.bar_tracker import BarTracker
         from detection.chroma_extractor import StreamingChromaExtractor
         from detection.anchor_matcher import AnchorMatcher
+        from detection.band_activity import BandActivityDetector
 
         # ── WAV-Datei vorab prüfen ────────────────────────────────────────────
         with sf.SoundFile(self._wav_path) as f:
@@ -196,6 +198,7 @@ class SimulatorWorker(QThread):
             sample_rate=sr,
             block_size=BLOCK_SIZE,
         ) if self._anchors else None
+        band_detector = BandActivityDetector()
 
         kicks:   list[float] = []
         snares:  list[float] = []
@@ -359,6 +362,10 @@ class SimulatorWorker(QThread):
                     _m = matcher.process_block(block, self._seg_start_t + t_mid)
                     if _m:
                         self.anchor_matched.emit(_m)
+
+                # ── BandActivityDetector ───────────────────────────────────────
+                for ev_type, ev_t in band_detector.process_block(block, self._seg_start_t + t_mid):
+                    self.band_event_detected.emit(ev_type, ev_t - self._seg_start_t)
 
                 blocks_done += 1
                 if blocks_done % 50 == 0:

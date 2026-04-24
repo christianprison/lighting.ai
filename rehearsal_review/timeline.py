@@ -218,6 +218,7 @@ class TimelineWidget(QWidget):
         self._sim_kicks:   list[float] = []
         self._sim_snares:  list[float] = []
         self._sim_crashes: list[tuple[float, float]] = []   # (abs_wav_t, rms_energy)
+        self._sim_band_events: list[tuple[str, float]] = []  # (event_type, abs_wav_t)
         # Anchor data: {id, t_abs, type, event, bar_num}; matched = set of ids
         self._sim_anchors:     list[dict] = []
         self._sim_matched_ids: set[str]   = set()
@@ -354,11 +355,16 @@ class TimelineWidget(QWidget):
         self._sim_crashes.append((t, energy))
         self.update()
 
+    def add_sim_band_event(self, event_type: str, t: float) -> None:
+        self._sim_band_events.append((event_type, t))
+        self.update()
+
     def clear_sim_events(self) -> None:
         """Löscht alle Simulations-Ergebnisse inkl. Anker."""
         self._sim_kicks        = []
         self._sim_snares       = []
         self._sim_crashes      = []
+        self._sim_band_events  = []
         self._sim_bpm_timeline = []
         self._sim_bar_times    = []
         self._chroma_data      = []
@@ -374,6 +380,7 @@ class TimelineWidget(QWidget):
         self._sim_kicks        = []
         self._sim_snares       = []
         self._sim_crashes      = []
+        self._sim_band_events  = []
         self._sim_bpm_timeline = []
         self._sim_bar_times    = []
         self._event_cursor_t   = -1.0
@@ -1450,6 +1457,35 @@ class TimelineWidget(QWidget):
                 bx = LABEL_W + int((t_c - seg_t0) * pps) - ox
                 if LABEL_W <= bx <= w:
                     p.drawPolygon(_diamond(bx, cy_mid, R + 3))   # größer als Kick/Snare
+
+        # Band-Aktivität: Dreiecke mittig im Events-Strip
+        # band_starts = grünes ▲, band_stops = rotes ▽ (Höhe 10 px, Breite 10 px)
+        if self._sim_band_events:
+            TH = 5   # halbe Dreieck-Höhe
+            TW = 5   # halbe Dreieck-Breite
+            cy_band = y0 + EVENTS_H // 2
+            for ev_type, t_b in self._sim_band_events:
+                bx = LABEL_W + int((t_b - seg_t0) * pps) - ox
+                if not (LABEL_W <= bx <= w):
+                    continue
+                if ev_type == "band_starts":
+                    color = QColor("#00dc82"); color.setAlpha(220)
+                    p.setBrush(QBrush(color))
+                    p.setPen(Qt.PenStyle.NoPen)
+                    p.drawPolygon(QPolygon([          # ▲ nach oben
+                        QPoint(bx,      cy_band - TH),
+                        QPoint(bx - TW, cy_band + TH),
+                        QPoint(bx + TW, cy_band + TH),
+                    ]))
+                else:  # band_stops
+                    color = QColor("#ff3b5c"); color.setAlpha(220)
+                    p.setBrush(QBrush(color))
+                    p.setPen(Qt.PenStyle.NoPen)
+                    p.drawPolygon(QPolygon([          # ▽ nach unten
+                        QPoint(bx,      cy_band + TH),
+                        QPoint(bx - TW, cy_band - TH),
+                        QPoint(bx + TW, cy_band - TH),
+                    ]))
 
         p.setOpacity(1.0)
 

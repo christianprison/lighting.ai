@@ -306,6 +306,46 @@ vertical-align:middle;margin-right:4px;animation:recBlink .8s ease-in-out infini
 min-width:32px;text-align:right;display:none}
 .tl-rec-dur.show{display:block}
 
+/* ═══ SONG PICKER ═══ */
+.picker-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(8,9,13,.97);
+display:none;flex-direction:column;z-index:210}
+.picker-overlay.show{display:flex}
+.picker-head{flex-shrink:0;display:flex;align-items:center;gap:12px;padding:14px 16px;
+border-bottom:1px solid var(--border)}
+.picker-head h2{font-size:16px;font-weight:600;flex:1}
+.picker-close{width:32px;height:32px;border-radius:4px;border:1px solid var(--border2);background:var(--bg3);
+color:var(--t2);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.picker-close:hover{border-color:var(--red);color:var(--red)}
+.picker-search-wrap{flex-shrink:0;padding:10px 14px;border-bottom:1px solid var(--border)}
+.picker-search{width:100%;padding:10px 14px;border-radius:var(--r);border:1.5px solid var(--border2);
+background:var(--bg3);color:var(--t1);font-family:'Sora',sans-serif;font-size:15px;
+outline:none;-webkit-appearance:none;appearance:none}
+.picker-search:focus{border-color:var(--green)}
+.picker-count{font-family:'DM Mono',monospace;font-size:10px;color:var(--t3);margin-top:6px;padding:0 2px}
+.picker-list{flex:1;overflow-y:auto;padding:6px;scrollbar-width:none}
+.picker-list::-webkit-scrollbar{display:none}
+.picker-item{display:grid;grid-template-columns:1fr auto;align-items:center;gap:8px;
+padding:12px 14px;margin-bottom:3px;border-radius:var(--r);background:var(--bg2);
+border:1.5px solid transparent;cursor:pointer;transition:all .1s;min-height:52px}
+.picker-item:active{transform:scale(.97);background:var(--bg3);border-color:var(--green)}
+.picker-item-body{display:flex;flex-direction:column;gap:2px;overflow:hidden}
+.picker-item-name{font-size:14px;font-weight:500;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.picker-item-sub{font-family:'DM Mono',monospace;font-size:10px;color:var(--t3)}
+.picker-item-bpm{font-family:'DM Mono',monospace;font-size:12px;color:var(--t4);white-space:nowrap}
+.picker-item.in-setlist .picker-item-name{color:var(--t2)}
+.picker-item.in-setlist::after{content:'✓';font-size:12px;color:var(--green);margin-left:4px}
+.picker-add-btn{padding:6px 14px;border-radius:6px;border:1.5px solid var(--green);background:var(--green3);
+color:var(--green);font-family:'DM Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.5px;
+cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .1s;touch-action:manipulation}
+.picker-add-btn:active{background:var(--green2)}
+.picker-empty{padding:40px;text-align:center;font-family:'DM Mono',monospace;font-size:12px;color:var(--t4)}
+
+/* "+" button im Setlist-Header */
+.add-song-btn{padding:0 10px;height:28px;border-radius:4px;border:1.5px solid var(--green);background:var(--green3);
+color:var(--green);font-size:18px;font-weight:300;line-height:1;cursor:pointer;flex-shrink:0;
+display:flex;align-items:center;justify-content:center;touch-action:manipulation;transition:all .1s;margin-left:auto}
+.add-song-btn:active{background:var(--green2)}
+
 .rec-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(8,9,13,.92);
 display:none;z-index:200;overflow-y:auto}
 .rec-overlay.show{display:block}
@@ -356,6 +396,19 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
 </style>
 </head>
 <body>
+
+<!-- SONG PICKER MODAL -->
+<div class="picker-overlay" id="pickerOverlay">
+  <div class="picker-head">
+    <h2>Song hinzufügen</h2>
+    <button class="picker-close" onclick="closeSongPicker()">&times;</button>
+  </div>
+  <div class="picker-search-wrap">
+    <input class="picker-search" id="pickerSearch" type="search" placeholder="Suche nach Titel oder Artist…" autocomplete="off" autocorrect="off" spellcheck="false">
+    <div class="picker-count" id="pickerCount"></div>
+  </div>
+  <div class="picker-list" id="pickerList"></div>
+</div>
 
 <!-- RECORDING MODAL -->
 <div class="rec-overlay" id="recOverlay">
@@ -448,7 +501,7 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
     <div class="badges">
       <div class="badge live" id="badgeLive"><div class="pulse"></div>LIVE</div>
       <div class="badge" id="badgeQlc">QLC+ &#x25CF;</div>
-      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.04.23b</div>
+      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.04.24</div>
     </div>
     <div class="beat-area">
       <div class="beat-row">
@@ -487,7 +540,9 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
     <button class="rec-main-btn" id="btnRec">&#x23FA; REC</button>
     <button class="settings-btn" onclick="toggleConfig()" title="QLC+ Config">&#x2699;</button>
   </div>
-  <div class="panel-head" style="border-top:1px solid var(--border)">SETLIST</div>
+  <div class="panel-head" style="border-top:1px solid var(--border)">SETLIST
+    <button class="add-song-btn" onclick="openSongPicker()" title="Song spontan hinzufügen">+</button>
+  </div>
   <div class="scroll" id="setlist"></div>
 </div>
 
@@ -1636,6 +1691,110 @@ async function recMixdown(idx, filename) {
     if (btn) { btn.textContent = 'MIXDOWN'; btn.disabled = false; }
   }
 }
+
+// ─── Song Picker ──────────────────────────────
+var _pickerFilter = '';
+
+function openSongPicker() {
+  _pickerFilter = '';
+  var inp = document.getElementById('pickerSearch');
+  if (inp) inp.value = '';
+  renderSongPickerList('');
+  document.getElementById('pickerOverlay').classList.add('show');
+  // Tastatur auf iPad öffnen
+  setTimeout(function() { if (inp) inp.focus(); }, 120);
+}
+
+function closeSongPicker() {
+  document.getElementById('pickerOverlay').classList.remove('show');
+  var inp = document.getElementById('pickerSearch');
+  if (inp) inp.blur();
+}
+
+function renderSongPickerList(filter) {
+  var f = (filter || '').toLowerCase().trim();
+  // Alle Songs aus dem songs-Dict, alphabetisch sortiert
+  var all = Object.entries(songs).map(function(e) {
+    return { id: e[0], name: e[1].name || '', artist: e[1].artist || '', bpm: e[1].bpm || 0 };
+  });
+  all.sort(function(a, b) { return a.name.localeCompare(b.name, 'de'); });
+
+  // Filter
+  var filtered = f ? all.filter(function(s) {
+    return s.name.toLowerCase().indexOf(f) >= 0 || s.artist.toLowerCase().indexOf(f) >= 0;
+  }) : all;
+
+  // Welche Songs sind schon in der Setlist?
+  var inSetlist = {};
+  setlist.forEach(function(item) { if (item.song_id) inSetlist[item.song_id] = true; });
+
+  var h = '';
+  for (var i = 0; i < filtered.length; i++) {
+    var s = filtered[i];
+    var cls = inSetlist[s.id] ? ' in-setlist' : '';
+    h += '<div class="picker-item' + cls + '">';
+    h += '<div class="picker-item-body">';
+    h += '<span class="picker-item-name">' + escHtml(s.name) + '</span>';
+    h += '<span class="picker-item-sub">' + escHtml(s.artist) + '</span>';
+    h += '</div>';
+    h += '<div style="display:flex;align-items:center;gap:8px">';
+    if (s.bpm) h += '<span class="picker-item-bpm">' + s.bpm + '</span>';
+    h += '<button class="picker-add-btn" data-picker-add="' + escHtml(s.id) + '">+ SET</button>';
+    h += '</div>';
+    h += '</div>';
+  }
+  if (!filtered.length) h = '<div class="picker-empty">Kein Song gefunden</div>';
+
+  var listEl = document.getElementById('pickerList');
+  if (listEl) { listEl.innerHTML = h; listEl.scrollTop = 0; }
+
+  var countEl = document.getElementById('pickerCount');
+  if (countEl) countEl.textContent = filtered.length + ' von ' + all.length + ' Songs';
+}
+
+function addAdHocSong(songId) {
+  var song = songs[songId];
+  if (!song) return;
+  var hasChaser = !!qlcMapping[songId];
+  setlist.push({
+    type: 'song',
+    pos: setlist.length + 1,
+    song_id: songId,
+    name: song.name || '?',
+    artist: song.artist || '',
+    bpm: song.bpm || 0,
+    has_chaser: hasChaser,
+    adhoc: true,
+  });
+  renderSetlist();
+  showToast('➕ ' + (song.name || songId) + ' hinzugefügt');
+  // Picker schließen und zur neuen Zeile scrollen
+  closeSongPicker();
+  setTimeout(function() {
+    var el = document.getElementById('setlist');
+    if (el) el.scrollTop = el.scrollHeight;
+  }, 80);
+}
+
+// Delegierter Click-Handler für Picker-Liste
+document.addEventListener('click', function(e) {
+  var btn = e.target.closest('[data-picker-add]');
+  if (btn) { addAdHocSong(btn.dataset.pickerAdd); return; }
+});
+
+// Picker-Suche live filtern
+document.addEventListener('input', function(e) {
+  if (e.target.id === 'pickerSearch') {
+    renderSongPickerList(e.target.value);
+  }
+});
+
+// ESC schließt Picker
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape' && document.getElementById('pickerOverlay').classList.contains('show')) {
+    closeSongPicker();
+  }
+});
 
 // ─── Init ─────────────────────────────────────
 document.getElementById('connOverlay').classList.add('show');

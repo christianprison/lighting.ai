@@ -385,10 +385,8 @@ class AudioProcess:
                 )
                 self._send_status()
 
-                from datetime import datetime
-                label = datetime.now().strftime("probe_%Y-%m-%d")
                 try:
-                    self.recorder.start(label=label)
+                    self.recorder.start()
                 except RuntimeError as exc:
                     log.warning("Aufnahme konnte nicht gestartet werden: %s", exc)
 

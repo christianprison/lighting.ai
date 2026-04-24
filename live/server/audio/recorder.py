@@ -9,8 +9,8 @@ Die Dateien können nach der Probe genutzt werden um:
 Aufnahme-Format:
   - 18 Kanäle, 48 kHz, float32
   - Eine WAV-Datei pro Recording-Session (= pro Song oder manuell gestartet)
-  - Dateiname: YYYY-MM-DD_HHMMSS_{label}.wav
-  - Ablage: live/data/recordings/
+  - Dateiname: HHMM_{Song1_Song2_...}.wav  (Uhrzeit 4-stellig)
+  - Ordner:    live/data/recordings/YYYY-MM-DD/
 
 Thread-Sicherheit:
   Der Recorder wird aus dem sounddevice-Callback-Thread aufgerufen.
@@ -85,6 +85,27 @@ class MultitrackRecorder:
         self._sf_file: Optional[object] = None   # soundfile.SoundFile
         self._info: Optional[RecordingInfo] = None
         self.event_logger: Optional[SessionEventLogger] = None
+        self._played_songs: list[str] = []   # Songs in Reihenfolge des Einsatzes
+        self._rec_stem: str = ""             # Basis-Dateiname ohne Songnamen
+
+    @property
+    def is_recording(self) -> bool:
+        return self._info is not None and self._info.running
+
+    def add_played_song(self, name: str) -> None:
+        """Fügt einen gespielten Song zur laufenden Aufnahme hinzu.
+
+        Doppelte aufeinanderfolgende Einträge werden ignoriert.
+        Wird aus dem FastAPI WebSocket-Handler aufgerufen wenn ein Song gewählt wird.
+        """
+        if not name:
+            return
+        with self._lock:
+            if not (self._info is not None and self._info.running):
+                return
+            if not self._played_songs or self._played_songs[-1] != name:
+                self._played_songs.append(name)
+                log.debug("Song zur Aufnahme hinzugefügt: %s", name)
 
     # --- Public API (aufgerufen vom FastAPI-Thread) ----------------------------
 
@@ -116,16 +137,15 @@ class MultitrackRecorder:
             if self._sf_file is not None:
                 self._close_locked()
 
-            # Dateiname aus Zeitstempel + Label
+            # Datums-Unterordner + HHMM-Dateiname
             now = datetime.now()
-            safe_label = "".join(c if c.isalnum() or c in "-_" else "_" for c in label)
-            filename = now.strftime("%Y-%m-%d_%H%M%S")
-            if safe_label:
-                filename += f"_{safe_label}"
-            filename += ".wav"
+            date_dir = self.recordings_dir / now.strftime("%Y-%m-%d")
+            self._rec_stem = now.strftime("%H%M")
+            self._played_songs = []
+            filename = self._rec_stem + ".wav"
 
-            self.recordings_dir.mkdir(parents=True, exist_ok=True)
-            path = self.recordings_dir / filename
+            date_dir.mkdir(parents=True, exist_ok=True)
+            path = date_dir / filename
 
             self._sf_file = sf.SoundFile(
                 str(path),
@@ -258,7 +278,7 @@ class MultitrackRecorder:
             stereo *= (10 ** (-1 / 20)) / peak
 
         dest_name = src.stem + "_mixdown.wav"
-        dest = self.recordings_dir / dest_name
+        dest = src.parent / dest_name
         sf.write(str(dest), stereo, sr, subtype="FLOAT")
 
         size_mb = round(dest.stat().st_size / 1_048_576, 1)
@@ -272,15 +292,22 @@ class MultitrackRecorder:
         }
 
     def list_recordings(self) -> list[dict]:
-        """Listet alle vorhandenen WAV-Dateien im Recordings-Verzeichnis."""
+        """Listet alle vorhandenen WAV-Dateien im Recordings-Verzeichnis.
+
+        Durchsucht auch YYYY-MM-DD-Unterordner.
+        """
         if not self.recordings_dir.exists():
             return []
-        files = sorted(self.recordings_dir.glob("*.wav"), reverse=True)
+        files = sorted(self.recordings_dir.rglob("*.wav"), reverse=True)
         result = []
         for f in files:
+            if "_mixdown" in f.name:
+                continue
             size_mb = round(f.stat().st_size / 1_048_576, 1)
+            # Relativer Pfad ab recordings_dir als Anzeigename
+            rel = f.relative_to(self.recordings_dir)
             result.append({
-                "filename": f.name,
+                "filename": str(rel),
                 "path": str(f),
                 "size_mb": size_mb,
                 "mtime": datetime.fromtimestamp(f.stat().st_mtime).isoformat(),
@@ -290,7 +317,10 @@ class MultitrackRecorder:
     # --- Interne Hilfsmethoden (nur unter _lock aufrufen) ----------------------
 
     def _close_locked(self) -> RecordingInfo:
-        """Schließt die SoundFile-Datei. Muss unter _lock aufgerufen werden."""
+        """Schließt die SoundFile-Datei und benennt sie mit Songnamen um.
+
+        Muss unter _lock aufgerufen werden.
+        """
         assert self._sf_file is not None
         try:
             self._sf_file.close()
@@ -299,13 +329,10 @@ class MultitrackRecorder:
 
         self._sf_file = None
         info = self._info
+        duration = 0.0
         if info is not None:
             info.running = False
             duration = round(info.blocks_written * 2048 / info.sample_rate, 1)
-            log.info(
-                "Recording beendet: %s (%.1f s, %d Blöcke)",
-                info.path, duration, info.blocks_written,
-            )
             if self.event_logger is not None:
                 self.event_logger.log(
                     "session_end",
@@ -316,4 +343,48 @@ class MultitrackRecorder:
             self.event_logger.close()
             self.event_logger = None
         self._info = None
+
+        # Umbenennen: Songnamen anhängen
+        if info is not None:
+            info = self._rename_with_songs(info)
+            log.info(
+                "Recording beendet: %s (%.1f s, %d Blöcke)",
+                info.path, duration, info.blocks_written,
+            )
+
         return info  # type: ignore[return-value]
+
+    def _rename_with_songs(self, info: RecordingInfo) -> RecordingInfo:
+        """Benennt WAV + JSONL um: {stem}_{Song1_Song2}.wav.
+
+        Aufgerufen unter _lock, nach dem Schließen beider Dateien.
+        """
+        if not self._played_songs:
+            return info
+
+        def _safe(name: str, max_len: int = 24) -> str:
+            s = "".join(c if c.isalnum() else "_" for c in name)
+            # Mehrfache Unterstriche zusammenfassen
+            while "__" in s:
+                s = s.replace("__", "_")
+            return s.strip("_")[:max_len]
+
+        song_part = "_".join(_safe(n) for n in self._played_songs[:6] if _safe(n))
+        if not song_part:
+            return info
+
+        old_wav = Path(info.path)
+        new_wav = old_wav.parent / f"{self._rec_stem}_{song_part}.wav"
+        old_jsonl = old_wav.with_suffix(".jsonl")
+        new_jsonl = new_wav.with_suffix(".jsonl")
+
+        try:
+            old_wav.rename(new_wav)
+            if old_jsonl.exists():
+                old_jsonl.rename(new_jsonl)
+            info.path = str(new_wav)
+            log.info("Recording umbenannt: %s", new_wav.name)
+        except Exception as exc:
+            log.error("Fehler beim Umbenennen der Aufnahme: %s", exc)
+
+        return info

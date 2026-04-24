@@ -115,7 +115,7 @@ QComboBox#zoom_combo          { font-family:'DM Mono',monospace; font-size:10px;
                                 min-width:90px; max-width:110px; }
 """
 
-APP_VERSION = "1.3.21"
+APP_VERSION = "1.3.22"
 
 _ZOOM_PRESETS: list[int] = [2, 5, 10, 20, 40, 80, 160, 320, 640, 1280, 2560, 5120, 10240, 20480, 40960]
 
@@ -1579,6 +1579,8 @@ class MainWindow(QMainWindow):
             lambda n, t, bpm_v: self._timeline.add_sim_bar_time(start_t + t, bpm_v))
         worker.bar_detected.connect(self._on_bar_detected_ev)
         worker.anchor_matched.connect(self._timeline.add_sim_anchor_detected)
+        worker.band_event_detected.connect(
+            lambda et, t: self._timeline.add_sim_band_event(et, start_t + t))
 
         # Anker-Fortschritt live in der Status-Bar anzeigen
         _anchors_sorted = sorted(anchors, key=lambda a: (a.get("pos", 9999), a.get("bar_num", 0)))

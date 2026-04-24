@@ -690,24 +690,30 @@ async def recording_list():
     return {"recordings": audio_process.recorder.list_recordings()}
 
 
-@app.get("/api/recording/download/{filename}")
+@app.get("/api/recording/download/{filename:path}")
 async def recording_download(filename: str):
     """Lädt eine WAV-Aufnahme herunter.
 
-    ``filename`` darf nur den Dateinamen enthalten (kein Pfad).
+    ``filename`` kann ein relativer Pfad sein (z.B. ``2026-04-24/1853_Animal.wav``).
     """
     if not audio_process:
         return JSONResponse({"error": "AudioProcess not initialised"}, status_code=503)
     # Sicherheitscheck: kein Path-Traversal
-    if "/" in filename or "\\" in filename or ".." in filename:
+    if ".." in filename or "\\" in filename:
         return JSONResponse({"error": "Ungültiger Dateiname"}, status_code=400)
+    from pathlib import Path as _Path
     path = audio_process.recorder.recordings_dir / filename
+    # Muss innerhalb des recordings_dir liegen
+    try:
+        path.resolve().relative_to(audio_process.recorder.recordings_dir.resolve())
+    except ValueError:
+        return JSONResponse({"error": "Ungültiger Pfad"}, status_code=400)
     if not path.exists() or path.suffix.lower() != ".wav":
         return JSONResponse({"error": "Datei nicht gefunden"}, status_code=404)
     return FileResponse(
         path=str(path),
         media_type="audio/wav",
-        filename=filename,
+        filename=_Path(filename).name,
     )
 
 
@@ -785,6 +791,7 @@ async def _handle_ws_action(action: str, msg: dict) -> dict | None:
                 None,
                 song_id,
             )
+            audio_process.recorder.add_played_song(song.get("name", ""))
 
         return {"ok": True, "song_id": song_id, "has_chaser": chaser is not None}
 

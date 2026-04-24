@@ -501,7 +501,7 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
     <div class="badges">
       <div class="badge live" id="badgeLive"><div class="pulse"></div>LIVE</div>
       <div class="badge" id="badgeQlc">QLC+ &#x25CF;</div>
-      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.04.24</div>
+      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.04.24b</div>
     </div>
     <div class="beat-area">
       <div class="beat-row">
@@ -1530,15 +1530,11 @@ function recTap() {
 }
 
 async function recStart() {
-  var now = new Date();
-  var label = 'Probe ' + now.getFullYear() + '-'
-    + String(now.getMonth()+1).padStart(2,'0') + '-'
-    + String(now.getDate()).padStart(2,'0');
   try {
     await fetch('/api/recording/start', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ label: label, song_id: '' })
+      body: JSON.stringify({ label: '', song_id: '' })
     });
     recRunning = true;
     recStartedAt = now;

@@ -67,7 +67,7 @@ Optional: Session direkt übergeben:
 4. Bestehende Annotationen werden automatisch geladen (falls `*_annotations.json` vorhanden)
 
 **Welche Datei ist die richtige?**
-Der Dateiname enthält Datum + Uhrzeit: `2026-03-26_185333_Probe.jsonl` = 26.03.2026 um 18:53:33.
+Aufnahmen liegen in Unterordnern `recordings/YYYY-MM-DD/`. Der Dateiname enthält die Uhrzeit und die gespielten Songs: `1853_Animal_Creep_Sweet_Home.jsonl` = Aufnahme gestartet um 18:53.
 
 ---
 
@@ -388,9 +388,10 @@ Sim-Events wurden mit falschen X-Koordinaten gezeichnet wenn der Song nicht bei 
 ### Dateistruktur
 ```
 live/data/recordings/
-├── 2026-03-26_185333_Probe.jsonl              # Event-Log
-├── 2026-03-26_185333_Probe.wav                # 18-Kanal-Aufnahme (48kHz, float32)
-└── 2026-03-26_185333_Probe_annotations.json   # Takt-Annotationen (auto-erstellt)
+└── 2026-04-26/                                            # Unterordner pro Probentag
+    ├── 1853_Animal_Creep_Sweet_Home.jsonl                 # Event-Log
+    ├── 1853_Animal_Creep_Sweet_Home.wav                   # 18-Kanal-Aufnahme (48kHz, float32)
+    └── 1853_Animal_Creep_Sweet_Home_annotations.json      # Takt-Annotationen (auto-erstellt)
 ```
 
 ### Annotation JSON-Format

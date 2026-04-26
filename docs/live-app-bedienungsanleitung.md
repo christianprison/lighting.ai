@@ -1,6 +1,6 @@
 # lighting.ai Live-App — Bedienungsanleitung
 
-**Version:** 2026-04
+**Version:** 2026-04-26 (v2026.04.24b)
 **Zielgruppe:** Lichttechniker (Timo)
 **Gerät:** iPad (Hauptbedienung) oder Laptop (alternativ)
 
@@ -167,7 +167,8 @@ Zeigt alle Songs der aktuellen Setlist in Reihenfolge:
 - **Grün** = gerade gespielt
 - **Blass** = schon fertig
 - Antippen wählt Song aus
-- **⚙️-Button** oben rechts öffnet QLC+-Konfiguration
+- **`+`-Button** oben rechts im Panel-Header öffnet den Song-Picker (→ [Kapitel 4b](#4b-spontan-song-hinzufügen))
+- **⚙️-Button** öffnet QLC+-Konfiguration
 
 ### Timeline (unten)
 
@@ -187,6 +188,22 @@ Zeigt die Takte des aktuellen Parts als Leiste:
 3. App navigiert automatisch Steps entsprechend Song-Struktur
 
 **Tipp:** Songs mit roter Markierung haben kein QLC+-Mapping hinterlegt — Lichtsteuerung funktioniert dann nicht automatisch.
+
+---
+
+## 4b. Spontan Song hinzufügen
+
+Falls spontan ein Song gespielt wird, der nicht auf der geplanten Setlist steht:
+
+1. **`+`-Button** oben rechts im Setlist-Panel antippen
+2. Song-Picker öffnet sich mit dem kompletten Repertoire
+3. **Suche**: oben im Picker nach Name oder Artist filtern
+4. Song antippen → erscheint am Ende der Setlist (mit ⊕-Markierung)
+5. **ESC** oder ✕-Button schließt den Picker ohne Aktion
+
+Songs die bereits auf der Setlist stehen, sind mit ✓ markiert und können nicht nochmal hinzugefügt werden.
+
+**Wichtig:** Spontan hinzugefügte Songs werden **nur in dieser Session gespeichert** — sie erscheinen nicht dauerhaft auf der Setlist. Nach einem Browser-Reload ist die Setlist wieder im Ursprungszustand.
 
 ---
 
@@ -253,7 +270,7 @@ Der **REC-Button** (Timeline, unten rechts neben SYNC) schneidet die komplette P
 
 **REC** antippen → Button wird **vollständig rot** (solides Rot), Stoppuhr läuft inline.
 
-Die Aufnahme startet sofort mit dem Label „Probe YYYY-MM-DD". Kein weiterer Dialog.
+Die Aufnahme startet sofort — kein Label, kein Dialog. Der Dateiname wird automatisch beim Stoppen aus den gespielten Songs zusammengesetzt.
 
 ### Aufnahme stoppen
 
@@ -262,6 +279,10 @@ Am Ende der Probe **REC** nochmal antippen → Aufnahme wird sofort gespeichert,
 Zwei Zustände:
 - **Ruhend**: roter Rand, transparenter Hintergrund = keine Aufnahme
 - **Aktiv**: vollständig rotes Feld, dunkler Text = Aufnahme läuft
+
+**Dateiname:** `recordings/YYYY-MM-DD/HHMM_Song1_Song2_Song3.wav`
+Beispiel: `recordings/2026-04-26/1853_Animal_Creep_Sweet_Home_Alabama.wav`
+Die Songs werden automatisch aus der Songauswahl übernommen (max. 6 Songs im Dateinamen).
 
 ### Nachbereitung (nach der Probe)
 
@@ -405,7 +426,7 @@ Falls beim Start **kein Internet** verfügbar ist (z.B. auf einer Bühne ohne WL
 |-------|-------|
 | `~/lighting.ai/live/config.yaml` | Server-Konfiguration |
 | `~/lighting.ai/live/data/lighting-ai-db.json` | Lokale DB-Kopie |
-| `~/lighting.ai/live/data/recordings/` | Proben-Aufnahmen (WAV) |
+| `~/lighting.ai/live/data/recordings/YYYY-MM-DD/` | Proben-Aufnahmen (WAV), ein Unterordner pro Tag |
 | `~/lighting.ai/db/lightingAI.qxw` | QLC+ Workspace |
 | `~/lighting.ai/live/start-live.sh` | Start-Skript |
 

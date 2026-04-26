@@ -58,6 +58,7 @@ Fallunterscheidung.
 
 ```
 detection/
+├── band_activity.py  # BandActivityDetector: band_starts/band_stops (streaming)
 ├── beat_detector.py   # OnsetDetector: Kick/Snare/Crash-Erkennung (streaming)
 ├── bar_tracker.py     # BarTracker: Takt-Tracking (streaming, kein Batch)
 ├── fingerprint.py     # Feature-Extraktion
@@ -78,12 +79,29 @@ Live identisch läuft. Die Batch-Funktionen `_compute_bar_times()` und
 `rehearsal_review/simulator.py` nutzt `BarTracker` direkt während der Simulation und
 liefert `bar_times` + `bpm` im `finished`-Signal.
 
-### ⚠️ MCP-Tool-Limitation: Dateigröße
+**Implementiert in Session 2026-04-26:**  
+`detection/band_activity.py` enthält den `BandActivityDetector` — Streaming-Erkennung von
+Band-Aktivität. Zwei Event-Typen: `band_starts` (Band beginnt zu spielen) und `band_stops`
+(Band hört auf). Zustandsmaschine SILENT ↔ ACTIVE, konfigurierbar über `threshold_rms`,
+`start_ratio`, `stop_ratio`, `stop_hold_blocks`. Kanäle: CH01, CH04–06, CH09, CH10, CH14
+(Indices 0, 3, 4, 5, 8, 9, 13). Visualisierung im Events-Strip: grünes ▲ (band_starts),
+rotes ▽ (band_stops). Signal `band_event_detected(str, float)` in `SimulatorWorker`.
+
+### Claude Code Terminal (Linux) — aktueller Arbeitsmode
+
+Ab Session 2026-04-26 wird auf dem **Claude Code CLI für Linux** gearbeitet (direkt im Terminal des Laptops). Das hat folgende Konsequenzen:
+
+- **`git push` funktioniert direkt** — kein Umweg über MCP-Tools nötig
+- **Alle Dateien ohne Größenlimit** bearbeitbar — kein MCP-Content-Limit
+- **Kein PR-Workflow nötig** — Commits können direkt auf Feature-Branches gepusht werden
+- Branches werden lokal angelegt und direkt gepusht: `git push -u origin <branch>`
+
+### ⚠️ MCP-Tool-Limitation (nur relevant bei GitHub-Web-Sessions)
 
 **`mcp__github__push_files` und `mcp__github__create_or_update_file` haben ein stilles Content-Limit von ca. 48 KB.**  
 Bei Dateien über dieser Grenze wird der `content`-Parameter einfach verworfen — die Tools geben "missing required parameter: content" zurück oder senden Leerinhalt.
 
-**Konsequenz:** Niemals `push_files` / `create_or_update_file` für große Dateien (>~800 Zeilen Python) nutzen. Wenn `git push` geblockt ist und die MCP-Tools für große Dateien nicht funktionieren → Nutzer muss den Push von seinem lokalen Laptop aus durchführen.
+**Konsequenz:** Niemals `push_files` / `create_or_update_file` für große Dateien (>~800 Zeilen Python) nutzen. Im Claude Code Terminal ist dieses Problem irrelevant — dort direkt `git push` verwenden.
 
 
 ### Versionierung
@@ -380,7 +398,8 @@ lighting.ai/live/
 └── data/
     ├── reference.db               # SQLite: songs, bars, feature_vectors
     └── recordings/                # 18-Kanal WAV + JSONL Event-Logs
-        └── YYYY-MM-DD_HHmmss_*.{wav,jsonl}
+        └── YYYY-MM-DD/            # Unterordner pro Probentag
+            └── HHMM_{Song1_Song2_...}.{wav,jsonl}
 ```
 
 ### Dateien der Rehearsal-Review-App
@@ -487,6 +506,7 @@ Events-Strip — Normal-Modus (JSONL-Events aus Probenaufnahme):
 Events-Strip — Sim-Overlay-Modus (`_sim_overlay=True`):
 - JSONL-Events **komplett ausgeblendet** (wenn Sim-Events vorhanden)
 - Sim-Diamonds im Events-Strip: amber = Sim-Kick (r=4, unten), cyan = Sim-Snare (r=4, oben), rot = Sim-Crash (r=7, Mitte)
+- Band-Aktivität: grünes ▲ (band_starts, 10×10px), rotes ▽ (band_stops, 10×10px) — mittig im Strip
 
 Kanal-Rows mit Event-Markern (`_paint_event_markers()`):
 - **OH L+R** (`BEAT_MARKER_CHS = {13,14}`): alle Beats — amber = Beat, rot = Downbeat
@@ -560,6 +580,7 @@ probe_events   (id, session_id, wav_offset, song_id, bar_num, part_name, confide
 - `kick_detected(float)`, `snare_detected(float)`, `crash_detected(float)`: t_rel → Timeline-Diamonds
 - `bar_detected(int, float, float)`: (bar_num, t_rel, bpm) → Taktgitter + Event-Playhead-Tracking
 - `anchor_matched(object)`: anchor-dict wenn `AnchorMatcher` einen Anker erkennt → `add_sim_anchor_detected()`
+- `band_event_detected(str, float)`: (event_type, t_rel) — `"band_starts"` oder `"band_stops"` → `add_sim_band_event()`
 
 **Initialisierungsreihenfolge in `_run_inner()` (Logging-Timing)**:
 Alle Objekte (ChromaExtraktoren, OnsetDetector, BarTracker, AnchorMatcher) werden **vor** `sd.play()` initialisiert.
@@ -759,26 +780,61 @@ Wenn ein Song kein `grundrhythmus` hat, wird Phasen-Histogramm + Crash-Fallback 
   "chroma": [12 floats], "bar_num": int, "confidence": float}` → WebSocket
 - **`latest_chroma()`**: gibt letzten `ChromaUpdate` als dict zurück (thread-safe)
 - **Constructor-Parameter `ref_db`**: optional `ReferenceDB`-Instanz; wenn None → kein Takt-Matching. `AudioProcess` wird in `main.py` mit `ref_db=ref_db` konstruiert.
-- **`select_song` WebSocket-Action** ruft `await asyncio.to_thread(audio_process.set_song, bpm, grundrhythmus, None, song_id)` auf — `BarTracker` + Chroma-Extraktoren werden bei jedem Song-Wechsel konfiguriert
+- **`select_song` WebSocket-Action** ruft `await asyncio.to_thread(audio_process.set_song, bpm, grundrhythmus, None, song_id)` auf — `BarTracker` + Chroma-Extraktoren werden bei jedem Song-Wechsel konfiguriert; ruft danach `audio_process.recorder.add_played_song(song_name)` auf
 - `detection/reference_db.py`: neues `get_all_bar_chromas(song_id) -> dict[int, np.ndarray]`
+
+#### MultitrackRecorder (`live/server/audio/recorder.py`)
+
+- **Dateiname-Schema**: `recordings/YYYY-MM-DD/HHMM.wav` beim Start → beim Stop umbenannt zu `HHMM_Song1_Song2_....wav` (max. 6 Songs, je max. 24 Zeichen, nur alphanumerisch + `_`)
+- **`add_played_song(name: str)`**: fügt gespielten Song zur Aufnahme hinzu; wird bei jedem `select_song`-Event aus `main.py` aufgerufen wenn Aufnahme aktiv; doppelte aufeinanderfolgende Einträge werden ignoriert
+- **`is_recording`** (property): `True` wenn Aufnahme läuft
+- **`list_recordings()`**: sucht rekursiv in Unterordnern (rglob), gibt relativen Pfad als `filename` zurück (z.B. `2026-04-26/1853_Animal_Creep.wav`)
+- **Download-Endpoint** `/api/recording/download/{filename:path}`: unterstützt Date-Subfolder-Pfade; Path-Traversal-Schutz via `path.resolve().relative_to(recordings_dir.resolve())`
+- **Auto-Start**: wenn XR18 verbindet → `recorder.start()` (kein Label), Songnamen kommen über `add_played_song()`
+
+#### Song-Picker (Live-App `live/ui/index.html`)
+
+- **`+`-Button** im Setlist-Panel-Header öffnet den Song-Picker
+- Zeigt alle Songs aus `songs`-Dict, alphabetisch sortiert, filterbar per Suche (Name/Artist)
+- Songs die bereits in der Setlist stehen: grünes ✓, `picker-add-btn` deaktiviert
+- **`addAdHocSong(songId)`**: hängt Song mit `adhoc: true` an lokales `setlist`-Array, ruft `renderSetlist()` auf → kein GitHub-Push, nur session-lokal
+- Picker schließt sich per ✕-Button, Klick außerhalb oder ESC-Taste
 
 #### ⚠️ Offene Punkte für nächste Session
 
-1. **Feldtest AnchorMatcher**: Simulation auf Songs mit gepflegten Ankern laufen lassen:
+1. **Feldtest BandActivityDetector**: Simulation starten, im Events-Strip prüfen:
+   - Grüne ▲ (band_starts) erscheinen wenn die Band einsetzt
+   - Rote ▽ (band_stops) erscheinen in Pausen/am Songenden
+   - Falls zu empfindlich (▲/▽ während Spielen): `start_ratio` erhöhen (aktuell 0.70) oder `threshold_rms` erhöhen (aktuell 0.005)
+   - Falls zu träge: `stop_hold_blocks` senken (aktuell 3, ~126 ms bei 48kHz/2048)
+   - **Integration in AudioProcess (Live-Betrieb)** steht noch aus — identisch zu SimulatorWorker integrierbar (Prime Directive erfüllt)
+2. **Branch claude/fix-audio-delay-Vs1Ys in main mergen**: Enthält alle Fixes seit 2026-04-23 (38s-Delay, Live-App-Bugs, TMS-Tasks, Song-Picker, Aufnahme-Dateinamen, BandActivityDetector)
+3. **Feldtest AnchorMatcher**: Simulation auf Songs mit gepflegten Ankern laufen lassen:
    - `[ANKER] warte auf #01 ...` erscheint vor dem ersten Audio-Ton (Logging-Timing korrekt?)
    - Anker werden in der richtigen Reihenfolge erkannt und als Diamonds im Anker-Strip sichtbar
-   - Cooldown-Meldungen zeigen sich bei schnellen aufeinanderfolgenden Ereignissen
-   - RMS-basierte Trigger (Vokal-Einsatz, Guitar-Pause) reagieren auf die richtigen Momente
    - **Schwellwerte tunen**: Falls zu viele False Positives → `_RMS_VOCAL_ON` / `_RMS_GUITAR_ON` erhöhen; zu wenige → senken
-2. **Feldtest Beat-1-Korrektur + Dual-Playhead**: Simulation auf verschiedenen Songs laufen lassen:
+4. **Feldtest Beat-1-Korrektur + Dual-Playhead**: Simulation auf verschiedenen Songs laufen lassen:
    - Crash-Detektion: Status-Bar zeigt `★ N Crashes`? Wenn 0 → `CRASH_RMS_MIN` (aktuell 0.001) weiter senken
-   - Energy-Korrektur: `[BAR] energy_beat1: ratio=Z` auf stderr — Z > 1.05 = Korrektur greift
    - Taktgitter landet auf Beat 1 (Snare-Positionen ≈ 1.0 und 3.0 beats in Diagnostik)
-   - **Dual-Playhead prüfen**: Abweichung rot ↔ amber = Erkennungslatenz. Typisch ~1–2 Takte (= 1–2s bei 120 BPM). Größere Abweichung → BarTracker braucht mehr Events zum Einrasten.
-   - **grundrhythmus-Daten einpflegen**: Für jeden Song die Kick/Snare-Positionen in der
-     DB-Pflege-App eintragen (Felder seit v2.2.27), damit Pattern-Matching statt
-     Phasen-Histogramm greift
-3. **Anker-Positionen in der DB pflegen**: Für Songs ohne Anker-Daten die Anker in der DB-Pflege-App eintragen, damit der AnchorMatcher greifen kann. Besonders drum-Anker (Crash, Snare) sind einfach zu erkennen und liefern schnell Ergebnisse.
+   - **grundrhythmus-Daten einpflegen**: Für jeden Song die Kick/Snare-Positionen in der DB-Pflege-App eintragen
+5. **Anker-Positionen in der DB pflegen**: Für Songs ohne Anker-Daten die Anker eintragen. Besonders drum-Anker (Crash, Snare) sind einfach zu erkennen.
+
+#### Behobene Bugs und Features (Session 2026-04-26)
+
+**Rehearsal-App v1.3.22 — BandActivityDetector**
+- `detection/band_activity.py` (neu): Streaming-Detektor für Band-Aktivität. Zwei Events: `band_starts`, `band_stops`. Zustandsmaschine SILENT↔ACTIVE, 7 Kanäle (CH01,04–06,09,10,14). `stop_hold_blocks=3` (~126 ms Haltezeit).
+- `simulator.py`: Signal `band_event_detected(str, float)`, pro Block `band_detector.process_block()`.
+- `timeline.py`: grüne ▲ / rote ▽ im Events-Strip; `add_sim_band_event()`, `clear_sim_events/beats()` erweitert.
+
+**Live-App v2026.04.24b — Aufnahme-Dateinamen**
+- `recorder.py`: Aufnahmen in `recordings/YYYY-MM-DD/HHMM.wav`; beim Stop → `HHMM_Song1_Song2.wav`. `add_played_song()` + `is_recording`-Property. `list_recordings()` rekursiv.
+- `audio_process.py`: Auto-Start ohne Label.
+- `main.py`: `add_played_song()` nach `select_song`; Download-Endpoint unterstützt `date/filename`-Pfade.
+- `index.html`: `recStart()` sendet leeres Label.
+
+**Live-App v2026.04.24 — Song-Picker**
+- `+`-Button im Setlist-Panel öffnet Picker mit allen Repertoire-Songs; filterbar per Suche.
+- `addAdHocSong()`: hängt Song session-lokal ans `setlist`-Array (`adhoc: true`), kein GitHub-Push.
 
 #### Behobene Bugs (Session 2026-04-23)
 

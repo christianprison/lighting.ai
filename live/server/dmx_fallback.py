@@ -5,10 +5,10 @@ Solange kein Song/Part erkannt wird, blinkt die Fixture alle 500 ms
 mit wechselnden Farben.
 
 Fixture: "16 LED Pot Bibo 40°"
-  DMX-Adresse 6 = Master Dimmer
-  DMX-Adresse 7 = Red
-  DMX-Adresse 8 = Green
-  DMX-Adresse 9 = Blue
+  DMX-Adresse 6 = Red
+  DMX-Adresse 7 = Green
+  DMX-Adresse 8 = Blue
+  DMX-Adresse 9 = White
 
 Alle DMX-Adressen sind 1-basiert (wie im DMX-Patchsheet üblich).
 """

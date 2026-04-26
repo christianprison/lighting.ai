@@ -23,23 +23,23 @@ from typing import Optional
 log = logging.getLogger("live.dmx_fallback")
 
 # ─── Fixture Config ────────────────────────────────────────────────────────
-# "16 LED Pot Bibo 40°" — DMX-Adressen 1-basiert
-_DIMMER_CH: int = 6   # Master Dimmer
-_RED_CH: int = 7
-_GREEN_CH: int = 8
-_BLUE_CH: int = 9
+# "16 LED Pot Bibo 40°" — DMX-Adressen 1-basiert, RGBW
+_RED_CH: int = 6
+_GREEN_CH: int = 7
+_BLUE_CH: int = 8
+_WHITE_CH: int = 9
 
-# ─── Color sequence ────────────────────────────────────────────────────────
-_COLORS: list[tuple[int, int, int]] = [
-    (255,   0,   0),   # Rot
-    (255, 100,   0),   # Orange
-    (255, 255,   0),   # Gelb
-    (  0, 255,   0),   # Grün
-    (  0, 220, 255),   # Cyan
-    (  0,  80, 255),   # Blau
-    (160,   0, 255),   # Violett
-    (255,   0, 160),   # Pink
-    (255, 255, 255),   # Weiß
+# ─── Color sequence (R, G, B, W) ───────────────────────────────────────────
+_COLORS: list[tuple[int, int, int, int]] = [
+    (255,   0,   0,   0),   # Rot
+    (255, 100,   0,   0),   # Orange
+    (255, 220,   0,   0),   # Gelb
+    (  0, 255,   0,   0),   # Grün
+    (  0, 200, 255,   0),   # Cyan
+    (  0,  80, 255,   0),   # Blau
+    (160,   0, 255,   0),   # Violett
+    (255,   0, 140,   0),   # Pink
+    (  0,   0,   0, 255),   # Warmweiß (W-Kanal)
 ]
 
 _FLASH_INTERVAL: float = 0.5  # Sekunden
@@ -151,21 +151,21 @@ class DmxFallbackController:
                 pass
             self._sender = None
 
-    def _set_dmx(self, on: bool, r: int, g: int, b: int) -> None:
+    def _set_dmx(self, on: bool, r: int, g: int, b: int, w: int) -> None:
         """DMX-Daten im sACN-Sender aktualisieren (1-basierte Adressen)."""
         if not self._sender:
             return
         data = list(self._sender[self._cfg.universe].dmx_data)
         if on:
-            data[_DIMMER_CH - 1] = 255
             data[_RED_CH - 1] = r
             data[_GREEN_CH - 1] = g
             data[_BLUE_CH - 1] = b
+            data[_WHITE_CH - 1] = w
         else:
-            data[_DIMMER_CH - 1] = 0
             data[_RED_CH - 1] = 0
             data[_GREEN_CH - 1] = 0
             data[_BLUE_CH - 1] = 0
+            data[_WHITE_CH - 1] = 0
         try:
             self._sender[self._cfg.universe].dmx_data = tuple(data)
         except Exception as exc:
@@ -186,17 +186,17 @@ class DmxFallbackController:
             while self._active:
                 on = not on
                 if on:
-                    r, g, b = _COLORS[self._color_idx % len(_COLORS)]
+                    r, g, b, w = _COLORS[self._color_idx % len(_COLORS)]
                     self._color_idx += 1
                     log.debug(
-                        "DMX-Fallback: AN — RGB(%d,%d,%d) Farbe %d/%d",
-                        r, g, b,
+                        "DMX-Fallback: AN — RGBW(%d,%d,%d,%d) Farbe %d/%d",
+                        r, g, b, w,
                         (self._color_idx - 1) % len(_COLORS) + 1,
                         len(_COLORS),
                     )
                 else:
-                    r, g, b = 0, 0, 0
-                self._set_dmx(on, r, g, b)
+                    r, g, b, w = 0, 0, 0, 0
+                self._set_dmx(on, r, g, b, w)
                 await asyncio.sleep(_FLASH_INTERVAL)
         except asyncio.CancelledError:
             pass

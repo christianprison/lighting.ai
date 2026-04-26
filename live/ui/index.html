@@ -516,7 +516,7 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
     <div class="badges">
       <div class="badge live" id="badgeLive"><div class="pulse"></div>LIVE</div>
       <div class="badge" id="badgeQlc">QLC+ &#x25CF;</div>
-      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.04.26a</div>
+      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.04.26b</div>
     </div>
     <div class="beat-area">
       <div class="beat-row">
@@ -1043,22 +1043,13 @@ document.getElementById('setlist').addEventListener('click', function(e) {
   if (sid) sendCmd('select_song', { song_id: sid });
 });
 
-// Parts click — light_template → OSC-Befehl senden
+// Parts click — direkt zum Part navigieren (korrigiert Position + stoppt Fallback)
 document.getElementById('parts').addEventListener('click', function(e) {
   var partEl = e.target.closest('.part');
   if (!partEl) return;
-  var tpl = partEl.dataset.lightTemplate || '';
-  if (!tpl) {
-    console.warn('Part hat kein light_template:', partEl.dataset.partName);
-    return;
-  }
-  fetch('/api/osc/send_template', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({template: tpl})
-  }).then(function(r) { return r.json(); }).then(function(d) {
-    if (!d.ok) console.warn('send_template Fehler:', d);
-  }).catch(function(err) { console.error('send_template:', err); });
+  var partName = partEl.dataset.partName || '';
+  if (!partName) return;
+  sendCmd('goto_part', { part_name: partName });
 });
 
 // Timeline click — Playhead auf geklickten Takt setzen

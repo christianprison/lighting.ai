@@ -173,7 +173,8 @@ async def startup():
     # Background-Task: Audio-Queue → WebSocket broadcast
     asyncio.create_task(_consume_audio_queue())
 
-    # 8) DMX Fallback Controller initialisieren (startet erst auf Anfrage)
+    # 8) DMX Fallback Controller initialisieren und automatisch starten
+    # Kein Song bekannt beim Start → Fallback sofort aktiv
     dmx_fallback = DmxFallbackController(
         DmxFallbackConfig(
             universe=cfg.dmx.sacn_universe,
@@ -181,6 +182,10 @@ async def startup():
             source_name=cfg.dmx.sacn_source_name,
         )
     )
+    fallback_ok = await dmx_fallback.start_async()
+    if fallback_ok:
+        await ws_handler.update_state(fallback_active=True)
+        log.info("DMX-Fallback automatisch gestartet (kein Song aktiv)")
 
     log.info("Ready — http://%s:%d", cfg.server.host, cfg.server.port)
 
@@ -846,6 +851,11 @@ async def _handle_ws_action(action: str, msg: dict) -> dict | None:
             )
             audio_process.recorder.add_played_song(song.get("name", ""))
 
+        # Song gewählt → Fallback beenden
+        if dmx_fallback and dmx_fallback.is_active:
+            await dmx_fallback.stop_async()
+            await ws_handler.update_state(fallback_active=False)
+
         return {"ok": True, "song_id": song_id, "has_chaser": chaser is not None}
 
     elif action == "next":
@@ -865,6 +875,9 @@ async def _handle_ws_action(action: str, msg: dict) -> dict | None:
             )
             if osc:
                 await osc.trigger_function_async(step.function_id)
+            if dmx_fallback and dmx_fallback.is_active:
+                await dmx_fallback.stop_async()
+                await ws_handler.update_state(fallback_active=False)
         return {"ok": True, "step": new_step}
 
     elif action == "prev":
@@ -883,6 +896,9 @@ async def _handle_ws_action(action: str, msg: dict) -> dict | None:
             )
             if osc:
                 await osc.trigger_function_async(step.function_id)
+            if dmx_fallback and dmx_fallback.is_active:
+                await dmx_fallback.stop_async()
+                await ws_handler.update_state(fallback_active=False)
         return {"ok": True, "step": new_step}
 
     elif action == "goto":
@@ -901,7 +917,59 @@ async def _handle_ws_action(action: str, msg: dict) -> dict | None:
                 current_part_name=step.note,
                 current_function_name=step.function_name,
             )
+            if dmx_fallback and dmx_fallback.is_active:
+                await dmx_fallback.stop_async()
+                await ws_handler.update_state(fallback_active=False)
         return {"ok": True, "step": step_index}
+
+    elif action == "goto_part":
+        part_name = msg.get("part_name", "").strip()
+        if not part_name:
+            return {"error": "part_name fehlt"}
+        _log_user_action("goto_part", {"part_name": part_name, "song_id": ws_handler.state.current_song_id})
+
+        # Fallback stoppen — Timo korrigiert manuell die Position
+        if dmx_fallback and dmx_fallback.is_active:
+            await dmx_fallback.stop_async()
+            await ws_handler.update_state(fallback_active=False)
+
+        chaser = None
+        if qlc_data and ws_handler.state.current_song_id:
+            chaser = qlc_data.song_mapping.get(ws_handler.state.current_song_id)
+
+        if chaser:
+            # Passenden Chaser-Step per Part-Name suchen (normalisiert)
+            pn = part_name.lower()
+            step_index = next(
+                (i for i, s in enumerate(chaser.steps) if (s.note or "").lower().strip() == pn),
+                None,
+            )
+            if step_index is not None:
+                step = chaser.steps[step_index]
+                await ws_handler.update_state(
+                    current_step=step_index,
+                    current_part_name=step.note,
+                    current_function_name=step.function_name,
+                    is_playing=True,
+                )
+                if osc:
+                    await osc.trigger_function_async(step.function_id)
+                return {"ok": True, "method": "chaser_step", "step": step_index}
+
+        # Fallback: Light-Template aus DB triggern
+        song = songs.get(ws_handler.state.current_song_id or "", {})
+        tpl = next(
+            (ps.get("light_template", "") for ps in song.get("split_markers", {}).get("part_starts", [])
+             if (ps.get("name", "") or "").lower().strip() == part_name.lower()),
+            "",
+        )
+        await ws_handler.update_state(current_part_name=part_name, is_playing=True)
+        if tpl and osc and osc.connected:
+            function_id = next((fid for fid, tname in BASE_COLLECTIONS.items() if tname == tpl), None)
+            if function_id:
+                await osc.trigger_function_async(function_id)
+                return {"ok": True, "method": "template", "template": tpl}
+        return {"ok": True, "method": "state_only", "part_name": part_name}
 
     elif action == "accent":
         accent_type = msg.get("type", "")

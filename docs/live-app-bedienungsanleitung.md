@@ -268,18 +268,17 @@ Der **REC-Button** (Timeline, unten rechts neben SYNC) schneidet die komplette P
 
 ### Aufnahme starten
 
-**REC** kurz antippen → Button leuchtet rot, Stoppuhr läuft inline.
+**REC** antippen → Button wird **vollständig rot** (solides Rot), Stoppuhr läuft inline.
 
 Die Aufnahme startet sofort — kein Label, kein Dialog. Der Dateiname wird automatisch beim Stoppen aus den gespielten Songs zusammengesetzt.
 
 ### Aufnahme stoppen
 
-Am Ende der Probe **REC** antippen:
+Am Ende der Probe **REC** nochmal antippen → Aufnahme wird sofort gespeichert, Toast zeigt den Dateinamen. Der Button kehrt in den Ruhezustand zurück (roter Rahmen, transparenter Hintergrund).
 
-1. Button wechselt auf **STOPP?** (amber) — 3 Sekunden Wartezeit
-2. **REC** nochmal antippen → Aufnahme wird gespeichert, Toast zeigt den Dateinamen
-
-Der zweistufige Stopp verhindert versehentliches Beenden. Passiert nach dem ersten Tap nichts Weiteres, kehrt der Button nach 3 Sekunden automatisch zu REC (rot) zurück.
+Zwei Zustände:
+- **Ruhend**: roter Rand, transparenter Hintergrund = keine Aufnahme
+- **Aktiv**: vollständig rotes Feld, dunkler Text = Aufnahme läuft
 
 **Dateiname:** `recordings/YYYY-MM-DD/HHMM_Song1_Song2_Song3.wav`
 Beispiel: `recordings/2026-04-26/1853_Animal_Creep_Sweet_Home_Alabama.wav`
@@ -297,13 +296,17 @@ Dort gibt es pro Mehrspurdatei einen **MIXDOWN**-Button. Ein Tap darauf erzeugt 
 
 Mixdown-Dateien sind in der Liste durch ein grünes ✓ gekennzeichnet.
 
+### Dateiformat
+
+Aufnahmen werden im **RF64**-Format gespeichert (Erweiterung des WAV-Standards mit 64-Bit-Größenfeldern). Kein 4-GB-Limit, kein ungültiger Size-Header bei langen Proben. Mixdowns sind normale WAV-Dateien.
+
 ### Speicherbedarf (Richtwerte)
 
-| Probendauer | Mehrspurdatei | + Mixdown |
-|-------------|---------------|-----------|
-| 1 Stunde    | ca. 750 MB    | + 85 MB   |
-| 2 Stunden   | ca. 1,5 GB    | + 170 MB  |
-| 3 Stunden   | ca. 2,2 GB    | + 255 MB  |
+| Probendauer | Mehrspurdatei (RF64) | + Mixdown |
+|-------------|----------------------|-----------|
+| 1 Stunde    | ca. 750 MB           | + 85 MB   |
+| 2 Stunden   | ca. 1,5 GB           | + 170 MB  |
+| 3 Stunden   | ca. 2,2 GB           | + 255 MB  |
 
 ---
 
@@ -441,4 +444,4 @@ server:
 
 ---
 
-*Letzte Aktualisierung: 26. April 2026 — lighting.ai für THE PACT, Haan*
+*Letzte Aktualisierung: 23. April 2026 — lighting.ai für THE PACT, Haan*

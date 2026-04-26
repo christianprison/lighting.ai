@@ -388,6 +388,21 @@ color:var(--green);font-family:'DM Mono',monospace;font-size:11px;cursor:pointer
 .rec-player audio{width:100%;height:32px;accent-color:var(--green)}
 .rec-empty{font-family:'DM Mono',monospace;font-size:11px;color:var(--t4);padding:20px;text-align:center}
 
+/* ═══ DMX FALLBACK BUTTON ═══ */
+.fallback-row{flex-shrink:0}
+.fallback-btn{width:100%;padding:11px 8px;border-radius:var(--r);
+border:2px solid var(--amber);background:transparent;color:var(--amber);
+font-family:'DM Mono',monospace;font-size:11px;font-weight:600;letter-spacing:1.5px;
+text-transform:uppercase;cursor:pointer;transition:all .12s;touch-action:manipulation;
+display:flex;align-items:center;justify-content:center;gap:8px}
+.fallback-btn:active{transform:scale(.97)}
+.fallback-btn.on{background:var(--amber);color:#08090d;
+box-shadow:0 0 20px #f0a03040,0 0 40px #f0a03020;animation:fallbackPulse 1s ease-in-out infinite}
+@keyframes fallbackPulse{0%,100%{box-shadow:0 0 20px #f0a03040,0 0 40px #f0a03020}
+50%{box-shadow:0 0 30px #f0a03070,0 0 60px #f0a03035}}
+.fallback-btn .fb-dot{width:8px;height:8px;border-radius:50%;background:currentColor;flex-shrink:0}
+.fallback-btn.on .fb-dot{animation:recBlink .5s ease-in-out infinite}
+
 /* ═══ TOAST ═══ */
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--bg3);border:1px solid var(--green);
 color:var(--green);padding:8px 20px;border-radius:20px;font-family:'DM Mono',monospace;font-size:12px;
@@ -501,7 +516,7 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
     <div class="badges">
       <div class="badge live" id="badgeLive"><div class="pulse"></div>LIVE</div>
       <div class="badge" id="badgeQlc">QLC+ &#x25CF;</div>
-      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.04.24b</div>
+      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.04.26a</div>
     </div>
     <div class="beat-area">
       <div class="beat-row">
@@ -526,6 +541,11 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
       <button class="obtn a" data-accent="alarm"><span class="ico">&#x1F514;</span>ALARM</button>
       <button class="obtn c" data-accent="fog_on"><span class="ico">&#x2601;</span>FOG AN</button>
       <button class="obtn r" data-accent="fog_off"><span class="ico">&#x2B1B;</span>FOG AUS</button>
+    </div>
+    <div class="fallback-row">
+      <button class="fallback-btn" id="btnFallback" onclick="toggleFallback()">
+        <span class="fb-dot"></span>DMX FALLBACK
+      </button>
     </div>
     <div class="navrow">
       <button class="nbtn" id="btnPrev">&#x25C0; PREV</button>
@@ -938,6 +958,7 @@ function renderAll() {
   renderSetlist();
   renderParts();
   renderAnchors();
+  renderFallbackButton();
 
   // Load bars if song changed, then render timeline
   if (state.current_song_id && state.current_song_id !== lastBarsSongId) {
@@ -1064,6 +1085,23 @@ document.querySelectorAll('.obtn[data-accent]').forEach(function(btn) {
     setTimeout(function() { self.classList.remove('on'); }, 300);
   });
 });
+
+// ─── DMX Fallback ─────────────────────────────
+function toggleFallback() {
+  sendCmd('toggle_fallback');
+}
+
+function renderFallbackButton() {
+  var btn = document.getElementById('btnFallback');
+  if (!btn) return;
+  if (state.fallback_active) {
+    btn.classList.add('on');
+    btn.innerHTML = '<span class="fb-dot"></span>DMX FALLBACK AN';
+  } else {
+    btn.classList.remove('on');
+    btn.innerHTML = '<span class="fb-dot"></span>DMX FALLBACK';
+  }
+}
 
 // Tap tempo
 var tapTimes = [];

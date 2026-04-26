@@ -7,16 +7,31 @@
       {
         "type": "song",
         "pos": 1,
-        "song_id": "BfbgVC"
+        "song_id": "1FXXiL"
       },
       {
         "type": "song",
         "pos": 2,
-        "song_id": "pVmkRc"
+        "song_id": "B3R92r"
       },
       {
         "type": "song",
         "pos": 3,
+        "song_id": "mBeBeI"
+      },
+      {
+        "type": "song",
+        "pos": 4,
+        "song_id": "I9J0Xm"
+      },
+      {
+        "type": "song",
+        "pos": 5,
+        "song_id": "E3pvFC"
+      },
+      {
+        "type": "song",
+        "pos": 6,
         "song_id": "qVbU6L"
       }
     ]
@@ -6596,7 +6611,118 @@
             "light_template": "01 statisch bunt"
           }
         ]
-      }
+      },
+      "grundrhythmus": {
+        "kick": [
+          1,
+          3,
+          3
+        ],
+        "snare": [
+          2
+        ]
+      },
+      "anchors": [
+        {
+          "id": "anc_mobmv6bo_e2e9",
+          "pos": 1,
+          "type": "drum",
+          "event": "Nur Kick",
+          "part_hint": "Intro",
+          "bar_num": 1,
+          "beat": "1"
+        },
+        {
+          "id": "anc_mobmvnif_9xke",
+          "pos": 2,
+          "type": "drum",
+          "event": "Crash",
+          "part_hint": "Verse 1",
+          "bar_num": 9,
+          "beat": "1"
+        },
+        {
+          "id": "anc_mobmvx04_nbxa",
+          "pos": 3,
+          "type": "drum",
+          "event": "Beat beginnt",
+          "part_hint": "Verse 1",
+          "bar_num": 9,
+          "beat": "1"
+        },
+        {
+          "id": "anc_mobmwmt6_z27w",
+          "pos": 4,
+          "type": "drum",
+          "event": "",
+          "part_hint": "Chorus 1",
+          "bar_num": null,
+          "beat": ""
+        },
+        {
+          "id": "anc_mobmwxgl_dh0p",
+          "pos": 5,
+          "type": "drum",
+          "event": "Crash",
+          "part_hint": "Verse 2",
+          "bar_num": 25,
+          "beat": "1"
+        },
+        {
+          "id": "anc_mobmwnml_7xb3",
+          "pos": 6,
+          "type": "christian",
+          "event": "Einsatz",
+          "part_hint": "Verse 2",
+          "bar_num": 25,
+          "beat": "2"
+        },
+        {
+          "id": "anc_mobmx509_iutp",
+          "pos": 7,
+          "type": "axel",
+          "event": "Einsatz",
+          "part_hint": "Verse 2",
+          "bar_num": 25,
+          "beat": "2"
+        },
+        {
+          "id": "anc_mobmxtok_4fb9",
+          "pos": 8,
+          "type": "drum",
+          "event": "",
+          "part_hint": "Chorus 2",
+          "bar_num": null,
+          "beat": ""
+        },
+        {
+          "id": "anc_mobmy3ns_d1zp",
+          "pos": 9,
+          "type": "drum",
+          "event": "Nur Kick",
+          "part_hint": "Intro Reprise",
+          "bar_num": 56,
+          "beat": "1"
+        },
+        {
+          "id": "anc_mobmy80h_jw74",
+          "pos": 10,
+          "type": "drum",
+          "event": "Beat beginnt",
+          "part_hint": "Verse 3",
+          "bar_num": 60,
+          "beat": "1"
+        },
+        {
+          "id": "anc_mobmygwj_qhgk",
+          "pos": 11,
+          "type": "drum",
+          "event": "",
+          "part_hint": "Chorus 3",
+          "bar_num": null,
+          "beat": ""
+        }
+      ]
     },
     "qVbU6L": {
       "name": "Hail to the Freaks",
@@ -7644,13 +7770,467 @@
       "qlc_id": 178,
       "audio_ref": "audio/Join me in Death/Join me in Death - Full Song.mp3",
       "audio_ref_name": "Join me in Death - Full Song.mp3",
-      "lyrics_raw": "[Intro]\nBaby, join me in death\nBaby, join me in death\nBaby, join me in death\n\n[Verse 1]\nWe are so young\nOur lives have just begun\nBut already, we are considering\nEscape from this world\nAnd we've waited for so long\nFor this moment to come\nWe're so anxious to be together\nTogether in death\n[Pre-Chorus]\nWoah-oh\n\n[Chorus]\nWon't you die tonight for love?\nBaby, join me in death\nWon't you die?\nBaby, join me in death\nBut won't you die tonight for love?\nBaby, join me in death\n\n[Verse 2]\nThis world is a cruel place\nAnd we're here only to lose\nSo, before life tears us apart\nLet death bless me with you\n\n[Pre-Chorus]\nWoah-oh\n\n[Chorus]\nWon't you die tonight for love?\nBaby, join me in death\nSo, won't you die?\nBaby, join me in death\nBut won't you die tonight for love?\nBaby, join me in death\n\n[Refrain]\nWoah-oh...\n\n[Bridge]\nThis life ain't worth livin'\nThis life, it ain't worth livin'\n(Join me, join me, join me, join me)\nThis life, it ain't worth livin'\n(Join me, join me)\nThis life ain't worth livin'\n\n[Chorus]\nWon't you die tonight for love?\nBaby, join me in death\nSo, won't you die?\nBaby, join me in death\nBut won't you die tonight for love?\nBaby, join me in death\n\n[Outro]\nBaby, join me in death",
+      "lyrics_raw": "Baby, join me in death Baby, join me in death Baby, join me in death We are so young Our lives have just begun But already, we are considering Escape from this world And we've waited for so long For this moment to come We're so anxious to be together Together in death Whoa-oh Won't you die tonight for love? Baby, join me in death Won't you die? Baby, join me in death But won't you die tonight for love? Baby, join me in death join me in death This world is a cruel place And we're here only to lose So, before life tears us apart Let death bless me with you Whoa-oh Won't you die tonight for love? Baby, join me in death So, won't you die? Baby, join me in death But won't you die tonight for love? Baby, join me in death Join me in death Whoa-oh This life ain't worth livin' This life, it ain't worth livin' (Join me, join me) This life, it ain't worth livin' (Join me, join me) This life ain't worth livin' Won't you die tonight for love? Baby, join me in death So, won't you die? Baby, join me in death But won't you die tonight for love? Baby, join me in death Baby, join me in death",
       "tms": {
-        "manual_done": [],
+        "manual_done": [
+          "bar_markers",
+          "parts_identified",
+          "instr_parts_identified",
+          "instr_bars_identified"
+        ],
         "user_tasks": [],
         "manual_undone": []
       },
-      "total_bars": 0
+      "total_bars": 99,
+      "grundrhythmus": {
+        "kick": [
+          1,
+          2,
+          3
+        ],
+        "snare": [
+          2
+        ]
+      },
+      "split_markers": {
+        "markers": [
+          {
+            "time": 27.946165376106205
+          },
+          {
+            "time": 30.11416537610621
+          },
+          {
+            "time": 32.33549870943953
+          },
+          {
+            "time": 34.56483204277287
+          },
+          {
+            "time": 36.66883204277287
+          },
+          {
+            "time": 38.8981653761062
+          },
+          {
+            "time": 41.066165376106206
+          },
+          {
+            "time": 43.25283204277287
+          },
+          {
+            "time": 45.447498709439536
+          },
+          {
+            "time": 47.5621653761062
+          },
+          {
+            "time": 49.73016537610621
+          },
+          {
+            "time": 51.8981653761062
+          },
+          {
+            "time": 53.98349870943954
+          },
+          {
+            "time": 56.15149870943953
+          },
+          {
+            "time": 58.24749870943953
+          },
+          {
+            "time": 60.314165376106196
+          },
+          {
+            "time": 62.46883204277287
+          },
+          {
+            "time": 64.55149870943954
+          },
+          {
+            "time": 66.73549870943954
+          },
+          {
+            "time": 68.87149870943954
+          },
+          {
+            "time": 71.01816537610621
+          },
+          {
+            "time": 73.13549870943955
+          },
+          {
+            "time": 75.2981653761062
+          },
+          {
+            "time": 77.36216537610622
+          },
+          {
+            "time": 79.53549870943954
+          },
+          {
+            "time": 81.66883204277286
+          },
+          {
+            "time": 83.75416537610622
+          },
+          {
+            "time": 85.9301653761062
+          },
+          {
+            "time": 88.0181653761062
+          },
+          {
+            "time": 90.11949870943954
+          },
+          {
+            "time": 92.23683204277287
+          },
+          {
+            "time": 94.36216537610622
+          },
+          {
+            "time": 96.53549870943954
+          },
+          {
+            "time": 98.7461653761062
+          },
+          {
+            "time": 100.7621653761062
+          },
+          {
+            "time": 102.91949870943955
+          },
+          {
+            "time": 105.07149870943954
+          },
+          {
+            "time": 107.16749870943954
+          },
+          {
+            "time": 109.28418307522124
+          },
+          {
+            "time": 111.43084974188791
+          },
+          {
+            "time": 113.51351640855457
+          },
+          {
+            "time": 115.7188497418879
+          },
+          {
+            "time": 117.78551640855456
+          },
+          {
+            "time": 119.93218307522123
+          },
+          {
+            "time": 122.0708497418879
+          },
+          {
+            "time": 124.13751640855456
+          },
+          {
+            "time": 126.24684974188791
+          },
+          {
+            "time": 128.31351640855456
+          },
+          {
+            "time": 130.4148497418879
+          },
+          {
+            "time": 132.46818307522125
+          },
+          {
+            "time": 134.62018307522123
+          },
+          {
+            "time": 136.70018307522122
+          },
+          {
+            "time": 138.78551640855454
+          },
+          {
+            "time": 140.86284974188789
+          },
+          {
+            "time": 143.0308497418879
+          },
+          {
+            "time": 145.14818307522125
+          },
+          {
+            "time": 147.1988497418879
+          },
+          {
+            "time": 149.35084974188788
+          },
+          {
+            "time": 151.4148497418879
+          },
+          {
+            "time": 153.56418307522125
+          },
+          {
+            "time": 155.6175164085546
+          },
+          {
+            "time": 157.75084974188792
+          },
+          {
+            "time": 159.83618307522124
+          },
+          {
+            "time": 161.9535164085546
+          },
+          {
+            "time": 164.01484974188793
+          },
+          {
+            "time": 166.18018307522124
+          },
+          {
+            "time": 168.26284974188792
+          },
+          {
+            "time": 170.30284974188794
+          },
+          {
+            "time": 172.34818307522124
+          },
+          {
+            "time": 174.50284974188793
+          },
+          {
+            "time": 176.60418307522127
+          },
+          {
+            "time": 178.6868497418879
+          },
+          {
+            "time": 180.76951640855458
+          },
+          {
+            "time": 182.88418307522124
+          },
+          {
+            "time": 185.00418307522125
+          },
+          {
+            "time": 187.03618307522123
+          },
+          {
+            "time": 189.11618307522127
+          },
+          {
+            "time": 191.1535164085546
+          },
+          {
+            "time": 193.31351640855456
+          },
+          {
+            "time": 195.35084974188794
+          },
+          {
+            "time": 197.5375164085546
+          },
+          {
+            "time": 199.62018307522123
+          },
+          {
+            "time": 201.70018307522128
+          },
+          {
+            "time": 203.78018307522126
+          },
+          {
+            "time": 205.83837078651686
+          },
+          {
+            "time": 207.84684974188792
+          },
+          {
+            "time": 209.96951640855457
+          },
+          {
+            "time": 212.03618307522123
+          },
+          {
+            "time": 214.1028497418879
+          },
+          {
+            "time": 216.22018307522126
+          },
+          {
+            "time": 218.28684974188792
+          },
+          {
+            "time": 220.48151640855457
+          },
+          {
+            "time": 222.52951640855457
+          },
+          {
+            "time": 224.5695164085546
+          },
+          {
+            "time": 226.73218307522126
+          },
+          {
+            "time": 228.8788497418879
+          },
+          {
+            "time": 230.9028497418879
+          },
+          {
+            "time": 233.11618307522127
+          },
+          {
+            "time": 235.25484974188794
+          }
+        ],
+        "part_starts": [
+          {
+            "bar_num": 1,
+            "name": "Intro",
+            "light_template": "16 Searchlight"
+          },
+          {
+            "bar_num": 9,
+            "name": "Chorus 1",
+            "light_template": "09 Alarm"
+          },
+          {
+            "bar_num": 15,
+            "name": "Verse 1",
+            "light_template": "08 swimming"
+          },
+          {
+            "bar_num": 31,
+            "name": "Chorus 2",
+            "light_template": "09 Alarm"
+          },
+          {
+            "bar_num": 45,
+            "name": "Verse 2",
+            "light_template": "08 swimming"
+          },
+          {
+            "bar_num": 53,
+            "name": "Chorus 3",
+            "light_template": "09 Alarm"
+          },
+          {
+            "bar_num": 69,
+            "name": "Interlude",
+            "light_template": "16 Searchlight"
+          },
+          {
+            "bar_num": 85,
+            "name": "Chorus 4",
+            "light_template": "09 Alarm"
+          },
+          {
+            "bar_num": 99,
+            "name": "Ausklang",
+            "light_template": "blind (accent)"
+          }
+        ]
+      },
+      "qlc_parts": {
+        "B3R92r_QP001": {
+          "pos": 1,
+          "name": "Intro (nur Git+Vox)",
+          "light_template": "16 Searchlight",
+          "notes": ""
+        },
+        "B3R92r_QP002": {
+          "pos": 2,
+          "name": "Intro (alle)",
+          "light_template": "07 round'n'round",
+          "notes": ""
+        },
+        "B3R92r_QP003": {
+          "pos": 3,
+          "name": "Verse 1",
+          "light_template": "08 swimming",
+          "notes": ""
+        },
+        "B3R92r_QP004": {
+          "pos": 4,
+          "name": "Chorus 1",
+          "light_template": "09 Alarm",
+          "notes": ""
+        },
+        "B3R92r_QP005": {
+          "pos": 5,
+          "name": "Verse 2",
+          "light_template": "08 swimming",
+          "notes": ""
+        },
+        "B3R92r_QP006": {
+          "pos": 6,
+          "name": "Chorus 2",
+          "light_template": "09 Alarm",
+          "notes": ""
+        },
+        "B3R92r_QP007": {
+          "pos": 7,
+          "name": "Interlude",
+          "light_template": "16 Searchlight",
+          "notes": ""
+        },
+        "B3R92r_QP008": {
+          "pos": 8,
+          "name": "STOP",
+          "light_template": "Spot auf Pete",
+          "notes": ""
+        },
+        "B3R92r_QP009": {
+          "pos": 9,
+          "name": "Chorus 3",
+          "light_template": "09 Alarm",
+          "notes": ""
+        },
+        "B3R92r_QP010": {
+          "pos": 10,
+          "name": "Ausklang",
+          "light_template": "blind (accent)",
+          "notes": ""
+        }
+      },
+      "anchors": [
+        {
+          "id": "anc_mobmpuva_c0ld",
+          "pos": 1,
+          "type": "guitar",
+          "event": "Einsatz",
+          "part_hint": "Intro",
+          "bar_num": 1,
+          "beat": "1"
+        },
+        {
+          "id": "anc_mobmqxhj_nphs",
+          "pos": 2,
+          "type": "drum",
+          "event": "Einsatz",
+          "part_hint": "Intro",
+          "bar_num": 8,
+          "beat": "3+"
+        },
+        {
+          "id": "anc_mobms85e_4qqr",
+          "pos": 3,
+          "type": "drum",
+          "event": "Nur Kick",
+          "part_hint": "Interlude",
+          "bar_num": 69,
+          "beat": "2"
+        }
+      ]
     },
     "mBeBeI": {
       "name": "Killing In The Name Of",
@@ -7666,7 +8246,10 @@
       "qlc_id": 252,
       "lyrics_raw": "[Intro]\n(Killing in the name of)\n\n[Verse]\nSome of those that work forces\nAre the same that burn crosses\nSome of those that work forces\nAre the same that burn crosses\nSome of those that work forces\nAre the same that burn crosses\nSome of those that work forces\nAre the same that burn crosses, ugh\n[Refrain]\nKilling in the name of\nKilling in the name of\n\n[Pre-Chorus]\nAnd now you do what they told ya\nAnd now you do what they told ya\nAnd now you do what they told ya\nAnd now you do what they told ya\nAnd now you do what they told ya\nAnd now you do what they told ya\nAnd now you do what they told ya\nAnd now you do what they told ya\nAnd now you do what they told ya\nAnd now you do what they told ya\nBut now you do what they told ya\nWell now you do what they told ya\n\n[Chorus]\nThose who died are justified\nFor wearin' the badge, they're the chosen whites\nYou justify those that died\nBy wearin' the badge, they're the chosen whites\nThose who died are justified\nFor wearin' the badge, they're the chosen whites\nYou justify those that died\nBy wearin' the badge, they're the chosen whites\n[Verse]\nSome of those that work forces\nAre the same that burn crosses\nSome of those that work forces\nAre the same that burn crosses\nSome of those that work forces\nAre the same that burn crosses\nSome of those that work forces\nAre the same that burn crosses, ugh\n\n[Refrain]\nKilling in the name of\nKilling in the name of\n\n[Pre-Chorus]\nAnd now you do what they told ya\nAnd now you do what they told ya\nAnd now you do what they told ya\nAnd now you do what they told ya\nAnd now you do what they told ya (Now you're under control)\nAnd now you do what they told ya (And now you're under control)\nAnd now you do what they told ya (And now you're under control)\nAnd now you do what they told ya (Now you're under control)\nAnd now you do what they told ya (Now you're under control)\nAnd now you do what they told ya (Now you're under control)\nAnd now you do what they told ya (Now you're under control)\nAnd now you do what they told ya\n[Chorus]\nThose who died are justified\nFor wearin' the badge, they're the chosen whites\nYou justify those that died\nBy wearin' the badge, they're the chosen whites\nThose who died are justified\nFor wearin' the badge, they're the chosen whites\nYou justify those that died\nBy wearin' the badge, they're the chosen whites, come on\n\n[Guitar Solo]\nUgh\nYeah\nCome on\nUgh\n\n[Outro]\nFuck you, I won't do what you tell me\nFuck you, I won't do what you tell me\nFuck you, I won't do what you tell me\nFuck you, I won't do what you tell me\nFuck you, I won't do what you tell me\nFuck you, I won't do what you tell me\nFuck you, I won't do what you tell me\nFuck you, I won't do what you tell me\nFuck you, I won't do what you tell me\nFuck you, I won't do what you tell me\nFuck you, I won't do what you tell me\nFuck you, I won't do what you tell me\nFuck you, I won't do what you tell me\nFuck you, I won't do what you tell me\nFuck you, I won't do what you tell me\nFuck you, I won't do what you tell me\nMotherfucker, ugh",
       "tms": {
-        "manual_done": [],
+        "manual_done": [
+          "bar_markers",
+          "parts_identified"
+        ],
         "user_tasks": [
           {
             "id": "ut_1773145638870_q96b",
@@ -7677,7 +8260,437 @@
         ],
         "manual_undone": []
       },
-      "total_bars": 0
+      "total_bars": 118,
+      "audio_ref": "audio/Killing In The Name Of/Killing In The Name Of - Full Song.mp3",
+      "audio_ref_name": "Rage against the machine - Killing In The Name Of.mp3",
+      "split_markers": {
+        "markers": [
+          {
+            "time": 0.12235416666669077
+          },
+          {
+            "time": 2.485020833333346
+          },
+          {
+            "time": 4.671687500000013
+          },
+          {
+            "time": 6.855687500000039
+          },
+          {
+            "time": 9.031687500000027
+          },
+          {
+            "time": 11.239687499999997
+          },
+          {
+            "time": 13.373020833333323
+          },
+          {
+            "time": 15.471687500000025
+          },
+          {
+            "time": 17.589020833333333
+          },
+          {
+            "time": 19.56502083333333
+          },
+          {
+            "time": 21.48768749999999
+          },
+          {
+            "time": 23.418354166666685
+          },
+          {
+            "time": 25.405020833333364
+          },
+          {
+            "time": 27.3383541666667
+          },
+          {
+            "time": 29.218354166666696
+          },
+          {
+            "time": 31.173020833333336
+          },
+          {
+            "time": 33.10102083333333
+          },
+          {
+            "time": 35.215687499999994
+          },
+          {
+            "time": 37.266354166666694
+          },
+          {
+            "time": 39.41568749999998
+          },
+          {
+            "time": 41.80502083333334
+          },
+          {
+            "time": 44.741020833333316
+          },
+          {
+            "time": 47.767687500000015
+          },
+          {
+            "time": 50.698354166666654
+          },
+          {
+            "time": 53.58368749999999
+          },
+          {
+            "time": 56.533020833333346
+          },
+          {
+            "time": 59.4370208333334
+          },
+          {
+            "time": 62.45035416666672
+          },
+          {
+            "time": 65.38102083333337
+          },
+          {
+            "time": 68.3170208333334
+          },
+          {
+            "time": 71.25568749999996
+          },
+          {
+            "time": 74.1676875
+          },
+          {
+            "time": 77.10635416666668
+          },
+          {
+            "time": 80.16502083333336
+          },
+          {
+            "time": 83.11435416666671
+          },
+          {
+            "time": 86.1010208333334
+          },
+          {
+            "time": 89.10635416666668
+          },
+          {
+            "time": 91.73302083333334
+          },
+          {
+            "time": 94.38368750000001
+          },
+          {
+            "time": 97.06635416666671
+          },
+          {
+            "time": 99.79968750000006
+          },
+          {
+            "time": 102.35702083333337
+          },
+          {
+            "time": 104.94902083333335
+          },
+          {
+            "time": 107.49835416666673
+          },
+          {
+            "time": 110.05568750000003
+          },
+          {
+            "time": 112.62102083333338
+          },
+          {
+            "time": 115.22368750000004
+          },
+          {
+            "time": 117.80768749999999
+          },
+          {
+            "time": 120.39968749999997
+          },
+          {
+            "time": 123.13835416666672
+          },
+          {
+            "time": 125.86635416666667
+          },
+          {
+            "time": 128.57302083333337
+          },
+          {
+            "time": 131.30635416666672
+          },
+          {
+            "time": 133.9890208333333
+          },
+          {
+            "time": 136.76502083333338
+          },
+          {
+            "time": 139.4663541666667
+          },
+          {
+            "time": 142.22368750000004
+          },
+          {
+            "time": 145.13302083333332
+          },
+          {
+            "time": 148.10902083333332
+          },
+          {
+            "time": 151.00768750000003
+          },
+          {
+            "time": 153.90635416666663
+          },
+          {
+            "time": 156.83968750000003
+          },
+          {
+            "time": 159.72235416666666
+          },
+          {
+            "time": 162.68502083333334
+          },
+          {
+            "time": 165.51702083333333
+          },
+          {
+            "time": 168.4556875
+          },
+          {
+            "time": 171.46902083333333
+          },
+          {
+            "time": 174.4903541666667
+          },
+          {
+            "time": 177.3890208333334
+          },
+          {
+            "time": 180.05035416666664
+          },
+          {
+            "time": 182.71702083333338
+          },
+          {
+            "time": 185.40502083333337
+          },
+          {
+            "time": 188.13302083333332
+          },
+          {
+            "time": 190.75702083333334
+          },
+          {
+            "time": 193.33302083333336
+          },
+          {
+            "time": 195.94902083333335
+          },
+          {
+            "time": 198.53568750000005
+          },
+          {
+            "time": 201.1676875
+          },
+          {
+            "time": 203.72235416666666
+          },
+          {
+            "time": 206.3170208333334
+          },
+          {
+            "time": 208.9330208333334
+          },
+          {
+            "time": 211.66635416666674
+          },
+          {
+            "time": 214.32235416666668
+          },
+          {
+            "time": 217.14102083333336
+          },
+          {
+            "time": 219.8743541666667
+          },
+          {
+            "time": 222.42368749999997
+          },
+          {
+            "time": 225.1490208333334
+          },
+          {
+            "time": 227.82368750000006
+          },
+          {
+            "time": 230.5330208333333
+          },
+          {
+            "time": 233.23168749999996
+          },
+          {
+            "time": 235.9036875
+          },
+          {
+            "time": 238.65035416666666
+          },
+          {
+            "time": 241.2876875
+          },
+          {
+            "time": 243.9703541666667
+          },
+          {
+            "time": 246.6343541666667
+          },
+          {
+            "time": 249.3890208333334
+          },
+          {
+            "time": 252.10368750000004
+          },
+          {
+            "time": 254.8023541666667
+          },
+          {
+            "time": 257.5570208333333
+          },
+          {
+            "time": 260.4556875
+          },
+          {
+            "time": 263.1330208333333
+          },
+          {
+            "time": 266.05035416666664
+          },
+          {
+            "time": 268.7650208333334
+          },
+          {
+            "time": 271.7356875
+          },
+          {
+            "time": 274.8316875
+          },
+          {
+            "time": 277.4503541666667
+          },
+          {
+            "time": 280.05035416666664
+          },
+          {
+            "time": 282.66635416666674
+          },
+          {
+            "time": 285.31435416666665
+          },
+          {
+            "time": 287.9410208333333
+          },
+          {
+            "time": 290.58902083333334
+          },
+          {
+            "time": 293.2156875
+          },
+          {
+            "time": 295.8396875
+          },
+          {
+            "time": 298.45835416666665
+          },
+          {
+            "time": 301.1063541666667
+          },
+          {
+            "time": 303.7836875
+          },
+          {
+            "time": 306.41568750000005
+          },
+          {
+            "time": 308.9223541666667
+          }
+        ],
+        "part_starts": [
+          {
+            "bar_num": 1,
+            "name": "Intro"
+          },
+          {
+            "bar_num": 5,
+            "name": "Basssolo"
+          },
+          {
+            "bar_num": 9,
+            "name": "Vorthema"
+          },
+          {
+            "bar_num": 17,
+            "name": "Triolen"
+          },
+          {
+            "bar_num": 21,
+            "name": "Hauptthema 1"
+          },
+          {
+            "bar_num": 25,
+            "name": "Verse 1"
+          },
+          {
+            "bar_num": 33,
+            "name": "Bridge 1"
+          },
+          {
+            "bar_num": 37,
+            "name": "Chorus 1"
+          },
+          {
+            "bar_num": 49,
+            "name": "Don‘t you die"
+          },
+          {
+            "bar_num": 57,
+            "name": "Verse 2"
+          },
+          {
+            "bar_num": 69,
+            "name": "Bridge 2"
+          },
+          {
+            "bar_num": 81,
+            "name": "Don‘t you die 2"
+          },
+          {
+            "bar_num": 89,
+            "name": "Guitar Solo"
+          },
+          {
+            "bar_num": 97,
+            "name": "Crescendo"
+          },
+          {
+            "bar_num": 105,
+            "name": "Fuck you"
+          },
+          {
+            "bar_num": 113,
+            "name": "Motherfucker"
+          },
+          {
+            "bar_num": 118,
+            "name": "Drumroll + Ende"
+          }
+        ]
+      }
     },
     "I9J0Xm": {
       "name": "Last Nite",
@@ -7693,13 +8706,825 @@
       "qlc_id": 41,
       "audio_ref": "audio/Last Nite/Last Nite - Full Song.mp3",
       "audio_ref_name": "Last Nite - Full Song.mp3",
-      "lyrics_raw": "[Verse 1]\nLast night, she said\n\"Oh, baby, I feel so down\nOh, it turn' me off\nWhen I feel left out\"\nSo I, I turned 'round\n\"Oh, babe, I don't care no more\"\nI know this for sure\nI'm walkin' out that door\nWell, I've been in town for just 'bout fifteen, oh, minutes now\nAnd, baby, I feel so down\nAnd I don't know why\nI keep walkin' for miles...\n[Chorus]\nAnd see, people, they don't understand\nNo, girlfriends, they can't understand\nYour grandsons, they won't understand\nOn top of this, I ain't ever gonna understand\n\n[Verse 2]\nLast night, she said\n\"Oh, baby, don't feel so down\nOh, it turn' me off\nWhen I feel left out\"\nSo I, I turned 'round\n\"Oh, baby, gonna be alright\"\nIt was a great big lie\n'Cause I left that night, yeah\n\n[Guitar Solo]\n\n[Chorus]\nOh, people, they don't understand\nNo, girlfriends, they don't understand\nIn spaceships, they won't understand\nAnd me, I ain't ever gonna understand\n\n[Verse 1]\nLast night, she said\n\"Oh, baby, I feel so down\nSee, it turn' me off\nWhen I feel left out\"\nSo I, I turned 'round\n\"Oh, little girl, I don't care no more\nI know this for sure\nI'm walkin' out that door,\" yeah",
+      "lyrics_raw": "Last nite she said, oh baby I feel so down When you turn me off, when I feel left out So I turned, turned round Oh baby don't care no more, I know this for sure I'm walking out that door Well I've been in town for about fiteen whole minutes now And baby I feel so down And I don't know why I've been walking for miles People they don't under- stand Your girlfriends they can't under- stand Your grandsons they won't under- stand On top of this I ain't ever going to understand Last nite she said, oh baby don't feel so down When you turn me off, when I feel left out So I, turned turned round Oh baby going to be alright, it was a great big lie Cause I left that night yeah People they don't understand Your girlfriends they don't understand In spaceships they can't understand And me I ain't ever going to understand Last nite she said, oh baby don't feel so down Well she turn me off, when I feel left out So I, I turned round Oh little girl I don't care no more, I know this for sure I'm walking out that door yeah",
       "tms": {
-        "manual_done": [],
+        "manual_done": [
+          "bar_markers",
+          "parts_identified",
+          "instr_parts_identified",
+          "instr_bars_identified"
+        ],
         "user_tasks": [],
         "manual_undone": []
       },
-      "total_bars": 0
+      "total_bars": 188,
+      "grundrhythmus": {
+        "kick": [
+          1,
+          3
+        ],
+        "snare": [
+          2
+        ]
+      },
+      "split_markers": {
+        "markers": [
+          {
+            "time": 0.8898876404494382
+          },
+          {
+            "time": 2.2167961142322046
+          },
+          {
+            "time": 3.536796114232212
+          },
+          {
+            "time": 4.8914627808988715
+          },
+          {
+            "time": 6.134129447565536
+          },
+          {
+            "time": 7.3741294475655454
+          },
+          {
+            "time": 8.71812944756554
+          },
+          {
+            "time": 9.987462780898861
+          },
+          {
+            "time": 11.23546278089888
+          },
+          {
+            "time": 12.48346278089887
+          },
+          {
+            "time": 13.806129447565533
+          },
+          {
+            "time": 15.054129447565552
+          },
+          {
+            "time": 16.18479611423221
+          },
+          {
+            "time": 17.518129447565553
+          },
+          {
+            "time": 18.776796114232223
+          },
+          {
+            "time": 20.051462780898884
+          },
+          {
+            "time": 21.251462780898873
+          },
+          {
+            "time": 22.550129447565535
+          },
+          {
+            "time": 23.824796114232196
+          },
+          {
+            "time": 25.102129447565556
+          },
+          {
+            "time": 26.352796114232216
+          },
+          {
+            "time": 27.66746278089887
+          },
+          {
+            "time": 28.90212944756554
+          },
+          {
+            "time": 30.139462780898878
+          },
+          {
+            "time": 31.39012944756554
+          },
+          {
+            "time": 32.69946278089888
+          },
+          {
+            "time": 33.891462780898884
+          },
+          {
+            "time": 35.2247961142322
+          },
+          {
+            "time": 36.451462780898886
+          },
+          {
+            "time": 37.7367961142322
+          },
+          {
+            "time": 38.9687961142322
+          },
+          {
+            "time": 40.2247961142322
+          },
+          {
+            "time": 41.426966292134836
+          },
+          {
+            "time": 42.68612944756553
+          },
+          {
+            "time": 43.9687961142322
+          },
+          {
+            "time": 45.195505617977524
+          },
+          {
+            "time": 46.51012944756554
+          },
+          {
+            "time": 47.77679611423222
+          },
+          {
+            "time": 49.01946278089887
+          },
+          {
+            "time": 50.25146278089887
+          },
+          {
+            "time": 51.47546278089886
+          },
+          {
+            "time": 52.77412944756555
+          },
+          {
+            "time": 54.05679611423219
+          },
+          {
+            "time": 55.27546278089887
+          },
+          {
+            "time": 56.5527961142322
+          },
+          {
+            "time": 57.80079611423222
+          },
+          {
+            "time": 59.07012944756554
+          },
+          {
+            "time": 60.35812944756555
+          },
+          {
+            "time": 61.6007961142322
+          },
+          {
+            "time": 62.84079611423221
+          },
+          {
+            "time": 64.03546278089887
+          },
+          {
+            "time": 65.30746278089889
+          },
+          {
+            "time": 66.57412944756554
+          },
+          {
+            "time": 67.77412944756556
+          },
+          {
+            "time": 69.06741573033709
+          },
+          {
+            "time": 70.36879611423221
+          },
+          {
+            "time": 71.56179775280899
+          },
+          {
+            "time": 72.75812944756554
+          },
+          {
+            "time": 74.08988764044943
+          },
+          {
+            "time": 75.3847961142322
+          },
+          {
+            "time": 76.5927961142322
+          },
+          {
+            "time": 77.85146278089887
+          },
+          {
+            "time": 79.02479611423222
+          },
+          {
+            "time": 80.30746278089889
+          },
+          {
+            "time": 81.57412944756554
+          },
+          {
+            "time": 82.89146278089889
+          },
+          {
+            "time": 84.01946278089888
+          },
+          {
+            "time": 85.31812944756554
+          },
+          {
+            "time": 86.55012944756554
+          },
+          {
+            "time": 87.83546278089888
+          },
+          {
+            "time": 89.04079611423221
+          },
+          {
+            "time": 90.28346278089889
+          },
+          {
+            "time": 91.52612944756554
+          },
+          {
+            "time": 92.80879611423221
+          },
+          {
+            "time": 94.04079611423221
+          },
+          {
+            "time": 95.32079611423221
+          },
+          {
+            "time": 96.55812944756555
+          },
+          {
+            "time": 97.83546278089888
+          },
+          {
+            "time": 99.03546278089887
+          },
+          {
+            "time": 100.27012944756554
+          },
+          {
+            "time": 101.5687961142322
+          },
+          {
+            "time": 102.80079611423223
+          },
+          {
+            "time": 103.94212944756553
+          },
+          {
+            "time": 105.17412944756553
+          },
+          {
+            "time": 106.50212944756554
+          },
+          {
+            "time": 107.70212944756555
+          },
+          {
+            "time": 108.90746278089888
+          },
+          {
+            "time": 110.20346278089887
+          },
+          {
+            "time": 111.40079611423222
+          },
+          {
+            "time": 112.58746278089889
+          },
+          {
+            "time": 113.89146278089889
+          },
+          {
+            "time": 115.07279611423222
+          },
+          {
+            "time": 116.30212944756555
+          },
+          {
+            "time": 117.5687961142322
+          },
+          {
+            "time": 118.76879611423222
+          },
+          {
+            "time": 120.04346278089888
+          },
+          {
+            "time": 121.29146278089887
+          },
+          {
+            "time": 122.55812944756555
+          },
+          {
+            "time": 123.77146278089889
+          },
+          {
+            "time": 124.95812944756555
+          },
+          {
+            "time": 126.21679611423222
+          },
+          {
+            "time": 127.51012944756555
+          },
+          {
+            "time": 128.69146278089886
+          },
+          {
+            "time": 129.9687961142322
+          },
+          {
+            "time": 131.24346278089888
+          },
+          {
+            "time": 132.49146278089887
+          },
+          {
+            "time": 133.70746278089888
+          },
+          {
+            "time": 134.9367961142322
+          },
+          {
+            "time": 136.13679611423225
+          },
+          {
+            "time": 137.4514627808989
+          },
+          {
+            "time": 138.59279611423221
+          },
+          {
+            "time": 139.8407961142322
+          },
+          {
+            "time": 141.10212944756557
+          },
+          {
+            "time": 142.3767961142322
+          },
+          {
+            "time": 143.5687961142322
+          },
+          {
+            "time": 144.75812944756558
+          },
+          {
+            "time": 146.0354627808989
+          },
+          {
+            "time": 147.26746278089888
+          },
+          {
+            "time": 148.4247961142322
+          },
+          {
+            "time": 149.64079611423222
+          },
+          {
+            "time": 150.9234627808989
+          },
+          {
+            "time": 152.1074627808989
+          },
+          {
+            "time": 153.3074627808989
+          },
+          {
+            "time": 154.58746278089887
+          },
+          {
+            "time": 155.7687961142322
+          },
+          {
+            "time": 156.9847961142322
+          },
+          {
+            "time": 158.1847961142322
+          },
+          {
+            "time": 159.45679611423225
+          },
+          {
+            "time": 160.69146278089892
+          },
+          {
+            "time": 161.9261294475656
+          },
+          {
+            "time": 163.07546278089887
+          },
+          {
+            "time": 164.32079611423222
+          },
+          {
+            "time": 165.50212944756555
+          },
+          {
+            "time": 166.70746278089888
+          },
+          {
+            "time": 167.85679611423222
+          },
+          {
+            "time": 169.11012944756555
+          },
+          {
+            "time": 170.4034627808989
+          },
+          {
+            "time": 171.64079611423222
+          },
+          {
+            "time": 172.88612944756557
+          },
+          {
+            "time": 174.1074627808989
+          },
+          {
+            "time": 175.38479611423224
+          },
+          {
+            "time": 176.59279611423221
+          },
+          {
+            "time": 177.90212944756558
+          },
+          {
+            "time": 179.12612944756557
+          },
+          {
+            "time": 180.31012944756554
+          },
+          {
+            "time": 181.6194627808989
+          },
+          {
+            "time": 182.7687961142322
+          },
+          {
+            "time": 184.0194627808989
+          },
+          {
+            "time": 185.1847961142322
+          },
+          {
+            "time": 186.4514627808989
+          },
+          {
+            "time": 187.7056179775281
+          },
+          {
+            "time": 189.0087961142322
+          },
+          {
+            "time": 190.17679611423222
+          },
+          {
+            "time": 191.35812944756555
+          },
+          {
+            "time": 192.64079611423222
+          },
+          {
+            "time": 193.80879611423222
+          },
+          {
+            "time": 195.05146278089887
+          },
+          {
+            "time": 196.2834627808989
+          },
+          {
+            "time": 197.4354627808989
+          },
+          {
+            "time": 198.67279611423226
+          },
+          {
+            "time": 199.92079611423225
+          },
+          {
+            "time": 201.13412944756556
+          },
+          {
+            "time": 202.27012944756558
+          },
+          {
+            "time": 203.4727961142322
+          },
+          {
+            "time": 204.73946278089892
+          },
+          {
+            "time": 205.90212944756558
+          },
+          {
+            "time": 207.1847961142322
+          },
+          {
+            "time": 208.35812944756555
+          },
+          {
+            "time": 209.60079611423225
+          },
+          {
+            "time": 210.78917064606742
+          },
+          {
+            "time": 212.03183731273407
+          },
+          {
+            "time": 213.21850397940074
+          },
+          {
+            "time": 214.46650397940073
+          },
+          {
+            "time": 215.63450397940073
+          },
+          {
+            "time": 216.83983731273406
+          },
+          {
+            "time": 218.09850397940073
+          },
+          {
+            "time": 219.30117064606742
+          },
+          {
+            "time": 220.48250397940075
+          },
+          {
+            "time": 221.70650397940074
+          },
+          {
+            "time": 223.00783731273407
+          },
+          {
+            "time": 224.22383731273408
+          },
+          {
+            "time": 225.39983731273406
+          },
+          {
+            "time": 226.5838373127341
+          },
+          {
+            "time": 227.80250397940074
+          },
+          {
+            "time": 229.05583731273407
+          },
+          {
+            "time": 230.26917064606738
+          },
+          {
+            "time": 231.51717064606737
+          },
+          {
+            "time": 232.7731706460674
+          }
+        ],
+        "part_starts": [
+          {
+            "bar_num": 1,
+            "name": "Intro (Gitarre)",
+            "light_template": "Spot auf Pete",
+            "instrumental": true
+          },
+          {
+            "bar_num": 9,
+            "name": "Intro (+ Drums)",
+            "light_template": "Spot auf Tim",
+            "instrumental": true
+          },
+          {
+            "bar_num": 17,
+            "name": "Intro (+ Bass)",
+            "light_template": "Spot auf Bibo",
+            "instrumental": true
+          },
+          {
+            "bar_num": 26,
+            "name": "Intro (+Lead Guitar)",
+            "light_template": "Spot auf Axel",
+            "instrumental": true
+          },
+          {
+            "bar_num": 33,
+            "name": "Verse 1",
+            "light_template": "02 slow blue"
+          },
+          {
+            "bar_num": 63,
+            "name": "Chorus 1",
+            "light_template": "03 walking"
+          },
+          {
+            "bar_num": 79,
+            "name": "Verse 2",
+            "light_template": "02 slow blue"
+          },
+          {
+            "bar_num": 99,
+            "name": "Chorus 2",
+            "light_template": "03 walking"
+          },
+          {
+            "bar_num": 115,
+            "name": "Guitar Solo",
+            "light_template": "Spot auf Axel",
+            "instrumental": true
+          },
+          {
+            "bar_num": 135,
+            "name": "Chorus 3",
+            "light_template": "03 walking"
+          },
+          {
+            "bar_num": 150,
+            "name": "Stop",
+            "light_template": "01 statisch bunt",
+            "instrumental": true
+          },
+          {
+            "bar_num": 152,
+            "name": "Verse 3",
+            "light_template": "02 slow blue"
+          },
+          {
+            "bar_num": 172,
+            "name": "Chorus 4",
+            "light_template": "03 walking"
+          },
+          {
+            "bar_num": 188,
+            "name": "Ausklang",
+            "light_template": "01 statisch bunt",
+            "instrumental": true
+          }
+        ]
+      },
+      "qlc_parts": {
+        "I9J0Xm_QP001": {
+          "pos": 1,
+          "name": "Intro",
+          "light_template": "Spot auf Pete",
+          "notes": ""
+        },
+        "I9J0Xm_QP002": {
+          "pos": 2,
+          "name": "Verse 1",
+          "light_template": "02 slow blue",
+          "notes": ""
+        },
+        "I9J0Xm_QP003": {
+          "pos": 3,
+          "name": "Chorus 1",
+          "light_template": "03 walking",
+          "notes": ""
+        },
+        "I9J0Xm_QP004": {
+          "pos": 4,
+          "name": "Verse 2",
+          "light_template": "02 slow blue",
+          "notes": ""
+        },
+        "I9J0Xm_QP005": {
+          "pos": 5,
+          "name": "Chorus 2",
+          "light_template": "03 walking",
+          "notes": ""
+        },
+        "I9J0Xm_QP006": {
+          "pos": 6,
+          "name": "Solo Axel",
+          "light_template": "Spot auf Axel",
+          "notes": ""
+        },
+        "I9J0Xm_QP007": {
+          "pos": 7,
+          "name": "Chorus 3",
+          "light_template": "03 walking",
+          "notes": ""
+        },
+        "I9J0Xm_QP008": {
+          "pos": 8,
+          "name": "STOP",
+          "light_template": "01 statisch bunt",
+          "notes": ""
+        },
+        "I9J0Xm_QP009": {
+          "pos": 9,
+          "name": "Verse 3",
+          "light_template": "02 slow blue",
+          "notes": ""
+        },
+        "I9J0Xm_QP010": {
+          "pos": 10,
+          "name": "Chorus 4",
+          "light_template": "03 walking",
+          "notes": ""
+        },
+        "I9J0Xm_QP011": {
+          "pos": 11,
+          "name": "Ausklang",
+          "light_template": "01 statisch bunt",
+          "notes": ""
+        }
+      },
+      "anchors": [
+        {
+          "id": "anc_moblae2m_rhi1",
+          "pos": 1,
+          "type": "drum",
+          "event": "Einsatz",
+          "part_hint": "Intro (+ Drums)",
+          "bar_num": 9,
+          "beat": "1"
+        },
+        {
+          "id": "anc_moblalc7_smst",
+          "pos": 2,
+          "type": "bass",
+          "event": "",
+          "part_hint": "Intro (+ Bass)",
+          "bar_num": 17,
+          "beat": "1"
+        },
+        {
+          "id": "anc_moblar8m_9d5b",
+          "pos": 3,
+          "type": "guitar",
+          "event": "",
+          "part_hint": "Intro (+Lead Guitar)",
+          "bar_num": 26,
+          "beat": "1"
+        },
+        {
+          "id": "anc_moblb6j5_ie6s",
+          "pos": 4,
+          "type": "pete",
+          "event": "Einsatz",
+          "part_hint": "Verse 1",
+          "bar_num": 33,
+          "beat": "1"
+        },
+        {
+          "id": "anc_moblbw1m_nmq4",
+          "pos": 5,
+          "type": "bass",
+          "event": "",
+          "part_hint": "Chorus 1",
+          "bar_num": null,
+          "beat": ""
+        },
+        {
+          "id": "anc_moblc93l_4j80",
+          "pos": 6,
+          "type": "pete",
+          "event": "Hört auf",
+          "part_hint": "Guitar Solo",
+          "bar_num": 115,
+          "beat": "1"
+        },
+        {
+          "id": "anc_moblcjll_nuv4",
+          "pos": 7,
+          "type": "pete",
+          "event": "Einsatz",
+          "part_hint": "Chorus 3",
+          "bar_num": 135,
+          "beat": "1"
+        },
+        {
+          "id": "anc_moblctrh_tjuu",
+          "pos": 8,
+          "type": "silence",
+          "event": "Komplette Stille",
+          "part_hint": "Stop",
+          "bar_num": 150,
+          "beat": "1+"
+        },
+        {
+          "id": "anc_mobldgm7_qfhd",
+          "pos": 9,
+          "type": "other",
+          "event": "Einsatz",
+          "part_hint": "Verse 3",
+          "bar_num": 152,
+          "beat": "1"
+        }
+      ]
     },
     "gRbHPO": {
       "name": "Last Resort",
@@ -21883,6 +23708,2862 @@
       "lyrics": "",
       "audio": "",
       "has_accents": false
+    },
+    "B2134": {
+      "song_id": "I9J0Xm",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2135": {
+      "song_id": "I9J0Xm",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2136": {
+      "song_id": "I9J0Xm",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2137": {
+      "song_id": "I9J0Xm",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2138": {
+      "song_id": "I9J0Xm",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2139": {
+      "song_id": "I9J0Xm",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2140": {
+      "song_id": "I9J0Xm",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2141": {
+      "song_id": "I9J0Xm",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2142": {
+      "song_id": "I9J0Xm",
+      "bar_num": 9,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2143": {
+      "song_id": "I9J0Xm",
+      "bar_num": 10,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2144": {
+      "song_id": "I9J0Xm",
+      "bar_num": 11,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2145": {
+      "song_id": "I9J0Xm",
+      "bar_num": 12,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2146": {
+      "song_id": "I9J0Xm",
+      "bar_num": 13,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2147": {
+      "song_id": "I9J0Xm",
+      "bar_num": 14,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2148": {
+      "song_id": "I9J0Xm",
+      "bar_num": 15,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2149": {
+      "song_id": "I9J0Xm",
+      "bar_num": 16,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2150": {
+      "song_id": "I9J0Xm",
+      "bar_num": 17,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2151": {
+      "song_id": "I9J0Xm",
+      "bar_num": 18,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2152": {
+      "song_id": "I9J0Xm",
+      "bar_num": 19,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2153": {
+      "song_id": "I9J0Xm",
+      "bar_num": 20,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2154": {
+      "song_id": "I9J0Xm",
+      "bar_num": 21,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2155": {
+      "song_id": "I9J0Xm",
+      "bar_num": 22,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2156": {
+      "song_id": "I9J0Xm",
+      "bar_num": 23,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2157": {
+      "song_id": "I9J0Xm",
+      "bar_num": 24,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2158": {
+      "song_id": "I9J0Xm",
+      "bar_num": 25,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2159": {
+      "song_id": "I9J0Xm",
+      "bar_num": 26,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2160": {
+      "song_id": "I9J0Xm",
+      "bar_num": 27,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2161": {
+      "song_id": "I9J0Xm",
+      "bar_num": 28,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2162": {
+      "song_id": "I9J0Xm",
+      "bar_num": 29,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2163": {
+      "song_id": "I9J0Xm",
+      "bar_num": 30,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2164": {
+      "song_id": "I9J0Xm",
+      "bar_num": 31,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2165": {
+      "song_id": "I9J0Xm",
+      "bar_num": 32,
+      "lyrics": "Last\n",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2166": {
+      "song_id": "I9J0Xm",
+      "bar_num": 33,
+      "lyrics": "nite",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2167": {
+      "song_id": "I9J0Xm",
+      "bar_num": 34,
+      "lyrics": "she",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2168": {
+      "song_id": "I9J0Xm",
+      "bar_num": 35,
+      "lyrics": "said, oh",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2169": {
+      "song_id": "I9J0Xm",
+      "bar_num": 36,
+      "lyrics": "baby I",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2170": {
+      "song_id": "I9J0Xm",
+      "bar_num": 37,
+      "lyrics": "feel so down",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2171": {
+      "song_id": "I9J0Xm",
+      "bar_num": 38,
+      "lyrics": "When",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2172": {
+      "song_id": "I9J0Xm",
+      "bar_num": 39,
+      "lyrics": "you turn me off,",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2173": {
+      "song_id": "I9J0Xm",
+      "bar_num": 40,
+      "lyrics": "when I",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2174": {
+      "song_id": "I9J0Xm",
+      "bar_num": 41,
+      "lyrics": "feel left out",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2175": {
+      "song_id": "I9J0Xm",
+      "bar_num": 42,
+      "lyrics": "So",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2176": {
+      "song_id": "I9J0Xm",
+      "bar_num": 43,
+      "lyrics": "I turned,",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2177": {
+      "song_id": "I9J0Xm",
+      "bar_num": 44,
+      "lyrics": "turned round",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2178": {
+      "song_id": "I9J0Xm",
+      "bar_num": 45,
+      "lyrics": "Oh baby don't",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2179": {
+      "song_id": "I9J0Xm",
+      "bar_num": 46,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2180": {
+      "song_id": "I9J0Xm",
+      "bar_num": 47,
+      "lyrics": "care no",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2181": {
+      "song_id": "I9J0Xm",
+      "bar_num": 48,
+      "lyrics": "more, I",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2182": {
+      "song_id": "I9J0Xm",
+      "bar_num": 49,
+      "lyrics": "know this",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2183": {
+      "song_id": "I9J0Xm",
+      "bar_num": 50,
+      "lyrics": "for sure",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2184": {
+      "song_id": "I9J0Xm",
+      "bar_num": 51,
+      "lyrics": "I'm walking",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2185": {
+      "song_id": "I9J0Xm",
+      "bar_num": 52,
+      "lyrics": "out that",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2186": {
+      "song_id": "I9J0Xm",
+      "bar_num": 53,
+      "lyrics": "door Well",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2187": {
+      "song_id": "I9J0Xm",
+      "bar_num": 54,
+      "lyrics": "I've been",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2188": {
+      "song_id": "I9J0Xm",
+      "bar_num": 55,
+      "lyrics": "in town",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2189": {
+      "song_id": "I9J0Xm",
+      "bar_num": 56,
+      "lyrics": "for about",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2190": {
+      "song_id": "I9J0Xm",
+      "bar_num": 57,
+      "lyrics": "fiteen whole",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2191": {
+      "song_id": "I9J0Xm",
+      "bar_num": 58,
+      "lyrics": "minutes now",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2192": {
+      "song_id": "I9J0Xm",
+      "bar_num": 59,
+      "lyrics": "And baby",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2193": {
+      "song_id": "I9J0Xm",
+      "bar_num": 60,
+      "lyrics": "I feel",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2194": {
+      "song_id": "I9J0Xm",
+      "bar_num": 61,
+      "lyrics": "so down",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2195": {
+      "song_id": "I9J0Xm",
+      "bar_num": 62,
+      "lyrics": "And I don't know why I've been walking for miles\n",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2196": {
+      "song_id": "I9J0Xm",
+      "bar_num": 63,
+      "lyrics": "People",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2197": {
+      "song_id": "I9J0Xm",
+      "bar_num": 64,
+      "lyrics": "they don't under-",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2198": {
+      "song_id": "I9J0Xm",
+      "bar_num": 65,
+      "lyrics": "stand",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2199": {
+      "song_id": "I9J0Xm",
+      "bar_num": 66,
+      "lyrics": "Your\n",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2200": {
+      "song_id": "I9J0Xm",
+      "bar_num": 67,
+      "lyrics": "girlfriends",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2201": {
+      "song_id": "I9J0Xm",
+      "bar_num": 68,
+      "lyrics": "they can't under-",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2202": {
+      "song_id": "I9J0Xm",
+      "bar_num": 69,
+      "lyrics": "stand",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2203": {
+      "song_id": "I9J0Xm",
+      "bar_num": 70,
+      "lyrics": "Your\n",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2204": {
+      "song_id": "I9J0Xm",
+      "bar_num": 71,
+      "lyrics": "grandsons",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2205": {
+      "song_id": "I9J0Xm",
+      "bar_num": 72,
+      "lyrics": "they won't under-",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2206": {
+      "song_id": "I9J0Xm",
+      "bar_num": 73,
+      "lyrics": "stand",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2207": {
+      "song_id": "I9J0Xm",
+      "bar_num": 74,
+      "lyrics": "On\n",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2208": {
+      "song_id": "I9J0Xm",
+      "bar_num": 75,
+      "lyrics": "top of this I ain't",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2209": {
+      "song_id": "I9J0Xm",
+      "bar_num": 76,
+      "lyrics": "ever going to",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2210": {
+      "song_id": "I9J0Xm",
+      "bar_num": 77,
+      "lyrics": "understand",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2211": {
+      "song_id": "I9J0Xm",
+      "bar_num": 78,
+      "lyrics": "Last\n",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2212": {
+      "song_id": "I9J0Xm",
+      "bar_num": 79,
+      "lyrics": "nite",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2213": {
+      "song_id": "I9J0Xm",
+      "bar_num": 80,
+      "lyrics": "she",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2214": {
+      "song_id": "I9J0Xm",
+      "bar_num": 81,
+      "lyrics": "said, oh",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2215": {
+      "song_id": "I9J0Xm",
+      "bar_num": 82,
+      "lyrics": "baby don't",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2216": {
+      "song_id": "I9J0Xm",
+      "bar_num": 83,
+      "lyrics": "feel so down",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2217": {
+      "song_id": "I9J0Xm",
+      "bar_num": 84,
+      "lyrics": "When you",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2218": {
+      "song_id": "I9J0Xm",
+      "bar_num": 85,
+      "lyrics": "turn me",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2219": {
+      "song_id": "I9J0Xm",
+      "bar_num": 86,
+      "lyrics": "off, when",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2220": {
+      "song_id": "I9J0Xm",
+      "bar_num": 87,
+      "lyrics": "I feel",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2221": {
+      "song_id": "I9J0Xm",
+      "bar_num": 88,
+      "lyrics": "left out",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2222": {
+      "song_id": "I9J0Xm",
+      "bar_num": 89,
+      "lyrics": "So I,",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2223": {
+      "song_id": "I9J0Xm",
+      "bar_num": 90,
+      "lyrics": "turned turned",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2224": {
+      "song_id": "I9J0Xm",
+      "bar_num": 91,
+      "lyrics": "round Oh",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2225": {
+      "song_id": "I9J0Xm",
+      "bar_num": 92,
+      "lyrics": "baby going",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2226": {
+      "song_id": "I9J0Xm",
+      "bar_num": 93,
+      "lyrics": "to be",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2227": {
+      "song_id": "I9J0Xm",
+      "bar_num": 94,
+      "lyrics": "alright, it",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2228": {
+      "song_id": "I9J0Xm",
+      "bar_num": 95,
+      "lyrics": "was a",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2229": {
+      "song_id": "I9J0Xm",
+      "bar_num": 96,
+      "lyrics": "great big",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2230": {
+      "song_id": "I9J0Xm",
+      "bar_num": 97,
+      "lyrics": "lie Cause",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2231": {
+      "song_id": "I9J0Xm",
+      "bar_num": 98,
+      "lyrics": "I left\n",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2232": {
+      "song_id": "I9J0Xm",
+      "bar_num": 99,
+      "lyrics": "that night",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2233": {
+      "song_id": "I9J0Xm",
+      "bar_num": 100,
+      "lyrics": "yeah People",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2234": {
+      "song_id": "I9J0Xm",
+      "bar_num": 101,
+      "lyrics": "they don't",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2235": {
+      "song_id": "I9J0Xm",
+      "bar_num": 102,
+      "lyrics": "understand Your",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2236": {
+      "song_id": "I9J0Xm",
+      "bar_num": 103,
+      "lyrics": "girlfriends they",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2237": {
+      "song_id": "I9J0Xm",
+      "bar_num": 104,
+      "lyrics": "don't understand",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2238": {
+      "song_id": "I9J0Xm",
+      "bar_num": 105,
+      "lyrics": "In spaceships",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2239": {
+      "song_id": "I9J0Xm",
+      "bar_num": 106,
+      "lyrics": "they can't",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2240": {
+      "song_id": "I9J0Xm",
+      "bar_num": 107,
+      "lyrics": "understand And",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2241": {
+      "song_id": "I9J0Xm",
+      "bar_num": 108,
+      "lyrics": "me I",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2242": {
+      "song_id": "I9J0Xm",
+      "bar_num": 109,
+      "lyrics": "ain't ever",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2243": {
+      "song_id": "I9J0Xm",
+      "bar_num": 110,
+      "lyrics": "going to",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2244": {
+      "song_id": "I9J0Xm",
+      "bar_num": 111,
+      "lyrics": "understand Last",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2245": {
+      "song_id": "I9J0Xm",
+      "bar_num": 112,
+      "lyrics": "nite she",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2246": {
+      "song_id": "I9J0Xm",
+      "bar_num": 113,
+      "lyrics": "said, oh",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2247": {
+      "song_id": "I9J0Xm",
+      "bar_num": 114,
+      "lyrics": "baby don't\n",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2248": {
+      "song_id": "I9J0Xm",
+      "bar_num": 115,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2249": {
+      "song_id": "I9J0Xm",
+      "bar_num": 116,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2250": {
+      "song_id": "I9J0Xm",
+      "bar_num": 117,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2251": {
+      "song_id": "I9J0Xm",
+      "bar_num": 118,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2252": {
+      "song_id": "I9J0Xm",
+      "bar_num": 119,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2253": {
+      "song_id": "I9J0Xm",
+      "bar_num": 120,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2254": {
+      "song_id": "I9J0Xm",
+      "bar_num": 121,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2255": {
+      "song_id": "I9J0Xm",
+      "bar_num": 122,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2256": {
+      "song_id": "I9J0Xm",
+      "bar_num": 123,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2257": {
+      "song_id": "I9J0Xm",
+      "bar_num": 124,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2258": {
+      "song_id": "I9J0Xm",
+      "bar_num": 125,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2259": {
+      "song_id": "I9J0Xm",
+      "bar_num": 126,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2260": {
+      "song_id": "I9J0Xm",
+      "bar_num": 127,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2261": {
+      "song_id": "I9J0Xm",
+      "bar_num": 128,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2262": {
+      "song_id": "I9J0Xm",
+      "bar_num": 129,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2263": {
+      "song_id": "I9J0Xm",
+      "bar_num": 130,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2264": {
+      "song_id": "I9J0Xm",
+      "bar_num": 131,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2265": {
+      "song_id": "I9J0Xm",
+      "bar_num": 132,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2266": {
+      "song_id": "I9J0Xm",
+      "bar_num": 133,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2267": {
+      "song_id": "I9J0Xm",
+      "bar_num": 134,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2268": {
+      "song_id": "I9J0Xm",
+      "bar_num": 135,
+      "lyrics": "feel so",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2269": {
+      "song_id": "I9J0Xm",
+      "bar_num": 136,
+      "lyrics": "down Well",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2270": {
+      "song_id": "I9J0Xm",
+      "bar_num": 137,
+      "lyrics": "she turn",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2271": {
+      "song_id": "I9J0Xm",
+      "bar_num": 138,
+      "lyrics": "me off,",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2272": {
+      "song_id": "I9J0Xm",
+      "bar_num": 139,
+      "lyrics": "when I",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2273": {
+      "song_id": "I9J0Xm",
+      "bar_num": 140,
+      "lyrics": "feel left",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2274": {
+      "song_id": "I9J0Xm",
+      "bar_num": 141,
+      "lyrics": "out So",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2275": {
+      "song_id": "I9J0Xm",
+      "bar_num": 142,
+      "lyrics": "I, I",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2276": {
+      "song_id": "I9J0Xm",
+      "bar_num": 143,
+      "lyrics": "turned round",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2277": {
+      "song_id": "I9J0Xm",
+      "bar_num": 144,
+      "lyrics": "Oh little",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2278": {
+      "song_id": "I9J0Xm",
+      "bar_num": 145,
+      "lyrics": "girl I",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2279": {
+      "song_id": "I9J0Xm",
+      "bar_num": 146,
+      "lyrics": "don't care",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2280": {
+      "song_id": "I9J0Xm",
+      "bar_num": 147,
+      "lyrics": "no more,",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2281": {
+      "song_id": "I9J0Xm",
+      "bar_num": 148,
+      "lyrics": "I know",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2282": {
+      "song_id": "I9J0Xm",
+      "bar_num": 149,
+      "lyrics": "this for\n",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2283": {
+      "song_id": "I9J0Xm",
+      "bar_num": 150,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": true
+    },
+    "B2284": {
+      "song_id": "I9J0Xm",
+      "bar_num": 151,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2285": {
+      "song_id": "I9J0Xm",
+      "bar_num": 152,
+      "lyrics": "sure I'm",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2286": {
+      "song_id": "I9J0Xm",
+      "bar_num": 153,
+      "lyrics": "walking out",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2287": {
+      "song_id": "I9J0Xm",
+      "bar_num": 154,
+      "lyrics": "that door",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2288": {
+      "song_id": "I9J0Xm",
+      "bar_num": 155,
+      "lyrics": "yeah",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2289": {
+      "song_id": "I9J0Xm",
+      "bar_num": 156,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2290": {
+      "song_id": "I9J0Xm",
+      "bar_num": 157,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2291": {
+      "song_id": "I9J0Xm",
+      "bar_num": 158,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2292": {
+      "song_id": "I9J0Xm",
+      "bar_num": 159,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2293": {
+      "song_id": "I9J0Xm",
+      "bar_num": 160,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2294": {
+      "song_id": "I9J0Xm",
+      "bar_num": 161,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2295": {
+      "song_id": "I9J0Xm",
+      "bar_num": 162,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2296": {
+      "song_id": "I9J0Xm",
+      "bar_num": 163,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2297": {
+      "song_id": "I9J0Xm",
+      "bar_num": 164,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2298": {
+      "song_id": "I9J0Xm",
+      "bar_num": 165,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2299": {
+      "song_id": "I9J0Xm",
+      "bar_num": 166,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2300": {
+      "song_id": "I9J0Xm",
+      "bar_num": 167,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2301": {
+      "song_id": "I9J0Xm",
+      "bar_num": 168,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2302": {
+      "song_id": "I9J0Xm",
+      "bar_num": 169,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2303": {
+      "song_id": "I9J0Xm",
+      "bar_num": 170,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2304": {
+      "song_id": "I9J0Xm",
+      "bar_num": 171,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2305": {
+      "song_id": "I9J0Xm",
+      "bar_num": 172,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2306": {
+      "song_id": "I9J0Xm",
+      "bar_num": 173,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2307": {
+      "song_id": "I9J0Xm",
+      "bar_num": 174,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2308": {
+      "song_id": "I9J0Xm",
+      "bar_num": 175,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2309": {
+      "song_id": "I9J0Xm",
+      "bar_num": 176,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2310": {
+      "song_id": "I9J0Xm",
+      "bar_num": 177,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2311": {
+      "song_id": "I9J0Xm",
+      "bar_num": 178,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2312": {
+      "song_id": "I9J0Xm",
+      "bar_num": 179,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2313": {
+      "song_id": "I9J0Xm",
+      "bar_num": 180,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2314": {
+      "song_id": "I9J0Xm",
+      "bar_num": 181,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2315": {
+      "song_id": "I9J0Xm",
+      "bar_num": 182,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2316": {
+      "song_id": "I9J0Xm",
+      "bar_num": 183,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2317": {
+      "song_id": "I9J0Xm",
+      "bar_num": 184,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2318": {
+      "song_id": "I9J0Xm",
+      "bar_num": 185,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2319": {
+      "song_id": "I9J0Xm",
+      "bar_num": 186,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2320": {
+      "song_id": "I9J0Xm",
+      "bar_num": 187,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2321": {
+      "song_id": "I9J0Xm",
+      "bar_num": 188,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2322": {
+      "song_id": "B3R92r",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false,
+      "instrumental": true
+    },
+    "B2323": {
+      "song_id": "B3R92r",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false,
+      "instrumental": true
+    },
+    "B2324": {
+      "song_id": "B3R92r",
+      "bar_num": 3,
+      "lyrics": "Baby,",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2325": {
+      "song_id": "B3R92r",
+      "bar_num": 4,
+      "lyrics": "join me in death",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2326": {
+      "song_id": "B3R92r",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false,
+      "instrumental": true
+    },
+    "B2327": {
+      "song_id": "B3R92r",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false,
+      "instrumental": true
+    },
+    "B2328": {
+      "song_id": "B3R92r",
+      "bar_num": 7,
+      "lyrics": "Baby,",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2329": {
+      "song_id": "B3R92r",
+      "bar_num": 8,
+      "lyrics": "join me in death\n",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2330": {
+      "song_id": "B3R92r",
+      "bar_num": 9,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false,
+      "instrumental": true
+    },
+    "B2331": {
+      "song_id": "B3R92r",
+      "bar_num": 10,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false,
+      "instrumental": true
+    },
+    "B2332": {
+      "song_id": "B3R92r",
+      "bar_num": 11,
+      "lyrics": "Baby,",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2333": {
+      "song_id": "B3R92r",
+      "bar_num": 12,
+      "lyrics": "join me in death",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2334": {
+      "song_id": "B3R92r",
+      "bar_num": 13,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false,
+      "instrumental": true
+    },
+    "B2335": {
+      "song_id": "B3R92r",
+      "bar_num": 14,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false,
+      "instrumental": true
+    },
+    "B2336": {
+      "song_id": "B3R92r",
+      "bar_num": 15,
+      "lyrics": "We are so",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2337": {
+      "song_id": "B3R92r",
+      "bar_num": 16,
+      "lyrics": "young Our",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2338": {
+      "song_id": "B3R92r",
+      "bar_num": 17,
+      "lyrics": "lives have just",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2339": {
+      "song_id": "B3R92r",
+      "bar_num": 18,
+      "lyrics": "begun But",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2340": {
+      "song_id": "B3R92r",
+      "bar_num": 19,
+      "lyrics": "already, we are",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2341": {
+      "song_id": "B3R92r",
+      "bar_num": 20,
+      "lyrics": "considering",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2342": {
+      "song_id": "B3R92r",
+      "bar_num": 21,
+      "lyrics": "Escape from this",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2343": {
+      "song_id": "B3R92r",
+      "bar_num": 22,
+      "lyrics": "world And we've",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2344": {
+      "song_id": "B3R92r",
+      "bar_num": 23,
+      "lyrics": "waited for",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2345": {
+      "song_id": "B3R92r",
+      "bar_num": 24,
+      "lyrics": "so long",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2346": {
+      "song_id": "B3R92r",
+      "bar_num": 25,
+      "lyrics": "For this moment to",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2347": {
+      "song_id": "B3R92r",
+      "bar_num": 26,
+      "lyrics": "come We're so",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2348": {
+      "song_id": "B3R92r",
+      "bar_num": 27,
+      "lyrics": "anxious to be",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2349": {
+      "song_id": "B3R92r",
+      "bar_num": 28,
+      "lyrics": "together",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2350": {
+      "song_id": "B3R92r",
+      "bar_num": 29,
+      "lyrics": "Together in",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2351": {
+      "song_id": "B3R92r",
+      "bar_num": 30,
+      "lyrics": "death Whoa-oh\n",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2352": {
+      "song_id": "B3R92r",
+      "bar_num": 31,
+      "lyrics": "Won't you die",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2353": {
+      "song_id": "B3R92r",
+      "bar_num": 32,
+      "lyrics": "tonight for love?",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2354": {
+      "song_id": "B3R92r",
+      "bar_num": 33,
+      "lyrics": "Baby, join",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2355": {
+      "song_id": "B3R92r",
+      "bar_num": 34,
+      "lyrics": "me in death\n",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2356": {
+      "song_id": "B3R92r",
+      "bar_num": 35,
+      "lyrics": "Won't you",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2357": {
+      "song_id": "B3R92r",
+      "bar_num": 36,
+      "lyrics": "die?",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2358": {
+      "song_id": "B3R92r",
+      "bar_num": 37,
+      "lyrics": "Baby, join",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2359": {
+      "song_id": "B3R92r",
+      "bar_num": 38,
+      "lyrics": "me in death\n",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2360": {
+      "song_id": "B3R92r",
+      "bar_num": 39,
+      "lyrics": "But won't you die",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2361": {
+      "song_id": "B3R92r",
+      "bar_num": 40,
+      "lyrics": "tonight for love?",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2362": {
+      "song_id": "B3R92r",
+      "bar_num": 41,
+      "lyrics": "Baby, join",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2363": {
+      "song_id": "B3R92r",
+      "bar_num": 42,
+      "lyrics": "me in death",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2364": {
+      "song_id": "B3R92r",
+      "bar_num": 43,
+      "lyrics": "join",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2365": {
+      "song_id": "B3R92r",
+      "bar_num": 44,
+      "lyrics": "me in death\n",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2366": {
+      "song_id": "B3R92r",
+      "bar_num": 45,
+      "lyrics": "This world is a",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2367": {
+      "song_id": "B3R92r",
+      "bar_num": 46,
+      "lyrics": "cruel place And",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2368": {
+      "song_id": "B3R92r",
+      "bar_num": 47,
+      "lyrics": "we're here only to",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2369": {
+      "song_id": "B3R92r",
+      "bar_num": 48,
+      "lyrics": "lose So, before",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2370": {
+      "song_id": "B3R92r",
+      "bar_num": 49,
+      "lyrics": "life tears us apart",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2371": {
+      "song_id": "B3R92r",
+      "bar_num": 50,
+      "lyrics": "Let death",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2372": {
+      "song_id": "B3R92r",
+      "bar_num": 51,
+      "lyrics": "bless me with",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2373": {
+      "song_id": "B3R92r",
+      "bar_num": 52,
+      "lyrics": "you Whoa-oh\n",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2374": {
+      "song_id": "B3R92r",
+      "bar_num": 53,
+      "lyrics": "Won't you die",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2375": {
+      "song_id": "B3R92r",
+      "bar_num": 54,
+      "lyrics": "tonight for love?",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2376": {
+      "song_id": "B3R92r",
+      "bar_num": 55,
+      "lyrics": "Baby, join",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2377": {
+      "song_id": "B3R92r",
+      "bar_num": 56,
+      "lyrics": "me in death",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2378": {
+      "song_id": "B3R92r",
+      "bar_num": 57,
+      "lyrics": "So, won't you",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2379": {
+      "song_id": "B3R92r",
+      "bar_num": 58,
+      "lyrics": "die?",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2380": {
+      "song_id": "B3R92r",
+      "bar_num": 59,
+      "lyrics": "Baby, join",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2381": {
+      "song_id": "B3R92r",
+      "bar_num": 60,
+      "lyrics": "me in death\n",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2382": {
+      "song_id": "B3R92r",
+      "bar_num": 61,
+      "lyrics": "But won't you die",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2383": {
+      "song_id": "B3R92r",
+      "bar_num": 62,
+      "lyrics": "tonight for love?",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2384": {
+      "song_id": "B3R92r",
+      "bar_num": 63,
+      "lyrics": "Baby, join",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2385": {
+      "song_id": "B3R92r",
+      "bar_num": 64,
+      "lyrics": "me in death",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2386": {
+      "song_id": "B3R92r",
+      "bar_num": 65,
+      "lyrics": "Join",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2387": {
+      "song_id": "B3R92r",
+      "bar_num": 66,
+      "lyrics": "me in death",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2388": {
+      "song_id": "B3R92r",
+      "bar_num": 67,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false,
+      "instrumental": true
+    },
+    "B2389": {
+      "song_id": "B3R92r",
+      "bar_num": 68,
+      "lyrics": "Whoa-oh\n",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2390": {
+      "song_id": "B3R92r",
+      "bar_num": 69,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false,
+      "instrumental": true
+    },
+    "B2391": {
+      "song_id": "B3R92r",
+      "bar_num": 70,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false,
+      "instrumental": true
+    },
+    "B2392": {
+      "song_id": "B3R92r",
+      "bar_num": 71,
+      "lyrics": "This life ain't",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2393": {
+      "song_id": "B3R92r",
+      "bar_num": 72,
+      "lyrics": "worth livin'",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2394": {
+      "song_id": "B3R92r",
+      "bar_num": 73,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false,
+      "instrumental": true
+    },
+    "B2395": {
+      "song_id": "B3R92r",
+      "bar_num": 74,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false,
+      "instrumental": true
+    },
+    "B2396": {
+      "song_id": "B3R92r",
+      "bar_num": 75,
+      "lyrics": "This life, it",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2397": {
+      "song_id": "B3R92r",
+      "bar_num": 76,
+      "lyrics": "ain't worth livin'",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2398": {
+      "song_id": "B3R92r",
+      "bar_num": 77,
+      "lyrics": "(Join me,",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2399": {
+      "song_id": "B3R92r",
+      "bar_num": 78,
+      "lyrics": "join me)",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2400": {
+      "song_id": "B3R92r",
+      "bar_num": 79,
+      "lyrics": "This life, it",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2401": {
+      "song_id": "B3R92r",
+      "bar_num": 80,
+      "lyrics": "ain't worth livin'",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2402": {
+      "song_id": "B3R92r",
+      "bar_num": 81,
+      "lyrics": "(Join me,",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2403": {
+      "song_id": "B3R92r",
+      "bar_num": 82,
+      "lyrics": "join me)",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2404": {
+      "song_id": "B3R92r",
+      "bar_num": 83,
+      "lyrics": "This life",
+      "audio": "",
+      "has_accents": true
+    },
+    "B2405": {
+      "song_id": "B3R92r",
+      "bar_num": 84,
+      "lyrics": "ain't worth livin'\n",
+      "audio": "",
+      "has_accents": true
+    },
+    "B2406": {
+      "song_id": "B3R92r",
+      "bar_num": 85,
+      "lyrics": "Won't you die",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2407": {
+      "song_id": "B3R92r",
+      "bar_num": 86,
+      "lyrics": "tonight for love?",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2408": {
+      "song_id": "B3R92r",
+      "bar_num": 87,
+      "lyrics": "Baby, join",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2409": {
+      "song_id": "B3R92r",
+      "bar_num": 88,
+      "lyrics": "me in death\n",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2410": {
+      "song_id": "B3R92r",
+      "bar_num": 89,
+      "lyrics": "So, won't you",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2411": {
+      "song_id": "B3R92r",
+      "bar_num": 90,
+      "lyrics": "die?",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2412": {
+      "song_id": "B3R92r",
+      "bar_num": 91,
+      "lyrics": "Baby, join",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2413": {
+      "song_id": "B3R92r",
+      "bar_num": 92,
+      "lyrics": "me in death\n",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2414": {
+      "song_id": "B3R92r",
+      "bar_num": 93,
+      "lyrics": "But won't you",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2415": {
+      "song_id": "B3R92r",
+      "bar_num": 94,
+      "lyrics": "die tonight for love?",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2416": {
+      "song_id": "B3R92r",
+      "bar_num": 95,
+      "lyrics": "Baby, join",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2417": {
+      "song_id": "B3R92r",
+      "bar_num": 96,
+      "lyrics": "me in death\n",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2418": {
+      "song_id": "B3R92r",
+      "bar_num": 97,
+      "lyrics": "Baby, join",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2419": {
+      "song_id": "B3R92r",
+      "bar_num": 98,
+      "lyrics": "me in death\n",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2420": {
+      "song_id": "B3R92r",
+      "bar_num": 99,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false,
+      "instrumental": true
+    },
+    "B2421": {
+      "song_id": "mBeBeI",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2422": {
+      "song_id": "mBeBeI",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2423": {
+      "song_id": "mBeBeI",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2424": {
+      "song_id": "mBeBeI",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2425": {
+      "song_id": "mBeBeI",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2426": {
+      "song_id": "mBeBeI",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2427": {
+      "song_id": "mBeBeI",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2428": {
+      "song_id": "mBeBeI",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2429": {
+      "song_id": "mBeBeI",
+      "bar_num": 9,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2430": {
+      "song_id": "mBeBeI",
+      "bar_num": 10,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2431": {
+      "song_id": "mBeBeI",
+      "bar_num": 11,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2432": {
+      "song_id": "mBeBeI",
+      "bar_num": 12,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2433": {
+      "song_id": "mBeBeI",
+      "bar_num": 13,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2434": {
+      "song_id": "mBeBeI",
+      "bar_num": 14,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2435": {
+      "song_id": "mBeBeI",
+      "bar_num": 15,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2436": {
+      "song_id": "mBeBeI",
+      "bar_num": 16,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2437": {
+      "song_id": "mBeBeI",
+      "bar_num": 17,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2438": {
+      "song_id": "mBeBeI",
+      "bar_num": 18,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2439": {
+      "song_id": "mBeBeI",
+      "bar_num": 19,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2440": {
+      "song_id": "mBeBeI",
+      "bar_num": 20,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2441": {
+      "song_id": "mBeBeI",
+      "bar_num": 21,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2442": {
+      "song_id": "mBeBeI",
+      "bar_num": 22,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2443": {
+      "song_id": "mBeBeI",
+      "bar_num": 23,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2444": {
+      "song_id": "mBeBeI",
+      "bar_num": 24,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2445": {
+      "song_id": "mBeBeI",
+      "bar_num": 25,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2446": {
+      "song_id": "mBeBeI",
+      "bar_num": 26,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2447": {
+      "song_id": "mBeBeI",
+      "bar_num": 27,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2448": {
+      "song_id": "mBeBeI",
+      "bar_num": 28,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2449": {
+      "song_id": "mBeBeI",
+      "bar_num": 29,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2450": {
+      "song_id": "mBeBeI",
+      "bar_num": 30,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2451": {
+      "song_id": "mBeBeI",
+      "bar_num": 31,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2452": {
+      "song_id": "mBeBeI",
+      "bar_num": 32,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2453": {
+      "song_id": "mBeBeI",
+      "bar_num": 33,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2454": {
+      "song_id": "mBeBeI",
+      "bar_num": 34,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2455": {
+      "song_id": "mBeBeI",
+      "bar_num": 35,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2456": {
+      "song_id": "mBeBeI",
+      "bar_num": 36,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2457": {
+      "song_id": "mBeBeI",
+      "bar_num": 37,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2458": {
+      "song_id": "mBeBeI",
+      "bar_num": 38,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2459": {
+      "song_id": "mBeBeI",
+      "bar_num": 39,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2460": {
+      "song_id": "mBeBeI",
+      "bar_num": 40,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2461": {
+      "song_id": "mBeBeI",
+      "bar_num": 41,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2462": {
+      "song_id": "mBeBeI",
+      "bar_num": 42,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2463": {
+      "song_id": "mBeBeI",
+      "bar_num": 43,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2464": {
+      "song_id": "mBeBeI",
+      "bar_num": 44,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2465": {
+      "song_id": "mBeBeI",
+      "bar_num": 45,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2466": {
+      "song_id": "mBeBeI",
+      "bar_num": 46,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2467": {
+      "song_id": "mBeBeI",
+      "bar_num": 47,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2468": {
+      "song_id": "mBeBeI",
+      "bar_num": 48,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2469": {
+      "song_id": "mBeBeI",
+      "bar_num": 49,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2470": {
+      "song_id": "mBeBeI",
+      "bar_num": 50,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2471": {
+      "song_id": "mBeBeI",
+      "bar_num": 51,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2472": {
+      "song_id": "mBeBeI",
+      "bar_num": 52,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2473": {
+      "song_id": "mBeBeI",
+      "bar_num": 53,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2474": {
+      "song_id": "mBeBeI",
+      "bar_num": 54,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2475": {
+      "song_id": "mBeBeI",
+      "bar_num": 55,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2476": {
+      "song_id": "mBeBeI",
+      "bar_num": 56,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2477": {
+      "song_id": "mBeBeI",
+      "bar_num": 57,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2478": {
+      "song_id": "mBeBeI",
+      "bar_num": 58,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2479": {
+      "song_id": "mBeBeI",
+      "bar_num": 59,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2480": {
+      "song_id": "mBeBeI",
+      "bar_num": 60,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2481": {
+      "song_id": "mBeBeI",
+      "bar_num": 61,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2482": {
+      "song_id": "mBeBeI",
+      "bar_num": 62,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2483": {
+      "song_id": "mBeBeI",
+      "bar_num": 63,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2484": {
+      "song_id": "mBeBeI",
+      "bar_num": 64,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2485": {
+      "song_id": "mBeBeI",
+      "bar_num": 65,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2486": {
+      "song_id": "mBeBeI",
+      "bar_num": 66,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2487": {
+      "song_id": "mBeBeI",
+      "bar_num": 67,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2488": {
+      "song_id": "mBeBeI",
+      "bar_num": 68,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2489": {
+      "song_id": "mBeBeI",
+      "bar_num": 69,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2490": {
+      "song_id": "mBeBeI",
+      "bar_num": 70,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2491": {
+      "song_id": "mBeBeI",
+      "bar_num": 71,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2492": {
+      "song_id": "mBeBeI",
+      "bar_num": 72,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2493": {
+      "song_id": "mBeBeI",
+      "bar_num": 73,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2494": {
+      "song_id": "mBeBeI",
+      "bar_num": 74,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2495": {
+      "song_id": "mBeBeI",
+      "bar_num": 75,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2496": {
+      "song_id": "mBeBeI",
+      "bar_num": 76,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2497": {
+      "song_id": "mBeBeI",
+      "bar_num": 77,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2498": {
+      "song_id": "mBeBeI",
+      "bar_num": 78,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2499": {
+      "song_id": "mBeBeI",
+      "bar_num": 79,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2500": {
+      "song_id": "mBeBeI",
+      "bar_num": 80,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2501": {
+      "song_id": "mBeBeI",
+      "bar_num": 81,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2502": {
+      "song_id": "mBeBeI",
+      "bar_num": 82,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2503": {
+      "song_id": "mBeBeI",
+      "bar_num": 83,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2504": {
+      "song_id": "mBeBeI",
+      "bar_num": 84,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2505": {
+      "song_id": "mBeBeI",
+      "bar_num": 85,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2506": {
+      "song_id": "mBeBeI",
+      "bar_num": 86,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2507": {
+      "song_id": "mBeBeI",
+      "bar_num": 87,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2508": {
+      "song_id": "mBeBeI",
+      "bar_num": 88,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2509": {
+      "song_id": "mBeBeI",
+      "bar_num": 89,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2510": {
+      "song_id": "mBeBeI",
+      "bar_num": 90,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2511": {
+      "song_id": "mBeBeI",
+      "bar_num": 91,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2512": {
+      "song_id": "mBeBeI",
+      "bar_num": 92,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2513": {
+      "song_id": "mBeBeI",
+      "bar_num": 93,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2514": {
+      "song_id": "mBeBeI",
+      "bar_num": 94,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2515": {
+      "song_id": "mBeBeI",
+      "bar_num": 95,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2516": {
+      "song_id": "mBeBeI",
+      "bar_num": 96,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2517": {
+      "song_id": "mBeBeI",
+      "bar_num": 97,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2518": {
+      "song_id": "mBeBeI",
+      "bar_num": 98,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2519": {
+      "song_id": "mBeBeI",
+      "bar_num": 99,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2520": {
+      "song_id": "mBeBeI",
+      "bar_num": 100,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2521": {
+      "song_id": "mBeBeI",
+      "bar_num": 101,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2522": {
+      "song_id": "mBeBeI",
+      "bar_num": 102,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2523": {
+      "song_id": "mBeBeI",
+      "bar_num": 103,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2524": {
+      "song_id": "mBeBeI",
+      "bar_num": 104,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2525": {
+      "song_id": "mBeBeI",
+      "bar_num": 105,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2526": {
+      "song_id": "mBeBeI",
+      "bar_num": 106,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2527": {
+      "song_id": "mBeBeI",
+      "bar_num": 107,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2528": {
+      "song_id": "mBeBeI",
+      "bar_num": 108,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2529": {
+      "song_id": "mBeBeI",
+      "bar_num": 109,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2530": {
+      "song_id": "mBeBeI",
+      "bar_num": 110,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2531": {
+      "song_id": "mBeBeI",
+      "bar_num": 111,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2532": {
+      "song_id": "mBeBeI",
+      "bar_num": 112,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2533": {
+      "song_id": "mBeBeI",
+      "bar_num": 113,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2534": {
+      "song_id": "mBeBeI",
+      "bar_num": 114,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2535": {
+      "song_id": "mBeBeI",
+      "bar_num": 115,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2536": {
+      "song_id": "mBeBeI",
+      "bar_num": 116,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2537": {
+      "song_id": "mBeBeI",
+      "bar_num": 117,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2538": {
+      "song_id": "mBeBeI",
+      "bar_num": 118,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2539": {
+      "song_id": "mBeBeI",
+      "bar_num": 119,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
     }
   },
   "accents": {
@@ -23168,6 +27849,24 @@
       "bar_id": "B1728",
       "pos_16th": 1,
       "type": "hl",
+      "notes": ""
+    },
+    "A0231": {
+      "bar_id": "B2283",
+      "pos_16th": 1,
+      "type": "bo",
+      "notes": ""
+    },
+    "A0232": {
+      "bar_id": "B2404",
+      "pos_16th": 1,
+      "type": "hl",
+      "notes": ""
+    },
+    "A0233": {
+      "bar_id": "B2405",
+      "pos_16th": 9,
+      "type": "st",
       "notes": ""
     }
   },

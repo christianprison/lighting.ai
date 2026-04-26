@@ -33,10 +33,18 @@ class ServerConfig:
 
 
 @dataclass
+class DmxConfig:
+    sacn_universe: int = 1
+    sacn_multicast: bool = True
+    sacn_source_name: str = "lighting.ai fallback"
+
+
+@dataclass
 class Config:
     github: GitHubConfig = field(default_factory=GitHubConfig)
     qlc: QlcConfig = field(default_factory=QlcConfig)
     server: ServerConfig = field(default_factory=ServerConfig)
+    dmx: DmxConfig = field(default_factory=DmxConfig)
     base_dir: Path = _BASE_DIR
 
 
@@ -70,6 +78,13 @@ def load_config(path: Path | None = None) -> Config:
         cfg.server = ServerConfig(
             host=srv.get("host", cfg.server.host),
             port=int(srv.get("port", cfg.server.port)),
+        )
+
+        dmx = raw.get("dmx", {})
+        cfg.dmx = DmxConfig(
+            sacn_universe=int(dmx.get("sacn_universe", cfg.dmx.sacn_universe)),
+            sacn_multicast=bool(dmx.get("sacn_multicast", cfg.dmx.sacn_multicast)),
+            sacn_source_name=dmx.get("sacn_source_name", cfg.dmx.sacn_source_name),
         )
 
     # Env overrides

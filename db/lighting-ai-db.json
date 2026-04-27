@@ -9541,7 +9541,7 @@
       "duration": "3:57",
       "duration_sec": 237,
       "notes": "",
-      "lyrics_raw": "[Verse 1]\nEvery time I'm with it alone\nIt picks me up\nYou just send me down\nI can feel it rushing under my skin\nYou're a cage won't you let me in?\nOn my toes\nLock the door\nPretty face\nThrough the walls\nDon't know if I'd be so sure again\n\n[Chorus]\nMy eyes are still burning red\nSo turn the lights out\nYou're not so hard to forget\nWith all the lights out\n\n[Verse 2]\nEvery time I'm stuck in the ground\nSpin me round, won't you spin me round\nYou're a void, a crack in the mirror\nSee me now, if you could see me now\nYou slipped through\nThe night\nThen walked out\nSkin tight\nBut you don't matter that much to me\nNo you don't matter that much to me\n\n[Chorus]\nMy eyes are still burning red\nSo turn the lights out\nYou're not so hard to forget\nWith all the lights out\nSo turn the lights out\nJust turn the lights out\n\nMy eyes are still burning red\nSo turn the lights out\nYou're not so hard to forget\nWith all the lights out\n\n",
+      "lyrics_raw": "Every I’m with it alone It picks me time up You just send me down I can feel it rushing under my skin You’re a cage won’t you let me in? On my toes Lock the door Pretty face Through the walls Don’t know if I’d be so sure again My eyes are still burning red So turn the lights out You’re not so hard to forget With all the lights out Every time I’m stuck in the ground Spin me round, won’t you spin me round You’re a void, a crack in the mirror See me now, if you could see me now You slipped through The night Then walked out Skin tight But you don’t matter that much to me No you don’t matter that much to me My eyes are still burning red So turn the lights out You’re not so hard to forget With all the lights out So turn the lights out Just turn the lights out My eyes are still burning red So turn the lights out You’re not so hard to forget With all the lights out",
       "tms": {
         "manual_done": [
           "bar_markers",
@@ -26995,21 +26995,21 @@
     "B2542": {
       "song_id": "XJ5YzI",
       "bar_num": 3,
-      "lyrics": "",
+      "lyrics": "Every I’m with it alone",
       "audio": "",
       "has_accents": false
     },
     "B2543": {
       "song_id": "XJ5YzI",
       "bar_num": 4,
-      "lyrics": "",
+      "lyrics": "It picks me time",
       "audio": "",
       "has_accents": true
     },
     "B2544": {
       "song_id": "XJ5YzI",
       "bar_num": 5,
-      "lyrics": "",
+      "lyrics": "up You just send me down",
       "audio": "",
       "has_accents": false
     },
@@ -27024,7 +27024,7 @@
     "B2546": {
       "song_id": "XJ5YzI",
       "bar_num": 7,
-      "lyrics": "",
+      "lyrics": "I can feel it rushing",
       "audio": "",
       "has_accents": false
     },
@@ -27038,112 +27038,112 @@
     "B2548": {
       "song_id": "XJ5YzI",
       "bar_num": 9,
-      "lyrics": "",
+      "lyrics": "under my skin You’re",
       "audio": "",
       "has_accents": false
     },
     "B2549": {
       "song_id": "XJ5YzI",
       "bar_num": 10,
-      "lyrics": "",
+      "lyrics": "a cage won’t you\n",
       "audio": "",
       "has_accents": false
     },
     "B2550": {
       "song_id": "XJ5YzI",
       "bar_num": 11,
-      "lyrics": "",
+      "lyrics": "let me in? On",
       "audio": "",
       "has_accents": false
     },
     "B2551": {
       "song_id": "XJ5YzI",
       "bar_num": 12,
-      "lyrics": "",
+      "lyrics": "my toes Lock the",
       "audio": "",
       "has_accents": false
     },
     "B2552": {
       "song_id": "XJ5YzI",
       "bar_num": 13,
-      "lyrics": "",
+      "lyrics": "door Pretty face Through",
       "audio": "",
       "has_accents": false
     },
     "B2553": {
       "song_id": "XJ5YzI",
       "bar_num": 14,
-      "lyrics": "",
+      "lyrics": "the walls Don’t know",
       "audio": "",
       "has_accents": false
     },
     "B2554": {
       "song_id": "XJ5YzI",
       "bar_num": 15,
-      "lyrics": "",
+      "lyrics": "if I’d be so",
       "audio": "",
       "has_accents": false
     },
     "B2555": {
       "song_id": "XJ5YzI",
       "bar_num": 16,
-      "lyrics": "",
+      "lyrics": "sure again My eyes\n",
       "audio": "",
       "has_accents": false
     },
     "B2556": {
       "song_id": "XJ5YzI",
       "bar_num": 17,
-      "lyrics": "",
+      "lyrics": "are still burning red",
       "audio": "",
       "has_accents": false
     },
     "B2557": {
       "song_id": "XJ5YzI",
       "bar_num": 18,
-      "lyrics": "",
+      "lyrics": "So turn the lights",
       "audio": "",
       "has_accents": false
     },
     "B2558": {
       "song_id": "XJ5YzI",
       "bar_num": 19,
-      "lyrics": "",
+      "lyrics": "out You’re not so",
       "audio": "",
       "has_accents": false
     },
     "B2559": {
       "song_id": "XJ5YzI",
       "bar_num": 20,
-      "lyrics": "",
+      "lyrics": "hard to forget With",
       "audio": "",
       "has_accents": false
     },
     "B2560": {
       "song_id": "XJ5YzI",
       "bar_num": 21,
-      "lyrics": "",
+      "lyrics": "all the lights out",
       "audio": "",
       "has_accents": false
     },
     "B2561": {
       "song_id": "XJ5YzI",
       "bar_num": 22,
-      "lyrics": "",
+      "lyrics": "Every time I’m stuck",
       "audio": "",
       "has_accents": false
     },
     "B2562": {
       "song_id": "XJ5YzI",
       "bar_num": 23,
-      "lyrics": "",
+      "lyrics": "in the ground Spin",
       "audio": "",
       "has_accents": false
     },
     "B2563": {
       "song_id": "XJ5YzI",
       "bar_num": 24,
-      "lyrics": "",
+      "lyrics": "me round, won’t you\n",
       "audio": "",
       "has_accents": false
     },
@@ -27178,21 +27178,21 @@
     "B2568": {
       "song_id": "XJ5YzI",
       "bar_num": 29,
-      "lyrics": "",
+      "lyrics": "spin me round You’re",
       "audio": "",
       "has_accents": false
     },
     "B2569": {
       "song_id": "XJ5YzI",
       "bar_num": 30,
-      "lyrics": "",
+      "lyrics": "a void, a crack",
       "audio": "",
       "has_accents": false
     },
     "B2570": {
       "song_id": "XJ5YzI",
       "bar_num": 31,
-      "lyrics": "",
+      "lyrics": "in the mirror See",
       "audio": "",
       "has_accents": false
     },
@@ -27207,77 +27207,77 @@
     "B2572": {
       "song_id": "XJ5YzI",
       "bar_num": 33,
-      "lyrics": "",
+      "lyrics": "me now, if you",
       "audio": "",
       "has_accents": false
     },
     "B2573": {
       "song_id": "XJ5YzI",
       "bar_num": 34,
-      "lyrics": "",
+      "lyrics": "could see me now",
       "audio": "",
       "has_accents": false
     },
     "B2574": {
       "song_id": "XJ5YzI",
       "bar_num": 35,
-      "lyrics": "",
+      "lyrics": "You slipped through The",
       "audio": "",
       "has_accents": false
     },
     "B2575": {
       "song_id": "XJ5YzI",
       "bar_num": 36,
-      "lyrics": "",
+      "lyrics": "night Then walked out\n",
       "audio": "",
       "has_accents": false
     },
     "B2576": {
       "song_id": "XJ5YzI",
       "bar_num": 37,
-      "lyrics": "",
+      "lyrics": "Skin tight But you",
       "audio": "",
       "has_accents": false
     },
     "B2577": {
       "song_id": "XJ5YzI",
       "bar_num": 38,
-      "lyrics": "",
+      "lyrics": "don’t matter that much",
       "audio": "",
       "has_accents": false
     },
     "B2578": {
       "song_id": "XJ5YzI",
       "bar_num": 39,
-      "lyrics": "",
+      "lyrics": "to me No you",
       "audio": "",
       "has_accents": false
     },
     "B2579": {
       "song_id": "XJ5YzI",
       "bar_num": 40,
-      "lyrics": "",
+      "lyrics": "don’t matter that much",
       "audio": "",
       "has_accents": false
     },
     "B2580": {
       "song_id": "XJ5YzI",
       "bar_num": 41,
-      "lyrics": "",
+      "lyrics": "to me My eyes",
       "audio": "",
       "has_accents": false
     },
     "B2581": {
       "song_id": "XJ5YzI",
       "bar_num": 42,
-      "lyrics": "",
+      "lyrics": "are still burning red",
       "audio": "",
       "has_accents": false
     },
     "B2582": {
       "song_id": "XJ5YzI",
       "bar_num": 43,
-      "lyrics": "",
+      "lyrics": "So turn the lights",
       "audio": "",
       "has_accents": false
     },
@@ -27292,56 +27292,56 @@
     "B2584": {
       "song_id": "XJ5YzI",
       "bar_num": 45,
-      "lyrics": "",
+      "lyrics": "out You’re not so",
       "audio": "",
       "has_accents": false
     },
     "B2585": {
       "song_id": "XJ5YzI",
       "bar_num": 46,
-      "lyrics": "",
+      "lyrics": "hard to forget With",
       "audio": "",
       "has_accents": false
     },
     "B2586": {
       "song_id": "XJ5YzI",
       "bar_num": 47,
-      "lyrics": "",
+      "lyrics": "all the lights out",
       "audio": "",
       "has_accents": false
     },
     "B2587": {
       "song_id": "XJ5YzI",
       "bar_num": 48,
-      "lyrics": "",
+      "lyrics": "So turn the lights",
       "audio": "",
       "has_accents": false
     },
     "B2588": {
       "song_id": "XJ5YzI",
       "bar_num": 49,
-      "lyrics": "",
+      "lyrics": "out Just turn the",
       "audio": "",
       "has_accents": false
     },
     "B2589": {
       "song_id": "XJ5YzI",
       "bar_num": 50,
-      "lyrics": "",
+      "lyrics": "lights out My eyes",
       "audio": "",
       "has_accents": false
     },
     "B2590": {
       "song_id": "XJ5YzI",
       "bar_num": 51,
-      "lyrics": "",
+      "lyrics": "are still burning red",
       "audio": "",
       "has_accents": false
     },
     "B2591": {
       "song_id": "XJ5YzI",
       "bar_num": 52,
-      "lyrics": "",
+      "lyrics": "So turn the lights\n",
       "audio": "",
       "has_accents": false
     },
@@ -27502,21 +27502,21 @@
     "B2614": {
       "song_id": "XJ5YzI",
       "bar_num": 75,
-      "lyrics": "",
+      "lyrics": "out You’re not so",
       "audio": "",
       "has_accents": false
     },
     "B2615": {
       "song_id": "XJ5YzI",
       "bar_num": 76,
-      "lyrics": "",
+      "lyrics": "hard to forget With",
       "audio": "",
       "has_accents": false
     },
     "B2616": {
       "song_id": "XJ5YzI",
       "bar_num": 77,
-      "lyrics": "",
+      "lyrics": "all the lights out",
       "audio": "",
       "has_accents": false
     },

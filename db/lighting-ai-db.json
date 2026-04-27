@@ -9839,11 +9839,13 @@
         "part_starts": [
           {
             "bar_num": 1,
-            "name": "Intro"
+            "name": "Intro",
+            "light_template": "06 blinking"
           },
           {
             "bar_num": 3,
-            "name": "Verse 1"
+            "name": "Verse 1",
+            "light_template": "06 blinking"
           },
           {
             "bar_num": 11,
@@ -26950,7 +26952,7 @@
       "bar_num": 4,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B2544": {
       "song_id": "XJ5YzI",
@@ -28849,6 +28851,12 @@
       "bar_id": "B2405",
       "pos_16th": 9,
       "type": "st",
+      "notes": ""
+    },
+    "A0234": {
+      "bar_id": "B2543",
+      "pos_16th": 1,
+      "type": "hl",
       "notes": ""
     }
   },

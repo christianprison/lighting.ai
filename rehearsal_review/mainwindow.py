@@ -115,7 +115,7 @@ QComboBox#zoom_combo          { font-family:'DM Mono',monospace; font-size:10px;
                                 min-width:90px; max-width:110px; }
 """
 
-APP_VERSION = "1.3.22"
+APP_VERSION = "1.3.23"
 
 _ZOOM_PRESETS: list[int] = [2, 5, 10, 20, 40, 80, 160, 320, 640, 1280, 2560, 5120, 10240, 20480, 40960]
 
@@ -1034,14 +1034,21 @@ class MainWindow(QMainWindow):
                 self._stop()   # Simulation + Audio sofort stoppen
             else:
                 self._toggle_play()
-        elif event.key() == Qt.Key.Key_B and self._annotation_mode:
-            self._add_bar_marker()
-        elif event.key() == Qt.Key.Key_P and self._annotation_mode:
-            self._add_part_marker()
-        elif event.key() == Qt.Key.Key_F and self._annotation_mode:
-            self._add_fragment_marker()
-        elif event.key() == Qt.Key.Key_U and self._annotation_mode:
-            self._undo_last_marker()
+        elif event.key() in (Qt.Key.Key_B, Qt.Key.Key_P, Qt.Key.Key_F, Qt.Key.Key_U):
+            if self._annotation_mode:
+                if event.key() == Qt.Key.Key_B:
+                    self._add_bar_marker()
+                elif event.key() == Qt.Key.Key_P:
+                    self._add_part_marker()
+                elif event.key() == Qt.Key.Key_F:
+                    self._add_fragment_marker()
+                else:
+                    self._undo_last_marker()
+            else:
+                self._status.showMessage(
+                    "⚠  Annotationsmodus inaktiv — erst 'Annotieren' in der Toolbar einschalten",
+                    3000,
+                )
         else:
             super().keyPressEvent(event)
 

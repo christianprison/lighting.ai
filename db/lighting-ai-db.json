@@ -9553,12 +9553,15 @@
       "total_bars": 89,
       "grundrhythmus": {
         "kick": [
-          1,
-          3
+          0,
+          0.75,
+          2,
+          2.25,
+          2.75
         ],
         "snare": [
-          2,
-          2
+          1,
+          3
         ]
       },
       "audio_ref": "audio/Lights Out/Lights Out - Full Song.mp3",

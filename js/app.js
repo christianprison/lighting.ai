@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.4.0';
+const APP_VERSION = 'v2026.04.27a';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -1400,13 +1400,13 @@ function _renderGrSeq(song) {
         <span class="gr-beat-num">3</span>
         <span class="gr-beat-num">4</span>
       </div>
-      <div class="gr-row" data-gr-part="kick">
-        <span class="gr-row-label kick">KICK</span>
-        ${beatGroups('kick', kickSteps)}
-      </div>
       <div class="gr-row" data-gr-part="snare">
         <span class="gr-row-label snare">SNARE</span>
         ${beatGroups('snare', snareSteps)}
+      </div>
+      <div class="gr-row" data-gr-part="kick">
+        <span class="gr-row-label kick">KICK</span>
+        ${beatGroups('kick', kickSteps)}
       </div>
     </div>
   </div>`;

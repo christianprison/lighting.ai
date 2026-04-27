@@ -4888,7 +4888,7 @@ td.ak-actions { width: 90px; white-space: nowrap; text-align: right; }
 .gr-seq {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 4px;
   margin-top: 4px;
 }
 .gr-beat-header {
@@ -4928,7 +4928,7 @@ td.ak-actions { width: 90px; white-space: nowrap; text-align: right; }
 .gr-step {
   flex: 1;
   aspect-ratio: 1 / 1;
-  min-height: 26px;
+  min-height: 20px;
   background: var(--bg3);
   border: 1px solid var(--border);
   border-radius: 3px;

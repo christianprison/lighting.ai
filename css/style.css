@@ -4888,31 +4888,31 @@ td.ak-actions { width: 90px; white-space: nowrap; text-align: right; }
 .gr-seq {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
   margin-top: 4px;
 }
 .gr-beat-header {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
 }
 .gr-beat-header .gr-row-label { visibility: hidden; }
 .gr-beat-num {
   flex: 1;
-  font: 9px/1 'DM Mono', monospace;
+  font: 7px/1 'DM Mono', monospace;
   color: var(--t3);
   text-align: left;
-  padding-left: 2px;
+  padding-left: 1px;
 }
 .gr-row {
   display: flex;
   align-items: stretch;
-  gap: 6px;
+  gap: 4px;
 }
 .gr-row-label {
-  width: 42px;
+  width: 32px;
   flex-shrink: 0;
-  font: 600 9px/1 'DM Mono', monospace;
+  font: 600 7px/1 'DM Mono', monospace;
   letter-spacing: .5px;
   align-self: center;
   text-align: right;
@@ -4923,15 +4923,15 @@ td.ak-actions { width: 90px; white-space: nowrap; text-align: right; }
 .gr-beat-group {
   flex: 1;
   display: flex;
-  gap: 2px;
+  gap: 1px;
 }
 .gr-step {
   flex: 1;
   aspect-ratio: 1 / 1;
-  min-height: 20px;
+  min-height: 15px;
   background: var(--bg3);
   border: 1px solid var(--border);
-  border-radius: 3px;
+  border-radius: 2px;
   cursor: pointer;
   padding: 0;
   transition: background .1s, border-color .1s;

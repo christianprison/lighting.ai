@@ -36,6 +36,7 @@ import numpy as np
 
 from detection.beat_detector import OnsetDetector, OnsetEvent as _OnsetEvent
 from detection.bar_tracker import BarTracker
+from detection.band_activity import BandActivityDetector
 from detection.chroma_extractor import StreamingChromaExtractor, CH_GUITAR, CH_BASS
 from .recorder import MultitrackRecorder
 
@@ -126,6 +127,20 @@ class BarUpdate:
         }
 
 
+@dataclass
+class BandUpdate:
+    """Band-Aktivitätsereignis vom BandActivityDetector."""
+    event_type: str  # "band_starts" | "band_stops"
+    t: float         # WAV-Zeitstempel (Sekunden)
+
+    def to_dict(self) -> dict:
+        return {
+            "type":       "band_event",
+            "event_type": self.event_type,
+            "t":          round(self.t, 3),
+        }
+
+
 # ---------------------------------------------------------------------------
 # Haupt-Klasse
 # ---------------------------------------------------------------------------
@@ -181,6 +196,9 @@ class AudioProcess:
         )
         self._bar_tracker_lock = threading.Lock()
         self._logged_bar_count: int = 0
+
+        # BandActivityDetector (Prime Directive: identisch mit SimulatorWorker)
+        self._band_detector = BandActivityDetector()
 
         # Streaming Chroma-Extraktoren (Prime Directive: identisch mit SimulatorWorker)
         self._guitar_extractor = StreamingChromaExtractor(
@@ -310,6 +328,9 @@ class AudioProcess:
                 grundrhythmus=grundrhythmus,
             )
             self._logged_bar_count = 0
+
+        # BandActivityDetector zurücksetzen
+        self._band_detector.reset()
 
         # Chroma-Extraktoren zurücksetzen
         # Bass-Fenster: 1,2 × Taktdauer (BPM-abhängig), max 3 s
@@ -458,6 +479,11 @@ class AudioProcess:
         if indata.shape[1] > CH_BASS:
             self._bass_extractor.push_block(indata[:, CH_BASS])
 
+        # --- BandActivityDetector ---
+        t_mid = (wav_offset or 0.0) + BLOCK_SIZE / (2 * SAMPLE_RATE)
+        for ev_type, ev_t in self._band_detector.process_block(indata, t_mid):
+            self._emit(BandUpdate(event_type=ev_type, t=ev_t))
+
         # --- Onset-Detection: Kick + Snare + Crash ---
         onsets = self.onset_detector.process_block(indata)
         for ev in onsets:
@@ -599,7 +625,7 @@ class AudioProcess:
 
     # --- Emit (thread-safe → asyncio) ----------------------------------------
 
-    def _emit(self, event: OnsetUpdate | AudioStatus | ChromaUpdate | BarUpdate) -> None:
+    def _emit(self, event: OnsetUpdate | AudioStatus | ChromaUpdate | BarUpdate | BandUpdate) -> None:
         self.loop.call_soon_threadsafe(self.event_queue.put_nowait, event)
 
     def _send_status(self) -> None:

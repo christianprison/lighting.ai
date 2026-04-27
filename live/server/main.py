@@ -19,7 +19,7 @@ from .qlc_osc import QlcOsc, FUNCTION_TO_COLLECTION
 from .ws_handler import WsHandler
 from .dmx_fallback import DmxFallbackController, DmxFallbackConfig
 from detection.reference_db import ReferenceDB, DEFAULT_DB_PATH
-from .audio.audio_process import AudioProcess, OnsetUpdate, AudioStatus, BarUpdate
+from .audio.audio_process import AudioProcess, OnsetUpdate, AudioStatus, BarUpdate, BandUpdate
 
 logging.basicConfig(
     level=logging.INFO,
@@ -274,6 +274,8 @@ async def _consume_audio_queue() -> None:
         elif isinstance(event, AudioStatus):
             await ws_handler.broadcast(event.to_dict())
         elif isinstance(event, BarUpdate):
+            await ws_handler.broadcast(event.to_dict())
+        elif isinstance(event, BandUpdate):
             await ws_handler.broadcast(event.to_dict())
 
 

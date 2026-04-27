@@ -8448,10 +8448,12 @@ async function handleUndo() {
     toast('Keine ungespeicherten \u00c4nderungen vorhanden', 'info');
     return;
   }
-  // Bei unsaved Status: sofort ohne Rückfrage zurücksetzen.
-  // Nur bei bereits gespeicherten Versionen (= nicht dirty) kommt eine Bestätigung —
-  // aber da wir oben schon !dirty abfangen, greift die Confirm-Frage hier nie.
-  // → Undo bei unsaved = immer sofort.
+  const ok = await showConfirm(
+    'Zum letzten Commit zurückgehen?',
+    'Alle Änderungen seit dem letzten GitHub-Commit werden <strong>unwiderruflich verworfen</strong>.',
+    'Verwerfen & neu laden'
+  );
+  if (!ok) return;
   const s = getSettings();
   setSyncStatus('loading');
   try {

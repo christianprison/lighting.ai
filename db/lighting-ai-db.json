@@ -9557,7 +9557,9 @@
           2,
           2
         ]
-      }
+      },
+      "audio_ref": "audio/Lights Out/Lights Out - Full Song.mp3",
+      "audio_ref_name": "LightsOutTuned - nrLyn0.mp3"
     },
     "BKpY4X": {
       "name": "Lonely Boy",

@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.3.3';
+const APP_VERSION = 'v2.3.4';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -8897,6 +8897,13 @@ document.addEventListener('DOMContentLoaded', () => {
   switchTab('editor');
   initDB();
   initViewportFix();
+
+  window.addEventListener('beforeunload', function(e) {
+    if (dirty) {
+      e.preventDefault();
+      e.returnValue = '';
+    }
+  });
 });
 
 /** Fix iPad Chrome/Safari: dynamic address bar changes visible viewport height.

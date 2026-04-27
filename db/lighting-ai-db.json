@@ -9541,7 +9541,7 @@
       "duration": "3:57",
       "duration_sec": 237,
       "notes": "",
-      "lyrics_raw": "Every time I’m with it alone It picks me up You just send me down - - - I can feel it rushing under my skin You’re a cage won’t you let me in? On my toes Lock the door Pretty face Through the walls Don’t know if I’d be so sure again uwhouhou (Yeah) My eyes are still burning red (Yeah) So turn the lights out (Yeah) You’re not so hard to forget (Yeah) With all the lights out Every time I’m stuck in the ground Spin me round, won’t you spin me round You’re a void, a crack in the mirror See me now, if you could see me now You slipped through The night Then walked out Skin tight But you don’t matter that much to me No you don’t matter that much to me My eyes are still burning red So turn the lights out You’re not so hard to forget With all the lights out So turn the lights out Just turn the lights out My eyes are still burning red So turn the lights out You’re not so hard to forget With all the lights out",
+      "lyrics_raw": "Every time I’m with it alone It picks me up You just send me down - - - I can feel it rushing under my skin You’re a cage won’t you let me in? On my toes Lock the door Pretty face Through the walls Don’t know if I’d be so sure again uwhouhou (Yeah) My eyes are still burning red (Yeah) So turn the lights out (Yeah) You’re not so hard to forget (Yeah) With all the lights out Every time I’m stuck in the ground Spin me round, won’t you spin me round You’re a void, a crack in the mir- ror See me now, if you could see me now You slipped through The night Then walked out Skin tight But you don’t matter that much to me No you don’t matter that much to me My eyes are still burning red So turn the lights out You’re not so hard to forget With all the lights out So turn the lights out Just turn the lights out My eyes are still burning red So turn the lights out You’re not so hard to forget With all the lights out",
       "tms": {
         "manual_done": [
           "bar_markers",
@@ -27184,99 +27184,98 @@
     "B2569": {
       "song_id": "XJ5YzI",
       "bar_num": 30,
-      "lyrics": "Spin me round, won’t you spin me round You’re a void, a crack",
+      "lyrics": "Spin me\n",
       "audio": "",
       "has_accents": false
     },
     "B2570": {
       "song_id": "XJ5YzI",
       "bar_num": 31,
-      "lyrics": "in the mirror See",
+      "lyrics": "round, won’t you spin me round",
       "audio": "",
       "has_accents": false
     },
     "B2571": {
       "song_id": "XJ5YzI",
       "bar_num": 32,
-      "lyrics": "",
+      "lyrics": "You’re a\n",
       "audio": "",
-      "has_accents": false,
-      "instrumental": true
+      "has_accents": false
     },
     "B2572": {
       "song_id": "XJ5YzI",
       "bar_num": 33,
-      "lyrics": "me now, if you",
+      "lyrics": "void, a crack in the mir-",
       "audio": "",
       "has_accents": false
     },
     "B2573": {
       "song_id": "XJ5YzI",
       "bar_num": 34,
-      "lyrics": "could see me now",
+      "lyrics": "ror See me\n",
       "audio": "",
       "has_accents": false
     },
     "B2574": {
       "song_id": "XJ5YzI",
       "bar_num": 35,
-      "lyrics": "You slipped through The",
+      "lyrics": "now, if you could see me now",
       "audio": "",
       "has_accents": false
     },
     "B2575": {
       "song_id": "XJ5YzI",
       "bar_num": 36,
-      "lyrics": "night Then walked out\n",
+      "lyrics": "You slipped\n",
       "audio": "",
       "has_accents": false
     },
     "B2576": {
       "song_id": "XJ5YzI",
       "bar_num": 37,
-      "lyrics": "Skin tight But you",
+      "lyrics": "through",
       "audio": "",
       "has_accents": false
     },
     "B2577": {
       "song_id": "XJ5YzI",
       "bar_num": 38,
-      "lyrics": "don’t matter that much",
+      "lyrics": "The night Then walked\n",
       "audio": "",
       "has_accents": false
     },
     "B2578": {
       "song_id": "XJ5YzI",
       "bar_num": 39,
-      "lyrics": "to me No you",
+      "lyrics": "out Skin tight",
       "audio": "",
       "has_accents": false
     },
     "B2579": {
       "song_id": "XJ5YzI",
       "bar_num": 40,
-      "lyrics": "don’t matter that much",
+      "lyrics": "But you don’t\n",
       "audio": "",
       "has_accents": false
     },
     "B2580": {
       "song_id": "XJ5YzI",
       "bar_num": 41,
-      "lyrics": "to me My eyes",
+      "lyrics": "matter that much to me",
       "audio": "",
       "has_accents": false
     },
     "B2581": {
       "song_id": "XJ5YzI",
       "bar_num": 42,
-      "lyrics": "are still burning red",
+      "lyrics": "No you don’t\n",
       "audio": "",
       "has_accents": false
     },
     "B2582": {
       "song_id": "XJ5YzI",
       "bar_num": 43,
-      "lyrics": "So turn the lights",
+      "lyrics": "matter that much to me",
       "audio": "",
       "has_accents": false
     },
@@ -27291,7 +27290,7 @@
     "B2584": {
       "song_id": "XJ5YzI",
       "bar_num": 45,
-      "lyrics": "out You’re not so",
+      "lyrics": "My eyes are still burning red So turn the lights out You’re not so",
       "audio": "",
       "has_accents": false
     },

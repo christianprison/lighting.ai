@@ -27018,7 +27018,8 @@
       "bar_num": 6,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2546": {
       "song_id": "XJ5YzI",
@@ -27200,7 +27201,8 @@
       "bar_num": 32,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2572": {
       "song_id": "XJ5YzI",
@@ -27284,7 +27286,8 @@
       "bar_num": 44,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2584": {
       "song_id": "XJ5YzI",

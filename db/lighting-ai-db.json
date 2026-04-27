@@ -9535,7 +9535,7 @@
       "artist": "Royal Blood",
       "bpm": 90,
       "key": "D moll",
-      "year": "",
+      "year": "2017",
       "pick": "",
       "gema_nr": "19582994-003",
       "duration": "3:57",
@@ -9543,7 +9543,10 @@
       "notes": "",
       "lyrics_raw": "[Verse 1]\nEvery time I'm with it alone\nIt picks me up\nYou just send me down\nI can feel it rushing under my skin\nYou're a cage won't you let me in?\nOn my toes\nLock the door\nPretty face\nThrough the walls\nDon't know if I'd be so sure again\n\n[Chorus]\nMy eyes are still burning red\nSo turn the lights out\nYou're not so hard to forget\nWith all the lights out\n\n[Verse 2]\nEvery time I'm stuck in the ground\nSpin me round, won't you spin me round\nYou're a void, a crack in the mirror\nSee me now, if you could see me now\nYou slipped through\nThe night\nThen walked out\nSkin tight\nBut you don't matter that much to me\nNo you don't matter that much to me\n\n[Chorus]\nMy eyes are still burning red\nSo turn the lights out\nYou're not so hard to forget\nWith all the lights out\nSo turn the lights out\nJust turn the lights out\n\nMy eyes are still burning red\nSo turn the lights out\nYou're not so hard to forget\nWith all the lights out\n\n",
       "tms": {
-        "manual_done": [],
+        "manual_done": [
+          "bar_markers",
+          "parts_identified"
+        ],
         "user_tasks": [],
         "manual_undone": []
       },

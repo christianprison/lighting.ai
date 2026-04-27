@@ -112,6 +112,15 @@ h3 { font-size: 0.95rem; }
   margin-left: 24px;
 }
 
+.tab-sep {
+  width: 1px;
+  height: 18px;
+  background: var(--border2);
+  margin: 0 6px;
+  flex-shrink: 0;
+  align-self: center;
+}
+
 .app-version {
   font-family: var(--font-mono);
   font-size: 0.6rem;

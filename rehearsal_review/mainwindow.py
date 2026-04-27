@@ -115,7 +115,7 @@ QComboBox#zoom_combo          { font-family:'DM Mono',monospace; font-size:10px;
                                 min-width:90px; max-width:110px; }
 """
 
-APP_VERSION = "1.3.23"
+APP_VERSION = "1.3.24"
 
 _ZOOM_PRESETS: list[int] = [2, 5, 10, 20, 40, 80, 160, 320, 640, 1280, 2560, 5120, 10240, 20480, 40960]
 
@@ -390,6 +390,7 @@ class MainWindow(QMainWindow):
         # Annotations: song_id → SongAnnotation
         self._annotations: dict[str, SongAnnotation] = {}
         self._annotation_mode: bool = False
+        self._annot_dirty: bool = False
 
         # Fragment detection results for the active segment
         self._detected_fragments: list = []
@@ -408,6 +409,11 @@ class MainWindow(QMainWindow):
         # Event-Playhead: letzte vom BarTracker erkannte Taktposition
         self._ev_playhead_wav_t:  float = 0.0  # abs. WAV-Zeit des letzten Takts
         self._ev_playhead_wall_t: float = 0.0  # Wanduhr-Zeit des letzten Takts
+
+        # Autosave-Timer: speichert Annotierungen alle 90 s wenn dirty
+        self._autosave_timer = QTimer(self)
+        self._autosave_timer.setInterval(90_000)
+        self._autosave_timer.timeout.connect(self._autosave)
 
         # Playhead-Timer für Echtzeit-Simulation (40 ms ≈ 25 fps)
         self._sim_playhead_timer = QTimer(self)
@@ -689,6 +695,8 @@ class MainWindow(QMainWindow):
 
         # Load existing annotations for this session
         self._annotations = load_annotations(jsonl_path)
+        self._annot_dirty = False
+        self._autosave_timer.start()
         self._save_annot_act.setEnabled(True)
         self._import_act.setEnabled(True)
         self._db_parts_act.setEnabled(True)
@@ -1226,6 +1234,7 @@ class MainWindow(QMainWindow):
         t_in_seg = max(0.0, self.cursor_t_in_seg())
         marker = ann.add_marker(t_in_seg, part_name=part_name)
         self._timeline.set_bar_markers(ann.markers)
+        self._annot_dirty = True
         self._status.showMessage(
             f"Takt {marker.bar_num} gesetzt @ {t_in_seg:.3f} s"
             + (f"  [{part_name}]" if part_name else ""),
@@ -1303,6 +1312,7 @@ class MainWindow(QMainWindow):
         t_in_seg = max(0.0, self.cursor_t_in_seg())
         marker = ann.add_marker(t_in_seg, restart_bar_num=bar_num)
         self._timeline.set_bar_markers(ann.markers)
+        self._annot_dirty = True
         self._status.showMessage(
             f"Fragment-Start: Takt {marker.bar_num} ab hier (→T{bar_num}) "
             f"@ {t_in_seg:.3f} s",
@@ -1318,6 +1328,7 @@ class MainWindow(QMainWindow):
         removed = ann.markers.pop()
         ann._renumber()
         self._timeline.set_bar_markers(ann.markers)
+        self._annot_dirty = True
         self._status.showMessage(
             f"Takt {removed.bar_num} @ {removed.t:.3f} s entfernt", 3000
         )
@@ -1330,6 +1341,7 @@ class MainWindow(QMainWindow):
         removed = ann.remove_nearest(t_in_seg)
         if removed:
             self._timeline.set_bar_markers(ann.markers)
+            self._annot_dirty = True
             self._status.showMessage(
                 f"Takt {removed.bar_num} @ {removed.t:.3f} s entfernt", 3000
             )
@@ -1340,10 +1352,18 @@ class MainWindow(QMainWindow):
             return 0.0
         return self._player.position_in_segment
 
+    def _autosave(self) -> None:
+        if not self._annot_dirty or self._session is None or not self._annotations:
+            return
+        save_annotations(self._session.jsonl_path, self._annotations)
+        self._annot_dirty = False
+        self._status.showMessage("Autosave ✓", 2000)
+
     def _save_annotations(self) -> None:
         if self._session is None:
             return
         save_annotations(self._session.jsonl_path, self._annotations)
+        self._annot_dirty = False
         total = sum(len(a.markers) for a in self._annotations.values())
         self._status.showMessage(
             f"Annotierungen gespeichert: {len(self._annotations)} Songs, {total} Takte",

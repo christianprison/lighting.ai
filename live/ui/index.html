@@ -119,16 +119,19 @@ letter-spacing:.8px;text-transform:uppercase;color:var(--t2);cursor:pointer;tran
 .obtn:active{transform:scale(.93)}
 .obtn .ico{font-size:18px;line-height:1}
 .obtn.r{color:var(--red);border-color:var(--red2)}
-.obtn.r.on{background:var(--red2);border-color:var(--red);box-shadow:0 0 20px #ff3b5c18}
+.obtn.r.on{background:var(--red);color:#08090d;border-color:var(--red);box-shadow:0 0 24px #ff3b5c50}
 .obtn.a{color:var(--amber);border-color:var(--amber2)}
-.obtn.a.on{background:var(--amber2);border-color:var(--amber)}
+.obtn.a.on{background:var(--amber);color:#08090d;border-color:var(--amber);box-shadow:0 0 24px #f0a03050}
 .obtn.c{color:var(--cyan);border-color:var(--cyan2)}
-.obtn.c.on{background:var(--cyan2);border-color:var(--cyan)}
+.obtn.c.on{background:var(--cyan);color:#08090d;border-color:var(--cyan);box-shadow:0 0 24px #38bdf850}
 .obtn.p{color:var(--green);border-color:var(--green2)}
-.obtn.p.on{background:var(--green2);border-color:var(--green)}
+.obtn.p.on{background:var(--green);color:#08090d;border-color:var(--green);box-shadow:0 0 24px #00dc8250}
 
-/* Nav row */
-.navrow{display:grid;grid-template-columns:1fr 1fr;gap:8px;flex-shrink:0;margin-top:auto}
+/* Nav row — NEXT dominant */
+.navrow{display:flex;flex-direction:column;gap:6px;flex-shrink:0;margin-top:auto}
+.nbtn.prev-small{font-size:11px;font-weight:500;height:36px;color:var(--t2);border-color:var(--border);background:var(--bg3)}
+.nbtn.prev-small:active{transform:scale(.96)}
+.nbtn.next-big{font-size:19px;font-weight:700;letter-spacing:.3px;height:68px;box-shadow:0 0 24px #00dc8218}
 
 /* Setlist head: REC + Settings */
 .setlist-head{display:flex;align-items:center;gap:6px;padding:8px 10px;flex-shrink:0}
@@ -516,7 +519,7 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
     <div class="badges">
       <div class="badge live" id="badgeLive"><div class="pulse"></div>LIVE</div>
       <div class="badge" id="badgeQlc">QLC+ &#x25CF;</div>
-      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.04.26b</div>
+      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.04.27a</div>
     </div>
     <div class="beat-area">
       <div class="beat-row">
@@ -548,8 +551,8 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
       </button>
     </div>
     <div class="navrow">
-      <button class="nbtn" id="btnPrev">&#x25C0; PREV</button>
-      <button class="nbtn go" id="btnNext">NEXT &#x25B6;</button>
+      <button class="nbtn prev-small" id="btnPrev">&#x25C0; PREV</button>
+      <button class="nbtn go next-big" id="btnNext">NEXT &#x25B6;</button>
     </div>
   </div>
 </div>

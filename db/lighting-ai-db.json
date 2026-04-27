@@ -9541,7 +9541,7 @@
       "duration": "3:57",
       "duration_sec": 237,
       "notes": "",
-      "lyrics_raw": "Every I’m with it alone It picks me time up You just send me down I can feel it rushing under my skin You’re a cage won’t you let me in? On my toes Lock the door Pretty face Through the walls Don’t know if I’d be so sure again My eyes are still burning red So turn the lights out You’re not so hard to forget With all the lights out Every time I’m stuck in the ground Spin me round, won’t you spin me round You’re a void, a crack in the mirror See me now, if you could see me now You slipped through The night Then walked out Skin tight But you don’t matter that much to me No you don’t matter that much to me My eyes are still burning red So turn the lights out You’re not so hard to forget With all the lights out So turn the lights out Just turn the lights out My eyes are still burning red So turn the lights out You’re not so hard to forget With all the lights out",
+      "lyrics_raw": "Every time I’m with it alone It picks me up You just send me down - - - I can feel it rushing under my skin You’re a cage won’t you let me in? On my toes Lock the door Pretty face Through the walls Don’t know if I’d be so sure again uwhouhou (Yeah) My eyes are still burning red (Yeah) So turn the lights out (Yeah) You’re not so hard to forget (Yeah) With all the lights out Every time I’m stuck in the ground Spin me round, won’t you spin me round You’re a void, a crack in the mirror See me now, if you could see me now You slipped through The night Then walked out Skin tight But you don’t matter that much to me No you don’t matter that much to me My eyes are still burning red So turn the lights out You’re not so hard to forget With all the lights out So turn the lights out Just turn the lights out My eyes are still burning red So turn the lights out You’re not so hard to forget With all the lights out",
       "tms": {
         "manual_done": [
           "bar_markers",
@@ -26995,14 +26995,14 @@
     "B2542": {
       "song_id": "XJ5YzI",
       "bar_num": 3,
-      "lyrics": "Every I’m with it alone",
+      "lyrics": "Every time I’m with it alone",
       "audio": "",
       "has_accents": false
     },
     "B2543": {
       "song_id": "XJ5YzI",
       "bar_num": 4,
-      "lyrics": "It picks me time",
+      "lyrics": "It picks me",
       "audio": "",
       "has_accents": true
     },
@@ -27016,7 +27016,7 @@
     "B2545": {
       "song_id": "XJ5YzI",
       "bar_num": 6,
-      "lyrics": "I can",
+      "lyrics": "- - - I can",
       "audio": "",
       "has_accents": false
     },
@@ -27086,63 +27086,63 @@
     "B2555": {
       "song_id": "XJ5YzI",
       "bar_num": 16,
-      "lyrics": "My eyes\n",
+      "lyrics": "uwhouhou\n",
       "audio": "",
       "has_accents": false
     },
     "B2556": {
       "song_id": "XJ5YzI",
       "bar_num": 17,
-      "lyrics": "are still burning red",
+      "lyrics": "(Yeah)",
       "audio": "",
       "has_accents": false
     },
     "B2557": {
       "song_id": "XJ5YzI",
       "bar_num": 18,
-      "lyrics": "So turn the lights",
+      "lyrics": "My eyes are still burning red\n",
       "audio": "",
       "has_accents": false
     },
     "B2558": {
       "song_id": "XJ5YzI",
       "bar_num": 19,
-      "lyrics": "out You’re not so",
+      "lyrics": "(Yeah)",
       "audio": "",
       "has_accents": false
     },
     "B2559": {
       "song_id": "XJ5YzI",
       "bar_num": 20,
-      "lyrics": "hard to forget With",
+      "lyrics": "So turn the lights out\n",
       "audio": "",
       "has_accents": false
     },
     "B2560": {
       "song_id": "XJ5YzI",
       "bar_num": 21,
-      "lyrics": "all the lights out",
+      "lyrics": "(Yeah)",
       "audio": "",
       "has_accents": false
     },
     "B2561": {
       "song_id": "XJ5YzI",
       "bar_num": 22,
-      "lyrics": "Every time I’m stuck",
+      "lyrics": "You’re not so hard to forget\n",
       "audio": "",
       "has_accents": false
     },
     "B2562": {
       "song_id": "XJ5YzI",
       "bar_num": 23,
-      "lyrics": "in the ground Spin",
+      "lyrics": "(Yeah)",
       "audio": "",
       "has_accents": false
     },
     "B2563": {
       "song_id": "XJ5YzI",
       "bar_num": 24,
-      "lyrics": "me round, won’t you\n",
+      "lyrics": "With all the lights out\n",
       "audio": "",
       "has_accents": false
     },
@@ -27177,14 +27177,14 @@
     "B2568": {
       "song_id": "XJ5YzI",
       "bar_num": 29,
-      "lyrics": "spin me round You’re",
+      "lyrics": "Every time I’m stuck in the ground",
       "audio": "",
       "has_accents": false
     },
     "B2569": {
       "song_id": "XJ5YzI",
       "bar_num": 30,
-      "lyrics": "a void, a crack",
+      "lyrics": "Spin me round, won’t you spin me round You’re a void, a crack",
       "audio": "",
       "has_accents": false
     },

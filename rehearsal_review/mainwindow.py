@@ -115,7 +115,7 @@ QComboBox#zoom_combo          { font-family:'DM Mono',monospace; font-size:10px;
                                 min-width:90px; max-width:110px; }
 """
 
-APP_VERSION = "1.3.24"
+APP_VERSION = "1.3.25"
 
 _ZOOM_PRESETS: list[int] = [2, 5, 10, 20, 40, 80, 160, 320, 640, 1280, 2560, 5120, 10240, 20480, 40960]
 
@@ -391,6 +391,7 @@ class MainWindow(QMainWindow):
         self._annotations: dict[str, SongAnnotation] = {}
         self._annotation_mode: bool = False
         self._annot_dirty: bool = False
+        self._base_window_title: str = f"Rehearsal Post-Preparation v{APP_VERSION} — lighting.ai"
 
         # Fragment detection results for the active segment
         self._detected_fragments: list = []
@@ -696,6 +697,28 @@ class MainWindow(QMainWindow):
         # Load existing annotations for this session
         self._annotations = load_annotations(jsonl_path)
         self._annot_dirty = False
+        self.setWindowTitle(self._base_window_title)
+
+        # Autosave-Wiederherstellung
+        autosave_path = jsonl_path.with_name(jsonl_path.stem + "_annotations_autosave.json")
+        if autosave_path.exists():
+            reply = QMessageBox.question(
+                self,
+                "Autosave gefunden",
+                f"Es gibt eine automatisch gespeicherte Version der Annotationen.\n"
+                f"Wiederherstellen?\n\n{autosave_path.name}",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            )
+            if reply == QMessageBox.StandardButton.Yes:
+                try:
+                    import json as _json
+                    data = _json.loads(autosave_path.read_text(encoding="utf-8"))
+                    self._annotations = {
+                        k: SongAnnotation.from_dict(v) for k, v in data.items()
+                    }
+                except Exception as exc:
+                    self._status.showMessage(f"Autosave-Laden fehlgeschlagen: {exc}", 5000)
+
         self._autosave_timer.start()
         self._save_annot_act.setEnabled(True)
         self._import_act.setEnabled(True)
@@ -1234,7 +1257,7 @@ class MainWindow(QMainWindow):
         t_in_seg = max(0.0, self.cursor_t_in_seg())
         marker = ann.add_marker(t_in_seg, part_name=part_name)
         self._timeline.set_bar_markers(ann.markers)
-        self._annot_dirty = True
+        self._mark_annotations_dirty()
         self._status.showMessage(
             f"Takt {marker.bar_num} gesetzt @ {t_in_seg:.3f} s"
             + (f"  [{part_name}]" if part_name else ""),
@@ -1312,7 +1335,7 @@ class MainWindow(QMainWindow):
         t_in_seg = max(0.0, self.cursor_t_in_seg())
         marker = ann.add_marker(t_in_seg, restart_bar_num=bar_num)
         self._timeline.set_bar_markers(ann.markers)
-        self._annot_dirty = True
+        self._mark_annotations_dirty()
         self._status.showMessage(
             f"Fragment-Start: Takt {marker.bar_num} ab hier (→T{bar_num}) "
             f"@ {t_in_seg:.3f} s",
@@ -1328,7 +1351,7 @@ class MainWindow(QMainWindow):
         removed = ann.markers.pop()
         ann._renumber()
         self._timeline.set_bar_markers(ann.markers)
-        self._annot_dirty = True
+        self._mark_annotations_dirty()
         self._status.showMessage(
             f"Takt {removed.bar_num} @ {removed.t:.3f} s entfernt", 3000
         )
@@ -1341,7 +1364,7 @@ class MainWindow(QMainWindow):
         removed = ann.remove_nearest(t_in_seg)
         if removed:
             self._timeline.set_bar_markers(ann.markers)
-            self._annot_dirty = True
+            self._mark_annotations_dirty()
             self._status.showMessage(
                 f"Takt {removed.bar_num} @ {removed.t:.3f} s entfernt", 3000
             )
@@ -1352,18 +1375,36 @@ class MainWindow(QMainWindow):
             return 0.0
         return self._player.position_in_segment
 
+    def _mark_annotations_dirty(self) -> None:
+        self._annot_dirty = True
+        if not self.windowTitle().startswith("● "):
+            self.setWindowTitle("● " + self._base_window_title)
+
+    def _mark_annotations_clean(self) -> None:
+        self._annot_dirty = False
+        self.setWindowTitle(self._base_window_title)
+
     def _autosave(self) -> None:
         if not self._annot_dirty or self._session is None or not self._annotations:
             return
-        save_annotations(self._session.jsonl_path, self._annotations)
-        self._annot_dirty = False
-        self._status.showMessage("Autosave ✓", 2000)
+        try:
+            autosave_path = self._session.jsonl_path.with_name(
+                self._session.jsonl_path.stem + "_annotations_autosave.json"
+            )
+            data = {k: v.to_dict() for k, v in self._annotations.items()}
+            autosave_path.write_text(
+                __import__("json").dumps(data, indent=2, ensure_ascii=False),
+                encoding="utf-8",
+            )
+            self._status.showMessage("Autosave ✓", 2000)
+        except Exception as exc:
+            self._status.showMessage(f"Autosave fehlgeschlagen: {exc}", 4000)
 
     def _save_annotations(self) -> None:
         if self._session is None:
             return
         save_annotations(self._session.jsonl_path, self._annotations)
-        self._annot_dirty = False
+        self._mark_annotations_clean()
         total = sum(len(a.markers) for a in self._annotations.values())
         self._status.showMessage(
             f"Annotierungen gespeichert: {len(self._annotations)} Songs, {total} Takte",

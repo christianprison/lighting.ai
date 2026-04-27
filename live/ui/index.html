@@ -128,10 +128,9 @@ letter-spacing:.8px;text-transform:uppercase;color:var(--t2);cursor:pointer;tran
 .obtn.p.on{background:var(--green);color:#08090d;border-color:var(--green);box-shadow:0 0 24px #00dc8250}
 
 /* Nav row — NEXT dominant */
-.navrow{display:flex;flex-direction:column;gap:6px;flex-shrink:0;margin-top:auto}
-.nbtn.prev-small{font-size:11px;font-weight:500;height:36px;color:var(--t2);border-color:var(--border);background:var(--bg3)}
-.nbtn.prev-small:active{transform:scale(.96)}
-.nbtn.next-big{font-size:19px;font-weight:700;letter-spacing:.3px;height:68px;box-shadow:0 0 24px #00dc8218}
+.navrow{display:grid;grid-template-columns:1fr 2fr;gap:8px;flex-shrink:0;margin-top:auto}
+.nbtn.go{background:var(--green);border-color:var(--green);color:var(--bg);font-weight:700;font-size:16px;min-height:64px;box-shadow:0 0 24px #00dc8240}
+.nbtn.go:active{background:#00f090;box-shadow:0 0 40px #00dc8260}
 
 /* Setlist head: REC + Settings */
 .setlist-head{display:flex;align-items:center;gap:6px;padding:8px 10px;flex-shrink:0}
@@ -147,12 +146,20 @@ cursor:pointer;transition:all .1s;touch-action:manipulation}
 .nbtn.go{background:var(--green3);border-color:var(--green);color:var(--green)}
 .nbtn.go:active{background:var(--green2)}
 
+/* Part-Ende-Vorwarnung */
+@keyframes warningPulse{
+  0%,100%{box-shadow:0 0 24px #00dc8240}
+  50%{box-shadow:0 0 40px #f0a03080,0 0 80px #f0a03030;border-color:var(--amber)}}
+.nbtn.go.warning{animation:warningPulse .8s ease-in-out infinite}
+.next-preview{font-family:'DM Mono',monospace;font-size:10px;color:var(--amber);
+text-align:center;letter-spacing:1px;margin-top:4px;min-height:16px;flex-shrink:0}
+
 /* ═══ SETLIST (RIGHT) ═══ */
 .song{display:grid;grid-template-columns:22px 1fr auto;align-items:center;gap:8px;
 padding:9px 10px;margin-bottom:2px;border-radius:6px;border:1.5px solid transparent;cursor:pointer;transition:all .1s}
 .song:active{transform:scale(.97)}
 .song.active{background:var(--green3);border-color:var(--green)}
-.song.played{opacity:.55}
+.song.played{opacity:.58}
 .song.no-chaser{opacity:.7}
 .song-i{font-family:'DM Mono',monospace;font-size:10px;color:var(--t4);text-align:right}
 .song.active .song-i{color:var(--green)}
@@ -519,7 +526,7 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
     <div class="badges">
       <div class="badge live" id="badgeLive"><div class="pulse"></div>LIVE</div>
       <div class="badge" id="badgeQlc">QLC+ &#x25CF;</div>
-      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.04.27b</div>
+      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.04.27c</div>
     </div>
     <div class="beat-area">
       <div class="beat-row">
@@ -551,9 +558,10 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
       </button>
     </div>
     <div class="navrow">
-      <button class="nbtn prev-small" id="btnPrev">&#x25C0; PREV</button>
-      <button class="nbtn go next-big" id="btnNext">NEXT &#x25B6;</button>
+      <button class="nbtn" id="btnPrev">&#x25C0; PREV</button>
+      <button class="nbtn go" id="btnNext">NEXT &#x25B6;</button>
     </div>
+    <div class="next-preview" id="nextPreview"></div>
   </div>
 </div>
 
@@ -728,6 +736,11 @@ function renderSetlist() {
   var el = document.getElementById('setlist');
   var h = '';
   var idx = 0;
+  // Bestimme Index des aktiven Songs (für played-Markierung)
+  var activeSetlistIdx = -1;
+  for (var j = 0; j < setlist.length; j++) {
+    if (setlist[j].song_id === state.current_song_id) { activeSetlistIdx = j; break; }
+  }
   for (var i = 0; i < setlist.length; i++) {
     var item = setlist[i];
     if (item.type === 'pause') {
@@ -737,14 +750,19 @@ function renderSetlist() {
     idx++;
     var sid = item.song_id;
     var isActive = state.current_song_id === sid;
+    var isPlayed = activeSetlistIdx > 0 && i < activeSetlistIdx;
     var hasChaser = !!qlcMapping[sid];
-    var cls = isActive ? 'active' : '';
+    var cls = isActive ? 'active' : (isPlayed ? 'played' : '');
     if (!hasChaser) cls += ' no-chaser';
     var title = hasChaser ? '' : ' title="Kein QLC+ Mapping"';
     h += '<div class="song ' + cls + '" data-sid="' + sid + '"' + title + '>';
     h += '<span class="song-i">' + String(idx).padStart(2, '0') + '</span>';
     h += '<span class="song-t">' + escHtml(item.name || '?') + '</span>';
-    h += '<span class="song-b">' + (item.bpm || '') + '</span>';
+    if (isPlayed) {
+      h += '<span style="font-size:10px;color:var(--green);opacity:.6">&#10003;</span>';
+    } else {
+      h += '<span class="song-b">' + (item.bpm || '') + '</span>';
+    }
     h += '</div>';
   }
   el.innerHTML = h;
@@ -1004,6 +1022,33 @@ function updatePlayheadUI(barIdx) {
     if (sc) sc.scrollLeft = target.offsetLeft - sc.clientWidth / 2 + target.offsetWidth / 2;
   }
   renderAnchors();
+  updatePartEndWarning(barIdx);
+}
+
+function updatePartEndWarning(barIdx) {
+  var previewEl = document.getElementById('nextPreview');
+  var btnNext = document.getElementById('btnNext');
+  if (!previewEl || !btnNext || !songBars.length) {
+    if (btnNext) btnNext.classList.remove('warning');
+    if (previewEl) previewEl.textContent = '';
+    return;
+  }
+  var cum = 0;
+  var curPartIdx = -1, partEndBarIdx = 0;
+  for (var p = 0; p < songBars.length; p++) {
+    var cnt = songBars[p].bar_count || songBars[p].bars.length;
+    cum += cnt;
+    if (barIdx < cum) { curPartIdx = p; partEndBarIdx = cum - 1; break; }
+  }
+  var barsLeft = partEndBarIdx - barIdx;
+  if (curPartIdx >= 0 && barsLeft <= 2) {
+    btnNext.classList.add('warning');
+    var nextName = (curPartIdx + 1 < songBars.length) ? songBars[curPartIdx + 1].part_name : '';
+    previewEl.textContent = nextName ? '→ ' + nextName : '';
+  } else {
+    btnNext.classList.remove('warning');
+    previewEl.textContent = '';
+  }
 }
 
 function restartBeatSim(bpm) {

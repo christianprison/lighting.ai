@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.3.5';
+const APP_VERSION = 'v2.3.6';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -8182,15 +8182,16 @@ function closeSettings() {
 /* ── Help Modal ───────────────────────────────────── */
 
 function openHelp() {
-  // Map program tab to help tab
-  const helpTabMap = {
-    setlist: 'setlist',
-    editor: 'editor',
-    takte: 'takte',
-    lyrics: 'lyrics',
-    audio: 'audio',
+  const TAB_TO_HELP = {
+    'setlist': 'setlist',
+    'editor':  'editor',
+    'audio':   'audio',
+    'parts':   'general',
+    'lyrics':  'lyrics',
+    'takte':   'takte',
+    'accents': 'accents',
   };
-  const helpTab = helpTabMap[activeTab] || 'general';
+  const helpTab = TAB_TO_HELP[activeTab] || 'general';
   switchHelpTab(helpTab);
   els.helpModal.classList.add('open');
 }
@@ -8448,10 +8449,12 @@ async function handleUndo() {
     toast('Keine ungespeicherten \u00c4nderungen vorhanden', 'info');
     return;
   }
-  // Bei unsaved Status: sofort ohne Rückfrage zurücksetzen.
-  // Nur bei bereits gespeicherten Versionen (= nicht dirty) kommt eine Bestätigung —
-  // aber da wir oben schon !dirty abfangen, greift die Confirm-Frage hier nie.
-  // → Undo bei unsaved = immer sofort.
+  const ok = await showConfirm(
+    'Zum letzten Commit zurückgehen?',
+    'Alle Änderungen seit dem letzten GitHub-Commit werden <strong>unwiderruflich verworfen</strong>.',
+    'Verwerfen & neu laden'
+  );
+  if (!ok) return;
   const s = getSettings();
   setSyncStatus('loading');
   try {

@@ -9541,7 +9541,7 @@
       "duration": "3:57",
       "duration_sec": 237,
       "notes": "",
-      "lyrics_raw": "Every time I’m with it alone It picks me up You just send me down - - - I can feel it rushing under my skin You’re a cage won’t you let me in? On my toes Lock the door Pretty face Through the walls Don’t know if I’d be so sure again uwhouhou (Yeah) My eyes are still burning red (Yeah) So turn the lights out (Yeah) You’re not so hard to forget (Yeah) With all the lights out Every time I’m stuck in the ground Spin me round, won’t you spin me round You’re a void, a crack in the mir- ror See me now, if you could see me now You slipped through The night Then walked out Skin tight But you don’t matter that much to me No you don’t matter that much to me (Yeah) My eyes are still burning red (Yeah) So turn the lights out (Yeah) You’re not so hard to forget (Yeah) With all the lights out So turn the lights out Just turn the lights out My eyes are still burning red So turn the lights out You’re not so hard to forget With all the lights out",
+      "lyrics_raw": "Every time I’m with it alone It picks me up You just send me down - - - I can feel it rushing under my skin You’re a cage won’t you let me in? On my toes Lock the door Pretty face Through the walls Don’t know if I’d be so sure again uwhouhou (Yeah) My eyes are still burning red (Yeah) So turn the lights out (Yeah) You’re not so hard to forget (Yeah) With all the lights out Every time I’m stuck in the ground Spin me round, won’t you spin me round You’re a void, a crack in the mir- ror See me now, if you could see me now You slipped through The night Then walked out Skin tight But you don’t matter that much to me No you don’t matter that much to me (Yeah) My eyes are still burning red (Yeah) So turn the lights out (Yeah) You’re not so hard to forget (Yeah) With all the lights out (Yeah) So turn the lights out (Yeah) Just turn the lights out (Yeah) My eyes are still burning red (Yeah) So turn the lights out You’re not so hard to forget With all the lights out",
       "tms": {
         "manual_done": [
           "bar_markers",
@@ -27100,7 +27100,7 @@
     "B2557": {
       "song_id": "XJ5YzI",
       "bar_num": 18,
-      "lyrics": "My eyes are still burning red\n",
+      "lyrics": "My eyes are still burning red",
       "audio": "",
       "has_accents": false
     },
@@ -27114,7 +27114,7 @@
     "B2559": {
       "song_id": "XJ5YzI",
       "bar_num": 20,
-      "lyrics": "So turn the lights out\n",
+      "lyrics": "So turn the lights out",
       "audio": "",
       "has_accents": false
     },
@@ -27128,7 +27128,7 @@
     "B2561": {
       "song_id": "XJ5YzI",
       "bar_num": 22,
-      "lyrics": "You’re not so hard to forget\n",
+      "lyrics": "You’re not so hard to forget",
       "audio": "",
       "has_accents": false
     },
@@ -27184,7 +27184,7 @@
     "B2569": {
       "song_id": "XJ5YzI",
       "bar_num": 30,
-      "lyrics": "Spin me\n",
+      "lyrics": "Spin me",
       "audio": "",
       "has_accents": false
     },
@@ -27198,7 +27198,7 @@
     "B2571": {
       "song_id": "XJ5YzI",
       "bar_num": 32,
-      "lyrics": "You’re a\n",
+      "lyrics": "You’re a",
       "audio": "",
       "has_accents": false
     },
@@ -27212,7 +27212,7 @@
     "B2573": {
       "song_id": "XJ5YzI",
       "bar_num": 34,
-      "lyrics": "ror See me\n",
+      "lyrics": "ror See me",
       "audio": "",
       "has_accents": false
     },
@@ -27233,28 +27233,28 @@
     "B2576": {
       "song_id": "XJ5YzI",
       "bar_num": 37,
-      "lyrics": "through",
+      "lyrics": "through The",
       "audio": "",
       "has_accents": false
     },
     "B2577": {
       "song_id": "XJ5YzI",
       "bar_num": 38,
-      "lyrics": "The night Then walked\n",
+      "lyrics": "night Then walked",
       "audio": "",
       "has_accents": false
     },
     "B2578": {
       "song_id": "XJ5YzI",
       "bar_num": 39,
-      "lyrics": "out Skin tight",
+      "lyrics": "out Skin",
       "audio": "",
       "has_accents": false
     },
     "B2579": {
       "song_id": "XJ5YzI",
       "bar_num": 40,
-      "lyrics": "But you don’t\n",
+      "lyrics": "tight But you don’t",
       "audio": "",
       "has_accents": false
     },
@@ -27268,7 +27268,7 @@
     "B2581": {
       "song_id": "XJ5YzI",
       "bar_num": 42,
-      "lyrics": "No you don’t\n",
+      "lyrics": "No you don’t",
       "audio": "",
       "has_accents": false
     },
@@ -27339,7 +27339,7 @@
     "B2591": {
       "song_id": "XJ5YzI",
       "bar_num": 52,
-      "lyrics": "With all the lights out So turn the lights out Just turn the lights out My eyes are still burning red So turn the lights\n",
+      "lyrics": "With all the lights out\n",
       "audio": "",
       "has_accents": false
     },
@@ -27500,56 +27500,56 @@
     "B2614": {
       "song_id": "XJ5YzI",
       "bar_num": 75,
-      "lyrics": "out You’re not so",
+      "lyrics": "(Yeah)",
       "audio": "",
       "has_accents": false
     },
     "B2615": {
       "song_id": "XJ5YzI",
       "bar_num": 76,
-      "lyrics": "hard to forget With",
+      "lyrics": "So turn the lights out\n",
       "audio": "",
       "has_accents": false
     },
     "B2616": {
       "song_id": "XJ5YzI",
       "bar_num": 77,
-      "lyrics": "all the lights out",
+      "lyrics": "(Yeah)",
       "audio": "",
       "has_accents": false
     },
     "B2617": {
       "song_id": "XJ5YzI",
       "bar_num": 78,
-      "lyrics": "",
+      "lyrics": "Just turn the lights out\n",
       "audio": "",
       "has_accents": false
     },
     "B2618": {
       "song_id": "XJ5YzI",
       "bar_num": 79,
-      "lyrics": "",
+      "lyrics": "(Yeah)",
       "audio": "",
       "has_accents": false
     },
     "B2619": {
       "song_id": "XJ5YzI",
       "bar_num": 80,
-      "lyrics": "",
+      "lyrics": "My eyes are still burning red\n",
       "audio": "",
       "has_accents": false
     },
     "B2620": {
       "song_id": "XJ5YzI",
       "bar_num": 81,
-      "lyrics": "",
+      "lyrics": "(Yeah)",
       "audio": "",
       "has_accents": false
     },
     "B2621": {
       "song_id": "XJ5YzI",
       "bar_num": 82,
-      "lyrics": "",
+      "lyrics": "So turn the lights out You’re not so hard to forget With all the lights out\n",
       "audio": "",
       "has_accents": false
     },

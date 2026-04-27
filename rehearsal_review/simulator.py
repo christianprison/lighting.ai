@@ -1,6 +1,7 @@
 """simulator.py — Offline-Simulation der Kick/Snare-Erkennung.
 
-Läuft so schnell wie möglich (kein Echtzeit-Throttling).
+Läuft so schnell wie möglich — kein Echtzeit-Throttling, kein Audio-Playback.
+Fortschritt per progress-Signal (0.0–1.0). Ergebnisse via finished-Signal.
 
 Prime Directive: SimulatorWorker = Live-Algorithmus, kein Lookahead.
 Chroma (Gitarre, Bass) und Vokal-VAD werden STREAMING berechnet —
@@ -60,8 +61,7 @@ class SimulatorWorker(QThread):
     progress        = pyqtSignal(float)   # 0.0–1.0
     finished        = pyqtSignal(object)  # dict mit Ergebnissen
     error           = pyqtSignal(str)
-    sim_started     = pyqtSignal(float)   # wall-clock time.monotonic() wenn Audio startet
-    # Live-Signale (t_rel = Sekunden relativ zu seg_start_t)
+    # Erkennungs-Signale (feuern während der schnellen Analyse, t_rel relativ zu seg_start_t)
     kick_detected   = pyqtSignal(float)
     snare_detected  = pyqtSignal(float)
     crash_detected  = pyqtSignal(float)
@@ -84,7 +84,6 @@ class SimulatorWorker(QThread):
         use_hmm: bool = False,  # nicht mehr verwendet
         song_key: str = "",
         grundrhythmus: dict | None = None,
-        realtime: bool = False,
         anchors: list | None = None,
         parent=None,
     ) -> None:
@@ -98,18 +97,7 @@ class SimulatorWorker(QThread):
         self._output_jsonl  = output_jsonl
         self._song_key      = song_key
         self._grundrhythmus = grundrhythmus
-        self._realtime      = realtime
         self._anchors       = anchors or []
-        self._sd            = None   # sounddevice-Modul, gesetzt sobald sd.play() läuft
-
-    def stop_audio(self) -> None:
-        """Stoppt den sounddevice-Playback sofort (aufrufbar von außen)."""
-        sd = self._sd
-        if sd is not None:
-            try:
-                sd.stop()
-            except Exception:
-                pass
 
     # ── Haupt-Loop ────────────────────────────────────────────────────────────
 
@@ -162,9 +150,7 @@ class SimulatorWorker(QThread):
 
         total_frames = end_sample - start_sample
 
-        import time as _time
-
-        # Setup BEVOR Audio startet — sonst driftet Logging gegenueber Audio
+        # Setup — alle Objekte vor dem Block-Loop initialisieren
 
         # Streaming Feature-Extraktoren
         guitar_extractor = StreamingChromaExtractor(
@@ -216,37 +202,12 @@ class SimulatorWorker(QThread):
         # Daten erneut von Disk lesen müsste (~0,5 MB/s → 38 s Verzögerung auf HDD).
         # Stattdessen: Block-Loop sliced direkt aus raw_all (O(1) numpy-Slices),
         # kein Disk-I/O während der Verarbeitung. raw_all wird nach dem Loop gelöscht.
-        _sd_playing = False
-        _stereo_buf = None
-        _wall_start = 0.0
-
         _log(f"[SIM] Lade Segment ({total_frames} Frames, ~{int(total_frames * wav_ch * 4 / 1024 / 1024)} MB) ...")
         with sf.SoundFile(self._wav_path) as _wav_file:
             _wav_file.seek(start_sample)
             raw_all = _wav_file.read(total_frames, dtype="float32", always_2d=True)
         seg_frames = raw_all.shape[0]
-        _log(f"[SIM] Segment geladen: {seg_frames} Frames, {raw_all.shape[1]} Kanäle")
-
-        # Stereo extrahieren für Playback (raw_all bleibt für Block-Loop)
-        ch_l = min(16, raw_all.shape[1] - 1)
-        ch_r = min(17, raw_all.shape[1] - 1)
-        _stereo_buf = np.ascontiguousarray(raw_all[:, [ch_l, ch_r]])
-        _log(f"[SIM] Stereo bereit ({int(_stereo_buf.nbytes // 1024 // 1024)} MB), Block-Loop liest aus RAM")
-
-        # ── Echtzeit-Audio starten ──────────────────────────────────────────────
-        if self._realtime:
-            try:
-                import sounddevice as _sd_mod
-                self._sd = _sd_mod
-                _sd_mod.play(_stereo_buf, sr, device="pulse", blocksize=4096)
-                _sd_playing = True
-                _wall_start = _time.monotonic()
-                self.sim_started.emit(_wall_start)
-                _log("[SIM] Echtzeit-Modus: Audio gestartet")
-            except Exception as exc:
-                self._sd = None
-                _wall_start = _time.monotonic()
-                _log(f"[SIM] Audio-Playback fehlgeschlagen: {exc}")
+        _log(f"[SIM] Segment geladen: {seg_frames} Frames, {raw_all.shape[1]} Kanäle, Block-Loop liest aus RAM")
 
         _log("[SIM] Block-Loop startet")
 
@@ -373,19 +334,10 @@ class SimulatorWorker(QThread):
                 if blocks_done % 200 == 0:
                     _log(f"[SIM] ♥ {blocks_done} Blöcke  t={t_mid:.0f}s  kicks={len(kicks)}  snares={len(snares)}")
 
-                # ── Echtzeit-Throttle ─────────────────────────────────────────
-                if self._realtime:
-                    audio_done = blocks_done * BLOCK_SIZE / sr
-                    wall_elapsed = _time.monotonic() - _wall_start
-                    sleep_s = audio_done - wall_elapsed
-                    if sleep_s > 0.001:
-                        _time.sleep(sleep_s)
-
         del raw_all  # Speicher freigeben — Block-Loop abgeschlossen
 
         # ── Abbruch-Cleanup ───────────────────────────────────────────────────
         if self.isInterruptionRequested():
-            self.stop_audio()
             return
 
         # ── Vokal-VAD (fensterweise RMS — zustandslos → am Ende = live-identisch) ──
@@ -438,9 +390,6 @@ class SimulatorWorker(QThread):
             f"max OH-RMS im Segment: {_crash_rms_max:.4f})",
             file=sys.stderr,
         )
-
-        # Playback stoppen falls noch aktiv (normalerweise bereits ausgelaufen)
-        self.stop_audio()
 
         self.progress.emit(1.0)
         self.finished.emit({

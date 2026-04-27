@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2.3.6';
+const APP_VERSION = 'v2.4.0';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -1367,6 +1367,51 @@ function _parseBeats(str) {
   return vals.length ? vals : null;
 }
 
+/**
+ * Renders a 16-step drum sequencer widget for kick + snare grundrhythmus.
+ * Steps map to quarter-note positions: step i → i/4 (0.0–3.75).
+ * @param {Object} song
+ * @returns {string} HTML string (sf-full wrapper included)
+ */
+function _renderGrSeq(song) {
+  const gr = song.grundrhythmus || {};
+  const toStepSet = arr => new Set((arr || []).map(p => Math.round(p * 4) & 15));
+  const kickSteps  = toStepSet(gr.kick);
+  const snareSteps = toStepSet(gr.snare);
+
+  function beatGroups(part, activeSteps) {
+    return [0, 1, 2, 3].map(beat => {
+      const cells = [0, 1, 2, 3].map(sub => {
+        const step = beat * 4 + sub;
+        const on = activeSteps.has(step) ? ' on' : '';
+        return `<button class="gr-step${on}" data-gr-step="${step}" data-gr-part="${part}" type="button" aria-label="${part} step ${step + 1}"></button>`;
+      }).join('');
+      return `<div class="gr-beat-group" data-gr-part="${part}">${cells}</div>`;
+    }).join('');
+  }
+
+  return `<div class="sf-full">
+    <label>Grundrhythmus</label>
+    <div class="gr-seq">
+      <div class="gr-beat-header">
+        <span class="gr-row-label"></span>
+        <span class="gr-beat-num">1</span>
+        <span class="gr-beat-num">2</span>
+        <span class="gr-beat-num">3</span>
+        <span class="gr-beat-num">4</span>
+      </div>
+      <div class="gr-row" data-gr-part="kick">
+        <span class="gr-row-label kick">KICK</span>
+        ${beatGroups('kick', kickSteps)}
+      </div>
+      <div class="gr-row" data-gr-part="snare">
+        <span class="gr-row-label snare">SNARE</span>
+        ${beatGroups('snare', snareSteps)}
+      </div>
+    </div>
+  </div>`;
+}
+
 /* ── Song Fields ───────────────────────────────────── */
 
 function renderSongFields() {
@@ -1411,14 +1456,7 @@ function renderSongFields() {
         <label>Pick</label>
         <input type="text" value="${esc(song.pick || '')}" data-song-field="pick">
       </div>
-      <div>
-        <label title="Grundrhythmus Kick \u2014 Beat-Positionen 0.0\u20133.99, z.B. 0, 2">Kick (Grundrhythmus)</label>
-        <input type="text" value="${esc(_grundrhythmusBeats(song, 'kick'))}" data-song-field="grundrhythmus_kick" class="mono" placeholder="z.B. 0, 2">
-      </div>
-      <div>
-        <label title="Grundrhythmus Snare \u2014 Beat-Positionen 0.0\u20133.99, z.B. 1, 3">Snare (Grundrhythmus)</label>
-        <input type="text" value="${esc(_grundrhythmusBeats(song, 'snare'))}" data-song-field="grundrhythmus_snare" class="mono" placeholder="z.B. 1, 3">
-      </div>
+      ${_renderGrSeq(song)}
       <div class="sf-full">
         <label>Notes</label>
         <textarea data-song-field="notes" rows="2" placeholder="Notizen...">${esc(song.notes || '')}</textarea>
@@ -1614,6 +1652,28 @@ function handleEditorClick(e) {
   /* ── Delete song ── */
   if (el.closest('[data-action="delete-song"]')) {
     handleDeleteSong();
+    return;
+  }
+
+  /* ── Grundrhythmus step toggle ── */
+  const grStep = el.closest('[data-gr-step]');
+  if (grStep) {
+    const part = grStep.dataset.grPart;
+    const step = parseInt(grStep.dataset.grStep, 10);
+    const song = db.songs[selectedSongId];
+    if (!song || !part) return;
+    if (!song.grundrhythmus || typeof song.grundrhythmus !== 'object') song.grundrhythmus = {};
+    const positions = new Set((song.grundrhythmus[part] || []).map(p => Math.round(p * 4) & 15));
+    if (positions.has(step)) positions.delete(step); else positions.add(step);
+    const arr = [...positions].sort((a, b) => a - b).map(s => s / 4);
+    if (arr.length) {
+      song.grundrhythmus[part] = arr;
+    } else {
+      delete song.grundrhythmus[part];
+      if (!song.grundrhythmus.kick && !song.grundrhythmus.snare) delete song.grundrhythmus;
+    }
+    grStep.classList.toggle('on');
+    markDirty();
     return;
   }
 

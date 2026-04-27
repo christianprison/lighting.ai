@@ -8182,15 +8182,16 @@ function closeSettings() {
 /* ── Help Modal ───────────────────────────────────── */
 
 function openHelp() {
-  // Map program tab to help tab
-  const helpTabMap = {
-    setlist: 'setlist',
-    editor: 'editor',
-    takte: 'takte',
-    lyrics: 'lyrics',
-    audio: 'audio',
+  const TAB_TO_HELP = {
+    'setlist': 'setlist',
+    'editor':  'editor',
+    'audio':   'audio',
+    'parts':   'general',
+    'lyrics':  'lyrics',
+    'takte':   'takte',
+    'accents': 'accents',
   };
-  const helpTab = helpTabMap[activeTab] || 'general';
+  const helpTab = TAB_TO_HELP[activeTab] || 'general';
   switchHelpTab(helpTab);
   els.helpModal.classList.add('open');
 }

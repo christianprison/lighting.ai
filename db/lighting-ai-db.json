@@ -9942,6 +9942,15 @@
           "part_hint": "Verse 1",
           "bar_num": 3,
           "beat": "1"
+        },
+        {
+          "id": "anc_mohm6f7q_c9l3",
+          "pos": 3,
+          "type": "drum",
+          "event": "Pause",
+          "part_hint": "Bridge 1",
+          "bar_num": 16,
+          "beat": "1+"
         }
       ]
     },

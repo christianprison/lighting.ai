@@ -128,10 +128,9 @@ letter-spacing:.8px;text-transform:uppercase;color:var(--t2);cursor:pointer;tran
 .obtn.p.on{background:var(--green);color:#08090d;border-color:var(--green);box-shadow:0 0 24px #00dc8250}
 
 /* Nav row — NEXT dominant */
-.navrow{display:flex;flex-direction:column;gap:6px;flex-shrink:0;margin-top:auto}
-.nbtn.prev-small{font-size:11px;font-weight:500;height:36px;color:var(--t2);border-color:var(--border);background:var(--bg3)}
-.nbtn.prev-small:active{transform:scale(.96)}
-.nbtn.next-big{font-size:19px;font-weight:700;letter-spacing:.3px;height:68px;box-shadow:0 0 24px #00dc8218}
+.navrow{display:grid;grid-template-columns:1fr 2fr;gap:8px;flex-shrink:0;margin-top:auto}
+.nbtn.go{background:var(--green);border-color:var(--green);color:var(--bg);font-weight:700;font-size:16px;min-height:64px;box-shadow:0 0 24px #00dc8240}
+.nbtn.go:active{background:#00f090;box-shadow:0 0 40px #00dc8260}
 
 /* Setlist head: REC + Settings */
 .setlist-head{display:flex;align-items:center;gap:6px;padding:8px 10px;flex-shrink:0}
@@ -551,8 +550,8 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
       </button>
     </div>
     <div class="navrow">
-      <button class="nbtn prev-small" id="btnPrev">&#x25C0; PREV</button>
-      <button class="nbtn go next-big" id="btnNext">NEXT &#x25B6;</button>
+      <button class="nbtn" id="btnPrev">&#x25C0; PREV</button>
+      <button class="nbtn go" id="btnNext">NEXT &#x25B6;</button>
     </div>
   </div>
 </div>

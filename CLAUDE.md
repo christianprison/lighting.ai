@@ -808,6 +808,36 @@ Wenn ein Song kein `grundrhythmus` hat, wird Phasen-Histogramm + Crash-Fallback 
 - **`addAdHocSong(songId)`**: hängt Song mit `adhoc: true` an lokales `setlist`-Array, ruft `renderSetlist()` auf → kein GitHub-Push, nur session-lokal
 - Picker schließt sich per ✕-Button, Klick außerhalb oder ESC-Taste
 
+#### DMX Fallback Controller (Live-App `live/server/dmx_fallback.py`)
+
+Direkte DMX-Steuerung via sACN (E1.31) ohne QLC+ — aktiv solange kein Song/Part erkannt wird.
+
+- **Fixture**: „16 LED Pot Bibo 40°" — Ch6=R, Ch7=G, Ch8=B, Ch9=W (1-basiert)
+- **Blink-Loop**: 500 ms Intervall, 9-Farb-Sequenz (R, Orange, Gelb, G, Cyan, B, Violett, Pink, Warmweiß)
+- **`DmxFallbackController`**: `start_async()` / `stop_async()` / `is_active`
+- **`DmxFallbackConfig`**: `universe`, `multicast`, `source_name` — aus `config.yaml` via `DmxConfig`
+- **Auto-Start**: beim Server-Boot; stoppt automatisch bei `select_song`, `next`, `prev`, `goto_part`
+- **REST**: `POST /api/dmx/fallback/start`, `POST /api/dmx/fallback/stop`, `GET /api/dmx/fallback/status`
+- **WS**: `toggle_fallback` (manuell ein/aus); `fallback_active: bool` im `LiveState`
+- **Dependency**: `sacn>=1.9.0` in `requirements.txt`; Import guard — fehlendes `sacn` deaktiviert nur den Fallback, Server startet normal
+
+#### Part-Direktauswahl (Live-App WS-Action `goto_part`)
+
+```python
+# WS-Nachricht: {"action": "goto_part", "part_name": "Chorus"}
+```
+- Findet den passenden QLC+-Chaser-Step per normalisiertem Namensvergleich (lowercase)
+- Stoppt DMX-Fallback, setzt `current_step` + `current_part_name` im State
+- Falls kein Chaser-Step gefunden: Fallback auf Light-Template via `BASE_COLLECTIONS`
+- Parts im linken Panel sind direkt klickbar und senden `goto_part`
+
+#### Live-App UX (v2026.04.27c)
+
+- **NEXT-Button dominant**: `grid 1fr/2fr`, `.nbtn.go` = solides Grün, `min-height:64px`, `font-size:16px`; `:active` = heller Blitz + starker Glow
+- **Gespielte Songs**: `opacity:.58`; Songs vor dem aktiven Song bekommen CSS-Klasse `.played` + grünes ✓ statt BPM-Anzeige
+- **Part-Ende-Vorwarnung**: `updatePartEndWarning()` — bei ≤2 Takten bis Part-Ende pulsiert NEXT amber (`warningPulse`-Animation) + `#nextPreview` zeigt `→ [nächster Part-Name]`
+- **Override-Buttons**: `.on`-State invertiert (Vollfarbe + Glow statt Halbtransparenz)
+
 #### ⚠️ Offene Punkte für nächste Session
 
 1. **Feldtest BandActivityDetector**: Simulation starten, im Events-Strip prüfen:
@@ -816,20 +846,38 @@ Wenn ein Song kein `grundrhythmus` hat, wird Phasen-Histogramm + Crash-Fallback 
    - Falls zu empfindlich (▲/▽ während Spielen): `start_ratio` erhöhen (aktuell 0.70) oder `threshold_rms` erhöhen (aktuell 0.005)
    - Falls zu träge: `stop_hold_blocks` senken (aktuell 3, ~126 ms bei 48kHz/2048)
    - **Integration in AudioProcess (Live-Betrieb)** steht noch aus — identisch zu SimulatorWorker integrierbar (Prime Directive erfüllt)
-2. **Branch claude/fix-audio-delay-Vs1Ys in main mergen**: Enthält alle Fixes seit 2026-04-23 (38s-Delay, Live-App-Bugs, TMS-Tasks, Song-Picker, Aufnahme-Dateinamen, BandActivityDetector)
-3. **Feldtest AnchorMatcher**: Simulation auf Songs mit gepflegten Ankern laufen lassen:
+2. **Feldtest AnchorMatcher**: Simulation auf Songs mit gepflegten Ankern laufen lassen:
    - `[ANKER] warte auf #01 ...` erscheint vor dem ersten Audio-Ton (Logging-Timing korrekt?)
    - Anker werden in der richtigen Reihenfolge erkannt und als Diamonds im Anker-Strip sichtbar
    - **Schwellwerte tunen**: Falls zu viele False Positives → `_RMS_VOCAL_ON` / `_RMS_GUITAR_ON` erhöhen; zu wenige → senken
-4. **Feldtest Beat-1-Korrektur + Dual-Playhead**: Simulation auf verschiedenen Songs laufen lassen:
+3. **Feldtest Beat-1-Korrektur + Dual-Playhead**: Simulation auf verschiedenen Songs laufen lassen:
    - Crash-Detektion: Status-Bar zeigt `★ N Crashes`? Wenn 0 → `CRASH_RMS_MIN` (aktuell 0.001) weiter senken
    - Taktgitter landet auf Beat 1 (Snare-Positionen ≈ 1.0 und 3.0 beats in Diagnostik)
-   - **Dual-Playhead prüfen**: Abweichung rot ↔ amber = Erkennungslatenz. Typisch ~1–2 Takte (= 1–2s bei 120 BPM). Größere Abweichung → BarTracker braucht mehr Events zum Einrasten.
-   - **grundrhythmus-Daten einpflegen**: Für jeden Song die Kick/Snare-Positionen in der
-     DB-Pflege-App eintragen (Felder seit v2.2.27), damit Pattern-Matching statt
-     Phasen-Histogramm greift
-3. **Anker-Positionen in der DB pflegen**: Für Songs ohne Anker-Daten die Anker in der DB-Pflege-App eintragen, damit der AnchorMatcher greifen kann. Besonders drum-Anker (Crash, Snare) sind einfach zu erkennen und liefern schnell Ergebnisse.
-4. **Probenaufnahmen → RF64-Format**: Neue Aufnahmen (seit v2026.04.23a) werden im RF64-Format geschrieben (keine 4-GB-Grenze, korrekte libsndfile-Seeks). Alte WAV-Aufnahmen >4 GB haben einen ungültigen Size-Header — libsndfile scannt das File linear beim Öffnen (30–60 s). Die v1.3.20-Lade-Strategie (Zwei-Schritt-RAM-Ansatz, s.o.) ist der korrekte Workaround dafür.
+   - **grundrhythmus-Daten einpflegen**: Für jeden Song die Kick/Snare-Positionen in der DB-Pflege-App eintragen (Felder seit v2.2.27)
+4. **Anker-Positionen in der DB pflegen**: Für Songs ohne Anker-Daten die Anker in der DB-Pflege-App eintragen, damit der AnchorMatcher greifen kann.
+5. **Probenaufnahmen → RF64-Format**: Neue Aufnahmen (seit v2026.04.23a) werden im RF64-Format geschrieben. Alte WAV-Aufnahmen >4 GB: libsndfile scannt linear beim Öffnen (30–60 s) — v1.3.20-Lade-Strategie ist der Workaround.
+
+#### Implementierte Features (Session 2026-04-27)
+
+**Live-App v2026.04.27c** — DMX Fallback + UX:
+- DMX Fallback Mode (sACN direkt, kein QLC+): `live/server/dmx_fallback.py`
+- Auto-Fallback startet beim Server-Boot, stoppt bei Song/Part-Auswahl
+- Part-Direktauswahl: Parts-Panel klickbar → `goto_part` WS-Action
+- NEXT-Button dominant, gespielte Songs ✓, Part-Ende-Vorwarnung, Override-Feedback
+
+**DB-Pflege-App v2.3.6** — UX:
+- `beforeunload`-Warning bei ungespeicherten Änderungen (`dirty=true`)
+- Undo-Button: Confirm-Dialog vor dem Verwerfen; Icon ⬓
+- Hilfe-Modal öffnet kontextsensitiv auf passendem Tab (inkl. PARTS→Allgemein, ACCENTS→Accents)
+- Tab-Trenner zwischen AUDIO SPLIT und PARTS (globale vs. song-spezifische Tabs)
+- Tab-Label: TAKTE → BARS (einheitlich englisch)
+
+**Rehearsal-App v1.3.25** — Autosave + Shortcuts:
+- B/P/F/U außerhalb des Annotationsmodus: Statusleisten-Warnung statt stillem Nichtstun
+- `_mark_annotations_dirty()`: setzt dirty-Flag + Fenstertitel-Präfix `● `
+- `_mark_annotations_clean()`: nach manuellem Speichern
+- `_autosave()` (90 s Timer): schreibt `*_annotations_autosave.json` (getrennt von Haupt-Datei)
+- `_load_session()`: bietet Autosave-Wiederherstellung via QMessageBox an
 
 #### Behobene Bugs (Session 2026-04-23)
 

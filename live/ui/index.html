@@ -526,7 +526,8 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
     <div class="badges">
       <div class="badge live" id="badgeLive"><div class="pulse"></div>LIVE</div>
       <div class="badge" id="badgeQlc">QLC+ &#x25CF;</div>
-      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.04.27d</div>
+      <div class="badge off" id="badgeBand">BAND &#9661;</div>
+      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.04.27e</div>
     </div>
     <div class="beat-area">
       <div class="beat-row">
@@ -643,6 +644,13 @@ function connectWS() {
       renderAll();
     } else if (msg.type === 'beat_update') {
       handleBeatUpdate(msg);
+    } else if (msg.type === 'band_event') {
+      var badge = document.getElementById('badgeBand');
+      if (badge) {
+        var active = msg.event_type === 'band_starts';
+        badge.className = 'badge ' + (active ? 'live' : 'off');
+        badge.textContent = active ? 'BAND ▲' : 'BAND ▽';
+      }
     }
   };
   ws.onclose = function() {

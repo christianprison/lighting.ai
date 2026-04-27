@@ -115,7 +115,7 @@ QComboBox#zoom_combo          { font-family:'DM Mono',monospace; font-size:10px;
                                 min-width:90px; max-width:110px; }
 """
 
-APP_VERSION = "1.3.25"
+APP_VERSION = "1.4.0"
 
 _ZOOM_PRESETS: list[int] = [2, 5, 10, 20, 40, 80, 160, 320, 640, 1280, 2560, 5120, 10240, 20480, 40960]
 
@@ -405,21 +405,12 @@ class MainWindow(QMainWindow):
         self._sim_t_in_seg:    float = 0.0  # Segment-relative Startposition für Seek
         self._sim_bpm:         float = 120.0
         self._sim_song_key:    str   = ""
-        self._sim_wall_start:  float = 0.0  # Echtzeit-Startpunkt (time.monotonic)
         self._last_bar_times:  list  = []
-        # Event-Playhead: letzte vom BarTracker erkannte Taktposition
-        self._ev_playhead_wav_t:  float = 0.0  # abs. WAV-Zeit des letzten Takts
-        self._ev_playhead_wall_t: float = 0.0  # Wanduhr-Zeit des letzten Takts
 
         # Autosave-Timer: speichert Annotierungen alle 90 s wenn dirty
         self._autosave_timer = QTimer(self)
         self._autosave_timer.setInterval(90_000)
         self._autosave_timer.timeout.connect(self._autosave)
-
-        # Playhead-Timer für Echtzeit-Simulation (40 ms ≈ 25 fps)
-        self._sim_playhead_timer = QTimer(self)
-        self._sim_playhead_timer.setInterval(40)
-        self._sim_playhead_timer.timeout.connect(self._on_sim_playhead_tick)
 
         self._player = AudioPlayer(self)
         self._player.position_changed.connect(self._on_position)
@@ -960,13 +951,11 @@ class MainWindow(QMainWindow):
 
     def _stop(self) -> None:
         self._player.stop()
-        # Simulation-Audio stoppen falls aktiv (Ergebnisse bleiben erhalten)
         if self._sim_worker is not None:
-            self._sim_worker.stop_audio()
             self._sim_worker.requestInterruption()
-            self._sim_playhead_timer.stop()
             self._sim_worker = None
             self._sim_btn_set_running(False)
+            self._close_sim_progress()
         self._play_act.setText("Play")
         if self._current_seg:
             self._timeline.set_cursor(self._current_seg.start_t)
@@ -1610,11 +1599,8 @@ class MainWindow(QMainWindow):
         self._sim_bpm         = bpm
         self._sim_song_key    = song_key
 
-        # Laufenden Playback stoppen (Simulation spielt eigenes Audio ab)
+        # Laufenden Playback stoppen während Analyse läuft
         self._player.stop()
-
-        # Overlay sofort aktivieren — Events erscheinen live in Amber/Cyan
-        self._timeline.set_sim_overlay(True)
 
         worker = SimulatorWorker(
             wav_path=self._session.wav_path,
@@ -1630,27 +1616,12 @@ class MainWindow(QMainWindow):
             use_hmm=False,
             song_key=song_key,
             grundrhythmus=grundrhythmus,
-            realtime=True,
             anchors=anchors,
             parent=self,
         )
 
-        # Live-Events direkt in die Timeline streamen (abs. WAV-Zeit)
-        start_t = sim_start_wav_t   # captured by lambdas
-        worker.kick_detected.connect(
-            lambda t: self._timeline.add_sim_kick(start_t + t))
-        worker.snare_detected.connect(
-            lambda t: self._timeline.add_sim_snare(start_t + t))
-        worker.crash_detected.connect(
-            lambda t: self._timeline.add_sim_crash(start_t + t, 0.0))
-        worker.bar_detected.connect(
-            lambda n, t, bpm_v: self._timeline.add_sim_bar_time(start_t + t, bpm_v))
-        worker.bar_detected.connect(self._on_bar_detected_ev)
-        worker.anchor_matched.connect(self._timeline.add_sim_anchor_detected)
-        worker.band_event_detected.connect(
-            lambda et, t: self._timeline.add_sim_band_event(et, start_t + t))
-
-        # Anker-Fortschritt live in der Status-Bar anzeigen
+        # Anker-Erkennungs-Status in der Status-Bar anzeigen (läuft schnell durch)
+        start_t = sim_start_wav_t
         _anchors_sorted = sorted(anchors, key=lambda a: (a.get("pos", 9999), a.get("bar_num", 0)))
         _mc = [0]
 
@@ -1667,54 +1638,25 @@ class MainWindow(QMainWindow):
             )
 
         worker.anchor_matched.connect(_on_anchor_status)
-        # Initiale Warte-Meldung direkt setzen (vor worker.start), damit sie sofort
-        # sichtbar ist — unabhängig von der Signal-Übertragungslatenz.
-        if _anchors_sorted:
-            a0 = _anchors_sorted[0]
-            self._sim_waiting_msg = (
-                f"⚓ Warte auf #1: [{a0.get('type','')}] {a0.get('event','')}"
-            )
-        else:
-            self._sim_waiting_msg = ""
 
-        worker.sim_started.connect(self._on_sim_started)
+        # Progress-Dialog
+        self._sim_progress_dlg = QProgressDialog(
+            "Analyse läuft …", "Abbrechen", 0, 100, self
+        )
+        self._sim_progress_dlg.setWindowTitle("Simulation")
+        self._sim_progress_dlg.setWindowModality(Qt.WindowModality.WindowModal)
+        self._sim_progress_dlg.setMinimumDuration(0)
+        self._sim_progress_dlg.setValue(0)
+        worker.progress.connect(
+            lambda v: self._sim_progress_dlg.setValue(int(v * 100))
+            if self._sim_progress_dlg else None
+        )
+        self._sim_progress_dlg.canceled.connect(self._stop)
+
         worker.finished.connect(self._on_sim_finished)
         worker.error.connect(self._on_sim_error)
         self._sim_worker = worker
         worker.start()
-
-    def _on_sim_started(self, wall_t: float) -> None:
-        """Audio-Playback hat gestartet — Playhead-Timer auf diesen Zeitpunkt synchro."""
-        self._sim_wall_start = wall_t
-        self._sim_playhead_timer.start()
-        msg = getattr(self, "_sim_waiting_msg", "") or "Simulation läuft …"
-        self._status.showMessage(msg, 0)
-
-    def _on_bar_detected_ev(self, _bar_num: int, t_rel: float, _bpm: float) -> None:
-        """Speichert letzten erkannten Takt für Event-Playhead-Interpolation."""
-        self._ev_playhead_wav_t  = self._sim_start_wav_t + t_rel
-        # Wall-Clock-Zeit dieses Takts: Audio läuft synchron → _wall_start + t_rel
-        self._ev_playhead_wall_t = self._sim_wall_start + t_rel
-
-    def _on_sim_playhead_tick(self) -> None:
-        """25-fps-Timer: beide Playheads während Echtzeit-Simulation aktualisieren."""
-        if self._current_seg is None:
-            self._sim_playhead_timer.stop()
-            return
-        elapsed = time.monotonic() - self._sim_wall_start
-        wav_t   = self._sim_start_wav_t + elapsed
-        if wav_t >= self._current_seg.end_t + 1.0:
-            self._sim_playhead_timer.stop()
-            return
-        # Haupt-Playhead (Audioposition, rot)
-        self._timeline.set_cursor(wav_t)
-        self._overview.set_playhead(wav_t)
-        self._pos_label.setText(_fmt_t_precise(wav_t - self._current_seg.start_t))
-        # Event-Playhead (BarTracker-Schätzung, amber gestrichelt)
-        if self._ev_playhead_wav_t > 0 and self._ev_playhead_wall_t > 0:
-            elapsed_since_bar = time.monotonic() - self._ev_playhead_wall_t
-            ev_wav_t = self._ev_playhead_wav_t + elapsed_since_bar
-            self._timeline.set_event_cursor(ev_wav_t)
 
     def _close_sim_progress(self) -> None:
         if self._sim_progress_dlg is not None:
@@ -1863,9 +1805,6 @@ class MainWindow(QMainWindow):
         dlg.exec()
 
     def _on_sim_finished(self, result: dict) -> None:
-        self._sim_playhead_timer.stop()
-        self._ev_playhead_wav_t  = 0.0
-        self._ev_playhead_wall_t = 0.0
         self._close_sim_progress()
         self._sim_btn_set_running(False)
         self._sim_btn.setEnabled(True)
@@ -1889,7 +1828,8 @@ class MainWindow(QMainWindow):
             )
             return
 
-        # Live-gestreamte Events löschen und finales Set (mit Crash-Energien) einfügen
+        # Overlay aktivieren und finales Ergebnis einfügen
+        self._timeline.set_sim_overlay(True)
         self._timeline.clear_sim_beats()
         abs_kicks   = [self._sim_start_wav_t + t_k for t_k in kicks]
         abs_snares  = [self._sim_start_wav_t + t_s for t_s in snares]
@@ -1985,7 +1925,6 @@ class MainWindow(QMainWindow):
         self._sync_zoom_combo()
 
     def _on_sim_error(self, err: str) -> None:
-        self._sim_playhead_timer.stop()
         self._close_sim_progress()
         self._sim_btn_set_running(False)
         self._sim_btn.setEnabled(True)

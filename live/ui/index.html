@@ -88,28 +88,23 @@ overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
 /* Beat area */
-.beat-area{display:flex;align-items:center;justify-content:center;gap:0;flex-shrink:0}
-.beat-row{display:flex;align-items:center;gap:0}
-.tap-btn{width:56px;height:56px;border-radius:50%;background:var(--bg3);border:3px solid var(--border2);
+.beat-area{display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0}
+.beat-row{display:flex;align-items:center;gap:10px}
+.tap-btn{width:40px;height:40px;border-radius:50%;background:var(--bg3);border:2px solid var(--border2);
 cursor:pointer;transition:all 70ms;display:flex;align-items:center;justify-content:center;
-font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:var(--t3);position:relative;z-index:1;
+font-family:'DM Mono',monospace;font-size:11px;font-weight:500;color:var(--t3);
 flex-shrink:0;touch-action:manipulation}
 .tap-btn:active{transform:scale(.92)}
 .tap-btn.on{background:var(--green);border-color:var(--green);color:var(--bg);
-box-shadow:0 0 28px #00dc8270,0 0 60px #00dc8225;font-weight:700}
-.tap-btn .tap-label{position:absolute;bottom:-14px;left:50%;transform:translateX(-50%);
-font-size:7px;letter-spacing:1.5px;color:var(--t4);white-space:nowrap}
-.tap-btn.on .tap-label{color:var(--green)}
-@keyframes tapFlash{0%{box-shadow:0 0 40px #00dc8290,0 0 80px #00dc8240}100%{box-shadow:0 0 28px #00dc8270,0 0 60px #00dc8225}}
+box-shadow:0 0 20px #00dc8270,0 0 40px #00dc8225;font-weight:700}
+@keyframes tapFlash{0%{box-shadow:0 0 32px #00dc8290,0 0 60px #00dc8240}100%{box-shadow:0 0 20px #00dc8270,0 0 40px #00dc8225}}
 .tap-btn.flash{animation:tapFlash .15s ease}
-.beat-connector{width:14px;height:2px;background:var(--border);flex-shrink:0}
-.beat-connector.lit{background:var(--green);box-shadow:0 0 4px var(--green)}
-.beat-dots{display:flex;gap:8px;align-items:center}
-.bdot{width:24px;height:24px;border-radius:50%;background:var(--bg3);border:2px solid var(--border2);transition:all 70ms;flex-shrink:0}
-.bdot.on{background:var(--cyan);border-color:var(--cyan);box-shadow:0 0 14px #38bdf860}
-.bpm-box{font-family:'DM Mono',monospace;text-align:center;line-height:1.1;margin-left:18px;flex-shrink:0}
-.bpm-num{font-size:30px;font-weight:500;color:var(--t1)}
-.bpm-label{font-size:9px;color:var(--t3);letter-spacing:2px}
+.beat-dots{display:flex;gap:6px;align-items:center}
+.bdot{width:18px;height:18px;border-radius:50%;background:var(--bg3);border:2px solid var(--border2);transition:all 70ms;flex-shrink:0}
+.bdot.on{background:var(--cyan);border-color:var(--cyan);box-shadow:0 0 10px #38bdf860}
+.bpm-box{font-family:'DM Mono',monospace;text-align:center;line-height:1.1;flex-shrink:0}
+.bpm-num{font-size:22px;font-weight:500;color:var(--t1)}
+.bpm-label{font-size:8px;color:var(--t3);letter-spacing:2px}
 
 /* Override buttons */
 .overrides{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;flex-shrink:0}
@@ -527,19 +522,19 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
       <div class="badge live" id="badgeLive"><div class="pulse"></div>LIVE</div>
       <div class="badge" id="badgeQlc">QLC+ &#x25CF;</div>
       <div class="badge off" id="badgeBand">BAND &#9661;</div>
-      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.04.27e</div>
+      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.04.27f</div>
     </div>
     <div class="beat-area">
       <div class="beat-row">
-        <div class="tap-btn" id="tap">1<span class="tap-label">TAP</span></div>
-        <div class="beat-connector" id="conn1"></div>
         <div class="beat-dots">
           <div class="bdot" id="b2"></div>
           <div class="bdot" id="b3"></div>
           <div class="bdot" id="b4"></div>
         </div>
+        <div class="bpm-box"><div class="bpm-num" id="bpmDisp">-</div><div class="bpm-label">BPM</div></div>
       </div>
-      <div class="bpm-box"><div class="bpm-num" id="bpmDisp">-</div><div class="bpm-label">BPM</div></div>
+      <div class="tap-btn" id="tap">1</div>
+      <div id="conn1" style="display:none"></div>
     </div>
     <div class="overrides">
       <button class="obtn a" data-accent="blind"><span class="ico">&#x1F4A5;</span>BLINDER</button>

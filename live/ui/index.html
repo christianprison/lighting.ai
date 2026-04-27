@@ -152,7 +152,7 @@ cursor:pointer;transition:all .1s;touch-action:manipulation}
 padding:9px 10px;margin-bottom:2px;border-radius:6px;border:1.5px solid transparent;cursor:pointer;transition:all .1s}
 .song:active{transform:scale(.97)}
 .song.active{background:var(--green3);border-color:var(--green)}
-.song.played{opacity:.55}
+.song.played{opacity:.58}
 .song.no-chaser{opacity:.7}
 .song-i{font-family:'DM Mono',monospace;font-size:10px;color:var(--t4);text-align:right}
 .song.active .song-i{color:var(--green)}
@@ -728,6 +728,11 @@ function renderSetlist() {
   var el = document.getElementById('setlist');
   var h = '';
   var idx = 0;
+  // Bestimme Index des aktiven Songs (für played-Markierung)
+  var activeSetlistIdx = -1;
+  for (var j = 0; j < setlist.length; j++) {
+    if (setlist[j].song_id === state.current_song_id) { activeSetlistIdx = j; break; }
+  }
   for (var i = 0; i < setlist.length; i++) {
     var item = setlist[i];
     if (item.type === 'pause') {
@@ -737,14 +742,19 @@ function renderSetlist() {
     idx++;
     var sid = item.song_id;
     var isActive = state.current_song_id === sid;
+    var isPlayed = activeSetlistIdx > 0 && i < activeSetlistIdx;
     var hasChaser = !!qlcMapping[sid];
-    var cls = isActive ? 'active' : '';
+    var cls = isActive ? 'active' : (isPlayed ? 'played' : '');
     if (!hasChaser) cls += ' no-chaser';
     var title = hasChaser ? '' : ' title="Kein QLC+ Mapping"';
     h += '<div class="song ' + cls + '" data-sid="' + sid + '"' + title + '>';
     h += '<span class="song-i">' + String(idx).padStart(2, '0') + '</span>';
     h += '<span class="song-t">' + escHtml(item.name || '?') + '</span>';
-    h += '<span class="song-b">' + (item.bpm || '') + '</span>';
+    if (isPlayed) {
+      h += '<span style="font-size:10px;color:var(--green);opacity:.6">&#10003;</span>';
+    } else {
+      h += '<span class="song-b">' + (item.bpm || '') + '</span>';
+    }
     h += '</div>';
   }
   el.innerHTML = h;

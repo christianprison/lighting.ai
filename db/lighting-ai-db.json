@@ -9587,7 +9587,7 @@
             "time": 23.347427028023613
           },
           {
-            "time": 26.142093694690285
+            "time": 26.07731115044248
           },
           {
             "time": 28.824760361356933
@@ -9611,7 +9611,7 @@
             "time": 44.71542702802363
           },
           {
-            "time": 47.2914270280236
+            "time": 47.19281309734514
           },
           {
             "time": 49.9260936946903
@@ -9626,7 +9626,7 @@
             "time": 57.763427028023635
           },
           {
-            "time": 60.224760361356935
+            "time": 60.28709433628318
           },
           {
             "time": 62.84609369469026
@@ -9638,7 +9638,7 @@
             "time": 67.91542702802363
           },
           {
-            "time": 70.71276036135694
+            "time": 70.7002185840708
           },
           {
             "time": 73.26476036135696
@@ -9834,6 +9834,62 @@
           {
             "bar_num": 1,
             "name": "Intro"
+          },
+          {
+            "bar_num": 3,
+            "name": "Verse 1"
+          },
+          {
+            "bar_num": 11,
+            "name": "Bridge 1"
+          },
+          {
+            "bar_num": 17,
+            "name": "Chorus 1"
+          },
+          {
+            "bar_num": 25,
+            "name": "Interlude 1"
+          },
+          {
+            "bar_num": 29,
+            "name": "Verse 2"
+          },
+          {
+            "bar_num": 37,
+            "name": "Bridge 2"
+          },
+          {
+            "bar_num": 45,
+            "name": "Chorus 2"
+          },
+          {
+            "bar_num": 53,
+            "name": "Chorus Variation"
+          },
+          {
+            "bar_num": 57,
+            "name": "Drum Solo"
+          },
+          {
+            "bar_num": 59,
+            "name": "Guitar Solo"
+          },
+          {
+            "bar_num": 75,
+            "name": "Chorus 3"
+          },
+          {
+            "bar_num": 83,
+            "name": "Interlude 2"
+          },
+          {
+            "bar_num": 87,
+            "name": "Interlude 3"
+          },
+          {
+            "bar_num": 89,
+            "name": "Abschlag"
           }
         ]
       }

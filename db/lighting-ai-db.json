@@ -9840,7 +9840,8 @@
           {
             "bar_num": 1,
             "name": "Intro",
-            "light_template": "06 blinking"
+            "light_template": "06 blinking",
+            "instrumental": true
           },
           {
             "bar_num": 3,
@@ -9860,7 +9861,8 @@
           {
             "bar_num": 25,
             "name": "Interlude 1",
-            "light_template": "04 up'n'down"
+            "light_template": "04 up'n'down",
+            "instrumental": true
           },
           {
             "bar_num": 29,
@@ -9880,17 +9882,20 @@
           {
             "bar_num": 53,
             "name": "Chorus Variation",
-            "light_template": "09 Alarm"
+            "light_template": "09 Alarm",
+            "instrumental": true
           },
           {
             "bar_num": 57,
             "name": "Drum Solo",
-            "light_template": "Spot auf Tim"
+            "light_template": "Spot auf Tim",
+            "instrumental": true
           },
           {
             "bar_num": 59,
             "name": "Guitar Solo",
-            "light_template": "Spot auf Axel"
+            "light_template": "Spot auf Axel",
+            "instrumental": true
           },
           {
             "bar_num": 75,
@@ -9900,20 +9905,24 @@
           {
             "bar_num": 83,
             "name": "Interlude 2",
-            "light_template": "04 up'n'down"
+            "light_template": "04 up'n'down",
+            "instrumental": true
           },
           {
             "bar_num": 87,
             "name": "Interlude 3",
-            "light_template": "04 up'n'down"
+            "light_template": "04 up'n'down",
+            "instrumental": true
           },
           {
             "bar_num": 89,
             "name": "Abschlag",
-            "light_template": "00 blackout"
+            "light_template": "00 blackout",
+            "instrumental": true
           }
         ]
-      }
+      },
+      "anchors": []
     },
     "BKpY4X": {
       "name": "Lonely Boy",

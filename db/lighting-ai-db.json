@@ -9545,7 +9545,9 @@
       "tms": {
         "manual_done": [
           "bar_markers",
-          "parts_identified"
+          "parts_identified",
+          "instr_parts_identified",
+          "instr_bars_identified"
         ],
         "user_tasks": [],
         "manual_undone": []
@@ -9922,7 +9924,26 @@
           }
         ]
       },
-      "anchors": []
+      "anchors": [
+        {
+          "id": "anc_mohm5c7u_g8lq",
+          "pos": 1,
+          "type": "drum",
+          "event": "Einsatz",
+          "part_hint": "Verse 1",
+          "bar_num": 3,
+          "beat": "1"
+        },
+        {
+          "id": "anc_mohm5nz5_g4ik",
+          "pos": 2,
+          "type": "drum",
+          "event": "Crash",
+          "part_hint": "Verse 1",
+          "bar_num": 3,
+          "beat": "1"
+        }
+      ]
     },
     "BKpY4X": {
       "name": "Lonely Boy",

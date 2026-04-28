@@ -10975,15 +10975,18 @@
           },
           {
             "bar_num": 5,
-            "name": "Verse 1 (no Bass)"
+            "name": "Verse 1 (no Bass)",
+            "light_template": "03 walking + PARs Pete"
           },
           {
             "bar_num": 9,
-            "name": "Verse 1 + Bass"
+            "name": "Verse 1 + Bass",
+            "light_template": "08 swimming"
           },
           {
             "bar_num": 13,
-            "name": "Verse 1 (normal beat)"
+            "name": "Verse 1 (normal beat)",
+            "light_template": "08 swimming"
           },
           {
             "bar_num": 29,

@@ -11030,6 +11030,7 @@
           {
             "bar_num": 132,
             "name": "Ausklang",
+            "light_template": "01 statisch bunt",
             "instrumental": true
           }
         ]

@@ -30446,7 +30446,7 @@
       "bar_num": 132,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     }
   },
   "accents": {
@@ -32122,6 +32122,12 @@
       "bar_id": "B2625",
       "pos_16th": 16,
       "type": "st",
+      "notes": ""
+    },
+    "A0300": {
+      "bar_id": "B2889",
+      "pos_16th": 5,
+      "type": "bl",
       "notes": ""
     }
   },

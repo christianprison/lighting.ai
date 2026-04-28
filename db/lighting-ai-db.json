@@ -29222,35 +29222,36 @@
     "B2704": {
       "song_id": "BKpY4X",
       "bar_num": 76,
-      "lyrics": "Any old time you keep",
+      "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2705": {
       "song_id": "BKpY4X",
       "bar_num": 77,
-      "lyrics": "me waiting,",
+      "lyrics": "Any old time you",
       "audio": "",
       "has_accents": false
     },
     "B2706": {
       "song_id": "BKpY4X",
       "bar_num": 78,
-      "lyrics": "waiting,",
+      "lyrics": "keep me waiting,",
       "audio": "",
       "has_accents": false
     },
     "B2707": {
       "song_id": "BKpY4X",
       "bar_num": 79,
-      "lyrics": "waiting",
+      "lyrics": "waiting,",
       "audio": "",
       "has_accents": false
     },
     "B2708": {
       "song_id": "BKpY4X",
       "bar_num": 80,
-      "lyrics": "",
+      "lyrics": "waiting\n",
       "audio": "",
       "has_accents": false
     },

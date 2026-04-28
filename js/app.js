@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2026.04.28b';
+const APP_VERSION = 'v2026.04.28c';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -161,6 +161,108 @@ function buildTemplateOptions(selected) {
     html += '</optgroup>';
   }
   return html;
+}
+
+/* ── Light Template Drilldown Picker ────────────────── */
+
+let _tplPanel = null;
+let _tplPickerEl = null;
+let _tplPickerIdx = -1;
+let _tplPickerParts = null;
+
+function _ensureTplPanel() {
+  if (_tplPanel) return _tplPanel;
+  _tplPanel = document.createElement('div');
+  _tplPanel.id = 'tpl-panel';
+  _tplPanel.hidden = true;
+  document.body.appendChild(_tplPanel);
+  document.addEventListener('mousedown', e => {
+    if (!_tplPanel.hidden && !_tplPanel.contains(e.target) && !e.target.closest('.tpl-picker'))
+      _closeTplPanel();
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !_tplPanel.hidden) _closeTplPanel();
+  });
+  return _tplPanel;
+}
+
+function _positionTplPanel(anchorEl) {
+  const r = anchorEl.getBoundingClientRect();
+  const ph = Math.min(320, window.innerHeight - 20);
+  let top = r.bottom + 2;
+  if (top + ph > window.innerHeight - 10) top = r.top - 2 - Math.min(ph, r.top - 10);
+  let left = r.left;
+  if (left + 280 > window.innerWidth - 10) left = window.innerWidth - 290;
+  _tplPanel.style.top = `${Math.max(4, top)}px`;
+  _tplPanel.style.left = `${Math.max(4, left)}px`;
+}
+
+function _openTplPanel(pickerEl, idx, partsArr) {
+  _ensureTplPanel();
+  _tplPickerEl = pickerEl;
+  _tplPickerIdx = idx;
+  _tplPickerParts = partsArr;
+  _tplShowLevel1();
+  _tplPanel.hidden = false;
+  _positionTplPanel(pickerEl);
+}
+
+function _closeTplPanel() {
+  if (_tplPanel) _tplPanel.hidden = true;
+  _tplPickerEl = null;
+  _tplPickerIdx = -1;
+  _tplPickerParts = null;
+}
+
+function _tplShowLevel1() {
+  const currentVal = _tplPickerParts?.[_tplPickerIdx]?.light_template || '';
+  let html = `<div class="tpl-none-row" data-action="none">— kein —</div>`;
+  for (let gi = 0; gi < LIGHT_TEMPLATE_GROUPS.length; gi++) {
+    const grp = LIGHT_TEMPLATE_GROUPS[gi];
+    const hasSel = grp.items.includes(currentVal);
+    html += `<div class="tpl-lvl-row tpl-grp-row${hasSel ? ' tpl-item-selected' : ''}" data-grp="${gi}">
+      <span>${esc(grp.label)}</span><span class="tpl-lvl-row-arr">›</span>
+    </div>`;
+  }
+  _tplPanel.innerHTML = html;
+  _tplPanel.querySelector('.tpl-none-row').addEventListener('click', () => _tplApplyValue(''));
+  for (const row of _tplPanel.querySelectorAll('.tpl-grp-row'))
+    row.addEventListener('click', () => _tplShowLevel2(parseInt(row.dataset.grp)));
+}
+
+function _tplShowLevel2(grpIdx) {
+  const grp = LIGHT_TEMPLATE_GROUPS[grpIdx];
+  const currentVal = _tplPickerParts?.[_tplPickerIdx]?.light_template || '';
+  let html = `<div class="tpl-lvl-row tpl-lvl-back">‹ ${esc(grp.label)}</div>`;
+  for (const item of grp.items) {
+    const sel = item === currentVal;
+    html += `<div class="tpl-lvl-row tpl-item-row${sel ? ' tpl-item-selected' : ''}" data-val="${esc(item)}">${esc(item)}</div>`;
+  }
+  _tplPanel.innerHTML = html;
+  _tplPanel.querySelector('.tpl-lvl-back').addEventListener('click', () => _tplShowLevel1());
+  for (const row of _tplPanel.querySelectorAll('.tpl-item-row'))
+    row.addEventListener('click', () => _tplApplyValue(row.dataset.val));
+}
+
+function _tplApplyValue(val) {
+  if (_tplPickerIdx < 0 || !_tplPickerParts) return;
+  partsTabSetTemplate(_tplPickerParts[_tplPickerIdx].barNum, val);
+  const disp = _tplPickerEl?.querySelector('.tpl-disp');
+  if (disp) {
+    disp.textContent = val || '— kein —';
+    disp.className = 'tpl-disp' + (val ? '' : ' tpl-disp-empty');
+  }
+  _closeTplPanel();
+}
+
+/** Build the drilldown-picker trigger HTML for a parts-table row */
+function buildTplPickerHtml(selected, idx) {
+  const dispText = selected || '— kein —';
+  const isEmpty = !selected;
+  return `<div class="tpl-picker" data-idx="${idx}">
+    <span class="tpl-disp${isEmpty ? ' tpl-disp-empty' : ''}">${esc(dispText)}</span>
+    <span class="tpl-disp-arr">▾</span>
+  </div>`;
 }
 
 const ACCENT_TYPES = ['bl', 'bo', 'hl', 'st', 'fg'];
@@ -2106,10 +2208,12 @@ function renderPartsTab() {
         renderPartsTab();
       });
     }
-    for (const sel of document.querySelectorAll('.pt-tpl-select')) {
-      sel.addEventListener('change', () => {
-        const idx = parseInt(sel.dataset.idx);
-        partsTabSetTemplate(parts[idx].barNum, sel.value);
+    for (const pk of document.querySelectorAll('.tpl-picker')) {
+      pk.addEventListener('click', e => {
+        e.stopPropagation();
+        const idx = parseInt(pk.dataset.idx);
+        if (_tplPickerEl === pk) { _closeTplPanel(); return; }
+        _openTplPanel(pk, idx, parts);
       });
     }
     for (const btn of document.querySelectorAll('.pt-qlc-apply')) {
@@ -2163,7 +2267,7 @@ function _renderPartsLichtView(parts, hasBuf) {
     html += `<td class="pt-dur">${durStr}</td>`;
     html += `<td class="pt-play"><button class="pt-play-btn ${isPlaying ? 'playing' : ''}" data-idx="${i}" ${!hasBuf ? 'disabled' : ''}>${isPlaying ? '&#9724;' : '&#9654;'}</button></td>`;
     html += `<td class="pt-instr"><input type="checkbox" class="pt-instr-cb" data-idx="${i}" ${p.instrumental ? 'checked' : ''} title="Instrumental (alle Takte dieses Parts beim Lyrics-Import überspringen)"></td>`;
-    html += `<td class="pt-tpl"><select class="pt-tpl-select" data-idx="${i}"><option value="">— kein —</option>${buildTemplateOptions(p.light_template)}</select></td>`;
+    html += `<td class="pt-tpl">${buildTplPickerHtml(p.light_template, i)}</td>`;
     html += `<td class="pt-qlc">${qlcHtml}</td>`;
     html += `</tr>`;
   }

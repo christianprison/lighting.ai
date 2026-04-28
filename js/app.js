@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2026.04.28c';
+const APP_VERSION = 'v2026.04.28d';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -88,16 +88,25 @@ const LIGHT_TEMPLATE_GROUPS = [
     '06 blinking',
     '07 round\'n\'round',
     '08 swimming',
-  ]},
-  { label: 'Alarm / Strobe / Stop', items: [
     '09 Alarm',
     '10 Alarm \uD83D\uDD14\uD83D\uDD14',
     '10 Strobe',
     '11 Stop',
-  ]},
-  { label: 'Farb-Szenen', items: [
     '12 slow red',
     '16 Searchlight',
+  ]},
+  { label: 'Spots & Combos', items: [
+    '03 walking + PARs Pete',
+    'Inside Spot auf Axel und Tim',
+    'Spot auf Axel & Bibo',
+    'Spot auf Axel',
+    'Spot auf Axel blackout',
+    'Spot auf Bibo',
+    'Spot auf PAC',
+    'Spot auf PAC + Blinder',
+    'Spot auf Pete',
+    'Spot auf Tim',
+    'Spot auf Tim hot',
   ]},
   { label: 'White Fan / Blind', items: [
     '20 white Fan up',
@@ -126,19 +135,6 @@ const LIGHT_TEMPLATE_GROUPS = [
     'The Reason Intro',
     'Valerie Verse 2b',
     'Valerie Verse 3a (a capella)',
-  ]},
-  { label: 'Spots & Combos', items: [
-    '03 walking + PARs Pete',
-    'Inside Spot auf Axel und Tim',
-    'Spot auf Axel & Bibo',
-    'Spot auf Axel',
-    'Spot auf Axel blackout',
-    'Spot auf Bibo',
-    'Spot auf PAC',
-    'Spot auf PAC + Blinder',
-    'Spot auf Pete',
-    'Spot auf Tim',
-    'Spot auf Tim hot',
   ]},
   { label: 'Accent / Utility', items: [
     'blind (accent)',

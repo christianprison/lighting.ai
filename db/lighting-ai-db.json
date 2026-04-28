@@ -11086,6 +11086,15 @@
           "part_hint": "Verse 1 (normal beat)",
           "bar_num": 13,
           "beat": "1"
+        },
+        {
+          "id": "anc_moixgltw_6p13",
+          "pos": 5,
+          "type": "pete",
+          "event": "Pause",
+          "part_hint": "Theme 1",
+          "bar_num": 53,
+          "beat": "1"
         }
       ]
     },

@@ -3677,7 +3677,18 @@
           }
         ]
       },
-      "total_bars": 126
+      "total_bars": 126,
+      "grundrhythmus": {
+        "kick": [
+          0,
+          2,
+          2.5
+        ],
+        "snare": [
+          1,
+          3
+        ]
+      }
     },
     "dgSleW": {
       "name": "Bitter End",

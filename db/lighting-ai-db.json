@@ -10037,7 +10037,8 @@
           "bar_markers",
           "parts_identified",
           "instr_parts_identified",
-          "instr_bars_identified"
+          "instr_bars_identified",
+          "lyrics_bars"
         ],
         "user_tasks": [],
         "manual_undone": []

@@ -28856,8 +28856,7 @@
       "bar_num": 24,
       "lyrics": "Well I'm\n",
       "audio": "",
-      "has_accents": false,
-      "instrumental": true
+      "has_accents": false
     },
     "B2653": {
       "song_id": "BKpY4X",
@@ -29279,7 +29278,7 @@
     "B2712": {
       "song_id": "BKpY4X",
       "bar_num": 84,
-      "lyrics": "keeps waiting\n",
+      "lyrics": "keeps waiting",
       "audio": "",
       "has_accents": false
     },
@@ -29307,7 +29306,7 @@
     "B2716": {
       "song_id": "BKpY4X",
       "bar_num": 88,
-      "lyrics": "keeps me waiting\n",
+      "lyrics": "keeps me waiting",
       "audio": "",
       "has_accents": false
     },
@@ -29505,7 +29504,7 @@
     "B2744": {
       "song_id": "BKpY4X",
       "bar_num": 116,
-      "lyrics": "keeps me waiting\n",
+      "lyrics": "keeps me waiting",
       "audio": "",
       "has_accents": false
     },
@@ -29533,7 +29532,7 @@
     "B2748": {
       "song_id": "BKpY4X",
       "bar_num": 120,
-      "lyrics": "keeps me waiting\n",
+      "lyrics": "keeps me waiting",
       "audio": "",
       "has_accents": false
     },

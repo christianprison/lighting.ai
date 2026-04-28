@@ -10986,7 +10986,7 @@
           {
             "bar_num": 13,
             "name": "Verse 1 (normal beat)",
-            "light_template": "08 swimming"
+            "light_template": "06 blinking"
           },
           {
             "bar_num": 29,
@@ -10994,7 +10994,8 @@
           },
           {
             "bar_num": 37,
-            "name": "Chorus 1"
+            "name": "Chorus 1",
+            "light_template": "06 blinking"
           },
           {
             "bar_num": 53,
@@ -11003,7 +11004,8 @@
           },
           {
             "bar_num": 61,
-            "name": "Verse 2"
+            "name": "Verse 2",
+            "light_template": "06 blinking"
           },
           {
             "bar_num": 67,
@@ -11011,7 +11013,8 @@
           },
           {
             "bar_num": 69,
-            "name": "Verse 2 ctd."
+            "name": "Verse 2 ctd.",
+            "light_template": "06 blinking"
           },
           {
             "bar_num": 77,
@@ -11019,11 +11022,13 @@
           },
           {
             "bar_num": 93,
-            "name": "Chorus 2"
+            "name": "Chorus 2",
+            "light_template": "06 blinking"
           },
           {
             "bar_num": 109,
             "name": "Guitar Solo",
+            "light_template": "Spot auf Axel",
             "instrumental": true
           },
           {

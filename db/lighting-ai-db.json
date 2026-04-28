@@ -9968,11 +9968,13 @@
       "qlc_id": 30,
       "audio_ref": "audio/Lonely Boy/Lonely Boy - Full Song.mp3",
       "audio_ref_name": "Lonely Boy - Full Song.mp3",
-      "lyrics_raw": "[Instrumental Intro]\n[Verse 1]\nWell, I'm so above you and it's plain to see\nBut I came to love you, anyway\nSo you pulled my heart out and I don't mind bleedin'\nAny old time you keep me waitin', waitin', waitin'\n\n[Chorus]\nOh, whoa, oh-oh, I got a love that keeps me waiting\nOh, oh-oh, I got a love that keeps me waiting\nI'm a lonely boy, I'm a lonely boy\nOh, whoa, oh-oh, I got a love that keeps me waiting\n[Verse 2]\nWell, your mama kept you, but your daddy left you\nAnd I shoulda done you just the same\nBut I came to love you, am I born to bleed\nAny old time you keep me waitin', waitin', waitin'?\n\n[Chorus]\nOh, whoa, oh-oh, I got a love that keeps me waitin'\nOh, oh, oh-oh, I got a love that keeps me waitin'\nI’m a lonely boy, I’m a lonely boy\nOh, whoa, oh-oh, I got a love that keeps me waitin' (Hey)\n\n[Instrumental Bridge]\n\n[Chorus]\nOh, whoa, oh-oh, I got a love that keeps me waitin'\nOh, oh, oh-oh, I got a love that keeps me waitin'\nI’m a lonely boy, I’m a lonely boy\nOh, whoa, oh-oh, I got a love that keeps me waitin'",
+      "lyrics_raw": "Well I'm so above you, it is plain to see But I came to love you anyway So you pulled my heart out And I don't mind bleeding Any old time you keep me waiting, waiting, waiting Oh, oh, oh, oh, I got a love that keeps me waiting Oh, oh, oh, oh, I got a love that keeps me waiting I'm a lonely boy I'm a lonely boy Oh, oh, oh, oh, I got a love that keeps me waiting Well your mama kept you but your daddy left you And I should have done you just the same But I came to love you Am I born to bleed? Any old time you keep me waiting, waiting, waiting Oh, oh, oh, oh, I got a love that keeps me waiting Oh, oh, oh, oh, I got a love that keeps me waiting I'm a lonely boy I'm a lonely boy Oh, oh, oh, oh, I got a love that keeps me waiting Oh, oh, oh, oh, I got a love that keeps me waiting Oh, oh, oh, oh, I got a love that keeps me waiting I'm a lonely boy I'm a lonely boy Oh, oh, oh, oh, I got a love that keeps me waiting",
       "tms": {
         "manual_done": [
           "bar_markers",
-          "parts_identified"
+          "parts_identified",
+          "instr_parts_identified",
+          "instr_bars_identified"
         ],
         "user_tasks": [],
         "manual_undone": []
@@ -10382,19 +10384,23 @@
         "part_starts": [
           {
             "bar_num": 1,
-            "name": "Intro"
+            "name": "Intro",
+            "instrumental": true
           },
           {
             "bar_num": 5,
-            "name": "Intro + Drums"
+            "name": "Intro + Drums",
+            "instrumental": true
           },
           {
             "bar_num": 9,
-            "name": "Theme 1"
+            "name": "Theme 1",
+            "instrumental": true
           },
           {
             "bar_num": 17,
-            "name": "Bass Solo 1"
+            "name": "Bass Solo 1",
+            "instrumental": true
           },
           {
             "bar_num": 25,
@@ -10406,7 +10412,8 @@
           },
           {
             "bar_num": 57,
-            "name": "Bass Solo 2"
+            "name": "Bass Solo 2",
+            "instrumental": true
           },
           {
             "bar_num": 65,
@@ -10418,15 +10425,18 @@
           },
           {
             "bar_num": 97,
-            "name": "Intro Reprise"
+            "name": "Intro Reprise",
+            "instrumental": true
           },
           {
             "bar_num": 101,
-            "name": "Intro Reprise + Drums"
+            "name": "Intro Reprise + Drums",
+            "instrumental": true
           },
           {
             "bar_num": 105,
-            "name": "Theme 2"
+            "name": "Theme 2",
+            "instrumental": true
           },
           {
             "bar_num": 113,
@@ -10434,7 +10444,8 @@
           },
           {
             "bar_num": 129,
-            "name": "Ausklang"
+            "name": "Ausklang",
+            "instrumental": true
           }
         ]
       }
@@ -28218,231 +28229,232 @@
     "B2652": {
       "song_id": "BKpY4X",
       "bar_num": 24,
-      "lyrics": "",
+      "lyrics": "Well I'm\n",
       "audio": "",
       "has_accents": false
     },
     "B2653": {
       "song_id": "BKpY4X",
       "bar_num": 25,
-      "lyrics": "",
+      "lyrics": "so above",
       "audio": "",
       "has_accents": false
     },
     "B2654": {
       "song_id": "BKpY4X",
       "bar_num": 26,
-      "lyrics": "",
+      "lyrics": "you, it is",
       "audio": "",
       "has_accents": false
     },
     "B2655": {
       "song_id": "BKpY4X",
       "bar_num": 27,
-      "lyrics": "",
+      "lyrics": "plain to see",
       "audio": "",
       "has_accents": false
     },
     "B2656": {
       "song_id": "BKpY4X",
       "bar_num": 28,
-      "lyrics": "",
+      "lyrics": "But I",
       "audio": "",
       "has_accents": false
     },
     "B2657": {
       "song_id": "BKpY4X",
       "bar_num": 29,
-      "lyrics": "",
+      "lyrics": "came to love",
       "audio": "",
       "has_accents": false
     },
     "B2658": {
       "song_id": "BKpY4X",
       "bar_num": 30,
-      "lyrics": "",
+      "lyrics": "you anyway So you",
       "audio": "",
       "has_accents": false
     },
     "B2659": {
       "song_id": "BKpY4X",
       "bar_num": 31,
-      "lyrics": "",
+      "lyrics": "pulled my",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2660": {
       "song_id": "BKpY4X",
       "bar_num": 32,
-      "lyrics": "",
+      "lyrics": "heart out And I",
       "audio": "",
       "has_accents": false
     },
     "B2661": {
       "song_id": "BKpY4X",
       "bar_num": 33,
-      "lyrics": "",
+      "lyrics": "don't mind bleeding Any",
       "audio": "",
       "has_accents": false
     },
     "B2662": {
       "song_id": "BKpY4X",
       "bar_num": 34,
-      "lyrics": "",
+      "lyrics": "old",
       "audio": "",
       "has_accents": false
     },
     "B2663": {
       "song_id": "BKpY4X",
       "bar_num": 35,
-      "lyrics": "",
+      "lyrics": "time you keep",
       "audio": "",
       "has_accents": false
     },
     "B2664": {
       "song_id": "BKpY4X",
       "bar_num": 36,
-      "lyrics": "",
+      "lyrics": "me waiting, waiting,",
       "audio": "",
       "has_accents": false
     },
     "B2665": {
       "song_id": "BKpY4X",
       "bar_num": 37,
-      "lyrics": "",
+      "lyrics": "waiting Oh, oh,",
       "audio": "",
       "has_accents": false
     },
     "B2666": {
       "song_id": "BKpY4X",
       "bar_num": 38,
-      "lyrics": "",
+      "lyrics": "oh, oh, I",
       "audio": "",
       "has_accents": false
     },
     "B2667": {
       "song_id": "BKpY4X",
       "bar_num": 39,
-      "lyrics": "",
+      "lyrics": "got a love",
       "audio": "",
       "has_accents": false
     },
     "B2668": {
       "song_id": "BKpY4X",
       "bar_num": 40,
-      "lyrics": "",
+      "lyrics": "that keeps me\n",
       "audio": "",
       "has_accents": false
     },
     "B2669": {
       "song_id": "BKpY4X",
       "bar_num": 41,
-      "lyrics": "",
+      "lyrics": "waiting Oh, oh,",
       "audio": "",
       "has_accents": false
     },
     "B2670": {
       "song_id": "BKpY4X",
       "bar_num": 42,
-      "lyrics": "",
+      "lyrics": "oh, oh, I",
       "audio": "",
       "has_accents": false
     },
     "B2671": {
       "song_id": "BKpY4X",
       "bar_num": 43,
-      "lyrics": "",
+      "lyrics": "got a love",
       "audio": "",
       "has_accents": false
     },
     "B2672": {
       "song_id": "BKpY4X",
       "bar_num": 44,
-      "lyrics": "",
+      "lyrics": "that keeps me",
       "audio": "",
       "has_accents": false
     },
     "B2673": {
       "song_id": "BKpY4X",
       "bar_num": 45,
-      "lyrics": "",
+      "lyrics": "waiting I'm a",
       "audio": "",
       "has_accents": false
     },
     "B2674": {
       "song_id": "BKpY4X",
       "bar_num": 46,
-      "lyrics": "",
+      "lyrics": "lonely boy I'm",
       "audio": "",
       "has_accents": false
     },
     "B2675": {
       "song_id": "BKpY4X",
       "bar_num": 47,
-      "lyrics": "",
+      "lyrics": "a lonely boy",
       "audio": "",
       "has_accents": false
     },
     "B2676": {
       "song_id": "BKpY4X",
       "bar_num": 48,
-      "lyrics": "",
+      "lyrics": "Oh, oh, oh,",
       "audio": "",
       "has_accents": false
     },
     "B2677": {
       "song_id": "BKpY4X",
       "bar_num": 49,
-      "lyrics": "",
+      "lyrics": "oh, I got",
       "audio": "",
       "has_accents": false
     },
     "B2678": {
       "song_id": "BKpY4X",
       "bar_num": 50,
-      "lyrics": "",
+      "lyrics": "a love that",
       "audio": "",
       "has_accents": false
     },
     "B2679": {
       "song_id": "BKpY4X",
       "bar_num": 51,
-      "lyrics": "",
+      "lyrics": "keeps me waiting",
       "audio": "",
       "has_accents": false
     },
     "B2680": {
       "song_id": "BKpY4X",
       "bar_num": 52,
-      "lyrics": "",
+      "lyrics": "Well your mama",
       "audio": "",
       "has_accents": false
     },
     "B2681": {
       "song_id": "BKpY4X",
       "bar_num": 53,
-      "lyrics": "",
+      "lyrics": "kept you but",
       "audio": "",
       "has_accents": false
     },
     "B2682": {
       "song_id": "BKpY4X",
       "bar_num": 54,
-      "lyrics": "",
+      "lyrics": "your daddy left",
       "audio": "",
       "has_accents": false
     },
     "B2683": {
       "song_id": "BKpY4X",
       "bar_num": 55,
-      "lyrics": "",
+      "lyrics": "you And I",
       "audio": "",
       "has_accents": false
     },
     "B2684": {
       "song_id": "BKpY4X",
       "bar_num": 56,
-      "lyrics": "",
+      "lyrics": "should have done\n",
       "audio": "",
       "has_accents": false
     },
@@ -28505,224 +28517,224 @@
     "B2693": {
       "song_id": "BKpY4X",
       "bar_num": 65,
-      "lyrics": "",
+      "lyrics": "you just the",
       "audio": "",
       "has_accents": false
     },
     "B2694": {
       "song_id": "BKpY4X",
       "bar_num": 66,
-      "lyrics": "",
+      "lyrics": "same But I",
       "audio": "",
       "has_accents": false
     },
     "B2695": {
       "song_id": "BKpY4X",
       "bar_num": 67,
-      "lyrics": "",
+      "lyrics": "came to love",
       "audio": "",
       "has_accents": false
     },
     "B2696": {
       "song_id": "BKpY4X",
       "bar_num": 68,
-      "lyrics": "",
+      "lyrics": "you Am I",
       "audio": "",
       "has_accents": false
     },
     "B2697": {
       "song_id": "BKpY4X",
       "bar_num": 69,
-      "lyrics": "",
+      "lyrics": "born to bleed?",
       "audio": "",
       "has_accents": false
     },
     "B2698": {
       "song_id": "BKpY4X",
       "bar_num": 70,
-      "lyrics": "",
+      "lyrics": "Any old time",
       "audio": "",
       "has_accents": false
     },
     "B2699": {
       "song_id": "BKpY4X",
       "bar_num": 71,
-      "lyrics": "",
+      "lyrics": "you keep me",
       "audio": "",
       "has_accents": false
     },
     "B2700": {
       "song_id": "BKpY4X",
       "bar_num": 72,
-      "lyrics": "",
+      "lyrics": "waiting, waiting, waiting",
       "audio": "",
       "has_accents": false
     },
     "B2701": {
       "song_id": "BKpY4X",
       "bar_num": 73,
-      "lyrics": "",
+      "lyrics": "Oh, oh, oh,",
       "audio": "",
       "has_accents": false
     },
     "B2702": {
       "song_id": "BKpY4X",
       "bar_num": 74,
-      "lyrics": "",
+      "lyrics": "oh, I got",
       "audio": "",
       "has_accents": false
     },
     "B2703": {
       "song_id": "BKpY4X",
       "bar_num": 75,
-      "lyrics": "",
+      "lyrics": "a love that",
       "audio": "",
       "has_accents": false
     },
     "B2704": {
       "song_id": "BKpY4X",
       "bar_num": 76,
-      "lyrics": "",
+      "lyrics": "keeps me waiting",
       "audio": "",
       "has_accents": false
     },
     "B2705": {
       "song_id": "BKpY4X",
       "bar_num": 77,
-      "lyrics": "",
+      "lyrics": "Oh, oh, oh,",
       "audio": "",
       "has_accents": false
     },
     "B2706": {
       "song_id": "BKpY4X",
       "bar_num": 78,
-      "lyrics": "",
+      "lyrics": "oh, I got",
       "audio": "",
       "has_accents": false
     },
     "B2707": {
       "song_id": "BKpY4X",
       "bar_num": 79,
-      "lyrics": "",
+      "lyrics": "a love that",
       "audio": "",
       "has_accents": false
     },
     "B2708": {
       "song_id": "BKpY4X",
       "bar_num": 80,
-      "lyrics": "",
+      "lyrics": "keeps me waiting\n",
       "audio": "",
       "has_accents": false
     },
     "B2709": {
       "song_id": "BKpY4X",
       "bar_num": 81,
-      "lyrics": "",
+      "lyrics": "I'm a lonely",
       "audio": "",
       "has_accents": false
     },
     "B2710": {
       "song_id": "BKpY4X",
       "bar_num": 82,
-      "lyrics": "",
+      "lyrics": "boy I'm a",
       "audio": "",
       "has_accents": false
     },
     "B2711": {
       "song_id": "BKpY4X",
       "bar_num": 83,
-      "lyrics": "",
+      "lyrics": "lonely boy Oh,",
       "audio": "",
       "has_accents": false
     },
     "B2712": {
       "song_id": "BKpY4X",
       "bar_num": 84,
-      "lyrics": "",
+      "lyrics": "oh, oh, oh,",
       "audio": "",
       "has_accents": false
     },
     "B2713": {
       "song_id": "BKpY4X",
       "bar_num": 85,
-      "lyrics": "",
+      "lyrics": "I got a",
       "audio": "",
       "has_accents": false
     },
     "B2714": {
       "song_id": "BKpY4X",
       "bar_num": 86,
-      "lyrics": "",
+      "lyrics": "love that keeps",
       "audio": "",
       "has_accents": false
     },
     "B2715": {
       "song_id": "BKpY4X",
       "bar_num": 87,
-      "lyrics": "",
+      "lyrics": "me waiting Oh,",
       "audio": "",
       "has_accents": false
     },
     "B2716": {
       "song_id": "BKpY4X",
       "bar_num": 88,
-      "lyrics": "",
+      "lyrics": "oh, oh, oh,",
       "audio": "",
       "has_accents": false
     },
     "B2717": {
       "song_id": "BKpY4X",
       "bar_num": 89,
-      "lyrics": "",
+      "lyrics": "I got a",
       "audio": "",
       "has_accents": false
     },
     "B2718": {
       "song_id": "BKpY4X",
       "bar_num": 90,
-      "lyrics": "",
+      "lyrics": "love that keeps",
       "audio": "",
       "has_accents": false
     },
     "B2719": {
       "song_id": "BKpY4X",
       "bar_num": 91,
-      "lyrics": "",
+      "lyrics": "me waiting Oh,",
       "audio": "",
       "has_accents": false
     },
     "B2720": {
       "song_id": "BKpY4X",
       "bar_num": 92,
-      "lyrics": "",
+      "lyrics": "oh, oh, oh,",
       "audio": "",
       "has_accents": false
     },
     "B2721": {
       "song_id": "BKpY4X",
       "bar_num": 93,
-      "lyrics": "",
+      "lyrics": "I got a",
       "audio": "",
       "has_accents": false
     },
     "B2722": {
       "song_id": "BKpY4X",
       "bar_num": 94,
-      "lyrics": "",
+      "lyrics": "love that keeps",
       "audio": "",
       "has_accents": false
     },
     "B2723": {
       "song_id": "BKpY4X",
       "bar_num": 95,
-      "lyrics": "",
+      "lyrics": "me waiting I'm",
       "audio": "",
       "has_accents": false
     },
     "B2724": {
       "song_id": "BKpY4X",
       "bar_num": 96,
-      "lyrics": "",
+      "lyrics": "a lonely boy\n",
       "audio": "",
       "has_accents": false
     },
@@ -28841,42 +28853,42 @@
     "B2741": {
       "song_id": "BKpY4X",
       "bar_num": 113,
-      "lyrics": "",
+      "lyrics": "I'm a lonely",
       "audio": "",
       "has_accents": false
     },
     "B2742": {
       "song_id": "BKpY4X",
       "bar_num": 114,
-      "lyrics": "",
+      "lyrics": "boy Oh, oh,",
       "audio": "",
       "has_accents": false
     },
     "B2743": {
       "song_id": "BKpY4X",
       "bar_num": 115,
-      "lyrics": "",
+      "lyrics": "oh, oh, I",
       "audio": "",
       "has_accents": false
     },
     "B2744": {
       "song_id": "BKpY4X",
       "bar_num": 116,
-      "lyrics": "",
+      "lyrics": "got a love",
       "audio": "",
       "has_accents": false
     },
     "B2745": {
       "song_id": "BKpY4X",
       "bar_num": 117,
-      "lyrics": "",
+      "lyrics": "that keeps me",
       "audio": "",
       "has_accents": false
     },
     "B2746": {
       "song_id": "BKpY4X",
       "bar_num": 118,
-      "lyrics": "",
+      "lyrics": "waiting",
       "audio": "",
       "has_accents": false
     },

@@ -10969,7 +10969,8 @@
         "part_starts": [
           {
             "bar_num": 1,
-            "name": "Intro (Guitar)"
+            "name": "Intro (Guitar)",
+            "instrumental": true
           },
           {
             "bar_num": 5,
@@ -10993,7 +10994,8 @@
           },
           {
             "bar_num": 53,
-            "name": "Theme 1"
+            "name": "Theme 1",
+            "instrumental": true
           },
           {
             "bar_num": 61,
@@ -11017,7 +11019,8 @@
           },
           {
             "bar_num": 109,
-            "name": "Guitar Solo"
+            "name": "Guitar Solo",
+            "instrumental": true
           },
           {
             "bar_num": 117,
@@ -11025,7 +11028,8 @@
           },
           {
             "bar_num": 132,
-            "name": "Ausklang"
+            "name": "Ausklang",
+            "instrumental": true
           }
         ]
       }

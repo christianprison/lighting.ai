@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2026.04.27b';
+const APP_VERSION = 'v2026.04.27c';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4664,78 +4664,137 @@ function leBuildBlocks(songId) {
 /**
  * Distribute raw text words evenly across non-instrumental bars.
  */
+/**
+ * Splits raw lyrics text into sections at [Header] markers.
+ * Returns [{header: string|null, words: string[]}]
+ */
+function _parseLyricsSections(rawText) {
+  const sections = [];
+  let header = null, words = [];
+  for (const line of rawText.split('\n')) {
+    const m = line.match(/^\[(.+?)\]\s*$/);
+    if (m) {
+      if (words.length || header !== null) sections.push({ header, words });
+      header = m[1].trim(); words = [];
+    } else {
+      words.push(...line.split(/\s+/).filter(w => w.length > 0));
+    }
+  }
+  if (words.length || header !== null) sections.push({ header, words });
+  return sections;
+}
+
 function leDistributeText(songId, rawText) {
   const song = db.songs[songId];
   if (!song) return [];
   ensureCollections();
 
-  // Parse words from raw text (strip section headers)
-  const cleanText = rawText.replace(/\[.*?\]/g, '').trim();
-  const allWords = cleanText.split(/\s+/).filter(w => w.length > 0);
-  if (allWords.length === 0) return _leBlocks;
-
   const totalBars = song.total_bars || 0;
   if (totalBars === 0) return _leBlocks;
 
   const instrBars = buildInstrumentalBarsSet(songId);
-
-  // Part start lookup
+  const partStarts = [...(song.split_markers?.part_starts || [])].sort((a, b) => a.bar_num - b.bar_num);
   const partStartMap = new Map();
-  if (song.split_markers?.part_starts) {
-    for (const ps of song.split_markers.part_starts) {
-      partStartMap.set(ps.bar_num, ps.name);
+  for (const ps of partStarts) partStartMap.set(ps.bar_num, ps.name);
+
+  // Per-part metadata: bar range + non-instrumental bars
+  const parts = partStarts.map((ps, i) => {
+    const endBar = i + 1 < partStarts.length ? partStarts[i + 1].bar_num - 1 : totalBars;
+    const nonInstrBars = [];
+    for (let b = ps.bar_num; b <= endBar; b++) if (!instrBars.has(b)) nonInstrBars.push(b);
+    return { name: ps.name, startBar: ps.bar_num, endBar, nonInstrBars };
+  });
+
+  const sections = _parseLyricsSections(rawText);
+  const hasHeaders = sections.some(s => s.header !== null);
+
+  const barWords = {};
+  for (let b = 1; b <= totalBars; b++) barWords[b] = [];
+
+  if (hasHeaders && parts.length > 0) {
+    // Smart: match [Section Header] to song parts by normalized name
+    const norm = s => s.toLowerCase().replace(/\s*\d+\s*/g, ' ').replace(/\s+/g, ' ').trim();
+    const ALIAS = { refrain: 'chorus', strophe: 'verse', brücke: 'bridge', brucke: 'bridge' };
+    const canonical = s => ALIAS[norm(s)] ?? norm(s);
+
+    // Group part indices by canonical name
+    const partGroups = {};
+    for (let pi = 0; pi < parts.length; pi++) {
+      const key = canonical(parts[pi].name);
+      (partGroups[key] = partGroups[key] || []).push(pi);
     }
+    const partUsage = {};
+    const claimedParts = new Set();
+    const sectionPartMap = [];
+
+    for (const sec of sections) {
+      if (!sec.header) { sectionPartMap.push(null); continue; }
+      const hKey = canonical(sec.header);
+      // exact match, then substring match
+      const matchKey = partGroups[hKey]
+        ? hKey
+        : (Object.keys(partGroups).find(k => hKey.includes(k) || k.includes(hKey)) ?? null);
+      if (matchKey) {
+        const usageIdx = partUsage[matchKey] ?? 0;
+        const arr = partGroups[matchKey];
+        if (usageIdx < arr.length) {
+          const pi = arr[usageIdx];
+          partUsage[matchKey] = usageIdx + 1;
+          claimedParts.add(pi);
+          sectionPartMap.push(pi);
+          continue;
+        }
+      }
+      sectionPartMap.push(null);
+    }
+
+    // Fill claimed parts with their matched section words
+    for (let si = 0; si < sections.length; si++) {
+      const pi = sectionPartMap[si];
+      if (pi === null) continue;
+      const nibs = parts[pi].nonInstrBars;
+      const words = sections[si].words;
+      if (!nibs.length || !words.length) continue;
+      const wpb = Math.ceil(words.length / nibs.length);
+      let wi = 0;
+      for (const bn of nibs) { barWords[bn] = words.slice(wi, wi + wpb); wi += wpb; }
+    }
+
+    // Distribute unmatched section words to unclaimed parts
+    const unmatchedWords = sections.flatMap((s, si) => sectionPartMap[si] === null ? s.words : []);
+    const unclaimedBars = parts.filter((_, pi) => !claimedParts.has(pi)).flatMap(p => p.nonInstrBars);
+    if (unmatchedWords.length && unclaimedBars.length) {
+      const wpb = Math.ceil(unmatchedWords.length / unclaimedBars.length);
+      let wi = 0;
+      for (const bn of unclaimedBars) { barWords[bn] = unmatchedWords.slice(wi, wi + wpb); wi += wpb; }
+    }
+
+  } else {
+    // Fallback: distribute all words evenly across non-instrumental bars
+    const allWords = sections.flatMap(s => s.words);
+    if (!allWords.length) return _leBlocks;
+    const nibs = [];
+    for (let b = 1; b <= totalBars; b++) if (!instrBars.has(b)) nibs.push(b);
+    if (!nibs.length) return _leBlocks;
+    const wpb = Math.ceil(allWords.length / nibs.length);
+    let wi = 0;
+    for (const bn of nibs) { barWords[bn] = allWords.slice(wi, wi + wpb); wi += wpb; }
   }
 
-  // Count non-instrumental bars for even distribution
-  let nonInstrCount = 0;
-  for (let b = 1; b <= totalBars; b++) {
-    if (!instrBars.has(b)) nonInstrCount++;
-  }
-  if (nonInstrCount === 0) return _leBlocks;
-
-  // Distribute words evenly across non-instrumental bars only
-  const wordsPerBar = Math.ceil(allWords.length / nonInstrCount);
-  let wordIdx = 0;
-
+  // Build block list
   const blocks = [];
   let blockId = 0;
-
   for (let b = 1; b <= totalBars; b++) {
     const isInstr = instrBars.has(b);
     if (partStartMap.has(b)) {
-      blocks.push({
-        type: 'part',
-        content: partStartMap.get(b),
-        barNum: b,
-        newline: b > 1,
-        instrumental: isInstr,
-        id: `lb_${blockId++}`
-      });
+      blocks.push({ type: 'part', content: partStartMap.get(b), barNum: b, newline: b > 1, instrumental: isInstr, id: `lb_${blockId++}` });
     } else {
-      blocks.push({
-        type: 'bar',
-        content: String(b),
-        barNum: b,
-        instrumental: isInstr,
-        id: `lb_${blockId++}`
-      });
+      blocks.push({ type: 'bar', content: String(b), barNum: b, instrumental: isInstr, id: `lb_${blockId++}` });
     }
-
-    if (!isInstr) {
-      const barWords = allWords.slice(wordIdx, wordIdx + wordsPerBar);
-      wordIdx += wordsPerBar;
-      for (const w of barWords) {
-        blocks.push({
-          type: 'word',
-          content: w,
-          barNum: b,
-          id: `lb_${blockId++}`
-        });
-      }
+    for (const w of (barWords[b] || [])) {
+      blocks.push({ type: 'word', content: w, barNum: b, id: `lb_${blockId++}` });
     }
   }
-
   return blocks;
 }
 
@@ -5005,6 +5064,31 @@ function leStopPartPlayback() {
   document.querySelectorAll('.le-highlight, .le-highlight-past').forEach(el => {
     el.classList.remove('le-highlight', 'le-highlight-past');
   });
+}
+
+function lePlaySingleBar(barNum) {
+  leStopPartPlayback();
+  audio.warmup();
+  const refBuf = audio.getBuffer();
+  if (!refBuf) { toast('Kein Audio geladen', 'error'); return; }
+  if (!selectedSongId || !db.songs[selectedSongId]) return;
+  const sm = db.songs[selectedSongId].split_markers;
+  if (!sm?.markers?.length) { toast('Kein Audio-Split vorhanden', 'error'); return; }
+  const markers = [...sm.markers].sort((a, b) => a.time - b.time);
+  const i = barNum - 1;
+  if (i < 0 || i >= markers.length) return;
+  const startTime = markers[i].time;
+  const endTime = i + 1 < markers.length ? markers[i + 1].time : refBuf.duration;
+  const dur = endTime - startTime;
+  if (dur <= 0) return;
+  const ac = audio.getContext();
+  if (ac.state !== 'running') ac.resume().catch(() => {});
+  const src = ac.createBufferSource();
+  src.buffer = refBuf;
+  src.connect(ac.destination);
+  src.onended = () => { if (_lePlaySrc === src) _lePlaySrc = null; };
+  src.start(0, startTime, dur);
+  _lePlaySrc = src;
 }
 
 function leHighlightPartBlock(barNum, active) {
@@ -5405,6 +5489,7 @@ function leShowContextMenu(idx, blockEl) {
     const nlLabel = block.newline ? '&#8629; Neue Zeile entfernen' : '&#8629; Neue Zeile';
     const instrLabel = block.instrumental ? '&#9898; Instrumental entfernen' : '&#9898; Instrumental';
     menu.innerHTML = `
+      <button data-action="play-bar" class="le-ctx-item">&#9654; Abspielen</button>
       <button data-action="newline" class="le-ctx-item">${nlLabel}</button>
       <button data-action="instrumental" class="le-ctx-item">${instrLabel}</button>
     `;
@@ -5602,6 +5687,10 @@ async function leHandleContextAction(action, idx) {
     markDirty();
     leCommitLyrics();
     leRefreshCanvas();
+  }
+
+  else if (action === 'play-bar') {
+    lePlaySingleBar(block.barNum);
   }
 
   else if (action === 'play-part') {

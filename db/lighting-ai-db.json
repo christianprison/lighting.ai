@@ -10552,7 +10552,8 @@
           "parts_identified",
           "instr_parts_identified",
           "instr_bars_identified",
-          "lyrics_bars"
+          "lyrics_bars",
+          "templates_set"
         ],
         "user_tasks": [],
         "manual_undone": []
@@ -10993,7 +10994,8 @@
           },
           {
             "bar_num": 21,
-            "name": "Bridge 1"
+            "name": "Bridge 1",
+            "light_template": "03 walking"
           },
           {
             "bar_num": 37,

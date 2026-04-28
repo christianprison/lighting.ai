@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2026.04.27c';
+const APP_VERSION = 'v2026.04.27d';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -512,14 +512,7 @@ const SONG_CHECKLIST = [
   { id: 'lyrics_raw',    label: 'Rohtext eingefuegt',     cat: 'lyrics', tab: 'lyrics',
     check: (s) => !!(s.lyrics_raw && s.lyrics_raw.trim()) },
   { id: 'lyrics_bars',   label: 'Lyrics auf Takte verteilt', cat: 'lyrics', tab: 'lyrics',
-    check: (s, barIds, theDb) => {
-      if (barIds.length === 0) return false;
-      let withLyrics = 0;
-      for (const bId of barIds) {
-        if (theDb.bars[bId]?.lyrics) withLyrics++;
-      }
-      return barIds.length > 0 && (withLyrics / barIds.length) >= 0.3;
-    }},
+    check: () => false },
   // ── Licht ──
   { id: 'templates_set', label: 'Alle Light Templates gesetzt', cat: 'licht', tab: 'editor',
     check: (s) => {

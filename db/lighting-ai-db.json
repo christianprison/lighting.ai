@@ -28415,7 +28415,8 @@
       "bar_num": 50,
       "lyrics": "I'm a lonely boy\n",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2679": {
       "song_id": "BKpY4X",
@@ -28429,7 +28430,8 @@
       "bar_num": 52,
       "lyrics": "oh,",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2681": {
       "song_id": "BKpY4X",

@@ -10990,7 +10990,8 @@
           },
           {
             "bar_num": 29,
-            "name": "Bridge 1"
+            "name": "Bridge 1",
+            "light_template": "04 up'n'down"
           },
           {
             "bar_num": 37,
@@ -11000,6 +11001,7 @@
           {
             "bar_num": 53,
             "name": "Theme 1",
+            "light_template": "03 walking",
             "instrumental": true
           },
           {
@@ -11009,7 +11011,8 @@
           },
           {
             "bar_num": 67,
-            "name": "Stop"
+            "name": "Stop",
+            "light_template": "03 walking"
           },
           {
             "bar_num": 69,
@@ -11018,7 +11021,8 @@
           },
           {
             "bar_num": 77,
-            "name": "Bridge 2"
+            "name": "Bridge 2",
+            "light_template": "03 walking"
           },
           {
             "bar_num": 93,

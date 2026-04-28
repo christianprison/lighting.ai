@@ -808,26 +808,13 @@ Wenn ein Song kein `grundrhythmus` hat, wird Phasen-Histogramm + Crash-Fallback 
 - **`addAdHocSong(songId)`**: hängt Song mit `adhoc: true` an lokales `setlist`-Array, ruft `renderSetlist()` auf → kein GitHub-Push, nur session-lokal
 - Picker schließt sich per ✕-Button, Klick außerhalb oder ESC-Taste
 
-#### DMX Fallback Controller (Live-App `live/server/dmx_fallback.py`)
-
-Direkte DMX-Steuerung via sACN (E1.31) ohne QLC+ — aktiv solange kein Song/Part erkannt wird.
-
-- **Fixture**: „16 LED Pot Bibo 40°" — Ch6=R, Ch7=G, Ch8=B, Ch9=W (1-basiert)
-- **Blink-Loop**: 500 ms Intervall, 9-Farb-Sequenz (R, Orange, Gelb, G, Cyan, B, Violett, Pink, Warmweiß)
-- **`DmxFallbackController`**: `start_async()` / `stop_async()` / `is_active`
-- **`DmxFallbackConfig`**: `universe`, `multicast`, `source_name` — aus `config.yaml` via `DmxConfig`
-- **Auto-Start**: beim Server-Boot; stoppt automatisch bei `select_song`, `next`, `prev`, `goto_part`
-- **REST**: `POST /api/dmx/fallback/start`, `POST /api/dmx/fallback/stop`, `GET /api/dmx/fallback/status`
-- **WS**: `toggle_fallback` (manuell ein/aus); `fallback_active: bool` im `LiveState`
-- **Dependency**: `sacn>=1.9.0` in `requirements.txt`; Import guard — fehlendes `sacn` deaktiviert nur den Fallback, Server startet normal
-
 #### Part-Direktauswahl (Live-App WS-Action `goto_part`)
 
 ```python
 # WS-Nachricht: {"action": "goto_part", "part_name": "Chorus"}
 ```
 - Findet den passenden QLC+-Chaser-Step per normalisiertem Namensvergleich (lowercase)
-- Stoppt DMX-Fallback, setzt `current_step` + `current_part_name` im State
+- Setzt `current_step` + `current_part_name` im State
 - Falls kein Chaser-Step gefunden: Fallback auf Light-Template via `BASE_COLLECTIONS`
 - Parts im linken Panel sind direkt klickbar und senden `goto_part`
 
@@ -859,9 +846,7 @@ Direkte DMX-Steuerung via sACN (E1.31) ohne QLC+ — aktiv solange kein Song/Par
 
 #### Implementierte Features (Session 2026-04-27)
 
-**Live-App v2026.04.27c** — DMX Fallback + UX:
-- DMX Fallback Mode (sACN direkt, kein QLC+): `live/server/dmx_fallback.py`
-- Auto-Fallback startet beim Server-Boot, stoppt bei Song/Part-Auswahl
+**Live-App v2026.04.28b** — Part-Direktauswahl + UX:
 - Part-Direktauswahl: Parts-Panel klickbar → `goto_part` WS-Action
 - NEXT-Button dominant, gespielte Songs ✓, Part-Ende-Vorwarnung, Override-Feedback
 

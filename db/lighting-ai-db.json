@@ -10545,7 +10545,7 @@
       "notes": "Guitar (4T); Guitar+Vox+HH (8T); Verse (8T); Bridge (16T); Chorus (16T); Synth Break (8T); Verse (8T) 7.T Ausklang; Verse (8T); Bridge (16T); Chorus (16T); Interlude (8T); Synth Break (16T); 15.T Ding-Dang-Dong",
       "audio_ref": "audio/Mr. Brightside/Mr. Brightside - Full Song.mp3",
       "audio_ref_name": "Mr. Brightside - Full Song.mp3",
-      "lyrics_raw": "I'm coming out of my cage and I've been doing just fine Gotta, gotta be down because I want it all It started out with a kiss, how did it end up like this? It was only a kiss, it was only a kiss Now I'm falling asleep and she's calling a cab While he's having a smoke and she's taking a drag Now they're going to bed and my stomach is sick And it's all in my head, but she's touching his Chest now, he takes off her dress now Let me go I just can't look, it's killing me And taking control Jealousy, turning saints into the sea Swimming through sick lullabies, choking on your alibis But it's just the price I pay, destiny is calling me Open up my eager eyes, 'cause I'm Mr. Brightside I'm coming out of my cage and I've been doing just fine Gotta, gotta be down because I want it all It started out with a kiss, how did it end up like this? It was only a kiss, it was only a kiss Now I'm falling asleep and she's calling a cab While he's having a smoke and she's taking a drag Now they're going to bed and my stomach is sick And it's all in my head, but she's touching his Chest now, he takes off her dress now Let me go 'Cause I just can't look, it's killing me And taking control Jealousy, turning saints into the sea Swimming through sick lullabies, choking on your alibis But it's just the price I pay, destiny is calling me Open up my eager eyes, 'cause I'm Mr. Brightside I never I never I never I never",
+      "lyrics_raw": "I'm coming out of my cage and I've been doing just fine Gotta, gotta be down because I want it all It started out with a kiss, how did it end up like this? It was only a kiss, it was only a kiss Now I'm falling asleep and she's calling a cab While he's having a smoke and she's taking a drag Now they're going to bed and my stomach is sick And it's all in my head, but she's touching his Chest now, he takes off her dress now Let me go I just can't look, it's killing me And taking control Jealousy, turning saints in- to the sea Swimming through sick lullabies, choking on your alibis But it's just the price I pay, destiny is calling me Open up my eager eyes, 'cause I'm Mr. Brightside I'm coming out of my cage and I've been doing just fine Gotta, gotta be down because I want it all It started out with a kiss, how did it end up like this? It was only a kiss, it was only a kiss Now I'm falling asleep and she's calling a cab While he's having a smoke and she's taking a drag Now they're going to bed and my stomach is sick And it's all in my head, but she's touching his Chest now, he takes off her dress now Let me go 'Cause I just can't look, it's killing me And taking control Jealousy, turning saints into the sea Swimming through sick lullabies, choking on your alibis But it's just the price I pay, destiny is calling me Open up my eager eyes, 'cause I'm Mr. Brightside I never I never I never I never",
       "tms": {
         "manual_done": [
           "bar_markers",
@@ -29784,77 +29784,77 @@
     "B2794": {
       "song_id": "Rxj9bi",
       "bar_num": 37,
-      "lyrics": "",
+      "lyrics": "Jealousy,",
       "audio": "",
       "has_accents": false
     },
     "B2795": {
       "song_id": "Rxj9bi",
       "bar_num": 38,
-      "lyrics": "",
+      "lyrics": "turning saints in-",
       "audio": "",
       "has_accents": false
     },
     "B2796": {
       "song_id": "Rxj9bi",
       "bar_num": 39,
-      "lyrics": "Jealousy,",
+      "lyrics": "to the sea",
       "audio": "",
       "has_accents": false
     },
     "B2797": {
       "song_id": "Rxj9bi",
       "bar_num": 40,
-      "lyrics": "turning saints into",
+      "lyrics": "Swimming through sick",
       "audio": "",
       "has_accents": false
     },
     "B2798": {
       "song_id": "Rxj9bi",
       "bar_num": 41,
-      "lyrics": "the sea Swimming",
+      "lyrics": "lullabies,",
       "audio": "",
       "has_accents": false
     },
     "B2799": {
       "song_id": "Rxj9bi",
       "bar_num": 42,
-      "lyrics": "through sick lullabies,",
+      "lyrics": "choking on your",
       "audio": "",
       "has_accents": false
     },
     "B2800": {
       "song_id": "Rxj9bi",
       "bar_num": 43,
-      "lyrics": "choking on your",
+      "lyrics": "alibis But",
       "audio": "",
       "has_accents": false
     },
     "B2801": {
       "song_id": "Rxj9bi",
       "bar_num": 44,
-      "lyrics": "alibis But it's",
+      "lyrics": "it's just the",
       "audio": "",
       "has_accents": false
     },
     "B2802": {
       "song_id": "Rxj9bi",
       "bar_num": 45,
-      "lyrics": "just the price",
+      "lyrics": "price I pay,",
       "audio": "",
       "has_accents": false
     },
     "B2803": {
       "song_id": "Rxj9bi",
       "bar_num": 46,
-      "lyrics": "I pay, destiny",
+      "lyrics": "destiny is",
       "audio": "",
       "has_accents": false
     },
     "B2804": {
       "song_id": "Rxj9bi",
       "bar_num": 47,
-      "lyrics": "is calling me",
+      "lyrics": "calling me",
       "audio": "",
       "has_accents": false
     },
@@ -29868,28 +29868,29 @@
     "B2806": {
       "song_id": "Rxj9bi",
       "bar_num": 49,
-      "lyrics": "eager eyes, 'cause",
+      "lyrics": "eager eyes,",
       "audio": "",
       "has_accents": false
     },
     "B2807": {
       "song_id": "Rxj9bi",
       "bar_num": 50,
-      "lyrics": "I'm Mr. Brightside",
+      "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2808": {
       "song_id": "Rxj9bi",
       "bar_num": 51,
-      "lyrics": "I'm coming out",
+      "lyrics": "'cause I'm Mr.",
       "audio": "",
       "has_accents": false
     },
     "B2809": {
       "song_id": "Rxj9bi",
       "bar_num": 52,
-      "lyrics": "of my cage\n",
+      "lyrics": "Brightside\n",
       "audio": "",
       "has_accents": false
     },
@@ -29952,7 +29953,7 @@
     "B2818": {
       "song_id": "Rxj9bi",
       "bar_num": 61,
-      "lyrics": "and I've been",
+      "lyrics": "I'm coming out of my cage and I've been",
       "audio": "",
       "has_accents": false
     },

@@ -11095,6 +11095,33 @@
           "part_hint": "Theme 1",
           "bar_num": 53,
           "beat": "1"
+        },
+        {
+          "id": "anc_moixgvq4_m0i2",
+          "pos": 6,
+          "type": "pete",
+          "event": "Pause",
+          "part_hint": "Guitar Solo",
+          "bar_num": 109,
+          "beat": "1"
+        },
+        {
+          "id": "anc_moixhyds_5q68",
+          "pos": 7,
+          "type": "drum",
+          "event": "Pause",
+          "part_hint": "Stop",
+          "bar_num": 67,
+          "beat": "1"
+        },
+        {
+          "id": "anc_moixi8w2_7cxl",
+          "pos": 8,
+          "type": "drum",
+          "event": "Snare",
+          "part_hint": "Stop",
+          "bar_num": 68,
+          "beat": "1+"
         }
       ]
     },

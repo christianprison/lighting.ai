@@ -10545,7 +10545,7 @@
       "notes": "Guitar (4T); Guitar+Vox+HH (8T); Verse (8T); Bridge (16T); Chorus (16T); Synth Break (8T); Verse (8T) 7.T Ausklang; Verse (8T); Bridge (16T); Chorus (16T); Interlude (8T); Synth Break (16T); 15.T Ding-Dang-Dong",
       "audio_ref": "audio/Mr. Brightside/Mr. Brightside - Full Song.mp3",
       "audio_ref_name": "Mr. Brightside - Full Song.mp3",
-      "lyrics_raw": "I'm coming out of my cage and I've been doing just fine Gotta, gotta be down because I want it all It started out with a kiss, how did it end up like this? It was only a kiss, it was only a kiss Now I'm falling asleep and she's calling a cab While he's having a smoke and she's taking a drag Now they're going to bed and my stomach is sick And it's all in my head, but she's touching his Chest now, he takes off her dress now Let me go I just can't look, it's killing me And taking control Jealousy, turning saints in- to the sea Swimming through sick lullabies, choking on your alibis But it's just the price I pay, destiny is calling me Open up my eager eyes, 'cause I'm Mr. Brightside I'm coming out of my cage and I've been doing just fine Gotta, gotta be down because I want it all It started out with a kiss, how did it end up like this? It was only a kiss, it was only a kiss Now I'm falling asleep and she's calling a cab While he's having a smoke and she's taking a drag Now they're going to bed and my stomach is sick And it's all in my head, but she's touching his Chest now, he takes off her dress now Let me go 'Cause I just can't look, it's killing me And taking control Jealousy, turning saints into the sea Swimming through sick lullabies, choking on your alibis But it's just the price I pay, destiny is calling me Open up my eager eyes, 'cause I'm Mr. Brightside I never I never I never I never",
+      "lyrics_raw": "I'm coming out of my cage and I've been doing just fine Gotta, gotta be down because I want it all It started out with a kiss, how did it end up like this? It was only a kiss, it was only a kiss Now I'm falling asleep and she's calling a cab While he's having a smoke and she's taking a drag Now they're going to bed and my stomach is sick And it's all in my head, but she's touching his Chest now, he takes off her dress now Let me go I just can't look, it's killing me And taking control Jealousy, turning saints in- to the sea Swimming through sick lullabies, choking on your alibis But it's just the price I pay, destiny is calling me Open up my eager eyes, 'cause I'm Mr. Brightside I'm coming out of my cage and I've been doing just fine Gotta, gotta be down because I want it all It started out with a kiss, how did it end up like this? It was only a kiss, it was only a kiss Now I'm falling asleep and she's calling a cab While he's having a smoke and she's taking a drag Now they're going to bed and my stomach is sick And it's all in my head, but she's touching his Chest now, he takes off her dress now Let me go 'Cause I just can't look, it's killing me And taking con- trol Jealousy, turning saints in- to the sea Swimming through sick lullabies, choking on your alibis But it's just the price I pay, destiny is calling me Open up my eager eyes, 'cause I'm Mr. Brightside I never I never I never I never",
       "tms": {
         "manual_done": [
           "bar_markers",
@@ -29953,245 +29953,251 @@
     "B2818": {
       "song_id": "Rxj9bi",
       "bar_num": 61,
-      "lyrics": "I'm coming out of my cage and I've been",
+      "lyrics": "I'm coming out of my",
       "audio": "",
       "has_accents": false
     },
     "B2819": {
       "song_id": "Rxj9bi",
       "bar_num": 62,
-      "lyrics": "doing just fine",
+      "lyrics": "cage and I've been doing just",
       "audio": "",
       "has_accents": false
     },
     "B2820": {
       "song_id": "Rxj9bi",
       "bar_num": 63,
-      "lyrics": "Gotta, gotta be",
+      "lyrics": "fine Gotta, gotta be down",
       "audio": "",
       "has_accents": false
     },
     "B2821": {
       "song_id": "Rxj9bi",
       "bar_num": 64,
-      "lyrics": "down because I",
+      "lyrics": "because I want it all",
       "audio": "",
       "has_accents": false
     },
     "B2822": {
       "song_id": "Rxj9bi",
       "bar_num": 65,
-      "lyrics": "want it all",
+      "lyrics": "It started out with a kiss,",
       "audio": "",
       "has_accents": false
     },
     "B2823": {
       "song_id": "Rxj9bi",
       "bar_num": 66,
-      "lyrics": "It started out\n",
+      "lyrics": "how did it end up like\n",
       "audio": "",
       "has_accents": false
     },
     "B2824": {
       "song_id": "Rxj9bi",
       "bar_num": 67,
-      "lyrics": "with a kiss,",
+      "lyrics": "this? It was only a kiss,",
       "audio": "",
       "has_accents": false
     },
     "B2825": {
       "song_id": "Rxj9bi",
       "bar_num": 68,
-      "lyrics": "how did it\n",
+      "lyrics": "it was only a kiss\n",
       "audio": "",
       "has_accents": false
     },
     "B2826": {
       "song_id": "Rxj9bi",
       "bar_num": 69,
-      "lyrics": "end up like",
+      "lyrics": "Now I'm falling asleep",
       "audio": "",
       "has_accents": false
     },
     "B2827": {
       "song_id": "Rxj9bi",
       "bar_num": 70,
-      "lyrics": "this? It was",
+      "lyrics": "and she's calling a cab",
       "audio": "",
       "has_accents": false
     },
     "B2828": {
       "song_id": "Rxj9bi",
       "bar_num": 71,
-      "lyrics": "only a kiss,",
+      "lyrics": "While he's having a smoke",
       "audio": "",
       "has_accents": false
     },
     "B2829": {
       "song_id": "Rxj9bi",
       "bar_num": 72,
-      "lyrics": "it was only",
+      "lyrics": "and she's taking a drag",
       "audio": "",
       "has_accents": false
     },
     "B2830": {
       "song_id": "Rxj9bi",
       "bar_num": 73,
-      "lyrics": "a kiss Now",
+      "lyrics": "Now they're going to bed",
       "audio": "",
       "has_accents": false
     },
     "B2831": {
       "song_id": "Rxj9bi",
       "bar_num": 74,
-      "lyrics": "I'm falling asleep",
+      "lyrics": "and my stomach is sick",
       "audio": "",
       "has_accents": false
     },
     "B2832": {
       "song_id": "Rxj9bi",
       "bar_num": 75,
-      "lyrics": "and she's calling",
+      "lyrics": "And it's all in my head,",
       "audio": "",
       "has_accents": false
     },
     "B2833": {
       "song_id": "Rxj9bi",
       "bar_num": 76,
-      "lyrics": "a cab While\n",
+      "lyrics": "but she's touching his\n",
       "audio": "",
       "has_accents": false
     },
     "B2834": {
       "song_id": "Rxj9bi",
       "bar_num": 77,
-      "lyrics": "he's having a",
+      "lyrics": "Chest now,",
       "audio": "",
       "has_accents": false
     },
     "B2835": {
       "song_id": "Rxj9bi",
       "bar_num": 78,
-      "lyrics": "smoke and she's",
+      "lyrics": "he takes off her",
       "audio": "",
       "has_accents": false
     },
     "B2836": {
       "song_id": "Rxj9bi",
       "bar_num": 79,
-      "lyrics": "taking a drag",
+      "lyrics": "dress now Let me",
       "audio": "",
       "has_accents": false
     },
     "B2837": {
       "song_id": "Rxj9bi",
       "bar_num": 80,
-      "lyrics": "Now they're going",
+      "lyrics": "go",
       "audio": "",
       "has_accents": false
     },
     "B2838": {
       "song_id": "Rxj9bi",
       "bar_num": 81,
-      "lyrics": "to bed and",
+      "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2839": {
       "song_id": "Rxj9bi",
       "bar_num": 82,
-      "lyrics": "my stomach is",
+      "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2840": {
       "song_id": "Rxj9bi",
       "bar_num": 83,
-      "lyrics": "sick And it's",
+      "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2841": {
       "song_id": "Rxj9bi",
       "bar_num": 84,
-      "lyrics": "all in my",
+      "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2842": {
       "song_id": "Rxj9bi",
       "bar_num": 85,
-      "lyrics": "head, but she's",
+      "lyrics": "'Cause I just can't",
       "audio": "",
       "has_accents": false
     },
     "B2843": {
       "song_id": "Rxj9bi",
       "bar_num": 86,
-      "lyrics": "touching his Chest",
+      "lyrics": "look, it's",
       "audio": "",
       "has_accents": false
     },
     "B2844": {
       "song_id": "Rxj9bi",
       "bar_num": 87,
-      "lyrics": "now, he takes",
+      "lyrics": "killing me",
       "audio": "",
       "has_accents": false
     },
     "B2845": {
       "song_id": "Rxj9bi",
       "bar_num": 88,
-      "lyrics": "off her dress",
+      "lyrics": "And",
       "audio": "",
       "has_accents": false
     },
     "B2846": {
       "song_id": "Rxj9bi",
       "bar_num": 89,
-      "lyrics": "now Let me",
+      "lyrics": "taking con-",
       "audio": "",
       "has_accents": false
     },
     "B2847": {
       "song_id": "Rxj9bi",
       "bar_num": 90,
-      "lyrics": "go 'Cause I",
+      "lyrics": "trol",
       "audio": "",
       "has_accents": false
     },
     "B2848": {
       "song_id": "Rxj9bi",
       "bar_num": 91,
-      "lyrics": "just can't look,",
+      "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2849": {
       "song_id": "Rxj9bi",
       "bar_num": 92,
-      "lyrics": "it's killing me\n",
+      "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2850": {
       "song_id": "Rxj9bi",
       "bar_num": 93,
-      "lyrics": "And taking control",
+      "lyrics": "Jealousy,",
       "audio": "",
       "has_accents": false
     },
     "B2851": {
       "song_id": "Rxj9bi",
       "bar_num": 94,
-      "lyrics": "Jealousy, turning saints",
+      "lyrics": "turning saints in-",
       "audio": "",
       "has_accents": false
     },
     "B2852": {
       "song_id": "Rxj9bi",
       "bar_num": 95,
-      "lyrics": "into the sea",
+      "lyrics": "to the sea",
       "audio": "",
       "has_accents": false
     },
@@ -30205,84 +30211,85 @@
     "B2854": {
       "song_id": "Rxj9bi",
       "bar_num": 97,
-      "lyrics": "lullabies, choking on",
+      "lyrics": "lullabies,",
       "audio": "",
       "has_accents": false
     },
     "B2855": {
       "song_id": "Rxj9bi",
       "bar_num": 98,
-      "lyrics": "your alibis But",
+      "lyrics": "choking on your",
       "audio": "",
       "has_accents": false
     },
     "B2856": {
       "song_id": "Rxj9bi",
       "bar_num": 99,
-      "lyrics": "it's just the",
+      "lyrics": "alibis",
       "audio": "",
       "has_accents": false
     },
     "B2857": {
       "song_id": "Rxj9bi",
       "bar_num": 100,
-      "lyrics": "price I pay,",
+      "lyrics": "But it's just the",
       "audio": "",
       "has_accents": false
     },
     "B2858": {
       "song_id": "Rxj9bi",
       "bar_num": 101,
-      "lyrics": "destiny is calling",
+      "lyrics": "price I pay,",
       "audio": "",
       "has_accents": false
     },
     "B2859": {
       "song_id": "Rxj9bi",
       "bar_num": 102,
-      "lyrics": "me Open up",
+      "lyrics": "destiny is",
       "audio": "",
       "has_accents": false
     },
     "B2860": {
       "song_id": "Rxj9bi",
       "bar_num": 103,
-      "lyrics": "my eager eyes,",
+      "lyrics": "calling me",
       "audio": "",
       "has_accents": false
     },
     "B2861": {
       "song_id": "Rxj9bi",
       "bar_num": 104,
-      "lyrics": "'cause I'm Mr.",
+      "lyrics": "Open up my",
       "audio": "",
       "has_accents": false
     },
     "B2862": {
       "song_id": "Rxj9bi",
       "bar_num": 105,
-      "lyrics": "Brightside I never",
+      "lyrics": "eager eyes,",
       "audio": "",
       "has_accents": false
     },
     "B2863": {
       "song_id": "Rxj9bi",
       "bar_num": 106,
-      "lyrics": "I never I",
+      "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2864": {
       "song_id": "Rxj9bi",
       "bar_num": 107,
-      "lyrics": "never I never",
+      "lyrics": "'cause I'm Mr.",
       "audio": "",
       "has_accents": false
     },
     "B2865": {
       "song_id": "Rxj9bi",
       "bar_num": 108,
-      "lyrics": "",
+      "lyrics": "Brightside\n",
       "audio": "",
       "has_accents": false
     },
@@ -30338,14 +30345,15 @@
     "B2873": {
       "song_id": "Rxj9bi",
       "bar_num": 116,
-      "lyrics": "",
+      "lyrics": "I\n",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2874": {
       "song_id": "Rxj9bi",
       "bar_num": 117,
-      "lyrics": "",
+      "lyrics": "never",
       "audio": "",
       "has_accents": false
     },
@@ -30354,26 +30362,28 @@
       "bar_num": 118,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2876": {
       "song_id": "Rxj9bi",
       "bar_num": 119,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2877": {
       "song_id": "Rxj9bi",
       "bar_num": 120,
-      "lyrics": "",
+      "lyrics": "I",
       "audio": "",
       "has_accents": false
     },
     "B2878": {
       "song_id": "Rxj9bi",
       "bar_num": 121,
-      "lyrics": "",
+      "lyrics": "never",
       "audio": "",
       "has_accents": false
     },
@@ -30382,26 +30392,28 @@
       "bar_num": 122,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2880": {
       "song_id": "Rxj9bi",
       "bar_num": 123,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2881": {
       "song_id": "Rxj9bi",
       "bar_num": 124,
-      "lyrics": "",
+      "lyrics": "I",
       "audio": "",
       "has_accents": false
     },
     "B2882": {
       "song_id": "Rxj9bi",
       "bar_num": 125,
-      "lyrics": "",
+      "lyrics": "never",
       "audio": "",
       "has_accents": false
     },
@@ -30410,26 +30422,28 @@
       "bar_num": 126,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2884": {
       "song_id": "Rxj9bi",
       "bar_num": 127,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2885": {
       "song_id": "Rxj9bi",
       "bar_num": 128,
-      "lyrics": "",
+      "lyrics": "I",
       "audio": "",
       "has_accents": false
     },
     "B2886": {
       "song_id": "Rxj9bi",
       "bar_num": 129,
-      "lyrics": "",
+      "lyrics": "never",
       "audio": "",
       "has_accents": false
     },
@@ -30438,14 +30452,16 @@
       "bar_num": 130,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2888": {
       "song_id": "Rxj9bi",
       "bar_num": 131,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2889": {
       "song_id": "Rxj9bi",

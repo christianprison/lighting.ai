@@ -10550,7 +10550,9 @@
         "manual_done": [
           "bar_markers",
           "parts_identified",
-          "instr_parts_identified"
+          "instr_parts_identified",
+          "instr_bars_identified",
+          "lyrics_bars"
         ],
         "user_tasks": [],
         "manual_undone": []
@@ -11047,7 +11049,18 @@
             "instrumental": true
           }
         ]
-      }
+      },
+      "anchors": [
+        {
+          "id": "anc_moixegjr_y9je",
+          "pos": 1,
+          "type": "guitar",
+          "event": "Einsatz",
+          "part_hint": "Intro (Guitar)",
+          "bar_num": 1,
+          "beat": "1"
+        }
+      ]
     },
     "pdWrqc": {
       "name": "Narcotic",

@@ -9968,7 +9968,7 @@
       "qlc_id": 30,
       "audio_ref": "audio/Lonely Boy/Lonely Boy - Full Song.mp3",
       "audio_ref_name": "Lonely Boy - Full Song.mp3",
-      "lyrics_raw": "Well I'm so above you, it is plain to see But I came to love you anyway So you pulled my heart out And I don't mind bleeding Any old time you keep me waiting, waiting, waiting Oh, oh, oh, oh, I got a love that keeps me waiting Oh, oh, oh, oh, I got a love that keeps me waiting I'm a lonely boy I'm a lonely boy Oh, oh, oh, oh, I got a love that done keeps me waiting Well your mama kept you but your daddy left you And I should have done you just the same But I came to love you Am I born to bleed? Any old time you keep me waiting, waiting, waiting Oh, oh, oh, oh, I got a love that keeps waiting Oh, oh, oh, oh, I got a love that keeps me waiting I'm a me lonely boy I'm a lonely boy Oh, oh, oh, oh, I got a love that keeps me waiting Oh, oh, oh, oh, I got a love that keeps me waiting Oh, oh, oh, oh, I got a love that keeps me waiting I'm a lonely boy I'm a lonely boy Oh, oh, oh, oh, I got a love that keeps me waiting",
+      "lyrics_raw": "Well I'm so above you, it is plain to see But I came to love you anyway So you pulled my heart out And I don't mind bleeding Any old time you keep me waiting, waiting, waiting Oh, oh, oh, oh, I got a love that keeps me waiting Oh, oh, oh, I got a love that keeps me waiting I'm a lonely boy I'm a lonely boy Oh, oh, oh, oh, I got a love that done keeps me waiting Well your mama kept you but your daddy left you And I should have done you just the same But I came to love you Am I born to bleed? Any old time you keep me waiting, waiting, waiting Oh, oh, oh, oh, I got a love that keeps waiting Oh, oh, oh, I got a love that keeps me waiting I'm a me lonely boy I'm a lonely boy Oh, oh, oh, oh, I got a love that keeps me waiting Oh, oh, oh, oh, I got a love that keeps me waiting Oh, oh, oh, I got a love that keeps me waiting I'm a lonely boy I'm a lonely boy Oh, oh, oh, oh, I got a love that keeps me waiting",
       "tms": {
         "manual_done": [
           "bar_markers",
@@ -28378,7 +28378,7 @@
     "B2673": {
       "song_id": "BKpY4X",
       "bar_num": 45,
-      "lyrics": "Oh, oh, oh,",
+      "lyrics": "Oh, oh,",
       "audio": "",
       "has_accents": false
     },
@@ -28661,7 +28661,7 @@
     "B2713": {
       "song_id": "BKpY4X",
       "bar_num": 85,
-      "lyrics": "Oh, oh, oh,",
+      "lyrics": "Oh, oh,",
       "audio": "",
       "has_accents": false
     },
@@ -28859,63 +28859,63 @@
     "B2741": {
       "song_id": "BKpY4X",
       "bar_num": 113,
-      "lyrics": "Oh, oh, oh, oh, I got a love that keeps me waiting Oh, oh, oh, oh, I got a love that keeps me waiting I'm a lonely boy I'm a lonely",
+      "lyrics": "Oh, oh, oh,",
       "audio": "",
       "has_accents": false
     },
     "B2742": {
       "song_id": "BKpY4X",
       "bar_num": 114,
-      "lyrics": "boy Oh, oh,",
+      "lyrics": "oh,",
       "audio": "",
       "has_accents": false
     },
     "B2743": {
       "song_id": "BKpY4X",
       "bar_num": 115,
-      "lyrics": "oh, oh, I",
+      "lyrics": "I got a love that",
       "audio": "",
       "has_accents": false
     },
     "B2744": {
       "song_id": "BKpY4X",
       "bar_num": 116,
-      "lyrics": "got a love",
+      "lyrics": "keeps me waiting\n",
       "audio": "",
       "has_accents": false
     },
     "B2745": {
       "song_id": "BKpY4X",
       "bar_num": 117,
-      "lyrics": "that keeps me",
+      "lyrics": "Oh, oh,",
       "audio": "",
       "has_accents": false
     },
     "B2746": {
       "song_id": "BKpY4X",
       "bar_num": 118,
-      "lyrics": "waiting",
+      "lyrics": "oh,",
       "audio": "",
       "has_accents": false
     },
     "B2747": {
       "song_id": "BKpY4X",
       "bar_num": 119,
-      "lyrics": "",
+      "lyrics": "I got a love that",
       "audio": "",
       "has_accents": false
     },
     "B2748": {
       "song_id": "BKpY4X",
       "bar_num": 120,
-      "lyrics": "",
+      "lyrics": "keeps me waiting\n",
       "audio": "",
       "has_accents": false
     },
     "B2749": {
       "song_id": "BKpY4X",
       "bar_num": 121,
-      "lyrics": "",
+      "lyrics": "I'm a lonely boy",
       "audio": "",
       "has_accents": false
     },
@@ -28924,12 +28924,13 @@
       "bar_num": 122,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2751": {
       "song_id": "BKpY4X",
       "bar_num": 123,
-      "lyrics": "",
+      "lyrics": "I'm a lonely boy",
       "audio": "",
       "has_accents": false
     },
@@ -28938,33 +28939,34 @@
       "bar_num": 124,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2753": {
       "song_id": "BKpY4X",
       "bar_num": 125,
-      "lyrics": "",
+      "lyrics": "Oh, oh, oh,",
       "audio": "",
       "has_accents": false
     },
     "B2754": {
       "song_id": "BKpY4X",
       "bar_num": 126,
-      "lyrics": "",
+      "lyrics": "oh,",
       "audio": "",
       "has_accents": false
     },
     "B2755": {
       "song_id": "BKpY4X",
       "bar_num": 127,
-      "lyrics": "",
+      "lyrics": "I got a love that",
       "audio": "",
       "has_accents": false
     },
     "B2756": {
       "song_id": "BKpY4X",
       "bar_num": 128,
-      "lyrics": "",
+      "lyrics": "keeps me waiting\n",
       "audio": "",
       "has_accents": false
     },

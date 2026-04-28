@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2026.04.28a';
+const APP_VERSION = 'v2026.04.28b';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -8566,8 +8566,8 @@ async function handleSave(showToast = true) {
     // If TMS tasks were auto-marked, update the song list progress rings
     if (tmsChanged && selectedSongId) {
       _prevProgress[selectedSongId] = getSongProgress(selectedSongId).completed;
-      renderSongList(els.searchBox.value);
     }
+    renderSongList(els.searchBox.value);
 
     // Auto-export audio segments only from the audio tab
 

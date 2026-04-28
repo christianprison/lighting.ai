@@ -11059,6 +11059,33 @@
           "part_hint": "Intro (Guitar)",
           "bar_num": 1,
           "beat": "1"
+        },
+        {
+          "id": "anc_moixf097_482b",
+          "pos": 2,
+          "type": "drum",
+          "event": "Einsatz",
+          "part_hint": "Verse 1 (no Bass)",
+          "bar_num": 6,
+          "beat": "1"
+        },
+        {
+          "id": "anc_moixfuit_sibo",
+          "pos": 3,
+          "type": "bass",
+          "event": "Einsatz",
+          "part_hint": "Verse 1 + Bass",
+          "bar_num": 9,
+          "beat": "1"
+        },
+        {
+          "id": "anc_moixg3bo_n91g",
+          "pos": 4,
+          "type": "drum",
+          "event": "Beat beginnt",
+          "part_hint": "Verse 1 (normal beat)",
+          "bar_num": 13,
+          "beat": "1"
         }
       ]
     },

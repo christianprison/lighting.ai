@@ -15,8 +15,3 @@ server:
   host: "0.0.0.0"
   port: 8080
 
-# Direktes DMX via sACN (E1.31) — Fallback-Modus (Phase 3 Vorschau)
-dmx:
-  sacn_universe: 1         # sACN Universe (1-basiert, muss mit Showtec NET-2/3 übereinstimmen)
-  sacn_multicast: true     # true = Multicast (alle sACN-Nodes im LAN empfangen)
-  sacn_source_name: "lighting.ai fallback"

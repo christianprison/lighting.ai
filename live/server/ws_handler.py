@@ -35,8 +35,6 @@ class LiveState:
     db_sync_method: str = ""
     # Playback
     is_playing: bool = False
-    # DMX Fallback-Modus
-    fallback_active: bool = False
 
     def to_dict(self) -> dict:
         return asdict(self)

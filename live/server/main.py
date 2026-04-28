@@ -17,7 +17,6 @@ from .db_cache import sync, load_db, load_qxw_path, push_probe_log
 from .qlc_parser import parse, qlc_data_to_dict, QlcData, ACCENT_FUNCTIONS, BASE_COLLECTIONS
 from .qlc_osc import QlcOsc, FUNCTION_TO_COLLECTION
 from .ws_handler import WsHandler
-from .dmx_fallback import DmxFallbackController, DmxFallbackConfig
 from detection.reference_db import ReferenceDB, DEFAULT_DB_PATH
 from .audio.audio_process import AudioProcess, OnsetUpdate, AudioStatus, BarUpdate, BandUpdate
 
@@ -56,7 +55,6 @@ db: dict = {}
 qlc_data: QlcData | None = None
 osc: QlcOsc | None = None
 ws_handler = WsHandler()
-dmx_fallback: DmxFallbackController | None = None
 
 # Audio engine
 ref_db: ReferenceDB | None = None
@@ -94,7 +92,7 @@ class RecordingStartRequest(BaseModel):
 
 @app.on_event("startup")
 async def startup():
-    global db, qlc_data, osc, ref_db, audio_process, _audio_queue, dmx_fallback
+    global db, qlc_data, osc, ref_db, audio_process, _audio_queue
 
     # 1) Sync DB from GitHub / local repo
     log.info("=== lighting.ai Live Controller ===")
@@ -173,28 +171,11 @@ async def startup():
     # Background-Task: Audio-Queue → WebSocket broadcast
     asyncio.create_task(_consume_audio_queue())
 
-    # 8) DMX Fallback Controller initialisieren und automatisch starten
-    # Kein Song bekannt beim Start → Fallback sofort aktiv
-    dmx_fallback = DmxFallbackController(
-        DmxFallbackConfig(
-            universe=cfg.dmx.sacn_universe,
-            multicast=cfg.dmx.sacn_multicast,
-            source_name=cfg.dmx.sacn_source_name,
-        )
-    )
-    fallback_ok = await dmx_fallback.start_async()
-    if fallback_ok:
-        await ws_handler.update_state(fallback_active=True)
-        log.info("DMX-Fallback automatisch gestartet (kein Song aktiv)")
-
     log.info("Ready — http://%s:%d", cfg.server.host, cfg.server.port)
 
 
 @app.on_event("shutdown")
 async def shutdown():
-    if dmx_fallback and dmx_fallback.is_active:
-        await dmx_fallback.stop_async()
-
     if audio_process:
         # Aufnahme stoppen und Session-ID ermitteln
         rec_info = audio_process.recorder._info
@@ -738,43 +719,6 @@ async def recording_download(filename: str):
     )
 
 
-# --- DMX Fallback API ---
-
-@app.post("/api/dmx/fallback/start")
-async def dmx_fallback_start():
-    """Fallback-Modus starten: Fixture blinkt alle 500 ms mit Farbwechsel."""
-    if dmx_fallback is None:
-        return JSONResponse({"error": "DMX Fallback nicht initialisiert"}, status_code=503)
-    if dmx_fallback.is_active:
-        return {"ok": True, "active": True, "message": "Fallback läuft bereits"}
-    ok = await dmx_fallback.start_async()
-    if ok:
-        await ws_handler.update_state(fallback_active=True)
-        log.info("DMX-Fallback-Modus aktiviert")
-    return {"ok": ok, "active": dmx_fallback.is_active}
-
-
-@app.post("/api/dmx/fallback/stop")
-async def dmx_fallback_stop():
-    """Fallback-Modus stoppen (Blackout + sACN-Sender beenden)."""
-    if dmx_fallback is None:
-        return JSONResponse({"error": "DMX Fallback nicht initialisiert"}, status_code=503)
-    if not dmx_fallback.is_active:
-        return {"ok": True, "active": False, "message": "Fallback war nicht aktiv"}
-    await dmx_fallback.stop_async()
-    await ws_handler.update_state(fallback_active=False)
-    log.info("DMX-Fallback-Modus deaktiviert")
-    return {"ok": True, "active": False}
-
-
-@app.get("/api/dmx/fallback/status")
-async def dmx_fallback_status():
-    """Aktuellen Status des Fallback-Modus abfragen."""
-    return {
-        "active": dmx_fallback.is_active if dmx_fallback else False,
-        "universe": cfg.dmx.sacn_universe,
-        "multicast": cfg.dmx.sacn_multicast,
-    }
 
 
 @app.post("/api/recording/mixdown")
@@ -853,11 +797,6 @@ async def _handle_ws_action(action: str, msg: dict) -> dict | None:
             )
             audio_process.recorder.add_played_song(song.get("name", ""))
 
-        # Song gewählt → Fallback beenden
-        if dmx_fallback and dmx_fallback.is_active:
-            await dmx_fallback.stop_async()
-            await ws_handler.update_state(fallback_active=False)
-
         return {"ok": True, "song_id": song_id, "has_chaser": chaser is not None}
 
     elif action == "next":
@@ -877,9 +816,6 @@ async def _handle_ws_action(action: str, msg: dict) -> dict | None:
             )
             if osc:
                 await osc.trigger_function_async(step.function_id)
-            if dmx_fallback and dmx_fallback.is_active:
-                await dmx_fallback.stop_async()
-                await ws_handler.update_state(fallback_active=False)
         return {"ok": True, "step": new_step}
 
     elif action == "prev":
@@ -898,9 +834,6 @@ async def _handle_ws_action(action: str, msg: dict) -> dict | None:
             )
             if osc:
                 await osc.trigger_function_async(step.function_id)
-            if dmx_fallback and dmx_fallback.is_active:
-                await dmx_fallback.stop_async()
-                await ws_handler.update_state(fallback_active=False)
         return {"ok": True, "step": new_step}
 
     elif action == "goto":
@@ -919,9 +852,6 @@ async def _handle_ws_action(action: str, msg: dict) -> dict | None:
                 current_part_name=step.note,
                 current_function_name=step.function_name,
             )
-            if dmx_fallback and dmx_fallback.is_active:
-                await dmx_fallback.stop_async()
-                await ws_handler.update_state(fallback_active=False)
         return {"ok": True, "step": step_index}
 
     elif action == "goto_part":
@@ -929,11 +859,6 @@ async def _handle_ws_action(action: str, msg: dict) -> dict | None:
         if not part_name:
             return {"error": "part_name fehlt"}
         _log_user_action("goto_part", {"part_name": part_name, "song_id": ws_handler.state.current_song_id})
-
-        # Fallback stoppen — Timo korrigiert manuell die Position
-        if dmx_fallback and dmx_fallback.is_active:
-            await dmx_fallback.stop_async()
-            await ws_handler.update_state(fallback_active=False)
 
         chaser = None
         if qlc_data and ws_handler.state.current_song_id:
@@ -1003,19 +928,6 @@ async def _handle_ws_action(action: str, msg: dict) -> dict | None:
                 "source": "rehearsal_clear",
             })
         return {"ok": True, "mode": "rehearsal" if song_id else "live", "song_id": song_id}
-
-    elif action == "toggle_fallback":
-        if dmx_fallback is None:
-            return {"error": "DMX Fallback nicht initialisiert"}
-        _log_user_action("toggle_fallback", {"currently_active": dmx_fallback.is_active})
-        if dmx_fallback.is_active:
-            await dmx_fallback.stop_async()
-            await ws_handler.update_state(fallback_active=False)
-            return {"ok": True, "active": False}
-        else:
-            ok = await dmx_fallback.start_async()
-            await ws_handler.update_state(fallback_active=ok)
-            return {"ok": ok, "active": ok}
 
     elif action == "get_state":
         return ws_handler.state.to_dict()

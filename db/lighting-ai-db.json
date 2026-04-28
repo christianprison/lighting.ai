@@ -11033,7 +11033,8 @@
           },
           {
             "bar_num": 117,
-            "name": "I never"
+            "name": "I never",
+            "light_template": "09 Alarm"
           },
           {
             "bar_num": 132,

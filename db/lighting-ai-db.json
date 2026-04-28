@@ -10990,9 +10990,8 @@
             "light_template": "06 blinking"
           },
           {
-            "bar_num": 29,
-            "name": "Bridge 1",
-            "light_template": "04 up'n'down"
+            "bar_num": 21,
+            "name": "Bridge 1"
           },
           {
             "bar_num": 37,

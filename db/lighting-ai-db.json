@@ -10043,7 +10043,7 @@
             "time": 93.48562757490636
           },
           {
-            "time": 94.98429424157302
+            "time": 94.98222147538786
           },
           {
             "time": 96.37362757490635
@@ -10391,6 +10391,46 @@
           {
             "bar_num": 9,
             "name": "Theme 1"
+          },
+          {
+            "bar_num": 17,
+            "name": "Bass Solo 1"
+          },
+          {
+            "bar_num": 25,
+            "name": "Verse 1"
+          },
+          {
+            "bar_num": 41,
+            "name": "Chorus 1"
+          },
+          {
+            "bar_num": 57,
+            "name": "Bass Solo 2"
+          },
+          {
+            "bar_num": 65,
+            "name": "Verse 2"
+          },
+          {
+            "bar_num": 81,
+            "name": "Chorus 2"
+          },
+          {
+            "bar_num": 97,
+            "name": "Intro Reprise"
+          },
+          {
+            "bar_num": 101,
+            "name": "Intro Reprise + Drums"
+          },
+          {
+            "bar_num": 105,
+            "name": "Theme 2"
+          },
+          {
+            "bar_num": 113,
+            "name": "Chorus 3"
           },
           {
             "bar_num": 129,

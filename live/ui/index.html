@@ -512,7 +512,7 @@ opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
       <div class="badge live" id="badgeLive"><div class="pulse"></div>LIVE</div>
       <div class="badge" id="badgeQlc">QLC+ &#x25CF;</div>
       <div class="badge off" id="badgeBand">BAND &#9661;</div>
-      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.04.28b</div>
+      <div class="badge off" style="font-size:8px;letter-spacing:1px">v2026.04.30a</div>
     </div>
     <div class="beat-area">
       <div class="beat-row">
@@ -631,6 +631,8 @@ function connectWS() {
         badge.className = 'badge ' + (active ? 'live' : 'off');
         badge.textContent = active ? 'BAND ▲' : 'BAND ▽';
       }
+    } else if (msg.type === 'anchor_matched') {
+      handleAnchorMatched(msg.anchor || {});
     }
   };
   ws.onclose = function() {
@@ -885,6 +887,15 @@ function renderTimeline() {
 /// ─── Render: Full update ──────────────────────
 var _lastRenderedSongId = '';
 // ─── Render: Anker (left panel bottom) ───────────────────────────
+// Vom AnchorMatcher (Live-Backend) erkannte Anker — IDs werden gehalten bis Songwechsel.
+var detectedAnchorIds = {};
+
+function handleAnchorMatched(anc) {
+  if (!anc || !anc.id) return;
+  detectedAnchorIds[anc.id] = true;
+  renderAnchors();
+}
+
 var ANKER_COLORS = {
   pete: '#38bdf8', axel: '#f0a030', christian: '#00dc82',
   drum: '#ff3b5c', guitar: '#a78bfa', bass: '#34d399',
@@ -915,13 +926,19 @@ function renderAnchors() {
     var a = anchors[i];
     var barNum = a.bar_num ? parseInt(a.bar_num) : null;
     var cls = '';
-    if (barNum != null) {
+    // Vom AnchorMatcher als erkannt gemeldet → done (überschreibt Bar-Heuristik)
+    if (a.id && detectedAnchorIds[a.id]) {
+      cls = 'done';
+    } else if (barNum != null) {
       if (barNum < currentBar) {
         cls = 'done';
       } else if (firstUpcoming) {
         cls = 'upcoming';
         firstUpcoming = false;
       }
+    } else if (firstUpcoming) {
+      cls = 'upcoming';
+      firstUpcoming = false;
     }
     var color = ANKER_COLORS[a.type] || ANKER_COLORS.other;
     var label = ANKER_LABELS[a.type] || 'AKT';
@@ -946,10 +963,11 @@ function renderAnchors() {
 }
 
 function renderAll() {
-  // Reset playhead on song change
+  // Reset playhead + detected anchors on song change
   if (state.current_song_id && state.current_song_id !== _lastRenderedSongId) {
     _lastRenderedSongId = state.current_song_id;
     tlLocalBarIdx = 0;
+    detectedAnchorIds = {};
   }
   // Song header
   document.getElementById('songTitle').textContent = state.current_song_name || '-';

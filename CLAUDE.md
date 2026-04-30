@@ -87,6 +87,20 @@ Band-Aktivität. Zwei Event-Typen: `band_starts` (Band beginnt zu spielen) und `
 (Indices 0, 3, 4, 5, 8, 9, 13). Visualisierung im Events-Strip: grünes ▲ (band_starts),
 rotes ▽ (band_stops). Signal `band_event_detected(str, float)` in `SimulatorWorker`.
 
+**Implementiert in Session 2026-04-30:**  
+`BandActivityDetector` und `AnchorMatcher` laufen jetzt auch Live
+(`live/server/audio/audio_process.py`) — Prime-Directive-konform identisch zur Simulation:
+- `BandActivityDetector` läuft pro Block, sendet `band_event` per WebSocket
+  (`{type:"band_event", event_type:"band_starts"|"band_stops", t}`). Live-UI färbt das
+  `BAND`-Badge grün/grau.
+- `AnchorMatcher` wird in `AudioProcess.set_song(..., anchors=...)` mit `song.anchors`
+  initialisiert und im Audio-Callback gefüttert (Kick/Snare/Crash → `process_kick/snare/crash`,
+  einmal pro Block → `process_block` für RMS-Trigger). Erkannte Anker werden als
+  `anchor_matched`-WebSocket-Nachricht (`{type:"anchor_matched", t, anchor:{id,pos,type,event,
+  bar_num,beat,part_hint}}`) broadcastet. Live-UI führt `detectedAnchorIds[id]` und markiert
+  erkannte Anker im Anker-Panel als „done" (überschreibt die alte Bar-Heuristik).
+  `main.py select_song` reicht `song.get("anchors")` an `set_song()` durch.
+
 ### Claude Code Terminal (Linux) — aktueller Arbeitsmode
 
 Ab Session 2026-04-26 wird auf dem **Claude Code CLI für Linux** gearbeitet (direkt im Terminal des Laptops). Das hat folgende Konsequenzen:
@@ -827,15 +841,14 @@ Wenn ein Song kein `grundrhythmus` hat, wird Phasen-Histogramm + Crash-Fallback 
 
 #### ⚠️ Offene Punkte für nächste Session
 
-1. **Feldtest BandActivityDetector**: Simulation starten, im Events-Strip prüfen:
-   - Grüne ▲ (band_starts) erscheinen wenn die Band einsetzt
-   - Rote ▽ (band_stops) erscheinen in Pausen/am Songenden
+1. **Feldtest BandActivityDetector** (Sim + Live, integriert seit 2026-04-30):
+   - Sim: Grüne ▲/rote ▽ im Events-Strip
+   - Live: `BAND`-Badge im Live-UI (grün = active, grau = silent)
    - Falls zu empfindlich (▲/▽ während Spielen): `start_ratio` erhöhen (aktuell 0.70) oder `threshold_rms` erhöhen (aktuell 0.005)
    - Falls zu träge: `stop_hold_blocks` senken (aktuell 3, ~126 ms bei 48kHz/2048)
-   - **Integration in AudioProcess (Live-Betrieb)** steht noch aus — identisch zu SimulatorWorker integrierbar (Prime Directive erfüllt)
-2. **Feldtest AnchorMatcher**: Simulation auf Songs mit gepflegten Ankern laufen lassen:
+2. **Feldtest AnchorMatcher** (Sim + Live, Live integriert seit 2026-04-30):
    - `[ANKER] warte auf #01 ...` erscheint vor dem ersten Audio-Ton (Logging-Timing korrekt?)
-   - Anker werden in der richtigen Reihenfolge erkannt und als Diamonds im Anker-Strip sichtbar
+   - Sim: Anker als Diamonds im Anker-Strip; Live: Anker im linken ANKER-Panel werden bei Erkennung „done" (ausgegraut)
    - **Schwellwerte tunen**: Falls zu viele False Positives → `_RMS_VOCAL_ON` / `_RMS_GUITAR_ON` erhöhen; zu wenige → senken
 3. **Feldtest Beat-1-Korrektur + Dual-Playhead**: Simulation auf verschiedenen Songs laufen lassen:
    - Crash-Detektion: Status-Bar zeigt `★ N Crashes`? Wenn 0 → `CRASH_RMS_MIN` (aktuell 0.001) weiter senken

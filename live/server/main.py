@@ -654,6 +654,15 @@ async def recording_start(req: RecordingStartRequest):
 
     try:
         info = audio_process.recorder.start(label=label, song_id=req.song_id)
+        # Aktuell ausgewählten Song als erstes select_song-Event ins JSONL
+        # schreiben, sonst beginnt das Log mit Beat-Events ohne Songkontext —
+        # die Rehearsal-Review zeigt die Aufnahme dann als ein einziges Pseudo-
+        # Segment ohne Songnamen.
+        sid  = ws_handler.state.current_song_id
+        name = ws_handler.state.current_song_name
+        if sid:
+            _log_user_action("select_song", {"song_id": sid, "name": name})
+            audio_process.recorder.add_played_song(name)
         return {"ok": True, **audio_process.recorder.status()}
     except RuntimeError as exc:
         return JSONResponse({"error": str(exc)}, status_code=500)

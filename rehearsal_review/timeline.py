@@ -186,6 +186,8 @@ class TimelineWidget(QWidget):
     bar_marker_remove_requested = pyqtSignal(float)  # t_in_seg of nearest marker
     # Debug: Rechtsklick auf OH-Track → Crash-Diagnose für diesen Zeitpunkt
     debug_crash_requested = pyqtSignal(float)         # absolute WAV time
+    # Rechtsklick auf Events-Strip → Logfile an dieser Stelle öffnen
+    log_open_requested = pyqtSignal(float)            # absolute WAV time
 
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
@@ -610,6 +612,16 @@ class TimelineWidget(QWidget):
                         elif BTN_S_X <= x < BTN_S_X + BTN_W:
                             self._toggle_solo(i)
                     break
+            return
+
+        # Events-Strip: Rechtsklick öffnet das .log an dieser Stelle
+        if (RULER_H <= y < RULER_H + EVENTS_H
+                and event.button() == Qt.MouseButton.RightButton
+                and self.segment and x >= LABEL_W):
+            t_rel = (x - LABEL_W + self._scroll_x) / self._pps
+            t_rel = max(0.0, min(t_rel, self.segment.duration))
+            wav_t = self.segment.start_t + t_rel
+            self.log_open_requested.emit(wav_t)
             return
 
         # Annotation strip: right-click removes nearest marker

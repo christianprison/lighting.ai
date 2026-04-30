@@ -115,7 +115,7 @@ QComboBox#zoom_combo          { font-family:'DM Mono',monospace; font-size:10px;
                                 min-width:90px; max-width:110px; }
 """
 
-APP_VERSION = "2026.04.28a"
+APP_VERSION = "2026.04.30a"
 
 _ZOOM_PRESETS: list[int] = [2, 5, 10, 20, 40, 80, 160, 320, 640, 1280, 2560, 5120, 10240, 20480, 40960]
 
@@ -437,6 +437,7 @@ class MainWindow(QMainWindow):
         self._timeline.event_label_clicked.connect(self._on_event_label_clicked)
         self._timeline.bar_marker_remove_requested.connect(self._on_remove_bar_marker)
         self._timeline.debug_crash_requested.connect(self._debug_crash_at)
+        self._timeline.log_open_requested.connect(self._open_log_at)
 
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
@@ -1802,6 +1803,67 @@ class MainWindow(QMainWindow):
         dlg.setWindowTitle("Crash-Debug")
         dlg.setText(msg)
         dlg.setFont(_QFont("DM Mono", 10))
+        dlg.exec()
+
+    # ── Logfile-Viewer ─────────────────────────────────────────────────────────
+
+    _LOG_TS_RE = re.compile(r"^\[\s*([\d.]+)s\]")
+
+    def _open_log_at(self, wav_t: float) -> None:
+        """Öffnet das .log neben der WAV und springt zur Zeile mit
+        dem nächstgelegenen `[  s.ss]`-Timestamp ≤ wav_t.
+        """
+        if self._session is None:
+            return
+        log_path = self._session.jsonl_path.with_suffix(".log")
+        if not log_path.exists():
+            QMessageBox.information(
+                self, "Logfile",
+                f"Keine .log-Datei vorhanden:\n{log_path.name}\n\n"
+                "Logs werden erst durch die Live-App ab v2026.04.30b geschrieben.",
+            )
+            return
+
+        try:
+            text = log_path.read_text(encoding="utf-8", errors="replace")
+        except OSError as exc:
+            QMessageBox.warning(self, "Logfile", f"Lesefehler: {exc}")
+            return
+
+        # Zielzeile bestimmen: letzte Zeile mit Timestamp ≤ wav_t.
+        lines = text.splitlines()
+        target_line = 0
+        for i, ln in enumerate(lines):
+            m = self._LOG_TS_RE.match(ln)
+            if m:
+                try:
+                    ts = float(m.group(1))
+                except ValueError:
+                    continue
+                if ts <= wav_t:
+                    target_line = i
+                else:
+                    break
+
+        from PyQt6.QtWidgets import QDialog, QPlainTextEdit, QVBoxLayout
+        from PyQt6.QtGui import QFont as _QFont, QTextCursor
+
+        dlg = QDialog(self)
+        dlg.setWindowTitle(f"Logfile — {log_path.name}  @ t={wav_t:.2f}s")
+        dlg.resize(900, 600)
+        layout = QVBoxLayout(dlg)
+        edit = QPlainTextEdit()
+        edit.setReadOnly(True)
+        edit.setFont(_QFont("DM Mono", 10))
+        edit.setLineWrapMode(QPlainTextEdit.LineWrapMode.NoWrap)
+        edit.setPlainText(text)
+        layout.addWidget(edit)
+
+        # Cursor auf Zielzeile setzen + zentriert sichtbar machen
+        cursor = QTextCursor(edit.document().findBlockByNumber(target_line))
+        edit.setTextCursor(cursor)
+        edit.centerCursor()
+
         dlg.exec()
 
     def _on_sim_finished(self, result: dict) -> None:

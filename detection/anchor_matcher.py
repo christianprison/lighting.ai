@@ -10,12 +10,37 @@ from __future__ import annotations
 import os as _os
 import sys
 from collections import deque
-from typing import Optional
+from typing import Callable, Optional
+
+
+def _stderr_sink(msg: str) -> None:
+    """Standard-Sink: schreibt direkt auf fd 2 — umgeht jedes Python-IO-Buffering."""
+    _os.write(2, (msg + "\n").encode("utf-8", errors="replace"))
+
+
+# Module-level Log-Sinks. Default = stderr. Live-App registriert zusätzlich
+# einen Datei-Sink (z.B. `recordings/YYYY-MM-DD/HHMM.log`).
+_log_sinks: list[Callable[[str], None]] = [_stderr_sink]
+
+
+def add_log_sink(sink: Callable[[str], None]) -> None:
+    """Registriert einen zusätzlichen Log-Sink (z.B. Datei)."""
+    if sink not in _log_sinks:
+        _log_sinks.append(sink)
+
+
+def remove_log_sink(sink: Callable[[str], None]) -> None:
+    """Entfernt einen vorher registrierten Log-Sink."""
+    if sink in _log_sinks:
+        _log_sinks.remove(sink)
 
 
 def _log(msg: str) -> None:
-    """Schreibt direkt auf fd 2 — umgeht jedes Python-IO-Buffering."""
-    _os.write(2, (msg + "\n").encode("utf-8", errors="replace"))
+    for sink in list(_log_sinks):
+        try:
+            sink(msg)
+        except Exception:
+            pass
 
 import numpy as np
 

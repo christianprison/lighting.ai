@@ -37,7 +37,11 @@ import numpy as np
 from detection.beat_detector import OnsetDetector, OnsetEvent as _OnsetEvent
 from detection.bar_tracker import BarTracker
 from detection.band_activity import BandActivityDetector
-from detection.anchor_matcher import AnchorMatcher
+from detection.anchor_matcher import (
+    AnchorMatcher,
+    add_log_sink as _anchor_add_log_sink,
+    remove_log_sink as _anchor_remove_log_sink,
+)
 from detection.chroma_extractor import StreamingChromaExtractor, CH_GUITAR, CH_BASS
 from .recorder import MultitrackRecorder
 
@@ -450,10 +454,14 @@ class AudioProcess:
                 except RuntimeError as exc:
                     log.warning("Aufnahme konnte nicht gestartet werden: %s", exc)
 
-                while not self._stop_event.is_set():
-                    time.sleep(0.01)
-
-                self.recorder.stop()
+                # Anker-Matcher-Diagnose ins .log neben der WAV
+                _anchor_add_log_sink(self.recorder.log_text)
+                try:
+                    while not self._stop_event.is_set():
+                        time.sleep(0.01)
+                finally:
+                    _anchor_remove_log_sink(self.recorder.log_text)
+                    self.recorder.stop()
 
         except Exception as exc:
             self._error = str(exc)
@@ -522,6 +530,8 @@ class AudioProcess:
         t_mid = (wav_offset or 0.0) + BLOCK_SIZE / (2 * SAMPLE_RATE)
         for ev_type, ev_t in self._band_detector.process_block(indata, t_mid):
             self._emit(BandUpdate(event_type=ev_type, t=ev_t))
+            if el is not None:
+                el.log("band_event", wav_offset=ev_t, event_type=ev_type)
 
         # --- AnchorMatcher: RMS-basierte Trigger (Einsatz/Pause) ---
         with self._anchor_lock:
@@ -530,6 +540,18 @@ class AudioProcess:
             anc = matcher.process_block(indata, t_mid)
             if anc is not None:
                 self._emit(AnchorMatch(anchor=anc, t=t_mid))
+                if el is not None:
+                    el.log(
+                        "anchor_matched",
+                        wav_offset=t_mid,
+                        anchor_id=anc.get("id", ""),
+                        pos=anc.get("pos"),
+                        anchor_type=anc.get("type", ""),
+                        event=anc.get("event", ""),
+                        bar_num=anc.get("bar_num"),
+                        beat=anc.get("beat", ""),
+                        part_hint=anc.get("part_hint", ""),
+                    )
 
         # --- Onset-Detection: Kick + Snare + Crash ---
         onsets = self.onset_detector.process_block(indata)
@@ -562,6 +584,19 @@ class AudioProcess:
                     anc = None
                 if anc is not None:
                     self._emit(AnchorMatch(anchor=anc, t=t_ev))
+                    if el is not None:
+                        el.log(
+                            "anchor_matched",
+                            wav_offset=t_ev,
+                            anchor_id=anc.get("id", ""),
+                            pos=anc.get("pos"),
+                            anchor_type=anc.get("type", ""),
+                            event=anc.get("event", ""),
+                            bar_num=anc.get("bar_num"),
+                            beat=anc.get("beat", ""),
+                            part_hint=anc.get("part_hint", ""),
+                            trigger=ev.type,
+                        )
 
             # BarTracker + Bar-Logging
             with self._bar_tracker_lock:

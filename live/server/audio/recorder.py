@@ -87,6 +87,10 @@ class MultitrackRecorder:
         self.event_logger: Optional[SessionEventLogger] = None
         self._played_songs: list[str] = []   # Songs in Reihenfolge des Einsatzes
         self._rec_stem: str = ""             # Basis-Dateiname ohne Songnamen
+        # Klartext-Logfile neben der WAV — für Anker-/Diagnoseausgaben.
+        self._log_file = None                # type: ignore[assignment]
+        self._log_path: Optional[Path] = None
+        self._log_started_ts: float = 0.0
 
     @property
     def is_recording(self) -> bool:
@@ -106,6 +110,21 @@ class MultitrackRecorder:
             if not self._played_songs or self._played_songs[-1] != name:
                 self._played_songs.append(name)
                 log.debug("Song zur Aufnahme hinzugefügt: %s", name)
+
+    def log_text(self, msg: str) -> None:
+        """Schreibt eine Zeile in das Klartext-Logfile neben der WAV.
+
+        Nicht-blockierend; verwirft die Zeile lautlos wenn keine Aufnahme läuft.
+        Wird in der Live-App vom AnchorMatcher-Sink benutzt.
+        """
+        f = self._log_file
+        if f is None:
+            return
+        t_rel = time.time() - self._log_started_ts
+        try:
+            f.write(f"[{t_rel:8.2f}s] {msg}\n")
+        except (OSError, ValueError):
+            pass
 
     # --- Public API (aufgerufen vom FastAPI-Thread) ----------------------------
 
@@ -181,6 +200,20 @@ class MultitrackRecorder:
                 sample_rate=self.sample_rate,
                 started_at=now.isoformat(),
             )
+
+            # Klartext-Logfile neben der WAV (Anker-Diagnose etc.)
+            log_path = path.with_suffix(".log")
+            try:
+                self._log_file = log_path.open("w", encoding="utf-8", buffering=1)
+                self._log_path = log_path
+                self._log_started_ts = started_ts
+                self._log_file.write(
+                    f"# {now.isoformat()}  session_start  wav={path.name}\n"
+                )
+            except OSError as exc:
+                log.warning("Logfile konnte nicht geöffnet werden: %s", exc)
+                self._log_file = None
+                self._log_path = None
 
             log.info("Recording gestartet: %s", path)
             return self._info
@@ -342,6 +375,14 @@ class MultitrackRecorder:
         if self.event_logger is not None:
             self.event_logger.close()
             self.event_logger = None
+        # Klartext-Log schließen
+        if self._log_file is not None:
+            try:
+                self._log_file.flush()
+                self._log_file.close()
+            except OSError:
+                pass
+            self._log_file = None
         self._info = None
 
         # Umbenennen: Songnamen anhängen
@@ -377,11 +418,15 @@ class MultitrackRecorder:
         new_wav = old_wav.parent / f"{self._rec_stem}_{song_part}.wav"
         old_jsonl = old_wav.with_suffix(".jsonl")
         new_jsonl = new_wav.with_suffix(".jsonl")
+        old_log   = old_wav.with_suffix(".log")
+        new_log   = new_wav.with_suffix(".log")
 
         try:
             old_wav.rename(new_wav)
             if old_jsonl.exists():
                 old_jsonl.rename(new_jsonl)
+            if old_log.exists():
+                old_log.rename(new_log)
             info.path = str(new_wav)
             log.info("Recording umbenannt: %s", new_wav.name)
         except Exception as exc:

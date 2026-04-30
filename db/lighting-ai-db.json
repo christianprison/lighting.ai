@@ -9610,7 +9610,8 @@
           "bar_markers",
           "parts_identified",
           "instr_parts_identified",
-          "instr_bars_identified"
+          "instr_bars_identified",
+          "lyrics_bars"
         ],
         "user_tasks": [],
         "manual_undone": []
@@ -10014,6 +10015,33 @@
           "part_hint": "Bridge 1",
           "bar_num": 16,
           "beat": "1+"
+        },
+        {
+          "id": "anc_mol02wyp_7yzs",
+          "pos": 4,
+          "type": "bass",
+          "event": "Pause",
+          "part_hint": "Drum Solo",
+          "bar_num": 57,
+          "beat": "1"
+        },
+        {
+          "id": "anc_mol018qb_jhtt",
+          "pos": 5,
+          "type": "guitar",
+          "event": "Pause",
+          "part_hint": "Drum Solo",
+          "bar_num": 57,
+          "beat": "1"
+        },
+        {
+          "id": "anc_mol03cxt_uxjw",
+          "pos": 6,
+          "type": "drum",
+          "event": "Snare",
+          "part_hint": "Drum Solo",
+          "bar_num": 57,
+          "beat": "1"
         }
       ]
     },

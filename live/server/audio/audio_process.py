@@ -37,6 +37,7 @@ import numpy as np
 from detection.beat_detector import OnsetDetector, OnsetEvent as _OnsetEvent
 from detection.bar_tracker import BarTracker
 from detection.band_activity import BandActivityDetector
+from detection.anchor_matcher import AnchorMatcher
 from detection.chroma_extractor import StreamingChromaExtractor, CH_GUITAR, CH_BASS
 from .recorder import MultitrackRecorder
 
@@ -141,6 +142,22 @@ class BandUpdate:
         }
 
 
+@dataclass
+class AnchorMatch:
+    """Ein vom AnchorMatcher erkannter Anker."""
+    anchor: dict  # vollständiges Anker-Dict (id, pos, type, event, bar_num, beat, …)
+    t: float      # WAV-Zeitstempel des Match-Events
+
+    def to_dict(self) -> dict:
+        anc = dict(self.anchor)
+        anc.pop("t_detected", None)
+        return {
+            "type":   "anchor_matched",
+            "t":      round(self.t, 3),
+            "anchor": anc,
+        }
+
+
 # ---------------------------------------------------------------------------
 # Haupt-Klasse
 # ---------------------------------------------------------------------------
@@ -199,6 +216,11 @@ class AudioProcess:
 
         # BandActivityDetector (Prime Directive: identisch mit SimulatorWorker)
         self._band_detector = BandActivityDetector()
+
+        # AnchorMatcher (Prime Directive: identisch mit SimulatorWorker)
+        # Wird bei set_song() initialisiert wenn Anker vorhanden sind.
+        self._anchor_matcher: AnchorMatcher | None = None
+        self._anchor_lock = threading.Lock()
 
         # Streaming Chroma-Extraktoren (Prime Directive: identisch mit SimulatorWorker)
         self._guitar_extractor = StreamingChromaExtractor(
@@ -303,8 +325,9 @@ class AudioProcess:
         grundrhythmus: dict | None = None,
         seg_start_t: float | None = None,
         song_id: str = "",
+        anchors: list | None = None,
     ) -> None:
-        """Konfiguriert BarTracker und Chroma-Extraktoren für einen neuen Song.
+        """Konfiguriert BarTracker, Chroma-Extraktoren und AnchorMatcher für einen neuen Song.
 
         Thread-safe — aus dem FastAPI-Event-Loop über asyncio.to_thread() aufrufen.
 
@@ -318,6 +341,9 @@ class AudioProcess:
             Segment-Startzeit. None = aktuelle ADC-Zeit oder 0.
         song_id:
             Song-ID für Chroma-Referenz-Lookup in reference.db.
+        anchors:
+            Optional. Liste der gepflegten Anker (song.anchors aus der DB).
+            Wenn nicht leer, wird ein AnchorMatcher initialisiert.
         """
         t0 = seg_start_t if seg_start_t is not None else (self._adc_start or 0.0)
         with self._bar_tracker_lock:
@@ -331,6 +357,19 @@ class AudioProcess:
 
         # BandActivityDetector zurücksetzen
         self._band_detector.reset()
+
+        # AnchorMatcher initialisieren wenn Anker vorhanden, sonst deaktivieren
+        with self._anchor_lock:
+            if anchors:
+                self._anchor_matcher = AnchorMatcher(
+                    anchors=anchors,
+                    bpm=bpm,
+                    seg_start_t=t0,
+                    sample_rate=SAMPLE_RATE,
+                    block_size=BLOCK_SIZE,
+                )
+            else:
+                self._anchor_matcher = None
 
         # Chroma-Extraktoren zurücksetzen
         # Bass-Fenster: 1,2 × Taktdauer (BPM-abhängig), max 3 s
@@ -484,6 +523,14 @@ class AudioProcess:
         for ev_type, ev_t in self._band_detector.process_block(indata, t_mid):
             self._emit(BandUpdate(event_type=ev_type, t=ev_t))
 
+        # --- AnchorMatcher: RMS-basierte Trigger (Einsatz/Pause) ---
+        with self._anchor_lock:
+            matcher = self._anchor_matcher
+        if matcher is not None and not matcher.done:
+            anc = matcher.process_block(indata, t_mid)
+            if anc is not None:
+                self._emit(AnchorMatch(anchor=anc, t=t_mid))
+
         # --- Onset-Detection: Kick + Snare + Crash ---
         onsets = self.onset_detector.process_block(indata)
         for ev in onsets:
@@ -502,6 +549,19 @@ class AudioProcess:
                     )
                 except queue.Full:
                     pass  # Queue voll → überspringen, kein Blocking
+
+            # AnchorMatcher: Onset-basierte Trigger
+            if matcher is not None and not matcher.done:
+                if ev.type == "kick":
+                    anc = matcher.process_kick(t_ev, ev.energy)
+                elif ev.type == "snare":
+                    anc = matcher.process_snare(t_ev, ev.energy)
+                elif ev.type == "crash":
+                    anc = matcher.process_crash(t_ev, ev.energy)
+                else:
+                    anc = None
+                if anc is not None:
+                    self._emit(AnchorMatch(anchor=anc, t=t_ev))
 
             # BarTracker + Bar-Logging
             with self._bar_tracker_lock:
@@ -625,7 +685,7 @@ class AudioProcess:
 
     # --- Emit (thread-safe → asyncio) ----------------------------------------
 
-    def _emit(self, event: OnsetUpdate | AudioStatus | ChromaUpdate | BarUpdate | BandUpdate) -> None:
+    def _emit(self, event: OnsetUpdate | AudioStatus | ChromaUpdate | BarUpdate | BandUpdate | AnchorMatch) -> None:
         self.loop.call_soon_threadsafe(self.event_queue.put_nowait, event)
 
     def _send_status(self) -> None:

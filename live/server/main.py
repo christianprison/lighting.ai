@@ -18,7 +18,7 @@ from .qlc_parser import parse, qlc_data_to_dict, QlcData, ACCENT_FUNCTIONS, BASE
 from .qlc_osc import QlcOsc, FUNCTION_TO_COLLECTION
 from .ws_handler import WsHandler
 from detection.reference_db import ReferenceDB, DEFAULT_DB_PATH
-from .audio.audio_process import AudioProcess, OnsetUpdate, AudioStatus, BarUpdate, BandUpdate
+from .audio.audio_process import AudioProcess, OnsetUpdate, AudioStatus, BarUpdate, BandUpdate, AnchorMatch
 
 logging.basicConfig(
     level=logging.INFO,
@@ -257,6 +257,8 @@ async def _consume_audio_queue() -> None:
         elif isinstance(event, BarUpdate):
             await ws_handler.broadcast(event.to_dict())
         elif isinstance(event, BandUpdate):
+            await ws_handler.broadcast(event.to_dict())
+        elif isinstance(event, AnchorMatch):
             await ws_handler.broadcast(event.to_dict())
 
 
@@ -788,12 +790,14 @@ async def _handle_ws_action(action: str, msg: dict) -> dict | None:
         if audio_process:
             bpm = float(song.get("bpm") or 0)
             grundrhythmus = song.get("grundrhythmus") or None
+            anchors = song.get("anchors") or []
             await asyncio.to_thread(
                 audio_process.set_song,
                 bpm,
                 grundrhythmus,
                 None,
                 song_id,
+                anchors,
             )
             audio_process.recorder.add_played_song(song.get("name", ""))
 

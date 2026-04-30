@@ -101,17 +101,23 @@ uvicorn live.server.main:app --host 0.0.0.0 --port 8080
 
 ## API Endpunkte
 
-| Method | Pfad                          | Beschreibung              |
-|--------|-------------------------------|---------------------------|
-| GET    | `/api/songs`                  | Alle Songs                |
-| GET    | `/api/setlist`                | Aktive Setlist            |
-| GET    | `/api/qlc/mapping`            | QLC+ Song-Chaser Mapping  |
-| GET    | `/api/qlc/status`             | QLC+ Verbindungsstatus    |
-| POST   | `/api/sync`                   | DB manuell synchronisieren|
-| POST   | `/api/qlc/function/{id}/start`| QLC+ Funktion starten     |
-| POST   | `/api/qlc/accent/{type}`      | Accent triggern           |
-| POST   | `/api/qlc/tap`                | Tap Tempo                 |
-| WS     | `/ws`                         | WebSocket (Echtzeit)      |
+| Method | Pfad                          | Beschreibung                                 |
+|--------|-------------------------------|----------------------------------------------|
+| GET    | `/api/songs`                  | Alle Songs (inkl. anchors)                   |
+| GET    | `/api/setlist`                | Aktive Setlist                               |
+| GET    | `/api/qlc/mapping`            | QLC+ Song-Chaser Mapping                     |
+| GET    | `/api/qlc/status`             | QLC+ Verbindungsstatus                       |
+| POST   | `/api/sync`                   | DB manuell synchronisieren                   |
+| POST   | `/api/qlc/function/{id}/start`| QLC+ Funktion starten                        |
+| POST   | `/api/qlc/accent/{type}`      | Accent triggern                              |
+| POST   | `/api/qlc/tap`                | Tap Tempo                                    |
+| POST   | `/api/recording/start`        | Multitrack-Aufnahme starten                  |
+| POST   | `/api/recording/stop`         | Aufnahme beenden                             |
+| GET    | `/api/recording/status`       | Aufnahme-Status                              |
+| GET    | `/api/recording/list`         | Liste aller Aufnahmen                        |
+| GET    | `/api/recording/download/{p}` | Aufnahme herunterladen (mit Date-Subordner)  |
+| POST   | `/api/recording/mixdown`      | Stereo-Mixdown erzeugen                      |
+| WS     | `/ws`                         | WebSocket (Echtzeit-Events)                  |
 
 ## WebSocket Kommandos
 
@@ -120,10 +126,49 @@ uvicorn live.server.main:app --host 0.0.0.0 --port 8080
 {"action": "next"}
 {"action": "prev"}
 {"action": "goto", "step": 3}
+{"action": "goto_part", "part_name": "Chorus"}
 {"action": "accent", "type": "blind"}
 {"action": "tap"}
 {"action": "get_state"}
 ```
+
+## WebSocket Push-Events
+
+Vom Server an alle verbundenen Clients (Live-UI):
+
+```json
+{"type": "state", "data": {...}}
+{"type": "onset_update", "onset_type": "kick|snare|crash", "energy": 0.012, "timestamp": ...}
+{"type": "beat_update", "bar_num": 12, "bpm": 120.0, "beat_num": 1, "is_downbeat": true}
+{"type": "band_event", "event_type": "band_starts|band_stops", "t": 12.345}
+{"type": "anchor_matched", "t": 12.345, "anchor": {"id": ..., "type": ..., "event": ..., "bar_num": ..., ...}}
+{"type": "chroma_update", "kind": "guitar|bass", "t": ..., "chroma": [...], "bar_num": ..., "confidence": ...}
+{"type": "audio_status", "running": true, "device": ..., "sample_rate": 48000}
+```
+
+## Aufnahme-Dateien
+
+Pro Aufnahme entstehen drei Dateien parallel im selben Ordner
+(`live/data/recordings/YYYY-MM-DD/`), gleicher Stamm
+(`HHMM_Song1_Song2_…`):
+
+- `*.wav` — 18 Kanäle Audio (RF64-Format, kein 4-GB-Limit).
+- `*.jsonl` — strukturierte Events: `session_start/end`, `kick/snare/crash`,
+  `bar`, `band_event`, `anchor_matched`, `user`-Aktionen (`select_song`,
+  `next`, `goto_part`, `accent`, `tap`). Synchron im Audio-Callback
+  geschrieben (`wav_offset` ist ADC-Zeitstempel relativ zum Aufnahme-Start,
+  frame-genau zur WAV).
+- `*.log` — Klartext-Diagnose vom `AnchorMatcher` und `BarTracker`
+  (`[ANKER] …`-Zeilen: warte/ERKANNT/cooldown/RMS;
+  `[BAR] energy_beat1`, `_snare_phase_correct`, `crash_beat1_correct`,
+  Snare-Positionen). Format `[  s.ss] msg` mit Sekunden-Timestamp seit
+  Aufnahme-Start. Wird per `MultitrackRecorder.log_text()` und
+  `detection.{anchor_matcher,bar_tracker}.add_log_sink()` verdrahtet —
+  Default-Sink (stderr) bleibt erhalten, der Datei-Sink ist additiv.
+
+Die Rehearsal-Review-App lädt die `.jsonl` generisch (`session.py:load_session()`)
+und visualisiert `anchor_matched`-Events im Anker-Strip; die `.log` lässt sich
+per Rechtsklick auf den Events-Strip an der jeweiligen Position öffnen.
 
 ## Architektur
 

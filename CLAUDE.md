@@ -858,23 +858,81 @@ Wenn ein Song kein `grundrhythmus` hat, wird Phasen-Histogramm + Crash-Fallback 
 - **Part-Ende-Vorwarnung**: `updatePartEndWarning()` — bei ≤2 Takten bis Part-Ende pulsiert NEXT amber (`warningPulse`-Animation) + `#nextPreview` zeigt `→ [nächster Part-Name]`
 - **Override-Buttons**: `.on`-State invertiert (Vollfarbe + Glow statt Halbtransparenz)
 
-#### ⚠️ Offene Punkte für nächste Session
+#### ⚠️ Offene Punkte (nach Probe 2026-04-30 auswerten)
 
-1. **Feldtest BandActivityDetector** (Sim + Live, integriert seit 2026-04-30):
-   - Sim: Grüne ▲/rote ▽ im Events-Strip
-   - Live: `BAND`-Badge im Live-UI (grün = active, grau = silent)
-   - Falls zu empfindlich (▲/▽ während Spielen): `start_ratio` erhöhen (aktuell 0.70) oder `threshold_rms` erhöhen (aktuell 0.005)
-   - Falls zu träge: `stop_hold_blocks` senken (aktuell 3, ~126 ms bei 48kHz/2048)
-2. **Feldtest AnchorMatcher** (Sim + Live, Live integriert seit 2026-04-30):
-   - `[ANKER] warte auf #01 ...` erscheint vor dem ersten Audio-Ton (Logging-Timing korrekt?)
-   - Sim: Anker als Diamonds im Anker-Strip; Live: Anker im linken ANKER-Panel werden bei Erkennung „done" (ausgegraut)
-   - **Schwellwerte tunen**: Falls zu viele False Positives → `_RMS_VOCAL_ON` / `_RMS_GUITAR_ON` erhöhen; zu wenige → senken
-3. **Feldtest Beat-1-Korrektur + Dual-Playhead**: Simulation auf verschiedenen Songs laufen lassen:
-   - Crash-Detektion: Status-Bar zeigt `★ N Crashes`? Wenn 0 → `CRASH_RMS_MIN` (aktuell 0.001) weiter senken
-   - Taktgitter landet auf Beat 1 (Snare-Positionen ≈ 1.0 und 3.0 beats in Diagnostik)
-   - **grundrhythmus-Daten einpflegen**: Für jeden Song die Kick/Snare-Positionen in der DB-Pflege-App eintragen (Felder seit v2.2.27)
-4. **Anker-Positionen in der DB pflegen**: Für Songs ohne Anker-Daten die Anker in der DB-Pflege-App eintragen, damit der AnchorMatcher greifen kann.
-5. **Probenaufnahmen → RF64-Format**: Neue Aufnahmen (seit v2026.04.23a) werden im RF64-Format geschrieben. Alte WAV-Aufnahmen >4 GB: libsndfile scannt linear beim Öffnen (30–60 s) — v1.3.20-Lade-Strategie ist der Workaround.
+Die Probendaten landen automatisch in
+`live/data/recordings/YYYY-MM-DD/HHMM_*.{wav,jsonl,log}`. In der
+Rehearsal-Review-App: Songsegmente erscheinen in der Combobox, Live-erkannte
+Anker als Diamonds im Anker-Strip, Rechtsklick auf den Events-Strip öffnet
+die `.log` an der angeklickten Zeit.
+
+1. **Feldtest BandActivityDetector** auswerten:
+   - JSONL-Events `band_event` (Typen `band_starts`/`band_stops`) durchgehen.
+   - Falls zu empfindlich (Flackern während des Spielens): `start_ratio`
+     in `detection/band_activity.py` erhöhen (aktuell 0.70) oder
+     `threshold_rms` (aktuell 0.005).
+   - Falls zu träge: `stop_hold_blocks` senken (aktuell 3 ≈ 126 ms).
+2. **Feldtest AnchorMatcher** auswerten:
+   - `anchor_matched`-Events in der Anker-Zeile prüfen, fehlende oder
+     falsch ausgelöste Anker per Rechtsklick im Events-Strip in der
+     `.log`-Datei nachvollziehen (`[ANKER] RMS …`-Zeilen).
+   - Schwellwerte in `detection/anchor_matcher.py` tunen
+     (`_RMS_VOCAL_ON`, `_RMS_GUITAR_ON`, `_RMS_BASS_ON`, `_RMS_DRUM_ON`),
+     wenn Pegel knapp daneben.
+3. **Feldtest Beat-1-Korrektur + Dual-Playhead**:
+   - `[BAR] energy_beat1`-Diagnostik im `.log` lesen — `ratio>1.05` zeigt
+     ausgelöste Korrektur.
+   - Snare-Positionen ≈ 1.0 / 3.0 beats? Wenn nicht: `grundrhythmus`
+     pro Song in der DB-Pflege-App pflegen.
+   - Crash-Erkennung: `★ N Crashes` im Sim oder `crash`-Events im JSONL.
+     Bei 0 → `CRASH_RMS_MIN` (aktuell 0.001) weiter senken.
+4. **Anker-Positionen in der DB pflegen** für die restlichen Songs
+   (heutige Songs sind erledigt).
+5. **Probenaufnahmen → RF64-Format**: Aufnahmen seit v2026.04.23a sind
+   RF64. Alte WAV >4 GB: libsndfile scannt linear (30–60 s) — Lade-Strategie
+   aus v1.3.20 (`raw_all` im RAM halten) ist der Workaround.
+
+#### Implementierte Features (Session 2026-04-30)
+
+**Live-App v2026.04.30d:**
+- `BandActivityDetector` + `AnchorMatcher` Live integriert (Prime Directive,
+  identisch zur Sim). Pro Block: `BandActivityDetector.process_block`,
+  `AnchorMatcher.process_block` (RMS-Trigger). Pro Onset: `process_kick/snare/crash`.
+- Erkannte Anker → WS `anchor_matched` (`{type, t, anchor:{id,pos,type,event,
+  bar_num,beat,part_hint,…}}`). Live-UI markiert sie als „done" über
+  `detectedAnchorIds[id]`.
+- Drei Dateien parallel pro Aufnahme (gleicher Stamm):
+  - `*.wav` — 18 Kanäle RF64
+  - `*.jsonl` — strukturierte Events: `kick/snare/crash`, `bar`, **neu**
+    `band_event`, `anchor_matched` (synchron im Audio-Callback geschrieben)
+  - `*.log` — Klartext-Diagnose von `AnchorMatcher` + `BarTracker`
+    (`[ANKER] …`, `[BAR] …`); Format `[  s.ss] msg`. Verdrahtet über
+    `MultitrackRecorder.log_text()` und `detection.{anchor_matcher,bar_tracker}.add_log_sink()`.
+- `/api/recording/start` schreibt jetzt nach `recorder.start()` ein
+  `select_song`-User-Event für den aktuell aktiven Song aus
+  `ws_handler.state` und ruft `recorder.add_played_song(name)` —
+  vorher wurde nur ein **Wechsel** geloggt; der bei Start bereits
+  ausgewählte Song fehlte, was die Rehearsal-Review zu einem
+  einzigen Pseudo-Segment ohne Songnamen zwang.
+
+**Rehearsal-App v2026.04.30b:**
+- Anker-Strip zeigt **Live-erkannte Anker** aus dem JSONL der
+  Probenaufnahme: in `_on_song_combo_changed` werden alle
+  `anchor_matched`-Events des Segments per `add_sim_anchor_detected()`
+  in den Strip projiziert (Diamond + Glow + Event-Label, identisch
+  zur Sim) — kein Re-Simulieren nötig, um zu sehen, was die Live-App
+  erkannt hat.
+- **Rechtsklick auf den Events-Strip** → öffnet die `.log`-Datei der
+  Probe (`MainWindow._open_log_at`) und springt automatisch zur
+  letzten Zeile mit Timestamp ≤ angeklickter Zeit. Dialog: monospace,
+  read-only, scrollbar. Nur sinnvoll für Aufnahmen ab Live-App
+  v2026.04.30b (mit `.log`-Datei).
+- `detection/bar_tracker.py` hat jetzt eine Log-Sink-Liste
+  (`add_log_sink`/`remove_log_sink`, default = stderr) — analog zu
+  `detection/anchor_matcher.py`. Live-App registriert beide Sinks an
+  `recorder.log_text` während der Aufnahme. Damit landen `[BAR] energy_beat1`,
+  `_snare_phase_correct`, `crash_beat1_correct`, Snare-Positionen,
+  Erste-5-Takte-Diagnose ebenfalls im `.log`.
 
 #### Implementierte Features (Session 2026-04-27)
 

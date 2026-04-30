@@ -1,5 +1,15 @@
 # Beat- und Takterkennung – Architektur
 
+> **Stand 2026-04-30:** Dieses Dokument beschreibt das ursprüngliche
+> Konzept (Onset-Detection + HMM-Positionsschätzung). Die aktuelle
+> Implementierung weicht ab: Statt eines HMM läuft ein cursor-basierter
+> `AnchorMatcher` (`detection/anchor_matcher.py`) zusammen mit dem
+> Streaming-`BarTracker` (`detection/bar_tracker.py`) und dem
+> `BandActivityDetector` (`detection/band_activity.py`) — alle
+> Prime-Directive-konform identisch in Sim und Live. Die aktuelle
+> Quelle der Wahrheit ist `CLAUDE.md` (Sektion „Implementiert in
+> Session 2026-04-30") sowie die Bedienungsanleitungen in `docs/`.
+
 ## Ziel
 
 Das System soll während eines Live-Auftritts in Echtzeit erkennen:

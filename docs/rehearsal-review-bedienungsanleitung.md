@@ -65,9 +65,15 @@ Optional: Session direkt übergeben:
 2. Die App lädt automatisch die passende WAV-Datei (gleicher Name, `.wav`)
 3. Song-Auswahl-Dropdown füllt sich mit allen Songs der Session
 4. Bestehende Annotationen werden automatisch geladen (falls `*_annotations.json` vorhanden)
+5. Live-erkannte Anker (`anchor_matched`-Events aus dem JSONL) werden automatisch in den Anker-Strip eingezeichnet — gleiche Darstellung wie bei einer Sim (Diamond + Glow + Event-Label)
 
 **Welche Datei ist die richtige?**
 Aufnahmen liegen in Unterordnern `recordings/YYYY-MM-DD/`. Der Dateiname enthält die Uhrzeit und die gespielten Songs: `1853_Animal_Creep_Sweet_Home.jsonl` = Aufnahme gestartet um 18:53.
+
+**Drei Dateien pro Aufnahme** (gleicher Stamm):
+- `*.wav` — 18 Kanäle Audio (RF64)
+- `*.jsonl` — strukturierte Events (kick/snare/crash, bar, band_event, anchor_matched, user-Aktionen)
+- `*.log` — Klartext-Diagnose vom AnchorMatcher und BarTracker (`[ANKER] …`, `[BAR] …`); per Rechtsklick im Events-Strip an der jeweiligen Position aufrufbar
 
 ---
 
@@ -310,6 +316,33 @@ for line in sys.stdin:
     print(f\"{d['t']:6.2f}s  vox_rms={d['data'].get('vox_rms', 0):.4f}\")
 "
 ```
+
+---
+
+## Logfile-Viewer (`.log`)
+
+Während einer Live-Probe schreibt die Live-App ab v2026.04.30b parallel zu
+WAV/JSONL ein Klartext-Logfile mit Diagnose-Ausgaben des `AnchorMatcher` und
+`BarTracker` (alle `[ANKER] …` und `[BAR] …`-Zeilen, je mit Sekunden-Timestamp
+seit Aufnahme-Start).
+
+**Zugriff:** Rechtsklick auf den **Events-Strip** (schmaler Streifen direkt
+unter dem Zeitlineal) an der gewünschten Position → es öffnet sich ein
+nicht-editierbarer Dialog (DM Mono, 900×600), Cursor steht auf der letzten
+Zeile mit Timestamp ≤ angeklickter Zeit.
+
+**Typische Inhalte:**
+- `[ANKER] warte auf #NN type event trigger=…` — was der Matcher gerade erwartet
+- `[ANKER] ✓ ERKANNT #NN …  t=X.XXs` — erkannter Anker
+- `[ANKER] cooldown aktiv — #NN noch gesperrt (Y.YYs)` — Match unterdrückt
+- `[ANKER] RMS  trigger=…  t=X.Xs  curr=… thresh=…  prev=…` — Schwellwert-Diagnose
+- `[BAR] energy_beat1: phase_curr_avg=… phase_alt_avg=… ratio=…` — Beat-1-Korrektur
+- `[BAR] _snare_phase_correct: T → T' (+N Beats, scores=[…])` — Snare-Phase
+- `[BAR] crash_beat1_correct: T → T' (+N Beats, crash_scores=…)` — Crash-Korrektur
+- `[BAR] Snare-Positionen in Takten (Beat 2≈1.0, Beat 4≈3.0): […]` — Qualitätscheck
+
+Falls keine `.log`-Datei vorhanden (alte Aufnahme oder Live-App < v2026.04.30b):
+Hinweis-Dialog statt Viewer.
 
 ---
 

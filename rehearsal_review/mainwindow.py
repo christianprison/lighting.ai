@@ -115,7 +115,7 @@ QComboBox#zoom_combo          { font-family:'DM Mono',monospace; font-size:10px;
                                 min-width:90px; max-width:110px; }
 """
 
-APP_VERSION = "2026.04.30a"
+APP_VERSION = "2026.04.30b"
 
 _ZOOM_PRESETS: list[int] = [2, 5, 10, 20, 40, 80, 160, 320, 640, 1280, 2560, 5120, 10240, 20480, 40960]
 
@@ -823,6 +823,23 @@ class MainWindow(QMainWindow):
             self._sim_monitor = None
         self._timeline.clear_sim_events()
         self._timeline.set_sim_overlay(False)
+
+        # Live-erkannte Anker aus dem JSONL der Probenaufnahme in den
+        # Anker-Strip eintragen — nutzt denselben Mechanismus wie die Sim,
+        # so dass identische Visualisierung entsteht (Diamond + Glow + Label).
+        for ev in seg.events:
+            if ev.type == "anchor_matched":
+                d = ev.data
+                self._timeline.add_sim_anchor_detected({
+                    "id":         d.get("anchor_id") or f"_live_{ev.t:.3f}",
+                    "pos":        d.get("pos"),
+                    "type":       d.get("anchor_type", ""),
+                    "event":      d.get("event", ""),
+                    "bar_num":    d.get("bar_num"),
+                    "beat":       d.get("beat", ""),
+                    "part_hint":  d.get("part_hint", ""),
+                    "t_detected": ev.t,
+                })
 
         # Show existing annotations for this song
         ann = self._annotations.get(seg.song_id)

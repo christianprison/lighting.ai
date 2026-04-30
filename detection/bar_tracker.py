@@ -31,7 +31,38 @@ from __future__ import annotations
 
 import bisect as _bisect
 import logging
-from typing import Optional
+import os as _os
+import sys
+from typing import Callable, Optional
+
+
+# ── Konfigurierbares Logging (analog detection.anchor_matcher) ────────────
+# Default-Sink schreibt direkt auf fd 2 (umgeht Python-IO-Buffering).
+def _stderr_sink(msg: str) -> None:
+    _os.write(2, (msg + "\n").encode("utf-8", errors="replace"))
+
+
+_log_sinks: list[Callable[[str], None]] = [_stderr_sink]
+
+
+def add_log_sink(sink: Callable[[str], None]) -> None:
+    """Registriert einen zusätzlichen Log-Sink (z.B. Datei)."""
+    if sink not in _log_sinks:
+        _log_sinks.append(sink)
+
+
+def remove_log_sink(sink: Callable[[str], None]) -> None:
+    """Entfernt einen vorher registrierten Log-Sink."""
+    if sink in _log_sinks:
+        _log_sinks.remove(sink)
+
+
+def _log(msg: str) -> None:
+    for sink in list(_log_sinks):
+        try:
+            sink(msg)
+        except Exception:
+            pass
 
 import numpy as np
 
@@ -252,19 +283,17 @@ def _snare_phase_correct(
                       if _circ_dist(t % bar_sec, phase_2, bar_sec) <= snap_r)
             if e_2 > e_0 * 1.03:
                 corrected = first_t + 2.0 * beat_sec
-                print(
+                _log(
                     f"[BAR] _snare_phase_correct tie-break: {first_t:.3f} → {corrected:.3f} "
-                    f"(+2 Beats via Energie-Tie-Breaker, e0={e_0:.4f} e2={e_2:.4f})",
-                    file=sys.stderr, flush=True,
+                    f"(+2 Beats via Energie-Tie-Breaker, e0={e_0:.4f} e2={e_2:.4f})"
                 )
                 return corrected
         return first_t
 
     corrected = first_t + best_shift * beat_sec
-    print(
+    _log(
         f"[BAR] _snare_phase_correct: {first_t:.3f} → {corrected:.3f} "
-        f"(+{best_shift} Beats, scores={[f'{s:.2f}' for s in scores]})",
-        file=sys.stderr, flush=True,
+        f"(+{best_shift} Beats, scores={[f'{s:.2f}' for s in scores]})"
     )
     return corrected
 
@@ -299,18 +328,16 @@ def _energy_beat1_correct(
 
     _DIAG = len(kicks) >= 10
     if _DIAG:
-        print(
+        _log(
             f"[BAR] energy_beat1: phase_curr_avg={avg_curr:.4f}  "
-            f"phase_alt_avg={avg_alt:.4f}  ratio={avg_alt/max(avg_curr,1e-9):.2f}",
-            file=sys.stderr, flush=True,
+            f"phase_alt_avg={avg_alt:.4f}  ratio={avg_alt/max(avg_curr,1e-9):.2f}"
         )
 
     if avg_alt > avg_curr * 1.05:
         corrected = first_t + 2.0 * beat_sec
-        print(
+        _log(
             f"[BAR] energy_beat1: {first_t:.3f} → {corrected:.3f} (+2 Beats, "
-            f"avg {avg_curr:.4f} → {avg_alt:.4f})",
-            file=sys.stderr, flush=True,
+            f"avg {avg_curr:.4f} → {avg_alt:.4f})"
         )
         return corrected
 
@@ -345,10 +372,9 @@ def _crash_beat1_correct(
         return first_t
 
     corrected = candidates[best]
-    print(
+    _log(
         f"[BAR] crash_beat1_correct: {first_t:.3f} → {corrected:.3f} "
-        f"(+{best * 2} Beats, crash_scores={scores})",
-        file=sys.stderr, flush=True,
+        f"(+{best * 2} Beats, crash_scores={scores})"
     )
     return corrected
 
@@ -435,11 +461,10 @@ def _compute_bar_grid(
         first_t = _crash_beat1_correct(first_t, bar_sec, beat_sec, crashes, snap_r)
 
     if _DIAG:
-        print(
+        _log(
             f"[BAR] grid: seg_start={seg_start_t:.3f}  anchor={first_t:.3f}"
             f"  offset={(first_t - seg_start_t) / beat_sec:+.2f} beats"
-            f"  bpm={bpm}",
-            file=sys.stderr, flush=True,
+            f"  bpm={bpm}"
         )
 
     # Rückwärts: mathematisches Raster vor first_t bis seg_start_t
@@ -491,15 +516,13 @@ def _compute_bar_grid(
             if 0 <= bi < len(sorted_bars):
                 pos = (s - sorted_bars[bi]) / beat_sec
                 snare_positions.append(f"{pos:.2f}")
-        print(
+        _log(
             f"[BAR] Snare-Positionen in Takten (Beat 2≈1.0, Beat 4≈3.0): "
-            f"{snare_positions}",
-            file=sys.stderr, flush=True,
+            f"{snare_positions}"
         )
-        print(
+        _log(
             f"[BAR] Erste 5 Takte (abs): "
-            f"{[f'{t:.3f}' for t in sorted_bars[:5]]}",
-            file=sys.stderr, flush=True,
+            f"{[f'{t:.3f}' for t in sorted_bars[:5]]}"
         )
 
     return all_bars

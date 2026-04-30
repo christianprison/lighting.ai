@@ -35,7 +35,11 @@ from typing import Any
 import numpy as np
 
 from detection.beat_detector import OnsetDetector, OnsetEvent as _OnsetEvent
-from detection.bar_tracker import BarTracker
+from detection.bar_tracker import (
+    BarTracker,
+    add_log_sink as _bar_add_log_sink,
+    remove_log_sink as _bar_remove_log_sink,
+)
 from detection.band_activity import BandActivityDetector
 from detection.anchor_matcher import (
     AnchorMatcher,
@@ -454,13 +458,15 @@ class AudioProcess:
                 except RuntimeError as exc:
                     log.warning("Aufnahme konnte nicht gestartet werden: %s", exc)
 
-                # Anker-Matcher-Diagnose ins .log neben der WAV
+                # Anker- + BarTracker-Diagnose ins .log neben der WAV
                 _anchor_add_log_sink(self.recorder.log_text)
+                _bar_add_log_sink(self.recorder.log_text)
                 try:
                     while not self._stop_event.is_set():
                         time.sleep(0.01)
                 finally:
                     _anchor_remove_log_sink(self.recorder.log_text)
+                    _bar_remove_log_sink(self.recorder.log_text)
                     self.recorder.stop()
 
         except Exception as exc:

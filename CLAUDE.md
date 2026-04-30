@@ -101,6 +101,25 @@ rotes ▽ (band_stops). Signal `band_event_detected(str, float)` in `SimulatorWo
   erkannte Anker im Anker-Panel als „done" (überschreibt die alte Bar-Heuristik).
   `main.py select_song` reicht `song.get("anchors")` an `set_song()` durch.
 
+**Logging während der Probe (Session 2026-04-30b):**  
+Während einer Aufnahme entstehen drei Dateien parallel im selben Ordner
+(`live/data/recordings/YYYY-MM-DD/`), alle mit gleichem Stamm
+(`HHMM_Song1_Song2_…`):
+- `*.wav` — 18 Kanäle Audio (RF64).
+- `*.jsonl` — strukturierte Events: `session_start/end`, `kick/snare/crash`, `bar`,
+  `band_event` (`event_type`), `anchor_matched` (`anchor_id`, `pos`, `anchor_type`,
+  `event`, `bar_num`, `beat`, `part_hint`, `trigger`).  
+  Der Live-Algorithmus schreibt diese Events synchron im Audio-Callback —
+  `wav_offset` ist der ADC-Zeitstempel relativ zum Aufnahme-Start, also frame-genau
+  zur WAV. Die Rehearsal-Review-App lädt diese Events generisch über
+  `session.py:load_session()`.
+- `*.log` — Klartext-Diagnose vom `AnchorMatcher` (alle `[ANKER] …` Zeilen:
+  „warte auf #NN", „✓ ERKANNT", „cooldown aktiv", „RMS …"). Format:
+  `[  s.ss] msg`. Wird per `MultitrackRecorder.log_text()` und
+  `detection.anchor_matcher.add_log_sink()` verdrahtet.  
+  → **Während der Probe nichts mitlesen.** Alles steht hinterher zur Auswertung
+  in den drei Dateien bereit.
+
 ### Claude Code Terminal (Linux) — aktueller Arbeitsmode
 
 Ab Session 2026-04-26 wird auf dem **Claude Code CLI für Linux** gearbeitet (direkt im Terminal des Laptops). Das hat folgende Konsequenzen:

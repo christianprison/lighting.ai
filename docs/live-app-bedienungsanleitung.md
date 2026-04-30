@@ -280,9 +280,21 @@ Zwei Zustände:
 - **Ruhend**: roter Rand, transparenter Hintergrund = keine Aufnahme
 - **Aktiv**: vollständig rotes Feld, dunkler Text = Aufnahme läuft
 
-**Dateiname:** `recordings/YYYY-MM-DD/HHMM_Song1_Song2_Song3.wav`
+**Drei Dateien pro Aufnahme** (gleicher Stamm im selben Ordner):
+- `*.wav` — 18 Kanäle Audio (RF64)
+- `*.jsonl` — strukturierte Events: `kick`/`snare`/`crash`, `bar`,
+  `band_event` (band_starts/stops), `anchor_matched` (Anker-Treffer mit
+  id, type, event, bar_num, beat, part_hint, trigger), `user`-Aktionen
+  (`select_song`, `next`, `goto_part`, `accent`, `tap`)
+- `*.log` — Klartext-Diagnose vom AnchorMatcher und BarTracker
+  (`[ANKER] warte auf #NN …`, `✓ ERKANNT`, `cooldown`, `RMS …`,
+  `[BAR] energy_beat1 …`, `_snare_phase_correct …`); Format `[  s.ss] msg`,
+  Sekunden-Timestamp seit Aufnahme-Start. In der Rehearsal-Review-App per
+  Rechtsklick auf den Events-Strip zeitsynchron aufrufbar.
+
+**Dateiname:** `recordings/YYYY-MM-DD/HHMM_Song1_Song2_Song3.{wav,jsonl,log}`
 Beispiel: `recordings/2026-04-26/1853_Animal_Creep_Sweet_Home_Alabama.wav`
-Die Songs werden automatisch aus der Songauswahl übernommen (max. 6 Songs im Dateinamen).
+Die Songs werden automatisch aus der Songauswahl übernommen (max. 6 Songs im Dateinamen). Der bei Aufnahme-Start aktive Song wird seit v2026.04.30d ebenfalls als `select_song`-Event geloggt — vorher fehlte er, falls keine weitere Songauswahl folgte.
 
 ### Nachbereitung (nach der Probe)
 

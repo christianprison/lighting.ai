@@ -10066,7 +10066,8 @@
           "parts_identified",
           "instr_parts_identified",
           "instr_bars_identified",
-          "lyrics_bars"
+          "lyrics_bars",
+          "accents_any"
         ],
         "user_tasks": [],
         "manual_undone": []
@@ -10477,69 +10478,192 @@
           {
             "bar_num": 1,
             "name": "Intro",
+            "light_template": "Spot auf Axel",
             "instrumental": true
           },
           {
             "bar_num": 5,
             "name": "Intro + Drums",
+            "light_template": "Spot auf Tim",
             "instrumental": true
           },
           {
             "bar_num": 9,
             "name": "Theme 1",
+            "light_template": "08 swimming",
             "instrumental": true
           },
           {
             "bar_num": 17,
             "name": "Bass Solo 1",
+            "light_template": "Spot auf Bibo",
             "instrumental": true
           },
           {
             "bar_num": 25,
-            "name": "Verse 1"
+            "name": "Verse 1",
+            "light_template": "09 Alarm"
           },
           {
             "bar_num": 41,
-            "name": "Chorus 1"
+            "name": "Chorus 1",
+            "light_template": "10 Strobe"
           },
           {
             "bar_num": 57,
             "name": "Bass Solo 2",
+            "light_template": "Spot auf Bibo",
             "instrumental": true
           },
           {
             "bar_num": 65,
-            "name": "Verse 2"
+            "name": "Verse 2",
+            "light_template": "09 Alarm"
           },
           {
             "bar_num": 81,
-            "name": "Chorus 2"
+            "name": "Chorus 2",
+            "light_template": "10 Strobe"
           },
           {
             "bar_num": 97,
             "name": "Intro Reprise",
+            "light_template": "Spot auf Axel",
             "instrumental": true
           },
           {
             "bar_num": 101,
             "name": "Intro Reprise + Drums",
+            "light_template": "Spot auf Bibo",
             "instrumental": true
           },
           {
             "bar_num": 105,
             "name": "Theme 2",
+            "light_template": "08 swimming",
             "instrumental": true
           },
           {
             "bar_num": 113,
-            "name": "Chorus 3"
+            "name": "Chorus 3",
+            "light_template": "10 Strobe"
           },
           {
             "bar_num": 129,
             "name": "Ausklang",
+            "light_template": "01 statisch bunt",
             "instrumental": true
           }
         ]
+      },
+      "anchors": [
+        {
+          "id": "anc_mol07j5d_1wo2",
+          "pos": 1,
+          "type": "guitar",
+          "event": "Einsatz",
+          "part_hint": "Intro",
+          "bar_num": 1,
+          "beat": "1"
+        },
+        {
+          "id": "anc_mol07u6t_8q3x",
+          "pos": 2,
+          "type": "drum",
+          "event": "Einsatz",
+          "part_hint": "Intro + Drums",
+          "bar_num": 5,
+          "beat": "1"
+        },
+        {
+          "id": "anc_mol085kj_174i",
+          "pos": 3,
+          "type": "bass",
+          "event": "Einsatz",
+          "part_hint": "Theme 1",
+          "bar_num": 9,
+          "beat": "1"
+        },
+        {
+          "id": "anc_mol08qc1_cncb",
+          "pos": 4,
+          "type": "pete",
+          "event": "Hört auf",
+          "part_hint": "Bass Solo 2",
+          "bar_num": 57,
+          "beat": "1"
+        },
+        {
+          "id": "anc_mol0995j_qd06",
+          "pos": 5,
+          "type": "drum",
+          "event": "Pause",
+          "part_hint": "Intro Reprise",
+          "bar_num": 97,
+          "beat": "1"
+        },
+        {
+          "id": "anc_mol09mu5_qf3e",
+          "pos": 6,
+          "type": "pete",
+          "event": "Pause",
+          "part_hint": "Intro Reprise",
+          "bar_num": 97,
+          "beat": "1"
+        },
+        {
+          "id": "anc_mol09vcv_zur6",
+          "pos": 7,
+          "type": "keys",
+          "event": "Pause",
+          "part_hint": "Intro Reprise",
+          "bar_num": 97,
+          "beat": "1"
+        },
+        {
+          "id": "anc_mol0afz7_r2da",
+          "pos": 8,
+          "type": "drum",
+          "event": "Einsatz",
+          "part_hint": "Intro Reprise + Drums",
+          "bar_num": 102,
+          "beat": "1"
+        },
+        {
+          "id": "anc_mol0b232_ipkw",
+          "pos": 9,
+          "type": "bass",
+          "event": "Einsatz",
+          "part_hint": "Theme 2",
+          "bar_num": 105,
+          "beat": "1"
+        }
+      ],
+      "qlc_parts": {
+        "BKpY4X_QP001": {
+          "pos": 1,
+          "name": "Verse 1",
+          "light_template": "09 Alarm",
+          "notes": ""
+        },
+        "BKpY4X_QP002": {
+          "pos": 2,
+          "name": "Chorus 1",
+          "light_template": "10 Strobe",
+          "notes": ""
+        },
+        "BKpY4X_QP003": {
+          "pos": 3,
+          "name": "Verse 2",
+          "light_template": "09 Alarm",
+          "notes": ""
+        },
+        "BKpY4X_QP004": {
+          "pos": 4,
+          "name": "Chorus 2",
+          "light_template": "10 Strobe",
+          "notes": ""
+        }
       }
     },
     "rK4O7W": {

@@ -8786,6 +8786,16 @@
             "name": "Drumroll + Ende"
           }
         ]
+      },
+      "grundrhythmus": {
+        "kick": [
+          0,
+          2
+        ],
+        "snare": [
+          1,
+          3
+        ]
       }
     },
     "I9J0Xm": {

@@ -8353,14 +8353,7 @@
           "bar_markers",
           "parts_identified"
         ],
-        "user_tasks": [
-          {
-            "id": "ut_1773145638870_q96b",
-            "cat": "stammdaten",
-            "label": "hier habe ich einen Takt versehentlich gelöscht, kannst du den mal wiederholen",
-            "done": false
-          }
-        ],
+        "user_tasks": [],
         "manual_undone": []
       },
       "total_bars": 118,

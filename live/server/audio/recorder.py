@@ -9,18 +9,30 @@ Die Dateien können nach der Probe genutzt werden um:
 Aufnahme-Format:
   - 18 Kanäle, 48 kHz, float32
   - Eine WAV-Datei pro Recording-Session (= pro Song oder manuell gestartet)
-  - Dateiname: HHMM_{Song1_Song2_...}.wav  (Uhrzeit 4-stellig)
+  - Dateiname: HHMMSS_{Song1_Song2_...}.wav  (Uhrzeit 6-stellig — Sekundenauflösung
+    schützt vor Filename-Kollisionen bei mehreren Starts in derselben Minute)
   - Ordner:    live/data/recordings/YYYY-MM-DD/
 
 Thread-Sicherheit:
   Der Recorder wird aus dem sounddevice-Callback-Thread aufgerufen.
   start()/stop() kommen vom FastAPI-HTTP-Thread.
   Ein threading.Lock schützt den gemeinsamen Zustand.
+
+Robustes Schließen:
+  Bei Server-Abriss (geschlossenes Terminal, Laptop-Suspend, SIGHUP) lief
+  früher der FastAPI-Shutdown-Hook nicht durch — die RF64-Header wurden nie
+  finalisiert und die Dateien waren unleserlich ("psf_fseek() failed").
+  Jetzt: atexit-Hook + SIGHUP-/SIGTERM-Handler in __init__ stellen sicher,
+  dass close() auch bei abruptem Beenden noch läuft.
+  Zusätzlich: alle FLUSH_EVERY_BLOCKS Blöcke ein flush() — begrenzt
+  Datenverlust bei SIGKILL (atexit feuert dort nicht).
 """
 
 from __future__ import annotations
 
+import atexit
 import logging
+import signal
 import threading
 import time
 from dataclasses import dataclass
@@ -33,6 +45,10 @@ import numpy as np
 from .event_logger import SessionEventLogger
 
 log = logging.getLogger("live.audio.recorder")
+
+# Alle FLUSH_EVERY_BLOCKS (=100 ≈ 4 s @ 48 kHz/2048 samples) wird das WAV
+# auf Platte geflusht. Limitiert Datenverlust bei abruptem Crash.
+FLUSH_EVERY_BLOCKS = 100
 
 DEFAULT_RECORDINGS_DIR = Path(__file__).resolve().parent.parent.parent / "data" / "recordings"
 
@@ -92,9 +108,73 @@ class MultitrackRecorder:
         self._log_path: Optional[Path] = None
         self._log_started_ts: float = 0.0
 
+        # Robustes Schließen: atexit + SIGHUP/SIGTERM-Handler.
+        # SIGKILL kann nicht abgefangen werden — dafür gibt's den periodischen
+        # flush() in write_block().
+        atexit.register(self._emergency_close)
+        for sig in (signal.SIGHUP, signal.SIGTERM):
+            try:
+                prev = signal.getsignal(sig)
+                signal.signal(sig, self._make_signal_handler(sig, prev))
+            except (ValueError, OSError):
+                # signal.signal() funktioniert nur im Main-Thread.
+                # Wenn der Recorder aus einem Worker-Thread instanziiert wird,
+                # bleibt nur der atexit-Hook.
+                pass
+
     @property
     def is_recording(self) -> bool:
         return self._info is not None and self._info.running
+
+    # --- Notfall-Schließer (atexit / signal) ----------------------------------
+
+    def _emergency_close(self) -> None:
+        """Schließt die WAV-Datei ohne Lock-Akquise oder Umbenennung.
+
+        Wird von atexit + Signal-Handler aufgerufen. Ziel: RF64-Header
+        finalisieren, damit die Datei lesbar bleibt. Kein Logging über
+        ``log`` (dessen Handler können beim Interpreter-Shutdown schon
+        geschlossen sein), sondern direkt auf stderr.
+        """
+        sf_file = self._sf_file
+        if sf_file is None:
+            return
+        try:
+            sf_file.close()
+        except Exception:
+            pass
+        self._sf_file = None
+        log_file = self._log_file
+        if log_file is not None:
+            try:
+                log_file.flush()
+                log_file.close()
+            except Exception:
+                pass
+            self._log_file = None
+        # event_logger schließt sich beim GC oder im regulären stop()-Pfad.
+
+    def _make_signal_handler(self, sig: int, prev_handler):
+        """Baut einen Signal-Handler, der zuerst die WAV-Datei sicher schließt
+        und dann den vorherigen Handler (typischerweise Pythons default) ausführt.
+        Wichtig: SIGTERM wird auch von uvicorn benutzt — wir dürfen den
+        normalen Shutdown nicht blockieren.
+        """
+        def _handler(signum, frame):
+            self._emergency_close()
+            # Vorherigen Handler ausführen, damit der normale Shutdown läuft.
+            if callable(prev_handler):
+                try:
+                    prev_handler(signum, frame)
+                except Exception:
+                    pass
+            elif prev_handler == signal.SIG_DFL:
+                # Default-Verhalten emulieren: Programm beenden.
+                signal.signal(signum, signal.SIG_DFL)
+                # Re-raise so the default action fires.
+                import os as _os
+                _os.kill(_os.getpid(), signum)
+        return _handler
 
     def add_played_song(self, name: str) -> None:
         """Fügt einen gespielten Song zur laufenden Aufnahme hinzu.
@@ -152,18 +232,33 @@ class MultitrackRecorder:
             ) from exc
 
         with self._lock:
-            # Laufende Aufnahme beenden
-            if self._sf_file is not None:
-                self._close_locked()
+            # Wenn schon eine Aufnahme läuft: NICHT implizit schließen+neu starten.
+            # Früher: _close_locked() + neue Datei → Race mit Audio-Thread
+            # (write_block lief lockfrei, konnte in halb-geschlossene Datei
+            # schreiben → RF64-Header inkonsistent → "psf_fseek() failed").
+            # Jetzt: bestehende Info zurückgeben, kein Wechsel.
+            if self._sf_file is not None and self._info is not None:
+                log.info(
+                    "Aufnahme läuft bereits (%s) — start() ignoriert.",
+                    self._info.path,
+                )
+                return self._info
 
-            # Datums-Unterordner + HHMM-Dateiname
+            # Datums-Unterordner + HHMMSS-Dateiname (sekundengenau).
             now = datetime.now()
             date_dir = self.recordings_dir / now.strftime("%Y-%m-%d")
-            self._rec_stem = now.strftime("%H%M")
+            date_dir.mkdir(parents=True, exist_ok=True)
+
+            base_stem = now.strftime("%H%M%S")
+            self._rec_stem = base_stem
+            # Kollisionsschutz: falls trotzdem schon eine Datei existiert
+            # (z.B. manueller Test mit überspringender Systemuhr), Suffix anhängen.
+            n = 1
+            while (date_dir / f"{self._rec_stem}.wav").exists():
+                n += 1
+                self._rec_stem = f"{base_stem}_{n}"
             self._played_songs = []
             filename = self._rec_stem + ".wav"
-
-            date_dir.mkdir(parents=True, exist_ok=True)
             path = date_dir / filename
 
             self._sf_file = sf.SoundFile(
@@ -237,19 +332,35 @@ class MultitrackRecorder:
         Wird direkt aus dem sounddevice-Callback aufgerufen (Audio-Thread).
         indata: shape (frames, channels), float32
 
-        Kein Lock nötig hier: der Python GIL schützt den Pointer-Check,
-        und SoundFile.write() ist reentrant für einen einzelnen Writer-Thread.
+        Race-Safety: holt eine lokale Referenz auf self._sf_file BEVOR
+        sie benutzt wird — verhindert, dass ein paralleler stop() im
+        Main-Thread den Pointer zwischen None-Check und write() auf None
+        setzt. (GIL macht die Zuweisung atomar, aber zwei separate Reads
+        sind nicht atomar.)
         """
-        if self._sf_file is None:
+        sf_file = self._sf_file
+        info = self._info
+        if sf_file is None:
             return
         try:
-            self._sf_file.write(indata)
-            if self._info is not None:
-                self._info.blocks_written += 1
+            sf_file.write(indata)
+            if info is not None:
+                info.blocks_written += 1
+                # Periodischer Flush: begrenzt Datenverlust bei SIGKILL.
+                # Header wird hier NICHT finalisiert (das macht erst close()),
+                # aber Daten sind dann zumindest auf Platte — und der Repair-
+                # Skript kann sie aus dem rohen data-Chunk wiederherstellen.
+                if info.blocks_written % FLUSH_EVERY_BLOCKS == 0:
+                    try:
+                        sf_file.flush()
+                    except Exception:
+                        pass
         except Exception as exc:
             log.error("Fehler beim Schreiben des Audio-Blocks: %s", exc)
-            # Aufnahme bei Fehler beenden um Datenverlust zu begrenzen
-            self.stop()
+            # KEIN self.stop() mehr hier — das führte früher zu Deadlocks
+            # und schloss in Race-Situationen die falsche (neue) Datei.
+            # Stattdessen: Datei-Pointer löschen und atexit-Hook macht close().
+            self._sf_file = None
 
     def status(self) -> dict:
         """Gibt den aktuellen Status als dict zurück (für API-Response)."""

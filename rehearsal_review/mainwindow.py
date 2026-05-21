@@ -115,7 +115,7 @@ QComboBox#zoom_combo          { font-family:'DM Mono',monospace; font-size:10px;
                                 min-width:90px; max-width:110px; }
 """
 
-APP_VERSION = "2026.04.30b"
+APP_VERSION = "2026.05.21a"
 
 _ZOOM_PRESETS: list[int] = [2, 5, 10, 20, 40, 80, 160, 320, 640, 1280, 2560, 5120, 10240, 20480, 40960]
 
@@ -768,9 +768,7 @@ class MainWindow(QMainWindow):
         )
         self._overview_worker = ov_worker
         ov_worker.finished.connect(self._on_overview_peaks_done)
-        ov_worker.error.connect(
-            lambda msg: self._status.showMessage(f"Overview-Fehler: {msg}", 5000)
-        )
+        ov_worker.error.connect(self._on_overview_peaks_error)
         ov_worker.start()
 
         # Select first song
@@ -909,7 +907,31 @@ class MainWindow(QMainWindow):
 
     def _on_peaks_error(self, msg: str, prg: QProgressDialog) -> None:
         prg.close()
-        self._status.showMessage(f"Peak-Fehler: {msg}", 6000)
+        # Erkenne typischen "kaputten RF64-Header"-Fehler aus libsndfile.
+        low = msg.lower()
+        if "fseek" in low or "unspecified internal error" in low:
+            from PyQt6.QtWidgets import QMessageBox
+            wav_name = (
+                self._session.wav_path.name if self._session is not None else "?"
+            )
+            QMessageBox.warning(
+                self,
+                "WAV-Datei beschädigt",
+                f"Die Aufnahme »{wav_name}« hat einen unvollständig "
+                f"geschriebenen Header (libsndfile: {msg}).\n\n"
+                f"Das passiert, wenn der Live-Server während der Aufnahme "
+                f"abrupt beendet wurde (Terminal geschlossen, Laptop-Suspend).\n\n"
+                f"Reparatur mit:\n"
+                f"    python3 tools/repair_wav.py "
+                f"\"{self._session.wav_path}\"\n\n"
+                f"Danach diese Datei (…_repaired.wav) in der Rehearsal-Review laden.",
+            )
+            self._status.showMessage(
+                f"Peak-Fehler: Header beschädigt — siehe Dialog für Reparatur",
+                10000,
+            )
+        else:
+            self._status.showMessage(f"Peak-Fehler: {msg}", 6000)
 
     def _load_audio(self, seg: SongSegment) -> None:
         if self._session is None:
@@ -996,6 +1018,22 @@ class MainWindow(QMainWindow):
 
     def _on_stopped(self) -> None:
         self._play_act.setText("Play")
+
+    def _on_overview_peaks_error(self, msg: str) -> None:
+        """Fehler beim Aufbau der Übersichts-Hüllkurve.
+
+        Bei kaputtem RF64-Header (psf_fseek) wird hier kein modaler Dialog
+        gezeigt — der Per-Song-PeakWorker triggert schon ``_on_peaks_error``
+        mit dem ausführlichen Hinweis. Hier reicht eine kurze Statusleiste.
+        """
+        low = msg.lower()
+        if "fseek" in low or "unspecified internal error" in low:
+            self._status.showMessage(
+                "Übersicht-Hüllkurve: WAV-Header beschädigt — "
+                "Reparatur über tools/repair_wav.py", 10000,
+            )
+        else:
+            self._status.showMessage(f"Overview-Fehler: {msg}", 5000)
 
     def _on_overview_peaks_done(self, track_peaks) -> None:
         import numpy as np

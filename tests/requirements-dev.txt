@@ -1,0 +1,5 @@
+# Dev-only deps for the test harness (NOT needed by the browser DB-Pflege-App).
+# The Live-App's own runtime deps live in live/requirements.txt; install those
+# too on the control laptop so the reference.db and live-API suites run.
+pytest>=8.0
+pytest-asyncio>=0.23

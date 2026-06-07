@@ -1,0 +1,10 @@
+{
+  "name": "lighting-ai",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "lighting.ai — type:module enables Node's built-in test runner to import the ES modules in js/. No runtime dependencies (browser app stays vanilla, no bundler/npm install needed).",
+  "scripts": {
+    "test": "node --test tests/js/*.test.mjs"
+  }
+}

@@ -25,6 +25,7 @@ Suiten, deren Abhängigkeiten fehlen, **überspringen sauber** (kein Fehler).
 | `python/test_db_schema.py` | Schema von `db/lighting-ai-db.json`: eingefrorene Feld-Union (Import-Spec), referenzielle Integrität, `UNIQUE(song_id, bar_num)` | überall (nur stdlib) |
 | `python/test_reference_db.py` | `detection/reference_db.py` — Song/Bar/Part/Feature-Contract gegen temp-SQLite | Laptop (braucht `numpy`) |
 | `python/test_live_api.py` | Read-API-Shapes `/api/songs`, `/api/songs/{id}/bars`, `/api/setlist` | Laptop (braucht `live/requirements.txt`) |
+| `python/test_roundtrip.py` | **Port-Herzstück:** `lighting-ai-db.json` → central-DB-Rows → JSON verlustfrei (`scripts/central_db/transform.py`) | überall (nur stdlib) |
 
 ## Das Herzstück: die eingefrorene Feld-Union
 

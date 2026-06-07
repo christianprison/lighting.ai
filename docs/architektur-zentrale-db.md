@@ -33,6 +33,32 @@ Eingearbeitete Rückmeldung der BassTrainer-Session, nach Wichtigkeit:
 
 ---
 
+## 0a. Implementierungs-Refinements v3.1 (Phase 1 umgesetzt)
+
+Bei der Umsetzung von Phase 1 (Import-Transform + Round-Trip-Test) ergaben sich
+aus der echten Datenanalyse drei Präzisierungen gegenüber dem §5-Schema:
+
+1. **`bars` und `accents` werden normalisiert** (eigene Tabellen mit FK statt im
+   JSONB). Grund: die realen Daten sind perfekt regulär (alle Kernfelder in allen
+   2562 Bars / 280 Accents präsent), und die Live-Pipeline braucht
+   `UNIQUE(song_id, bar_num)` als echte Constraint. `instrumental` ist „emit-if-true"
+   (198 Bars, immer `True`).
+2. **`song_detail_lighting.detail`** ist ein **sparses JSONB** mit ausschließlich
+   den lighting-spezifischen Song-Feldern (split_markers, tms, qlc_parts, qlc_id,
+   audio_ref(_name), lyrics_raw, total_bars, anchors, grundrhythmus, _lrclib_synced).
+   Alle 10 Core-Felder sind in allen 51 Songs präsent → saubere Spalten-Trennung
+   ohne Null/Absent-Ambiguität.
+3. **`app_state`** (Singleton-Zeile) hält die globalen Teile, die §5 keinen Platz
+   gab: `version`, `band`, `setlist`, `meta`.
+
+**Verlustfreiheit bewiesen** (`tests/python/test_roundtrip.py`): JSON → Rows → JSON
+ist semantisch identisch. *Byte*-Identität zur Quelle ist nicht möglich, weil die
+bestehende Datei vier historische Bar-Key-Reihenfolgen enthält (kosmetisch); der
+Export emittiert eine kanonische Reihenfolge (Mehrheit: `song_id` zuerst). Folge:
+der **erste** Export reordnet einmalig einige Bar-Keys, danach ist der Export ein
+stabiler Fixpunkt (keine Diff-Churn). Schema: `supabase/migrations/0001_initial_schema.sql`;
+Transform: `scripts/central_db/transform.py`.
+
 ## 1. Zielbild in einem Satz
 
 Strukturierte Metadaten in **Postgres (Supabase)**, kleine Audio-Snippets in **Supabase Storage**, große

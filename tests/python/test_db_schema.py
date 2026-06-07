@@ -117,22 +117,16 @@ class DBSchemaTest(unittest.TestCase):
 
     def test_bar_num_is_unique_per_song(self) -> None:
         # Mirrors the UNIQUE(song_id, bar_num) the port relies on (feature_vectors PK).
-        #
-        # KNOWN DATA DEBT: song "HDX1IN" (You're all I have) carries stale
-        # duplicate bars 1-4 from a re-split (131 bar objects vs. total_bars=120,
-        # bar_num runs to 127). It must be cleaned up BEFORE/DURING the port, or
-        # the UNIQUE(song_id, bar_num) constraint will reject the import. This
-        # allowlist keeps the baseline green for the existing debt while still
-        # catching any NEW duplicate that creeps into another song.
-        KNOWN_DUPLICATE_SONGS = {"HDX1IN"}
+        # (Song "HDX1IN" carried stale empty duplicate bars 1-4 from a re-split;
+        # cleaned up — the 4 empty B0646-B0649 bars were removed.)
         seen: dict[tuple, str] = {}
         dups = []
         for bid, b in self.db["bars"].items():
             key = (b.get("song_id"), b.get("bar_num"))
-            if key in seen and b.get("song_id") not in KNOWN_DUPLICATE_SONGS:
+            if key in seen:
                 dups.append((key, seen[key], bid))
             seen[key] = bid
-        self.assertEqual(dups, [], f"NEW duplicate (song_id, bar_num): {dups[:10]}")
+        self.assertEqual(dups, [], f"duplicate (song_id, bar_num): {dups[:10]}")
 
     # ── Accent types are declared in meta (consistency) ────────────────
     def test_accent_types_are_known(self) -> None:

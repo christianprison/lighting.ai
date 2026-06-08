@@ -1,0 +1,4 @@
+# Deps for the central-DB import/export/verify scripts (run on YOUR machine,
+# not needed by the browser app or the live laptop runtime).
+#   pip install -r scripts/central_db/requirements.txt
+supabase>=2.4

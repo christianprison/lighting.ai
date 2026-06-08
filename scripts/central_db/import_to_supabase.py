@@ -75,13 +75,19 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     client = create_client(url, key)
-    # Upsert in FK-safe order. on_conflict keeps the import idempotent (re-runnable).
-    client.table("songs").upsert(rows["songs"]).execute()
-    client.table("song_detail_lighting").upsert(rows["song_detail_lighting"]).execute()
-    client.table("bars").upsert(rows["bars"]).execute()
-    client.table("accents").upsert(rows["accents"]).execute()
-    client.table("app_state").upsert(rows["app_state"]).execute()
-    print("\nImport complete.")
+    def _upsert(table: str, data, batch: int = 500) -> None:
+        rowlist = data if isinstance(data, list) else [data]
+        for i in range(0, len(rowlist), batch):
+            client.table(table).upsert(rowlist[i : i + batch]).execute()
+        print(f"  upserted {table:<22} ({len(rowlist)})")
+
+    # Upsert in FK-safe order, batched. upsert keeps the import idempotent.
+    _upsert("songs", rows["songs"])
+    _upsert("song_detail_lighting", rows["song_detail_lighting"])
+    _upsert("bars", rows["bars"])
+    _upsert("accents", rows["accents"])
+    _upsert("app_state", rows["app_state"])
+    print("\nImport complete. Verify with:  python -m scripts.central_db.verify_supabase")
     return 0
 
 

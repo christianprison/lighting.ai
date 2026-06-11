@@ -67,7 +67,20 @@ Erwartung:
   app_state                1
 ```
 
-## 5. Import
+## 5a. Einfachste Variante: SQL-Seed (kein Key, kein Python)
+
+Wenn du Schritt 2–4 (Service-Key, venv, pip) überspringen willst: Es gibt eine
+fertige Seed-Datei mit allen Daten als reines SQL.
+
+1. `supabase/seed/0001_seed_from_json.sql` öffnen (im Repo bzw. auf GitHub).
+2. **Kompletten Inhalt kopieren** → Supabase **SQL Editor → New query** → einfügen → **Run**.
+3. Läuft als privilegierte Rolle (umgeht RLS), idempotent (`on conflict do nothing`).
+
+Erwartung: „Success." Danach im **Table Editor** 51 Songs, 2562 Bars, 280 Accents.
+Verifikation direkt im Editor: `select count(*) from songs;` (analog `bars`, `accents`).
+*(Datei bei DB-Änderungen neu erzeugen: `python -m scripts.central_db.generate_seed_sql`.)*
+
+## 5b. Import per Skript (mit Service-Key)
 
 ```bash
 python -m scripts.central_db.import_to_supabase

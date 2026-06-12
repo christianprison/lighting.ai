@@ -1,0 +1,34 @@
+name: Upload Snippets to Supabase
+
+# Phase 2: lädt die Audio-Snippets + Full-Songs aus dem Repo nach Supabase
+# Storage (Bucket 'snippets') und registriert sie in audio_assets.
+# Manuell aus dem Actions-Tab startbar — kein Laptop/Terminal nötig.
+#
+# Voraussetzung: zwei Repository-Secrets unter
+#   Settings → Secrets and variables → Actions:
+#     SUPABASE_URL
+#     SUPABASE_SERVICE_ROLE_KEY
+
+on:
+  workflow_dispatch:
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (inkl. audio/)
+        uses: actions/checkout@v4
+
+      - name: Python einrichten
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Supabase-Client installieren
+        run: pip install "supabase>=2.4"
+
+      - name: Upload + Registrierung
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: python -m scripts.central_db.upload_audio

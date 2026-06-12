@@ -34,16 +34,45 @@ from scripts.central_db.audio_assets import BUCKET, audio_assets_rows  # noqa: E
 DEFAULT_DB = REPO_ROOT / "db" / "lighting-ai-db.json"
 
 
+def _key_role(key: str) -> str | None:
+    """Best-effort role of a Supabase key, without verifying it.
+
+    New-style keys are prefixed; legacy keys are JWTs whose payload carries a
+    ``role`` claim. Returns None if it can't tell.
+    """
+    if key.startswith("sb_secret_"):
+        return "service_role"
+    if key.startswith("sb_publishable_"):
+        return "anon"
+    parts = key.split(".")
+    if len(parts) == 3:  # JWT
+        import base64
+        seg = parts[1] + "=" * (-len(parts[1]) % 4)
+        try:
+            return json.loads(base64.urlsafe_b64decode(seg)).get("role")
+        except Exception:
+            return None
+    return None
+
+
 def _client():
     url = os.environ.get("SUPABASE_URL")
     key = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
     if not url or not key:
         raise SystemExit("ERROR: set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY")
+    role = _key_role(key.strip())
+    if role and role != "service_role":
+        raise SystemExit(
+            f"ERROR: SUPABASE_SERVICE_ROLE_KEY has role '{role}', but the service_role "
+            f"(secret) key is required — only it bypasses RLS to create the bucket and "
+            f"upload. You likely pasted the anon/publishable key. Fix the secret in "
+            f"GitHub → Settings → Secrets and variables → Actions."
+        )
     try:
         from supabase import create_client
     except ImportError:
         raise SystemExit("ERROR: `pip install supabase` first.")
-    return create_client(url, key)
+    return create_client(url, key.strip())
 
 
 def _ensure_bucket(client) -> None:

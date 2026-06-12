@@ -55,8 +55,25 @@ const supabase = createClient(
 | `storage_path` | text | Key im Bucket, z.B. `audio/Animal/…​.mp3` |
 | `bar_num` | int \| null | nur bei `snippet`: die Taktnummer |
 
-> Weitere lesbare Tabellen (`song_detail_lighting`, `bars`, `accents`,
-> `app_state`) sind **lighting-spezifisch** — BassTrainer kann sie ignorieren.
+> Weitere lesbare Tabellen (`song_detail_lighting`, `bars`, `accents`) sind
+> **lighting-spezifisch** — BassTrainer kann sie ignorieren. **Ausnahme:**
+> `app_state` enthält die **Setlist** (siehe unten).
+
+### Tabelle `app_state` — globale Daten inkl. Setlist
+Eine einzige Zeile (`id = 1`). Relevant für BassTrainer ist die JSONB-Spalte
+`setlist`:
+```json
+{
+  "name": "Repertoire",
+  "items": [
+    { "type": "song", "pos": 1, "song_id": "dgSleW" },
+    { "type": "song", "pos": 2, "song_id": "qVbU6L" }
+    // optional auch { "type": "pause" }
+  ]
+}
+```
+`items` ist die **geordnete Reihenfolge** (nach `pos`). Item-Typen: `"song"`
+(mit `song_id`) oder `"pause"`. Öffentlich lesbar.
 
 ## Songs lesen
 
@@ -83,6 +100,32 @@ const { data } = await supabase
   .eq("song_id", songId).eq("kind", "snippet")
   .order("bar_num");
 ```
+
+## Setlist lesen
+
+Die Setlist steckt in `app_state.setlist` (eine Zeile, `id = 1`):
+
+```ts
+const { data } = await supabase
+  .from("app_state")
+  .select("setlist")
+  .eq("id", 1)
+  .single();
+
+const items = data.setlist.items;                    // geordnet nach pos
+const songIds = items.filter(i => i.type === "song").map(i => i.song_id);
+
+// Songdetails dazu holen:
+const { data: songs } = await supabase
+  .from("songs")
+  .select("id, name, artist, bpm, music_key")
+  .in("id", songIds);
+```
+
+Optional kann lighting.ai eine fertige **View `setlist_public`** bereitstellen,
+die die Setlist schon mit den Songdetails verknüpft und nach `pos` sortiert
+liefert — dann reicht BassTrainer ein einziges `select * from setlist_public`.
+Bei Bedarf anfragen.
 
 ## Audio abspielen (öffentlicher Bucket)
 

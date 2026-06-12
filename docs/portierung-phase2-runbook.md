@@ -4,65 +4,78 @@ Ziel: die Audio-Dateien in Supabase Storage bringen und als `audio_assets`
 registrieren, damit die **BassTrainer-App** Songs + Snippets nutzen kann.
 Die **Songs** selbst liegen schon in der `songs`-Tabelle (Phase 1).
 
-Bewusst **ohne Service-Key/Terminal** — alles über das Supabase-Dashboard +
-SQL-Editor, wie in Phase 1.
-
-> Es werden **527** Audio-Verweise registriert: 43 Full-Song-Tracks
-> (`kind='playalong'`) + 484 Per-Bar-Snippets (`kind='snippet'`). 73 alte/tote
-> Bar-Pfade werden bewusst übersprungen.
+> Es werden **527** Audio-Dateien (181 MB) hochgeladen + registriert:
+> 43 Full-Song-Tracks (`kind='playalong'`) + 484 Per-Bar-Snippets
+> (`kind='snippet'`). 73 alte/tote Bar-Pfade werden bewusst übersprungen.
 
 ---
 
-## 1. Bucket `snippets` anlegen (öffentlich)
+## Empfohlener Weg: GitHub Action (kein Laptop, kein lokaler Ordner)
 
-1. Im Projekt links **Storage → New bucket**.
-2. Name: **`snippets`**.
-3. **Public bucket: AN** (Songs/Snippets sind kein Geheimnis → BassTrainer kann
-   ohne signierte URLs lesen; das ist die einfache Variante).
-4. Create.
+Die Audio-Dateien liegen schon im GitHub-Repo. Ein Workflow lädt sie direkt von
+dort nach Supabase — du startest ihn per Knopfdruck im Browser (iPad reicht).
 
-*(Die großen RF64-Probenmitschnitte kommen später in einen separaten,
-**privaten** Bucket bzw. R2 — Phase 4. Hier nur die kleinen MP3s.)*
+### 1. Zwei Secrets im GitHub-Repo hinterlegen
 
-## 2. Audio hochladen (Ordner-Drag&Drop)
+GitHub → Repo `christianprison/lighting.ai` → **Settings → Secrets and variables
+→ Actions → New repository secret**. Zwei Stück anlegen:
 
-1. Bucket `snippets` öffnen → **Upload** (oder den Ordner direkt ins Fenster
-   ziehen).
-2. Den lokalen Ordner **`audio/`** aus deinem Repo-Checkout reinziehen.
-   Die Storage-UI übernimmt die Unterordner-Struktur 1:1 → die Keys werden
-   `audio/{Song}/{Part}/….mp3`, also genau die Pfade aus der DB.
-3. Warten bis alle Dateien (~219 MB, ~900 MP3) durch sind.
+| Name | Wert |
+|---|---|
+| `SUPABASE_URL` | `https://ivkcvvjtwwfommsnxerv.supabase.co` |
+| `SUPABASE_SERVICE_ROLE_KEY` | dein `service_role`-Key (Supabase → Settings → API Keys) |
 
-> Free-Tier-Storage: 1 GB — 219 MB passen locker.
+> Secrets sind verschlüsselt und tauchen nie in Logs auf — der richtige Ort für
+> den Service-Key (nicht in den Chat, nicht in den Code).
 
-## 3. audio_assets registrieren (SQL-Editor)
+### 2. Workflow starten
 
-1. `supabase/seed/0002_audio_assets.sql` öffnen (kommt gleich als Datei von mir,
-   liegt auch im Repo).
-2. Inhalt kopieren → **SQL Editor → New query** → einfügen → **Run**.
-3. Idempotent (`on conflict (bucket, storage_path) do nothing`).
+GitHub → **Actions** → links **„Upload Snippets to Supabase"** → rechts
+**„Run workflow"** → grünen Button **Run workflow** drücken.
 
-**Verifikation** (neue Query):
+Der Lauf (ein paar Minuten):
+- legt den **öffentlichen** Bucket `snippets` an (falls noch nicht da),
+- lädt die 527 Audio-Dateien hoch (Key = Repo-Pfad, z.B. `audio/…/…​.mp3`),
+- upsertet die `audio_assets`-Zeilen (idempotent — Neustart unschädlich).
+
+Grüner Haken = fertig.
+
+### 3. Prüfen (Supabase SQL-Editor)
+
 ```sql
 select kind, count(*) from audio_assets group by kind order by kind;
 -- erwartet: playalong 43, snippet 484
 ```
 
-## 4. So liest BassTrainer die Daten
+---
 
-- **Songs:** Tabelle `songs` (Kernfelder) — bereits da seit Phase 1.
+## Alternative: manuell (am Laptop, ohne Action)
+
+Wenn du lieber lokal arbeitest und das Repo ausgecheckt hast:
+
+1. **Bucket** `snippets` (public) im Dashboard anlegen.
+2. Lokalen Ordner **`audio/`** per Drag&Drop in den Bucket ziehen
+   (Storage-UI übernimmt die Unterordner 1:1).
+3. `supabase/seed/0002_audio_assets.sql` im SQL-Editor einfügen + **Run**
+   (registriert die `audio_assets`-Zeilen).
+
+Oder per Skript: `SUPABASE_URL=… SUPABASE_SERVICE_ROLE_KEY=… python -m
+scripts.central_db.upload_audio` (lädt hoch **und** registriert in einem).
+
+---
+
+## So liest BassTrainer die Daten
+
+- **Songs:** Tabelle `songs` (Kernfelder) — bereits seit Phase 1 da.
 - **Audio:** Tabelle `audio_assets` → `kind`, `song_id`, `storage_path`.
   - Full-Song zum Mitspielen: `where kind='playalong'`.
   - Per-Takt-Snippet: `where kind='snippet'` (`bar_num`).
-- **Datei-URL** (public bucket):
+- **Datei-URL** (public bucket, Pfad URL-kodieren):
   ```
   {SUPABASE_URL}/storage/v1/object/public/snippets/{storage_path}
   ```
-  Beispiel:
-  `https://ivkcvvjtwwfommsnxerv.supabase.co/storage/v1/object/public/snippets/audio/All%20The%20Small%20Things/All%20The%20Small%20Things%20-%20Full%20Song.mp3`
-  (Pfad URL-kodieren — Leerzeichen → `%20` etc.)
 
-Beispiel-Query für BassTrainer (Songs + Play-along-URL):
+Beispiel-Query (Songs + Play-along-Track):
 ```sql
 select s.id, s.name, s.artist, s.bpm, s.music_key, a.storage_path
 from songs s
@@ -73,9 +86,9 @@ join audio_assets a on a.song_id = s.id and a.kind = 'playalong';
 
 ## Hinweise
 
-- **RLS/Storage:** Bei „Public bucket" ist Lesen offen — gewollt für BassTrainer.
-  Schreiben in den Bucket geht nur mit Service-Key (Dashboard/Upload).
-- **DB-Pflege-App auf signierte URLs umstellen** (lighting.ai-intern) ist *nicht*
-  Teil dieses Ziels und kann später kommen — BassTrainer braucht es nicht.
-- Seed neu erzeugen bei DB-/Audio-Änderungen:
-  `python -m scripts.central_db.generate_audio_assets_sql`.
+- **Öffentlicher Bucket** = Lesen offen (gewollt für BassTrainer). Schreiben nur
+  mit Service-Key (Action/Dashboard).
+- Die großen RF64-Probenmitschnitte kommen später in einen **privaten** Bucket
+  bzw. R2 (Phase 4) — hier nur die kleinen MP3s.
+- Seed/Upload neu erzeugen bei DB-/Audio-Änderungen:
+  `python -m scripts.central_db.generate_audio_assets_sql` bzw. Workflow erneut starten.

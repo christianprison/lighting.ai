@@ -11,7 +11,7 @@
   lighting.ai ist alleiniger Schreiber (Single-Source-of-Truth).
 - Verfügbar: **51 Songs**, **43 Full-Song-Play-along-Tracks**, **484 Per-Takt-Snippets**.
 
-## Verbindung (im Browser)
+## Verbindung
 
 ```
 SUPABASE_URL      = https://ivkcvvjtwwfommsnxerv.supabase.co
@@ -20,16 +20,44 @@ SUPABASE_ANON_KEY = <Publishable/anon-Key>
 
 Den `anon`/Publishable-Key gibt dir der Projekt-Owner (Supabase → Settings →
 API Keys → „Publishable" `sb_publishable_…` **oder** Legacy `anon`). Dieser Key
-ist **browser-safe**. Der `service_role`/secret-Key darf **niemals** in den
+ist **client-safe**. Der `service_role`/secret-Key darf **niemals** in den
 BassTrainer-Client — er umgeht alle Sicherheit.
+
+Supabase ist nichts weiter als **PostgREST + HTTP-Storage** — du brauchst **kein
+SDK**. Native (iPad/URLSession) gehst du direkt per REST.
+
+### REST (native App, ohne SDK — empfohlen für die iPad-App)
+
+Jeder Daten-Request an `…/rest/v1/…` braucht zwei Header:
+```
+apikey:        <ANON_KEY>
+Authorization: Bearer <ANON_KEY>
+```
+PostgREST-Query-Syntax: `select=spalten`, Filter `spalte=eq.wert`,
+`spalte=in.(a,b)`, Sortierung `order=spalte.asc`.
+
+```http
+GET {URL}/rest/v1/setlist_public?select=*&order=pos
+GET {URL}/rest/v1/songs?select=id,name,artist,bpm,music_key,duration_sec
+GET {URL}/rest/v1/audio_assets?song_id=eq.5iZfKj&kind=eq.playalong&select=storage_path
+```
+
+Swift/URLSession-Skizze:
+```swift
+var req = URLRequest(url: URL(string: "\(base)/rest/v1/setlist_public?select=*&order=pos")!)
+req.setValue(anonKey, forHTTPHeaderField: "apikey")
+req.setValue("Bearer \(anonKey)", forHTTPHeaderField: "Authorization")
+let (data, _) = try await URLSession.shared.data(for: req)
+// data ist JSON-Array -> JSONDecoder
+```
+
+### JS-SDK (nur falls Web/Next.js)
 
 ```ts
 import { createClient } from "@supabase/supabase-js";
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-);
+const supabase = createClient(url, anonKey);
 ```
+
 
 ## Datenmodell (nur was BassTrainer braucht)
 
@@ -122,24 +150,28 @@ const { data: songs } = await supabase
   .in("id", songIds);
 ```
 
-Optional kann lighting.ai eine fertige **View `setlist_public`** bereitstellen,
-die die Setlist schon mit den Songdetails verknüpft und nach `pos` sortiert
-liefert — dann reicht BassTrainer ein einziges `select * from setlist_public`.
-Bei Bedarf anfragen.
+**Einfacher (empfohlen):** Es gibt die fertige **View `setlist_public`** —
+Setlist schon mit Songdetails verknüpft und nach `pos` sortiert:
+```http
+GET {URL}/rest/v1/setlist_public?select=*&order=pos
+-> [{ pos, song_id, name, artist, bpm, music_key, duration_sec }, …]
+```
 
 ## Audio abspielen (öffentlicher Bucket)
 
-Der Bucket `snippets` ist **public** → direkte URL, keine signierten URLs nötig:
-
-```ts
-const { data } = supabase.storage.from("snippets").getPublicUrl(storage_path);
-audioEl.src = data.publicUrl;
+Der Bucket `snippets` ist **public** → **direkte URL, ohne Auth, ohne SDK**.
+Setze einfach diese URL als Quelle deines Players (AVPlayer/`<audio>`):
 ```
-
-URL-Muster (manuell, Pfad URL-kodieren):
+{URL}/storage/v1/object/public/snippets/{storage_path}
 ```
-https://ivkcvvjtwwfommsnxerv.supabase.co/storage/v1/object/public/snippets/{storage_path}
+**Pfad URL-kodieren** (Leerzeichen → `%20`, Apostroph etc.), Slashes erhalten.
+Swift-Beispiel:
+```swift
+let key = storagePath.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed)!
+let url = URL(string: "\(base)/storage/v1/object/public/snippets/\(key)")!
+player = AVPlayer(url: url)
 ```
+(Im Web-SDK äquivalent: `supabase.storage.from("snippets").getPublicUrl(path)`.)
 
 ## Wichtige Hinweise
 

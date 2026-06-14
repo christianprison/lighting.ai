@@ -12333,7 +12333,18 @@
           2.25,
           3
         ]
-      }
+      },
+      "anchors": [
+        {
+          "id": "anc_mqe6vrka_3n4a",
+          "pos": 1,
+          "type": "pete",
+          "event": "Setzt ein",
+          "part_hint": "Verse 1",
+          "bar_num": 3,
+          "beat": "3+"
+        }
+      ]
     },
     "Dp8xoz": {
       "name": "Valerie",

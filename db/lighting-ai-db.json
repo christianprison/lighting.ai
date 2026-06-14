@@ -12343,6 +12343,15 @@
           "part_hint": "Verse 1",
           "bar_num": 3,
           "beat": "3+"
+        },
+        {
+          "id": "anc_mqe6xaio_fuds",
+          "pos": 2,
+          "type": "drum",
+          "event": "Einsatz",
+          "part_hint": "Verse 1",
+          "bar_num": 9,
+          "beat": "1"
         }
       ]
     },

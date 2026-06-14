@@ -12313,6 +12313,18 @@
           "light_template": "blackout (scene)",
           "notes": ""
         }
+      },
+      "grundrhythmus": {
+        "kick": [
+          0,
+          2,
+          2.75
+        ],
+        "snare": [
+          1,
+          2.25,
+          3
+        ]
       }
     },
     "Dp8xoz": {

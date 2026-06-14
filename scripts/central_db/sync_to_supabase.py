@@ -57,12 +57,14 @@ def main(argv: list[str] | None = None) -> int:
 
     # Hand-authored song intros (optional file).
     valid_song_ids = {r["id"] for r in rows["songs"]}
-    intros, skipped = [], []
+    intros, skipped, problems = [], [], []
     if INTROS_FILE.exists():
-        intros, skipped = song_intros_rows(
+        intros, skipped, problems = song_intros_rows(
             json.loads(INTROS_FILE.read_text(encoding="utf-8")), valid_song_ids)
     if skipped:
         print(f"  (song-intros: skipped unknown song_id(s): {skipped})")
+    if problems:
+        print(f"  (song-intros: skipped songs with bad notes: {problems})")
 
     print("Catalog to sync:")
     for t in ("songs", "song_detail_lighting", "bars", "accents"):

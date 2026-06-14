@@ -1,4 +1,4 @@
-"""song_intros builder: idx derivation, _-skip, unknown-song-id skip."""
+"""song_intros builder: pitch resolution (string+fret/note_name/midi), idx, skips."""
 
 from __future__ import annotations
 
@@ -11,53 +11,69 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from scripts.central_db.song_intros import song_intros_rows  # noqa: E402
+from scripts.central_db.song_intros import (  # noqa: E402
+    song_intros_rows, _note_to_midi, _midi_to_name,
+)
 
 INTROS_FILE = REPO_ROOT / "db" / "song-intros.json"
 
 
+class PitchHelpersTest(unittest.TestCase):
+    def test_open_strings_note_names(self) -> None:
+        # Sounding open strings: E1=28, A1=33, D2=38, G2=43
+        self.assertEqual(_note_to_midi("E1"), 28)
+        self.assertEqual(_note_to_midi("A1"), 33)
+        self.assertEqual(_note_to_midi("D2"), 38)
+        self.assertEqual(_note_to_midi("G2"), 43)
+
+    def test_accidentals_and_roundtrip(self) -> None:
+        self.assertEqual(_note_to_midi("F#2"), 42)
+        self.assertEqual(_note_to_midi("Db2"), 37)
+        self.assertEqual(_midi_to_name(38), "D2")
+        self.assertEqual(_midi_to_name(28), "E1")
+
+
 class SongIntrosBuilderTest(unittest.TestCase):
-    def test_idx_is_derived_gapfree(self) -> None:
-        intros = {"AAA": [{"midi": 38, "beat": 0.0}, {"midi": 40, "beat": 0.5}, {"midi": 43, "beat": 1.0}]}
-        rows, skipped = song_intros_rows(intros, {"AAA"})
-        self.assertEqual([r["idx"] for r in rows], [1, 2, 3])
-        self.assertEqual(skipped, [])
-        self.assertEqual(rows[0], {"song_id": "AAA", "idx": 1, "midi": 38, "beat": 0.0,
-                                   "duration_beats": None, "string": None, "fret": None, "note_name": None})
+    def test_string_fret_resolves_to_sounding_midi(self) -> None:
+        intros = {"AAA": [
+            {"string": 3, "fret": 0, "beat": 0.0},   # open D -> 38
+            {"string": 4, "fret": 2, "beat": 1.0},   # G string fret2 -> 45 (A2)
+        ]}
+        rows, skipped, problems = song_intros_rows(intros, {"AAA"})
+        self.assertEqual(problems, [])
+        self.assertEqual([r["idx"] for r in rows], [1, 2])
+        self.assertEqual(rows[0]["midi"], 38)
+        self.assertEqual(rows[0]["note_name"], "D2")   # auto-filled
+        self.assertEqual(rows[1]["midi"], 45)
 
-    def test_optional_fields_passthrough(self) -> None:
-        intros = {"AAA": [{"midi": 38, "beat": -1.0, "duration_beats": 0.5, "string": 3, "fret": 0, "note_name": "D2"}]}
-        rows, _ = song_intros_rows(intros, {"AAA"})
-        self.assertEqual(rows[0]["string"], 3)
-        self.assertEqual(rows[0]["note_name"], "D2")
-        self.assertEqual(rows[0]["beat"], -1.0)  # pickup allowed
+    def test_note_name_and_midi_forms(self) -> None:
+        intros = {"AAA": [{"note_name": "D2", "beat": 0.0}, {"midi": 43, "beat": 1.0}]}
+        rows, _, problems = song_intros_rows(intros, {"AAA"})
+        self.assertEqual(problems, [])
+        self.assertEqual(rows[0]["midi"], 38)
+        self.assertEqual(rows[1]["midi"], 43)
 
-    def test_underscore_keys_ignored(self) -> None:
-        intros = {"_format": "doc", "_example": [{"midi": 1, "beat": 0}], "AAA": [{"midi": 38, "beat": 0}]}
-        rows, skipped = song_intros_rows(intros, {"AAA"})
-        self.assertEqual({r["song_id"] for r in rows}, {"AAA"})
-        self.assertEqual(skipped, [])
-
-    def test_unknown_song_id_is_skipped_not_fatal(self) -> None:
-        intros = {"GHOST": [{"midi": 38, "beat": 0}], "AAA": [{"midi": 38, "beat": 0}]}
-        rows, skipped = song_intros_rows(intros, {"AAA"})
+    def test_underscore_and_unknown_skipped(self) -> None:
+        intros = {"_x": [{"midi": 1, "beat": 0}], "GHOST": [{"midi": 38, "beat": 0}],
+                  "AAA": [{"string": 1, "fret": 0, "beat": 0}]}
+        rows, skipped, problems = song_intros_rows(intros, {"AAA"})
         self.assertEqual(skipped, ["GHOST"])
         self.assertEqual({r["song_id"] for r in rows}, {"AAA"})
 
-    def test_repo_intros_file_is_valid_and_safe(self) -> None:
-        # The committed authoring file must parse and contain only _-keys for now
-        # (no real song_ids invented). When the band adds real intros, this still
-        # passes as long as they reference existing songs.
+    def test_bad_note_skips_whole_song_not_fatal(self) -> None:
+        # missing pitch on note 2 -> whole song skipped + reported, idx stays clean
+        intros = {"AAA": [{"string": 3, "fret": 0, "beat": 0}, {"beat": 1.0}]}
+        rows, skipped, problems = song_intros_rows(intros, {"AAA"})
+        self.assertEqual(rows, [])
+        self.assertEqual(len(problems), 1)
+        self.assertIn("AAA", problems[0])
+
+    def test_repo_intros_file_parses(self) -> None:
         data = json.loads(INTROS_FILE.read_text(encoding="utf-8"))
         self.assertIsInstance(data, dict)
-        # every non-_ key's value must be a list of note dicts with midi+beat
-        for k, v in data.items():
-            if k.startswith("_"):
-                continue
-            self.assertIsInstance(v, list, f"{k} must map to a list")
-            for n in v:
-                self.assertIn("midi", n)
-                self.assertIn("beat", n)
+        rows, skipped, problems = song_intros_rows(data, set())  # no real songs yet
+        self.assertEqual(rows, [])      # only _-keys -> nothing
+        self.assertEqual(problems, [])
 
 
 if __name__ == "__main__":

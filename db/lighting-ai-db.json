@@ -12137,7 +12137,8 @@
         "part_starts": [
           {
             "bar_num": 1,
-            "name": "Guitar Intro"
+            "name": "Guitar Intro",
+            "instrumental": true
           },
           {
             "bar_num": 3,
@@ -12165,7 +12166,8 @@
           },
           {
             "bar_num": 57,
-            "name": "Bass Solo"
+            "name": "Bass Solo",
+            "instrumental": true
           },
           {
             "bar_num": 61,
@@ -12181,15 +12183,18 @@
           },
           {
             "bar_num": 81,
-            "name": "Interlude"
+            "name": "Interlude",
+            "instrumental": true
           },
           {
             "bar_num": 84,
-            "name": "Guitar Solo"
+            "name": "Guitar Solo",
+            "instrumental": true
           },
           {
             "bar_num": 100,
-            "name": "Ausklang"
+            "name": "Ausklang",
+            "instrumental": true
           }
         ]
       }

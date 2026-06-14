@@ -26,9 +26,11 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from scripts.central_db.audio_assets import audio_assets_rows  # noqa: E402
+from scripts.central_db.song_intros import song_intros_rows  # noqa: E402
 from scripts.central_db.transform import db_json_to_rows  # noqa: E402
 
 DEFAULT_DB = REPO_ROOT / "db" / "lighting-ai-db.json"
+INTROS_FILE = REPO_ROOT / "db" / "song-intros.json"
 
 
 def _client():
@@ -53,11 +55,21 @@ def main(argv: list[str] | None = None) -> int:
     rows = db_json_to_rows(db)
     aa = audio_assets_rows(db, REPO_ROOT)
 
+    # Hand-authored song intros (optional file).
+    valid_song_ids = {r["id"] for r in rows["songs"]}
+    intros, skipped = [], []
+    if INTROS_FILE.exists():
+        intros, skipped = song_intros_rows(
+            json.loads(INTROS_FILE.read_text(encoding="utf-8")), valid_song_ids)
+    if skipped:
+        print(f"  (song-intros: skipped unknown song_id(s): {skipped})")
+
     print("Catalog to sync:")
     for t in ("songs", "song_detail_lighting", "bars", "accents"):
         print(f"  {t:<22} {len(rows[t]):>5}")
     print(f"  app_state                  1")
     print(f"  audio_assets           {len(aa):>5}")
+    print(f"  song_intros            {len(intros):>5}")
 
     # Safety: an empty catalog must never reach the pruners.
     if not rows["songs"]:
@@ -85,8 +97,10 @@ def main(argv: list[str] | None = None) -> int:
     _upsert("accents", rows["accents"])
     _upsert("app_state", rows["app_state"])
     _upsert("audio_assets", aa, on_conflict="bucket,storage_path")
+    if intros:
+        _upsert("song_intros", intros, on_conflict="song_id,idx")
 
-    # 2) Prune deletions (rows in Supabase no longer present in the JSON).
+    # 2) Prune deletions (rows in Supabase no longer present in the source).
     client.rpc("prune_catalog", {
         "p_song_ids":   [r["id"] for r in rows["songs"]],
         "p_bar_ids":    [r["bar_id"] for r in rows["bars"]],
@@ -95,7 +109,10 @@ def main(argv: list[str] | None = None) -> int:
     client.rpc("prune_audio_assets", {
         "p_paths": [r["storage_path"] for r in aa],
     }).execute()
-    print("  pruned stale rows (catalog + audio_assets)")
+    client.rpc("prune_song_intros", {
+        "p_keys": [f"{r['song_id']}|{r['idx']}" for r in intros],
+    }).execute()
+    print("  pruned stale rows (catalog + audio_assets + song_intros)")
 
     print("\nSync complete.")
     return 0

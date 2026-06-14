@@ -11,6 +11,14 @@ name: Upload Snippets to Supabase
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "audio/**"
+
+concurrency:
+  group: upload-snippets
+  cancel-in-progress: false
 
 jobs:
   upload:

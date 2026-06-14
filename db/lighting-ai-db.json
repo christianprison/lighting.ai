@@ -12352,6 +12352,15 @@
           "part_hint": "Verse 1",
           "bar_num": 9,
           "beat": "1"
+        },
+        {
+          "id": "anc_mqe6xxp2_zsvv",
+          "pos": 3,
+          "type": "drum",
+          "event": "Pause",
+          "part_hint": "Bridge 1",
+          "bar_num": 15,
+          "beat": "1+"
         }
       ]
     },

@@ -1,8 +1,8 @@
 {
-  "_format": "Keyed by song_id. List the first notes of the song in playing order; idx is derived automatically. midi = SOUNDING pitch (open strings E1=28 A1=33 D2=38 G2=43). beat = quarter-beats from the bar-1 downbeat (0.0 = downbeat, pickup negative). duration_beats/string/fret/note_name optional. Keys starting with _ are ignored. Synced to Supabase (table song_intros / view song_intro_public) by sync-db.yml.",
+  "_format": "Pro song_id eine Liste der Anfangstoene in Reihenfolge (idx automatisch). Tonhoehe je Note EINE Form: string+fret (Saite E=1 A=2 D=3 G=4, Bund), ODER note_name (z.B. 'D2'), ODER midi (klingend). beat = Viertel ab Takt-1-Downbeat (0.0 = erster Schlag, Auftakt negativ). duration_beats optional. Keys mit _ werden ignoriert. Auto-Sync nach Supabase (song_intro_public) via sync-db.yml.",
   "_example_REPLACE_WITH_REAL_song_id": [
-    {"midi": 38, "beat": 0.0, "duration_beats": 0.5, "string": 3, "fret": 0, "note_name": "D2"},
-    {"midi": 38, "beat": 0.5, "duration_beats": 0.5, "string": 3, "fret": 0, "note_name": "D2"},
-    {"midi": 45, "beat": 1.0, "duration_beats": 1.0, "string": 4, "fret": 2, "note_name": "A2"}
+    {"string": 3, "fret": 0, "beat": 0.0, "duration_beats": 0.5},
+    {"string": 3, "fret": 0, "beat": 0.5, "duration_beats": 0.5},
+    {"string": 4, "fret": 2, "beat": 1.0, "duration_beats": 1.0}
   ]
 }

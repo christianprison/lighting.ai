@@ -11825,7 +11825,11 @@
       "tms": {
         "manual_done": [
           "bar_markers",
-          "parts_identified"
+          "parts_identified",
+          "instr_parts_identified",
+          "instr_bars_identified",
+          "lyrics_bars",
+          "templates_set"
         ],
         "user_tasks": [],
         "manual_undone": []
@@ -31560,14 +31564,14 @@
       "bar_num": 32,
       "lyrics": "the fortune teller's right",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B2922": {
       "song_id": "GXCFTH",
       "bar_num": 33,
       "lyrics": "I should have seen",
       "audio": "",
-      "has_accents": false
+      "has_accents": true
     },
     "B2923": {
       "song_id": "GXCFTH",
@@ -33721,6 +33725,24 @@
     "A0300": {
       "bar_id": "B2889",
       "pos_16th": 5,
+      "type": "bl",
+      "notes": ""
+    },
+    "A0301": {
+      "bar_id": "B2921",
+      "pos_16th": 9,
+      "type": "bl",
+      "notes": ""
+    },
+    "A0302": {
+      "bar_id": "B2921",
+      "pos_16th": 13,
+      "type": "bl",
+      "notes": ""
+    },
+    "A0303": {
+      "bar_id": "B2922",
+      "pos_16th": 1,
       "type": "bl",
       "notes": ""
     }

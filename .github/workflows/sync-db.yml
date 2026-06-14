@@ -1,0 +1,39 @@
+name: Sync DB to Supabase
+
+# Auto-sync: hält Supabase mit db/lighting-ai-db.json in Schritt (Git bleibt
+# Master). Läuft bei jeder Änderung der DB-Datei auf main + manuell.
+# Upsert (Adds/Mods) + Prune (Deletes), kein Audio-Upload (das macht
+# upload-snippets.yml). Secrets: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "db/lighting-ai-db.json"
+  workflow_dispatch:
+
+# Keine parallelen Syncs (sonst race auf den Tabellen).
+concurrency:
+  group: sync-db
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (inkl. audio/ für audio_assets-Abgleich)
+        uses: actions/checkout@v4
+
+      - name: Python einrichten
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Supabase-Client installieren
+        run: pip install "supabase>=2.4"
+
+      - name: Sync
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: python -m scripts.central_db.sync_to_supabase

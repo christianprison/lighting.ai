@@ -12138,35 +12138,43 @@
           {
             "bar_num": 1,
             "name": "Guitar Intro",
+            "light_template": "Spot auf Pete",
             "instrumental": true
           },
           {
             "bar_num": 3,
-            "name": "Verse 1"
+            "name": "Verse 1",
+            "light_template": "02 slow blue"
           },
           {
             "bar_num": 15,
-            "name": "Bridge 1"
+            "name": "Bridge 1",
+            "light_template": "07 round'n'round"
           },
           {
             "bar_num": 19,
-            "name": "Chorus 1"
+            "name": "Chorus 1",
+            "light_template": "03 walking"
           },
           {
             "bar_num": 31,
-            "name": "Verse 2"
+            "name": "Verse 2",
+            "light_template": "Spot auf Pete"
           },
           {
             "bar_num": 37,
-            "name": "Bridge 2"
+            "name": "Bridge 2",
+            "light_template": "07 round'n'round"
           },
           {
             "bar_num": 41,
-            "name": "Chorus 2"
+            "name": "Chorus 2",
+            "light_template": "03 walking"
           },
           {
             "bar_num": 57,
             "name": "Bass Solo",
+            "light_template": "Spot auf Bibo",
             "instrumental": true
           },
           {
@@ -12175,7 +12183,8 @@
           },
           {
             "bar_num": 65,
-            "name": "Chorus 3 (Vox+Guit)"
+            "name": "Chorus 3 (Vox+Guit)",
+            "light_template": "Spot auf Pete"
           },
           {
             "bar_num": 69,
@@ -12184,19 +12193,126 @@
           {
             "bar_num": 81,
             "name": "Interlude",
+            "light_template": "Spot auf Tim",
             "instrumental": true
           },
           {
             "bar_num": 84,
             "name": "Guitar Solo",
+            "light_template": "Spot auf Axel",
             "instrumental": true
           },
           {
             "bar_num": 100,
             "name": "Ausklang",
+            "light_template": "01 statisch bunt",
             "instrumental": true
           }
         ]
+      },
+      "qlc_parts": {
+        "GXCFTH_QP001": {
+          "pos": 1,
+          "name": "Intro 0:04",
+          "light_template": "Spot auf Pete",
+          "notes": ""
+        },
+        "GXCFTH_QP002": {
+          "pos": 2,
+          "name": "Verse 1 0:24",
+          "light_template": "02 slow blue",
+          "notes": ""
+        },
+        "GXCFTH_QP003": {
+          "pos": 3,
+          "name": "Bridge 1 0:39",
+          "light_template": "07 round'n'round",
+          "notes": ""
+        },
+        "GXCFTH_QP004": {
+          "pos": 4,
+          "name": "Chorus 1 0:50",
+          "light_template": "03 walking",
+          "notes": ""
+        },
+        "GXCFTH_QP005": {
+          "pos": 5,
+          "name": "Verse 2 1:20",
+          "light_template": "Spot auf Pete",
+          "notes": ""
+        },
+        "GXCFTH_QP006": {
+          "pos": 6,
+          "name": "1:25",
+          "light_template": "02 slow blue",
+          "notes": ""
+        },
+        "GXCFTH_QP007": {
+          "pos": 7,
+          "name": "Bridge 2 1:35",
+          "light_template": "07 round'n'round",
+          "notes": ""
+        },
+        "GXCFTH_QP008": {
+          "pos": 8,
+          "name": "Chorus 2 1:45",
+          "light_template": "03 walking",
+          "notes": ""
+        },
+        "GXCFTH_QP009": {
+          "pos": 9,
+          "name": "Interlude 2:15",
+          "light_template": "Spot auf Tim",
+          "notes": ""
+        },
+        "GXCFTH_QP010": {
+          "pos": 10,
+          "name": "Basssolo 2:26",
+          "light_template": "Spot auf Bibo",
+          "notes": ""
+        },
+        "GXCFTH_QP011": {
+          "pos": 11,
+          "name": "Stop 2:36",
+          "light_template": "02 slow blue",
+          "notes": ""
+        },
+        "GXCFTH_QP012": {
+          "pos": 12,
+          "name": "2:46",
+          "light_template": "Spot auf Pete",
+          "notes": ""
+        },
+        "GXCFTH_QP013": {
+          "pos": 13,
+          "name": "Chorus 3 2:56",
+          "light_template": "03 walking",
+          "notes": ""
+        },
+        "GXCFTH_QP014": {
+          "pos": 14,
+          "name": "Steigerung 3:25",
+          "light_template": "06 blinking",
+          "notes": ""
+        },
+        "GXCFTH_QP015": {
+          "pos": 15,
+          "name": "Gitarrensolo 3:35",
+          "light_template": "Spot auf Axel",
+          "notes": ""
+        },
+        "GXCFTH_QP016": {
+          "pos": 16,
+          "name": "Ausklang 4:13",
+          "light_template": "01 statisch bunt",
+          "notes": ""
+        },
+        "GXCFTH_QP017": {
+          "pos": 17,
+          "name": "4:16",
+          "light_template": "blackout (scene)",
+          "notes": ""
+        }
       }
     },
     "Dp8xoz": {

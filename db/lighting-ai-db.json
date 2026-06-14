@@ -11821,10 +11821,11 @@
       "qlc_id": 111,
       "audio_ref": "audio/Torn/Torn - Full Song.mp3",
       "audio_ref_name": "Torn - Full Song.mp3",
-      "lyrics_raw": "[Verse 1]I thought I saw a girl brought to life\nShe was warm, she came around and she was dignified\nShe showed me what it was to cry\nI couldn't be the man that you adored\nYou don't seem to know, or seem to care what my heart is for\nI don't know you anymore\n\n[Pre-Chorus]\nThere's nothing where you used to lie\nThe conversation has run dry\nThat's what's going on\n[Chorus]\nNothing's right, I'm torn\nI'm all out of faith\nThis is how I feel\nI'm cold and I am shamed\nLying naked on the floor\nIllusion never changed\nInto something real\nI'm wide awake and I can see\nThe perfect sky is torn\nYou're a little late, I'm already torn\n\n[Verse 2]\nSo I guess the fortune teller's right\nI should have seen just what was there\nAnd not some holy light\nYou crawled beneath my veins\n\n[Pre-Chorus]\nAnd now I don't care, I had no luck\nI don't miss it all that much\nThere's just so many things\n\n[Chorus]\nThat I can touch, I'm torn\nI'm all out of faith\nThis is how I feel\nI'm cold and I am shamed\nLying naked on the floor\nIllusion never changed\nInto something real\nI'm wide awake and I can see\nThe perfect sky is torn\nYou're a little late, I'm already torn\nTorn",
+      "lyrics_raw": "I thought I saw a girl brought to life She was warm, she came around, like she was dignified She showed me what it was to cry I couldn't be that man you adored You don't seem to know or seem to care what my heart is for I don't know you anymore There's nothing where you used to lie My conversation has run dry That's what's goin' on Nothing's right, I'm torn I'm all out of faith, this is how I feel I'm cold and I am shamed lying naked on the floor Illusion never changed into something real I'm wide awake and I can see the perfect sky is torn You're a little late, I'm already torn So I guess the fortune teller's right I should have seen just what was there And not some holy light You crawled beneath my veins and now I don't care, I have no luck I don't miss it all that much There's just so many things That I can't touch I'm torn I'm all out of faith, this is how I feel I'm cold and I am shamed lying naked on the floor Illusion never changed into something real I'm wide awake and I can see the perfect sky is torn You're a little late, I'm already torn Torn There's nothing where you used to lie My inspiration has run dry That's what's goin' on Nothing's right, I'm torn I'm all out of faith This is how I feel I'm cold and I am shamed lying naked on the floor Illusion never changed into something real I'm wide awake and I can see the perfect sky is torn I'm all out of faith This is how I feel I'm cold and I am shamed bound and broken on the floor Illusion never changed into something real I'm wide awake and I can see the perfect sky is torn",
       "tms": {
         "manual_done": [
-          "bar_markers"
+          "bar_markers",
+          "parts_identified"
         ],
         "user_tasks": [],
         "manual_undone": []
@@ -12133,7 +12134,64 @@
             "time": 252.78689349250934
           }
         ],
-        "part_starts": []
+        "part_starts": [
+          {
+            "bar_num": 1,
+            "name": "Guitar Intro"
+          },
+          {
+            "bar_num": 3,
+            "name": "Verse 1"
+          },
+          {
+            "bar_num": 15,
+            "name": "Bridge 1"
+          },
+          {
+            "bar_num": 19,
+            "name": "Chorus 1"
+          },
+          {
+            "bar_num": 31,
+            "name": "Verse 2"
+          },
+          {
+            "bar_num": 37,
+            "name": "Bridge 2"
+          },
+          {
+            "bar_num": 41,
+            "name": "Chorus 2"
+          },
+          {
+            "bar_num": 57,
+            "name": "Bass Solo"
+          },
+          {
+            "bar_num": 61,
+            "name": "Bridge 3"
+          },
+          {
+            "bar_num": 65,
+            "name": "Chorus 3 (Vox+Guit)"
+          },
+          {
+            "bar_num": 69,
+            "name": "Chorus 4"
+          },
+          {
+            "bar_num": 81,
+            "name": "Interlude"
+          },
+          {
+            "bar_num": 84,
+            "name": "Guitar Solo"
+          },
+          {
+            "bar_num": 100,
+            "name": "Ausklang"
+          }
+        ]
       }
     },
     "Dp8xoz": {
@@ -31144,560 +31202,560 @@
     "B2890": {
       "song_id": "GXCFTH",
       "bar_num": 1,
-      "lyrics": "",
+      "lyrics": "I thought I saw",
       "audio": "",
       "has_accents": false
     },
     "B2891": {
       "song_id": "GXCFTH",
       "bar_num": 2,
-      "lyrics": "",
+      "lyrics": "a girl brought to",
       "audio": "",
       "has_accents": false
     },
     "B2892": {
       "song_id": "GXCFTH",
       "bar_num": 3,
-      "lyrics": "",
+      "lyrics": "life She was warm,",
       "audio": "",
       "has_accents": false
     },
     "B2893": {
       "song_id": "GXCFTH",
       "bar_num": 4,
-      "lyrics": "",
+      "lyrics": "she came around, like",
       "audio": "",
       "has_accents": false
     },
     "B2894": {
       "song_id": "GXCFTH",
       "bar_num": 5,
-      "lyrics": "",
+      "lyrics": "she was dignified She",
       "audio": "",
       "has_accents": false
     },
     "B2895": {
       "song_id": "GXCFTH",
       "bar_num": 6,
-      "lyrics": "",
+      "lyrics": "showed me what it",
       "audio": "",
       "has_accents": false
     },
     "B2896": {
       "song_id": "GXCFTH",
       "bar_num": 7,
-      "lyrics": "",
+      "lyrics": "was to cry I",
       "audio": "",
       "has_accents": false
     },
     "B2897": {
       "song_id": "GXCFTH",
       "bar_num": 8,
-      "lyrics": "",
+      "lyrics": "couldn't be that man",
       "audio": "",
       "has_accents": false
     },
     "B2898": {
       "song_id": "GXCFTH",
       "bar_num": 9,
-      "lyrics": "",
+      "lyrics": "you adored You don't",
       "audio": "",
       "has_accents": false
     },
     "B2899": {
       "song_id": "GXCFTH",
       "bar_num": 10,
-      "lyrics": "",
+      "lyrics": "seem to know or",
       "audio": "",
       "has_accents": false
     },
     "B2900": {
       "song_id": "GXCFTH",
       "bar_num": 11,
-      "lyrics": "",
+      "lyrics": "seem to care what",
       "audio": "",
       "has_accents": false
     },
     "B2901": {
       "song_id": "GXCFTH",
       "bar_num": 12,
-      "lyrics": "",
+      "lyrics": "my heart is for",
       "audio": "",
       "has_accents": false
     },
     "B2902": {
       "song_id": "GXCFTH",
       "bar_num": 13,
-      "lyrics": "",
+      "lyrics": "I don't know you",
       "audio": "",
       "has_accents": false
     },
     "B2903": {
       "song_id": "GXCFTH",
       "bar_num": 14,
-      "lyrics": "",
+      "lyrics": "anymore There's nothing where",
       "audio": "",
       "has_accents": false
     },
     "B2904": {
       "song_id": "GXCFTH",
       "bar_num": 15,
-      "lyrics": "",
+      "lyrics": "you used to lie",
       "audio": "",
       "has_accents": false
     },
     "B2905": {
       "song_id": "GXCFTH",
       "bar_num": 16,
-      "lyrics": "",
+      "lyrics": "My conversation has run",
       "audio": "",
       "has_accents": false
     },
     "B2906": {
       "song_id": "GXCFTH",
       "bar_num": 17,
-      "lyrics": "",
+      "lyrics": "dry That's what's goin'",
       "audio": "",
       "has_accents": false
     },
     "B2907": {
       "song_id": "GXCFTH",
       "bar_num": 18,
-      "lyrics": "",
+      "lyrics": "on Nothing's right, I'm",
       "audio": "",
       "has_accents": false
     },
     "B2908": {
       "song_id": "GXCFTH",
       "bar_num": 19,
-      "lyrics": "",
+      "lyrics": "torn I'm all out",
       "audio": "",
       "has_accents": false
     },
     "B2909": {
       "song_id": "GXCFTH",
       "bar_num": 20,
-      "lyrics": "",
+      "lyrics": "of faith, this is",
       "audio": "",
       "has_accents": false
     },
     "B2910": {
       "song_id": "GXCFTH",
       "bar_num": 21,
-      "lyrics": "",
+      "lyrics": "how I feel I'm",
       "audio": "",
       "has_accents": false
     },
     "B2911": {
       "song_id": "GXCFTH",
       "bar_num": 22,
-      "lyrics": "",
+      "lyrics": "cold and I am",
       "audio": "",
       "has_accents": false
     },
     "B2912": {
       "song_id": "GXCFTH",
       "bar_num": 23,
-      "lyrics": "",
+      "lyrics": "shamed lying naked on",
       "audio": "",
       "has_accents": false
     },
     "B2913": {
       "song_id": "GXCFTH",
       "bar_num": 24,
-      "lyrics": "",
+      "lyrics": "the floor Illusion never",
       "audio": "",
       "has_accents": false
     },
     "B2914": {
       "song_id": "GXCFTH",
       "bar_num": 25,
-      "lyrics": "",
+      "lyrics": "changed into something real",
       "audio": "",
       "has_accents": false
     },
     "B2915": {
       "song_id": "GXCFTH",
       "bar_num": 26,
-      "lyrics": "",
+      "lyrics": "I'm wide awake and",
       "audio": "",
       "has_accents": false
     },
     "B2916": {
       "song_id": "GXCFTH",
       "bar_num": 27,
-      "lyrics": "",
+      "lyrics": "I can see the",
       "audio": "",
       "has_accents": false
     },
     "B2917": {
       "song_id": "GXCFTH",
       "bar_num": 28,
-      "lyrics": "",
+      "lyrics": "perfect sky is torn",
       "audio": "",
       "has_accents": false
     },
     "B2918": {
       "song_id": "GXCFTH",
       "bar_num": 29,
-      "lyrics": "",
+      "lyrics": "You're a little late,",
       "audio": "",
       "has_accents": false
     },
     "B2919": {
       "song_id": "GXCFTH",
       "bar_num": 30,
-      "lyrics": "",
+      "lyrics": "I'm already torn So",
       "audio": "",
       "has_accents": false
     },
     "B2920": {
       "song_id": "GXCFTH",
       "bar_num": 31,
-      "lyrics": "",
+      "lyrics": "I guess the fortune",
       "audio": "",
       "has_accents": false
     },
     "B2921": {
       "song_id": "GXCFTH",
       "bar_num": 32,
-      "lyrics": "",
+      "lyrics": "teller's right I should",
       "audio": "",
       "has_accents": false
     },
     "B2922": {
       "song_id": "GXCFTH",
       "bar_num": 33,
-      "lyrics": "",
+      "lyrics": "have seen just what",
       "audio": "",
       "has_accents": false
     },
     "B2923": {
       "song_id": "GXCFTH",
       "bar_num": 34,
-      "lyrics": "",
+      "lyrics": "was there And not",
       "audio": "",
       "has_accents": false
     },
     "B2924": {
       "song_id": "GXCFTH",
       "bar_num": 35,
-      "lyrics": "",
+      "lyrics": "some holy light You",
       "audio": "",
       "has_accents": false
     },
     "B2925": {
       "song_id": "GXCFTH",
       "bar_num": 36,
-      "lyrics": "",
+      "lyrics": "crawled beneath my veins",
       "audio": "",
       "has_accents": false
     },
     "B2926": {
       "song_id": "GXCFTH",
       "bar_num": 37,
-      "lyrics": "",
+      "lyrics": "and now I don't",
       "audio": "",
       "has_accents": false
     },
     "B2927": {
       "song_id": "GXCFTH",
       "bar_num": 38,
-      "lyrics": "",
+      "lyrics": "care, I have no",
       "audio": "",
       "has_accents": false
     },
     "B2928": {
       "song_id": "GXCFTH",
       "bar_num": 39,
-      "lyrics": "",
+      "lyrics": "luck I don't miss",
       "audio": "",
       "has_accents": false
     },
     "B2929": {
       "song_id": "GXCFTH",
       "bar_num": 40,
-      "lyrics": "",
+      "lyrics": "it all that much",
       "audio": "",
       "has_accents": false
     },
     "B2930": {
       "song_id": "GXCFTH",
       "bar_num": 41,
-      "lyrics": "",
+      "lyrics": "There's just so many",
       "audio": "",
       "has_accents": false
     },
     "B2931": {
       "song_id": "GXCFTH",
       "bar_num": 42,
-      "lyrics": "",
+      "lyrics": "things That I can't",
       "audio": "",
       "has_accents": false
     },
     "B2932": {
       "song_id": "GXCFTH",
       "bar_num": 43,
-      "lyrics": "",
+      "lyrics": "touch I'm torn I'm",
       "audio": "",
       "has_accents": false
     },
     "B2933": {
       "song_id": "GXCFTH",
       "bar_num": 44,
-      "lyrics": "",
+      "lyrics": "all out of faith,",
       "audio": "",
       "has_accents": false
     },
     "B2934": {
       "song_id": "GXCFTH",
       "bar_num": 45,
-      "lyrics": "",
+      "lyrics": "this is how I",
       "audio": "",
       "has_accents": false
     },
     "B2935": {
       "song_id": "GXCFTH",
       "bar_num": 46,
-      "lyrics": "",
+      "lyrics": "feel I'm cold and",
       "audio": "",
       "has_accents": false
     },
     "B2936": {
       "song_id": "GXCFTH",
       "bar_num": 47,
-      "lyrics": "",
+      "lyrics": "I am shamed lying",
       "audio": "",
       "has_accents": false
     },
     "B2937": {
       "song_id": "GXCFTH",
       "bar_num": 48,
-      "lyrics": "",
+      "lyrics": "naked on the floor",
       "audio": "",
       "has_accents": false
     },
     "B2938": {
       "song_id": "GXCFTH",
       "bar_num": 49,
-      "lyrics": "",
+      "lyrics": "Illusion never changed into",
       "audio": "",
       "has_accents": false
     },
     "B2939": {
       "song_id": "GXCFTH",
       "bar_num": 50,
-      "lyrics": "",
+      "lyrics": "something real I'm wide",
       "audio": "",
       "has_accents": false
     },
     "B2940": {
       "song_id": "GXCFTH",
       "bar_num": 51,
-      "lyrics": "",
+      "lyrics": "awake and I can",
       "audio": "",
       "has_accents": false
     },
     "B2941": {
       "song_id": "GXCFTH",
       "bar_num": 52,
-      "lyrics": "",
+      "lyrics": "see the perfect sky",
       "audio": "",
       "has_accents": false
     },
     "B2942": {
       "song_id": "GXCFTH",
       "bar_num": 53,
-      "lyrics": "",
+      "lyrics": "is torn You're a",
       "audio": "",
       "has_accents": false
     },
     "B2943": {
       "song_id": "GXCFTH",
       "bar_num": 54,
-      "lyrics": "",
+      "lyrics": "little late, I'm already",
       "audio": "",
       "has_accents": false
     },
     "B2944": {
       "song_id": "GXCFTH",
       "bar_num": 55,
-      "lyrics": "",
+      "lyrics": "torn Torn There's nothing",
       "audio": "",
       "has_accents": false
     },
     "B2945": {
       "song_id": "GXCFTH",
       "bar_num": 56,
-      "lyrics": "",
+      "lyrics": "where you used to",
       "audio": "",
       "has_accents": false
     },
     "B2946": {
       "song_id": "GXCFTH",
       "bar_num": 57,
-      "lyrics": "",
+      "lyrics": "lie My inspiration has",
       "audio": "",
       "has_accents": false
     },
     "B2947": {
       "song_id": "GXCFTH",
       "bar_num": 58,
-      "lyrics": "",
+      "lyrics": "run dry That's what's",
       "audio": "",
       "has_accents": false
     },
     "B2948": {
       "song_id": "GXCFTH",
       "bar_num": 59,
-      "lyrics": "",
+      "lyrics": "goin' on Nothing's right,",
       "audio": "",
       "has_accents": false
     },
     "B2949": {
       "song_id": "GXCFTH",
       "bar_num": 60,
-      "lyrics": "",
+      "lyrics": "I'm torn I'm all",
       "audio": "",
       "has_accents": false
     },
     "B2950": {
       "song_id": "GXCFTH",
       "bar_num": 61,
-      "lyrics": "",
+      "lyrics": "out of faith This",
       "audio": "",
       "has_accents": false
     },
     "B2951": {
       "song_id": "GXCFTH",
       "bar_num": 62,
-      "lyrics": "",
+      "lyrics": "is how I feel",
       "audio": "",
       "has_accents": false
     },
     "B2952": {
       "song_id": "GXCFTH",
       "bar_num": 63,
-      "lyrics": "",
+      "lyrics": "I'm cold and I",
       "audio": "",
       "has_accents": false
     },
     "B2953": {
       "song_id": "GXCFTH",
       "bar_num": 64,
-      "lyrics": "",
+      "lyrics": "am shamed lying naked",
       "audio": "",
       "has_accents": false
     },
     "B2954": {
       "song_id": "GXCFTH",
       "bar_num": 65,
-      "lyrics": "",
+      "lyrics": "on the floor Illusion",
       "audio": "",
       "has_accents": false
     },
     "B2955": {
       "song_id": "GXCFTH",
       "bar_num": 66,
-      "lyrics": "",
+      "lyrics": "never changed into something",
       "audio": "",
       "has_accents": false
     },
     "B2956": {
       "song_id": "GXCFTH",
       "bar_num": 67,
-      "lyrics": "",
+      "lyrics": "real I'm wide awake",
       "audio": "",
       "has_accents": false
     },
     "B2957": {
       "song_id": "GXCFTH",
       "bar_num": 68,
-      "lyrics": "",
+      "lyrics": "and I can see",
       "audio": "",
       "has_accents": false
     },
     "B2958": {
       "song_id": "GXCFTH",
       "bar_num": 69,
-      "lyrics": "",
+      "lyrics": "the perfect sky is",
       "audio": "",
       "has_accents": false
     },
     "B2959": {
       "song_id": "GXCFTH",
       "bar_num": 70,
-      "lyrics": "",
+      "lyrics": "torn I'm all out",
       "audio": "",
       "has_accents": false
     },
     "B2960": {
       "song_id": "GXCFTH",
       "bar_num": 71,
-      "lyrics": "",
+      "lyrics": "of faith This is",
       "audio": "",
       "has_accents": false
     },
     "B2961": {
       "song_id": "GXCFTH",
       "bar_num": 72,
-      "lyrics": "",
+      "lyrics": "how I feel I'm",
       "audio": "",
       "has_accents": false
     },
     "B2962": {
       "song_id": "GXCFTH",
       "bar_num": 73,
-      "lyrics": "",
+      "lyrics": "cold and I am",
       "audio": "",
       "has_accents": false
     },
     "B2963": {
       "song_id": "GXCFTH",
       "bar_num": 74,
-      "lyrics": "",
+      "lyrics": "shamed bound and broken",
       "audio": "",
       "has_accents": false
     },
     "B2964": {
       "song_id": "GXCFTH",
       "bar_num": 75,
-      "lyrics": "",
+      "lyrics": "on the floor Illusion",
       "audio": "",
       "has_accents": false
     },
     "B2965": {
       "song_id": "GXCFTH",
       "bar_num": 76,
-      "lyrics": "",
+      "lyrics": "never changed into something",
       "audio": "",
       "has_accents": false
     },
     "B2966": {
       "song_id": "GXCFTH",
       "bar_num": 77,
-      "lyrics": "",
+      "lyrics": "real I'm wide awake",
       "audio": "",
       "has_accents": false
     },
     "B2967": {
       "song_id": "GXCFTH",
       "bar_num": 78,
-      "lyrics": "",
+      "lyrics": "and I can see",
       "audio": "",
       "has_accents": false
     },
     "B2968": {
       "song_id": "GXCFTH",
       "bar_num": 79,
-      "lyrics": "",
+      "lyrics": "the perfect sky is",
       "audio": "",
       "has_accents": false
     },
     "B2969": {
       "song_id": "GXCFTH",
       "bar_num": 80,
-      "lyrics": "",
+      "lyrics": "torn",
       "audio": "",
       "has_accents": false
     },

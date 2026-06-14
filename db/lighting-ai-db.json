@@ -11821,7 +11821,7 @@
       "qlc_id": 111,
       "audio_ref": "audio/Torn/Torn - Full Song.mp3",
       "audio_ref_name": "Torn - Full Song.mp3",
-      "lyrics_raw": "I thought I saw a man brought to life She was warm, she came around, like she was dignified She showed me what it was to cry She couldn't be that man I adored You don't seem to know or seem to care what my heart is for I don't know you anymore There's nothing where you used to lie My conversation has run dry That's what's goin' on Nothing's right, I'm torn I'm all out of faith, this is how I feel I'm cold and I am shamed lying naked on the floor Illusion never changed into something real I'm wide awake and I can see the perfect sky is torn You're a little late, I'm already torn So I guess the fortune teller's right I should have seen just what was there And not some holy light You crawled beneath my veins and now I don't care, I have no luck I don't miss it all that much There's just so many things That I can't touch I'm torn I'm all out of faith, this is how I feel I'm cold and I am shamed lying naked on the floor Illusion never changed into something real I'm wide awake and I can see the perfect sky is torn You're a little late, I'm already torn Torn There's nothing where you used to lie My inspiration has run dry That's what's goin' on Nothing's right, I'm torn I'm all out of faith This is how I feel I'm cold and I am shamed lying naked on the floor Illusion never changed into something real I'm wide awake and I can see the perfect sky is torn I'm all out of faith This is how I feel I'm cold and I am shamed bound and broken on the floor Illusion never changed into something real I'm wide awake and I can see the perfect sky is torn",
+      "lyrics_raw": "I thought I saw a man brought to life She was warm, she came around, like she was dignified She showed me what it was to cry She couldn't be that man I adored You don't seem to know or seem to care what my heart is for I don't know you anymore There's nothing where you used to lie My conversation has run dry That's what's goin' on Nothing's right, I'm torn I'm all out of faith, this is how I feel I'm cold and I am shamed lying naked on the floor Illusion never changed into something real I'm wide awake and I can see the perfect sky is torn You're a little late, I'm already torn So I guess the fortune teller's right I should have seen just what was there And not some holy light You crawled beneath my veins and now I don't care, I have no luck I don't miss it all that much There's just so many things That I can't touch I'm torn I'm all out of faith, this is how I feel I'm cold and I am shamed lying naked on the floor Illusion never changed into something real I'm wide awake and I can see the perfect sky is torn You're a little late, I'm has already torn Torn There's nothing where you used to lie My inspiration run dry That's what's goin' on Nothing's right, I'm torn I'm all out of faith This is how I feel I'm cold and I am shamed lying naked on the floor Illusion never changed into something real I'm wide awake and I can see the perfect sky is torn I'm all out of faith This is how I feel I'm cold and I am shamed bound and broken on the floor Illusion never changed into something real I'm wide awake and I can see the perfect sky is torn",
       "tms": {
         "manual_done": [
           "bar_markers",
@@ -31617,77 +31617,77 @@
     "B2930": {
       "song_id": "GXCFTH",
       "bar_num": 41,
-      "lyrics": "I'm all out of faith, this is how I feel I'm cold and I am shamed lying naked on the floor Illusion never changed",
+      "lyrics": "I'm all out of faith,",
       "audio": "",
       "has_accents": false
     },
     "B2931": {
       "song_id": "GXCFTH",
       "bar_num": 42,
-      "lyrics": "into something real I'm wide",
+      "lyrics": "this is how I feel\n",
       "audio": "",
       "has_accents": false
     },
     "B2932": {
       "song_id": "GXCFTH",
       "bar_num": 43,
-      "lyrics": "awake and I can see",
+      "lyrics": "I'm cold and I am shamed",
       "audio": "",
       "has_accents": false
     },
     "B2933": {
       "song_id": "GXCFTH",
       "bar_num": 44,
-      "lyrics": "the perfect sky is torn",
+      "lyrics": "lying naked on the floor\n",
       "audio": "",
       "has_accents": false
     },
     "B2934": {
       "song_id": "GXCFTH",
       "bar_num": 45,
-      "lyrics": "You're a little late, I'm",
+      "lyrics": "Illusion never changed",
       "audio": "",
       "has_accents": false
     },
     "B2935": {
       "song_id": "GXCFTH",
       "bar_num": 46,
-      "lyrics": "already torn Torn There's nothing",
+      "lyrics": "into something real\n",
       "audio": "",
       "has_accents": false
     },
     "B2936": {
       "song_id": "GXCFTH",
       "bar_num": 47,
-      "lyrics": "where you used to lie",
+      "lyrics": "I'm wide awake and I",
       "audio": "",
       "has_accents": false
     },
     "B2937": {
       "song_id": "GXCFTH",
       "bar_num": 48,
-      "lyrics": "My inspiration has run dry",
+      "lyrics": "can see the perfect sky is torn\n",
       "audio": "",
       "has_accents": false
     },
     "B2938": {
       "song_id": "GXCFTH",
       "bar_num": 49,
-      "lyrics": "That's what's goin' on Nothing's",
+      "lyrics": "You're a little late,",
       "audio": "",
       "has_accents": false
     },
     "B2939": {
       "song_id": "GXCFTH",
       "bar_num": 50,
-      "lyrics": "right, I'm torn I'm all",
+      "lyrics": "I'm has already torn\n",
       "audio": "",
       "has_accents": false
     },
     "B2940": {
       "song_id": "GXCFTH",
       "bar_num": 51,
-      "lyrics": "out of faith This is",
+      "lyrics": "Torn There's nothing where you used to lie My inspiration run dry That's what's goin' on Nothing's right, I'm torn I'm all out of faith This is",
       "audio": "",
       "has_accents": false
     },

@@ -31533,14 +31533,16 @@
       "bar_num": 29,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2919": {
       "song_id": "GXCFTH",
       "bar_num": 30,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2920": {
       "song_id": "GXCFTH",

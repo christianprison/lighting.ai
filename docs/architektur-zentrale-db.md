@@ -59,6 +59,45 @@ der **erste** Export reordnet einmalig einige Bar-Keys, danach ist der Export ei
 stabiler Fixpunkt (keine Diff-Churn). Schema: `supabase/migrations/0001_initial_schema.sql`;
 Transform: `scripts/central_db/transform.py`.
 
+## 0b. Implementierungsstand (live, Stand 2026-06-14)
+
+Phase 1 + 2 sind umgesetzt und produktiv. **Git ist (noch) Master**, Supabase
+folgt automatisch — der Cutover (Phase 7) ist bewusst nicht gemacht.
+
+**Supabase-Projekt** (EU/Frankfurt, „automatic RLS" an). Migrationen unter
+`supabase/migrations/`:
+- `0001_initial_schema.sql` — songs, song_detail_lighting, bars, accents,
+  app_state, audio_assets, feature_vectors, transcripts
+- `0002_rls_public_read.sql` — öffentliche SELECT-Policies auf den Katalog
+- `0003_setlist_view.sql` — `setlist_public`
+- `0004_lyrics_views.sql` — `song_timeline_public`, `song_parts_public`,
+  `song_lyrics_public` (Lyrics/Parts/Timing aus split_markers + bars entrollt)
+- `0005_practice_markers.sql` — private Übe-Marker (BassTrainer, Anonymous Auth
+  + RLS auf `auth.uid()`) — **einzige** vom Konsumenten schreibbare Tabelle
+- `0006_sync_rpc.sql` — `prune_catalog` / `prune_audio_assets` (service_role)
+
+**Datenfluss (vollautomatisch):**
+```
+DB-Pflege-App  --auto-save commit-->  GitHub main (db/lighting-ai-db.json)
+   --GitHub Action "Sync DB to Supabase"-->  Supabase (upsert + prune)
+   --REST/Storage (read-only, anon)-->  BassTrainer & andere Konsumenten
+```
+- **`.github/workflows/sync-db.yml`** (`scripts/central_db/sync_to_supabase.py`):
+  bei jeder Änderung an `db/lighting-ai-db.json` auf main → upsert (Adds/Mods) +
+  RPC-Prune (Deletes). Bricht bei 0 Songs ab; Leer-Guard in den RPCs.
+- **`.github/workflows/upload-snippets.yml`** (`upload_audio.py`): bei `audio/**`-
+  Änderungen (oder manuell) → Dateien in den public Bucket `snippets` + audio_assets.
+- Audio-Snippets: public Bucket `snippets` (43 playalong + 484 snippet).
+
+**Konsumenten-Vertrag** (read-only, anon-Key): `songs`, `setlist_public`,
+`song_timeline_public`, `song_parts_public`, `song_lyrics_public`, `audio_assets`
++ Storage-public-URL. Schreiben nur `practice_markers` (eigene Zeilen, User-JWT).
+Details: `docs/uebergabe-basstrainer*.md`.
+
+**Offen Richtung Cutover (Phase 7):** Pflege-App schreibt weiterhin nach Git, nicht
+nach Supabase. Erst beim Cutover dreht sich die Richtung (dann Export Supabase→JSON
+für die Offline-Live-App). Bis dahin gilt die Single-Writer-Invariante mit Git als Master.
+
 ## 1. Zielbild in einem Satz
 
 Strukturierte Metadaten in **Postgres (Supabase)**, kleine Audio-Snippets in **Supabase Storage**, große

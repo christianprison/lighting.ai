@@ -12172,6 +12172,10 @@
             "light_template": "03 walking"
           },
           {
+            "bar_num": 53,
+            "name": "Interlude 1"
+          },
+          {
             "bar_num": 57,
             "name": "Bass Solo",
             "light_template": "Spot auf Bibo",
@@ -12192,7 +12196,7 @@
           },
           {
             "bar_num": 81,
-            "name": "Interlude",
+            "name": "Interlude 2",
             "light_template": "Spot auf Tim",
             "instrumental": true
           },

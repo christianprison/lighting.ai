@@ -73,8 +73,17 @@ folgt automatisch — der Cutover (Phase 7) ist bewusst nicht gemacht.
 - `0004_lyrics_views.sql` — `song_timeline_public`, `song_parts_public`,
   `song_lyrics_public` (Lyrics/Parts/Timing aus split_markers + bars entrollt)
 - `0005_practice_markers.sql` — private Übe-Marker (BassTrainer, Anonymous Auth
-  + RLS auf `auth.uid()`) — **einzige** vom Konsumenten schreibbare Tabelle
+  + RLS auf `auth.uid()`)
 - `0006_sync_rpc.sql` — `prune_catalog` / `prune_audio_assets` (service_role)
+- `0007_song_intros.sql` — `song_intros` + View `song_intro_public` (Song-Anfänge
+  für BassTrainer „Anfänge lernen")
+- `0008_curators.sql` — `curators`-Allowlist + `is_curator()` + Schreib-Policies
+  auf `song_intros`
+
+**Zwei Schreib-Ausnahmen für Konsumenten** (alles andere read-only):
+`practice_markers` (eigene Zeilen, jeder User) und `song_intros` (nur Kuratoren).
+Beide sind **Supabase-Master** (von der App geschrieben) und **nicht** Teil des
+Git→Supabase-Syncs — `song_intros` wird daher bewusst NICHT vom Sync angefasst.
 
 **Datenfluss (vollautomatisch):**
 ```
@@ -90,8 +99,10 @@ DB-Pflege-App  --auto-save commit-->  GitHub main (db/lighting-ai-db.json)
 - Audio-Snippets: public Bucket `snippets` (43 playalong + 484 snippet).
 
 **Konsumenten-Vertrag** (read-only, anon-Key): `songs`, `setlist_public`,
+`song_intro_public`,
 `song_timeline_public`, `song_parts_public`, `song_lyrics_public`, `audio_assets`
-+ Storage-public-URL. Schreiben nur `practice_markers` (eigene Zeilen, User-JWT).
++ Storage-public-URL. Schreiben: `practice_markers` (jeder User, eigene Zeilen) +
+`song_intros` (nur Kuratoren, via BassTrainer „Intro einspielen").
 Details: `docs/uebergabe-basstrainer*.md`.
 
 **Offen Richtung Cutover (Phase 7):** Pflege-App schreibt weiterhin nach Git, nicht

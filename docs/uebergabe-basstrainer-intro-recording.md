@@ -1,66 +1,68 @@
-# Übergabe BassTrainer — Feature „Intro einspielen" (Anfänge aufnehmen)
+# Übergabe BassTrainer — „Intro einspielen" (direkt in die DB, ohne Datei)
 
-> Statt Töne von Hand zu tippen, spielt der Owner die ersten Töne eines Songs auf
-> dem Bass ein; BassTrainer erkennt sie (Mikro, vorhandene Pitch-Engine), lässt
-> korrigieren und **exportiert** sie im Format von `db/song-intros.json`. Der
-> Owner committet den Export ins lighting.ai-Repo → Auto-Sync → `song_intro_public`.
+> Der Owner spielt die ersten Töne eines Songs auf dem Bass ein; BassTrainer
+> erkennt sie (Mikro, vorhandene Pitch-Engine), lässt korrigieren und schreibt
+> sie **direkt** in `song_intros` (Supabase). Kein File, kein Commit.
+> **Nur der Owner** (Kurator) darf schreiben; alle anderen bleiben read-only.
+> Der `service_role`-Key kommt **nicht** in die App.
 
-## Warum hier (native) und nicht in der Web-App
-Die zuverlässige Bass-Tonhöhen/Onset-Erkennung liegt in BassTrainer. Im Browser
-wäre sie schlechter (tiefe Frequenzen, Latenz, Oktavfehler) und doppelt gebaut.
-**Erkennung gehört hierher.**
+## Identität: Kurator-Allowlist
+- BassTrainer ist schon anonym angemeldet (von `practice_markers`) — **dieselbe
+  Identität** (`auth.uid()`) wird zum Kurator.
+- lighting.ai hat eine Tabelle `curators (user_id uuid)`. Nur uids darin dürfen
+  `song_intros` schreiben (RLS via `is_curator()`); Lesen bleibt öffentlich.
+- **Einmalige Einrichtung:** BassTrainer zeigt im „Kurator-Modus"/Settings die
+  **eigene uid** an (aus dem JWT `sub` bzw. `GET /auth/v1/user`). Der Owner trägt
+  diese uid einmal in `curators` ein (Supabase SQL-Editor):
+  `insert into curators (user_id, note) values ('<uid>', 'Christian iPad');`
+  Danach darf genau dieses Gerät schreiben. (Bei Neuinstallation ändert sich die
+  anonyme uid → einmal neu eintragen. Optional später: echtes Login statt anonym.)
 
-## Architektur-Grenze (wichtig)
-BassTrainer bleibt **read-only auf dem geteilten Katalog**. Dieses Feature
-**schreibt NICHTS** in `song_intros`/die DB — es **erzeugt nur Text** (Export).
-Den committet der Owner nach lighting.ai (Git bleibt Single-Writer). Ein direkter
-Kurator-Schreibpfad ist später additiv möglich (Weg 2), ist aber jetzt nicht nötig.
-
-## Ablauf
-
-1. **Song wählen** — `song_id` + `bpm` sind bekannt (aus `songs`).
-2. **Einzähler/Metronom** im Songtempo (`songs.bpm`). Der **Downbeat von Takt 1 = `t0`**.
-3. **Einspielen** der ersten ~4–8 Töne. Pro erkanntem Onset:
-   - `beat = (onset_t − t0) · bpm / 60` → Viertel ab Downbeat. Auftakt vor Takt 1 →
-     **negativ**. Sinnvoll quantisieren (z. B. auf ½- oder ¼-Beat, einstellbar).
-   - Tonhöhe → **klingende** MIDI. Bass-Erkennung ist oktav-wackelig → auf die
-     plausibelste Basslage schnappen, **Oktave editierbar** lassen.
-   - MIDI → **Saite/Bund** vorschlagen (z. B. tiefste sinnvolle Lage).
-4. **Korrektur-UI**: pro Ton Saite (E/A/D/G) / Bund / Beat / Dauer editieren;
-   hinzufügen / löschen / verschieben; **Notenname** (D2 …) zur Kontrolle;
-   **Vorschau abspielbar** (Klick + Töne) zum Gegenchecken „klingt das wie der Anfang?".
-5. **Export** im exakten `db/song-intros.json`-Format (siehe unten). Per
-   Share-Sheet / Zwischenablage / Datei. Der Owner fügt den Block ins Repo ein.
-
-## Export-Format (1:1 wie `db/song-intros.json`)
-
-```json
-{
-  "5iZfKj": [
-    {"string": 3, "fret": 0, "beat": 0.0, "duration_beats": 0.5},
-    {"string": 3, "fret": 0, "beat": 0.5, "duration_beats": 0.5},
-    {"string": 4, "fret": 2, "beat": 1.0, "duration_beats": 1.0}
-  ]
-}
+## Schreiben (nur Kurator) — `/rest/v1/song_intros`
+Header bei JEDEM Schreib-Request:
+```
+apikey: <ANON_KEY>
+Authorization: Bearer <access_token>     # User-JWT (das gleiche wie bei practice_markers)
 ```
 
-- Top-Level-Key = `song_id`. Wert = Liste der Töne **in Spielreihenfolge**.
-- **`idx` NICHT exportieren** — wird beim Sync aus der Reihenfolge abgeleitet.
-- Pro Ton **eine** Tonhöhen-Form genügt:
-  - `string` (E=1, A=2, D=3, G=4) + `fret`  ← bevorzugt
-  - oder `note_name` (`"D2"`)
-  - oder `midi` (klingend)
-- `beat` ist **Pflicht**, `duration_beats` optional.
-- **Tempo NICHT** exportieren (kommt aus `songs.bpm`).
+**Speichern eines Song-Anfangs = pro Song ersetzen** (idempotent):
+1. Alte Töne löschen:
+   ```http
+   DELETE /rest/v1/song_intros?song_id=eq.<ID>
+   ```
+2. Neue Töne einfügen (idx 1..N selbst vergeben, in Spielreihenfolge):
+   ```http
+   POST /rest/v1/song_intros
+   Content-Type: application/json
+   [
+     {"song_id":"5iZfKj","idx":1,"midi":38,"beat":0.0,"duration_beats":0.5,"string":3,"fret":0,"note_name":"D2"},
+     {"song_id":"5iZfKj","idx":2,"midi":45,"beat":1.0,"string":4,"fret":2,"note_name":"A2"}
+   ]
+   ```
+- **`midi` ist Pflicht** (klingende Tonhöhe) — BassTrainer rechnet sie aus
+  Saite+Bund: `midi = open[string] + fret` mit `open = {1:28(E1),2:33(A1),3:38(D2),4:43(G2)}`.
+- `string`/`fret`/`note_name`/`duration_beats` optional (für Anzeige/Pflege).
+- `beat` = Viertel ab Takt-1-Downbeat (`0.0` = erster Schlag; Auftakt negativ).
+- Nicht-Kuratoren bekommen **403** → in der UI sauber abfangen (nur Owner kuratiert).
 
-## Referenz
-- Offene Saiten klingend: `E1=28, A1=33, D2=38, G2=43`; `midi = open[string] + fret`.
-- `beat`: `0.0` = erster Schlag (Downbeat), `1.0` = Zählzeit 2, `0.5` = „und" der 1,
-  Pickup negativ.
+## Aufnahme-/Korrektur-Flow (wie gehabt)
+1. Song wählen (`song_id`, `bpm` aus `songs`).
+2. Einzähler im Songtempo; Downbeat Takt 1 = `t0`.
+3. Einspielen → pro Onset: `beat = (onset_t − t0)·bpm/60` (quantisieren),
+   klingende `midi` (oktav-wackelig → plausible Basslage, Oktave editierbar),
+   `midi → Saite/Bund` vorschlagen.
+4. Korrektur-UI (Saite/Bund/Beat/Dauer editieren, add/del/move, Notenname,
+   Vorschau abspielbar).
+5. **Speichern** → DELETE+POST wie oben.
 
-## Grenzen / Hinweise
-- **Kein** Schreibzugriff auf den Katalog — nur Export.
-- **Monophon** (ein Ton pro Beat-Position).
-- Nach Commit + Sync (~1–2 Min) kann die App via
-  `GET /rest/v1/song_intro_public?song_id=eq.<ID>&order=idx` prüfen, ob der Anfang
-  hinterlegt ist (und ihn dann für die Übung „Anfänge lernen" nutzen).
+## Lesen (unverändert, öffentlich)
+```http
+GET /rest/v1/song_intro_public?song_id=eq.<ID>&order=idx
+```
+→ `{song_id, idx, midi, beat, duration_beats, string, fret, note_name}`.
+Leeres Ergebnis = noch kein Anfang → Song in der Übung überspringen/markieren.
+
+## Grenzen
+- Schreibrecht **nur** auf `song_intros` und **nur** für Kuratoren. Alles andere
+  bleibt read-only. Kein `service_role` im Client.
+- Monophon (ein Ton pro `idx`).

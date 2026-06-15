@@ -1,8 +1,0 @@
-{
-  "_format": "Pro song_id eine Liste der Anfangstoene in Reihenfolge (idx automatisch). Tonhoehe je Note EINE Form: string+fret (Saite E=1 A=2 D=3 G=4, Bund), ODER note_name (z.B. 'D2'), ODER midi (klingend). beat = Viertel ab Takt-1-Downbeat (0.0 = erster Schlag, Auftakt negativ). duration_beats optional. Keys mit _ werden ignoriert. Auto-Sync nach Supabase (song_intro_public) via sync-db.yml.",
-  "_example_REPLACE_WITH_REAL_song_id": [
-    {"string": 3, "fret": 0, "beat": 0.0, "duration_beats": 0.5},
-    {"string": 3, "fret": 0, "beat": 0.5, "duration_beats": 0.5},
-    {"string": 4, "fret": 2, "beat": 1.0, "duration_beats": 1.0}
-  ]
-}

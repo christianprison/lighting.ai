@@ -3894,7 +3894,7 @@
       "split_markers": {
         "markers": [
           {
-            "time": 0.23435416666665712
+            "time": 0
           },
           {
             "time": 1.8264992197253433
@@ -4224,7 +4224,72 @@
             "time": 231.30945726993042
           }
         ],
-        "part_starts": []
+        "part_starts": [
+          {
+            "bar_num": 1,
+            "name": "Intro (a capella)"
+          },
+          {
+            "bar_num": 5,
+            "name": "Intro (tutti)"
+          },
+          {
+            "bar_num": 9,
+            "name": "Verse 1"
+          },
+          {
+            "bar_num": 25,
+            "name": "Bridge 1"
+          },
+          {
+            "bar_num": 31,
+            "name": "2 Takte Einschub"
+          },
+          {
+            "bar_num": 32,
+            "name": "Chorus 1"
+          },
+          {
+            "bar_num": 40,
+            "name": "Interlude"
+          },
+          {
+            "bar_num": 42,
+            "name": "Verse 2"
+          },
+          {
+            "bar_num": 58,
+            "name": "Bridge 2"
+          },
+          {
+            "bar_num": 64,
+            "name": "2 Takte Einschub"
+          },
+          {
+            "bar_num": 66,
+            "name": "Chorus 2"
+          },
+          {
+            "bar_num": 79,
+            "name": "Stops"
+          },
+          {
+            "bar_num": 89,
+            "name": "Interlude"
+          },
+          {
+            "bar_num": 96,
+            "name": "Chorus 3"
+          },
+          {
+            "bar_num": 104,
+            "name": "Chorus 4"
+          },
+          {
+            "bar_num": 110,
+            "name": "Ausklang"
+          }
+        ]
       }
     },
     "uoloAE": {

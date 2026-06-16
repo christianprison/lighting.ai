@@ -3869,9 +3869,65 @@
         "user_tasks": [],
         "manual_undone": []
       },
-      "total_bars": 0,
+      "total_bars": 17,
       "audio_ref": "audio/Bitter End/Bitter End - Full Song.mp3",
-      "audio_ref_name": "BitterEnd - 76mDoQ.mp3"
+      "audio_ref_name": "BitterEnd - 76mDoQ.mp3",
+      "split_markers": {
+        "markers": [
+          {
+            "time": 0.47388658373461745
+          },
+          {
+            "time": 1.7996874999999424
+          },
+          {
+            "time": 3.141020833333238
+          },
+          {
+            "time": 4.455687499999891
+          },
+          {
+            "time": 5.7010208333331835
+          },
+          {
+            "time": 6.9836874999999115
+          },
+          {
+            "time": 8.26635416666664
+          },
+          {
+            "time": 9.58902083333333
+          },
+          {
+            "time": 10.839687499999906
+          },
+          {
+            "time": 12.215687499999882
+          },
+          {
+            "time": 13.517020833333214
+          },
+          {
+            "time": 14.783687499999866
+          },
+          {
+            "time": 16.055687499999802
+          },
+          {
+            "time": 17.399687499999853
+          },
+          {
+            "time": 18.623687499999786
+          },
+          {
+            "time": 20.039687499999953
+          },
+          {
+            "time": 21.250354166666565
+          }
+        ],
+        "part_starts": []
+      }
     },
     "F71u8Z": {
       "name": "Black Chandelier",
@@ -33245,6 +33301,125 @@
     "B3099": {
       "song_id": "F71u8Z",
       "bar_num": 110,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3100": {
+      "song_id": "dgSleW",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3101": {
+      "song_id": "dgSleW",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3102": {
+      "song_id": "dgSleW",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3103": {
+      "song_id": "dgSleW",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3104": {
+      "song_id": "dgSleW",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3105": {
+      "song_id": "dgSleW",
+      "bar_num": 6,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3106": {
+      "song_id": "dgSleW",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3107": {
+      "song_id": "dgSleW",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3108": {
+      "song_id": "dgSleW",
+      "bar_num": 9,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3109": {
+      "song_id": "dgSleW",
+      "bar_num": 10,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3110": {
+      "song_id": "dgSleW",
+      "bar_num": 11,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3111": {
+      "song_id": "dgSleW",
+      "bar_num": 12,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3112": {
+      "song_id": "dgSleW",
+      "bar_num": 13,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3113": {
+      "song_id": "dgSleW",
+      "bar_num": 14,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3114": {
+      "song_id": "dgSleW",
+      "bar_num": 15,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3115": {
+      "song_id": "dgSleW",
+      "bar_num": 16,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3116": {
+      "song_id": "dgSleW",
+      "bar_num": 17,
       "lyrics": "",
       "audio": "",
       "has_accents": false

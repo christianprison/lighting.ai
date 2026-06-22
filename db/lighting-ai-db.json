@@ -13150,7 +13150,8 @@
       "lyrics_raw": "[Verse 1]Hey, don't write yourself off yet\nIt's only in your head, you feel left out or looked down on\nJust try your best, try everything you can\nAnd don't you worry what they tell themselves when you're away\n\n[Chorus]\nIt just takes some time\nLittle girl, you're in the middle of the ride\nEverything, everything will be just fine\nEverything, everything will be alright, all right\n[Verse 2]\nHey, you know they're all the same\nYou know you're doin' better on your own (On your own), so don't buy in\nLive right now, yeah, just be yourself\nIt doesn't matter if it's good enough (Good enough) for someone else\n\n[Chorus]\nIt just takes some time\nLittle girl, you're in the middle of the ride\nEverything, everything will be just fine\nEverything, everything will be all right, all right\nIt just takes some time\nLittle girl, you're in the middle of the ride\nEverything, everything will be just fine\nEverything, everything will be all right, all right\n\n[Guitar Solo]\nWoo!\n\n[Verse 3]\nHey, don't write yourself off yet\nIt's only in your head, you feel left out (Feel left out) or looked down on\nJust do your best (Just do your best), do everything you can (Do everything you can)\nAnd don't you worry what their bitter hearts (Bitter hearts) are gonna say\n\n[Chorus]\nIt just takes some time\nLittle girl, you're in the middle of the ride\nEverything, everything will be just fine\nEverything, everything will be all right, all right\nIt just takes some time\nLittle girl, you're in the middle of the ride\nEverything, everything will be just fine\nEverything, everything will be all right",
       "tms": {
         "manual_done": [
-          "bar_markers"
+          "bar_markers",
+          "parts_identified"
         ],
         "user_tasks": [],
         "manual_undone": []
@@ -13495,7 +13496,48 @@
             "time": 169.21877364232233
           }
         ],
-        "part_starts": []
+        "part_starts": [
+          {
+            "bar_num": 1,
+            "name": "Intro Guitar"
+          },
+          {
+            "bar_num": 9,
+            "name": "Verse 1"
+          },
+          {
+            "bar_num": 25,
+            "name": "Chorus"
+          },
+          {
+            "bar_num": 33,
+            "name": "Verse 2"
+          },
+          {
+            "bar_num": 49,
+            "name": "Chorus 2"
+          },
+          {
+            "bar_num": 65,
+            "name": "Guitar Solo"
+          },
+          {
+            "bar_num": 81,
+            "name": "Verse 3 stop"
+          },
+          {
+            "bar_num": 83,
+            "name": "Verse 3 a tempo"
+          },
+          {
+            "bar_num": 97,
+            "name": "Chorus 3"
+          },
+          {
+            "bar_num": 112,
+            "name": "Ausklang"
+          }
+        ]
       }
     },
     "LjFWZO": {

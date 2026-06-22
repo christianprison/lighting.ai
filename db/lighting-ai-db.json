@@ -4723,6 +4723,17 @@
           }
         ],
         "part_starts": []
+      },
+      "grundrhythmus": {
+        "kick": [
+          0,
+          2,
+          3.5
+        ],
+        "snare": [
+          1,
+          3
+        ]
       }
     },
     "uoloAE": {

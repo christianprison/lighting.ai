@@ -12502,7 +12502,9 @@
         "user_tasks": [],
         "manual_undone": []
       },
-      "total_bars": 0
+      "total_bars": 0,
+      "audio_ref": "audio/Rock‘n‘Roll Queen/Rock‘n‘Roll Queen - Full Song.mp3",
+      "audio_ref_name": "20230622 Rock'n'Roll Queen.mp3"
     },
     "hR5CDW": {
       "name": "Run",

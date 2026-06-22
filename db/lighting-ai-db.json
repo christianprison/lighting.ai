@@ -4374,7 +4374,7 @@
       "artist": "Biffy Clyro",
       "bpm": 112,
       "key": "E moll",
-      "year": "",
+      "year": "2013",
       "pick": "",
       "gema_nr": "13108148-001",
       "duration": "4:05",
@@ -4722,7 +4722,52 @@
             "time": 231.46246396134308
           }
         ],
-        "part_starts": []
+        "part_starts": [
+          {
+            "bar_num": 1,
+            "name": "Intro a capella"
+          },
+          {
+            "bar_num": 5,
+            "name": "Intro tutti"
+          },
+          {
+            "bar_num": 9,
+            "name": "Verse 1"
+          },
+          {
+            "bar_num": 25,
+            "name": "Bridge 1"
+          },
+          {
+            "bar_num": 31,
+            "name": "Chorus 1"
+          },
+          {
+            "bar_num": 58,
+            "name": "Bridge 2"
+          },
+          {
+            "bar_num": 64,
+            "name": "Chorus 2"
+          },
+          {
+            "bar_num": 79,
+            "name": "Stops"
+          },
+          {
+            "bar_num": 89,
+            "name": "Bridge 3"
+          },
+          {
+            "bar_num": 95,
+            "name": "Chorus 3"
+          },
+          {
+            "bar_num": 110,
+            "name": "Ausklang"
+          }
+        ]
       },
       "grundrhythmus": {
         "kick": [

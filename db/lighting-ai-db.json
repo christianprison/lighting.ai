@@ -11856,7 +11856,9 @@
         "user_tasks": [],
         "manual_undone": []
       },
-      "total_bars": 0
+      "total_bars": 0,
+      "audio_ref": "audio/Moon over Bourbon Street/Moon over Bourbon Street - Full Song.mp3",
+      "audio_ref_name": "Moon Over Bourbon Street.mp3"
     },
     "Rxj9bi": {
       "name": "Mr. Brightside",

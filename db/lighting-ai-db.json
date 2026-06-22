@@ -3901,7 +3901,7 @@
             "time": 9.58902083333333
           },
           {
-            "time": 10.839687499999906
+            "time": 10.861174765917603
           },
           {
             "time": 12.166655870786517
@@ -4189,10 +4189,10 @@
             "time": 134.07369830524345
           },
           {
-            "time": 135.37236497191012
+            "time": 135.2938553230337
           },
           {
-            "time": 136.7323649719101
+            "time": 136.77054706460675
           },
           {
             "time": 137.97503163857678
@@ -4312,7 +4312,48 @@
             "time": 186.75636497191013
           }
         ],
-        "part_starts": []
+        "part_starts": [
+          {
+            "bar_num": 1,
+            "name": "Intro Guitar"
+          },
+          {
+            "bar_num": 5,
+            "name": "Intro + Drums"
+          },
+          {
+            "bar_num": 9,
+            "name": "Verse 1"
+          },
+          {
+            "bar_num": 41,
+            "name": "Chorus 1"
+          },
+          {
+            "bar_num": 57,
+            "name": "Verse 2"
+          },
+          {
+            "bar_num": 89,
+            "name": "Chorus 2 no Rhythm"
+          },
+          {
+            "bar_num": 97,
+            "name": "Chorus 2 + Drums"
+          },
+          {
+            "bar_num": 105,
+            "name": "Chorus 3"
+          },
+          {
+            "bar_num": 121,
+            "name": "Chorus 4 + Axel"
+          },
+          {
+            "bar_num": 137,
+            "name": "Chorus 5 - Push!"
+          }
+        ]
       },
       "grundrhythmus": {
         "kick": [

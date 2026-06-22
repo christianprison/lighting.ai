@@ -13622,6 +13622,18 @@
           }
         ],
         "part_starts": []
+      },
+      "grundrhythmus": {
+        "kick": [
+          0,
+          0.5,
+          2,
+          2.5
+        ],
+        "snare": [
+          1,
+          3
+        ]
       }
     },
     "HDX1IN": {

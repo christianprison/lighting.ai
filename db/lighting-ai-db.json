@@ -10755,7 +10755,9 @@
         "user_tasks": [],
         "manual_undone": []
       },
-      "total_bars": 0
+      "total_bars": 0,
+      "audio_ref": "audio/Last Resort/Last Resort - Full Song.mp3",
+      "audio_ref_name": "LastResortPitched.mp3"
     },
     "XJ5YzI": {
       "name": "Lights Out",

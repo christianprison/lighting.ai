@@ -9798,7 +9798,7 @@
       "qlc_id": 41,
       "audio_ref": "audio/Last Nite/Last Nite - Full Song.mp3",
       "audio_ref_name": "Last Nite - Full Song.mp3",
-      "lyrics_raw": "Last nite she said, oh baby I feel so down When you turn me off, when I feel left out So I turned, turned round Oh baby don't care no more, I know this for sure I'm walking out that door Well I've been in town for about When fiteen whole minutes now And baby I feel so down And I don't know why I've been walking for miles People they don't under- stand Your girlfriends they can't under- stand Your grandsons they won't under- stand On top of this I ain't ever going to understand Last nite she said, oh baby don't feel so down you turn me off, when I feel left out So I, turned turned round Oh baby going to be alright, it was a great big lie Cause I left that night yeah People they don't under- stand Your girlfriends they don't under- stand In spaceships they can't understand And me I ain't ever going to understand Last nite she said, oh baby don't feel so down Well she turn me off, when I feel left out So I, I turned round Oh little girl I don't care no more, I know this for sure I'm walking out that door yeah",
+      "lyrics_raw": "Last nite she said, oh baby I feel so down When you turn me off, when I feel left out So I turned, turned round Oh baby don't care no more, I know this for sure I'm walking out that door Well I've been in town for about When fiteen whole minutes now And baby I feel so down And I don't know why I've been walking for miles People they don't under- stand Your girlfriends they can't under- stand Your grandsons they won't under- stand On top of this I ain't ever going to understand Last nite she said, oh baby don't feel so down you turn me off, when I feel left out So I, turned turned round Oh baby going to be alright, it was a great big lie Cause I left that night yeah People they don't under- stand Your girlfriends they don't under- stand In spaceships they can't under- stand And me I ain't ever going to under- stand People they don‘t under- stand on In spaceships they don‘t under- stand top of this they‘ll never under- stand and me I ain‘t ever going to under- stand Last nite she said, oh baby don't feel so down Well she turn me off, when I feel left out So I, I turned turned around Oh little girl I don't care no more, I know this for sure I'm walking out that door People they don‘t under- stand In spaceships they won‘t under- stand and girlfriends they don‘t under- stand and me I ain‘t ever going to under- stand",
       "tms": {
         "manual_done": [
           "bar_markers",
@@ -29036,100 +29036,101 @@
     "B2234": {
       "song_id": "I9J0Xm",
       "bar_num": 101,
-      "lyrics": "stand Your",
+      "lyrics": "stand",
       "audio": "",
       "has_accents": false
     },
     "B2235": {
       "song_id": "I9J0Xm",
       "bar_num": 102,
-      "lyrics": "girlfriends",
+      "lyrics": "Your",
       "audio": "",
       "has_accents": false
     },
     "B2236": {
       "song_id": "I9J0Xm",
       "bar_num": 103,
-      "lyrics": "they don't",
+      "lyrics": "girlfriends",
       "audio": "",
       "has_accents": false
     },
     "B2237": {
       "song_id": "I9J0Xm",
       "bar_num": 104,
-      "lyrics": "under-",
+      "lyrics": "they don't under-",
       "audio": "",
       "has_accents": false
     },
     "B2238": {
       "song_id": "I9J0Xm",
       "bar_num": 105,
-      "lyrics": "stand In spaceships",
+      "lyrics": "stand",
       "audio": "",
       "has_accents": false
     },
     "B2239": {
       "song_id": "I9J0Xm",
       "bar_num": 106,
-      "lyrics": "they can't",
+      "lyrics": "In",
       "audio": "",
       "has_accents": false
     },
     "B2240": {
       "song_id": "I9J0Xm",
       "bar_num": 107,
-      "lyrics": "understand And",
+      "lyrics": "spaceships",
       "audio": "",
       "has_accents": false
     },
     "B2241": {
       "song_id": "I9J0Xm",
       "bar_num": 108,
-      "lyrics": "me I",
+      "lyrics": "they can't under-",
       "audio": "",
       "has_accents": false
     },
     "B2242": {
       "song_id": "I9J0Xm",
       "bar_num": 109,
-      "lyrics": "ain't ever",
+      "lyrics": "stand",
       "audio": "",
       "has_accents": false
     },
     "B2243": {
       "song_id": "I9J0Xm",
       "bar_num": 110,
-      "lyrics": "going to",
+      "lyrics": "And",
       "audio": "",
       "has_accents": false
     },
     "B2244": {
       "song_id": "I9J0Xm",
       "bar_num": 111,
-      "lyrics": "understand Last",
+      "lyrics": "me I ain't",
       "audio": "",
       "has_accents": false
     },
     "B2245": {
       "song_id": "I9J0Xm",
       "bar_num": 112,
-      "lyrics": "nite she",
+      "lyrics": "ever going to under-",
       "audio": "",
       "has_accents": false
     },
     "B2246": {
       "song_id": "I9J0Xm",
       "bar_num": 113,
-      "lyrics": "said, oh",
+      "lyrics": "stand",
       "audio": "",
       "has_accents": false
     },
     "B2247": {
       "song_id": "I9J0Xm",
       "bar_num": 114,
-      "lyrics": "baby don't\n",
+      "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2248": {
       "song_id": "I9J0Xm",
@@ -29274,105 +29275,105 @@
     "B2268": {
       "song_id": "I9J0Xm",
       "bar_num": 135,
-      "lyrics": "feel so",
+      "lyrics": "People",
       "audio": "",
       "has_accents": false
     },
     "B2269": {
       "song_id": "I9J0Xm",
       "bar_num": 136,
-      "lyrics": "down Well",
+      "lyrics": "they don‘t under-",
       "audio": "",
       "has_accents": false
     },
     "B2270": {
       "song_id": "I9J0Xm",
       "bar_num": 137,
-      "lyrics": "she turn",
+      "lyrics": "stand",
       "audio": "",
       "has_accents": false
     },
     "B2271": {
       "song_id": "I9J0Xm",
       "bar_num": 138,
-      "lyrics": "me off,",
+      "lyrics": "on In",
       "audio": "",
       "has_accents": false
     },
     "B2272": {
       "song_id": "I9J0Xm",
       "bar_num": 139,
-      "lyrics": "when I",
+      "lyrics": "spaceships",
       "audio": "",
       "has_accents": false
     },
     "B2273": {
       "song_id": "I9J0Xm",
       "bar_num": 140,
-      "lyrics": "feel left",
+      "lyrics": "they don‘t under-",
       "audio": "",
       "has_accents": false
     },
     "B2274": {
       "song_id": "I9J0Xm",
       "bar_num": 141,
-      "lyrics": "out So",
+      "lyrics": "stand",
       "audio": "",
       "has_accents": false
     },
     "B2275": {
       "song_id": "I9J0Xm",
       "bar_num": 142,
-      "lyrics": "I, I",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B2276": {
       "song_id": "I9J0Xm",
       "bar_num": 143,
-      "lyrics": "turned round",
+      "lyrics": "top of this they‘ll",
       "audio": "",
       "has_accents": false
     },
     "B2277": {
       "song_id": "I9J0Xm",
       "bar_num": 144,
-      "lyrics": "Oh little",
+      "lyrics": "never under-",
       "audio": "",
       "has_accents": false
     },
     "B2278": {
       "song_id": "I9J0Xm",
       "bar_num": 145,
-      "lyrics": "girl I",
+      "lyrics": "stand",
       "audio": "",
       "has_accents": false
     },
     "B2279": {
       "song_id": "I9J0Xm",
       "bar_num": 146,
-      "lyrics": "don't care",
+      "lyrics": "and",
       "audio": "",
       "has_accents": false
     },
     "B2280": {
       "song_id": "I9J0Xm",
       "bar_num": 147,
-      "lyrics": "no more,",
+      "lyrics": "me I ain‘t",
       "audio": "",
       "has_accents": false
     },
     "B2281": {
       "song_id": "I9J0Xm",
       "bar_num": 148,
-      "lyrics": "I know",
+      "lyrics": "ever going to under-",
       "audio": "",
       "has_accents": false
     },
     "B2282": {
       "song_id": "I9J0Xm",
       "bar_num": 149,
-      "lyrics": "this for\n",
+      "lyrics": "stand\n",
       "audio": "",
       "has_accents": false
     },
@@ -29386,140 +29387,141 @@
     "B2284": {
       "song_id": "I9J0Xm",
       "bar_num": 151,
-      "lyrics": "",
+      "lyrics": "Last\n",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2285": {
       "song_id": "I9J0Xm",
       "bar_num": 152,
-      "lyrics": "sure I'm",
+      "lyrics": "nite",
       "audio": "",
       "has_accents": false
     },
     "B2286": {
       "song_id": "I9J0Xm",
       "bar_num": 153,
-      "lyrics": "walking out",
+      "lyrics": "she",
       "audio": "",
       "has_accents": false
     },
     "B2287": {
       "song_id": "I9J0Xm",
       "bar_num": 154,
-      "lyrics": "that door",
+      "lyrics": "said,",
       "audio": "",
       "has_accents": false
     },
     "B2288": {
       "song_id": "I9J0Xm",
       "bar_num": 155,
-      "lyrics": "yeah",
+      "lyrics": "oh baby don't",
       "audio": "",
       "has_accents": false
     },
     "B2289": {
       "song_id": "I9J0Xm",
       "bar_num": 156,
-      "lyrics": "",
+      "lyrics": "feel so down",
       "audio": "",
       "has_accents": false
     },
     "B2290": {
       "song_id": "I9J0Xm",
       "bar_num": 157,
-      "lyrics": "",
+      "lyrics": "Well she",
       "audio": "",
       "has_accents": false
     },
     "B2291": {
       "song_id": "I9J0Xm",
       "bar_num": 158,
-      "lyrics": "",
+      "lyrics": "turn me off,",
       "audio": "",
       "has_accents": false
     },
     "B2292": {
       "song_id": "I9J0Xm",
       "bar_num": 159,
-      "lyrics": "",
+      "lyrics": "when I",
       "audio": "",
       "has_accents": false
     },
     "B2293": {
       "song_id": "I9J0Xm",
       "bar_num": 160,
-      "lyrics": "",
+      "lyrics": "feel left out",
       "audio": "",
       "has_accents": false
     },
     "B2294": {
       "song_id": "I9J0Xm",
       "bar_num": 161,
-      "lyrics": "",
+      "lyrics": "So I,",
       "audio": "",
       "has_accents": false
     },
     "B2295": {
       "song_id": "I9J0Xm",
       "bar_num": 162,
-      "lyrics": "",
+      "lyrics": "I turned",
       "audio": "",
       "has_accents": false
     },
     "B2296": {
       "song_id": "I9J0Xm",
       "bar_num": 163,
-      "lyrics": "",
+      "lyrics": "turned",
       "audio": "",
       "has_accents": false
     },
     "B2297": {
       "song_id": "I9J0Xm",
       "bar_num": 164,
-      "lyrics": "",
+      "lyrics": "around",
       "audio": "",
       "has_accents": false
     },
     "B2298": {
       "song_id": "I9J0Xm",
       "bar_num": 165,
-      "lyrics": "",
+      "lyrics": "Oh little girl I",
       "audio": "",
       "has_accents": false
     },
     "B2299": {
       "song_id": "I9J0Xm",
       "bar_num": 166,
-      "lyrics": "",
+      "lyrics": "don't care no more,",
       "audio": "",
       "has_accents": false
     },
     "B2300": {
       "song_id": "I9J0Xm",
       "bar_num": 167,
-      "lyrics": "",
+      "lyrics": "I know",
       "audio": "",
       "has_accents": false
     },
     "B2301": {
       "song_id": "I9J0Xm",
       "bar_num": 168,
-      "lyrics": "",
+      "lyrics": "this for sure",
       "audio": "",
       "has_accents": false
     },
     "B2302": {
       "song_id": "I9J0Xm",
       "bar_num": 169,
-      "lyrics": "",
+      "lyrics": "I'm walking",
       "audio": "",
       "has_accents": false
     },
     "B2303": {
       "song_id": "I9J0Xm",
       "bar_num": 170,
-      "lyrics": "",
+      "lyrics": "out that door",
       "audio": "",
       "has_accents": false
     },
@@ -29528,110 +29530,111 @@
       "bar_num": 171,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B2305": {
       "song_id": "I9J0Xm",
       "bar_num": 172,
-      "lyrics": "",
+      "lyrics": "People",
       "audio": "",
       "has_accents": false
     },
     "B2306": {
       "song_id": "I9J0Xm",
       "bar_num": 173,
-      "lyrics": "",
+      "lyrics": "they don‘t under-",
       "audio": "",
       "has_accents": false
     },
     "B2307": {
       "song_id": "I9J0Xm",
       "bar_num": 174,
-      "lyrics": "",
+      "lyrics": "stand",
       "audio": "",
       "has_accents": false
     },
     "B2308": {
       "song_id": "I9J0Xm",
       "bar_num": 175,
-      "lyrics": "",
+      "lyrics": "In\n",
       "audio": "",
       "has_accents": false
     },
     "B2309": {
       "song_id": "I9J0Xm",
       "bar_num": 176,
-      "lyrics": "",
+      "lyrics": "spaceships",
       "audio": "",
       "has_accents": false
     },
     "B2310": {
       "song_id": "I9J0Xm",
       "bar_num": 177,
-      "lyrics": "",
+      "lyrics": "they won‘t under-",
       "audio": "",
       "has_accents": false
     },
     "B2311": {
       "song_id": "I9J0Xm",
       "bar_num": 178,
-      "lyrics": "",
+      "lyrics": "stand",
       "audio": "",
       "has_accents": false
     },
     "B2312": {
       "song_id": "I9J0Xm",
       "bar_num": 179,
-      "lyrics": "",
+      "lyrics": "and\n",
       "audio": "",
       "has_accents": false
     },
     "B2313": {
       "song_id": "I9J0Xm",
       "bar_num": 180,
-      "lyrics": "",
+      "lyrics": "girlfriends",
       "audio": "",
       "has_accents": false
     },
     "B2314": {
       "song_id": "I9J0Xm",
       "bar_num": 181,
-      "lyrics": "",
+      "lyrics": "they don‘t under-",
       "audio": "",
       "has_accents": false
     },
     "B2315": {
       "song_id": "I9J0Xm",
       "bar_num": 182,
-      "lyrics": "",
+      "lyrics": "stand",
       "audio": "",
       "has_accents": false
     },
     "B2316": {
       "song_id": "I9J0Xm",
       "bar_num": 183,
-      "lyrics": "",
+      "lyrics": "and\n",
       "audio": "",
       "has_accents": false
     },
     "B2317": {
       "song_id": "I9J0Xm",
       "bar_num": 184,
-      "lyrics": "",
+      "lyrics": "me I ain‘t",
       "audio": "",
       "has_accents": false
     },
     "B2318": {
       "song_id": "I9J0Xm",
       "bar_num": 185,
-      "lyrics": "",
+      "lyrics": "ever going to under-",
       "audio": "",
       "has_accents": false
     },
     "B2319": {
       "song_id": "I9J0Xm",
       "bar_num": 186,
-      "lyrics": "",
+      "lyrics": "stand",
       "audio": "",
       "has_accents": false
     },

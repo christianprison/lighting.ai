@@ -14379,7 +14379,7 @@
       "qlc_id": 24,
       "audio_ref": "audio/Yellow/Yellow - Full Song.mp3",
       "audio_ref_name": "Yellow - Full Song.mp3",
-      "lyrics_raw": "\n​\n[Verse 1: Chris Martin]\nLook at the stars\nLook how they shine for you\nAnd everything you do\nYeah, they were all yellow\nI came along\nI wrote a song for you\nAnd all the things you do\nAnd it was called \"Yellow\"\nSo then I took my turn\nOh, what a thing to have done\nAnd it was all yellow\n[Chorus: Chris Martin, Guy Berryman, Jonny Buckland & Will Champion]\n(Ah) Your skin, oh, yeah, your skin and bones\n(Ooh) Turn into something beautiful\n(Ah) And you know, you know I love you so\nYou know I love you so\n\n[Verse 2: Chris Martin]\nI swam across\nI jumped across for you\nOh, what a thing to do\n'Cause you were all yellow\nI drew a line\nI drew a line for you\nOh, what a thing to do\nAnd it was all yellow\n\n[Chorus: Chris Martin, Jonny Buckland & Will Champion]\n(Ah) And your skin, oh, yeah, your skin and bones\n(Ooh) Turn into something beautiful\n(Ah) And you know, for you, I'd bleed myself dry\nFor you, I'd bleed myself dry\n\n[Bridge: Chris Martin]\nIt's true\nLook how they shine for you\nLook how they shine for you\nLook how they shine for\nLook how they shine for you\nLook how they shine for you\nLook how they shine",
+      "lyrics_raw": "",
       "tms": {
         "manual_done": [
           "bar_markers",
@@ -36171,84 +36171,96 @@
       "bar_num": 1,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3246": {
       "song_id": "sowvsF",
       "bar_num": 2,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3247": {
       "song_id": "sowvsF",
       "bar_num": 3,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3248": {
       "song_id": "sowvsF",
       "bar_num": 4,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3249": {
       "song_id": "sowvsF",
       "bar_num": 5,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3250": {
       "song_id": "sowvsF",
       "bar_num": 6,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3251": {
       "song_id": "sowvsF",
       "bar_num": 7,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3252": {
       "song_id": "sowvsF",
       "bar_num": 8,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3253": {
       "song_id": "sowvsF",
       "bar_num": 9,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3254": {
       "song_id": "sowvsF",
       "bar_num": 10,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3255": {
       "song_id": "sowvsF",
       "bar_num": 11,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3256": {
       "song_id": "sowvsF",
       "bar_num": 12,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3257": {
       "song_id": "sowvsF",
@@ -36283,7 +36295,8 @@
       "bar_num": 17,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3262": {
       "song_id": "sowvsF",
@@ -36311,7 +36324,8 @@
       "bar_num": 21,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3266": {
       "song_id": "sowvsF",
@@ -36325,7 +36339,8 @@
       "bar_num": 23,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3268": {
       "song_id": "sowvsF",
@@ -36339,7 +36354,8 @@
       "bar_num": 25,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3270": {
       "song_id": "sowvsF",
@@ -36353,7 +36369,8 @@
       "bar_num": 27,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3272": {
       "song_id": "sowvsF",
@@ -36367,7 +36384,8 @@
       "bar_num": 29,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3274": {
       "song_id": "sowvsF",
@@ -36381,14 +36399,16 @@
       "bar_num": 31,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3276": {
       "song_id": "sowvsF",
       "bar_num": 32,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3277": {
       "song_id": "sowvsF",
@@ -36437,7 +36457,8 @@
       "bar_num": 39,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3284": {
       "song_id": "sowvsF",
@@ -36451,56 +36472,64 @@
       "bar_num": 41,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3286": {
       "song_id": "sowvsF",
       "bar_num": 42,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3287": {
       "song_id": "sowvsF",
       "bar_num": 43,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3288": {
       "song_id": "sowvsF",
       "bar_num": 44,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3289": {
       "song_id": "sowvsF",
       "bar_num": 45,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3290": {
       "song_id": "sowvsF",
       "bar_num": 46,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3291": {
       "song_id": "sowvsF",
       "bar_num": 47,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3292": {
       "song_id": "sowvsF",
       "bar_num": 48,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3293": {
       "song_id": "sowvsF",
@@ -36521,7 +36550,8 @@
       "bar_num": 51,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3296": {
       "song_id": "sowvsF",
@@ -36535,7 +36565,8 @@
       "bar_num": 53,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3298": {
       "song_id": "sowvsF",
@@ -36577,7 +36608,8 @@
       "bar_num": 59,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3304": {
       "song_id": "sowvsF",
@@ -36591,14 +36623,16 @@
       "bar_num": 61,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3306": {
       "song_id": "sowvsF",
       "bar_num": 62,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3307": {
       "song_id": "sowvsF",
@@ -36647,7 +36681,8 @@
       "bar_num": 69,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3314": {
       "song_id": "sowvsF",
@@ -36661,49 +36696,56 @@
       "bar_num": 71,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3316": {
       "song_id": "sowvsF",
       "bar_num": 72,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3317": {
       "song_id": "sowvsF",
       "bar_num": 73,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3318": {
       "song_id": "sowvsF",
       "bar_num": 74,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3319": {
       "song_id": "sowvsF",
       "bar_num": 75,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3320": {
       "song_id": "sowvsF",
       "bar_num": 76,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3321": {
       "song_id": "sowvsF",
       "bar_num": 77,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3322": {
       "song_id": "sowvsF",
@@ -36717,7 +36759,8 @@
       "bar_num": 79,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3324": {
       "song_id": "sowvsF",
@@ -36731,7 +36774,8 @@
       "bar_num": 81,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3326": {
       "song_id": "sowvsF",
@@ -36787,7 +36831,8 @@
       "bar_num": 89,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3334": {
       "song_id": "sowvsF",
@@ -36829,7 +36874,8 @@
       "bar_num": 95,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3340": {
       "song_id": "2c4rCI",

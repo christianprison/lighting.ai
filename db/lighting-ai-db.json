@@ -9798,7 +9798,7 @@
       "qlc_id": 41,
       "audio_ref": "audio/Last Nite/Last Nite - Full Song.mp3",
       "audio_ref_name": "Last Nite - Full Song.mp3",
-      "lyrics_raw": "Last nite she said, oh baby I feel so down When you turn me off, when I feel left out So I turned, turned round Oh baby don't care no more, I know this for sure I'm walking out that door Well I've been in town for about fiteen whole minutes now And baby I feel so down And I don't know why I've been walking for miles People they don't under- stand Your girlfriends they can't under- stand Your grandsons they won't under- stand On top of this I ain't ever going to understand Last nite she said, oh baby don't feel so down When you turn me off, when I feel left out So I, turned turned round Oh baby going to be alright, it was a great big lie Cause I left that night yeah People they don't understand Your girlfriends they don't understand In spaceships they can't understand And me I ain't ever going to understand Last nite she said, oh baby don't feel so down Well she turn me off, when I feel left out So I, I turned round Oh little girl I don't care no more, I know this for sure I'm walking out that door yeah",
+      "lyrics_raw": "Last nite she said, oh baby I feel so down When you turn me off, when I feel left out So I turned, turned round Oh baby don't care no more, I know this for sure I'm walking out that door Well I've been in town for about When fiteen whole minutes now And baby I feel so down And I don't know why I've been walking for miles People they don't under- stand Your girlfriends they can't under- stand Your grandsons they won't under- stand On top of this I ain't ever going to understand Last nite she said, oh baby don't feel so down you turn me off, when I feel left out So I, turned turned round Oh baby going to be alright, it was a great big lie Cause I left that night yeah People they don't under- stand Your girlfriends they don't under- stand In spaceships they can't understand And me I ain't ever going to understand Last nite she said, oh baby don't feel so down Well she turn me off, when I feel left out So I, I turned round Oh little girl I don't care no more, I know this for sure I'm walking out that door yeah",
       "tms": {
         "manual_done": [
           "bar_markers",
@@ -28721,7 +28721,7 @@
     "B2189": {
       "song_id": "I9J0Xm",
       "bar_num": 56,
-      "lyrics": "for about",
+      "lyrics": "for about When",
       "audio": "",
       "has_accents": false
     },
@@ -28791,7 +28791,7 @@
     "B2199": {
       "song_id": "I9J0Xm",
       "bar_num": 66,
-      "lyrics": "Your\n",
+      "lyrics": "Your",
       "audio": "",
       "has_accents": false
     },
@@ -28819,7 +28819,7 @@
     "B2203": {
       "song_id": "I9J0Xm",
       "bar_num": 70,
-      "lyrics": "Your\n",
+      "lyrics": "Your",
       "audio": "",
       "has_accents": false
     },
@@ -28847,7 +28847,7 @@
     "B2207": {
       "song_id": "I9J0Xm",
       "bar_num": 74,
-      "lyrics": "On\n",
+      "lyrics": "On",
       "audio": "",
       "has_accents": false
     },
@@ -28917,7 +28917,7 @@
     "B2217": {
       "song_id": "I9J0Xm",
       "bar_num": 84,
-      "lyrics": "When you",
+      "lyrics": "you",
       "audio": "",
       "has_accents": false
     },
@@ -28952,119 +28952,119 @@
     "B2222": {
       "song_id": "I9J0Xm",
       "bar_num": 89,
-      "lyrics": "So I,",
+      "lyrics": "So I, turned",
       "audio": "",
       "has_accents": false
     },
     "B2223": {
       "song_id": "I9J0Xm",
       "bar_num": 90,
-      "lyrics": "turned turned",
+      "lyrics": "turned",
       "audio": "",
       "has_accents": false
     },
     "B2224": {
       "song_id": "I9J0Xm",
       "bar_num": 91,
-      "lyrics": "round Oh",
+      "lyrics": "round",
       "audio": "",
       "has_accents": false
     },
     "B2225": {
       "song_id": "I9J0Xm",
       "bar_num": 92,
-      "lyrics": "baby going",
+      "lyrics": "Oh baby going",
       "audio": "",
       "has_accents": false
     },
     "B2226": {
       "song_id": "I9J0Xm",
       "bar_num": 93,
-      "lyrics": "to be",
+      "lyrics": "to be alright,",
       "audio": "",
       "has_accents": false
     },
     "B2227": {
       "song_id": "I9J0Xm",
       "bar_num": 94,
-      "lyrics": "alright, it",
+      "lyrics": "it was a",
       "audio": "",
       "has_accents": false
     },
     "B2228": {
       "song_id": "I9J0Xm",
       "bar_num": 95,
-      "lyrics": "was a",
+      "lyrics": "great big lie",
       "audio": "",
       "has_accents": false
     },
     "B2229": {
       "song_id": "I9J0Xm",
       "bar_num": 96,
-      "lyrics": "great big",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B2230": {
       "song_id": "I9J0Xm",
       "bar_num": 97,
-      "lyrics": "lie Cause",
+      "lyrics": "Cause I left that night",
       "audio": "",
       "has_accents": false
     },
     "B2231": {
       "song_id": "I9J0Xm",
       "bar_num": 98,
-      "lyrics": "I left\n",
+      "lyrics": "yeah\n",
       "audio": "",
       "has_accents": false
     },
     "B2232": {
       "song_id": "I9J0Xm",
       "bar_num": 99,
-      "lyrics": "that night",
+      "lyrics": "People",
       "audio": "",
       "has_accents": false
     },
     "B2233": {
       "song_id": "I9J0Xm",
       "bar_num": 100,
-      "lyrics": "yeah People",
+      "lyrics": "they don't under-",
       "audio": "",
       "has_accents": false
     },
     "B2234": {
       "song_id": "I9J0Xm",
       "bar_num": 101,
-      "lyrics": "they don't",
+      "lyrics": "stand Your",
       "audio": "",
       "has_accents": false
     },
     "B2235": {
       "song_id": "I9J0Xm",
       "bar_num": 102,
-      "lyrics": "understand Your",
+      "lyrics": "girlfriends",
       "audio": "",
       "has_accents": false
     },
     "B2236": {
       "song_id": "I9J0Xm",
       "bar_num": 103,
-      "lyrics": "girlfriends they",
+      "lyrics": "they don't",
       "audio": "",
       "has_accents": false
     },
     "B2237": {
       "song_id": "I9J0Xm",
       "bar_num": 104,
-      "lyrics": "don't understand",
+      "lyrics": "under-",
       "audio": "",
       "has_accents": false
     },
     "B2238": {
       "song_id": "I9J0Xm",
       "bar_num": 105,
-      "lyrics": "In spaceships",
+      "lyrics": "stand In spaceships",
       "audio": "",
       "has_accents": false
     },

@@ -10666,14 +10666,7 @@
           "instr_bars_identified",
           "lyrics_bars"
         ],
-        "user_tasks": [
-          {
-            "id": "ut_1779254691858_jr27",
-            "cat": "live",
-            "label": "noch mal proben",
-            "done": false
-          }
-        ],
+        "user_tasks": [],
         "manual_undone": []
       },
       "total_bars": 89,

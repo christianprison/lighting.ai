@@ -14383,7 +14383,10 @@
       "tms": {
         "manual_done": [
           "bar_markers",
-          "parts_identified"
+          "parts_identified",
+          "lyrics_bars",
+          "instr_bars_identified",
+          "instr_parts_identified"
         ],
         "user_tasks": [],
         "manual_undone": []

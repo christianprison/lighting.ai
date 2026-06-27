@@ -14379,7 +14379,7 @@
       "qlc_id": 24,
       "audio_ref": "audio/Yellow/Yellow - Full Song.mp3",
       "audio_ref_name": "Yellow - Full Song.mp3",
-      "lyrics_raw": "",
+      "lyrics_raw": "Look at the stars Look how they shine for you And everything you do Yeah, they were all yellow I came along I wrote a song for you And all the things you do And it was called \"Yellow\" So then I took my turn Oh, what a thing to have done And it was all yellow (Ah) Your skin, oh, yeah, your skin and bones (Ooh) Turn into something beautiful (Ah) And you know, you know I love you so You know I love you so I swam across I jumped across for you Oh, what a thing to do 'Cause you were all yellow I drew a line I drew a line for you Oh, what a thing to do And it was all yellow (Ah) And your skin, oh, yeah, your skin and bones (Ooh) Turn into something beautiful (Ah) And you know, for you, I'd bleed myself dry For you, I'd bleed myself dry It's true Look how they shine for you Look how they shine for you Look how they shine for Look how they shine for you Look how they shine for you Look how they shine Look at the stars Look how they shine for you And all the things that you do",
       "tms": {
         "manual_done": [
           "bar_markers",
@@ -36269,28 +36269,28 @@
     "B3257": {
       "song_id": "sowvsF",
       "bar_num": 13,
-      "lyrics": "",
+      "lyrics": "Look at the stars Look",
       "audio": "",
       "has_accents": false
     },
     "B3258": {
       "song_id": "sowvsF",
       "bar_num": 14,
-      "lyrics": "",
+      "lyrics": "how they shine for you",
       "audio": "",
       "has_accents": false
     },
     "B3259": {
       "song_id": "sowvsF",
       "bar_num": 15,
-      "lyrics": "",
+      "lyrics": "And everything you do Yeah,",
       "audio": "",
       "has_accents": false
     },
     "B3260": {
       "song_id": "sowvsF",
       "bar_num": 16,
-      "lyrics": "",
+      "lyrics": "they were all yellow I",
       "audio": "",
       "has_accents": false
     },
@@ -36305,21 +36305,21 @@
     "B3262": {
       "song_id": "sowvsF",
       "bar_num": 18,
-      "lyrics": "",
+      "lyrics": "came along I wrote a",
       "audio": "",
       "has_accents": false
     },
     "B3263": {
       "song_id": "sowvsF",
       "bar_num": 19,
-      "lyrics": "",
+      "lyrics": "song for you And all",
       "audio": "",
       "has_accents": false
     },
     "B3264": {
       "song_id": "sowvsF",
       "bar_num": 20,
-      "lyrics": "",
+      "lyrics": "the things you do And",
       "audio": "",
       "has_accents": false
     },
@@ -36334,7 +36334,7 @@
     "B3266": {
       "song_id": "sowvsF",
       "bar_num": 22,
-      "lyrics": "",
+      "lyrics": "it was called \"Yellow\" So",
       "audio": "",
       "has_accents": false
     },
@@ -36349,7 +36349,7 @@
     "B3268": {
       "song_id": "sowvsF",
       "bar_num": 24,
-      "lyrics": "",
+      "lyrics": "then I took my turn",
       "audio": "",
       "has_accents": false
     },
@@ -36364,7 +36364,7 @@
     "B3270": {
       "song_id": "sowvsF",
       "bar_num": 26,
-      "lyrics": "",
+      "lyrics": "Oh, what a thing to",
       "audio": "",
       "has_accents": false
     },
@@ -36379,7 +36379,7 @@
     "B3272": {
       "song_id": "sowvsF",
       "bar_num": 28,
-      "lyrics": "",
+      "lyrics": "have done And it was",
       "audio": "",
       "has_accents": false
     },
@@ -36394,7 +36394,7 @@
     "B3274": {
       "song_id": "sowvsF",
       "bar_num": 30,
-      "lyrics": "",
+      "lyrics": "all yellow (Ah) Your skin,",
       "audio": "",
       "has_accents": false
     },
@@ -36417,42 +36417,42 @@
     "B3277": {
       "song_id": "sowvsF",
       "bar_num": 33,
-      "lyrics": "",
+      "lyrics": "oh, yeah, your skin and",
       "audio": "",
       "has_accents": false
     },
     "B3278": {
       "song_id": "sowvsF",
       "bar_num": 34,
-      "lyrics": "",
+      "lyrics": "bones (Ooh) Turn into something",
       "audio": "",
       "has_accents": false
     },
     "B3279": {
       "song_id": "sowvsF",
       "bar_num": 35,
-      "lyrics": "",
+      "lyrics": "beautiful (Ah) And you know,",
       "audio": "",
       "has_accents": false
     },
     "B3280": {
       "song_id": "sowvsF",
       "bar_num": 36,
-      "lyrics": "",
+      "lyrics": "you know I love you",
       "audio": "",
       "has_accents": false
     },
     "B3281": {
       "song_id": "sowvsF",
       "bar_num": 37,
-      "lyrics": "",
+      "lyrics": "so You know I love",
       "audio": "",
       "has_accents": false
     },
     "B3282": {
       "song_id": "sowvsF",
       "bar_num": 38,
-      "lyrics": "",
+      "lyrics": "you so I swam across",
       "audio": "",
       "has_accents": false
     },
@@ -36467,7 +36467,7 @@
     "B3284": {
       "song_id": "sowvsF",
       "bar_num": 40,
-      "lyrics": "",
+      "lyrics": "I jumped across for you\n",
       "audio": "",
       "has_accents": false
     },
@@ -36538,14 +36538,14 @@
     "B3293": {
       "song_id": "sowvsF",
       "bar_num": 49,
-      "lyrics": "",
+      "lyrics": "Oh, what a thing to",
       "audio": "",
       "has_accents": false
     },
     "B3294": {
       "song_id": "sowvsF",
       "bar_num": 50,
-      "lyrics": "",
+      "lyrics": "do 'Cause you were all",
       "audio": "",
       "has_accents": false
     },
@@ -36560,7 +36560,7 @@
     "B3296": {
       "song_id": "sowvsF",
       "bar_num": 52,
-      "lyrics": "",
+      "lyrics": "yellow I drew a line",
       "audio": "",
       "has_accents": false
     },
@@ -36575,35 +36575,35 @@
     "B3298": {
       "song_id": "sowvsF",
       "bar_num": 54,
-      "lyrics": "",
+      "lyrics": "I drew a line for",
       "audio": "",
       "has_accents": false
     },
     "B3299": {
       "song_id": "sowvsF",
       "bar_num": 55,
-      "lyrics": "",
+      "lyrics": "you Oh, what a thing",
       "audio": "",
       "has_accents": false
     },
     "B3300": {
       "song_id": "sowvsF",
       "bar_num": 56,
-      "lyrics": "",
+      "lyrics": "to do And it was",
       "audio": "",
       "has_accents": false
     },
     "B3301": {
       "song_id": "sowvsF",
       "bar_num": 57,
-      "lyrics": "",
+      "lyrics": "all yellow (Ah) And your",
       "audio": "",
       "has_accents": false
     },
     "B3302": {
       "song_id": "sowvsF",
       "bar_num": 58,
-      "lyrics": "",
+      "lyrics": "skin, oh, yeah, your skin",
       "audio": "",
       "has_accents": false
     },
@@ -36618,7 +36618,7 @@
     "B3304": {
       "song_id": "sowvsF",
       "bar_num": 60,
-      "lyrics": "",
+      "lyrics": "and bones (Ooh) Turn into",
       "audio": "",
       "has_accents": false
     },
@@ -36641,42 +36641,42 @@
     "B3307": {
       "song_id": "sowvsF",
       "bar_num": 63,
-      "lyrics": "",
+      "lyrics": "something beautiful (Ah) And you",
       "audio": "",
       "has_accents": false
     },
     "B3308": {
       "song_id": "sowvsF",
       "bar_num": 64,
-      "lyrics": "",
+      "lyrics": "know, for you, I'd bleed",
       "audio": "",
       "has_accents": false
     },
     "B3309": {
       "song_id": "sowvsF",
       "bar_num": 65,
-      "lyrics": "",
+      "lyrics": "myself dry For you, I'd",
       "audio": "",
       "has_accents": false
     },
     "B3310": {
       "song_id": "sowvsF",
       "bar_num": 66,
-      "lyrics": "",
+      "lyrics": "bleed myself dry It's true",
       "audio": "",
       "has_accents": false
     },
     "B3311": {
       "song_id": "sowvsF",
       "bar_num": 67,
-      "lyrics": "",
+      "lyrics": "Look how they shine for",
       "audio": "",
       "has_accents": false
     },
     "B3312": {
       "song_id": "sowvsF",
       "bar_num": 68,
-      "lyrics": "",
+      "lyrics": "you Look how they shine",
       "audio": "",
       "has_accents": false
     },
@@ -36691,7 +36691,7 @@
     "B3314": {
       "song_id": "sowvsF",
       "bar_num": 70,
-      "lyrics": "",
+      "lyrics": "for you Look how they\n",
       "audio": "",
       "has_accents": false
     },
@@ -36754,7 +36754,7 @@
     "B3322": {
       "song_id": "sowvsF",
       "bar_num": 78,
-      "lyrics": "",
+      "lyrics": "shine for Look how they\n",
       "audio": "",
       "has_accents": false
     },
@@ -36769,7 +36769,7 @@
     "B3324": {
       "song_id": "sowvsF",
       "bar_num": 80,
-      "lyrics": "",
+      "lyrics": "shine for you Look how",
       "audio": "",
       "has_accents": false
     },
@@ -36784,35 +36784,35 @@
     "B3326": {
       "song_id": "sowvsF",
       "bar_num": 82,
-      "lyrics": "",
+      "lyrics": "they shine for you Look",
       "audio": "",
       "has_accents": false
     },
     "B3327": {
       "song_id": "sowvsF",
       "bar_num": 83,
-      "lyrics": "",
+      "lyrics": "how they shine Look at",
       "audio": "",
       "has_accents": false
     },
     "B3328": {
       "song_id": "sowvsF",
       "bar_num": 84,
-      "lyrics": "",
+      "lyrics": "the stars Look how they",
       "audio": "",
       "has_accents": false
     },
     "B3329": {
       "song_id": "sowvsF",
       "bar_num": 85,
-      "lyrics": "",
+      "lyrics": "shine for you And all",
       "audio": "",
       "has_accents": false
     },
     "B3330": {
       "song_id": "sowvsF",
       "bar_num": 86,
-      "lyrics": "",
+      "lyrics": "the things that you do",
       "audio": "",
       "has_accents": false
     },

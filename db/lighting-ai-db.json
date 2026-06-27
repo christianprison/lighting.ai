@@ -14379,7 +14379,7 @@
       "qlc_id": 24,
       "audio_ref": "audio/Yellow/Yellow - Full Song.mp3",
       "audio_ref_name": "Yellow - Full Song.mp3",
-      "lyrics_raw": "Look at the stars Look how they shine for you And And everything you do Yeah, they were all yellow I came along I wrote a song for you And all the things you do it was called \"Yellow\" So then I took my turn Oh, what a thing to have done And it was all yellow (Ah) Your skin, oh, yeah, skin and bones (Ooh) Turn in- to something beautiful (Ah) And you know, you know I love you so You know I love you so I swam across I jumped across for you Oh, what a thing to do 'Cause you were all yellow I drew a line I drew a line for you Oh, what a thing to do And it was all yellow (Ah) And your skin, oh, yeah, your skin and bones (Ooh) Turn in- to something beautiful (Ah) And you know, for you, I'd bleed myself dry For you, I'd bleed myself dry It's true Look how they shine for you Look how they shine for you Look how they shine for Look how Turn they shine for you Look how they shine for you Look how they shine Look at the stars Look how they shine for you And all the things that you do",
+      "lyrics_raw": "Look at the stars Look how they shine for you And And everything you do Yeah, they were all yellow I came along I wrote a song for you And all the skin things you do it was called \"Yellow\" So then I took my turn Oh, what a thing to have done And it was all yellow (Ah) Your skin, oh, yeah, and bones (Ooh) Turn in- to something beautiful (Ah) And you know, you know I love you so You know I love you so I swam across I jumped across for you Oh, what a thing to do 'Cause you were all yellow I drew a line I drew a line for you Oh, what a thing to do And it was all yellow (Ah) And your skin, oh, yeah, your skin and bones (Ooh) Turn in- to something beautiful (Ah) And you know, for you, I'd bleed myself dry For you, I'd bleed myself dry It's true Look how they shine for you Look how they shine for you Look how they shine for Look how Turn they shine for you Look how they shine for you Look how they shine Look at the stars Look how they shine for you And all the things that you do",
       "tms": {
         "manual_done": [
           "bar_markers",
@@ -36334,7 +36334,7 @@
     "B3266": {
       "song_id": "sowvsF",
       "bar_num": 22,
-      "lyrics": "And all the things you do",
+      "lyrics": "And all the skin things you do",
       "audio": "",
       "has_accents": false
     },
@@ -36424,7 +36424,7 @@
     "B3278": {
       "song_id": "sowvsF",
       "bar_num": 34,
-      "lyrics": "oh, yeah, skin and bones",
+      "lyrics": "oh, yeah, and bones",
       "audio": "",
       "has_accents": false
     },
@@ -36648,7 +36648,7 @@
     "B3308": {
       "song_id": "sowvsF",
       "bar_num": 64,
-      "lyrics": "oh, yeah, your skin and bones\n",
+      "lyrics": "oh, yeah, your skin and bones",
       "audio": "",
       "has_accents": false
     },
@@ -36662,7 +36662,7 @@
     "B3310": {
       "song_id": "sowvsF",
       "bar_num": 66,
-      "lyrics": "to something beautiful\n",
+      "lyrics": "to something beautiful",
       "audio": "",
       "has_accents": false
     },
@@ -36698,14 +36698,14 @@
     "B3315": {
       "song_id": "sowvsF",
       "bar_num": 71,
-      "lyrics": "",
+      "lyrics": "dry",
       "audio": "",
       "has_accents": false
     },
     "B3316": {
       "song_id": "sowvsF",
       "bar_num": 72,
-      "lyrics": "dry It's true Look how they shine for you Look how they shine for you Look how they",
+      "lyrics": "",
       "audio": "",
       "has_accents": false,
       "instrumental": true
@@ -36753,7 +36753,7 @@
     "B3322": {
       "song_id": "sowvsF",
       "bar_num": 78,
-      "lyrics": "shine for Look how Turn they\n",
+      "lyrics": "It's true\n",
       "audio": "",
       "has_accents": false
     },
@@ -36768,14 +36768,14 @@
     "B3324": {
       "song_id": "sowvsF",
       "bar_num": 80,
-      "lyrics": "shine for you Look how",
+      "lyrics": "Look how they shine for",
       "audio": "",
       "has_accents": false
     },
     "B3325": {
       "song_id": "sowvsF",
       "bar_num": 81,
-      "lyrics": "",
+      "lyrics": "you\n",
       "audio": "",
       "has_accents": false,
       "instrumental": true
@@ -36783,14 +36783,14 @@
     "B3326": {
       "song_id": "sowvsF",
       "bar_num": 82,
-      "lyrics": "they shine for you Look",
+      "lyrics": "Look how they shine for",
       "audio": "",
       "has_accents": false
     },
     "B3327": {
       "song_id": "sowvsF",
       "bar_num": 83,
-      "lyrics": "how they shine Look at",
+      "lyrics": "you Look how they shine for Look how Turn they shine for you Look how they shine for you Look how they shine Look at",
       "audio": "",
       "has_accents": false
     },

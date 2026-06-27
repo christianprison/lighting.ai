@@ -14379,7 +14379,7 @@
       "qlc_id": 24,
       "audio_ref": "audio/Yellow/Yellow - Full Song.mp3",
       "audio_ref_name": "Yellow - Full Song.mp3",
-      "lyrics_raw": "Look at the stars Look how they shine for you And And everything you do Yeah, they were all yellow I came along I wrote a song for you And all the things you do it was called \"Yellow\" So then I took my turn Oh, what a thing to have done And it was all yellow (Ah) Your skin, oh, yeah, skin and bones (Ooh) Turn in- to something beautiful (Ah) And you know, you know I love you so You know I love you so I swam across I jumped across for you Oh, what a thing to do 'Cause you were all yellow I drew a line I drew a line for you Oh, what a thing to do And it was all yellow (Ah) And your skin, oh, yeah, your skin and bones (Ooh) into something beautiful (Ah) And you know, for you, I'd bleed myself dry For you, I'd bleed myself dry It's true Look how they shine for you Look how they shine for you Look how they shine for Look how Turn they shine for you Look how they shine for you Look how they shine Look at the stars Look how they shine for you And all the things that you do",
+      "lyrics_raw": "Look at the stars Look how they shine for you And And everything you do Yeah, they were all yellow I came along I wrote a song for you And all the things you do it was called \"Yellow\" So then I took my turn Oh, what a thing to have done And it was all yellow (Ah) Your skin, oh, yeah, skin and bones (Ooh) Turn in- to something beautiful (Ah) And you know, you know I love you so You know I love you so I swam across I jumped across for you Oh, what a thing to do 'Cause you were all yellow I drew a line I drew a line for you Oh, what a thing to do And it was all yellow (Ah) And your skin, oh, yeah, your skin and bones (Ooh) Turn in- to something beautiful (Ah) And you know, for you, I'd bleed myself dry For you, I'd bleed myself dry It's true Look how they shine for you Look how they shine for you Look how they shine for Look how Turn they shine for you Look how they shine for you Look how they shine Look at the stars Look how they shine for you And all the things that you do",
       "tms": {
         "manual_done": [
           "bar_markers",
@@ -36575,7 +36575,7 @@
     "B3298": {
       "song_id": "sowvsF",
       "bar_num": 54,
-      "lyrics": "'Cause you were all yellow\n",
+      "lyrics": "'Cause you were all yellow",
       "audio": "",
       "has_accents": false
     },
@@ -36589,7 +36589,7 @@
     "B3300": {
       "song_id": "sowvsF",
       "bar_num": 56,
-      "lyrics": "I drew a line for\n",
+      "lyrics": "I drew a line for",
       "audio": "",
       "has_accents": false
     },
@@ -36655,28 +36655,28 @@
     "B3309": {
       "song_id": "sowvsF",
       "bar_num": 65,
-      "lyrics": "(Ooh) into something beautiful (Ah) And you know, for you, I'd bleed myself dry For you, I'd",
+      "lyrics": "(Ooh) Turn in-",
       "audio": "",
       "has_accents": false
     },
     "B3310": {
       "song_id": "sowvsF",
       "bar_num": 66,
-      "lyrics": "bleed myself dry It's true",
+      "lyrics": "to something beautiful\n",
       "audio": "",
       "has_accents": false
     },
     "B3311": {
       "song_id": "sowvsF",
       "bar_num": 67,
-      "lyrics": "Look how they shine for",
+      "lyrics": "(Ah) And you know,",
       "audio": "",
       "has_accents": false
     },
     "B3312": {
       "song_id": "sowvsF",
       "bar_num": 68,
-      "lyrics": "you Look how they shine",
+      "lyrics": "for you, I'd bleed myself dry",
       "audio": "",
       "has_accents": false
     },
@@ -36691,7 +36691,7 @@
     "B3314": {
       "song_id": "sowvsF",
       "bar_num": 70,
-      "lyrics": "for you Look how they\n",
+      "lyrics": "For you, I'd bleed myself\n",
       "audio": "",
       "has_accents": false
     },
@@ -36706,10 +36706,9 @@
     "B3316": {
       "song_id": "sowvsF",
       "bar_num": 72,
-      "lyrics": "",
+      "lyrics": "dry It's true Look how they shine for you Look how they shine for you Look how they",
       "audio": "",
-      "has_accents": false,
-      "instrumental": true
+      "has_accents": false
     },
     "B3317": {
       "song_id": "sowvsF",

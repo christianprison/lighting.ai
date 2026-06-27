@@ -3873,7 +3873,7 @@
       "duration": "3:12",
       "duration_sec": 192,
       "notes": "",
-      "lyrics_raw": "",
+      "lyrics_raw": "Since we're feeling so a- nestheti- zed In our comfort zone Re- minds me of the second time That I followed you home We're running out of alibis On the second of May Reminds me of the summer time On this winter's day the See you at the bitter end See you at the bitter end Every step we take that's synchronized Every broken bone Reminds me of the second time That I followed you home You shower me with lullabies As you're walking away Reminds me that it's killing time On this fateful day See you at bitter end See you at the bitter end See you at the bitter end See you at the bitter end Everytime we're intercepted Feels more like suicide Slow and sad, come in silence Arise a bitter mine (See you at the bitter end) And I can see you now Running to me Arms wide out (See you at the bitter end) Come on and reach inside Grab the gentleness inside Heard a cry Six months time (See you at the bitter end) In six months time Prepare the end",
       "tms": {
         "manual_done": [
           "bar_markers"
@@ -35227,28 +35227,28 @@
     "B3109": {
       "song_id": "dgSleW",
       "bar_num": 10,
-      "lyrics": "",
+      "lyrics": "Since we're",
       "audio": "",
       "has_accents": false
     },
     "B3110": {
       "song_id": "dgSleW",
       "bar_num": 11,
-      "lyrics": "",
+      "lyrics": "feeling so a-",
       "audio": "",
       "has_accents": false
     },
     "B3111": {
       "song_id": "dgSleW",
       "bar_num": 12,
-      "lyrics": "",
+      "lyrics": "nestheti-",
       "audio": "",
       "has_accents": false
     },
     "B3112": {
       "song_id": "dgSleW",
       "bar_num": 13,
-      "lyrics": "",
+      "lyrics": "zed",
       "audio": "",
       "has_accents": false
     },
@@ -35257,47 +35257,48 @@
       "bar_num": 14,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3114": {
       "song_id": "dgSleW",
       "bar_num": 15,
-      "lyrics": "",
+      "lyrics": "In our",
       "audio": "",
       "has_accents": false
     },
     "B3115": {
       "song_id": "dgSleW",
       "bar_num": 16,
-      "lyrics": "",
+      "lyrics": "comfort",
       "audio": "",
       "has_accents": false
     },
     "B3116": {
       "song_id": "dgSleW",
       "bar_num": 17,
-      "lyrics": "",
+      "lyrics": "zone",
       "audio": "",
       "has_accents": false
     },
     "B3117": {
       "song_id": "dgSleW",
       "bar_num": 18,
-      "lyrics": "",
+      "lyrics": "Re-",
       "audio": "",
       "has_accents": false
     },
     "B3118": {
       "song_id": "dgSleW",
       "bar_num": 19,
-      "lyrics": "",
+      "lyrics": "minds me of the",
       "audio": "",
       "has_accents": false
     },
     "B3119": {
       "song_id": "dgSleW",
       "bar_num": 20,
-      "lyrics": "",
+      "lyrics": "second time",
       "audio": "",
       "has_accents": false
     },
@@ -35306,26 +35307,29 @@
       "bar_num": 21,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3121": {
       "song_id": "dgSleW",
       "bar_num": 22,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3122": {
       "song_id": "dgSleW",
       "bar_num": 23,
-      "lyrics": "",
+      "lyrics": "That I",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3123": {
       "song_id": "dgSleW",
       "bar_num": 24,
-      "lyrics": "",
+      "lyrics": "followed you home",
       "audio": "",
       "has_accents": false
     },
@@ -35339,21 +35343,23 @@
     "B3125": {
       "song_id": "dgSleW",
       "bar_num": 26,
-      "lyrics": "",
+      "lyrics": "We're",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3126": {
       "song_id": "dgSleW",
       "bar_num": 27,
-      "lyrics": "",
+      "lyrics": "running out of",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3127": {
       "song_id": "dgSleW",
       "bar_num": 28,
-      "lyrics": "",
+      "lyrics": "alibis",
       "audio": "",
       "has_accents": false
     },
@@ -35362,7 +35368,8 @@
       "bar_num": 29,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3129": {
       "song_id": "dgSleW",
@@ -35375,42 +35382,42 @@
     "B3130": {
       "song_id": "dgSleW",
       "bar_num": 31,
-      "lyrics": "",
+      "lyrics": "On the",
       "audio": "",
       "has_accents": false
     },
     "B3131": {
       "song_id": "dgSleW",
       "bar_num": 32,
-      "lyrics": "",
+      "lyrics": "second of",
       "audio": "",
       "has_accents": false
     },
     "B3132": {
       "song_id": "dgSleW",
       "bar_num": 33,
-      "lyrics": "",
+      "lyrics": "May",
       "audio": "",
       "has_accents": false
     },
     "B3133": {
       "song_id": "dgSleW",
       "bar_num": 34,
-      "lyrics": "",
+      "lyrics": "Reminds",
       "audio": "",
       "has_accents": false
     },
     "B3134": {
       "song_id": "dgSleW",
       "bar_num": 35,
-      "lyrics": "",
+      "lyrics": "me of the",
       "audio": "",
       "has_accents": false
     },
     "B3135": {
       "song_id": "dgSleW",
       "bar_num": 36,
-      "lyrics": "",
+      "lyrics": "summer time",
       "audio": "",
       "has_accents": false
     },
@@ -35432,21 +35439,23 @@
     "B3138": {
       "song_id": "dgSleW",
       "bar_num": 39,
-      "lyrics": "",
+      "lyrics": "On this",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3139": {
       "song_id": "dgSleW",
       "bar_num": 40,
-      "lyrics": "",
+      "lyrics": "winter's\n",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3140": {
       "song_id": "dgSleW",
       "bar_num": 41,
-      "lyrics": "",
+      "lyrics": "day",
       "audio": "",
       "has_accents": false
     },
@@ -35493,7 +35502,7 @@
     "B3146": {
       "song_id": "dgSleW",
       "bar_num": 47,
-      "lyrics": "",
+      "lyrics": "the See you at the bitter end See you at the bitter end Every step we take that's synchronized Every broken bone Reminds me of the second time That I followed you home You shower me with lullabies As you're walking away Reminds me that it's killing time On this fateful",
       "audio": "",
       "has_accents": false,
       "instrumental": true
@@ -35557,14 +35566,14 @@
     "B3154": {
       "song_id": "dgSleW",
       "bar_num": 55,
-      "lyrics": "",
+      "lyrics": "day See you",
       "audio": "",
       "has_accents": false
     },
     "B3155": {
       "song_id": "dgSleW",
       "bar_num": 56,
-      "lyrics": "",
+      "lyrics": "at bitter\n",
       "audio": "",
       "has_accents": false
     },
@@ -35579,21 +35588,21 @@
     "B3157": {
       "song_id": "dgSleW",
       "bar_num": 58,
-      "lyrics": "",
+      "lyrics": "end See you",
       "audio": "",
       "has_accents": false
     },
     "B3158": {
       "song_id": "dgSleW",
       "bar_num": 59,
-      "lyrics": "",
+      "lyrics": "at the bitter",
       "audio": "",
       "has_accents": false
     },
     "B3159": {
       "song_id": "dgSleW",
       "bar_num": 60,
-      "lyrics": "",
+      "lyrics": "end See you",
       "audio": "",
       "has_accents": false
     },
@@ -35616,70 +35625,70 @@
     "B3162": {
       "song_id": "dgSleW",
       "bar_num": 63,
-      "lyrics": "",
+      "lyrics": "at the bitter",
       "audio": "",
       "has_accents": false
     },
     "B3163": {
       "song_id": "dgSleW",
       "bar_num": 64,
-      "lyrics": "",
+      "lyrics": "end See you",
       "audio": "",
       "has_accents": false
     },
     "B3164": {
       "song_id": "dgSleW",
       "bar_num": 65,
-      "lyrics": "",
+      "lyrics": "at the bitter",
       "audio": "",
       "has_accents": false
     },
     "B3165": {
       "song_id": "dgSleW",
       "bar_num": 66,
-      "lyrics": "",
+      "lyrics": "end Everytime we're",
       "audio": "",
       "has_accents": false
     },
     "B3166": {
       "song_id": "dgSleW",
       "bar_num": 67,
-      "lyrics": "",
+      "lyrics": "intercepted Feels more",
       "audio": "",
       "has_accents": false
     },
     "B3167": {
       "song_id": "dgSleW",
       "bar_num": 68,
-      "lyrics": "",
+      "lyrics": "like suicide Slow",
       "audio": "",
       "has_accents": false
     },
     "B3168": {
       "song_id": "dgSleW",
       "bar_num": 69,
-      "lyrics": "",
+      "lyrics": "and sad, come",
       "audio": "",
       "has_accents": false
     },
     "B3169": {
       "song_id": "dgSleW",
       "bar_num": 70,
-      "lyrics": "",
+      "lyrics": "in silence Arise",
       "audio": "",
       "has_accents": false
     },
     "B3170": {
       "song_id": "dgSleW",
       "bar_num": 71,
-      "lyrics": "",
+      "lyrics": "a bitter mine",
       "audio": "",
       "has_accents": false
     },
     "B3171": {
       "song_id": "dgSleW",
       "bar_num": 72,
-      "lyrics": "",
+      "lyrics": "(See you at",
       "audio": "",
       "has_accents": false
     },
@@ -35694,21 +35703,21 @@
     "B3173": {
       "song_id": "dgSleW",
       "bar_num": 74,
-      "lyrics": "",
+      "lyrics": "the bitter end)",
       "audio": "",
       "has_accents": false
     },
     "B3174": {
       "song_id": "dgSleW",
       "bar_num": 75,
-      "lyrics": "",
+      "lyrics": "And I can",
       "audio": "",
       "has_accents": false
     },
     "B3175": {
       "song_id": "dgSleW",
       "bar_num": 76,
-      "lyrics": "",
+      "lyrics": "see you now",
       "audio": "",
       "has_accents": false
     },
@@ -35731,14 +35740,14 @@
     "B3178": {
       "song_id": "dgSleW",
       "bar_num": 79,
-      "lyrics": "",
+      "lyrics": "Running to me",
       "audio": "",
       "has_accents": false
     },
     "B3179": {
       "song_id": "dgSleW",
       "bar_num": 80,
-      "lyrics": "",
+      "lyrics": "Arms wide out",
       "audio": "",
       "has_accents": false
     },
@@ -35753,21 +35762,21 @@
     "B3181": {
       "song_id": "dgSleW",
       "bar_num": 82,
-      "lyrics": "",
+      "lyrics": "(See you at",
       "audio": "",
       "has_accents": false
     },
     "B3182": {
       "song_id": "dgSleW",
       "bar_num": 83,
-      "lyrics": "",
+      "lyrics": "the bitter end)",
       "audio": "",
       "has_accents": false
     },
     "B3183": {
       "song_id": "dgSleW",
       "bar_num": 84,
-      "lyrics": "",
+      "lyrics": "Come on and",
       "audio": "",
       "has_accents": false
     },
@@ -35790,14 +35799,14 @@
     "B3186": {
       "song_id": "dgSleW",
       "bar_num": 87,
-      "lyrics": "",
+      "lyrics": "reach inside Grab",
       "audio": "",
       "has_accents": false
     },
     "B3187": {
       "song_id": "dgSleW",
       "bar_num": 88,
-      "lyrics": "",
+      "lyrics": "the gentleness inside\n",
       "audio": "",
       "has_accents": false
     },
@@ -35852,14 +35861,14 @@
     "B3194": {
       "song_id": "dgSleW",
       "bar_num": 95,
-      "lyrics": "",
+      "lyrics": "Heard a cry",
       "audio": "",
       "has_accents": false
     },
     "B3195": {
       "song_id": "dgSleW",
       "bar_num": 96,
-      "lyrics": "",
+      "lyrics": "Six months time\n",
       "audio": "",
       "has_accents": false
     },
@@ -35914,14 +35923,14 @@
     "B3202": {
       "song_id": "dgSleW",
       "bar_num": 103,
-      "lyrics": "",
+      "lyrics": "(See you at",
       "audio": "",
       "has_accents": false
     },
     "B3203": {
       "song_id": "dgSleW",
       "bar_num": 104,
-      "lyrics": "",
+      "lyrics": "the bitter end)\n",
       "audio": "",
       "has_accents": false
     },
@@ -35976,14 +35985,14 @@
     "B3210": {
       "song_id": "dgSleW",
       "bar_num": 111,
-      "lyrics": "",
+      "lyrics": "In six months",
       "audio": "",
       "has_accents": false
     },
     "B3211": {
       "song_id": "dgSleW",
       "bar_num": 112,
-      "lyrics": "",
+      "lyrics": "time Prepare the",
       "audio": "",
       "has_accents": false
     },
@@ -36038,7 +36047,7 @@
     "B3218": {
       "song_id": "dgSleW",
       "bar_num": 119,
-      "lyrics": "",
+      "lyrics": "end",
       "audio": "",
       "has_accents": false
     },

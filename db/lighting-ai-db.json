@@ -35509,7 +35509,7 @@
     "B3147": {
       "song_id": "dgSleW",
       "bar_num": 48,
-      "lyrics": "bitter end\n",
+      "lyrics": "bitter end",
       "audio": "",
       "has_accents": false
     },
@@ -35578,7 +35578,7 @@
     "B3156": {
       "song_id": "dgSleW",
       "bar_num": 57,
-      "lyrics": "Every step we take that's synchronized Every broken bone Reminds me of the second time That I followed you home You shower me with lullabies As you're walking away Reminds me that it's killing time On this fateful day See you at bitter",
+      "lyrics": "",
       "audio": "",
       "has_accents": false,
       "instrumental": true
@@ -35586,23 +35586,26 @@
     "B3157": {
       "song_id": "dgSleW",
       "bar_num": 58,
-      "lyrics": "end See you",
+      "lyrics": "Every",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3158": {
       "song_id": "dgSleW",
       "bar_num": 59,
-      "lyrics": "at the bitter",
+      "lyrics": "step we take that's",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3159": {
       "song_id": "dgSleW",
       "bar_num": 60,
-      "lyrics": "end See you",
+      "lyrics": "synchronized",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3160": {
       "song_id": "dgSleW",
@@ -35623,16 +35626,18 @@
     "B3162": {
       "song_id": "dgSleW",
       "bar_num": 63,
-      "lyrics": "at the bitter",
+      "lyrics": "Every",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3163": {
       "song_id": "dgSleW",
       "bar_num": 64,
-      "lyrics": "end See you",
+      "lyrics": "broken bone Reminds me of the second time That I followed you home You shower me with lullabies As you're walking away Reminds me that it's killing time On this fateful day See you at bitter end See you at the bitter end See you at the bitter end See you",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3164": {
       "song_id": "dgSleW",

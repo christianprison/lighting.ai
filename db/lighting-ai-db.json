@@ -3873,7 +3873,7 @@
       "duration": "3:12",
       "duration_sec": 192,
       "notes": "",
-      "lyrics_raw": "Since we're feeling so a- nestheti- zed In our comfort zone Re- minds me of the second time That I followed you home We're running out of alibis On the second of May Reminds me of the summer time On this winter's day the See you at the bitter end See you at the bitter end Every step we take that's synchronized Every broken bone Reminds me of the second time That I followed you home You shower me with lullabies As you're walking away Reminds me that it's killing time On this fateful day See you at bitter end See you at the bitter end See you at the bitter end See you at the bitter end Everytime we're intercepted Feels more like suicide Slow and sad, come in silence Arise a bitter mine (See you at the bitter end) And I can see you now Running to me Arms wide out (See you at the bitter end) Come on and reach inside Grab the gentleness inside Heard a cry Six months time (See you at the bitter end) In six months time Prepare the end",
+      "lyrics_raw": "Since we're feeling so a- nestheti- zed In our comfort zone Re- minds me of the second time That I followed you home We're running out of alibis On the second of May Reminds me of the summer time On this winter's day See you at the bitter end See you at the bitter end Every step we take that's synchronized Every broken bone Reminds me of the second time That I followed you home You shower me with lullabies As you're walking away Reminds me that it's killing time On this fateful day See you at bitter end See you at the bitter end See you at the bitter end See you at the bitter end Everytime we're intercepted Feels more like suicide Slow and sad, come in silence Arise a bitter mine (See you at the bitter end) And I can see you now Running to me Arms wide out (See you at the bitter end) Come on and reach inside Grab the gentleness inside Heard a cry Six months time (See you at the bitter end) In six months time Prepare the end",
       "tms": {
         "manual_done": [
           "bar_markers"
@@ -35502,18 +35502,16 @@
     "B3146": {
       "song_id": "dgSleW",
       "bar_num": 47,
-      "lyrics": "the See you at the bitter end See you at the bitter end Every step we take that's synchronized Every broken bone Reminds me of the second time That I followed you home You shower me with lullabies As you're walking away Reminds me that it's killing time On this fateful",
+      "lyrics": "See you at the",
       "audio": "",
-      "has_accents": false,
-      "instrumental": true
+      "has_accents": false
     },
     "B3147": {
       "song_id": "dgSleW",
       "bar_num": 48,
-      "lyrics": "",
+      "lyrics": "bitter end\n",
       "audio": "",
-      "has_accents": false,
-      "instrumental": true
+      "has_accents": false
     },
     "B3148": {
       "song_id": "dgSleW",
@@ -35566,21 +35564,21 @@
     "B3154": {
       "song_id": "dgSleW",
       "bar_num": 55,
-      "lyrics": "day See you",
+      "lyrics": "See you at the",
       "audio": "",
       "has_accents": false
     },
     "B3155": {
       "song_id": "dgSleW",
       "bar_num": 56,
-      "lyrics": "at bitter\n",
+      "lyrics": "bitter end\n",
       "audio": "",
       "has_accents": false
     },
     "B3156": {
       "song_id": "dgSleW",
       "bar_num": 57,
-      "lyrics": "",
+      "lyrics": "Every step we take that's synchronized Every broken bone Reminds me of the second time That I followed you home You shower me with lullabies As you're walking away Reminds me that it's killing time On this fateful day See you at bitter",
       "audio": "",
       "has_accents": false,
       "instrumental": true

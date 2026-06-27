@@ -36700,15 +36700,15 @@
       "bar_num": 71,
       "lyrics": "",
       "audio": "",
-      "has_accents": false,
-      "instrumental": true
+      "has_accents": false
     },
     "B3316": {
       "song_id": "sowvsF",
       "bar_num": 72,
       "lyrics": "dry It's true Look how they shine for you Look how they shine for you Look how they",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3317": {
       "song_id": "sowvsF",

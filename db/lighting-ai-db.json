@@ -3873,7 +3873,7 @@
       "duration": "3:12",
       "duration_sec": 192,
       "notes": "",
-      "lyrics_raw": "Since we're feeling so a- nestheti- zed In our comfort zone Re- minds me of the second time That I followed you home We're running out of alibis On the second of May Reminds me of the summer time On this winter's day See you at the bitter end See you at the bitter end Every step we take that's synchronized Every broken bone Reminds me of the second time That I followed you home You shower me with lullabies As you're walking away Reminds me that it's killing time On this fateful day See you at bitter end See you at the bitter end See you at the bitter end See you at the bitter end Everytime we're intercepted Feels more like suicide Slow and sad, come in silence Arise a bitter mine (See you at the bitter end) And I can see you now Running to me Arms wide out (See you at the bitter end) Come on and reach inside Grab the gentleness inside Heard a cry Six months time (See you at the bitter end) In six months time Prepare the end",
+      "lyrics_raw": "Since we're feeling so a- nestheti- zed In our comfort zone Re- minds me of the second time That I followed you home We're running out of alibis On the second of May Reminds me of the summer time On this winter's day See you at the bitter end See you at the bitter end Every step we take that's synchronized Every broken bone Reminds me of the second time That I followed you home You shower me with lullabies As you're walking away Reminds me that it's killing time On this fateful day See you at bitter end See you at the bitter end See you at the bitter end See you at the bitter end Everytime we're intercepted Feels more like suicide Slow and sad, come in silence Arise a (See you at the) bitter mine (bitter end) And I can see you now Running to me Arms wide out (See you at the bitter end) Come on and reach inside Grab the gentleness inside Heard a cry Six months time (See you at the bitter end) In six months time Prepare the end",
       "tms": {
         "manual_done": [
           "bar_markers"
@@ -36048,70 +36048,72 @@
     "B3218": {
       "song_id": "dgSleW",
       "bar_num": 119,
-      "lyrics": "See you at the bitter end Everytime we're intercepted Feels more like suicide Slow and sad, come in silence Arise a bitter mine (See you at the bitter end) And I can see you now Running to me Arms wide out (See you at the bitter end) Come on and reach inside Grab the gentleness inside Heard a cry Six months time (See you at the bitter end) In six months time Prepare the end",
+      "lyrics": "See you",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3219": {
       "song_id": "dgSleW",
       "bar_num": 120,
-      "lyrics": "",
+      "lyrics": "at the bitter end\n",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3220": {
       "song_id": "dgSleW",
       "bar_num": 121,
-      "lyrics": "",
+      "lyrics": "Everytime we're",
       "audio": "",
       "has_accents": false
     },
     "B3221": {
       "song_id": "dgSleW",
       "bar_num": 122,
-      "lyrics": "",
+      "lyrics": "intercepted",
       "audio": "",
       "has_accents": false
     },
     "B3222": {
       "song_id": "dgSleW",
       "bar_num": 123,
-      "lyrics": "",
+      "lyrics": "Feels more like",
       "audio": "",
       "has_accents": false
     },
     "B3223": {
       "song_id": "dgSleW",
       "bar_num": 124,
-      "lyrics": "",
+      "lyrics": "suicide",
       "audio": "",
       "has_accents": false
     },
     "B3224": {
       "song_id": "dgSleW",
       "bar_num": 125,
-      "lyrics": "",
+      "lyrics": "Slow and sad,",
       "audio": "",
       "has_accents": false
     },
     "B3225": {
       "song_id": "dgSleW",
       "bar_num": 126,
-      "lyrics": "",
+      "lyrics": "come in silence",
       "audio": "",
       "has_accents": false
     },
     "B3226": {
       "song_id": "dgSleW",
       "bar_num": 127,
-      "lyrics": "",
+      "lyrics": "Arise a (See you at the)",
       "audio": "",
       "has_accents": false
     },
     "B3227": {
       "song_id": "dgSleW",
       "bar_num": 128,
-      "lyrics": "",
+      "lyrics": "bitter mine (bitter end)",
       "audio": "",
       "has_accents": false
     },
@@ -36125,56 +36127,56 @@
     "B3229": {
       "song_id": "dgSleW",
       "bar_num": 130,
-      "lyrics": "",
+      "lyrics": "And I can",
       "audio": "",
       "has_accents": false
     },
     "B3230": {
       "song_id": "dgSleW",
       "bar_num": 131,
-      "lyrics": "",
+      "lyrics": "see",
       "audio": "",
       "has_accents": false
     },
     "B3231": {
       "song_id": "dgSleW",
       "bar_num": 132,
-      "lyrics": "",
+      "lyrics": "you now",
       "audio": "",
       "has_accents": false
     },
     "B3232": {
       "song_id": "dgSleW",
       "bar_num": 133,
-      "lyrics": "",
+      "lyrics": "Running to me",
       "audio": "",
       "has_accents": false
     },
     "B3233": {
       "song_id": "dgSleW",
       "bar_num": 134,
-      "lyrics": "",
+      "lyrics": "Arms wide out",
       "audio": "",
       "has_accents": false
     },
     "B3234": {
       "song_id": "dgSleW",
       "bar_num": 135,
-      "lyrics": "",
+      "lyrics": "(See you at the",
       "audio": "",
       "has_accents": false
     },
     "B3235": {
       "song_id": "dgSleW",
       "bar_num": 136,
-      "lyrics": "",
+      "lyrics": "bitter end)\n",
       "audio": "",
       "has_accents": false
     },
     "B3236": {
       "song_id": "dgSleW",
       "bar_num": 137,
-      "lyrics": "",
+      "lyrics": "Come on and reach inside Grab the gentleness inside Heard a cry Six months time (See you at the bitter end) In six months time Prepare the end",
       "audio": "",
       "has_accents": false
     },

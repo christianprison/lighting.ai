@@ -35813,7 +35813,7 @@
     "B3188": {
       "song_id": "dgSleW",
       "bar_num": 89,
-      "lyrics": "day See you at bitter end See you at the bitter end See you at the bitter end See you at the bitter end Everytime we're intercepted Feels more like suicide Slow and sad, come in silence Arise a bitter mine (See you at the bitter end) And I can see you now Running to me Arms wide out (See you at the bitter end) Come on and reach inside Grab the gentleness inside",
+      "lyrics": "day",
       "audio": "",
       "has_accents": false
     },
@@ -35860,14 +35860,14 @@
     "B3194": {
       "song_id": "dgSleW",
       "bar_num": 95,
-      "lyrics": "Heard a cry",
+      "lyrics": "See you at",
       "audio": "",
       "has_accents": false
     },
     "B3195": {
       "song_id": "dgSleW",
       "bar_num": 96,
-      "lyrics": "Six months time\n",
+      "lyrics": "bitter end\n",
       "audio": "",
       "has_accents": false
     },
@@ -35922,16 +35922,18 @@
     "B3202": {
       "song_id": "dgSleW",
       "bar_num": 103,
-      "lyrics": "(See you at",
+      "lyrics": "See you at the",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3203": {
       "song_id": "dgSleW",
       "bar_num": 104,
-      "lyrics": "the bitter end)\n",
+      "lyrics": "bitter end\n",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3204": {
       "song_id": "dgSleW",
@@ -35984,7 +35986,7 @@
     "B3210": {
       "song_id": "dgSleW",
       "bar_num": 111,
-      "lyrics": "In six months",
+      "lyrics": "See you at the bitter end See you at the bitter end Everytime we're intercepted Feels more like suicide Slow and sad, come in silence Arise a bitter mine (See you at the bitter end) And I can see you now Running to me Arms wide out (See you at the bitter end) Come on and reach inside Grab the gentleness inside Heard a cry Six months time (See you at the bitter end) In six months",
       "audio": "",
       "has_accents": false
     },

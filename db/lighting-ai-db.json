@@ -3873,7 +3873,7 @@
       "duration": "3:12",
       "duration_sec": 192,
       "notes": "",
-      "lyrics_raw": "Since we're feeling so anesthetized In our comfort zone Reminds me of the second time That I followed you home We're running out of alibis On the second of May Reminds me of the summer time On this winter's day See you at the bitter end See you at the bitter end Every step we take that's synchronized Every broken bone Reminds me of the second time That I followed you home You shower me with lullabies As you're walking away Reminds me that it's killing time On this fateful day See you at the bitter end See you at the bitter end See you at the bitter end See you at the bitter end Everytime we're intercepted Feels more like suicide Slow and sad, come in silence Arise a bitter mine (See you at the bitter end) And I can see you now Running to me Arms wide out (See you at the bitter end) Come on and reach inside Grab the gentleness inside Heard a cry Six months time (See you at the bitter end) In six months time Prepare the end",
+      "lyrics_raw": "",
       "tms": {
         "manual_done": [
           "bar_markers"
@@ -35257,8 +35257,7 @@
       "bar_num": 14,
       "lyrics": "",
       "audio": "",
-      "has_accents": false,
-      "instrumental": true
+      "has_accents": false
     },
     "B3114": {
       "song_id": "dgSleW",
@@ -35307,16 +35306,14 @@
       "bar_num": 21,
       "lyrics": "",
       "audio": "",
-      "has_accents": false,
-      "instrumental": true
+      "has_accents": false
     },
     "B3121": {
       "song_id": "dgSleW",
       "bar_num": 22,
       "lyrics": "",
       "audio": "",
-      "has_accents": false,
-      "instrumental": true
+      "has_accents": false
     },
     "B3122": {
       "song_id": "dgSleW",
@@ -35365,8 +35362,7 @@
       "bar_num": 29,
       "lyrics": "",
       "audio": "",
-      "has_accents": false,
-      "instrumental": true
+      "has_accents": false
     },
     "B3129": {
       "song_id": "dgSleW",
@@ -35450,7 +35446,7 @@
     "B3140": {
       "song_id": "dgSleW",
       "bar_num": 41,
-      "lyrics": "Since we're feeling so anesthetized In our",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
@@ -35561,14 +35557,14 @@
     "B3154": {
       "song_id": "dgSleW",
       "bar_num": 55,
-      "lyrics": "comfort zone Reminds me of the second",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B3155": {
       "song_id": "dgSleW",
       "bar_num": 56,
-      "lyrics": "time That I followed you home We're\n",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
@@ -36056,168 +36052,168 @@
     "B3220": {
       "song_id": "dgSleW",
       "bar_num": 121,
-      "lyrics": "running out of alibis On the second",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B3221": {
       "song_id": "dgSleW",
       "bar_num": 122,
-      "lyrics": "of May Reminds me of the summer",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B3222": {
       "song_id": "dgSleW",
       "bar_num": 123,
-      "lyrics": "time On this winter's day See you",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B3223": {
       "song_id": "dgSleW",
       "bar_num": 124,
-      "lyrics": "at the bitter end See you at",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B3224": {
       "song_id": "dgSleW",
       "bar_num": 125,
-      "lyrics": "the bitter end Every step we take",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B3225": {
       "song_id": "dgSleW",
       "bar_num": 126,
-      "lyrics": "that's synchronized Every broken bone Reminds me",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B3226": {
       "song_id": "dgSleW",
       "bar_num": 127,
-      "lyrics": "of the second time That I followed",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B3227": {
       "song_id": "dgSleW",
       "bar_num": 128,
-      "lyrics": "you home You shower me with lullabies",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B3228": {
       "song_id": "dgSleW",
       "bar_num": 129,
-      "lyrics": "As you're walking away Reminds me that",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B3229": {
       "song_id": "dgSleW",
       "bar_num": 130,
-      "lyrics": "it's killing time On this fateful day",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B3230": {
       "song_id": "dgSleW",
       "bar_num": 131,
-      "lyrics": "See you at the bitter end See",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B3231": {
       "song_id": "dgSleW",
       "bar_num": 132,
-      "lyrics": "you at the bitter end See you",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B3232": {
       "song_id": "dgSleW",
       "bar_num": 133,
-      "lyrics": "at the bitter end See you at",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B3233": {
       "song_id": "dgSleW",
       "bar_num": 134,
-      "lyrics": "the bitter end Everytime we're intercepted Feels",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B3234": {
       "song_id": "dgSleW",
       "bar_num": 135,
-      "lyrics": "more like suicide Slow and sad, come",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B3235": {
       "song_id": "dgSleW",
       "bar_num": 136,
-      "lyrics": "in silence Arise a bitter mine (See\n",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B3236": {
       "song_id": "dgSleW",
       "bar_num": 137,
-      "lyrics": "you at the bitter end) And I",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B3237": {
       "song_id": "dgSleW",
       "bar_num": 138,
-      "lyrics": "can see you now Running to me",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B3238": {
       "song_id": "dgSleW",
       "bar_num": 139,
-      "lyrics": "Arms wide out (See you at the",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B3239": {
       "song_id": "dgSleW",
       "bar_num": 140,
-      "lyrics": "bitter end) Come on and reach inside",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B3240": {
       "song_id": "dgSleW",
       "bar_num": 141,
-      "lyrics": "Grab the gentleness inside Heard a cry",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B3241": {
       "song_id": "dgSleW",
       "bar_num": 142,
-      "lyrics": "Six months time (See you at the",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B3242": {
       "song_id": "dgSleW",
       "bar_num": 143,
-      "lyrics": "bitter end) In six months time Prepare",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B3243": {
       "song_id": "dgSleW",
       "bar_num": 144,
-      "lyrics": "the end",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },

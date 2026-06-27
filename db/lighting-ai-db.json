@@ -36947,84 +36947,96 @@
       "bar_num": 1,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3341": {
       "song_id": "2c4rCI",
       "bar_num": 2,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3342": {
       "song_id": "2c4rCI",
       "bar_num": 3,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3343": {
       "song_id": "2c4rCI",
       "bar_num": 4,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3344": {
       "song_id": "2c4rCI",
       "bar_num": 5,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3345": {
       "song_id": "2c4rCI",
       "bar_num": 6,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3346": {
       "song_id": "2c4rCI",
       "bar_num": 7,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3347": {
       "song_id": "2c4rCI",
       "bar_num": 8,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3348": {
       "song_id": "2c4rCI",
       "bar_num": 9,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3349": {
       "song_id": "2c4rCI",
       "bar_num": 10,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3350": {
       "song_id": "2c4rCI",
       "bar_num": 11,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3351": {
       "song_id": "2c4rCI",
       "bar_num": 12,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3352": {
       "song_id": "2c4rCI",
@@ -37136,7 +37148,8 @@
       "bar_num": 28,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3368": {
       "song_id": "2c4rCI",
@@ -37248,7 +37261,8 @@
       "bar_num": 44,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3384": {
       "song_id": "2c4rCI",
@@ -37304,14 +37318,16 @@
       "bar_num": 52,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3392": {
       "song_id": "2c4rCI",
       "bar_num": 53,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3393": {
       "song_id": "2c4rCI",
@@ -37325,7 +37341,8 @@
       "bar_num": 55,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3395": {
       "song_id": "2c4rCI",
@@ -37353,7 +37370,8 @@
       "bar_num": 59,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3399": {
       "song_id": "2c4rCI",
@@ -37416,21 +37434,24 @@
       "bar_num": 68,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3408": {
       "song_id": "2c4rCI",
       "bar_num": 69,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3409": {
       "song_id": "2c4rCI",
       "bar_num": 70,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3410": {
       "song_id": "JHUGOo",

@@ -4,7 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>lighting.ai — THE PACT</title>
-  <link rel="stylesheet" href="css/style.css">
+  <!-- ?v= = Cache-Busting: bei JEDER Version mit APP_VERSION (js/app.js) hochzaehlen,
+       sonst serviert Chrome iOS / das Pages-CDN die alte Datei unter gleicher URL. -->
+  <link rel="stylesheet" href="css/style.css?v=2026.06.30e">
   <script>
     // DEBUG: Error overlay for iOS (no dev tools)
     (function() {
@@ -408,7 +410,7 @@
 
 <!-- ── Scripts ─────────────────────────────────────── -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lamejs/1.2.1/lame.min.js"></script>
-<script type="module" src="js/app.js"></script>
+<script type="module" src="js/app.js?v=2026.06.30e"></script>
 
 </body>
 </html>

@@ -4736,7 +4736,7 @@
       "qlc_id": 176,
       "audio_ref": "audio/Creep/Creep - Full Song.mp3",
       "audio_ref_name": "Creep - Full Song.mp3",
-      "lyrics_raw": "When you were here be- fore Couldn't look you in the eye You're just like an an- gel Your skin makes me cry You float like a fea- ther In a beautiful world I wish I was special You're so fuckin' special But I'm a creep I'm a weir- do What the hell am I doing here? I don't belong here I don't care if it hurts I wanna have control I want a perfect body I want a perfect soul I want you to notice When I'm not around You're so fuckin' special I wish I was special But I'm a creep I'm a weirdo What the hell am I doing here? I don't belong here, oh, oh She's running out the door She's running out She run, run, run, run Run! Whatever makes you happy Whatever you want You're so fuckin' special I wish I was special But I'm a creep I'm a weirdo What the hell am I doing here? I don't belong here I don't belong here",
+      "lyrics_raw": "When you were here be- fore Couldn't look you in the eye You're just like an an- gel Your skin makes me cry You float like a fea- ther In a beautiful world I wish I was special You're so fuckin' special But I'm a creep I'm a weir- do What the hell am I doing here? I don't belong here I don't care if it hurts I wanna have control I want a perfect bo- dy I want a perfect soul I want you to no- tice When I'm not around You're so fuckin' special I wish I was special But I'm a creep I'm a weirdo What the hell am I doing here? I don't belong here, oh, oh She's running out the door She's running out She run, run, run, run Run! Whatever makes you happy Whatever you want You're so fuckin' special I wish I was special But I'm a creep I'm a weirdo What the hell am I doing here? I don't belong here I don't belong here",
       "tms": {
         "manual_done": [
           "bar_markers",
@@ -39397,112 +39397,112 @@
     "B3656": {
       "song_id": "Lnql7n",
       "bar_num": 34,
-      "lyrics": "I wanna have control I want a perfect body I want a perfect soul I",
+      "lyrics": "I wanna have control",
       "audio": "",
       "has_accents": false
     },
     "B3657": {
       "song_id": "Lnql7n",
       "bar_num": 35,
-      "lyrics": "want you to",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B3658": {
       "song_id": "Lnql7n",
       "bar_num": 36,
-      "lyrics": "notice When I'm",
+      "lyrics": "I want a perfect bo-",
       "audio": "",
       "has_accents": false
     },
     "B3659": {
       "song_id": "Lnql7n",
       "bar_num": 37,
-      "lyrics": "not around You're",
+      "lyrics": "dy",
       "audio": "",
       "has_accents": false
     },
     "B3660": {
       "song_id": "Lnql7n",
       "bar_num": 38,
-      "lyrics": "so fuckin' special",
+      "lyrics": "I want a perfect",
       "audio": "",
       "has_accents": false
     },
     "B3661": {
       "song_id": "Lnql7n",
       "bar_num": 39,
-      "lyrics": "I wish I",
+      "lyrics": "soul",
       "audio": "",
       "has_accents": false
     },
     "B3662": {
       "song_id": "Lnql7n",
       "bar_num": 40,
-      "lyrics": "was special But",
+      "lyrics": "I want you to no-",
       "audio": "",
       "has_accents": false
     },
     "B3663": {
       "song_id": "Lnql7n",
       "bar_num": 41,
-      "lyrics": "I'm a creep",
+      "lyrics": "tice",
       "audio": "",
       "has_accents": false
     },
     "B3664": {
       "song_id": "Lnql7n",
       "bar_num": 42,
-      "lyrics": "I'm a weirdo",
+      "lyrics": "When I'm not around",
       "audio": "",
       "has_accents": false
     },
     "B3665": {
       "song_id": "Lnql7n",
       "bar_num": 43,
-      "lyrics": "What the hell",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B3666": {
       "song_id": "Lnql7n",
       "bar_num": 44,
-      "lyrics": "am I doing",
+      "lyrics": "You're so fuckin' special",
       "audio": "",
       "has_accents": false
     },
     "B3667": {
       "song_id": "Lnql7n",
       "bar_num": 45,
-      "lyrics": "here? I don't",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B3668": {
       "song_id": "Lnql7n",
       "bar_num": 46,
-      "lyrics": "belong here, oh,",
+      "lyrics": "I wish I was special",
       "audio": "",
       "has_accents": false
     },
     "B3669": {
       "song_id": "Lnql7n",
       "bar_num": 47,
-      "lyrics": "oh She's running",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B3670": {
       "song_id": "Lnql7n",
       "bar_num": 48,
-      "lyrics": "out the door\n",
+      "lyrics": "But I'm a creep\n",
       "audio": "",
       "has_accents": false
     },
     "B3671": {
       "song_id": "Lnql7n",
       "bar_num": 49,
-      "lyrics": "She's running out",
+      "lyrics": "I'm a weirdo What the hell am I doing here? I don't belong here, oh, oh She's running out the door She's running out",
       "audio": "",
       "has_accents": false
     },

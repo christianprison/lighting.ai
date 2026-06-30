@@ -39391,7 +39391,8 @@
       "bar_num": 33,
       "lyrics": "",
       "audio": "",
-      "has_accents": false
+      "has_accents": false,
+      "instrumental": true
     },
     "B3656": {
       "song_id": "Lnql7n",

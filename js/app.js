@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2026.06.30h';
+const APP_VERSION = 'v2026.06.30c';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -9203,40 +9203,39 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-/** iOS-Viewport-Korrektur. #app ist per CSS `position:fixed; inset:0` an den
- *  Viewport gepinnt (kein JS-Höhen-Override mehr).
- *
- *  Kernproblem in Chrome iOS: Schließt man die Soft-Tastatur per Wischgeste,
- *  bleibt das Eingabefeld FOKUSSIERT und der Viewport verschoben → schwarzer
- *  Reststreifen UND verschobene Trefferflächen (z.B. Kontextmenü „Part" nicht
- *  klickbar). Ein App-Wechsel setzt den Viewport zurück — und genau das erzwingt
- *  hier ein aktives blur() des Feldes, sobald die Tastatur wieder weg ist. */
+/** Fix iPad Chrome/Safari: dynamic address bar changes visible viewport height.
+ *  Uses visualViewport API to keep #app height in sync with actual visible area. */
 function initViewportFix() {
-  const vv = window.visualViewport;
-  let maxH = vv ? vv.height : window.innerHeight;   // volle Höhe ohne Tastatur
+  const app = document.getElementById('app');
+  if (!app) return;
 
-  const reset = () => {
-    window.scrollTo(0, 0);
-    if (document.scrollingElement) document.scrollingElement.scrollTop = 0;
-  };
-  const onKeyboardGone = () => {
-    // Falls per Swipe geschlossen → Feld noch fokussiert → blur erzwingt, dass
-    // iOS den Viewport-Offset zurücksetzt (Rand weg + Trefferflächen korrekt).
-    const ae = document.activeElement;
-    if (ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA') && ae.blur) ae.blur();
-    reset();
-  };
-
-  if (vv) {
-    vv.addEventListener('resize', () => {
-      maxH = Math.max(maxH, vv.height);
-      // Zurück auf (fast) volle Höhe = Tastatur ist weg. (maxH-basiert, weil
-      // window.innerHeight in Chrome iOS unzuverlässig ist.)
-      if (vv.height >= maxH - 60) onKeyboardGone();
-    });
-    vv.addEventListener('scroll', reset);
+  function updateHeight() {
+    const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+    app.style.height = vh + 'px';
+    // Soft-Tastatur (fast) geschlossen → Viewport ~voll. iOS lässt dann oft
+    // einen Scroll-Offset stehen, den es beim Fokussieren gesetzt hat → unten
+    // klafft eine Lücke ("schwarzer Trauerrand"). Layout-Scroll zurücksetzen.
+    // (Nur wenn voll — sonst würde das den Input hinter die offene Tastatur scrollen.)
+    if (vh >= window.innerHeight - 2) {
+      window.scrollTo(0, 0);
+      if (document.scrollingElement) document.scrollingElement.scrollTop = 0;
+    }
   }
-  // Tippt der Nutzer woanders hin (Feld verliert Fokus) → ebenfalls korrigieren.
-  document.addEventListener('focusout', () => setTimeout(onKeyboardGone, 120), true);
-  window.addEventListener('orientationchange', () => setTimeout(() => { maxH = vv ? vv.height : window.innerHeight; reset(); }, 250));
+
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', updateHeight);
+  } else {
+    window.addEventListener('resize', updateHeight);
+  }
+  // Backup: sobald nach dem Tippen kein Eingabefeld mehr fokussiert ist
+  // (Tastatur schließt), Höhe + Scroll korrigieren — falls das resize-Event
+  // auf iOS mal nicht/zu früh feuert.
+  document.addEventListener('focusout', () => setTimeout(() => {
+    const ae = document.activeElement;
+    const typing = ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA' || ae.isContentEditable);
+    if (!typing) updateHeight();
+  }, 150), true);
+
+  // Initial call to set correct height
+  updateHeight();
 }

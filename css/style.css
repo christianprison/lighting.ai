@@ -43,22 +43,6 @@ html {
   background: var(--bg);
 }
 
-/* Vollflächiger Theme-Hintergrund hinter allem. Deckt den schmalen Reststreifen,
-   den Chrome iOS nach dem Schließen der Soft-Tastatur manchmal lässt (Viewport
-   kurz zu kurz). 100vh = große Viewport-Höhe (volle Bildschirmhöhe); liegt unter
-   #app (z-index:-1), nicht interaktiv. */
-body::after {
-  content: "";
-  position: fixed;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 100vh;
-  background: var(--bg);
-  z-index: -1;
-  pointer-events: none;
-}
-
 body {
   font-family: var(--font-ui);
   background: var(--bg);
@@ -86,15 +70,11 @@ h3 { font-size: 0.95rem; }
   grid-template-areas:
     "header  header"
     "sidebar content";
-  /* An den Viewport gepinnt statt height:100dvh + JS-Höhe (visualViewport.height
-     war in Chrome iOS unzuverlässig → schwarzer Rand nach Tastatur/App-Wechsel).
-     Ein fixiertes inset:0-Element ist immer voller Viewport, kann nicht zu kurz
-     werden und nicht wegscrollen. Eingaben werden über die internen Scrollpanels
-     hochgeholt. position:fixed ist zugleich Containing-Block für absolute Kinder. */
-  position: fixed;
-  inset: 0;
+  height: 100vh;
+  height: 100dvh;
   width: 100%;
   overflow: hidden;
+  position: relative;
 }
 
 /* ── Header ────────────────────────────────────────── */

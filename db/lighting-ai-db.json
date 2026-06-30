@@ -14890,11 +14890,13 @@
         "part_starts": [
           {
             "bar_num": 1,
-            "name": "Intro Guitar"
+            "name": "Intro Guitar",
+            "instrumental": true
           },
           {
             "bar_num": 5,
-            "name": "Intro tutti"
+            "name": "Intro tutti",
+            "instrumental": true
           },
           {
             "bar_num": 13,
@@ -14906,7 +14908,8 @@
           },
           {
             "bar_num": 41,
-            "name": "Interlude"
+            "name": "Interlude",
+            "instrumental": true
           },
           {
             "bar_num": 49,
@@ -14922,7 +14925,8 @@
           },
           {
             "bar_num": 79,
-            "name": "It‘s true"
+            "name": "It‘s true",
+            "instrumental": true
           },
           {
             "bar_num": 91,
@@ -14930,7 +14934,8 @@
           },
           {
             "bar_num": 95,
-            "name": "Ausklang"
+            "name": "Ausklang",
+            "instrumental": true
           }
         ]
       },
@@ -37046,7 +37051,7 @@
     "B3325": {
       "song_id": "sowvsF",
       "bar_num": 81,
-      "lyrics": "you\n",
+      "lyrics": "you",
       "audio": "",
       "has_accents": false
     },
@@ -37060,7 +37065,7 @@
     "B3327": {
       "song_id": "sowvsF",
       "bar_num": 83,
-      "lyrics": "you\n",
+      "lyrics": "you",
       "audio": "",
       "has_accents": false
     },
@@ -37074,7 +37079,7 @@
     "B3329": {
       "song_id": "sowvsF",
       "bar_num": 85,
-      "lyrics": "you\n",
+      "lyrics": "you",
       "audio": "",
       "has_accents": false
     },
@@ -37088,7 +37093,7 @@
     "B3331": {
       "song_id": "sowvsF",
       "bar_num": 87,
-      "lyrics": "you\n",
+      "lyrics": "you",
       "audio": "",
       "has_accents": false
     },
@@ -37102,7 +37107,7 @@
     "B3333": {
       "song_id": "sowvsF",
       "bar_num": 89,
-      "lyrics": "you\n",
+      "lyrics": "you",
       "audio": "",
       "has_accents": false,
       "instrumental": true
@@ -37117,14 +37122,14 @@
     "B3335": {
       "song_id": "sowvsF",
       "bar_num": 91,
-      "lyrics": "Look at the stars\n",
+      "lyrics": "Look at the stars",
       "audio": "",
       "has_accents": false
     },
     "B3336": {
       "song_id": "sowvsF",
       "bar_num": 92,
-      "lyrics": "Look how they shine for\n",
+      "lyrics": "Look how they shine for",
       "audio": "",
       "has_accents": false
     },

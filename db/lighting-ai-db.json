@@ -14819,6 +14819,22 @@
             "name": "Bridge 1"
           },
           {
+            "bar_num": 19,
+            "name": "Chorus 1"
+          },
+          {
+            "bar_num": 23,
+            "name": "Verse 2"
+          },
+          {
+            "bar_num": 39,
+            "name": "Bridge 2"
+          },
+          {
+            "bar_num": 47,
+            "name": "Chorus 2"
+          },
+          {
             "bar_num": 79,
             "name": "Ausklang"
           }

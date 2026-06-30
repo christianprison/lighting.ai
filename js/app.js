@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2026.04.28d';
+const APP_VERSION = 'v2026.06.30a';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4947,7 +4947,7 @@ function renderLyricsTab() {
         <div class="ash-artist">${esc(song.artist)}</div>
       </div>
       <div class="le-header-actions">
-        <button class="btn btn-sm lyrics-genius-link" id="le-genius-quick" title="Lyrics direkt von Genius laden">&#127925; Genius Auto</button>
+        <button class="btn btn-sm lyrics-genius-link" id="le-genius-quick" title="Lyrics automatisch laden (LRCLIB, Genius-Fallback)">&#127925; Lyrics Auto</button>
         <a href="${geniusUrl}" target="_blank" rel="noopener" class="btn btn-sm" title="Genius-Suche &ouml;ffnen">&#128269; Genius</a>
         <button class="btn btn-sm" id="le-paste-btn" title="Text einfügen und auf Takte verteilen">&#128203; Text einf&uuml;gen</button>
         <button class="btn btn-sm" id="le-undo" title="Undo" disabled>&#8630; Undo</button>
@@ -6114,6 +6114,36 @@ async function leFetchViaProxy(targetUrl) {
   throw lastErr || new Error('Alle Proxies fehlgeschlagen');
 }
 
+/**
+ * Fetch plain lyrics from lrclib.net — CORS-friendly (sends ACAO), free, no key,
+ * no proxy, and not bot-blocked like Genius. Primary lyrics source.
+ * Returns the lyrics string or null.
+ */
+async function leLrclibFetch(artist, title) {
+  const getJson = async (u) => {
+    try {
+      const resp = await fetch(u, { signal: AbortSignal.timeout(10000) });
+      return resp.ok ? await resp.json() : null;
+    } catch { return null; }
+  };
+  // 1) exact match by artist + track
+  let data = await getJson(
+    'https://lrclib.net/api/get?artist_name=' + encodeURIComponent(artist) +
+    '&track_name=' + encodeURIComponent(title));
+  // 2) fuzzy search → first hit
+  if (!data) {
+    const hits = await getJson(
+      'https://lrclib.net/api/search?q=' + encodeURIComponent(title + ' ' + artist));
+    if (Array.isArray(hits) && hits.length) data = hits[0];
+  }
+  if (!data) return null;
+  // Prefer plain; fall back to stripping LRC timestamps from synced lyrics.
+  let txt = data.plainLyrics ||
+    (data.syncedLyrics ? data.syncedLyrics.replace(/\[\d+:\d+(?:\.\d+)?\]\s?/g, '') : '');
+  txt = (txt || '').trim();
+  return txt.length > 20 ? txt : null;
+}
+
 async function leGeniusFirstUrl(query) {
   const apiUrl = 'https://genius.com/api/search?q=' + encodeURIComponent(query);
   const text = await leFetchViaProxy(apiUrl);
@@ -6219,7 +6249,7 @@ function leShowPasteDialog() {
       <div class="le-paste-body">
         <p class="text-t2">Lyrics-URL eingeben oder Text manuell einf&uuml;gen. Abschnitts-Header wie [Verse], [Chorus] werden automatisch entfernt.</p>
         <div class="le-paste-links">
-          <button class="btn btn-sm lyrics-genius-link" id="le-genius-auto" title="Ersten Genius-Treffer suchen &amp; Lyrics laden">&#127925; Genius Auto-Fetch</button>
+          <button class="btn btn-sm lyrics-genius-link" id="le-genius-auto" title="Ersten Genius-Treffer suchen &amp; Lyrics laden">&#127925; Lyrics Auto-Fetch</button>
           <a href="https://genius.com/search?q=${searchQ}" target="_blank" rel="noopener" class="btn btn-sm" title="Genius-Suche manuell &ouml;ffnen">&#128269; Genius</a>
         </div>
         <div class="le-url-row">
@@ -6288,16 +6318,26 @@ function leShowPasteDialog() {
   overlay.querySelector('#le-url-fetch').onclick = fetchFromUrl;
   urlInput.addEventListener('keydown', e => { if (e.key === 'Enter') fetchFromUrl(); });
 
-  // Genius Auto-Fetch: search → first result URL → fetch lyrics
+  // Auto-Fetch: lrclib.net first (CORS-friendly), Genius scraping as fallback.
   overlay.querySelector('#le-genius-auto').onclick = async () => {
     const autoBtn = overlay.querySelector('#le-genius-auto');
     autoBtn.disabled = true;
     autoBtn.textContent = 'Suche...';
-    urlStatus.textContent = 'Genius wird durchsucht...';
+    urlStatus.textContent = 'Lyrics werden gesucht...';
     urlStatus.className = 'le-url-status le-url-loading';
     try {
+      // 1) lrclib (returns lyrics directly → fill the textarea)
+      const l = await leLrclibFetch(song.artist, song.name);
+      if (l) {
+        textarea.value = l;
+        urlStatus.textContent = 'Lyrics von LRCLIB geladen.';
+        urlStatus.className = 'le-url-status le-url-ok';
+        return;
+      }
+      // 2) Genius scraping fallback (via URL)
+      urlStatus.textContent = 'Genius wird durchsucht...';
       const gUrl = await leGeniusFirstUrl(song.name + ' ' + song.artist);
-      if (!gUrl) throw new Error('Kein Treffer auf Genius');
+      if (!gUrl) throw new Error('Kein Treffer (LRCLIB + Genius)');
       urlInput.value = gUrl;
       urlStatus.textContent = 'Treffer gefunden, lade Lyrics...';
       await fetchFromUrl();
@@ -6306,7 +6346,7 @@ function leShowPasteDialog() {
       urlStatus.className = 'le-url-status le-url-error';
     } finally {
       autoBtn.disabled = false;
-      autoBtn.textContent = '\u{1F3B5} Genius Auto-Fetch';
+      autoBtn.textContent = '\u{1F3B5} Lyrics Auto-Fetch';
     }
   };
 
@@ -6366,24 +6406,32 @@ async function leGeniusQuickFetch() {
   if (!song) return;
   const btn = document.getElementById('le-genius-quick');
   if (btn) { btn.disabled = true; btn.textContent = 'Suche...'; }
-  toast('Genius wird durchsucht...', 'info');
+  toast('Lyrics werden gesucht...', 'info');
   try {
     let lyrics = null;
     let source = '';
 
-    // Strategy 1: Genius scraping via proxy
+    // Strategy 1: lrclib.net (CORS-friendly, reliable, no proxy — primary)
     try {
-      const gUrl = await leGeniusFirstUrl(song.name + ' ' + song.artist);
-      if (gUrl) {
-        toast('Treffer gefunden, lade Lyrics...', 'info');
-        const fetched = await leFetchLyricsFromUrl(gUrl);
-        if (fetched && fetched.length > 20) { lyrics = fetched; source = 'Genius'; }
-      }
-    } catch (e) { /* fall through to next strategy */ }
+      const l = await leLrclibFetch(song.artist, song.name);
+      if (l) { lyrics = l; source = 'LRCLIB'; }
+    } catch (e) { /* fall through */ }
 
-    // Strategy 2: lyrics.ovh (direct CORS-friendly API, no proxy needed)
+    // Strategy 2: Genius scraping via proxy (fragile — public proxies + bot-block)
     if (!lyrics) {
-      toast('Genius nicht verfügbar, versuche Fallback...', 'info');
+      try {
+        const gUrl = await leGeniusFirstUrl(song.name + ' ' + song.artist);
+        if (gUrl) {
+          toast('Treffer gefunden, lade Lyrics...', 'info');
+          const fetched = await leFetchLyricsFromUrl(gUrl);
+          if (fetched && fetched.length > 20) { lyrics = fetched; source = 'Genius'; }
+        }
+      } catch (e) { /* fall through to next strategy */ }
+    }
+
+    // Strategy 3: lyrics.ovh (direct CORS-friendly API, no proxy needed)
+    if (!lyrics) {
+      toast('Versuche weiteren Fallback...', 'info');
       try {
         const lovhUrl = `https://api.lyrics.ovh/v1/${encodeURIComponent(song.artist)}/${encodeURIComponent(song.name)}`;
         const resp = await fetch(lovhUrl, { signal: AbortSignal.timeout(10000) });
@@ -6403,7 +6451,7 @@ async function leGeniusQuickFetch() {
   } catch (err) {
     toast('Lyrics Auto: ' + err.message, 'error');
   } finally {
-    if (btn) { btn.disabled = false; btn.textContent = '\u{1F3B5} Genius Auto'; }
+    if (btn) { btn.disabled = false; btn.textContent = '\u{1F3B5} Lyrics Auto'; }
   }
 }
 

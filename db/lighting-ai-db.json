@@ -14545,7 +14545,7 @@
       "qlc_id": 72,
       "audio_ref": "audio/Valerie/Valerie - Full Song.mp3",
       "audio_ref_name": "Valerie - Full Song.mp3",
-      "lyrics_raw": "Well, sometimes I go out by myself And I look across the water And I think of all the things, what you do And in my head, I make a picture 'Cause since I've come on home Well, my body's been a mess And I've missed your ginger hair And the way you like to dress Won't you come on over? And stop makin' a fool out of me Why don't you come on over Valerie? Valerie Did you have to go to jail? Put your house up on for sale Did you get a good lawyer? I hope you didn't catch a tan I hope you'll find the right man Who'll fix it for ya Are you shoppin' anywhere? Changed the color of you hair, are you busy? And did you have to pay the fine You were dodging all the time, are you still dizzy? Yeah, 'cause since I've come on home Well, my body's been a mess And I've missed your ginger hair And the way you like to dress Won't you come on over? And stop makin' a fool out of me Why don't you come on over Valerie? Valerie Valerie Valerie Well, sometimes I go out by myself And I look across the water And I think of all the things, what you're doin' And in my head I make a picture 'Cause since I've come on home Well, my body's been a mess And I've missed your ginger hair And the way you like to dress Won't you come on over? And stop makin' a fool out of me Why don't you come on over Valerie? Valerie Valerie Valerie Yeah, Valerie",
+      "lyrics_raw": "Well, some- times I go out by my- self And I look across the wa- ter And I think of all the things, what you do And in my head, I make a picture 'Cause since I've come on home Well, my body's been a mess And I've missed your ginger hair And the way you like to dress Won't you come on over? And stop makin' a fool out of me Why don't you come on over Valerie? Valerie Did you have to go to jail? Put your house up on for sale Did you get a good lawyer? I hope you didn't catch a tan I hope you'll find the right man Who'll fix it for ya Are you shoppin' anywhere? Changed the color of you hair, are you busy? And did you have to pay the fine You were dodging all the time, are you still dizzy? Yeah, 'cause since I've come on home Well, my body's been a mess And I've missed your ginger hair And the way you like to dress Won't you come on over? And stop makin' a fool out of me Why don't you come on over Valerie? Valerie Valerie Valerie Well, sometimes I go out by myself And I look across the water And I think of all the things, what you're doin' And in my head I make a picture 'Cause since I've come on home Well, my body's been a mess And I've missed your ginger hair And the way you like to dress Won't you come on over? And stop makin' a fool out of me Why don't you come on over Valerie? Valerie Valerie Valerie Yeah, Valerie",
       "tms": {
         "manual_done": [
           "bar_markers",
@@ -40105,7 +40105,7 @@
     "B3712": {
       "song_id": "Dp8xoz",
       "bar_num": 2,
-      "lyrics": "",
+      "lyrics": "Well, some-\n",
       "audio": "",
       "has_accents": false,
       "instrumental": true
@@ -40113,35 +40113,35 @@
     "B3713": {
       "song_id": "Dp8xoz",
       "bar_num": 3,
-      "lyrics": "Well, sometimes I go",
+      "lyrics": "times I go out by my-",
       "audio": "",
       "has_accents": false
     },
     "B3714": {
       "song_id": "Dp8xoz",
       "bar_num": 4,
-      "lyrics": "out by myself And",
+      "lyrics": "self And I look across the wa-",
       "audio": "",
       "has_accents": false
     },
     "B3715": {
       "song_id": "Dp8xoz",
       "bar_num": 5,
-      "lyrics": "I look across the",
+      "lyrics": "ter",
       "audio": "",
       "has_accents": false
     },
     "B3716": {
       "song_id": "Dp8xoz",
       "bar_num": 6,
-      "lyrics": "water And I think",
+      "lyrics": "And I",
       "audio": "",
       "has_accents": false
     },
     "B3717": {
       "song_id": "Dp8xoz",
       "bar_num": 7,
-      "lyrics": "of all the things,",
+      "lyrics": "think of all the things,",
       "audio": "",
       "has_accents": false
     },

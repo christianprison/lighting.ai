@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2026.06.30e';
+const APP_VERSION = 'v2026.06.30f';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -9203,44 +9203,26 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-/** Fix iPad Chrome/Safari: dynamic address bar changes visible viewport height.
- *  Uses visualViewport API to keep #app height in sync with actual visible area. */
+/** iOS-Viewport-Korrektur. #app ist per CSS `position:fixed; inset:0` an den
+ *  Viewport gepinnt — KEIN JS-Höhen-Override mehr (visualViewport.height war in
+ *  Chrome iOS nach Tastatur/App-Wechsel veraltet/zu klein → schwarzer Rand).
+ *  Hier nur noch ein Sicherheitsnetz: falls iOS die Seite beim Fokussieren
+ *  verschiebt, den Layout-Scroll zurücksetzen, wenn kein Feld mehr fokussiert ist. */
 function initViewportFix() {
-  const app = document.getElementById('app');
-  if (!app) return;
-
-  // Wird gerade in ein Eingabefeld getippt? = Soft-Tastatur offen.
-  // Browser-unabhängig (Chrome iOS + Safari iOS), anders als eine
-  // Höhenvergleich-Heuristik (innerHeight verhält sich in Chrome iOS anders).
   const isTyping = () => {
     const ae = document.activeElement;
     return !!ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA' || ae.isContentEditable);
   };
   const resetScroll = () => {
+    if (isTyping()) return;          // Tastatur offen → nicht wegscrollen
     window.scrollTo(0, 0);
     if (document.scrollingElement) document.scrollingElement.scrollTop = 0;
   };
 
-  function updateHeight() {
-    const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-    app.style.height = vh + 'px';
-    // Nur wenn KEIN Feld fokussiert ist (Tastatur zu/zugehend) den Layout-Scroll
-    // zurücksetzen, den iOS beim Fokussieren setzt und beim Schließen stehen lässt
-    // → sonst unten der schwarze "Trauerrand". Bei offener Tastatur NICHT, sonst
-    // würde der Input hinter die Tastatur gescrollt.
-    if (!isTyping()) resetScroll();
-  }
-
   if (window.visualViewport) {
-    window.visualViewport.addEventListener('resize', updateHeight);
-    window.visualViewport.addEventListener('scroll', updateHeight);
-  } else {
-    window.addEventListener('resize', updateHeight);
+    window.visualViewport.addEventListener('resize', resetScroll);
+    window.visualViewport.addEventListener('scroll', resetScroll);
   }
-  // Tastatur schließt (Fokus verlässt das Feld) → korrigieren. Verzögert, damit
-  // ein Fokuswechsel Feld→Feld nicht fälschlich als "zu" gilt.
-  document.addEventListener('focusout', () => setTimeout(updateHeight, 150), true);
-
-  // Initial call to set correct height
-  updateHeight();
+  document.addEventListener('focusout', () => setTimeout(resetScroll, 150), true);
+  window.addEventListener('orientationchange', () => setTimeout(resetScroll, 200));
 }

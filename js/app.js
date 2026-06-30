@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2026.06.30a';
+const APP_VERSION = 'v2026.06.30b';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -623,6 +623,10 @@ const SONG_CHECKLIST = [
     }},
   { id: 'anchors_set',  label: 'Anker gesetzt (mind. 1)', cat: 'licht', tab: 'editor',
     check: (s) => !!(s.anchors && s.anchors.length > 0) },
+  { id: 'bass_einsatz_anchor', label: 'Bass-Einsatz als Anker dokumentieren', cat: 'licht', tab: 'editor',
+    // Auto-grün, sobald ein Bass-Anker den (ersten) Einsatz markiert.
+    check: (s) => !!(s.anchors && s.anchors.some(
+      a => a.type === 'bass' && (a.event === 'Einsatz' || a.event === 'Bass-Linie beginnt'))) },
 
   // ── Live-Ready ──
   { id: 'in_setlist',    label: 'fertig f\u00fcr Playlist', cat: 'live', tab: 'setlist',

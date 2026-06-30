@@ -14551,7 +14551,20 @@
         "user_tasks": [],
         "manual_undone": []
       },
-      "total_bars": 0
+      "total_bars": 0,
+      "grundrhythmus": {
+        "kick": [
+          0,
+          0.75,
+          1.75,
+          2.75
+        ],
+        "snare": [
+          1,
+          2.25,
+          3
+        ]
+      }
     },
     "zf3UaB": {
       "name": "Word Up",

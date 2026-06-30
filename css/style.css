@@ -5005,3 +5005,43 @@ td.ak-actions { width: 90px; white-space: nowrap; text-align: right; }
 .gr-step:hover { background: var(--bg4); border-color: var(--border2); }
 [data-gr-part="kick"]  .gr-step.on { background: var(--green); border-color: var(--green); }
 [data-gr-part="snare"] .gr-step.on { background: var(--amber); border-color: var(--amber); }
+
+/* ── Eigene Bildschirmtastatur (Prototyp) ──────────────────────────────── */
+.ckbd {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9000;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.45);
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+.ckbd-row { display: flex; gap: 6px; }
+.ckbd-key {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg3);
+  color: var(--t1);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  font-family: var(--font-ui);
+  font-size: 1.05rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.ckbd-key:active { background: var(--bg4); }
+.ckbd-active { background: var(--green); color: var(--bg); border-color: var(--green); }
+.ckbd-back, .ckbd-shift, .ckbd-enter { background: var(--bg4); }
+.ckbd-hide { background: var(--bg4); color: var(--t2); font-size: 0.9rem; }
+.ckbd-space { font-size: 0.9rem; color: var(--t2); }

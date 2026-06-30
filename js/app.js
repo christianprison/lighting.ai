@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2026.06.30c';
+const APP_VERSION = 'v2026.06.30-kbd1';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -9194,6 +9194,7 @@ document.addEventListener('DOMContentLoaded', () => {
   switchTab('editor');
   initDB();
   initViewportFix();
+  initCustomKeyboard();
 
   window.addEventListener('beforeunload', function(e) {
     if (dirty) {
@@ -9238,4 +9239,99 @@ function initViewportFix() {
 
   // Initial call to set correct height
   updateHeight();
+}
+
+/* ── Eigene Bildschirmtastatur ─────────────────────────────────────────────
+   PROTOTYP: umgeht den iOS/Chrome-Tastatur-Viewport-Bug, indem gar keine native
+   Tastatur erscheint (Feld bekommt inputmode="none"). Diese HTML-Tastatur
+   schreibt stattdessen ins Feld — alles DOM, kein visualViewport-Offset. */
+const CustomKeyboard = (() => {
+  // Zeichen-Taste = String; Spezial-Taste = {k:id, l:label, w:flexGrow}
+  const ROWS = [
+    ['1','2','3','4','5','6','7','8','9','0'],
+    ['q','w','e','r','t','z','u','i','o','p','ü'],
+    ['a','s','d','f','g','h','j','k','l','ö','ä'],
+    [{k:'shift',l:'⇧',w:1.6},'y','x','c','v','b','n','m',{k:'back',l:'⌫',w:1.6}],
+    ['ß',{k:'space',l:'Leer',w:5},{k:'enter',l:'↵',w:1.6},{k:'hide',l:'Tastatur ✕',w:2}],
+  ];
+  let el = null, field = null, shift = false;
+
+  const fireInput = () => field && field.dispatchEvent(new Event('input', { bubbles: true }));
+
+  function insert(ch) {
+    if (!field) return;
+    const s = field.selectionStart ?? field.value.length;
+    const e = field.selectionEnd ?? s;
+    field.value = field.value.slice(0, s) + ch + field.value.slice(e);
+    const p = s + ch.length;
+    try { field.setSelectionRange(p, p); } catch {}
+    fireInput();
+  }
+  function backspace() {
+    if (!field) return;
+    let s = field.selectionStart ?? field.value.length;
+    const e = field.selectionEnd ?? s;
+    if (s === e) { if (s === 0) return; field.value = field.value.slice(0, s - 1) + field.value.slice(e); s -= 1; }
+    else { field.value = field.value.slice(0, s) + field.value.slice(e); }
+    try { field.setSelectionRange(s, s); } catch {}
+    fireInput();
+  }
+  function press(key) {
+    switch (key) {
+      case 'shift': shift = !shift; render(); return;
+      case 'back':  backspace(); return;
+      case 'space': insert(' '); return;
+      case 'enter': insert('\n'); return;
+      case 'hide':  if (field) field.blur(); hide(); return;
+      default:
+        insert(shift && key.length === 1 ? key.toUpperCase() : key);
+        if (shift) { shift = false; render(); }
+    }
+  }
+  function render() {
+    if (!el) return;
+    el.innerHTML = '';
+    for (const row of ROWS) {
+      const r = document.createElement('div');
+      r.className = 'ckbd-row';
+      for (const cell of row) {
+        const obj = typeof cell === 'object';
+        const key = obj ? cell.k : cell;
+        const label = obj ? cell.l : (shift ? cell.toUpperCase() : cell);
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.tabIndex = -1;
+        b.className = 'ckbd-key' + (obj ? ' ckbd-' + cell.k : '') + (key === 'shift' && shift ? ' ckbd-active' : '');
+        b.textContent = label;
+        if (obj && cell.w) b.style.flexGrow = cell.w;
+        b.addEventListener('pointerdown', (ev) => { ev.preventDefault(); press(key); });
+        r.appendChild(b);
+      }
+      el.appendChild(r);
+    }
+  }
+  function build() {
+    el = document.createElement('div');
+    el.id = 'custom-keyboard';
+    el.className = 'ckbd';
+    el.style.display = 'none';
+    el.addEventListener('pointerdown', (ev) => ev.preventDefault()); // Feld behält Fokus
+    document.body.appendChild(el);
+    render();
+  }
+  function show(f) { if (!el) build(); field = f; shift = false; render(); el.style.display = 'flex'; }
+  function hide() { if (el) el.style.display = 'none'; field = null; }
+
+  function attach(f) {
+    if (!f) return;
+    f.setAttribute('inputmode', 'none');   // keine native Tastatur
+    f.addEventListener('focus', () => show(f));
+    f.addEventListener('blur', () => setTimeout(() => { if (document.activeElement !== f) hide(); }, 60));
+  }
+  return { attach };
+})();
+
+/** PROTOTYP: nur die Song-Suche bekommt vorerst die eigene Tastatur. */
+function initCustomKeyboard() {
+  CustomKeyboard.attach(document.getElementById('search-box'));
 }

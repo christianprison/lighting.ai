@@ -5028,7 +5028,8 @@
         "part_starts": [
           {
             "bar_num": 1,
-            "name": "Intro"
+            "name": "Intro",
+            "instrumental": true
           },
           {
             "bar_num": 9,
@@ -5052,7 +5053,8 @@
           },
           {
             "bar_num": 71,
-            "name": "Ausklang"
+            "name": "Ausklang",
+            "instrumental": true
           },
           {
             "bar_num": 72,
@@ -5064,7 +5066,8 @@
           },
           {
             "bar_num": 88,
-            "name": "Ausklang"
+            "name": "Ausklang",
+            "instrumental": true
           }
         ]
       }

@@ -14812,7 +14812,8 @@
         "part_starts": [
           {
             "bar_num": 3,
-            "name": "Verse 1"
+            "name": "Verse 1",
+            "instrumental": true
           },
           {
             "bar_num": 11,
@@ -14852,7 +14853,8 @@
           },
           {
             "bar_num": 79,
-            "name": "Ausklang"
+            "name": "Ausklang",
+            "instrumental": true
           }
         ]
       }

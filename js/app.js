@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2026.06.30c';
+const APP_VERSION = 'v2026.06.30d';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -9209,32 +9209,37 @@ function initViewportFix() {
   const app = document.getElementById('app');
   if (!app) return;
 
+  // Wird gerade in ein Eingabefeld getippt? = Soft-Tastatur offen.
+  // Browser-unabhängig (Chrome iOS + Safari iOS), anders als eine
+  // Höhenvergleich-Heuristik (innerHeight verhält sich in Chrome iOS anders).
+  const isTyping = () => {
+    const ae = document.activeElement;
+    return !!ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA' || ae.isContentEditable);
+  };
+  const resetScroll = () => {
+    window.scrollTo(0, 0);
+    if (document.scrollingElement) document.scrollingElement.scrollTop = 0;
+  };
+
   function updateHeight() {
     const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
     app.style.height = vh + 'px';
-    // Soft-Tastatur (fast) geschlossen → Viewport ~voll. iOS lässt dann oft
-    // einen Scroll-Offset stehen, den es beim Fokussieren gesetzt hat → unten
-    // klafft eine Lücke ("schwarzer Trauerrand"). Layout-Scroll zurücksetzen.
-    // (Nur wenn voll — sonst würde das den Input hinter die offene Tastatur scrollen.)
-    if (vh >= window.innerHeight - 2) {
-      window.scrollTo(0, 0);
-      if (document.scrollingElement) document.scrollingElement.scrollTop = 0;
-    }
+    // Nur wenn KEIN Feld fokussiert ist (Tastatur zu/zugehend) den Layout-Scroll
+    // zurücksetzen, den iOS beim Fokussieren setzt und beim Schließen stehen lässt
+    // → sonst unten der schwarze "Trauerrand". Bei offener Tastatur NICHT, sonst
+    // würde der Input hinter die Tastatur gescrollt.
+    if (!isTyping()) resetScroll();
   }
 
   if (window.visualViewport) {
     window.visualViewport.addEventListener('resize', updateHeight);
+    window.visualViewport.addEventListener('scroll', updateHeight);
   } else {
     window.addEventListener('resize', updateHeight);
   }
-  // Backup: sobald nach dem Tippen kein Eingabefeld mehr fokussiert ist
-  // (Tastatur schließt), Höhe + Scroll korrigieren — falls das resize-Event
-  // auf iOS mal nicht/zu früh feuert.
-  document.addEventListener('focusout', () => setTimeout(() => {
-    const ae = document.activeElement;
-    const typing = ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA' || ae.isContentEditable);
-    if (!typing) updateHeight();
-  }, 150), true);
+  // Tastatur schließt (Fokus verlässt das Feld) → korrigieren. Verzögert, damit
+  // ein Fokuswechsel Feld→Feld nicht fälschlich als "zu" gilt.
+  document.addEventListener('focusout', () => setTimeout(updateHeight, 150), true);
 
   // Initial call to set correct height
   updateHeight();

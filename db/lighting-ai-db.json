@@ -14811,6 +14811,14 @@
         ],
         "part_starts": [
           {
+            "bar_num": 3,
+            "name": "Verse 1"
+          },
+          {
+            "bar_num": 11,
+            "name": "Bridge 1"
+          },
+          {
             "bar_num": 79,
             "name": "Ausklang"
           }

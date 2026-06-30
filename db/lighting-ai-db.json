@@ -14551,7 +14551,7 @@
         "user_tasks": [],
         "manual_undone": []
       },
-      "total_bars": 0,
+      "total_bars": 4,
       "grundrhythmus": {
         "kick": [
           0,
@@ -14565,6 +14565,23 @@
           2.25,
           3
         ]
+      },
+      "split_markers": {
+        "markers": [
+          {
+            "time": 0.9541011235955057
+          },
+          {
+            "time": 2.3756874999999997
+          },
+          {
+            "time": 3.791683386837881
+          },
+          {
+            "time": 5.189205457463884
+          }
+        ],
+        "part_starts": []
       }
     },
     "zf3UaB": {
@@ -39795,6 +39812,34 @@
     "B3710": {
       "song_id": "Lnql7n",
       "bar_num": 88,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3711": {
+      "song_id": "Dp8xoz",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3712": {
+      "song_id": "Dp8xoz",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3713": {
+      "song_id": "Dp8xoz",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B3714": {
+      "song_id": "Dp8xoz",
+      "bar_num": 4,
       "lyrics": "",
       "audio": "",
       "has_accents": false

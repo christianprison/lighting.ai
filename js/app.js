@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2026.06.30g';
+const APP_VERSION = 'v2026.06.30h';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -9204,25 +9204,39 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /** iOS-Viewport-Korrektur. #app ist per CSS `position:fixed; inset:0` an den
- *  Viewport gepinnt — KEIN JS-Höhen-Override mehr (visualViewport.height war in
- *  Chrome iOS nach Tastatur/App-Wechsel veraltet/zu klein → schwarzer Rand).
- *  Hier nur noch ein Sicherheitsnetz: falls iOS die Seite beim Fokussieren
- *  verschiebt, den Layout-Scroll zurücksetzen, wenn kein Feld mehr fokussiert ist. */
+ *  Viewport gepinnt (kein JS-Höhen-Override mehr).
+ *
+ *  Kernproblem in Chrome iOS: Schließt man die Soft-Tastatur per Wischgeste,
+ *  bleibt das Eingabefeld FOKUSSIERT und der Viewport verschoben → schwarzer
+ *  Reststreifen UND verschobene Trefferflächen (z.B. Kontextmenü „Part" nicht
+ *  klickbar). Ein App-Wechsel setzt den Viewport zurück — und genau das erzwingt
+ *  hier ein aktives blur() des Feldes, sobald die Tastatur wieder weg ist. */
 function initViewportFix() {
-  const isTyping = () => {
-    const ae = document.activeElement;
-    return !!ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA' || ae.isContentEditable);
-  };
-  const resetScroll = () => {
-    if (isTyping()) return;          // Tastatur offen → nicht wegscrollen
+  const vv = window.visualViewport;
+  let maxH = vv ? vv.height : window.innerHeight;   // volle Höhe ohne Tastatur
+
+  const reset = () => {
     window.scrollTo(0, 0);
     if (document.scrollingElement) document.scrollingElement.scrollTop = 0;
   };
+  const onKeyboardGone = () => {
+    // Falls per Swipe geschlossen → Feld noch fokussiert → blur erzwingt, dass
+    // iOS den Viewport-Offset zurücksetzt (Rand weg + Trefferflächen korrekt).
+    const ae = document.activeElement;
+    if (ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA') && ae.blur) ae.blur();
+    reset();
+  };
 
-  if (window.visualViewport) {
-    window.visualViewport.addEventListener('resize', resetScroll);
-    window.visualViewport.addEventListener('scroll', resetScroll);
+  if (vv) {
+    vv.addEventListener('resize', () => {
+      maxH = Math.max(maxH, vv.height);
+      // Zurück auf (fast) volle Höhe = Tastatur ist weg. (maxH-basiert, weil
+      // window.innerHeight in Chrome iOS unzuverlässig ist.)
+      if (vv.height >= maxH - 60) onKeyboardGone();
+    });
+    vv.addEventListener('scroll', reset);
   }
-  document.addEventListener('focusout', () => setTimeout(resetScroll, 150), true);
-  window.addEventListener('orientationchange', () => setTimeout(resetScroll, 200));
+  // Tippt der Nutzer woanders hin (Feld verliert Fokus) → ebenfalls korrigieren.
+  document.addEventListener('focusout', () => setTimeout(onKeyboardGone, 120), true);
+  window.addEventListener('orientationchange', () => setTimeout(() => { maxH = vv ? vv.height : window.innerHeight; reset(); }, 250));
 }

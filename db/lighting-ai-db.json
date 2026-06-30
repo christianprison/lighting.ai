@@ -14835,6 +14835,22 @@
             "name": "Chorus 2"
           },
           {
+            "bar_num": 55,
+            "name": "Verse 3a (a capella)"
+          },
+          {
+            "bar_num": 61,
+            "name": "Verse 3b (tutti)"
+          },
+          {
+            "bar_num": 63,
+            "name": "Bridge 3"
+          },
+          {
+            "bar_num": 71,
+            "name": "Chorus 3"
+          },
+          {
             "bar_num": 79,
             "name": "Ausklang"
           }

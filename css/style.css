@@ -43,6 +43,22 @@ html {
   background: var(--bg);
 }
 
+/* Vollflächiger Theme-Hintergrund hinter allem. Deckt den schmalen Reststreifen,
+   den Chrome iOS nach dem Schließen der Soft-Tastatur manchmal lässt (Viewport
+   kurz zu kurz). 100vh = große Viewport-Höhe (volle Bildschirmhöhe); liegt unter
+   #app (z-index:-1), nicht interaktiv. */
+body::after {
+  content: "";
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 100vh;
+  background: var(--bg);
+  z-index: -1;
+  pointer-events: none;
+}
+
 body {
   font-family: var(--font-ui);
   background: var(--bg);

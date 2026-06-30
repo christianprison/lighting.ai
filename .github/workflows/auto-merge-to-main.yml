@@ -43,11 +43,21 @@ jobs:
             echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: PR mergen
+      - name: PR mergen (mit Warten auf Mergebarkeit + Retry)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh pr merge ${{ steps.create-pr.outputs.pr_number }} \
-            --merge \
-            --delete-branch \
-            --admin
+          PR="${{ steps.create-pr.outputs.pr_number }}"
+          # GitHub berechnet die Mergebarkeit asynchron — direkt nach dem PR-Erstellen
+          # ist sie oft noch "UNKNOWN" und der Merge schlaegt fehl (PR bleibt offen
+          # haengen). Daher: bis zu 8x mit 8s Pause versuchen.
+          for i in $(seq 1 8); do
+            if gh pr merge "$PR" --merge --delete-branch --admin; then
+              echo "PR #$PR gemergt (Versuch $i)."
+              exit 0
+            fi
+            echo "Merge noch nicht moeglich (Versuch $i) — warte 8s..."
+            sleep 8
+          done
+          echo "::error::Merge von PR #$PR nach 8 Versuchen fehlgeschlagen."
+          exit 1

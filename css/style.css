@@ -38,6 +38,9 @@ html {
   -webkit-text-size-adjust: 100%;
   color-scheme: dark;
   height: 100%;
+  /* Same as the theme bg so iOS Safari never paints black in the canvas regions
+     it exposes (pinch-zoom gap, overscroll, viewport-fit=cover safe-area). */
+  background: var(--bg);
 }
 
 body {

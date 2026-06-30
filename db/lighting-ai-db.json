@@ -14545,7 +14545,7 @@
       "qlc_id": 72,
       "audio_ref": "audio/Valerie/Valerie - Full Song.mp3",
       "audio_ref_name": "Valerie - Full Song.mp3",
-      "lyrics_raw": "Well, some- times I go out by my- self And I look across the wa- ter And I think of all the things, what you do And in my head, I make a picture 'Cause since I've come on home Well, my body's been a mess And I've missed your ginger hair And the way you like to dress Won't you come over And stop makin' a fool out of me Why don't you come on over Valerie? Vale- rie Did you have to go to jail? Put your house up on for sale Did you get a good lawyer? I hope you didn't catch a tan I hope you'll find the right man Who'll fix it for ya Are you shoppin' anywhere? Changed the color of you hair, are you busy? And did you have to pay the fine You were dodging all the time, are you still dizzy? Yeah, 'cause since I've come on home Well, my body's been a mess And I've missed your ginger hair And the way you like to dress Won't you come on over? And stop makin' a fool out of me Why don't you come on over Valerie? Valerie Valerie Valerie Well, sometimes I go out by myself And I look across the water And I think of all the things, what you're doin' And in my head I make a picture 'Cause since I've come on home Well, my body's been a mess And I've missed your ginger hair And the way you like to dress Won't you come on over? And stop makin' a fool out of me Why don't you come on over Valerie? Valerie Valerie Valerie Yeah, Valerie",
+      "lyrics_raw": "Well, some- times I go out by my- self And I look across the wa- ter And I think of all the things, what you do And in my head, I make a picture 'Cause since I've come on home Well, my body's been a mess And I've missed your ginger hair And the way you like to dress Won't you come over And stop makin' a fool out of me Why don't you come on over Valerie? Vale- rie Did you have to go to jail? Put your house up on for sale Did you get a good lawyer? I hope you didn't catch a tan I hope you'll find the right man Who'll fix it for ya Are you shoppin' anywhere? Changed the color of you hair, are you busy? And did you have to pay the fine You were dodging all the time, are you dizzy? Yeah, 'cause since I've come on home Well, my body's been a mess And I've missed your ginger hair And the way you like to dress Won't you come over? And stop makin' a fool out of me Why don't you come on over Valerie? Val- erie Valerie Valerie Well, sometimes I go out by myself And I look across the water And I think of all the things, what you're doin' And in my head I make a picture 'Cause since I've come on home Well, my body's been a mess And I've missed your ginger hair And the way you like to dress Won't you come on over? And stop makin' a fool out of me Why don't you come on over Valerie? Valerie Valerie Valerie Yeah, Valerie",
       "tms": {
         "manual_done": [
           "bar_markers",
@@ -40253,21 +40253,21 @@
     "B3733": {
       "song_id": "Dp8xoz",
       "bar_num": 23,
-      "lyrics": "have to go to jail?",
+      "lyrics": "have to go to jail? Put your",
       "audio": "",
       "has_accents": false
     },
     "B3734": {
       "song_id": "Dp8xoz",
       "bar_num": 24,
-      "lyrics": "Put your house up",
+      "lyrics": "house up on for sale Did",
       "audio": "",
       "has_accents": false
     },
     "B3735": {
       "song_id": "Dp8xoz",
       "bar_num": 25,
-      "lyrics": "on for sale Did",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
@@ -40358,98 +40358,98 @@
     "B3748": {
       "song_id": "Dp8xoz",
       "bar_num": 38,
-      "lyrics": "all the time, are\n",
+      "lyrics": "all the time, are you dizzy? Yeah, 'cause\n",
       "audio": "",
       "has_accents": false
     },
     "B3749": {
       "song_id": "Dp8xoz",
       "bar_num": 39,
-      "lyrics": "you still dizzy? Yeah,",
+      "lyrics": "since I've come on home Well, my",
       "audio": "",
       "has_accents": false
     },
     "B3750": {
       "song_id": "Dp8xoz",
       "bar_num": 40,
-      "lyrics": "'cause since I've come",
+      "lyrics": "body's been a mess And I've",
       "audio": "",
       "has_accents": false
     },
     "B3751": {
       "song_id": "Dp8xoz",
       "bar_num": 41,
-      "lyrics": "on home Well, my",
+      "lyrics": "missed your ginger hair And the",
       "audio": "",
       "has_accents": false
     },
     "B3752": {
       "song_id": "Dp8xoz",
       "bar_num": 42,
-      "lyrics": "body's been a mess",
+      "lyrics": "way you like to dress",
       "audio": "",
       "has_accents": false
     },
     "B3753": {
       "song_id": "Dp8xoz",
       "bar_num": 43,
-      "lyrics": "And I've missed your",
+      "lyrics": "Won't you come over? And",
       "audio": "",
       "has_accents": false
     },
     "B3754": {
       "song_id": "Dp8xoz",
       "bar_num": 44,
-      "lyrics": "ginger hair And the",
+      "lyrics": "stop makin' a fool out of",
       "audio": "",
       "has_accents": false
     },
     "B3755": {
       "song_id": "Dp8xoz",
       "bar_num": 45,
-      "lyrics": "way you like to",
+      "lyrics": "me",
       "audio": "",
       "has_accents": false
     },
     "B3756": {
       "song_id": "Dp8xoz",
       "bar_num": 46,
-      "lyrics": "dress Won't you come\n",
+      "lyrics": "Why don't you come on over Valerie?\n",
       "audio": "",
       "has_accents": false
     },
     "B3757": {
       "song_id": "Dp8xoz",
       "bar_num": 47,
-      "lyrics": "on over? And stop",
+      "lyrics": "",
       "audio": "",
       "has_accents": false
     },
     "B3758": {
       "song_id": "Dp8xoz",
       "bar_num": 48,
-      "lyrics": "makin' a fool out",
+      "lyrics": "Val-",
       "audio": "",
       "has_accents": false
     },
     "B3759": {
       "song_id": "Dp8xoz",
       "bar_num": 49,
-      "lyrics": "of me Why don't",
+      "lyrics": "erie",
       "audio": "",
       "has_accents": false
     },
     "B3760": {
       "song_id": "Dp8xoz",
       "bar_num": 50,
-      "lyrics": "you come on over",
+      "lyrics": "Valerie",
       "audio": "",
       "has_accents": false
     },
     "B3761": {
       "song_id": "Dp8xoz",
       "bar_num": 51,
-      "lyrics": "Valerie? Valerie Valerie Valerie",
+      "lyrics": "Valerie",
       "audio": "",
       "has_accents": false
     },

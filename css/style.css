@@ -70,11 +70,15 @@ h3 { font-size: 0.95rem; }
   grid-template-areas:
     "header  header"
     "sidebar content";
-  height: 100vh;
-  height: 100dvh;
+  /* An den Viewport gepinnt statt height:100dvh + JS-Höhe (visualViewport.height
+     war in Chrome iOS unzuverlässig → schwarzer Rand nach Tastatur/App-Wechsel).
+     Ein fixiertes inset:0-Element ist immer voller Viewport, kann nicht zu kurz
+     werden und nicht wegscrollen. Eingaben werden über die internen Scrollpanels
+     hochgeholt. position:fixed ist zugleich Containing-Block für absolute Kinder. */
+  position: fixed;
+  inset: 0;
   width: 100%;
   overflow: hidden;
-  position: relative;
 }
 
 /* ── Header ────────────────────────────────────────── */

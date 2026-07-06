@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2026.06.30-kbd1';
+const APP_VERSION = 'v2026.06.30-kbd2';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -9324,7 +9324,10 @@ const CustomKeyboard = (() => {
 
   function attach(f) {
     if (!f) return;
-    f.setAttribute('inputmode', 'none');   // keine native Tastatur
+    // readonly unterdrueckt die native iOS-Tastatur zuverlaessig (Chrome iOS
+    // ignoriert inputmode="none"). Feld bleibt fokussierbar; value wird per JS gesetzt.
+    f.setAttribute('readonly', 'readonly');
+    f.setAttribute('inputmode', 'none');
     f.addEventListener('focus', () => show(f));
     f.addEventListener('blur', () => setTimeout(() => { if (document.activeElement !== f) hide(); }, 60));
   }

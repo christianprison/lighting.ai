@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2026.06.30-save1';
+const APP_VERSION = 'v2026.08.01-supabase1';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4577,7 +4577,7 @@ async function handleAudioExport() {
     exportInProgress = false;
     if (done > 0 && dirty) {
       try {
-        const newSha = await saveDB(s.repo, s.path, s.token, db, dbSha);
+        const newSha = await saveDB(db, dbSha);
         dbSha = newSha;
         dirty = false;
         setSyncStatus('saved');
@@ -8565,34 +8565,29 @@ function handleSaveSettings() {
   saveSettings({ repo, token, path, debugPanel });
   applyDebugPanelVisibility();
   closeSettings();
-  toast(token ? 'Settings gespeichert (read/write)' : 'Settings gespeichert (read-only)', 'success');
+  toast(token ? 'Settings gespeichert (GitHub Audio-Upload aktiv)' : 'Settings gespeichert', 'success');
   initDB();
 }
 
 /* ── DB Init ───────────────────────────────────────── */
 
 async function initDB() {
-  const s = getSettings();
   setSyncStatus('loading');
 
-  if (s.repo && s.token && s.path) {
-    try {
-      const result = await loadDB(s.repo, s.path, s.token);
-      db = result.data;
-      dbSha = result.sha;
-      dirty = false;
-      readOnly = false;
-      setSyncStatus('saved');
-      // Run integrity checks, auto-clean orphans, migrate split markers
-      const check = integrity.checkOnLoad(db, true);
-      if (!check.valid) dirty = true; // auto-cleaned orphans need saving
-      toast(`DB geladen (read/write) \u2014 ${Object.keys(db.songs || {}).length} Songs`, 'success');
-    } catch (e) {
-      setSyncStatus('error');
-      toast(`GitHub API fehlgeschlagen: ${e.message} \u2014 Fallback auf lokale DB (read-only)`, 'error', 5000);
-      await loadLocal();
-    }
-  } else {
+  try {
+    const result = await loadDB();
+    db = result.data;
+    dbSha = result.sha;
+    dirty = false;
+    readOnly = false;
+    setSyncStatus('saved');
+    // Run integrity checks, auto-clean orphans, migrate split markers
+    const check = integrity.checkOnLoad(db, true);
+    if (!check.valid) dirty = true; // auto-cleaned orphans need saving
+    toast(`DB geladen (read/write) \u2014 ${Object.keys(db.songs || {}).length} Songs`, 'success');
+  } catch (e) {
+    setSyncStatus('error');
+    toast(`Supabase nicht erreichbar: ${e.message} \u2014 Fallback auf lokale DB (read-only)`, 'error', 5000);
     await loadLocal();
   }
 
@@ -8611,9 +8606,7 @@ async function loadLocal() {
     readOnly = true;
     setSyncStatus('readonly');
     integrity.checkOnLoad(db, false); // validate + migrate markers, no auto-clean in read-only
-    const hasToken = !!getSettings().token;
-    const hint = hasToken ? ' \u2014 Token pr\u00fcfen!' : '';
-    toast(`DB geladen (read-only${hint}) \u2014 ${Object.keys(db.songs || {}).length} Songs`, hasToken ? 'error' : 'info', hasToken ? 5000 : 3000);
+    toast(`DB geladen (read-only, lokaler Fallback) \u2014 ${Object.keys(db.songs || {}).length} Songs`, 'error', 5000);
   } catch (e) {
     db = null;
     setSyncStatus('error');
@@ -8623,10 +8616,7 @@ async function loadLocal() {
 
 function updateSaveButton() {
   if (readOnly) {
-    const hasToken = !!getSettings().token;
-    els.btnSave.title = hasToken
-      ? 'Read-only \u2014 GitHub-Verbindung fehlgeschlagen. Token pr\u00fcfen!'
-      : 'Read-only \u2014 Token in Settings eingeben';
+    els.btnSave.title = 'Read-only \u2014 Supabase nicht erreichbar (lokaler Fallback geladen)';
     els.btnSave.style.opacity = '0.4';
     els.btnSave.classList.remove('btn-save-dirty');
   } else if (dirty) {
@@ -8702,18 +8692,13 @@ async function handleSave(showToast = true) {
   }
   const tmsChanged = autoCheckTmsByAudioEnd();
   if (readOnly) {
-    const hasToken = !!getSettings().token;
-    const msg = hasToken
-      ? 'Read-only Modus \u2014 GitHub-Verbindung fehlgeschlagen. Token in Settings pr\u00fcfen!'
-      : 'Read-only Modus \u2014 Token in Settings eingeben';
-    toast(msg, 'error', 5000);
+    toast('Read-only Modus \u2014 Supabase nicht erreichbar', 'error', 5000);
     return false;
   }
-  const s = getSettings();
   setSyncStatus('saving');
   _saveInProgress = true;
   try {
-    const newSha = await saveDB(s.repo, s.path, s.token, db, dbSha);
+    const newSha = await saveDB(db, dbSha);
     dbSha = newSha;
     dirty = false;
     setSyncStatus('saved');
@@ -8780,9 +8765,8 @@ async function handleSaveConflict(err) {
     'Überschreiben'
   );
   if (force) {
-    const s = getSettings();
     try {
-      const newSha = await saveDB(s.repo, s.path, s.token, db, dbSha, undefined, true);
+      const newSha = await saveDB(db, dbSha, undefined, true);
       dbSha = newSha;
       dirty = false;
       setSyncStatus('saved');
@@ -8810,15 +8794,14 @@ async function handleUndo() {
     return;
   }
   const ok = await showConfirm(
-    'Zum letzten Commit zurückgehen?',
-    'Alle Änderungen seit dem letzten GitHub-Commit werden <strong>unwiderruflich verworfen</strong>.',
+    'Zum letzten gespeicherten Stand zurückgehen?',
+    'Alle Änderungen seit dem letzten Speichern werden <strong>unwiderruflich verworfen</strong>.',
     'Verwerfen & neu laden'
   );
   if (!ok) return;
-  const s = getSettings();
   setSyncStatus('loading');
   try {
-    const result = await loadDB(s.repo, s.path, s.token);
+    const result = await loadDB();
     db = result.data;
     dbSha = result.sha;
     dirty = false;

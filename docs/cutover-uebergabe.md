@@ -1,9 +1,9 @@
 # Übergabe: Supabase-Cutover der DB-Pflege-App (Option B)
 
-> **Für die neue Claude-Code-Session** (nach Freigabe von `*.supabase.co` in der
-> Umgebungs-Netzwerk-Policy). Dieses Dokument ist der komplette Kontext —
-> zusammen mit `CLAUDE.md` weißt du damit, wo wir stehen und was zu tun ist.
-> Stand: 2026-08-01.
+> **✅ CUTOVER ABGESCHLOSSEN (2026-08-01).** Alle 6 Schritte durchgeführt und
+> verifiziert — siehe „Status nach Durchführung" ganz unten. Dieses Dokument
+> bleibt als historischer Kontext/Referenz stehen (Architektur-Leitplanke,
+> Auth-Entscheidung, Dateirollen).
 
 ## TL;DR
 
@@ -149,3 +149,56 @@ löschen). Optionen:
    → `200` = Supabase erreichbar.
 3. Mit dem Nutzer das **Auth-Modell** (A/B/C) klären — das ist der Blocker für alles Weitere.
 4. Dann Schritte 2–6 des Plans umsetzen, jeweils klein + verifiziert.
+
+---
+
+## Status nach Durchführung (2026-08-01)
+
+**Auth-Modell-Entscheidung:** Nutzer hat sich explizit gegen Login entschieden
+(„am liebsten gar keine Auth — ist nur ein Hobbyprojekt"). Umgesetzt als
+**anon-Key + offene RLS-Schreibpolicies** (nicht A, nicht service_role-im-
+Client wie C) — der öffentliche anon-Key darf `insert/update/delete` auf genau
+`songs`/`song_detail_lighting`/`bars`/`accents`/`app_state`, sonst nichts.
+Akzeptierter Trade-off: jeder mit Key+URL kann diese 5 Tabellen schreiben.
+
+**Schritt 1–6 erledigt:**
+
+1. ~~Auth-Modell~~ → anon + offene RLS (s.o.), kein Curator/Login-Flow gebaut.
+2. **Aufräumen**: `supabase/migrations/0009_drop_stub_tables.sql` — `parts`,
+   `setlists`, `setlist_items`, `meta` gedroppt (per SQL-Editor durch den
+   Nutzer, verifiziert via REST: `PGRST205` auf allen vieren).
+3. **RLS-Schreibpolicies**: `supabase/migrations/0010_anon_write_access.sql`
+   — `anon` darf `insert/update/delete` auf den 5 Tabellen. Verifiziert per
+   Insert+Delete-Roundtrip über den anon-Key.
+4. **WebApp-Persistenz**: `js/db.js` spricht jetzt PostgREST statt GitHub
+   Contents API (`loadDB()`/`saveDB()` ohne repo/token/path). JS-Port von
+   `transform.py` (`dbJsonToRows`/`rowsToDbJson`). Optimistic Locking über
+   `app_state.updated_at` statt GitHub-SHA — gleiche Konflikt-Dialog-UX in
+   `js/app.js` bleibt unverändert. Löschungen werden gezielt anhand der beim
+   Laden bekannten IDs geprunt (kein globales "delete all except"). Audio-
+   Blobs bleiben unverändert auf GitHub. `APP_VERSION` → `v2026.08.01-supabase1`.
+   Verifiziert: Load-Reconstruction matcht `db/lighting-ai-db.json`
+   byte-für-byte; Save/Konflikterkennung/Prune-Diff getestet (Testzeilen
+   sauber entfernt).
+5. **Supabase→Git-Export**: `.github/workflows/export-db.yml` (Cron alle 15
+   Min + manuell), Umkehrung von `sync-db.yml` (dessen Auto-Trigger deshalb
+   entfernt wurde — nur noch manueller Not-Aus/Restore-Weg). Dabei Bug in
+   `export_from_supabase.py` gefunden+gefixt: `_fetch_rows()` paginierte
+   nicht (Supabase deckelt `select()` auf 1000 Zeilen, `bars` hat 3462 —
+   ohne Fix wären ~2/3 der Takte beim Export verlorengegangen). Live
+   getestet (Workflow-Run `30710571889`, erfolgreich, korrekt kein Commit
+   da inhaltlich unverändert).
+6. **Verifikation**: `scripts/central_db/verify_supabase.py` grün (51
+   Songs/3462 Bars/283 Accents, verlustfrei). `setlist_public` +
+   `song_lyrics_public` (BassTrainer-Views) unverändert funktionsfähig.
+
+**Offene Kleinigkeiten (nicht blockierend):**
+- Nutzer hat `service_role`-Key + DB-Passwort im Chat gepostet (für die
+  Migrations-Ausführung, da direkte DB-Verbindung aus der Sandbox technisch
+  blockiert war). Empfehlung an den Nutzer ausgesprochen, das DB-Passwort zu
+  rotieren (Project Settings → Database → Reset database password).
+- Storage-Bucket-Frage aus dem Übergabe-Dokument (`audio`-Bucket neben
+  `snippets`?) weiterhin offen, unkritisch, nicht Teil dieses Cutovers.
+- Alle Pushes liefen über den bestehenden `auto-merge-to-main.yml`-Workflow
+  automatisch nach `main` (PRs #420–#422) — GitHub Pages hat den neuen Stand
+  damit bereits live.

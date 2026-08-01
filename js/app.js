@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2026.06.30-kbd2';
+const APP_VERSION = 'v2026.06.30-save1';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4581,7 +4581,14 @@ async function handleAudioExport() {
         dbSha = newSha;
         dirty = false;
         setSyncStatus('saved');
-      } catch { /* DB save after export is best-effort */ }
+      } catch (e) {
+        // best-effort: NICHT überschreiben. Bei Konflikt den Nutzer informieren
+        // (dirty bleibt true → normaler Save löst dann den Konflikt-Dialog aus).
+        setSyncStatus('error');
+        if (e && e.isConflict) {
+          toast('Auto-Speichern: Konflikt (woanders geändert) — bitte manuell speichern.', 'error', 6000);
+        }
+      }
     }
   }
 }
@@ -8726,12 +8733,71 @@ async function handleSave(showToast = true) {
 
     return true;
   } catch (e) {
+    if (e && e.isConflict) {
+      return await handleSaveConflict(e);
+    }
     setSyncStatus('error');
     toast(`Speichern fehlgeschlagen: ${e.message}`, 'error', 5000);
     return false;
   } finally {
     _saveInProgress = false;
   }
+}
+
+/**
+ * Speicher-Konflikt (GitHub 409): Die DB wurde seit dem Laden woanders geändert
+ * (anderer Tab/Gerät). Statt blind zu überschreiben (= Datenverlust) entscheidet
+ * der Nutzer bewusst: fremde Version laden ODER die eigene erzwingen.
+ */
+async function handleSaveConflict(err) {
+  setSyncStatus('error');
+  const reload = await showConfirm(
+    '⚠️ Konflikt — woanders geändert',
+    'Die Datenbank wurde seit deinem Laden an anderer Stelle gespeichert ' +
+    '(anderer Tab oder Gerät). Deine ungespeicherten Änderungen und die ' +
+    'fremden Änderungen kollidieren.<br><br><strong>Fremde Version laden</strong> ' +
+    'übernimmt den aktuellen Stand — deine ungespeicherten Änderungen ' +
+    'gehen dabei verloren, aber es wird nichts überschrieben.',
+    'Fremde Version laden'
+  );
+  if (reload) {
+    db = err.latestData;
+    dbSha = err.latestSha;
+    dirty = false;
+    integrity.checkOnLoad(db, true);
+    setSyncStatus('saved');
+    updateSaveButton();
+    renderSongList(els.searchBox.value);
+    renderContent();
+    toast('Fremde Version geladen', 'info');
+    return false;
+  }
+  const force = await showConfirm(
+    'Deine Version erzwingen?',
+    'Stattdessen <strong>deine</strong> Version speichern und die fremden ' +
+    'Änderungen <strong>überschreiben</strong>? Damit können Änderungen ' +
+    'des anderen Tabs/Geräts unwiderruflich verloren gehen.',
+    'Überschreiben'
+  );
+  if (force) {
+    const s = getSettings();
+    try {
+      const newSha = await saveDB(s.repo, s.path, s.token, db, dbSha, undefined, true);
+      dbSha = newSha;
+      dirty = false;
+      setSyncStatus('saved');
+      updateSaveButton();
+      toast('Gespeichert (fremde Änderungen überschrieben)', 'success');
+      return true;
+    } catch (e2) {
+      setSyncStatus('error');
+      toast(`Speichern fehlgeschlagen: ${e2.message}`, 'error', 5000);
+      return false;
+    }
+  }
+  // Weder laden noch überschreiben: dirty bleibt, Nutzer kann Daten sichern.
+  toast('Nicht gespeichert — Konflikt offen. Änderungen sichern & neu laden.', 'error', 6000);
+  return false;
 }
 
 async function handleUndo() {
@@ -9195,6 +9261,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initDB();
   initViewportFix();
   initCustomKeyboard();
+  initTabGuard();
 
   window.addEventListener('beforeunload', function(e) {
     if (dirty) {
@@ -9337,4 +9404,30 @@ const CustomKeyboard = (() => {
 /** PROTOTYP: nur die Song-Suche bekommt vorerst die eigene Tastatur. */
 function initCustomKeyboard() {
   CustomKeyboard.attach(document.getElementById('search-box'));
+}
+
+/**
+ * Zwei-Tab-Warnung: parallele Bearbeitung in mehreren Tabs/Fenstern ist die
+ * häufigste Datenverlust-Ursache (der eine Tab überschreibt den anderen).
+ * Erkennt weitere offene Instanzen per BroadcastChannel und warnt in ALLEN.
+ */
+function initTabGuard() {
+  let ch;
+  try { ch = new BroadcastChannel('lightingai-tabs'); } catch { return; }
+  const myId = Date.now() + '-' + Math.random().toString(36).slice(2);
+  let warned = false;
+  const warn = () => {
+    if (warned) return;
+    warned = true;
+    toast('⚠️ In einem anderen Tab/Fenster geöffnet — parallele Bearbeitung ' +
+          'kann Änderungen überschreiben. Bitte nur EINEN Tab benutzen!', 'error', 9000);
+  };
+  ch.onmessage = (e) => {
+    const d = e.data;
+    if (!d || d.id === myId) return;
+    if (d.type === 'hello') { ch.postMessage({ type: 'here', id: myId }); warn(); }
+    else if (d.type === 'here') { warn(); }
+  };
+  // Beim Start melden — bereits offene Instanzen antworten mit "here".
+  ch.postMessage({ type: 'hello', id: myId });
 }

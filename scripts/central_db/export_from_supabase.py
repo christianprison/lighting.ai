@@ -31,6 +31,18 @@ from scripts.central_db.transform import rows_to_db_json  # noqa: E402
 
 DEFAULT_OUT = REPO_ROOT / "db" / "lighting-ai-db.json"
 _TABLES = ["songs", "song_detail_lighting", "bars", "accents"]
+_PAGE = 1000  # Supabase caps select() at 1000 rows/request -> paginate
+
+
+def _fetch_all(client, table: str) -> list[dict]:
+    out: list[dict] = []
+    start = 0
+    while True:
+        chunk = client.table(table).select("*").range(start, start + _PAGE - 1).execute().data
+        out.extend(chunk)
+        if len(chunk) < _PAGE:
+            return out
+        start += _PAGE
 
 
 def _fetch_rows() -> dict:
@@ -44,13 +56,17 @@ def _fetch_rows() -> dict:
         raise SystemExit("ERROR: `pip install supabase` to run the export.")
 
     client = create_client(url, key)
-    rows = {t: client.table(t).select("*").execute().data for t in _TABLES}
+    rows = {t: _fetch_all(client, t) for t in _TABLES}
     app = client.table("app_state").select("*").eq("id", 1).single().execute().data
     rows["app_state"] = app
     return rows
 
 
 def build_snapshot(rows: dict) -> dict:
+    # Safety: an empty/partial read must never overwrite the Git snapshot the
+    # Live-App relies on (mirrors the same guard in sync_to_supabase.py).
+    if not rows["songs"]:
+        raise SystemExit("ERROR: 0 songs read from Supabase — refusing to export (would wipe the Git snapshot).")
     db = rows_to_db_json(rows)
     # Provenance markers up front (do not collide with the schema's data keys).
     return {

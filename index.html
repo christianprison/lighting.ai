@@ -53,7 +53,7 @@
 
     <div class="header-right">
       <span class="sync-status" id="sync-status" data-status="loading">LOADING...</span>
-      <button class="icon-btn" id="btn-undo" title="Zum letzten GitHub-Commit zurückkehren">&#x2913;</button>
+      <button class="icon-btn" id="btn-undo" title="Zum letzten gespeicherten Stand zurückkehren">&#x2913;</button>
       <button class="icon-btn" id="btn-save" title="Save (Ctrl+S)">&#128190;</button>
       <button class="icon-btn" id="btn-help" title="Hilfe">&#63;</button>
       <button class="icon-btn" id="btn-settings" title="Settings">&#9881;</button>
@@ -74,7 +74,7 @@
   <main id="content">
     <div class="empty-state">
       <div class="icon">&#9881;</div>
-      <p>Konfiguriere zuerst die GitHub-Verbindung in den Settings.</p>
+      <p>DB wird geladen...</p>
     </div>
   </main>
 
@@ -96,18 +96,24 @@
   <div class="modal">
     <h2>Settings</h2>
 
+    <p style="margin: 0 0 12px; font-size: 0.85rem; color: var(--t2)">
+      Die Songdatenbank wird automatisch über Supabase geladen/gespeichert &mdash;
+      dafür ist keine Konfiguration nötig. Die folgenden Felder werden nur für den
+      Audio-Upload (MP3-Snippets, Referenz-Audio) auf GitHub gebraucht.
+    </p>
+
     <div class="form-group">
-      <label for="set-repo">GitHub Repo</label>
+      <label for="set-repo">GitHub Repo (Audio-Upload)</label>
       <input type="text" id="set-repo" value="christianprison/lighting.ai" placeholder="owner/repo">
     </div>
 
     <div class="form-group">
-      <label for="set-token">GitHub Token (PAT)</label>
+      <label for="set-token">GitHub Token (PAT, Audio-Upload)</label>
       <input type="password" id="set-token" placeholder="github_pat_..." autocomplete="new-password" data-1p-ignore data-lpignore="true">
     </div>
 
     <div class="form-group">
-      <label for="set-path">DB-Pfad</label>
+      <label for="set-path">DB-Pfad (lokaler Fallback, falls Supabase nicht erreichbar)</label>
       <input type="text" id="set-path" value="db/lighting-ai-db.json" placeholder="db/lighting-ai-db.json">
     </div>
 
@@ -154,26 +160,26 @@
     <!-- Allgemein -->
     <div class="help-page" id="help-general">
       <h3>Was ist lighting.ai?</h3>
-      <p>Lichtsteuerungs-App fuer die Coverband <strong>THE PACT</strong>. Du verwaltest hier die komplette Songdatenbank mit Takten, Lyrics und Licht-Cues. Die App laeuft komplett im Browser &mdash; alle Daten werden direkt auf GitHub gespeichert.</p>
+      <p>Lichtsteuerungs-App fuer die Coverband <strong>THE PACT</strong>. Du verwaltest hier die komplette Songdatenbank mit Takten, Lyrics und Licht-Cues. Die App laeuft komplett im Browser &mdash; die Songdatenbank wird automatisch in Supabase gespeichert (kein Login noetig), Audio-Dateien liegen auf GitHub.</p>
 
       <h3>Erste Schritte</h3>
       <div class="help-steps">
         <div class="help-step">
           <span class="help-step-nr">1</span>
-          <div><strong>GitHub verbinden</strong><br>Klicke auf das Zahnrad-Icon oben rechts und trage dein GitHub Token ein. Klick auf <em>Test Connection</em> zum Pruefen.</div>
+          <div><strong>Song auswaehlen</strong><br>Die Sidebar links zeigt alle Songs (laden automatisch). Klicke einen Song an, um ihn zu bearbeiten. Auf schmalen Bildschirmen (iPad Portrait) schliesst die Sidebar nach der Auswahl automatisch.</div>
         </div>
         <div class="help-step">
           <span class="help-step-nr">2</span>
-          <div><strong>Song auswaehlen</strong><br>Die Sidebar links zeigt alle Songs. Klicke einen Song an, um ihn zu bearbeiten. Auf schmalen Bildschirmen (iPad Portrait) schliesst die Sidebar nach der Auswahl automatisch.</div>
+          <div><strong>Tab waehlen</strong><br>Die Tabs oben fuehren zu den verschiedenen Bereichen: Songs, Takte, Lyrics, Accents, Audio Split, Setlist.</div>
         </div>
         <div class="help-step">
           <span class="help-step-nr">3</span>
-          <div><strong>Tab waehlen</strong><br>Die Tabs oben fuehren zu den verschiedenen Bereichen: Songs, Takte, Lyrics, Accents, Audio Split, Setlist.</div>
+          <div><strong>GitHub fuer Audio (optional)</strong><br>Nur fuer den Audio-Split-Export gebraucht: Zahnrad-Icon oben rechts, GitHub Token eintragen. Klick auf <em>Test Connection</em> zum Pruefen.</div>
         </div>
       </div>
 
       <h3>Speichern &amp; Undo</h3>
-      <p>Aenderungen werden erst bei Klick auf das Disketten-Icon (oder <kbd>Ctrl+S</kbd>) nach GitHub committed. Der Status oben rechts zeigt <span class="text-green">SAVED</span> / <span class="text-amber">UNSAVED</span>.</p>
+      <p>Aenderungen werden erst bei Klick auf das Disketten-Icon (oder <kbd>Ctrl+S</kbd>) nach Supabase gespeichert. Der Status oben rechts zeigt <span class="text-green">SAVED</span> / <span class="text-amber">UNSAVED</span>.</p>
       <p>Das Undo-Icon (&#8630;) macht die letzte Aenderung rueckgaengig.</p>
 
       <h3>Sidebar</h3>
@@ -369,7 +375,7 @@
     <div class="help-page" id="help-keys">
       <h3>Allgemein</h3>
       <div class="help-table">
-        <div class="help-row"><kbd>Ctrl+S</kbd><span>Speichern (GitHub Commit)</span></div>
+        <div class="help-row"><kbd>Ctrl+S</kbd><span>Speichern (nach Supabase)</span></div>
         <div class="help-row"><kbd>Ctrl+Z</kbd><span>Undo</span></div>
         <div class="help-row"><kbd>Esc</kbd><span>Modal schliessen</span></div>
         <div class="help-row"><kbd>?</kbd><span>Diese Hilfe oeffnen (kontextsensitiv zum aktiven Tab)</span></div>
@@ -408,7 +414,7 @@
 
 <!-- ── Scripts ─────────────────────────────────────── -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lamejs/1.2.1/lame.min.js"></script>
-<script type="module" src="js/app.js?v=save1"></script>
+<script type="module" src="js/app.js?v=supabase1"></script>
 
 </body>
 </html>

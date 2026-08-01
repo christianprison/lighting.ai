@@ -78,7 +78,7 @@ export async function loadDB(repo, path, token) {
  * @param {string} [message] - commit message
  * @returns {Promise<string>} new SHA after the commit
  */
-export async function saveDB(repo, path, token, data, sha, message) {
+export async function saveDB(repo, path, token, data, sha, message, force = false) {
   const content = utf8ToBase64(JSON.stringify(data, null, 2));
   const commitMsg = message || `Update ${path} via lighting.ai`;
 
@@ -110,12 +110,24 @@ export async function saveDB(repo, path, token, data, sha, message) {
   // First attempt
   let newSha = await doPut(sha);
 
-  // Retry on 409 Conflict: re-fetch latest SHA and try again
+  // 409 = die Datei wurde seit unserem Laden woanders geändert (anderer Tab/Gerät).
   if (newSha === null) {
     const latest = await loadDB(repo, path, token);
+    if (!force) {
+      // NICHT blind überschreiben — das war der Datenverlust-Bug (Lost-Update):
+      // der frühere Auto-Retry hat unsere alten Daten über die fremden geschrieben.
+      // Stattdessen den Konflikt an den Aufrufer melden (mit dem aktuellen Stand),
+      // damit der Nutzer bewusst entscheidet (neu laden vs. überschreiben).
+      const err = new Error('Die Datenbank wurde zwischenzeitlich woanders gespeichert (anderer Tab/Gerät).');
+      err.isConflict = true;
+      err.latestSha = latest.sha;
+      err.latestData = latest.data;
+      throw err;
+    }
+    // force = bewusstes Überschreiben durch den Nutzer
     newSha = await doPut(latest.sha);
     if (newSha === null) {
-      throw new Error('GitHub 409 Conflict: could not resolve after retry');
+      throw new Error('GitHub 409 Conflict: konnte auch mit Überschreiben nicht speichern');
     }
   }
 

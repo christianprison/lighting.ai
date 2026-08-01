@@ -1,15 +1,19 @@
 name: Sync DB to Supabase
 
-# Auto-sync: hält Supabase mit db/lighting-ai-db.json in Schritt (Git bleibt
-# Master). Läuft bei jeder Änderung der DB-Datei auf main + manuell.
-# Upsert (Adds/Mods) + Prune (Deletes), kein Audio-Upload (das macht
-# upload-snippets.yml). Secrets: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY.
+# ⚠️ SEIT DEM SUPABASE-CUTOVER (Option B, docs/cutover-uebergabe.md) NICHT MEHR
+# DER NORMALE WEG: Supabase ist jetzt Master, nicht mehr db/lighting-ai-db.json.
+# Der Auto-Trigger (push auf die DB-Datei) ist deshalb entfernt — sonst würde
+# jeder Commit von export-db.yml (Supabase→Git) hierüber sofort rückwärts
+# zurücksynchronisiert und Supabase mit dem gerade exportierten Stand
+# überschreiben (Ringschluss, kein Schaden aber sinnlos, und riskant falls
+# db/lighting-ai-db.json mal manuell/anders bearbeitet wird).
+#
+# Nur noch manueller Not-Aus/Restore-Weg: falls Supabase mal aus einem Git-
+# Stand wiederhergestellt werden muss. Upsert (Adds/Mods) + Prune (Deletes),
+# kein Audio-Upload (das macht upload-snippets.yml).
+# Secrets: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY.
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - "db/lighting-ai-db.json"
   workflow_dispatch:
 
 # Keine parallelen Syncs (sonst race auf den Tabellen).

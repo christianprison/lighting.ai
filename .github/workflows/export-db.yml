@@ -1,0 +1,69 @@
+name: Export DB from Supabase
+
+# Supabase-Cutover (Option B, siehe docs/cutover-uebergabe.md): Seit dem
+# Cutover ist Supabase Master für songs/bars/accents/setlist/meta, nicht mehr
+# Git. Dieser Workflow ist die Umkehrung von sync-db.yml — er regeneriert
+# db/lighting-ai-db.json aus Supabase und committed es nach main, damit die
+# Live-App (liest nur aus Git, kein Supabase-Zugriff) aktuell bleibt.
+# Secrets: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY.
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+# Kein paralleler Export (vermeidet Race auf dem commit).
+concurrency:
+  group: export-db
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Python einrichten
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Supabase-Client installieren
+        run: pip install "supabase>=2.4"
+
+      - name: Export
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          cp db/lighting-ai-db.json /tmp/before.json
+          python -m scripts.central_db.export_from_supabase --out db/lighting-ai-db.json
+
+      - name: Commit + Push (nur wenn sich inhaltlich etwas geändert hat)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # _generated/_generated_at/_source sind reine Provenance-Marker (siehe
+          # export_from_supabase.py) und aendern sich bei JEDEM Lauf bzw. fehlen
+          # in einer Datei, die noch nie exportiert wurde -> beim Vergleich raus.
+          # -S sortiert Object-Keys rekursiv (Key-Reihenfolge ist in JSON
+          # bedeutungslos, Supabase liefert Zeilen z.B. alphabetisch sortiert
+          # zurueck -> ohne -S waere JEDER Export ein Byte-Diff, obwohl inhaltlich
+          # nichts geaendert hat). Array-Reihenfolge (z.B. setlist.items) bleibt
+          # dabei erhalten, nur Objekt-Keys werden normalisiert.
+          jq -S 'del(._generated, ._generated_at, ._source)' /tmp/before.json > /tmp/before_norm.json
+          jq -S 'del(._generated, ._generated_at, ._source)' db/lighting-ai-db.json > /tmp/after_norm.json
+          if diff -q /tmp/before_norm.json /tmp/after_norm.json > /dev/null; then
+            echo "Keine inhaltliche Aenderung — kein Commit."
+            git checkout -- db/lighting-ai-db.json
+            exit 0
+          fi
+          git add db/lighting-ai-db.json
+          git commit -m "Export DB from Supabase (auto)"
+          git push origin HEAD:main

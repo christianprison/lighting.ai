@@ -1,25 +1,34 @@
 /**
  * js/db.js — Persistence for lighting.ai
  *
- * DB (songs/bars/accents/setlist/meta): Supabase Postgres via PostgREST,
- * using the public anon/publishable key (Supabase-Cutover Option B — kein
- * Login, RLS erlaubt der anon-Rolle insert/update/delete auf genau den 5
- * Tabellen, die diese App besitzt; siehe docs/cutover-uebergabe.md und
- * supabase/migrations/0010_anon_write_access.sql). Der Key ist bewusst
- * öffentlich im Client-Bundle — das ist der akzeptierte Trade-off für ein
- * Hobbyprojekt ohne Login-UI.
+ * DB (songs/bars/accents/setlist/meta) UND Audio (Snippets, Referenz-Audio):
+ * beides Supabase, über PostgREST bzw. die Storage-API, mit dem öffentlichen
+ * anon/publishable Key (Supabase-Cutover Option B — kein Login, RLS erlaubt
+ * der anon-Rolle insert/update/delete auf den 5 Katalog-Tabellen UND auf den
+ * Storage-Bucket `snippets` + `audio_assets`; siehe docs/cutover-uebergabe.md,
+ * supabase/migrations/0010_anon_write_access.sql und
+ * supabase/migrations/0011_anon_storage_write.sql). Der Key ist bewusst
+ * öffentlich im Client-Bundle — akzeptierter Trade-off für ein Hobbyprojekt
+ * ohne Login-UI.
  *
- * Audio-Binärdateien (MP3-Snippets, Referenz-Audio) bleiben unverändert auf
- * GitHub (Contents API) — das ist nicht Teil des Cutovers.
+ * Audio lief bis 2026-08-02 noch über GitHub — umgestellt, nachdem ein
+ * typografischer Apostroph in einem Dateipfad zeigte, dass zwei verschiedene
+ * Zustellwege für dieselbe Datei (GitHub Pages vs. Supabase Storage) sich
+ * unterschiedlich verhalten können (GitHub tolerant, Storage lehnt ungültige
+ * Object-Keys ab). Seitdem ein einziger Weg für Lesen UND Schreiben.
+ * Der bestehende Git-`audio/`-Ordner bleibt vorerst als Backup/Fallback
+ * bestehen (siehe `fetchAudioUrl` in js/app.js), wird aber nicht mehr aktiv
+ * beschrieben.
+ *
+ * Nur die QXW-Datei (Lichtshow-Konfiguration) und Ad-hoc-GitHub-Zugriffe
+ * (Test Connection in den Settings) nutzen noch die GitHub Contents API.
  */
 
 const SUPABASE_URL = 'https://ivkcvvjtwwfommsnxerv.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_bS0KjYSEGa_CVEplXPC_ZA_gloEimqh';
+const STORAGE_BUCKET = 'snippets';
 
 const GITHUB_API = 'https://api.github.com';
-
-/** SHA cache: path → sha (kept in sync after every read/write, GitHub audio only) */
-const shaCache = {};
 
 /** Snapshot of row-ids present in Supabase at last loadDB(), used to compute
  *  deletions on the next saveDB() (rows we knew about that vanished from the
@@ -308,9 +317,71 @@ export async function testSupabaseConnection() {
   }
 }
 
-/* ═══════════════════ GitHub (Audio-Blobs only) ═══════════════════════════
- * Unverändert — Audio-Snippets/Referenz-Audio bleiben auf GitHub, das ist
- * nicht Teil des Supabase-Cutovers. */
+/* ═══════════════════ Supabase Storage (Audio) ═════════════════════════════
+ * Bucket `snippets` ist public (Lesen ohne Auth über die /object/public/-URL).
+ * Schreiben (Upload/Overwrite) erfordert trotzdem den anon-Key + RLS-Policy
+ * auf storage.objects (supabase/migrations/0011_anon_storage_write.sql). */
+
+/**
+ * Build the public URL for a file in the Storage bucket (no auth needed to read).
+ * @param {string} path - key inside the bucket, e.g. "audio/Foo/Foo - Full Song.mp3"
+ * @returns {string}
+ */
+export function storagePublicUrl(path) {
+  const encodedPath = path.split('/').map(encodeURIComponent).join('/');
+  return `${SUPABASE_URL}/storage/v1/object/public/${STORAGE_BUCKET}/${encodedPath}`;
+}
+
+/**
+ * Upload a file (base64-encoded) to the Storage bucket, overwriting any
+ * existing object at the same key (upsert).
+ *
+ * @param {string} path - key inside the bucket
+ * @param {string} base64 - file content, base64-encoded
+ * @param {string} [contentType]
+ * @returns {Promise<void>}
+ */
+export async function uploadToStorage(path, base64, contentType = 'audio/mpeg') {
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+
+  const encodedPath = path.split('/').map(encodeURIComponent).join('/');
+  const res = await fetch(`${SUPABASE_URL}/storage/v1/object/${STORAGE_BUCKET}/${encodedPath}`, {
+    method: 'POST',
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      'Content-Type': contentType,
+      'x-upsert': 'true',
+    },
+    body: bytes,
+  });
+  if (!res.ok) {
+    const errBody = await res.json().catch(() => ({}));
+    throw new Error(`Supabase Storage Upload ${res.status}: ${errBody.message || res.statusText}`);
+  }
+}
+
+/**
+ * Upsert an audio_assets row (registers/updates metadata for an uploaded file).
+ * Conflict target matches the table's unique(bucket, storage_path) constraint.
+ *
+ * @param {{song_id: string, kind: 'playalong'|'snippet', storage_path: string,
+ *          bar_num: number|null, part_id: string|null}} asset
+ * @returns {Promise<void>}
+ */
+export async function registerAudioAsset(asset) {
+  await sbFetch('audio_assets?on_conflict=bucket,storage_path', {
+    method: 'POST',
+    headers: { Prefer: 'resolution=merge-duplicates,return=minimal' },
+    body: JSON.stringify([{ bucket: STORAGE_BUCKET, ...asset }]),
+  });
+}
+
+/* ═══════════════════ GitHub (QXW-Datei, Ad-hoc-Zugriffe) ══════════════════
+ * Nur noch für die QXW-Lichtshow-Datei und "Test Connection" in den
+ * Settings — Audio läuft seit 2026-08-02 über Supabase Storage (s.o.). */
 
 function headers(token) {
   return {
@@ -318,102 +389,6 @@ function headers(token) {
     'Accept': 'application/vnd.github.v3+json',
     'Content-Type': 'application/json',
   };
-}
-
-function utf8ToBase64(str) {
-  return btoa(unescape(encodeURIComponent(str)));
-}
-
-/**
- * Upload a binary file (e.g. MP3) to GitHub as Base64.
- * Creates the file if it doesn't exist, updates if it does.
- *
- * @param {string} repo
- * @param {string} path   - e.g. "audio/5Ij0Ns/5Ij0Ns_P003/bar_001.mp3"
- * @param {string} token
- * @param {string} base64content - the file content already Base64-encoded
- * @param {string} [message]
- * @returns {Promise<string>} SHA of the committed file
- */
-export async function uploadFile(repo, path, token, base64content, message) {
-  const commitMsg = message || `Upload ${path} via lighting.ai`;
-
-  // Check if file exists to get its SHA
-  let existingSha = shaCache[path] || null;
-  if (!existingSha) {
-    try {
-      const url = `${GITHUB_API}/repos/${repo}/contents/${path}`;
-      const res = await fetch(url, { headers: headers(token) });
-      if (res.ok) {
-        const json = await res.json();
-        existingSha = json.sha;
-      }
-    } catch {
-      // file doesn't exist yet — that's fine
-    }
-  }
-
-  const url = `${GITHUB_API}/repos/${repo}/contents/${path}`;
-  const body = {
-    message: commitMsg,
-    content: base64content,
-  };
-  if (existingSha) {
-    body.sha = existingSha;
-  }
-
-  const res = await fetch(url, {
-    method: 'PUT',
-    headers: headers(token),
-    body: JSON.stringify(body),
-  });
-
-  if (!res.ok) {
-    const errBody = await res.json().catch(() => ({}));
-    throw new Error(`GitHub PUT ${res.status}: ${errBody.message || res.statusText}`);
-  }
-
-  const json = await res.json();
-  const newSha = json.content.sha;
-  shaCache[path] = newSha;
-  return newSha;
-}
-
-/**
- * Delete a file from a GitHub repo.
- *
- * @param {string} repo
- * @param {string} path
- * @param {string} token
- * @param {string} [message]
- * @returns {Promise<void>}
- */
-export async function deleteFile(repo, path, token, message) {
-  const commitMsg = message || `Delete ${path} via lighting.ai`;
-
-  // Get SHA of existing file
-  let sha = shaCache[path] || null;
-  if (!sha) {
-    const url = `${GITHUB_API}/repos/${repo}/contents/${path}`;
-    const res = await fetch(url, { headers: headers(token) });
-    if (!res.ok) return; // file doesn't exist — nothing to delete
-    const json = await res.json();
-    sha = json.sha;
-  }
-
-  const url = `${GITHUB_API}/repos/${repo}/contents/${path}`;
-  const res = await fetch(url, {
-    method: 'DELETE',
-    headers: headers(token),
-    body: JSON.stringify({ message: commitMsg, sha }),
-  });
-
-  if (!res.ok && res.status !== 404) {
-    const errBody = await res.json().catch(() => ({}));
-    throw new Error(`GitHub DELETE ${res.status}: ${errBody.message || res.statusText}`);
-  }
-
-  delete shaCache[path];
 }
 
 /**
@@ -434,9 +409,9 @@ export async function loadDBLocal(path) {
 }
 
 /**
- * Test the GitHub connection by reading the repo root (used for the Audio
- * repo/token settings — has nothing to do with the DB, which lives in
- * Supabase now).
+ * Test the GitHub connection by reading the repo root (used for the QXW-Datei
+ * repo/token settings — has nothing to do with DB or Audio, die beide über
+ * Supabase laufen).
  *
  * @param {string} repo
  * @param {string} token
@@ -446,13 +421,4 @@ export async function testConnection(repo, token) {
   const url = `${GITHUB_API}/repos/${repo}`;
   const res = await fetch(url, { headers: headers(token) });
   return res.ok;
-}
-
-/**
- * Get cached SHA for a GitHub path.
- * @param {string} path
- * @returns {string|null}
- */
-export function getSha(path) {
-  return shaCache[path] || null;
 }

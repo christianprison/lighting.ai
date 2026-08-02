@@ -5,12 +5,12 @@
  * Bar-Editor mit 16tel-Accent-Raster und Summary-Bar.
  */
 
-import { loadDB, loadDBLocal, saveDB, testConnection, uploadFile, deleteFile, getSha } from './db.js';
+import { loadDB, loadDBLocal, saveDB, testConnection, storagePublicUrl, uploadToStorage, registerAudioAsset } from './db.js';
 import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2026.08.01-anker1';
+const APP_VERSION = 'v2026.08.02-audio1';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -419,6 +419,15 @@ function fmtDur(sec) {
  */
 function sanitizePath(str) {
   return (str || 'unknown')
+    // Typografische Satzzeichen -> ASCII zuerst. Ursache des Rock'n'Roll-Queen-
+    // Bugs (2026-08-02): Supabase Storage lehnt manche Unicode-Satzzeichen im
+    // Object-Key mit "InvalidKey" ab (z.B. U+2018 ‘), GitHub Pages nicht — die
+    // Datei landete daher nie im Storage-Bucket. Storage-Keys müssen ab jetzt
+    // immer reines ASCII sein, egal was im Songtitel steht.
+    .replace(/[‘’‚‛′]/g, "'")
+    .replace(/[“”„‟″]/g, '"')
+    .replace(/[–—−]/g, '-')
+    .replace(/…/g, '...')
     .replace(/[\/\\:*?"<>|#%&{}$!@`=^~]/g, '_')
     .replace(/\s+/g, ' ')
     .trim()
@@ -426,7 +435,7 @@ function sanitizePath(str) {
 }
 
 /**
- * Build the GitHub path for the reference audio file.
+ * Build the storage key (Supabase Storage + Git-Fallback) for the reference audio file.
  * Format: audio/{Song Title}/{Song Title} - Full Song.mp3
  */
 function buildRefAudioPath(song) {
@@ -435,7 +444,7 @@ function buildRefAudioPath(song) {
 }
 
 /**
- * Build the GitHub path for a bar audio file.
+ * Build the storage key for a bar audio file.
  * Format: audio/{Song Title}/{GlobalBarNum} {Song Title}.mp3
  * @param {object} song - the song object
  * @param {object} part - {id, pos, name, bars, ...}
@@ -444,14 +453,23 @@ function buildRefAudioPath(song) {
  */
 
 /**
- * Try fetching an audio URL. If the new-format path fails (404),
- * try the GitHub API as fallback, then try the legacy ID-based path.
+ * Try fetching an audio URL. Supabase Storage is primary (seit 2026-08-02 —
+ * ein einziger Zustellweg für Lesen UND Schreiben, siehe js/db.js).
+ * Der Git-`audio/`-Ordner (über GitHub Pages / lokalen Dev-Server) bleibt als
+ * Fallback bestehen, für Dateien, die noch nicht neu hochgeladen wurden.
  * Returns an ArrayBuffer or null.
  */
 async function fetchAudioUrl(url) {
-  const s = getSettings();
+  // 1. Supabase Storage (primär, public bucket, kein Auth nötig)
+  try {
+    const res = await fetch(storagePublicUrl(url));
+    if (res.ok) {
+      const ct = res.headers.get('content-type') || '';
+      if (!ct.includes('text/html') && !ct.includes('application/json')) return await res.arrayBuffer();
+    }
+  } catch { /* fall through */ }
 
-  // 1. Direct fetch (works on GitHub Pages / local dev)
+  // 2. Fallback: Git-Ordner direkt (GitHub Pages / lokaler Dev-Server)
   try {
     const encodedUrl = url.split('/').map(encodeURIComponent).join('/');
     const res = await fetch(encodedUrl);
@@ -461,7 +479,8 @@ async function fetchAudioUrl(url) {
     }
   } catch { /* fall through */ }
 
-  // 2. GitHub API fetch
+  // 3. Letzter Fallback: GitHub API (falls Pages-Fetch aus irgendeinem Grund scheitert)
+  const s = getSettings();
   if (s.token && s.repo) {
     try {
       const encodedPath = url.split('/').map(encodeURIComponent).join('/');
@@ -2964,7 +2983,7 @@ function buildExportSection() {
   return `
     <div class="export-section" id="export-section">
       <div class="export-header">
-        <h3>Export nach GitHub</h3>
+        <h3>Export nach Supabase</h3>
         <button class="btn btn-primary" id="btn-export">EXPORT</button>
       </div>
       <div style="font-size:0.8rem;color:var(--t3)">
@@ -2991,7 +3010,7 @@ function buildAudioSummary() {
       <span class="summary-item"><span class="summary-label">BPM (est.)</span><span class="mono">${est || '\u2014'}</span></span>
       ${bpmBtnHtml}
       ${irregHtml}
-      <span class="summary-item"><span class="summary-label">Storage</span><span class="mono text-green">GitHub</span></span>
+      <span class="summary-item"><span class="summary-label">Storage</span><span class="mono text-green">Supabase</span></span>
     </div>`;
 }
 
@@ -4094,7 +4113,7 @@ function handleAudioFileLoad(file) {
       return;
     }
 
-    // 2. Upload to GitHub (separate try/catch — decode success should not be rolled back)
+    // 2. Upload to Supabase Storage (separate try/catch — decode success should not be rolled back)
     try {
       await uploadReferenceAudio(uploadBuf, file.name);
     } catch (err) {
@@ -4106,7 +4125,7 @@ function handleAudioFileLoad(file) {
 }
 
 /**
- * Upload the full reference audio to GitHub and store path in song.
+ * Upload the full reference audio to Supabase Storage and store path in song.
  */
 async function uploadReferenceAudio(arrayBuffer, fileName) {
   const songId = selectedSongId;
@@ -4125,14 +4144,8 @@ async function uploadReferenceAudio(arrayBuffer, fileName) {
   song.audio_ref_name = fileName;
   markDirty();
 
-  const s = getSettings();
-  if (!s.token || !s.repo) {
-    toast('Kein GitHub-Token \u2014 Audio nur im Speicher, nicht auf GitHub', 'info', 4000);
-    return;
-  }
-
   try {
-    toast('Referenz-Audio wird auf GitHub hochgeladen...', 'info');
+    toast('Referenz-Audio wird hochgeladen...', 'info');
 
     // Convert ArrayBuffer to base64
     const bytes = new Uint8Array(arrayBuffer);
@@ -4143,10 +4156,10 @@ async function uploadReferenceAudio(arrayBuffer, fileName) {
     }
     const base64 = btoa(binary);
 
-    await uploadFile(s.repo, path, s.token, base64,
-      `Referenz-Audio: ${song.name}`);
+    await uploadToStorage(path, base64);
+    await registerAudioAsset({ song_id: songId, kind: 'playalong', storage_path: path, bar_num: null, part_id: null });
 
-    toast('Referenz-Audio auf GitHub gespeichert \u2713', 'success');
+    toast('Referenz-Audio gespeichert \u2713', 'success');
 
     // Auto-save DB so audio_ref persists across page reloads
     await handleSave(false);
@@ -4163,7 +4176,7 @@ async function uploadReferenceAudio(arrayBuffer, fileName) {
 }
 
 /**
- * Load reference audio from GitHub for current song.
+ * Load reference audio (Supabase Storage, Git-Fallback) for current song.
  */
 async function loadReferenceAudio() {
   if (!selectedSongId) return;
@@ -4172,7 +4185,6 @@ async function loadReferenceAudio() {
   if (audioMeta) return; // already loaded
 
   const songId = selectedSongId;
-  const s = getSettings();
   const refName = song.audio_ref_name || song.audio_ref.split('/').pop();
 
   try {
@@ -4183,7 +4195,7 @@ async function loadReferenceAudio() {
       arrayBuf = _audioRefCache[songId];
     }
 
-    // 2. Try fetching (direct + GitHub API fallback)
+    // 2. Try fetching (Supabase Storage, dann Git-Fallback)
     if (!arrayBuf) {
       toast(`Lade Referenz-Audio: ${refName}...`, 'info');
       arrayBuf = await fetchAudioUrl(song.audio_ref);
@@ -4541,15 +4553,10 @@ function handleBpmSetFromMarkers(songId = selectedSongId, silent = false) {
   return true;
 }
 
-/* ── Audio Export to GitHub ─────────────────────────── */
+/* ── Audio Export to Supabase Storage ─────────────────────────── */
 
 async function handleAudioExport() {
   if (!selectedSongId || !audioMeta || exportInProgress) return;
-  const s = getSettings();
-  if (!s.token || !s.repo) {
-    toast('GitHub Token in Settings erforderlich', 'error');
-    return;
-  }
   if (markers.length === 0) return;
 
   exportInProgress = true;
@@ -4571,7 +4578,8 @@ async function handleAudioExport() {
       const base64mp3 = await audio.exportSegmentMp3(barStart, barEnd);
       const path = `audio/${sanitizePath(songName)}/bar_${String(globalBarNum).padStart(3, '0')}.mp3`;
 
-      await uploadFile(s.repo, path, s.token, base64mp3, `Audio: Bar ${globalBarNum} (${songName})`);
+      await uploadToStorage(path, base64mp3);
+      await registerAudioAsset({ song_id: selectedSongId, kind: 'snippet', storage_path: path, bar_num: globalBarNum, part_id: null });
 
       const [barId, barData] = getOrCreateBar(selectedSongId, globalBarNum);
       barData.audio = path;
@@ -8579,7 +8587,7 @@ function handleSaveSettings() {
   saveSettings({ repo, token, path, debugPanel });
   applyDebugPanelVisibility();
   closeSettings();
-  toast(token ? 'Settings gespeichert (GitHub Audio-Upload aktiv)' : 'Settings gespeichert', 'success');
+  toast(token ? 'Settings gespeichert (GitHub für QXW-Datei aktiv)' : 'Settings gespeichert', 'success');
   initDB();
 }
 
@@ -8901,7 +8909,7 @@ function wireEvents() {
     if (tab) switchHelpTab(tab.dataset.help);
   });
 
-  // Undo (revert to last saved GitHub version)
+  // Undo (revert to last saved Supabase version)
   els.btnUndo.addEventListener('click', handleUndo);
 
   // Save

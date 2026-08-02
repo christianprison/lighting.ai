@@ -131,15 +131,16 @@ for _ch in DISPLAY_CHANNELS:
 
 # Anchor type colours (matching Live-App badge colours)
 _ANCHOR_COLORS: dict[str, QColor] = {
-    "pete":      QColor("#38bdf8"),
-    "axel":      QColor("#f0a030"),
-    "christian": QColor("#00dc82"),
-    "drum":      QColor("#ff3b5c"),
-    "guitar":    QColor("#a78bfa"),
-    "bass":      QColor("#34d399"),
-    "keys":      QColor("#fbbf24"),
-    "silence":   QColor("#64748b"),
-    "other":     QColor("#a0a4b8"),
+    "pete":          QColor("#38bdf8"),
+    "axel":          QColor("#f0a030"),
+    "christian":     QColor("#00dc82"),
+    "drum":          QColor("#ff3b5c"),
+    "lead_guitar":   QColor("#a78bfa"),
+    "rhythm_guitar": QColor("#c4b5fd"),
+    "bass":          QColor("#34d399"),
+    "keys":          QColor("#fbbf24"),
+    "silence":       QColor("#64748b"),
+    "other":         QColor("#a0a4b8"),
 }
 
 # Pre-compute y offsets — ANCHOR_H sits between Events strip and first Track

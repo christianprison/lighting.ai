@@ -689,7 +689,7 @@ Streaming, cursor-basierter Anker-Matcher — wartet stur auf den jeweils nächs
 **`_event_to_trigger(type, event) -> str`** — Mapping von Anker-Typ/Ereignis auf Trigger-Kategorie:
 - `drum` + crash* → `"crash"` | snare-roll → `"snare_roll"` | fill → `"drum_fill"` | snare → `"snare"` | pause → `"drum_silence"` | sonst → `"kick"`
 - `pete`/`axel`/`christian` + schrei/ausruf → `"{type}_peak"` | pause/hört auf → `"{type}_silence"` | harmony → `"harmony"` | sonst → `"{type}_onset"`
-- `guitar` + pause/endet → `"guitar_silence"` | sonst → `"guitar_onset"`
+- `lead_guitar`/`rhythm_guitar` (Alt-Daten: `guitar`) + pause/endet → `"guitar_silence"` | sonst → `"guitar_onset"` (nur ein akustischer Gitarren-Kanal, Lead/Rhythm ist reine Label-Unterscheidung für den Lichttechniker)
 - `bass` + pause → `"bass_silence"` | sonst → `"bass_onset"`
 - `silence` + nur schlagzeug → `"drums_only"` | sonst → `"full_silence"`
 - `keys`/`other` → `"kick"` (Fallback: nächster Kick)
@@ -987,15 +987,21 @@ akustische Ereignisse, die der Lichttechniker in der DB-Pflege-App pflegt:
 ```
 
 - **Felder**: `id` (eindeutig), `pos` (Reihenfolge 1-basiert), `type`, `event`, `part_hint`, `bar_num` (absolut, 1-basiert), `beat` (Zählzeit: `"1"` … `"4+"`)
-- **Typ-Werte**: `pete` / `axel` / `christian` (Gesang), `drum`, `guitar`, `bass`, `keys`, `silence`, `other`
+- **Typ-Werte**: `pete` / `axel` / `christian` (Gesang), `drum`, `lead_guitar`, `rhythm_guitar`, `bass`, `keys`, `silence`, `other`.
+  `guitar` (Alt-Wert vor Session 2026-08-01) ist gleichbedeutend mit `lead_guitar` — bestehende
+  Anker wurden bei der Umstellung migriert, `detection/anchor_matcher.py` akzeptiert `guitar` aber
+  weiterhin als Fallback.
 - **Event-Katalog** pro Typ (Dropdown in der App) — alle Typen haben `Einsatz` und `Pause` an erster Stelle:
   - Pete/Axel/Christian: Einsatz | Pause | Setzt ein | Hört auf | Schrei / Ausruf | Refrain-Phrase | Harmony
   - Drum: Einsatz | Pause | **Crash** | **Snare** | Crash (Beat 1) | Crash auf 2 (mit Snare) | Crash mehrfach | Fill mit Crash | Drum-Fill | Beat beginnt | Breakbeat | Nur Kick | Snare-Roll
-  - Guitar: Einsatz | Pause | Riff beginnt | Powerchords | Solo beginnt | Solo endet | Arpeggio
+  - Lead Guitar / Rhythm Guitar: Einsatz | Pause | Riff beginnt | Powerchords | Solo beginnt | Solo endet | Arpeggio
   - Bass: Einsatz | Pause | Bass-Linie beginnt | Bass-Fill
   - Keys: Einsatz | Pause | Setzt ein | Pad-Fläche | Riff / Motiv
   - Silence: Einsatz | Pause | Song-Anfang (Stille) | Komplette Stille | Nur Schlagzeug | Breakdown
-  - Other: Einsatz | Pause | Markantes Ereignis
+  - **Other**: kein fester Katalog — stattdessen ein Freitextfeld (`.ak-event-inp`, `_buildEventCell()`
+    in `js/app.js`), max. 40 Zeichen. Ersetzt seit Session 2026-08-01 das früher feste Wort
+    „Sonstiges"/„Markantes Ereignis" — der freie Text landet direkt im `event`-Feld und wird überall
+    dort angezeigt, wo sonst z.B. „Crash (Beat 1)" stünde (Live-App-Ankerkörper, Rehearsal-App).
 - **UI (DB-Pflege-App)**: Integriert im **PARTS-Tab** unter der Umschaltfläche **„Anker"** (neben „Licht").
   Die Anker werden nach Parts gruppiert angezeigt. Spalten: Typ | Ereignis | Takt | Zählzeit | Aktionen.
   Kein separater ANKER-Tab mehr — der Part-Kontext ist durch die Gruppierung implizit.
@@ -1006,9 +1012,9 @@ akustische Ereignisse, die der Lichttechniker in der DB-Pflege-App pflegt:
   `neuer_takt = ziel_first_bar + (quell_takt − quell_first_bar)` — funktioniert damit automatisch
   für Verse 2 aus Verse 1, Intro Reprise aus Intro etc. (`_copyAnchorsFromPart()` in `js/app.js`).
 - **Anzeige (Live-App)**: ANKER-Panel im linken Panel unterhalb der Parts-Liste.
-  Farbige Typ-Badges (PETE=cyan, AXEL=amber, CHRIS=grün, DRUM=rot, GTR=violett, BASS=mint).
-  Nächster anstehender Anker = amber hervorgehoben; vergangene = ausgegraut (30%).
-  Scrollt automatisch zum nächsten Anker mit dem Playhead.
+  Farbige Typ-Badges (PETE=cyan, AXEL=amber, CHRIS=grün, DRUM=rot, LEAD=violett, RTHM=helles
+  violett, BASS=mint, AKT=grau für Sonstiges). Nächster anstehender Anker = amber hervorgehoben;
+  vergangene = ausgegraut (30%). Scrollt automatisch zum nächsten Anker mit dem Playhead.
 - **Nutzung Live/Sim (Zukunft)**: Anker als strukturierte akustische Fingerabdrücke für automatische Positionserkennung.
 
 ### Tech Stack (Live-App)

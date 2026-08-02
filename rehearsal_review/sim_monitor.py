@@ -37,15 +37,16 @@ FONT_TINY  = QFont("DM Mono", 7)
 
 # ── Anker-Typ-Farben (entspricht Live-App Badge-Farben) ───────────────────────
 _ANCHOR_COLORS: dict[str, QColor] = {
-    "pete":      QColor("#38bdf8"),  # cyan
-    "axel":      QColor("#f0a030"),  # amber
-    "christian": QColor("#00dc82"),  # green
-    "drum":      QColor("#ff3b5c"),  # red
-    "guitar":    QColor("#a78bfa"),  # violet
-    "bass":      QColor("#34d399"),  # mint
-    "keys":      QColor("#fbbf24"),  # yellow
-    "silence":   QColor("#64748b"),  # grey
-    "other":     QColor("#a0a4b8"),  # t2
+    "pete":          QColor("#38bdf8"),  # cyan
+    "axel":          QColor("#f0a030"),  # amber
+    "christian":     QColor("#00dc82"),  # green
+    "drum":          QColor("#ff3b5c"),  # red
+    "lead_guitar":   QColor("#a78bfa"),  # violet
+    "rhythm_guitar": QColor("#c4b5fd"),  # light violet
+    "bass":          QColor("#34d399"),  # mint
+    "keys":          QColor("#fbbf24"),  # yellow
+    "silence":       QColor("#64748b"),  # grey
+    "other":         QColor("#a0a4b8"),  # t2
 }
 
 # ── Layout ────────────────────────────────────────────────────────────────────

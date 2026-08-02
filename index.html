@@ -97,18 +97,19 @@
     <h2>Settings</h2>
 
     <p style="margin: 0 0 12px; font-size: 0.85rem; color: var(--t2)">
-      Die Songdatenbank wird automatisch über Supabase geladen/gespeichert &mdash;
-      dafür ist keine Konfiguration nötig. Die folgenden Felder werden nur für den
-      Audio-Upload (MP3-Snippets, Referenz-Audio) auf GitHub gebraucht.
+      Songdatenbank und Audio (Referenz-Audio, Bar-Snippets) laufen automatisch
+      über Supabase &mdash; dafür ist keine Konfiguration nötig. Die folgenden
+      Felder werden nur noch für die QLC+-Szenenliste (QXW-Datei) gebraucht,
+      die weiterhin aus dem GitHub-Repo gelesen wird.
     </p>
 
     <div class="form-group">
-      <label for="set-repo">GitHub Repo (Audio-Upload)</label>
+      <label for="set-repo">GitHub Repo (QXW-Datei)</label>
       <input type="text" id="set-repo" value="christianprison/lighting.ai" placeholder="owner/repo">
     </div>
 
     <div class="form-group">
-      <label for="set-token">GitHub Token (PAT, Audio-Upload)</label>
+      <label for="set-token">GitHub Token (PAT, QXW-Datei)</label>
       <input type="password" id="set-token" placeholder="github_pat_..." autocomplete="new-password" data-1p-ignore data-lpignore="true">
     </div>
 
@@ -160,7 +161,7 @@
     <!-- Allgemein -->
     <div class="help-page" id="help-general">
       <h3>Was ist lighting.ai?</h3>
-      <p>Lichtsteuerungs-App fuer die Coverband <strong>THE PACT</strong>. Du verwaltest hier die komplette Songdatenbank mit Takten, Lyrics und Licht-Cues. Die App laeuft komplett im Browser &mdash; die Songdatenbank wird automatisch in Supabase gespeichert (kein Login noetig), Audio-Dateien liegen auf GitHub.</p>
+      <p>Lichtsteuerungs-App fuer die Coverband <strong>THE PACT</strong>. Du verwaltest hier die komplette Songdatenbank mit Takten, Lyrics und Licht-Cues. Die App laeuft komplett im Browser &mdash; Songdatenbank und Audio-Dateien werden automatisch in Supabase gespeichert (kein Login noetig).</p>
 
       <h3>Erste Schritte</h3>
       <div class="help-steps">
@@ -174,7 +175,7 @@
         </div>
         <div class="help-step">
           <span class="help-step-nr">3</span>
-          <div><strong>GitHub fuer Audio (optional)</strong><br>Nur fuer den Audio-Split-Export gebraucht: Zahnrad-Icon oben rechts, GitHub Token eintragen. Klick auf <em>Test Connection</em> zum Pruefen.</div>
+          <div><strong>GitHub fuer QXW-Datei (optional)</strong><br>Nur fuer die QLC+-Szenenliste gebraucht: Zahnrad-Icon oben rechts, GitHub Token eintragen. Klick auf <em>Test Connection</em> zum Pruefen.</div>
         </div>
       </div>
 
@@ -299,7 +300,7 @@
         </div>
         <div class="help-step">
           <span class="help-step-nr">7</span>
-          <div><strong>Exportieren</strong> &mdash; Audio-Segmente werden pro Bar als MP3 auf GitHub hochgeladen.</div>
+          <div><strong>Exportieren</strong> &mdash; Audio-Segmente werden pro Bar als MP3 nach Supabase hochgeladen.</div>
         </div>
       </div>
 
@@ -414,7 +415,7 @@
 
 <!-- ── Scripts ─────────────────────────────────────── -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lamejs/1.2.1/lame.min.js"></script>
-<script type="module" src="js/app.js?v=anker1"></script>
+<script type="module" src="js/app.js?v=audio1"></script>
 
 </body>
 </html>

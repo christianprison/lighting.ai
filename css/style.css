@@ -4931,6 +4931,7 @@ td.ak-actions { width: 90px; white-space: nowrap; text-align: right; }
 /* Anchor selects within pak-mode */
 .parts-table.pak-mode .ak-type-sel,
 .parts-table.pak-mode .ak-event-sel,
+.parts-table.pak-mode .ak-event-inp,
 .parts-table.pak-mode .ak-bar-sel,
 .parts-table.pak-mode .ak-beat-sel {
   width: 100%;
@@ -4944,11 +4945,13 @@ td.ak-actions { width: 90px; white-space: nowrap; text-align: right; }
 }
 .parts-table.pak-mode .ak-type-sel:focus,
 .parts-table.pak-mode .ak-event-sel:focus,
+.parts-table.pak-mode .ak-event-inp:focus,
 .parts-table.pak-mode .ak-bar-sel:focus,
 .parts-table.pak-mode .ak-beat-sel:focus {
   border-color: var(--cyan);
   outline: none;
 }
+.parts-table.pak-mode .ak-event-inp::placeholder { color: var(--t4); }
 
 /* ── Grundrhythmus Sequencer ──────────────────────────── */
 .gr-seq {

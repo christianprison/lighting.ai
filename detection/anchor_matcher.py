@@ -111,7 +111,10 @@ def _event_to_trigger(anc_type: str, event: str) -> str:
             return "harmony"
         return f"{t}_onset"
 
-    if t == "guitar":
+    if t in ("guitar", "lead_guitar", "rhythm_guitar"):
+        # Lead/Rhythm Guitar sind reine Label-Unterscheidung für den Lichttechniker
+        # — akustisch gibt es nur einen Gitarren-Erkennungskanal, beide laufen auf
+        # denselben Trigger. "guitar" bleibt als Fallback für Alt-Daten stehen.
         if "pause" in e or "endet" in e:
             return "guitar_silence"
         return "guitar_onset"

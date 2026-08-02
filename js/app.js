@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2026.08.01-supabase1';
+const APP_VERSION = 'v2026.08.01-anker1';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -2340,7 +2340,7 @@ function _renderPartsAnkerView(song, parts, anchors, hasBuf) {
           html += `<td class="pt-instr${vtc}"${rs}><input type="checkbox" class="pt-instr-cb" data-idx="${pi}" ${p.instrumental ? 'checked' : ''}></td>`;
         }
         html += `<td class="pak-type"><select class="ak-type-sel" data-anchor-id="${a.id}" data-anchor-field="type">${typeOpts}</select></td>`;
-        html += `<td class="pak-event"><select class="ak-event-sel" data-anchor-id="${a.id}" data-anchor-field="event">${_buildEventOptions(a.type, a.event)}</select></td>`;
+        html += `<td class="pak-event">${_buildEventCell(a)}</td>`;
         html += `<td class="pak-bar"><select class="ak-bar-sel" data-anchor-id="${a.id}" data-anchor-field="bar_num">${_buildBarOptions(bars, a.bar_num)}</select></td>`;
         html += `<td class="pak-beat"><select class="ak-beat-sel" data-anchor-id="${a.id}" data-anchor-field="beat">${_buildBeatOptions(a.beat)}</select></td>`;
         html += `<td class="pak-actions">`;
@@ -2368,7 +2368,7 @@ function _renderPartsAnkerView(song, parts, anchors, hasBuf) {
       html += `<tr>`;
       html += `<td class="pt-num pak-unasgn-spacer" colspan="6"></td>`;
       html += `<td class="pak-type"><select class="ak-type-sel" data-anchor-id="${a.id}" data-anchor-field="type">${typeOpts}</select></td>`;
-      html += `<td class="pak-event"><select class="ak-event-sel" data-anchor-id="${a.id}" data-anchor-field="event">${_buildEventOptions(a.type, a.event)}</select></td>`;
+      html += `<td class="pak-event">${_buildEventCell(a)}</td>`;
       html += `<td class="pak-bar"><select class="ak-bar-sel" data-anchor-id="${a.id}" data-anchor-field="bar_num">${_buildBarOptions([], a.bar_num)}</select></td>`;
       html += `<td class="pak-beat"><select class="ak-beat-sel" data-anchor-id="${a.id}" data-anchor-field="beat">${_buildBeatOptions(a.beat)}</select></td>`;
       html += `<td class="pak-actions">`;
@@ -2430,7 +2430,7 @@ function _wirePakEvents(song, parts) {
   }
 
   // Anchor field changes
-  for (const sel of document.querySelectorAll('.ak-type-sel, .ak-event-sel, .ak-bar-sel, .ak-beat-sel')) {
+  for (const sel of document.querySelectorAll('.ak-type-sel, .ak-event-sel, .ak-event-inp, .ak-bar-sel, .ak-beat-sel')) {
     sel.addEventListener('change', handleAnchorsChange);
   }
 
@@ -2445,28 +2445,29 @@ function _wirePakEvents(song, parts) {
    ══════════════════════════════════════════════════════ */
 
 const ANCHOR_TYPES = [
-  { value: 'pete',      label: 'Pete (Gesang)' },
-  { value: 'axel',      label: 'Axel (Gesang)' },
-  { value: 'christian', label: 'Christian (Gesang)' },
-  { value: 'drum',      label: 'Schlagzeug' },
-  { value: 'guitar',    label: 'Gitarre' },
-  { value: 'bass',      label: 'Bass' },
-  { value: 'keys',      label: 'Keys' },
-  { value: 'silence',   label: 'Stille' },
-  { value: 'other',     label: 'Sonstiges' },
+  { value: 'pete',          label: 'Pete (Gesang)' },
+  { value: 'axel',          label: 'Axel (Gesang)' },
+  { value: 'christian',     label: 'Christian (Gesang)' },
+  { value: 'drum',          label: 'Schlagzeug' },
+  { value: 'lead_guitar',   label: 'Lead Guitar' },
+  { value: 'rhythm_guitar', label: 'Rhythm Guitar' },
+  { value: 'bass',          label: 'Bass' },
+  { value: 'keys',          label: 'Keys' },
+  { value: 'silence',       label: 'Stille' },
+  { value: 'other',         label: 'Sonstiges' },
 ];
 
-/** Katalog erkennbarer Ereignisse pro Typ */
+/** Katalog erkennbarer Ereignisse pro Typ ('other' nutzt stattdessen ein Freitextfeld) */
 const ANCHOR_EVENTS = {
-  pete:      ['Einsatz', 'Pause', 'Setzt ein', 'Hört auf', 'Schrei / Ausruf', 'Refrain-Phrase', 'Harmony'],
-  axel:      ['Einsatz', 'Pause', 'Setzt ein', 'Hört auf', 'Harmony', 'Refrain-Phrase'],
-  christian: ['Einsatz', 'Pause', 'Setzt ein', 'Hört auf', 'Harmony'],
-  drum:      ['Einsatz', 'Pause', 'Crash', 'Snare', 'Crash (Beat 1)', 'Crash auf 2 (mit Snare)', 'Crash mehrfach', 'Fill mit Crash', 'Drum-Fill', 'Beat beginnt', 'Breakbeat', 'Nur Kick', 'Snare-Roll'],
-  guitar:    ['Einsatz', 'Pause', 'Riff beginnt', 'Powerchords', 'Solo beginnt', 'Solo endet', 'Arpeggio'],
-  bass:      ['Einsatz', 'Pause', 'Bass-Linie beginnt', 'Bass-Fill'],
-  keys:      ['Einsatz', 'Pause', 'Setzt ein', 'Pad-Fläche', 'Riff / Motiv'],
-  silence:   ['Einsatz', 'Pause', 'Song-Anfang (Stille)', 'Komplette Stille', 'Nur Schlagzeug', 'Breakdown'],
-  other:     ['Einsatz', 'Pause', 'Markantes Ereignis'],
+  pete:          ['Einsatz', 'Pause', 'Setzt ein', 'Hört auf', 'Schrei / Ausruf', 'Refrain-Phrase', 'Harmony'],
+  axel:          ['Einsatz', 'Pause', 'Setzt ein', 'Hört auf', 'Harmony', 'Refrain-Phrase'],
+  christian:     ['Einsatz', 'Pause', 'Setzt ein', 'Hört auf', 'Harmony'],
+  drum:          ['Einsatz', 'Pause', 'Crash', 'Snare', 'Crash (Beat 1)', 'Crash auf 2 (mit Snare)', 'Crash mehrfach', 'Fill mit Crash', 'Drum-Fill', 'Beat beginnt', 'Breakbeat', 'Nur Kick', 'Snare-Roll'],
+  lead_guitar:   ['Einsatz', 'Pause', 'Riff beginnt', 'Powerchords', 'Solo beginnt', 'Solo endet', 'Arpeggio'],
+  rhythm_guitar: ['Einsatz', 'Pause', 'Riff beginnt', 'Powerchords', 'Solo beginnt', 'Solo endet', 'Arpeggio'],
+  bass:          ['Einsatz', 'Pause', 'Bass-Linie beginnt', 'Bass-Fill'],
+  keys:          ['Einsatz', 'Pause', 'Setzt ein', 'Pad-Fläche', 'Riff / Motiv'],
+  silence:       ['Einsatz', 'Pause', 'Song-Anfang (Stille)', 'Komplette Stille', 'Nur Schlagzeug', 'Breakdown'],
 };
 
 /** Gibt die absoluten Taktnummern aller Takte eines Parts zurück. */
@@ -2484,6 +2485,17 @@ function _buildEventOptions(type, selectedEvent) {
     `<option value="${esc(ev)}"${selectedEvent === ev ? ' selected' : ''}>${esc(ev)}</option>`
   ).join('');
   return opts;
+}
+
+/**
+ * "Sonstiges" hat keinen festen Event-Katalog — stattdessen ein kurzes
+ * Freitextfeld (ersetzt das früher fixe Wort "Sonstiges" als Beschreibung).
+ */
+function _buildEventCell(a) {
+  if (a.type === 'other') {
+    return `<input type="text" class="ak-desc-inp ak-event-inp" data-anchor-id="${a.id}" data-anchor-field="event" value="${esc(a.event || '')}" placeholder="kurze Beschreibung..." maxlength="40">`;
+  }
+  return `<select class="ak-event-sel" data-anchor-id="${a.id}" data-anchor-field="event">${_buildEventOptions(a.type, a.event)}</select>`;
 }
 
 function _buildBarOptions(bars, selectedBar) {
@@ -2603,13 +2615,15 @@ function handleAnchorsChange(e) {
     anchor[field] = el.value;
   }
 
-  // Typ geändert → Event-Dropdown neu befüllen
+  // Typ geändert → Event-Zelle neu aufbauen (Select oder Freitext bei "Sonstiges")
   if (field === 'type') {
     const row = el.closest('tr');
-    const evSel = row?.querySelector('.ak-event-sel');
-    if (evSel) {
-      evSel.innerHTML = _buildEventOptions(el.value, '');
+    const eventTd = row?.querySelector('.pak-event');
+    if (eventTd) {
       anchor.event = '';
+      eventTd.innerHTML = _buildEventCell(anchor);
+      const newEl = eventTd.querySelector('.ak-event-sel, .ak-event-inp');
+      if (newEl) newEl.addEventListener('change', handleAnchorsChange);
     }
   }
 

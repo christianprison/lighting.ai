@@ -1,0 +1,749 @@
+{
+  "_generated": true,
+  "_generated_at": "2026-08-07T15:01:33.797384+00:00",
+  "_source": "supabase",
+  "band_id": "stringbreak",
+  "version": "1.0",
+  "band": "Stringbreak",
+  "setlist": {
+    "name": "Setlist",
+    "items": [
+      {
+        "pos": 1,
+        "type": "song",
+        "song_id": "EoY27S"
+      },
+      {
+        "pos": 2,
+        "type": "song",
+        "song_id": "sKgtaE"
+      },
+      {
+        "pos": 3,
+        "type": "song",
+        "song_id": "Zgw2Fu"
+      },
+      {
+        "pos": 4,
+        "type": "song",
+        "song_id": "lHrOma"
+      },
+      {
+        "pos": 5,
+        "type": "song",
+        "song_id": "LNvoS0"
+      },
+      {
+        "pos": 6,
+        "type": "song",
+        "song_id": "Py73Q6"
+      },
+      {
+        "pos": 7,
+        "type": "song",
+        "song_id": "OlxVbA"
+      }
+    ]
+  },
+  "songs": {
+    "2CqcNd": {
+      "name": "51st State",
+      "artist": "New Model Army",
+      "bpm": null,
+      "key": "",
+      "year": "",
+      "pick": "",
+      "gema_nr": "2038744-001",
+      "duration": "2:30",
+      "duration_sec": 150,
+      "notes": "",
+      "band_id": "stringbreak"
+    },
+    "6SI9Iu": {
+      "name": "Highway Star",
+      "artist": "Deep purple",
+      "bpm": 152,
+      "key": "c# moll",
+      "year": "",
+      "pick": "",
+      "gema_nr": "427423-001",
+      "duration": "",
+      "duration_sec": 0,
+      "notes": "",
+      "band_id": "stringbreak"
+    },
+    "8m5ViH": {
+      "name": "Born to be wild",
+      "artist": "Steppenwolf",
+      "bpm": null,
+      "key": "C# dorisch",
+      "year": "",
+      "pick": "",
+      "gema_nr": "371626-001",
+      "duration": "3:25",
+      "duration_sec": 205,
+      "notes": "SD: X",
+      "band_id": "stringbreak"
+    },
+    "9coeHR": {
+      "name": "Moon over Bourbon Street",
+      "artist": "Sting",
+      "bpm": 108,
+      "key": "F moll",
+      "year": "",
+      "pick": "",
+      "gema_nr": "30270858-001",
+      "duration": "",
+      "duration_sec": 0,
+      "notes": "custom_d0XapK: immer",
+      "band_id": "stringbreak"
+    },
+    "aFuGgO": {
+      "name": "BBC",
+      "artist": "Ming Tea",
+      "bpm": null,
+      "key": "Emoll",
+      "year": "",
+      "pick": "",
+      "gema_nr": "4371578-001",
+      "duration": "2:30",
+      "duration_sec": 150,
+      "notes": "SD: X",
+      "band_id": "stringbreak"
+    },
+    "arjbPl": {
+      "name": "Love runs out",
+      "artist": "OneRepublic",
+      "bpm": null,
+      "key": "G moll",
+      "year": "",
+      "pick": "",
+      "gema_nr": "14585530-001",
+      "duration": "3:44",
+      "duration_sec": 224,
+      "notes": "",
+      "band_id": "stringbreak"
+    },
+    "BX4AN1": {
+      "name": "Dead Or Alive",
+      "artist": "Bon Jovi",
+      "bpm": null,
+      "key": "A Dur/moll",
+      "year": "",
+      "pick": "",
+      "gema_nr": "1995550-001",
+      "duration": "3:30",
+      "duration_sec": 210,
+      "notes": "",
+      "band_id": "stringbreak"
+    },
+    "BzVDy7": {
+      "name": "No particular place to go",
+      "artist": "Chuck Berry",
+      "bpm": 144,
+      "key": "D Dur",
+      "year": "",
+      "pick": "",
+      "gema_nr": "359873-001",
+      "duration": "2:00",
+      "duration_sec": 120,
+      "notes": "",
+      "band_id": "stringbreak"
+    },
+    "cwHfg4": {
+      "name": "Feal So Near",
+      "artist": "Dougie McLean",
+      "bpm": 92,
+      "key": "D dur",
+      "year": "",
+      "pick": "",
+      "gema_nr": "keine Gema Werknr.",
+      "duration": "3:11",
+      "duration_sec": 191,
+      "notes": "",
+      "band_id": "stringbreak"
+    },
+    "DJV7bS": {
+      "name": "Used To Love Her",
+      "artist": "Guns'n'Roses",
+      "bpm": 140,
+      "key": "D dur",
+      "year": "",
+      "pick": "",
+      "gema_nr": "2286648-001",
+      "duration": "2:13",
+      "duration_sec": 133,
+      "notes": "SD: X",
+      "band_id": "stringbreak"
+    },
+    "EoY27S": {
+      "name": "Whole Lotta Rosie",
+      "artist": "AC/DC",
+      "bpm": 140,
+      "key": "A moll",
+      "year": "",
+      "pick": "",
+      "gema_nr": "929168-001",
+      "duration": "4:08",
+      "duration_sec": 248,
+      "notes": "SD: X",
+      "band_id": "stringbreak",
+      "tms": {
+        "user_tasks": [],
+        "manual_done": [],
+        "manual_undone": []
+      }
+    },
+    "fwNl2O": {
+      "name": "Send You Roses",
+      "artist": "Stringbreak",
+      "bpm": 86,
+      "key": "C moll",
+      "year": "",
+      "pick": "",
+      "gema_nr": "20252803-001",
+      "duration": "3:00",
+      "duration_sec": 180,
+      "notes": "",
+      "band_id": "stringbreak"
+    },
+    "gw5wqd": {
+      "name": "Sharp Dressed Man",
+      "artist": "ZZ Top",
+      "bpm": 125,
+      "key": "A Blues",
+      "year": "",
+      "pick": "",
+      "gema_nr": "1596814-001",
+      "duration": "3:00",
+      "duration_sec": 180,
+      "notes": "SD: X",
+      "band_id": "stringbreak"
+    },
+    "hT14cb": {
+      "name": "Beautiful Stranger",
+      "artist": "Madonna",
+      "bpm": 127,
+      "key": "E moll",
+      "year": "",
+      "pick": "",
+      "gema_nr": "4571363-001",
+      "duration": "3:30",
+      "duration_sec": 210,
+      "notes": "",
+      "band_id": "stringbreak"
+    },
+    "i3bhSb": {
+      "name": "Reason To Believe",
+      "artist": "Bruce Springsteen",
+      "bpm": 130,
+      "key": "G dur",
+      "year": "",
+      "pick": "",
+      "gema_nr": "1578315-001",
+      "duration": "4:47",
+      "duration_sec": 287,
+      "notes": "",
+      "band_id": "stringbreak"
+    },
+    "IOEcHa": {
+      "name": "Highland Road",
+      "artist": "Fiddler's Green",
+      "bpm": 104,
+      "key": "H Moll",
+      "year": "",
+      "pick": "",
+      "gema_nr": "2441548-001",
+      "duration": "2:56",
+      "duration_sec": 176,
+      "notes": "",
+      "band_id": "stringbreak"
+    },
+    "jnfLYb": {
+      "name": "Talk dirty to me",
+      "artist": "Poison",
+      "bpm": null,
+      "key": "D",
+      "year": "",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "",
+      "duration_sec": 0,
+      "notes": "",
+      "band_id": "stringbreak"
+    },
+    "KntLVU": {
+      "name": "Hero",
+      "artist": "Nickelback",
+      "bpm": 148,
+      "key": "G# moll",
+      "year": "",
+      "pick": "",
+      "gema_nr": "6146920-001",
+      "duration": "3:21",
+      "duration_sec": 201,
+      "notes": "SD: X",
+      "band_id": "stringbreak"
+    },
+    "KUIipK": {
+      "name": "Love For Sale",
+      "artist": "Bon Jovi",
+      "bpm": 144,
+      "key": "E moll",
+      "year": "",
+      "pick": "",
+      "gema_nr": "2240483-001",
+      "duration": "3:35",
+      "duration_sec": 215,
+      "notes": "SD: X",
+      "band_id": "stringbreak"
+    },
+    "lHrOma": {
+      "name": "Nobody's Wife",
+      "artist": "Anouk",
+      "bpm": 120,
+      "key": "E moll",
+      "year": "",
+      "pick": "",
+      "gema_nr": "4294291-001",
+      "duration": "3:13",
+      "duration_sec": 193,
+      "notes": "",
+      "band_id": "stringbreak",
+      "tms": {
+        "user_tasks": [],
+        "manual_done": [],
+        "manual_undone": []
+      }
+    },
+    "llCjkY": {
+      "name": "Rocking In A Free World",
+      "artist": "Neil Young",
+      "bpm": 144,
+      "key": "A moll",
+      "year": "",
+      "pick": "",
+      "gema_nr": "2426038-001",
+      "duration": "3:15",
+      "duration_sec": 195,
+      "notes": "SD: X",
+      "band_id": "stringbreak"
+    },
+    "LNvoS0": {
+      "name": "T.N.T.",
+      "artist": "AC/DC",
+      "bpm": 120,
+      "key": "E moll",
+      "year": "",
+      "pick": "",
+      "gema_nr": "898349-001",
+      "duration": "2:30",
+      "duration_sec": 150,
+      "notes": "SD: X",
+      "band_id": "stringbreak",
+      "tms": {
+        "user_tasks": [],
+        "manual_done": [],
+        "manual_undone": []
+      },
+      "grundrhythmus": {
+        "kick": [
+          0,
+          1,
+          2,
+          3
+        ]
+      }
+    },
+    "LoCZ0X": {
+      "name": "When I'm Dead and Gone",
+      "artist": "Fury in the Slaughterhouse",
+      "bpm": 77,
+      "key": "G-Dur",
+      "year": "",
+      "pick": "",
+      "gema_nr": "480748-001",
+      "duration": "3:00",
+      "duration_sec": 180,
+      "notes": "",
+      "band_id": "stringbreak"
+    },
+    "Ml1tkL": {
+      "name": "Vagabonds",
+      "artist": "New Model Army",
+      "bpm": null,
+      "key": "",
+      "year": "",
+      "pick": "",
+      "gema_nr": "2299147-001",
+      "duration": "",
+      "duration_sec": 0,
+      "notes": "",
+      "band_id": "stringbreak"
+    },
+    "6MMTpH": {
+      "name": "Keep Singing",
+      "artist": "Stringbreak",
+      "bpm": 120,
+      "key": "",
+      "year": "",
+      "pick": "",
+      "gema_nr": "20252802",
+      "duration": "3:40",
+      "duration_sec": 220,
+      "notes": "SD: X",
+      "band_id": "stringbreak"
+    },
+    "4yF6Oh": {
+      "name": "My Drone is Gone",
+      "artist": "Stringbreak",
+      "bpm": 50,
+      "key": "E moll",
+      "year": "",
+      "pick": "",
+      "gema_nr": "20252806",
+      "duration": "3:00",
+      "duration_sec": 180,
+      "notes": "Other: A-Harp",
+      "band_id": "stringbreak"
+    },
+    "6jeOM4": {
+      "name": "Summer Of '69",
+      "artist": "Bryan Adams",
+      "bpm": 144,
+      "key": "A dur",
+      "year": "",
+      "pick": "",
+      "gema_nr": "1760182-001",
+      "duration": "3:22",
+      "duration_sec": 202,
+      "notes": "SD: X",
+      "band_id": "stringbreak"
+    },
+    "O1nDV4": {
+      "name": "Castle of glass",
+      "artist": "Linkin Park",
+      "bpm": null,
+      "key": "D moll",
+      "year": "",
+      "pick": "",
+      "gema_nr": "12876716-001",
+      "duration": "3:00",
+      "duration_sec": 180,
+      "notes": "Other: Violine",
+      "band_id": "stringbreak"
+    },
+    "ODrKVn": {
+      "name": "Folsom Prison Blues",
+      "artist": "Johnny Cash",
+      "bpm": null,
+      "key": "E Blues",
+      "year": "",
+      "pick": "",
+      "gema_nr": "397924-001",
+      "duration": "",
+      "duration_sec": 0,
+      "notes": "",
+      "band_id": "stringbreak"
+    },
+    "OlxVbA": {
+      "name": "Mama wouldnt play",
+      "artist": "Stringbreak",
+      "bpm": 136,
+      "key": "A Blues",
+      "year": "",
+      "pick": "",
+      "gema_nr": "20252811",
+      "duration": "3:00",
+      "duration_sec": 180,
+      "notes": "SD: X",
+      "band_id": "stringbreak",
+      "tms": {
+        "user_tasks": [],
+        "manual_done": [],
+        "manual_undone": []
+      },
+      "grundrhythmus": {
+        "kick": [
+          0,
+          1.5,
+          2
+        ],
+        "snare": [
+          1,
+          3
+        ]
+      }
+    },
+    "OnA5tX": {
+      "name": "Road Trippin'",
+      "artist": "Red Hot Chili Peppers",
+      "bpm": 204,
+      "key": "E moll",
+      "year": "",
+      "pick": "",
+      "gema_nr": "4709636-001",
+      "duration": "3:24",
+      "duration_sec": 204,
+      "notes": "",
+      "band_id": "stringbreak"
+    },
+    "PAaAWr": {
+      "name": "Patience",
+      "artist": "Guns'n'Roses",
+      "bpm": 120,
+      "key": "G dur",
+      "year": "",
+      "pick": "",
+      "gema_nr": "2286647-001",
+      "duration": "4:35",
+      "duration_sec": 275,
+      "notes": "",
+      "band_id": "stringbreak"
+    },
+    "pRviIq": {
+      "name": "Heaven",
+      "artist": "Depeche Mode",
+      "bpm": 58,
+      "key": "G moll",
+      "year": "",
+      "pick": "",
+      "gema_nr": "13451193-001",
+      "duration": "3:00",
+      "duration_sec": 180,
+      "notes": "",
+      "band_id": "stringbreak"
+    },
+    "pS3les": {
+      "name": "Down by the Hillside",
+      "artist": "Fiddler's Green",
+      "bpm": 96,
+      "key": "",
+      "year": "",
+      "pick": "",
+      "gema_nr": "10568168-001",
+      "duration": "3:00",
+      "duration_sec": 180,
+      "notes": "",
+      "band_id": "stringbreak"
+    },
+    "Py73Q6": {
+      "name": "Wheels Of Steel",
+      "artist": "Saxon",
+      "bpm": 132,
+      "key": "A moll",
+      "year": "",
+      "pick": "",
+      "gema_nr": "1142691-001",
+      "duration": "3:01",
+      "duration_sec": 181,
+      "notes": "SD: X",
+      "band_id": "stringbreak",
+      "tms": {
+        "user_tasks": [],
+        "manual_done": [],
+        "manual_undone": []
+      },
+      "grundrhythmus": {
+        "kick": [
+          0,
+          1,
+          2,
+          3
+        ]
+      }
+    },
+    "qiZ4Ax": {
+      "name": "Thunder Road",
+      "artist": "Bruce Springsteen",
+      "bpm": null,
+      "key": "",
+      "year": "",
+      "pick": "",
+      "gema_nr": "1336444-001",
+      "duration": "4:05",
+      "duration_sec": 245,
+      "notes": "",
+      "band_id": "stringbreak"
+    },
+    "qKnV1F": {
+      "name": "The Darkness Within",
+      "artist": "Machine Head",
+      "bpm": 152,
+      "key": "D moll",
+      "year": "",
+      "pick": "",
+      "gema_nr": "12353681-001",
+      "duration": "3:00",
+      "duration_sec": 180,
+      "notes": "",
+      "band_id": "stringbreak"
+    },
+    "rdx2OL": {
+      "name": "Nothing Else Matters",
+      "artist": "Metallica",
+      "bpm": 54,
+      "key": "E moll",
+      "year": "",
+      "pick": "",
+      "gema_nr": "2743166-001",
+      "duration": "5:30",
+      "duration_sec": 330,
+      "notes": "",
+      "band_id": "stringbreak"
+    },
+    "ROy0Cr": {
+      "name": "Punk Rock Song",
+      "artist": "Bad Religion",
+      "bpm": 152,
+      "key": "A moll",
+      "year": "",
+      "pick": "",
+      "gema_nr": "3944911-001",
+      "duration": "3:05",
+      "duration_sec": 185,
+      "notes": "SD: X",
+      "band_id": "stringbreak"
+    },
+    "sKgtaE": {
+      "name": "Black Betty",
+      "artist": "Ram Jam",
+      "bpm": null,
+      "key": "",
+      "year": "",
+      "pick": "",
+      "gema_nr": "958170-001",
+      "duration": "2:30",
+      "duration_sec": 150,
+      "notes": "",
+      "band_id": "stringbreak",
+      "tms": {
+        "user_tasks": [],
+        "manual_done": [],
+        "manual_undone": []
+      }
+    },
+    "SOaI3R": {
+      "name": "Frozen",
+      "artist": "Madonna",
+      "bpm": 116,
+      "key": "E moll",
+      "year": "",
+      "pick": "",
+      "gema_nr": "keine GEMA-Werke-Nr.",
+      "duration": "4:34",
+      "duration_sec": 274,
+      "notes": "",
+      "band_id": "stringbreak"
+    },
+    "Ul0Rn5": {
+      "name": "Along comes Mary",
+      "artist": "Bloodhound Gang",
+      "bpm": 156,
+      "key": "H moll",
+      "year": "1998",
+      "pick": "🔻",
+      "gema_nr": "1022042-001",
+      "duration": "3:19",
+      "duration_sec": 199,
+      "notes": "Bass Preset: G O––",
+      "band_id": "stringbreak"
+    },
+    "uVhvZJ": {
+      "name": "Tribute",
+      "artist": "Tenacious D",
+      "bpm": 88,
+      "key": "Am",
+      "year": "",
+      "pick": "",
+      "gema_nr": "8117712-001",
+      "duration": "4:08",
+      "duration_sec": 248,
+      "notes": "SD: X",
+      "band_id": "stringbreak"
+    },
+    "VtIa2J": {
+      "name": "Rockstar",
+      "artist": "Nickelback",
+      "bpm": 78,
+      "key": "E-Dur",
+      "year": "",
+      "pick": "",
+      "gema_nr": "9053540-001",
+      "duration": "4:15",
+      "duration_sec": 255,
+      "notes": "",
+      "band_id": "stringbreak"
+    },
+    "wRPWtN": {
+      "name": "Here Comes the Rain Again",
+      "artist": "Eurythmics",
+      "bpm": 124,
+      "key": "Am",
+      "year": "",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "3:30",
+      "duration_sec": 210,
+      "notes": "Other: 1630194-001",
+      "band_id": "stringbreak"
+    },
+    "WYGKgz": {
+      "name": "For My Lover",
+      "artist": "Tracy Chapman",
+      "bpm": 84,
+      "key": "E moll",
+      "year": "",
+      "pick": "",
+      "gema_nr": "2217633-001",
+      "duration": "3:04",
+      "duration_sec": 184,
+      "notes": "SD: X",
+      "band_id": "stringbreak"
+    },
+    "ypyIpt": {
+      "name": "Whiskey or Water",
+      "artist": "Stringbreak",
+      "bpm": null,
+      "key": "",
+      "year": "",
+      "pick": "",
+      "gema_nr": "keine Gema-Werke-Nr.",
+      "duration": "3:10",
+      "duration_sec": 190,
+      "notes": "",
+      "band_id": "stringbreak"
+    },
+    "Zgw2Fu": {
+      "name": "Ayo Technology",
+      "artist": "Milow",
+      "bpm": 128,
+      "key": "H Moll",
+      "year": "",
+      "pick": "",
+      "gema_nr": "9881677-001",
+      "duration": "3:17",
+      "duration_sec": 197,
+      "notes": "",
+      "band_id": "stringbreak",
+      "tms": {
+        "user_tasks": [],
+        "manual_done": [],
+        "manual_undone": []
+      },
+      "grundrhythmus": {
+        "kick": [
+          0,
+          1.5
+        ],
+        "snare": [
+          1,
+          3
+        ]
+      }
+    }
+  },
+  "bars": {},
+  "accents": {},
+  "meta": {}
+}

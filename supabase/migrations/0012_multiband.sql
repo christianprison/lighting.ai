@@ -44,7 +44,10 @@ alter table public.app_state alter column band_id set not null;
 
 alter table public.app_state drop constraint if exists app_state_pkey;
 alter table public.app_state drop constraint if exists app_state_id_check;
-alter table public.app_state drop column if exists id;
+-- CASCADE: die alte setlist_public-View (0003) haengt noch an app_state.id
+-- (`where a.id = 1`) und wird mit weggeworfen — Abschnitt (4) unten baut sie
+-- ohnehin komplett neu auf (auf band_id statt festem id=1), also unschaedlich.
+alter table public.app_state drop column if exists id cascade;
 alter table public.app_state add primary key (band_id);
 
 insert into public.app_state (band_id, version, band, setlist, meta) values

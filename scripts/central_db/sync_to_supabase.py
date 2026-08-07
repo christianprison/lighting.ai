@@ -1,16 +1,23 @@
 #!/usr/bin/env python3
-"""Auto-sync the catalog from db/lighting-ai-db.json INTO Supabase.
+"""Manueller Not-Aus/Restore-Weg: db/lighting-ai-db.<band>.json -> Supabase.
 
-Git stays the single source of truth (docs §12). This makes Supabase follow:
-upsert everything (adds + modifications), then PRUNE rows that no longer exist
-in the JSON (deletions). Idempotent and safe to re-run. Runs in GitHub Actions
-on every change to the DB file — no laptop, no service-key in any client.
+⚠️ SEIT DEM SUPABASE-CUTOVER NICHT DER NORMALE WEG (siehe .github/workflows/
+sync-db.yml — Auto-Trigger dort ist deshalb entfernt). Git ist nicht mehr
+Master, Supabase ist es. Nur zur Wiederherstellung aus einem Git-Stand nutzen.
 
-Does NOT upload audio binaries (see upload-snippets workflow); it only keeps the
-audio_assets *registry* in step with the metadata.
+Multi-Band (0012, 2026-08-07): `--band` ist Pflicht, die JSON-Datei enthält
+nur den Katalog EINER Band. Upsert (Adds/Mods) ist bereits automatisch
+band-scoped (db_json_to_rows liest band_id aus jedem Song). Die PRUNE-Stufe
+(löscht Zeilen, die im JSON fehlen) ist es NICHT — `prune_catalog` kennt kein
+Band-Scoping und würde bei mehr als einer Band in `bands` fälschlich auch die
+Songs/Bars/Accents der JEWEILS ANDEREN Band(s) löschen. Deshalb: Prune wird
+automatisch übersprungen, sobald mehr als eine Band existiert (reiner Upsert
+bleibt möglich). Für einen band-sicheren Prune müsste `prune_catalog` erst um
+ein `p_band_id`-Argument erweitert werden — bislang nicht gebaut (siehe
+docs/multiband-uebergabe.md).
 
-    SUPABASE_URL=… SUPABASE_SERVICE_ROLE_KEY=… python -m scripts.central_db.sync_to_supabase
-    python -m scripts.central_db.sync_to_supabase --dry-run   # offline, counts only
+    SUPABASE_URL=… SUPABASE_SERVICE_ROLE_KEY=… python -m scripts.central_db.sync_to_supabase --band the_pact
+    python -m scripts.central_db.sync_to_supabase --band the_pact --dry-run   # offline, counts only
 """
 
 from __future__ import annotations
@@ -49,11 +56,20 @@ def _client():
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--band", required=True, help="band_id, z.B. the_pact oder stringbreak")
     ap.add_argument("--db", type=Path, default=DEFAULT_DB)
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args(argv)
 
     db = json.loads(args.db.read_text(encoding="utf-8"))
+    if db.get("band_id") and db["band_id"] != args.band:
+        raise SystemExit(
+            f"ERROR: --band {args.band} passt nicht zu band_id \"{db['band_id']}\" in {args.db} — "
+            f"falsche Datei für diese Band?"
+        )
+    db["band_id"] = args.band  # --band ist die Autorität, auch wenn im JSON schon vorhanden
+    for s in db.get("songs", {}).values():
+        s.setdefault("band_id", args.band)  # Backfill für Alt-Dateien von vor 0012
     rows = db_json_to_rows(db)
     aa = audio_assets_rows(db, REPO_ROOT)
 
@@ -91,15 +107,25 @@ def main(argv: list[str] | None = None) -> int:
     _upsert("audio_assets", aa, on_conflict="bucket,storage_path")
 
     # 2) Prune deletions (rows in Supabase no longer present in the source).
-    client.rpc("prune_catalog", {
-        "p_song_ids":   [r["id"] for r in rows["songs"]],
-        "p_bar_ids":    [r["bar_id"] for r in rows["bars"]],
-        "p_accent_ids": [r["accent_id"] for r in rows["accents"]],
-    }).execute()
-    client.rpc("prune_audio_assets", {
-        "p_paths": [r["storage_path"] for r in aa],
-    }).execute()
-    print("  pruned stale rows (catalog + audio_assets)")
+    # prune_catalog kennt kein Band-Scoping (löscht global, was nicht in den
+    # p_*_ids-Listen steht) — mit mehr als einer Band in `bands` würde das
+    # fälschlich auch die Songs/Bars/Accents der jeweils anderen Band(s)
+    # löschen, da diese Datei nur EINE Band enthält. Deshalb: Prune nur, wenn
+    # aktuell genau eine Band existiert (Upsert oben bleibt unabhängig davon).
+    band_count = len(client.table("bands").select("id").execute().data)
+    if band_count > 1:
+        print(f"  ⚠️  {band_count} Bands in Supabase — PRUNE übersprungen (prune_catalog ist "
+              f"nicht band-scoped, würde die anderen Bands löschen). Nur Upsert wurde ausgeführt.")
+    else:
+        client.rpc("prune_catalog", {
+            "p_song_ids":   [r["id"] for r in rows["songs"]],
+            "p_bar_ids":    [r["bar_id"] for r in rows["bars"]],
+            "p_accent_ids": [r["accent_id"] for r in rows["accents"]],
+        }).execute()
+        client.rpc("prune_audio_assets", {
+            "p_paths": [r["storage_path"] for r in aa],
+        }).execute()
+        print("  pruned stale rows (catalog + audio_assets)")
 
     print("\nSync complete.")
     return 0

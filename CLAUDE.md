@@ -1050,9 +1050,56 @@ akustische Ereignisse, die der Lichttechniker in der DB-Pflege-App pflegt:
 
 ### Daten-Storage
 
-- **Songdatenbank:** `db/lighting-ai-db.json` — wird von beiden Apps gelesen/geschrieben
+- **Songdatenbank:** `db/lighting-ai-db.json` (The Pact) und
+  `db/lighting-ai-db.stringbreak.json` (Stringbreak) — je eine Datei pro Band,
+  wird von beiden Apps gelesen/geschrieben (Live-App liest, DB-Pflege-App
+  liest+schreibt über Supabase, Git-Snapshot wird automatisch nachgezogen)
 - **Audio-Schnipsel:** `audio/{song_name}/...` — von DB-Pflege-App erzeugt
 - **Kein Excel** — alles JSON-basiert
+
+### Bands / Multi-Projekt
+
+Seit der Multi-Band-Migration (`0012_multiband.sql`, 2026-08-07) verwaltet
+lighting.ai **mehrere Bands** in derselben Supabase-Instanz — aktuell
+**The Pact** und **Stringbreak** — mit komplett getrennten Katalogen (ein
+Song gehört zu genau einer Band) und voller Feature-Parität (Lichtsteuerung,
+Anker, Light Templates) für beide.
+
+- **`bands`-Tabelle**: `id` (Slug, z.B. `the_pact`, `stringbreak`), `name`
+  (Anzeigename). Public-Read, kein anon-Write — neue Bands werden bewusst per
+  Migration angelegt (selten, wie `curators`).
+- **`songs.band_id`**: FK auf `bands(id)`, `not null`. `bars`/`accents`/
+  `song_detail_lighting`/`audio_assets` haben **keine eigene** `band_id`-Spalte
+  — sie sind über `song_id` transitiv schon band-gescoped.
+- **`app_state`**: seit 0012 **eine Zeile pro Band** (`band_id` als Primary
+  Key) statt des früheren globalen Singletons (`id integer primary key
+  default 1 check (id = 1)`). Jede Band hat also ihre eigene Setlist/Meta/
+  Version.
+- **`setlist_public`-View** (BassTrainer-Schnittstelle): liefert jetzt
+  `band_id` als Spalte mit — Aufrufer filtert selbst (`?band_id=eq.the_pact`).
+- **DB-Pflege-App**: Band-Umschalter im Header (`#band-switcher`, liest die
+  `bands`-Tabelle), persistiert in `localStorage` (`lightingai_band`).
+  Umschalten lädt die App komplett neu für die gewählte Band
+  (`js/app.js:handleBandSwitch`). Songliste/Setlist zeigen automatisch nur
+  die aktive Band (kommt bereits gefiltert aus `loadDB(bandId)` in `js/db.js`).
+  **„+ Song"-Button** (Sidebar-Header) legt einen neuen, leeren Song für die
+  aktive Band an (Name/Artist/BPM/Key/Jahr/GEMA-Nr.) — vorher gab es keine
+  Möglichkeit, Songs direkt in der App anzulegen, nur per BandHelper-Import.
+- **Export/Live-App**: `.github/workflows/export-db.yml` exportiert **beide**
+  Bands separat — The Pact behält den ursprünglichen Dateinamen
+  (`db/lighting-ai-db.json`, keine Config-Änderung für die laufende
+  Pact-Live-App nötig), Stringbreak bekommt `db/lighting-ai-db.stringbreak.json`.
+  Eine eigene Stringbreak-Live-App-Instanz (sobald aufgesetzt) braucht nur
+  eine eigene `config.yaml` mit passendem `db_path` + eigenem `live/data/`-
+  Cache — kein Code-Change in `live/server/*.py`. Die QLC+-Funktions-Mappings
+  (`live/server/qlc_osc.py`) sind aktuell hart für Pacts Rig verdrahtet;
+  Stringbreak-spezifische Verdrahtung ist eigenständige Zukunftsarbeit, siehe
+  `docs/multiband-uebergabe.md`.
+- **Song-Import**: `scripts/central_db/import_stringbreak.py` importiert
+  Stringbreaks Katalog aus `db/Stringbreak.json` (BandHelper-Export, bisher
+  nur als Lyrics-Quelle für Pact-Songs missbraucht). `--dry-run` (Default)
+  zeigt eine validierte Vorschau (Error/Warning-Trennung), erst `--write`
+  schreibt tatsächlich.
 
 ### Hardware
 

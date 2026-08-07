@@ -168,6 +168,22 @@ h3 { font-size: 0.95rem; }
   gap: var(--gap);
 }
 
+/* ── Band Switcher (Multi-Projekt) ─────────────────── */
+.band-switcher {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 5px 8px;
+  border-radius: 6px;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  color: var(--t1);
+  cursor: pointer;
+}
+.band-switcher:focus { border-color: var(--cyan); outline: none; }
+
 /* ── Sync Status Badge ─────────────────────────────── */
 .sync-status {
   font-family: var(--font-mono);
@@ -565,6 +581,13 @@ label {
 .modal .form-group input,
 .modal .form-group select {
   width: 100%;
+}
+
+.form-error {
+  color: var(--red);
+  font-size: 0.8rem;
+  margin-top: 4px;
+  margin-bottom: 8px;
 }
 
 /* Toggle Switch */

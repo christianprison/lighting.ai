@@ -109,6 +109,28 @@ Details: `docs/uebergabe-basstrainer*.md`.
 nach Supabase. Erst beim Cutover dreht sich die Richtung (dann Export Supabase→JSON
 für die Offline-Live-App). Bis dahin gilt die Single-Writer-Invariante mit Git als Master.
 
+## 0c. Cutover + Multi-Band (Stand 2026-08-07)
+
+Phase 7 (Cutover) ist inzwischen umgesetzt (siehe `docs/cutover-uebergabe.md`):
+**Supabase ist Master**, die DB-Pflege-App schreibt direkt über PostgREST
+(anon-Key, kein Login — Owner-Entscheidung für ein Hobbyprojekt), Git ist nur
+noch der automatisch nachgezogene Offline-Snapshot für die Live-App
+(`.github/workflows/export-db.yml`, Umkehrung des alten `sync-db.yml`-Flusses).
+Auch Audio läuft seitdem direkt über Supabase Storage statt GitHub (kein
+zweiter Zustellweg mehr für dieselbe Datei — siehe Commit-Historie 2026-08-02).
+
+**Multi-Band** (`0012_multiband.sql`): `app_state` war ein strikter Singleton
+(§0a Punkt 3, `id integer primary key default 1 check (id = 1)`) — das galt nur
+so lange lighting.ai eine einzige Band verwaltete. Seit 0012 ist `app_state`
+**eine Zeile pro Band** (`band_id` als PK), `songs` hat eine `band_id`-Spalte
+(FK auf eine neue `bands`-Tabelle), `bars`/`accents`/`song_detail_lighting`
+bleiben unverändert normalisiert und band-scopen sich transitiv über `song_id`.
+`setlist_public` liefert `band_id` mit statt fix auf eine Zeile zu zeigen.
+Der lokale JSON-Snapshot ist entsprechend **eine Datei pro Band** geworden
+(`db/lighting-ai-db.json` = The Pact, `db/lighting-ai-db.stringbreak.json` =
+Stringbreak). Details: `CLAUDE.md` Abschnitt „Bands / Multi-Projekt",
+`docs/multiband-uebergabe.md`.
+
 ## 1. Zielbild in einem Satz
 
 Strukturierte Metadaten in **Postgres (Supabase)**, kleine Audio-Snippets in **Supabase Storage**, große

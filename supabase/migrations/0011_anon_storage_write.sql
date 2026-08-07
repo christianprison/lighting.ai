@@ -13,8 +13,12 @@
 -- project decision already made for the tables.
 --
 -- Idempotent: drop-then-create so it can be re-applied safely.
-
-alter table storage.objects enable row level security;
+--
+-- NOTE: no "alter table storage.objects enable row level security" here —
+-- Supabase has RLS on storage.objects enabled by default from project
+-- creation, and that specific ALTER TABLE subcommand requires table
+-- ownership (which even the SQL-editor role doesn't have on storage.objects,
+-- unlike CREATE POLICY, which Supabase's SQL editor role IS permitted to run).
 
 drop policy if exists "anon write snippets objects" on storage.objects;
 create policy "anon write snippets objects" on storage.objects

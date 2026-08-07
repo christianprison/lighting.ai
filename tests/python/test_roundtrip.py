@@ -28,6 +28,11 @@ class RoundTripTest(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls.raw = DB_PATH.read_text(encoding="utf-8")
         cls.db = json.loads(cls.raw)
+        # Backfill band_id for a pre-0012 snapshot that hasn't been re-exported
+        # yet (db/lighting-ai-db.json is always The Pact's file — see 0012).
+        cls.db.setdefault("band_id", "the_pact")
+        for s in cls.db.get("songs", {}).values():
+            s.setdefault("band_id", "the_pact")
 
     # ── The core guarantee ─────────────────────────────────────────────
     def test_roundtrip_is_semantically_identical(self) -> None:
@@ -66,6 +71,7 @@ class RoundTripTest(unittest.TestCase):
         for r in rows["songs"]:
             self.assertEqual(set(r.keys()), cols)
             self.assertIsNotNone(r["id"])
+            self.assertIsNotNone(r["band_id"])
 
     def test_detail_rows_never_contain_a_core_field(self) -> None:
         rows = db_json_to_rows(self.db)
@@ -91,10 +97,13 @@ class RoundTripTest(unittest.TestCase):
         dangling = [a["accent_id"] for a in rows["accents"] if a["bar_id"] not in bar_ids]
         self.assertEqual(dangling, [], f"accents referencing missing bars: {dangling[:5]}")
 
-    def test_app_state_singleton_holds_globals(self) -> None:
+    def test_app_state_holds_globals_for_its_band(self) -> None:
+        # app_state ist seit der Multi-Band-Migration (0012) eine Zeile PRO
+        # Band statt eines globalen Singletons — jede JSON-Datei enthält aber
+        # weiterhin genau eine Band, also weiterhin genau eine app_state-Zeile.
         rows = db_json_to_rows(self.db)
         app = rows["app_state"]
-        self.assertEqual(app["id"], 1)
+        self.assertEqual(app["band_id"], self.db["band_id"])
         self.assertEqual(app["version"], self.db["version"])
         self.assertEqual(app["band"], self.db["band"])
         self.assertEqual(app["setlist"], self.db["setlist"])

@@ -5,8 +5,10 @@ Schema v3.1 (refinement of docs/architektur-zentrale-db.md §5):
 - ``song_detail_lighting``  — lighting-only fields as a sparse JSONB ``detail``
 - ``bars``                  — normalised (FK songs, UNIQUE(song_id, bar_num))
 - ``accents``               — normalised (FK bars)
-- ``app_state``             — singleton row for the global bits
-                              (version, band, setlist, meta)
+- ``app_state``             — one row PER BAND (version, band, setlist, meta),
+                              keyed by ``band_id`` since the Multi-Band-
+                              Migration (0012, 2026-08-07). Was a strict
+                              singleton before that.
 
 Why a refinement: §5 of the doc modelled songs/audio/features but had no home
 for the top-level ``bars``/``accents`` collections nor the global
@@ -38,6 +40,7 @@ CORE_FIELDS: list[tuple[str, str]] = [
     ("duration", "duration"),
     ("duration_sec", "duration_sec"),
     ("notes", "notes"),
+    ("band_id", "band_id"),
 ]
 _CORE_JSON_FIELDS = {f for f, _ in CORE_FIELDS}
 
@@ -78,7 +81,7 @@ def db_json_to_rows(db: dict[str, Any]) -> dict[str, Any]:
         accents_rows.append(row)
 
     app_state = {
-        "id": 1,
+        "band_id": db.get("band_id"),
         "version": db.get("version"),
         "band": db.get("band"),
         "setlist": db.get("setlist"),
@@ -102,6 +105,7 @@ def rows_to_db_json(rows: dict[str, Any]) -> dict[str, Any]:
     """
     app = rows["app_state"]
     db: dict[str, Any] = {
+        "band_id": app["band_id"],
         "version": app["version"],
         "band": app["band"],
         "setlist": app["setlist"],

@@ -3,8 +3,15 @@ name: Export DB from Supabase
 # Supabase-Cutover (Option B, siehe docs/cutover-uebergabe.md): Seit dem
 # Cutover ist Supabase Master für songs/bars/accents/setlist/meta, nicht mehr
 # Git. Dieser Workflow ist die Umkehrung von sync-db.yml — er regeneriert
-# db/lighting-ai-db.json aus Supabase und committed es nach main, damit die
+# die DB-Snapshots aus Supabase und committed sie nach main, damit die
 # Live-App (liest nur aus Git, kein Supabase-Zugriff) aktuell bleibt.
+#
+# Multi-Band (0012, 2026-08-07): eine Datei PRO Band. The Pact behält den
+# ursprünglichen Dateinamen (db/lighting-ai-db.json) — keine Config-Änderung
+# für die laufende Pact-Live-App nötig. Stringbreak bekommt eine eigene neue
+# Datei; deren eigene Live-App-Instanz (sobald aufgesetzt) zeigt in ihrer
+# config.yaml einfach auf db_path: db/lighting-ai-db.stringbreak.json.
+#
 # Secrets: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY.
 
 on:
@@ -37,18 +44,23 @@ jobs:
       - name: Supabase-Client installieren
         run: pip install "supabase>=2.4"
 
-      - name: Export
+      - name: Export (beide Bands)
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
-          cp db/lighting-ai-db.json /tmp/before.json
-          python -m scripts.central_db.export_from_supabase --out db/lighting-ai-db.json
+          mkdir -p /tmp/before
+          cp db/lighting-ai-db.json /tmp/before/the_pact.json
+          cp db/lighting-ai-db.stringbreak.json /tmp/before/stringbreak.json 2>/dev/null || echo '{}' > /tmp/before/stringbreak.json
 
-      - name: Commit + Push (nur wenn sich inhaltlich etwas geändert hat)
+          python -m scripts.central_db.export_from_supabase --band the_pact --out db/lighting-ai-db.json
+          python -m scripts.central_db.export_from_supabase --band stringbreak --out db/lighting-ai-db.stringbreak.json
+
+      - name: Commit + Push (nur Dateien mit echter inhaltlicher Änderung)
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+
           # _generated/_generated_at/_source sind reine Provenance-Marker (siehe
           # export_from_supabase.py) und aendern sich bei JEDEM Lauf bzw. fehlen
           # in einer Datei, die noch nie exportiert wurde -> beim Vergleich raus.
@@ -57,13 +69,25 @@ jobs:
           # zurueck -> ohne -S waere JEDER Export ein Byte-Diff, obwohl inhaltlich
           # nichts geaendert hat). Array-Reihenfolge (z.B. setlist.items) bleibt
           # dabei erhalten, nur Objekt-Keys werden normalisiert.
-          jq -S 'del(._generated, ._generated_at, ._source)' /tmp/before.json > /tmp/before_norm.json
-          jq -S 'del(._generated, ._generated_at, ._source)' db/lighting-ai-db.json > /tmp/after_norm.json
-          if diff -q /tmp/before_norm.json /tmp/after_norm.json > /dev/null; then
-            echo "Keine inhaltliche Aenderung — kein Commit."
-            git checkout -- db/lighting-ai-db.json
+          changed=0
+          for band_key in the_pact:db/lighting-ai-db.json stringbreak:db/lighting-ai-db.stringbreak.json; do
+            band="${band_key%%:*}"
+            file="${band_key#*:}"
+            jq -S 'del(._generated, ._generated_at, ._source)' "/tmp/before/${band}.json" > "/tmp/before_norm_${band}.json"
+            jq -S 'del(._generated, ._generated_at, ._source)' "$file" > "/tmp/after_norm_${band}.json"
+            if diff -q "/tmp/before_norm_${band}.json" "/tmp/after_norm_${band}.json" > /dev/null; then
+              echo "${file}: keine inhaltliche Aenderung."
+              git checkout -- "$file"
+            else
+              echo "${file}: geaendert -> wird committed."
+              git add "$file"
+              changed=1
+            fi
+          done
+
+          if [ "$changed" -eq 0 ]; then
+            echo "Keine Datei geaendert — kein Commit."
             exit 0
           fi
-          git add db/lighting-ai-db.json
           git commit -m "Export DB from Supabase (auto)"
           git push origin HEAD:main

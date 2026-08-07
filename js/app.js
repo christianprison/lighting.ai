@@ -5,12 +5,12 @@
  * Bar-Editor mit 16tel-Accent-Raster und Summary-Bar.
  */
 
-import { loadDB, loadDBLocal, saveDB, testConnection, storagePublicUrl, uploadToStorage, registerAudioAsset } from './db.js';
+import { loadDB, loadDBLocal, saveDB, testConnection, storagePublicUrl, uploadToStorage, registerAudioAsset, loadBands } from './db.js';
 import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2026.08.02-audio1';
+const APP_VERSION = 'v2026.08.07-multiband1';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -20,6 +20,11 @@ let readOnly = true;
 let activeTab = 'editor';
 let selectedSongId = null;
 let selectedBarNum = null;
+
+/* ── Band (Multi-Projekt) ─────────────────────────── */
+const BAND_KEY = 'lightingai_band';
+let currentBandId = localStorage.getItem(BAND_KEY) || 'the_pact';
+let availableBands = []; // [{id, name}] — via loadBands() befüllt
 
 
 /* ── Takte Tab State ─────────────────────────────── */
@@ -313,6 +318,8 @@ let els = {};
 function cacheDom() {
   els = {
     syncStatus:    document.getElementById('sync-status'),
+    bandSwitcher:  document.getElementById('band-switcher'),
+    btnAddSong:    document.getElementById('btn-add-song'),
     tabEditor:     document.getElementById('tab-editor'),
     tabTakte:      document.getElementById('tab-takte'),
     tabAudio:      document.getElementById('tab-audio'),
@@ -4599,7 +4606,7 @@ async function handleAudioExport() {
     exportInProgress = false;
     if (done > 0 && dirty) {
       try {
-        const newSha = await saveDB(db, dbSha);
+        const newSha = await saveDB(db, dbSha, currentBandId);
         dbSha = newSha;
         dirty = false;
         setSyncStatus('saved');
@@ -8591,13 +8598,76 @@ function handleSaveSettings() {
   initDB();
 }
 
+/* ── Add Song Modal ────────────────────────────────── */
+
+/** Zufällige 6-stellige Song-ID, kollisionssicher gegen die geladene Band
+ *  (gleiche Konvention wie die Python-Importer). */
+function _randomSongId() {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let id;
+  do {
+    id = Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+  } while (db?.songs?.[id]);
+  return id;
+}
+
+function handleAddSong() {
+  if (readOnly) { toast('Read-only Modus — kein Song anlegen möglich', 'error'); return; }
+  for (const f of ['as-name', 'as-artist', 'as-bpm', 'as-key', 'as-year', 'as-gema']) {
+    document.getElementById(f).value = '';
+  }
+  const errEl = document.getElementById('add-song-error');
+  errEl.style.display = 'none';
+  document.getElementById('add-song-modal').classList.add('open');
+  document.getElementById('as-name').focus();
+}
+
+function closeAddSongModal() {
+  document.getElementById('add-song-modal').classList.remove('open');
+}
+
+function handleCreateSong() {
+  const name = document.getElementById('as-name').value.trim();
+  const errEl = document.getElementById('add-song-error');
+  if (!name) {
+    errEl.textContent = 'Name ist erforderlich.';
+    errEl.style.display = 'block';
+    return;
+  }
+  const artist = document.getElementById('as-artist').value.trim();
+  const bpmRaw = document.getElementById('as-bpm').value.trim();
+  const bpm = bpmRaw ? parseInt(bpmRaw, 10) : null;
+  const key = document.getElementById('as-key').value.trim();
+  const year = document.getElementById('as-year').value.trim();
+  const gema_nr = document.getElementById('as-gema').value.trim();
+
+  const id = _randomSongId();
+  db.songs[id] = {
+    name, artist, bpm: bpm || null, key, year, pick: '', gema_nr,
+    duration: '', duration_sec: 0, notes: '', band_id: currentBandId,
+  };
+  markDirty();
+  closeAddSongModal();
+  toast(`Song „${name}" angelegt`, 'success');
+  selectedSongId = id;
+  renderSongList(els.searchBox.value);
+  renderContent();
+}
+
 /* ── DB Init ───────────────────────────────────────── */
 
 async function initDB() {
   setSyncStatus('loading');
 
   try {
-    const result = await loadDB();
+    availableBands = await loadBands();
+    renderBandSwitcher();
+  } catch (e) {
+    console.error('Bands laden fehlgeschlagen:', e);
+  }
+
+  try {
+    const result = await loadDB(currentBandId);
     db = result.data;
     dbSha = result.sha;
     dirty = false;
@@ -8613,9 +8683,37 @@ async function initDB() {
     await loadLocal();
   }
 
+  selectedSongId = null;
   renderSongList(els.searchBox.value);
   renderContent();
   updateSaveButton();
+}
+
+/**
+ * Wechselt die aktive Band (Multi-Projekt) \u2014 l\u00e4dt komplett neu, analog zum
+ * bestehenden Undo-Reload-Flow. Bei ungespeicherten \u00c4nderungen wird gewarnt.
+ */
+async function handleBandSwitch(newBandId) {
+  if (newBandId === currentBandId) return;
+  if (dirty) {
+    const ok = await showConfirm(
+      'Band wechseln?',
+      'Es gibt ungespeicherte \u00c4nderungen \u2014 beim Wechsel gehen sie verloren, sofern nicht vorher gespeichert wird.',
+      'Trotzdem wechseln'
+    );
+    if (!ok) { renderBandSwitcher(); return; } // Dropdown auf altem Wert zur\u00fccksetzen
+  }
+  currentBandId = newBandId;
+  localStorage.setItem(BAND_KEY, newBandId);
+  await initDB();
+}
+
+function renderBandSwitcher() {
+  if (!els.bandSwitcher) return;
+  if (!availableBands.length) { els.bandSwitcher.innerHTML = ''; return; }
+  els.bandSwitcher.innerHTML = availableBands
+    .map((b) => `<option value="${esc(b.id)}"${b.id === currentBandId ? ' selected' : ''}>${esc(b.name)}</option>`)
+    .join('');
 }
 
 async function loadLocal() {
@@ -8720,7 +8818,7 @@ async function handleSave(showToast = true) {
   setSyncStatus('saving');
   _saveInProgress = true;
   try {
-    const newSha = await saveDB(db, dbSha);
+    const newSha = await saveDB(db, dbSha, currentBandId);
     dbSha = newSha;
     dirty = false;
     setSyncStatus('saved');
@@ -8788,7 +8886,7 @@ async function handleSaveConflict(err) {
   );
   if (force) {
     try {
-      const newSha = await saveDB(db, dbSha, undefined, true);
+      const newSha = await saveDB(db, dbSha, currentBandId, true);
       dbSha = newSha;
       dirty = false;
       setSyncStatus('saved');
@@ -8823,7 +8921,7 @@ async function handleUndo() {
   if (!ok) return;
   setSyncStatus('loading');
   try {
-    const result = await loadDB();
+    const result = await loadDB(currentBandId);
     db = result.data;
     dbSha = result.sha;
     dirty = false;
@@ -8881,6 +8979,17 @@ function wireEvents() {
   els.tabAccents?.addEventListener('click', () => switchTab('accents'));
   els.tabSetlist?.addEventListener('click', () => switchTab('setlist'));
 
+  // Band-Umschalter (Multi-Projekt)
+  els.bandSwitcher?.addEventListener('change', () => handleBandSwitch(els.bandSwitcher.value));
+
+  // + Song
+  els.btnAddSong?.addEventListener('click', handleAddSong);
+  document.getElementById('btn-cancel-add-song')?.addEventListener('click', closeAddSongModal);
+  document.getElementById('btn-create-song')?.addEventListener('click', handleCreateSong);
+  document.getElementById('add-song-modal')?.addEventListener('click', (e) => {
+    if (e.target.id === 'add-song-modal') closeAddSongModal();
+  });
+
   // Settings
   els.syncStatus.addEventListener('click', () => {
     const st = els.syncStatus.dataset.status;
@@ -8916,7 +9025,7 @@ function wireEvents() {
   els.btnSave.addEventListener('click', handleSave);
   document.addEventListener('keydown', (e) => {
     if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); handleSave(); }
-    if (e.key === 'Escape') { closeSettings(); closeHelp(); els.confirmModal?.classList.remove('open'); }
+    if (e.key === 'Escape') { closeSettings(); closeHelp(); closeAddSongModal(); els.confirmModal?.classList.remove('open'); }
     if (e.key === '?' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') openHelp();
   });
 

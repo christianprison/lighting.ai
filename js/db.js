@@ -51,6 +51,7 @@ const CORE_FIELDS = [
   ['duration', 'duration'],
   ['duration_sec', 'duration_sec'],
   ['notes', 'notes'],
+  ['band_id', 'band_id'],
 ];
 const CORE_JSON_FIELDS = new Set(CORE_FIELDS.map(([jf]) => jf));
 
@@ -60,8 +61,10 @@ const ACCENT_FIELDS = ['bar_id', 'pos_16th', 'type', 'notes'];
 /**
  * Split the monolithic db object into Supabase table rows.
  * @param {object} db
+ * @param {string} bandId - app_state ist seit der Multi-Band-Migration
+ *   (0012) eine Zeile PRO Band statt eines globalen Singletons.
  */
-function dbJsonToRows(db) {
+function dbJsonToRows(db, bandId) {
   const songsRows = [];
   const detailRows = [];
   for (const [sid, s] of Object.entries(db.songs || {})) {
@@ -95,7 +98,7 @@ function dbJsonToRows(db) {
   }
 
   const appState = {
-    id: 1,
+    band_id: bandId,
     version: db.version ?? null,
     band: db.band ?? null,
     setlist: db.setlist ?? null,
@@ -112,6 +115,7 @@ function dbJsonToRows(db) {
 function rowsToDbJson(rows) {
   const app = rows.app_state;
   const db = {
+    band_id: app.band_id,
     version: app.version,
     band: app.band,
     setlist: app.setlist,
@@ -174,16 +178,38 @@ async function sbFetch(path, { method = 'GET', headers = {}, body } = {}) {
 
 const PAGE_SIZE = 1000; // PostgREST caps a single select() at 1000 rows
 
-/** Fetch every row of a table, paginated, ordered by its PK for stable pages. */
-async function fetchAllRows(table, orderCol) {
+/**
+ * Fetch every row of a table (optionally filtered), paginated, ordered by
+ * its PK for stable pages.
+ * @param {string} table
+ * @param {string} orderCol
+ * @param {string} [filter] - extra PostgREST query filter, e.g. "band_id=eq.the_pact"
+ */
+async function fetchAllRows(table, orderCol, filter = '') {
   let out = [];
   let offset = 0;
+  const extra = filter ? `&${filter}` : '';
   for (;;) {
-    const res = await sbFetch(`${table}?select=*&order=${orderCol}.asc&limit=${PAGE_SIZE}&offset=${offset}`);
+    const res = await sbFetch(`${table}?select=*${extra}&order=${orderCol}.asc&limit=${PAGE_SIZE}&offset=${offset}`);
     const chunk = await res.json();
     out = out.concat(chunk);
     if (chunk.length < PAGE_SIZE) break;
     offset += PAGE_SIZE;
+  }
+  return out;
+}
+
+const IN_BATCH = 200; // keep `in.(...)` filter URLs a sane length
+
+/** Fetch rows of a table whose `idCol` is one of `ids`, batched for URL-length safety. */
+async function fetchRowsByIds(table, idCol, ids) {
+  if (!ids.length) return [];
+  let out = [];
+  for (let i = 0; i < ids.length; i += IN_BATCH) {
+    const chunk = ids.slice(i, i + IN_BATCH);
+    const list = chunk.map((id) => encodeURIComponent(id)).join(',');
+    const res = await sbFetch(`${table}?select=*&${idCol}=in.(${list})`);
+    out = out.concat(await res.json());
   }
   return out;
 }
@@ -214,32 +240,59 @@ async function deleteRows(table, pkCol, ids) {
   }
 }
 
-async function fetchAppState() {
-  const rows = await sbFetch('app_state?select=*&id=eq.1').then((r) => r.json());
-  if (!rows[0]) throw new Error('app_state Zeile (id=1) fehlt in Supabase');
+async function fetchAppState(bandId) {
+  const rows = await sbFetch(`app_state?select=*&band_id=eq.${encodeURIComponent(bandId)}`).then((r) => r.json());
+  if (!rows[0]) throw new Error(`app_state Zeile für Band "${bandId}" fehlt in Supabase`);
   return rows[0];
 }
 
 /**
- * Load the full DB from Supabase and reassemble it into the same in-memory
+ * List all bands (id + name), for the band switcher UI.
+ * @returns {Promise<Array<{id: string, name: string}>>}
+ */
+export async function loadBands() {
+  const res = await sbFetch('bands?select=id,name&order=name.asc');
+  return res.json();
+}
+
+/**
+ * Load one band's DB from Supabase and reassemble it into the same in-memory
  * shape the app has always used (the monolithic db object).
+ *
+ * `songs` is filtered server-side by band_id (the table that matters —
+ * multiple bands' catalogs could grow large). `bars` is filtered server-side
+ * via the resulting song-id list (also potentially large, thousands of rows
+ * per band). `song_detail_lighting`/`accents` stay small in absolute terms
+ * regardless of band count (song_detail_lighting = 1 row/song, accents are
+ * far fewer than bars) — fetched in full and filtered client-side, which
+ * avoids a second-hop `in.(...)` filter (accents don't carry song_id
+ * directly, only bar_id) blowing past sane URL lengths.
+ *
+ * @param {string} bandId
  * @returns {Promise<{data: object, sha: string}>} sha = app_state.updated_at,
  *   reused as the optimistic-lock token (replaces the old GitHub SHA).
  */
-export async function loadDB() {
-  const [songs, songDetail, bars, accents, appState] = await Promise.all([
-    fetchAllRows('songs', 'id'),
+export async function loadDB(bandId) {
+  const [songs, songDetailAll, appState] = await Promise.all([
+    fetchAllRows('songs', 'id', `band_id=eq.${encodeURIComponent(bandId)}`),
     fetchAllRows('song_detail_lighting', 'song_id'),
-    fetchAllRows('bars', 'bar_id'),
-    fetchAllRows('accents', 'accent_id'),
-    fetchAppState(),
+    fetchAppState(bandId),
   ]);
+
+  const songIds = new Set(songs.map((r) => r.id));
+  const songDetail = songDetailAll.filter((r) => songIds.has(r.song_id));
+
+  const bars = await fetchRowsByIds('bars', 'song_id', [...songIds]);
+  const barIds = new Set(bars.map((r) => r.bar_id));
+
+  const accentsAll = await fetchAllRows('accents', 'accent_id');
+  const accents = accentsAll.filter((r) => barIds.has(r.bar_id));
 
   const data = rowsToDbJson({ songs, song_detail_lighting: songDetail, bars, accents, app_state: appState });
 
   _loadedIds = {
-    songs: new Set(songs.map((r) => r.id)),
-    bars: new Set(bars.map((r) => r.bar_id)),
+    songs: songIds,
+    bars: barIds,
     accents: new Set(accents.map((r) => r.accent_id)),
   };
 
@@ -259,16 +312,15 @@ export async function loadDB() {
  *
  * @param {object} data
  * @param {string} sha - updated_at token from the last loadDB()/saveDB()
- * @param {string} [_message] - unused (no commit messages in Supabase); kept
- *   for call-site compatibility with the old GitHub-based signature
+ * @param {string} bandId - welche app_state-Zeile (Band) gespeichert wird
  * @param {boolean} [force] - skip the conflict check and overwrite anyway
  * @returns {Promise<string>} new sha (updated_at) after the save
  */
-export async function saveDB(data, sha, _message, force = false) {
+export async function saveDB(data, sha, bandId, force = false) {
   if (!force && sha) {
-    const current = await fetchAppState();
+    const current = await fetchAppState(bandId);
     if (current.updated_at !== sha) {
-      const latest = await loadDB();
+      const latest = await loadDB(bandId);
       const err = new Error('Die Datenbank wurde zwischenzeitlich woanders gespeichert (anderer Tab/Gerät).');
       err.isConflict = true;
       err.latestSha = latest.sha;
@@ -277,7 +329,7 @@ export async function saveDB(data, sha, _message, force = false) {
     }
   }
 
-  const rows = dbJsonToRows(data);
+  const rows = dbJsonToRows(data, bandId);
 
   await upsertRows('songs', rows.songs);
   await upsertRows('song_detail_lighting', rows.song_detail_lighting);
@@ -300,7 +352,7 @@ export async function saveDB(data, sha, _message, force = false) {
 
   _loadedIds = { songs: currentSongIds, bars: currentBarIds, accents: currentAccentIds };
 
-  const fresh = await fetchAppState();
+  const fresh = await fetchAppState(bandId);
   return fresh.updated_at;
 }
 
@@ -310,7 +362,7 @@ export async function saveDB(data, sha, _message, force = false) {
  */
 export async function testSupabaseConnection() {
   try {
-    await sbFetch('app_state?select=id&limit=1');
+    await sbFetch('app_state?select=band_id&limit=1');
     return true;
   } catch {
     return false;

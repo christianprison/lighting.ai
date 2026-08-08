@@ -1,6 +1,6 @@
 {
   "_generated": true,
-  "_generated_at": "2026-08-08T11:48:16.836564+00:00",
+  "_generated_at": "2026-08-08T13:04:11.213735+00:00",
   "_source": "supabase",
   "band_id": "stringbreak",
   "version": "1.0",
@@ -57,7 +57,9 @@
       "duration": "2:30",
       "duration_sec": 150,
       "notes": "",
-      "band_id": "stringbreak"
+      "band_id": "stringbreak",
+      "audio_ref": "audio/stringbreak/2CqcNd/51st_State_original.mp3",
+      "audio_ref_name": "51st State (original).mp3"
     },
     "6SI9Iu": {
       "name": "Highway Star",
@@ -70,7 +72,9 @@
       "duration": "",
       "duration_sec": 0,
       "notes": "",
-      "band_id": "stringbreak"
+      "band_id": "stringbreak",
+      "audio_ref": "audio/stringbreak/6SI9Iu/Highway_Star_nur_Axel.mp3",
+      "audio_ref_name": "Highway Star (nur Axel).mp3"
     },
     "8m5ViH": {
       "name": "Born to be wild",
@@ -83,7 +87,9 @@
       "duration": "3:25",
       "duration_sec": 205,
       "notes": "SD: X",
-      "band_id": "stringbreak"
+      "band_id": "stringbreak",
+      "audio_ref": "audio/stringbreak/8m5ViH/Born_to_be_wild_live.mp3",
+      "audio_ref_name": "Born to be wild (live).mp3"
     },
     "9coeHR": {
       "name": "Moon over Bourbon Street",
@@ -96,7 +102,9 @@
       "duration": "",
       "duration_sec": 0,
       "notes": "custom_d0XapK: immer",
-      "band_id": "stringbreak"
+      "band_id": "stringbreak",
+      "audio_ref": "audio/stringbreak/9coeHR/Moon_Over_Bourbon_Street.mp3",
+      "audio_ref_name": "Moon Over Bourbon Street.mp3"
     },
     "aFuGgO": {
       "name": "BBC",
@@ -122,7 +130,9 @@
       "duration": "3:44",
       "duration_sec": 224,
       "notes": "",
-      "band_id": "stringbreak"
+      "band_id": "stringbreak",
+      "audio_ref": "audio/stringbreak/arjbPl/Love_runs_out_original.mp3",
+      "audio_ref_name": "Love runs out (original).mp3"
     },
     "BX4AN1": {
       "name": "Dead Or Alive",
@@ -135,7 +145,9 @@
       "duration": "3:30",
       "duration_sec": 210,
       "notes": "",
-      "band_id": "stringbreak"
+      "band_id": "stringbreak",
+      "audio_ref": "audio/stringbreak/BX4AN1/dead_or_alive.mp3",
+      "audio_ref_name": "dead or alive.mp3"
     },
     "BzVDy7": {
       "name": "No particular place to go",
@@ -148,7 +160,9 @@
       "duration": "2:00",
       "duration_sec": 120,
       "notes": "",
-      "band_id": "stringbreak"
+      "band_id": "stringbreak",
+      "audio_ref": "audio/stringbreak/BzVDy7/No_particular_place_to_go_original.mp3",
+      "audio_ref_name": "No particular place to go (original).mp3"
     },
     "cwHfg4": {
       "name": "Feal So Near",
@@ -161,7 +175,9 @@
       "duration": "3:11",
       "duration_sec": 191,
       "notes": "",
-      "band_id": "stringbreak"
+      "band_id": "stringbreak",
+      "audio_ref": "audio/stringbreak/cwHfg4/Feel_so_near.mp3",
+      "audio_ref_name": "Feel so near.mp3"
     },
     "DJV7bS": {
       "name": "Used To Love Her",
@@ -174,7 +190,9 @@
       "duration": "2:13",
       "duration_sec": 133,
       "notes": "SD: X",
-      "band_id": "stringbreak"
+      "band_id": "stringbreak",
+      "audio_ref": "audio/stringbreak/DJV7bS/Used_To_Love_Her_nur_Axel.mp3",
+      "audio_ref_name": "Used To Love Her (nur Axel).mp3"
     },
     "EoY27S": {
       "name": "Whole Lotta Rosie",
@@ -192,7 +210,9 @@
         "user_tasks": [],
         "manual_done": [],
         "manual_undone": []
-      }
+      },
+      "audio_ref": "audio/stringbreak/EoY27S/Whole_Lotta_Rosie_original.mp3",
+      "audio_ref_name": "Whole Lotta Rosie (original).mp3"
     },
     "fwNl2O": {
       "name": "Send You Roses",
@@ -205,7 +225,9 @@
       "duration": "3:00",
       "duration_sec": 180,
       "notes": "",
-      "band_id": "stringbreak"
+      "band_id": "stringbreak",
+      "audio_ref": "audio/stringbreak/fwNl2O/Send_you_roses_nur_Axel.mp3",
+      "audio_ref_name": "Send you roses (nur Axel).mp3"
     },
     "gw5wqd": {
       "name": "Sharp Dressed Man",
@@ -218,7 +240,9 @@
       "duration": "3:00",
       "duration_sec": 180,
       "notes": "SD: X",
-      "band_id": "stringbreak"
+      "band_id": "stringbreak",
+      "audio_ref": "audio/stringbreak/gw5wqd/Sharp_dressed_Man_1_Strophe_Refrain.mp3",
+      "audio_ref_name": "Sharp dressed Man (1 Strophe   Refrain).mp3"
     },
     "hT14cb": {
       "name": "Beautiful Stranger",
@@ -231,7 +255,9 @@
       "duration": "3:30",
       "duration_sec": 210,
       "notes": "",
-      "band_id": "stringbreak"
+      "band_id": "stringbreak",
+      "audio_ref": "audio/stringbreak/hT14cb/Beautiful_Stranger_nur_Axel.mp3",
+      "audio_ref_name": "Beautiful Stranger (nur Axel).mp3"
     },
     "i3bhSb": {
       "name": "Reason To Believe",
@@ -244,7 +270,9 @@
       "duration": "4:47",
       "duration_sec": 287,
       "notes": "",
-      "band_id": "stringbreak"
+      "band_id": "stringbreak",
+      "audio_ref": "audio/stringbreak/i3bhSb/Reason_to_Believe_original.mp3",
+      "audio_ref_name": "Reason to Believe (original).mp3"
     },
     "IOEcHa": {
       "name": "Highland Road",
@@ -283,7 +311,9 @@
       "duration": "3:21",
       "duration_sec": 201,
       "notes": "SD: X",
-      "band_id": "stringbreak"
+      "band_id": "stringbreak",
+      "audio_ref": "audio/stringbreak/KntLVU/Hero_nur_Axel.mp3",
+      "audio_ref_name": "Hero (nur Axel).mp3"
     },
     "KUIipK": {
       "name": "Love For Sale",
@@ -296,7 +326,9 @@
       "duration": "3:35",
       "duration_sec": 215,
       "notes": "SD: X",
-      "band_id": "stringbreak"
+      "band_id": "stringbreak",
+      "audio_ref": "audio/stringbreak/KUIipK/Love_for_Sale_nur_Axel.mp3",
+      "audio_ref_name": "Love for Sale (nur Axel).mp3"
     },
     "lHrOma": {
       "name": "Nobody's Wife",
@@ -314,7 +346,9 @@
         "user_tasks": [],
         "manual_done": [],
         "manual_undone": []
-      }
+      },
+      "audio_ref": "audio/stringbreak/lHrOma/Nobody_s_Wife_original.mp3",
+      "audio_ref_name": "Nobody's Wife (original).mp3"
     },
     "llCjkY": {
       "name": "Rocking In A Free World",
@@ -327,7 +361,9 @@
       "duration": "3:15",
       "duration_sec": 195,
       "notes": "SD: X",
-      "band_id": "stringbreak"
+      "band_id": "stringbreak",
+      "audio_ref": "audio/stringbreak/llCjkY/Rockin_in_a_free_World_nur_Axel.mp3",
+      "audio_ref_name": "Rockin' in a free World (nur Axel).mp3"
     },
     "LNvoS0": {
       "name": "T.N.T.",
@@ -346,6 +382,7 @@
         "manual_done": [],
         "manual_undone": []
       },
+      "audio_ref": "audio/stringbreak/LNvoS0/TNT_nur_Axel.mp3",
       "grundrhythmus": {
         "kick": [
           0,
@@ -353,7 +390,8 @@
           2,
           3
         ]
-      }
+      },
+      "audio_ref_name": "TNT (nur Axel).mp3"
     },
     "LoCZ0X": {
       "name": "When I'm Dead and Gone",
@@ -366,7 +404,9 @@
       "duration": "3:00",
       "duration_sec": 180,
       "notes": "",
-      "band_id": "stringbreak"
+      "band_id": "stringbreak",
+      "audio_ref": "audio/stringbreak/LoCZ0X/When_I_m_dead_and_Gone_Michi.mp3",
+      "audio_ref_name": "When I'm dead and Gone (Michi).mp3"
     },
     "Ml1tkL": {
       "name": "Vagabonds",
@@ -379,7 +419,9 @@
       "duration": "",
       "duration_sec": 0,
       "notes": "",
-      "band_id": "stringbreak"
+      "band_id": "stringbreak",
+      "audio_ref": "audio/stringbreak/Ml1tkL/vagabounds.mp3",
+      "audio_ref_name": "vagabounds.mp3"
     },
     "6MMTpH": {
       "name": "Keep Singing",
@@ -392,7 +434,9 @@
       "duration": "3:40",
       "duration_sec": 220,
       "notes": "SD: X",
-      "band_id": "stringbreak"
+      "band_id": "stringbreak",
+      "audio_ref": "audio/stringbreak/6MMTpH/Keep_Singing.mp3",
+      "audio_ref_name": "Keep Singing.mp3"
     },
     "4yF6Oh": {
       "name": "My Drone is Gone",
@@ -405,7 +449,9 @@
       "duration": "3:00",
       "duration_sec": 180,
       "notes": "Other: A-Harp",
-      "band_id": "stringbreak"
+      "band_id": "stringbreak",
+      "audio_ref": "audio/stringbreak/4yF6Oh/My_Drone_is_gone_nur_Axel.mp3",
+      "audio_ref_name": "My Drone is gone (nur Axel).mp3"
     },
     "6jeOM4": {
       "name": "Summer Of '69",
@@ -418,7 +464,9 @@
       "duration": "3:22",
       "duration_sec": 202,
       "notes": "SD: X",
-      "band_id": "stringbreak"
+      "band_id": "stringbreak",
+      "audio_ref": "audio/stringbreak/6jeOM4/Summer_of_69_original.mp3",
+      "audio_ref_name": "Summer of '69 (original).mp3"
     },
     "O1nDV4": {
       "name": "Castle of glass",
@@ -431,7 +479,9 @@
       "duration": "3:00",
       "duration_sec": 180,
       "notes": "Other: Violine",
-      "band_id": "stringbreak"
+      "band_id": "stringbreak",
+      "audio_ref": "audio/stringbreak/O1nDV4/Castle_of_Glass_acoustic_cover_from_the_internet.mp3",
+      "audio_ref_name": "Castle of Glass (acoustic cover from the internet).mp3"
     },
     "ODrKVn": {
       "name": "Folsom Prison Blues",
@@ -463,6 +513,7 @@
         "manual_done": [],
         "manual_undone": []
       },
+      "audio_ref": "audio/stringbreak/OlxVbA/Mama_wouldn_t_play_nur_Axel.mp3",
       "grundrhythmus": {
         "kick": [
           0,
@@ -473,7 +524,8 @@
           1,
           3
         ]
-      }
+      },
+      "audio_ref_name": "Mama wouldn't play (nur Axel).mp3"
     },
     "OnA5tX": {
       "name": "Road Trippin'",
@@ -486,7 +538,9 @@
       "duration": "3:24",
       "duration_sec": 204,
       "notes": "",
-      "band_id": "stringbreak"
+      "band_id": "stringbreak",
+      "audio_ref": "audio/stringbreak/OnA5tX/Road_Trippin_nur_Axel.mp3",
+      "audio_ref_name": "Road Trippin' (nur Axel).mp3"
     },
     "PAaAWr": {
       "name": "Patience",
@@ -499,7 +553,9 @@
       "duration": "4:35",
       "duration_sec": 275,
       "notes": "",
-      "band_id": "stringbreak"
+      "band_id": "stringbreak",
+      "audio_ref": "audio/stringbreak/PAaAWr/Patience_nur_Axel.mp3",
+      "audio_ref_name": "Patience (nur Axel).mp3"
     },
     "pRviIq": {
       "name": "Heaven",
@@ -512,7 +568,9 @@
       "duration": "3:00",
       "duration_sec": 180,
       "notes": "",
-      "band_id": "stringbreak"
+      "band_id": "stringbreak",
+      "audio_ref": "audio/stringbreak/pRviIq/heaven2019.mp3",
+      "audio_ref_name": "heaven2019.mp3"
     },
     "pS3les": {
       "name": "Down by the Hillside",
@@ -525,7 +583,9 @@
       "duration": "3:00",
       "duration_sec": 180,
       "notes": "",
-      "band_id": "stringbreak"
+      "band_id": "stringbreak",
+      "audio_ref": "audio/stringbreak/pS3les/Down_by_the_Hillside_nur_Axel.mp3",
+      "audio_ref_name": "Down by the Hillside (nur Axel).mp3"
     },
     "Py73Q6": {
       "name": "Wheels Of Steel",
@@ -544,6 +604,7 @@
         "manual_done": [],
         "manual_undone": []
       },
+      "audio_ref": "audio/stringbreak/Py73Q6/Wheels_Of_Steel_nur_Axel.mp3",
       "grundrhythmus": {
         "kick": [
           0,
@@ -551,7 +612,8 @@
           2,
           3
         ]
-      }
+      },
+      "audio_ref_name": "Wheels Of Steel (nur Axel).mp3"
     },
     "qiZ4Ax": {
       "name": "Thunder Road",
@@ -577,7 +639,9 @@
       "duration": "3:00",
       "duration_sec": 180,
       "notes": "",
-      "band_id": "stringbreak"
+      "band_id": "stringbreak",
+      "audio_ref": "audio/stringbreak/qKnV1F/The_Darkness_Within_nur_Axel.mp3",
+      "audio_ref_name": "The Darkness Within (nur Axel).mp3"
     },
     "rdx2OL": {
       "name": "Nothing Else Matters",
@@ -590,7 +654,9 @@
       "duration": "5:30",
       "duration_sec": 330,
       "notes": "",
-      "band_id": "stringbreak"
+      "band_id": "stringbreak",
+      "audio_ref": "audio/stringbreak/rdx2OL/Nothing_else_matters_nur_Axel.mp3",
+      "audio_ref_name": "Nothing else matters (nur Axel).mp3"
     },
     "ROy0Cr": {
       "name": "Punk Rock Song",
@@ -603,7 +669,9 @@
       "duration": "3:05",
       "duration_sec": 185,
       "notes": "SD: X",
-      "band_id": "stringbreak"
+      "band_id": "stringbreak",
+      "audio_ref": "audio/stringbreak/ROy0Cr/Punk_Rock_Song_nur_Axel.mp3",
+      "audio_ref_name": "Punk Rock Song (nur Axel).mp3"
     },
     "sKgtaE": {
       "name": "Black Betty",
@@ -621,7 +689,9 @@
         "user_tasks": [],
         "manual_done": [],
         "manual_undone": []
-      }
+      },
+      "audio_ref": "audio/stringbreak/sKgtaE/Black_Betty_nur_Axel.mp3",
+      "audio_ref_name": "Black Betty (nur Axel).mp3"
     },
     "SOaI3R": {
       "name": "Frozen",
@@ -634,7 +704,9 @@
       "duration": "4:34",
       "duration_sec": 274,
       "notes": "",
-      "band_id": "stringbreak"
+      "band_id": "stringbreak",
+      "audio_ref": "audio/stringbreak/SOaI3R/Frozen_nur_Axel.mp3",
+      "audio_ref_name": "Frozen (nur Axel).mp3"
     },
     "Ul0Rn5": {
       "name": "Along comes Mary",
@@ -647,7 +719,9 @@
       "duration": "3:19",
       "duration_sec": 199,
       "notes": "Bass Preset: G O––",
-      "band_id": "stringbreak"
+      "band_id": "stringbreak",
+      "audio_ref": "audio/stringbreak/Ul0Rn5/Along_Comes_Mary_original.mp3",
+      "audio_ref_name": "Along Comes Mary (original).mp3"
     },
     "uVhvZJ": {
       "name": "Tribute",
@@ -660,7 +734,9 @@
       "duration": "4:08",
       "duration_sec": 248,
       "notes": "SD: X",
-      "band_id": "stringbreak"
+      "band_id": "stringbreak",
+      "audio_ref": "audio/stringbreak/uVhvZJ/Tribute_original.mp3",
+      "audio_ref_name": "Tribute (original).mp3"
     },
     "VtIa2J": {
       "name": "Rockstar",
@@ -673,7 +749,9 @@
       "duration": "4:15",
       "duration_sec": 255,
       "notes": "",
-      "band_id": "stringbreak"
+      "band_id": "stringbreak",
+      "audio_ref": "audio/stringbreak/VtIa2J/Rockstar_nur_Axel.mp3",
+      "audio_ref_name": "Rockstar (nur Axel).mp3"
     },
     "wRPWtN": {
       "name": "Here Comes the Rain Again",
@@ -686,7 +764,9 @@
       "duration": "3:30",
       "duration_sec": 210,
       "notes": "Other: 1630194-001",
-      "band_id": "stringbreak"
+      "band_id": "stringbreak",
+      "audio_ref": "audio/stringbreak/wRPWtN/Here_comes_the_rain_again_Probe.mp3",
+      "audio_ref_name": "Here comes the rain again (Probe).mp3"
     },
     "WYGKgz": {
       "name": "For My Lover",
@@ -699,7 +779,9 @@
       "duration": "3:04",
       "duration_sec": 184,
       "notes": "SD: X",
-      "band_id": "stringbreak"
+      "band_id": "stringbreak",
+      "audio_ref": "audio/stringbreak/WYGKgz/For_my_Lover_nur_Axel.mp3",
+      "audio_ref_name": "For my Lover (nur Axel).mp3"
     },
     "ypyIpt": {
       "name": "Whiskey or Water",
@@ -712,7 +794,9 @@
       "duration": "3:10",
       "duration_sec": 190,
       "notes": "",
-      "band_id": "stringbreak"
+      "band_id": "stringbreak",
+      "audio_ref": "audio/stringbreak/ypyIpt/Whiskey_or_Water.mp3",
+      "audio_ref_name": "Whiskey or Water.mp3"
     },
     "Zgw2Fu": {
       "name": "Ayo Technology",
@@ -731,6 +815,7 @@
         "manual_done": [],
         "manual_undone": []
       },
+      "audio_ref": "audio/stringbreak/Zgw2Fu/Aye_Technology_nur_Axel.mp3",
       "grundrhythmus": {
         "kick": [
           0,
@@ -740,7 +825,8 @@
           1,
           3
         ]
-      }
+      },
+      "audio_ref_name": "Aye Technology (nur Axel).mp3"
     },
     "itaay0": {
       "name": "instrumental",
@@ -792,7 +878,9 @@
       "duration": "3:13",
       "duration_sec": 193,
       "notes": "Other: 1314060-001",
-      "band_id": "stringbreak"
+      "band_id": "stringbreak",
+      "audio_ref": "audio/stringbreak/H9LVJG/The_Man_who_sold_the_World_original.mp3",
+      "audio_ref_name": "The Man who sold the World (original).mp3"
     },
     "J6MXCH": {
       "name": "We will rock you",
@@ -805,7 +893,9 @@
       "duration": "",
       "duration_sec": 0,
       "notes": "",
-      "band_id": "stringbreak"
+      "band_id": "stringbreak",
+      "audio_ref": "audio/stringbreak/J6MXCH/wewillrockyou.mp3",
+      "audio_ref_name": "wewillrockyou.mp3"
     },
     "ZMlntS": {
       "name": "The Bard's Song: In the forest",
@@ -818,7 +908,9 @@
       "duration": "2:54",
       "duration_sec": 174,
       "notes": "",
-      "band_id": "stringbreak"
+      "band_id": "stringbreak",
+      "audio_ref": "audio/stringbreak/ZMlntS/The_Bards_Song_nur_Axel.mp3",
+      "audio_ref_name": "The Bards Song (nur Axel).mp3"
     },
     "Vfafo0": {
       "name": "Roadhouse Blues",
@@ -896,7 +988,9 @@
       "duration": "3:00",
       "duration_sec": 180,
       "notes": "Other: 969447-001",
-      "band_id": "stringbreak"
+      "band_id": "stringbreak",
+      "audio_ref": "audio/stringbreak/2jSKBo/Dreadlock_Holiday_original.mp3",
+      "audio_ref_name": "Dreadlock Holiday (original).mp3"
     },
     "h6Ooqw": {
       "name": "Little Lion Man",
@@ -935,7 +1029,9 @@
       "duration": "3:47",
       "duration_sec": 227,
       "notes": "custom_d0XapK: blind spielen Drop C#?; custom_MpZqwS: E; Bass Preset: G OoO; custom_ExQwPg: 9/11 3/1 12(3) 11(Bass)",
-      "band_id": "stringbreak"
+      "band_id": "stringbreak",
+      "audio_ref": "audio/stringbreak/HyT1ej/Seven_Bation_Army.mp3",
+      "audio_ref_name": "Seven Bation Army.mp3"
     },
     "XK38dV": {
       "name": "Scarborough Fair",
@@ -948,7 +1044,9 @@
       "duration": "",
       "duration_sec": 0,
       "notes": "",
-      "band_id": "stringbreak"
+      "band_id": "stringbreak",
+      "audio_ref": "audio/stringbreak/XK38dV/Scarborough_Fair_Axel.mp3",
+      "audio_ref_name": "Scarborough Fair (Axel).mp3"
     },
     "2AOmum": {
       "name": "Eye Of The Tiger",
@@ -961,7 +1059,9 @@
       "duration": "3:00",
       "duration_sec": 180,
       "notes": "",
-      "band_id": "stringbreak"
+      "band_id": "stringbreak",
+      "audio_ref": "audio/stringbreak/2AOmum/Eye_of_the_Tiger_1_Strophe.mp3",
+      "audio_ref_name": "Eye of the Tiger (1 Strophe).mp3"
     },
     "h79E9t": {
       "name": "Why'd you lie to me",

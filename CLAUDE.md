@@ -140,6 +140,17 @@ Bei Dateien über dieser Grenze wird der `content`-Parameter einfach verworfen �
 ### Versionierung
 
 - **Bei jeder Änderung an der DB-Pflege-App die Version in `js/app.js` hochsetzen** (Konstante `APP_VERSION` am Anfang der Datei)
+- **⚠️ Gleichzeitig den Cache-Buster `?v=…` in `index.html` UND die Import-Zeilen
+  in `js/app.js` mitziehen** — sonst sieht der Nutzer die Änderung nicht.
+  Der Browser cached pro URL: bleibt `js/app.js?v=alt` gleich, wird die alte
+  Datei serviert, auch nach Hard-Reload und Cache-Löschen. Betroffen sind vier
+  Stellen, alle mit demselben Wert:
+  - `index.html`: `css/style.css?v=…` und `js/app.js?v=…`
+  - `js/app.js`: die Imports von `./db.js?v=…`, `./audio-engine.js?v=…`,
+    `./integrity.js?v=…` — ein neues `app.js` allein reicht nicht, dessen
+    Imports kämen sonst weiter aus dem Cache.
+  Konvention: der Suffix von `APP_VERSION` (z.B. `APP_VERSION =
+  'v2026.08.08-recordings2'` → `?v=recordings2`).
 - **Bei jeder Änderung an der Live-App die Version in `live/ui/index.html` hochsetzen**
 - **Bei jeder Änderung an der Rehearsal-App die Version in `rehearsal_review/mainwindow.py` hochsetzen** (Konstante `APP_VERSION` direkt unterhalb von `_ZOOM_PRESETS`)
 - Patch-Version hochzählen (z.B. v1.0.0 → v1.0.1) bei normalen Änderungen

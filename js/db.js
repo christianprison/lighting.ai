@@ -431,6 +431,26 @@ export async function registerAudioAsset(asset) {
   });
 }
 
+/**
+ * Alle Vollversions-Aufnahmen (kind='playalong') eines Songs laden.
+ *
+ * Songs können mehrere Varianten derselben Nummer haben ("original",
+ * "nur Axel", "playback" …) — bei Stringbreak kommen die aus dem
+ * BandHelper-Export, siehe scripts/central_db/upload_stringbreak_audio.py.
+ * `label` unterscheidet sie (Migration 0013).
+ *
+ * @param {string} songId
+ * @returns {Promise<Array<{id: string, storage_path: string, label: string,
+ *                          duration_sec: number|null}>>} nach Label sortiert
+ */
+export async function loadAudioAssets(songId) {
+  const rows = await sbFetch(
+    `audio_assets?select=id,storage_path,label,duration_sec` +
+    `&song_id=eq.${encodeURIComponent(songId)}&kind=eq.playalong&order=label`
+  );
+  return rows || [];
+}
+
 /* ═══════════════════ GitHub (QXW-Datei, Ad-hoc-Zugriffe) ══════════════════
  * Nur noch für die QXW-Lichtshow-Datei und "Test Connection" in den
  * Settings — Audio läuft seit 2026-08-02 über Supabase Storage (s.o.). */

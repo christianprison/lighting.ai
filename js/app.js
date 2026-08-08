@@ -5,12 +5,12 @@
  * Bar-Editor mit 16tel-Accent-Raster und Summary-Bar.
  */
 
-import { loadDB, loadDBLocal, saveDB, testConnection, storagePublicUrl, uploadToStorage, registerAudioAsset, loadBands } from './db.js';
+import { loadDB, loadDBLocal, saveDB, testConnection, storagePublicUrl, uploadToStorage, registerAudioAsset, loadAudioAssets, loadBands } from './db.js';
 import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2026.08.07-multiband1';
+const APP_VERSION = 'v2026.08.08-recordings1';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -2835,6 +2835,7 @@ function renderAudioTab() {
       <div class="audio-scroll" id="audio-scroll">
         ${buildSongHeader(song)}
         ${buildDropZone(song)}
+        ${buildRecordingsPanel(song)}
         ${hasBuf ? buildWaveform() : ''}
         ${hasBuf ? buildTransport() : ''}
         ${hasBuf ? buildTapButtons(isPlay) : ''}
@@ -2891,6 +2892,120 @@ function buildDropZone(song) {
       <div class="dz-text">${hasRef ? 'Referenz-Audio wird geladen... oder neue Datei ablegen' : 'Audio-Datei hier ablegen oder klicken'}</div>
       <div class="dz-formats">.wav .mp3 .m4a .ogg</div>
     </div>`;
+}
+
+/* ── Aufnahmen-Panel ──────────────────────────────────────────────────────
+ * Songs können mehrere Vollversionen haben (Original, Playback, "nur Axel" …).
+ * Genau eine davon ist das Referenz-Audio, mit dem der Audio-Split arbeitet;
+ * die übrigen sind zum Reinhören da. Quelle: audio_assets (kind='playalong'),
+ * bei Stringbreak befüllt aus dem BandHelper-Export. */
+
+const _recordingsCache = {};   // songId → Array<asset> (null = Ladefehler)
+let _recordingsLoadingFor = null;
+
+function buildRecordingsPanel(song) {
+  const songId = selectedSongId;
+  const assets = _recordingsCache[songId];
+
+  if (assets === undefined) {
+    if (_recordingsLoadingFor !== songId) loadRecordingsFor(songId);
+    return `<div class="rec-panel" id="rec-panel"><div class="rec-loading">Aufnahmen werden geladen…</div></div>`;
+  }
+  if (assets === null || assets.length === 0) return `<div class="rec-panel" id="rec-panel"></div>`;
+
+  const rows = assets.map((a) => {
+    const isRef = song.audio_ref === a.storage_path;
+    const name = a.storage_path.split('/').pop();
+    return `
+      <div class="rec-row${isRef ? ' is-ref' : ''}">
+        <button class="rec-play" data-path="${esc(a.storage_path)}" title="Anhören">&#9654;</button>
+        <span class="rec-label">${esc(a.label || '—')}</span>
+        <span class="rec-file" title="${esc(name)}">${esc(name)}</span>
+        ${isRef
+          ? `<span class="rec-badge">Referenz</span>`
+          : `<button class="rec-use" data-path="${esc(a.storage_path)}" data-name="${esc(name)}">als Referenz</button>`}
+      </div>`;
+  }).join('');
+
+  return `
+    <div class="rec-panel" id="rec-panel">
+      <div class="rec-head">Aufnahmen <span class="rec-count">${assets.length}</span></div>
+      ${rows}
+      <audio id="rec-audio" preload="none"></audio>
+    </div>`;
+}
+
+/** Aufnahmen eines Songs nachladen und nur das Panel neu zeichnen. */
+async function loadRecordingsFor(songId) {
+  _recordingsLoadingFor = songId;
+  try {
+    _recordingsCache[songId] = await loadAudioAssets(songId);
+  } catch (err) {
+    console.error('Aufnahmen laden fehlgeschlagen:', err);
+    _recordingsCache[songId] = null;
+  } finally {
+    _recordingsLoadingFor = null;
+  }
+  // Nur neu zeichnen, wenn der Song noch angezeigt wird — sonst ist das
+  // Ergebnis veraltet und würde das Panel eines anderen Songs überschreiben.
+  if (selectedSongId !== songId || activeTab !== 'audio') return;
+  const panel = document.getElementById('rec-panel');
+  if (panel) panel.outerHTML = buildRecordingsPanel(db.songs[songId]);
+}
+
+/** Aufnahme anhören (ein gemeinsames <audio>-Element, Toggle pro Zeile). */
+function playRecording(btn, path) {
+  const el = document.getElementById('rec-audio');
+  if (!el) return;
+  const url = storagePublicUrl(path);
+  const wasPlaying = !el.paused && el.dataset.path === path;
+
+  document.querySelectorAll('.rec-play').forEach((b) => { b.innerHTML = '▶'; });
+  el.pause();
+
+  if (wasPlaying) return;   // zweiter Klick = Stopp
+
+  el.src = url;
+  el.dataset.path = path;
+  el.play().then(() => { btn.innerHTML = '■'; })
+    .catch((err) => {
+      console.error('Playback fehlgeschlagen:', err);
+      toast('Aufnahme konnte nicht abgespielt werden', 'error');
+    });
+  el.onended = () => { btn.innerHTML = '▶'; };
+}
+
+/**
+ * Eine der Aufnahmen zum Referenz-Audio machen. Verwirft das geladene
+ * Audio, damit der Audio-Split die neue Datei zieht.
+ */
+async function useAsReference(path, fileName) {
+  const song = db.songs[selectedSongId];
+  if (!song || song.audio_ref === path) return;
+
+  const hadMarkers = (song.split_markers?.markers || []).length > 0;
+  if (hadMarkers && !confirm(
+    'Dieser Song hat bereits Taktmarker aus dem Audio-Split.\n\n' +
+    'Ein anderes Referenz-Audio passt in der Regel nicht zu diesen Markern ' +
+    '— sie bleiben erhalten, stimmen dann aber möglicherweise nicht mehr.\n\n' +
+    'Trotzdem wechseln?')) return;
+
+  const el = document.getElementById('rec-audio');
+  if (el) el.pause();
+
+  song.audio_ref = path;
+  song.audio_ref_name = fileName;
+  markDirty();
+
+  // Geladenes Audio verwerfen, damit renderAudioTab() die neue Datei zieht.
+  delete _audioRefCache[selectedSongId];
+  audio.reset();
+  audioMeta = null;
+  audioFileName = null;
+
+  await handleSave(false);
+  toast('Referenz-Audio gewechselt ✓', 'success');
+  renderAudioTab();
 }
 
 function buildWaveform() {
@@ -4165,6 +4280,7 @@ async function uploadReferenceAudio(arrayBuffer, fileName) {
 
     await uploadToStorage(path, base64);
     await registerAudioAsset({ song_id: songId, kind: 'playalong', storage_path: path, bar_num: null, part_id: null });
+    delete _recordingsCache[songId];   // neue Aufnahme — Panel neu laden lassen
 
     toast('Referenz-Audio gespeichert \u2713', 'success');
 
@@ -4626,6 +4742,18 @@ async function handleAudioExport() {
 
 function handleAudioClick(e) {
   const el = e.target;
+
+  // Aufnahmen-Panel — vor der Dropzone prüfen (eigene Buttons, kein Datei-Dialog)
+  const playBtn = el.closest('.rec-play');
+  if (playBtn) {
+    playRecording(playBtn, playBtn.dataset.path);
+    return;
+  }
+  const useBtn = el.closest('.rec-use');
+  if (useBtn) {
+    useAsReference(useBtn.dataset.path, useBtn.dataset.name);
+    return;
+  }
 
   // Drop zone
   if (el.closest('#audio-dropzone')) {

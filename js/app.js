@@ -10,7 +10,7 @@ import * as audio from './audio-engine.js';
 import * as integrity from './integrity.js';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2026.08.08-recordings1';
+const APP_VERSION = 'v2026.08.08-recordings2';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -2911,7 +2911,9 @@ function buildRecordingsPanel(song) {
     if (_recordingsLoadingFor !== songId) loadRecordingsFor(songId);
     return `<div class="rec-panel" id="rec-panel"><div class="rec-loading">Aufnahmen werden geladen…</div></div>`;
   }
-  if (assets === null || assets.length === 0) return `<div class="rec-panel" id="rec-panel"></div>`;
+  // Array.isArray statt !== null: faengt auch alles ab, was wider Erwarten
+  // kein Array ist, statt spaeter an .map() den ganzen Tab zu reissen.
+  if (!Array.isArray(assets) || assets.length === 0) return `<div class="rec-panel" id="rec-panel"></div>`;
 
   const rows = assets.map((a) => {
     const isRef = song.audio_ref === a.storage_path;
@@ -2940,17 +2942,18 @@ async function loadRecordingsFor(songId) {
   _recordingsLoadingFor = songId;
   try {
     _recordingsCache[songId] = await loadAudioAssets(songId);
+    // Nur neu zeichnen, wenn der Song noch angezeigt wird — sonst ist das
+    // Ergebnis veraltet und wuerde das Panel eines anderen Songs ueberschreiben.
+    if (selectedSongId !== songId || activeTab !== 'audio') return;
+    const panel = document.getElementById('rec-panel');
+    if (panel) panel.outerHTML = buildRecordingsPanel(db.songs[songId]);
   } catch (err) {
+    // Das Panel ist Beiwerk — ein Fehler hier darf den Audio-Tab nicht kippen.
     console.error('Aufnahmen laden fehlgeschlagen:', err);
     _recordingsCache[songId] = null;
   } finally {
     _recordingsLoadingFor = null;
   }
-  // Nur neu zeichnen, wenn der Song noch angezeigt wird — sonst ist das
-  // Ergebnis veraltet und würde das Panel eines anderen Songs überschreiben.
-  if (selectedSongId !== songId || activeTab !== 'audio') return;
-  const panel = document.getElementById('rec-panel');
-  if (panel) panel.outerHTML = buildRecordingsPanel(db.songs[songId]);
 }
 
 /** Aufnahme anhören (ein gemeinsames <audio>-Element, Toggle pro Zeile). */

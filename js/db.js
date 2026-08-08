@@ -444,11 +444,12 @@ export async function registerAudioAsset(asset) {
  *                          duration_sec: number|null}>>} nach Label sortiert
  */
 export async function loadAudioAssets(songId) {
+  // sbFetch liefert das Response-Objekt, nicht das geparste JSON.
   const rows = await sbFetch(
     `audio_assets?select=id,storage_path,label,duration_sec` +
     `&song_id=eq.${encodeURIComponent(songId)}&kind=eq.playalong&order=label`
-  );
-  return rows || [];
+  ).then((r) => r.json());
+  return Array.isArray(rows) ? rows : [];
 }
 
 /* ═══════════════════ GitHub (QXW-Datei, Ad-hoc-Zugriffe) ══════════════════

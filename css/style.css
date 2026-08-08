@@ -5071,3 +5071,127 @@ td.ak-actions { width: 90px; white-space: nowrap; text-align: right; }
 .ckbd-back, .ckbd-shift, .ckbd-enter { background: var(--bg4); }
 .ckbd-hide { background: var(--bg4); color: var(--t2); font-size: 0.9rem; }
 .ckbd-space { font-size: 0.9rem; color: var(--t2); }
+
+/* ── Aufnahmen-Panel (Audio-Split-Tab) ─────────────────────────────────────
+ * Liste aller Vollversionen eines Songs (audio_assets, kind='playalong').
+ * Genau eine ist Referenz-Audio; die übrigen sind zum Reinhören da. */
+
+.rec-panel {
+  margin: -8px 0 20px;
+}
+
+.rec-panel:empty {
+  margin: 0;
+}
+
+.rec-loading {
+  padding: 10px 12px;
+  font-size: 0.78rem;
+  color: var(--t3);
+}
+
+.rec-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 2px 8px;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--t3);
+}
+
+.rec-count {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  padding: 1px 6px;
+  border-radius: 8px;
+  background: var(--bg3);
+  color: var(--t2);
+}
+
+.rec-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius2);
+  background: var(--bg2);
+  margin-bottom: 6px;
+}
+
+.rec-row.is-ref {
+  border-color: rgba(0, 220, 130, 0.45);
+  background: rgba(0, 220, 130, 0.05);
+}
+
+.rec-play {
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border2);
+  border-radius: var(--radius2);
+  background: var(--bg3);
+  color: var(--t2);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.rec-play:hover {
+  border-color: var(--green);
+  color: var(--green);
+}
+
+.rec-label {
+  flex: 0 0 auto;
+  min-width: 96px;
+  font-size: 0.8rem;
+  color: var(--t1);
+}
+
+.rec-file {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--t3);
+}
+
+.rec-badge {
+  flex: 0 0 auto;
+  padding: 4px 10px;
+  border-radius: 10px;
+  background: rgba(0, 220, 130, 0.14);
+  color: var(--green);
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.rec-use {
+  flex: 0 0 auto;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--border2);
+  border-radius: var(--radius2);
+  background: transparent;
+  color: var(--t2);
+  font-size: 0.74rem;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.rec-use:hover {
+  border-color: var(--green);
+  color: var(--green);
+}
+
+@media (max-width: 640px) {
+  .rec-file { display: none; }
+  .rec-label { min-width: 0; flex: 1 1 auto; }
+}

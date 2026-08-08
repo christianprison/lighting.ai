@@ -132,14 +132,15 @@ def _validate(songs: list[dict], existing_names: set[str]) -> tuple[list[str], l
         if not s["name"]:
             errors.append(f"[{label}] name fehlt")
         if not s["artist"]:
-            errors.append(f"[{label}] artist fehlt")
+            # Kein Abbruchgrund: der Name ist der fachliche Schlüssel, und
+            # ausrangierte Archiv-Songs haben oft dünne Metadaten. In der App
+            # nachpflegbar.
+            warnings.append(f"[{label}] artist fehlt")
         key_lower = s["name"].strip().lower()
         if key_lower in seen_lower:
             errors.append(f"[{label}] doppelter Songname im Import (auch: {seen_lower[key_lower]})")
         else:
             seen_lower[key_lower] = label
-        if key_lower in existing_names:
-            errors.append(f"[{label}] Songname existiert schon bei Stringbreak in Supabase")
 
         bpm = s["bpm"]
         if not bpm:
@@ -219,6 +220,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--src", type=Path, default=DEFAULT_SRC)
     ap.add_argument("--write", action="store_true", help="tatsächlich nach Supabase schreiben (sonst nur Vorschau)")
     ap.add_argument("--exclude", default="", help="Komma-getrennte Songnamen, die übersprungen werden sollen")
+    ap.add_argument("--include-inactive", action="store_true",
+                    help="Auch in BandHelper ausrangierte Songs (active=0) importieren — "
+                         "nötig, damit deren Aufnahmen einen Song zum Anhängen haben")
     args = ap.parse_args(argv)
 
     exclude = {n.strip().lower() for n in args.exclude.split(",") if n.strip()}
@@ -228,15 +232,28 @@ def main(argv: list[str] | None = None) -> int:
 
     candidates = [
         s for s in raw["song"].values()
-        if s.get("active") == "1" and (s.get("name") or "").strip().lower() not in exclude
+        if (args.include_inactive or s.get("active") == "1")
+        and (s.get("name") or "").strip().lower() not in exclude
     ]
     songs = [_map_song(s, field_roles) for s in candidates]
 
-    print(f"Quelle: {args.src} — {len(raw['song'])} Songs total, {len(candidates)} aktiv nach --exclude.\n")
+    scope = "alle (inkl. ausrangierte)" if args.include_inactive else "nur aktive"
+    print(f"Quelle: {args.src} — {len(raw['song'])} Songs total, "
+          f"{len(candidates)} Kandidaten ({scope}, nach --exclude).\n")
 
     print("Fetching existing Supabase state (Kollisionsprüfung)...")
     existing_ids = _existing_song_ids()
     existing_names = _existing_stringbreak_names()
+
+    # Bereits importierte Songs überspringen statt abzubrechen — der Import ist
+    # inkrementell (erster Lauf: aktive Songs, späterer Lauf: Nachzügler).
+    already = [s for s in songs if s["name"].strip().lower() in existing_names]
+    songs = [s for s in songs if s["name"].strip().lower() not in existing_names]
+    if already:
+        print(f"{len(already)} Songs schon in Supabase — werden übersprungen.")
+    if not songs:
+        print("\nNichts Neues zu importieren.")
+        return 0
 
     errors, warnings = _validate(songs, existing_names)
 

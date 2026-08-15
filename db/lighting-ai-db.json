@@ -1,47 +1,157 @@
 {
   "_generated": true,
-  "_generated_at": "2026-08-08T17:59:57.276334+00:00",
+  "_generated_at": "2026-08-15T10:42:22.115497+00:00",
   "_source": "supabase",
   "band_id": "the_pact",
   "version": "1.0",
   "band": "The Pact",
   "setlist": {
-    "name": "Stadtfest Mettmann",
+    "name": "Heimatfest 06.09.2026",
     "items": [
       {
         "pos": 1,
         "type": "song",
-        "song_id": "pdWrqc"
+        "song_id": "SlpEnr"
       },
       {
         "pos": 2,
         "type": "song",
-        "song_id": "lVbPMR"
+        "song_id": "CC9FBm"
       },
       {
         "pos": 3,
         "type": "song",
-        "song_id": "RED66i"
+        "song_id": "sowvsF"
       },
       {
         "pos": 4,
         "type": "song",
-        "song_id": "SlpEnr"
+        "song_id": "Dp8xoz"
       },
       {
         "pos": 5,
         "type": "song",
-        "song_id": "Pol09a"
+        "song_id": "BKpY4X"
       },
       {
         "pos": 6,
         "type": "song",
-        "song_id": "Wa1bpl"
+        "song_id": "hR5CDW"
       },
       {
         "pos": 7,
         "type": "song",
+        "song_id": "Rxj9bi"
+      },
+      {
+        "pos": 8,
+        "type": "song",
+        "song_id": "F71u8Z"
+      },
+      {
+        "pos": 9,
+        "type": "song",
+        "song_id": "5D6dZO"
+      },
+      {
+        "pos": 10,
+        "type": "song",
+        "song_id": "B3R92r"
+      },
+      {
+        "pos": 11,
+        "type": "song",
+        "song_id": "2c4rCI"
+      },
+      {
+        "pos": 12,
+        "type": "song",
+        "song_id": "HDX1IN"
+      },
+      {
+        "pos": 13,
+        "type": "song",
+        "song_id": "pVmkRc"
+      },
+      {
+        "pos": 14,
+        "type": "song",
         "song_id": "Lnql7n"
+      },
+      {
+        "pos": 15,
+        "type": "song",
+        "song_id": "fwA4K7"
+      },
+      {
+        "pos": 16,
+        "type": "song",
+        "song_id": "JHUGOo"
+      },
+      {
+        "pos": 17,
+        "type": "song",
+        "song_id": "zf3UaB"
+      },
+      {
+        "pos": 18,
+        "type": "song",
+        "song_id": "9G8cU7"
+      },
+      {
+        "pos": 19,
+        "type": "song",
+        "song_id": "RED66i"
+      },
+      {
+        "pos": 20,
+        "type": "song",
+        "song_id": "pdWrqc"
+      },
+      {
+        "pos": 21,
+        "type": "song",
+        "song_id": "SQfqPy"
+      },
+      {
+        "pos": 22,
+        "type": "song",
+        "song_id": "Pol09a"
+      },
+      {
+        "pos": 23,
+        "type": "song",
+        "song_id": "5iZfKj"
+      },
+      {
+        "pos": 24,
+        "type": "song",
+        "song_id": "Wa1bpl"
+      },
+      {
+        "pos": 25,
+        "type": "song",
+        "song_id": "CEGcgc"
+      },
+      {
+        "pos": 26,
+        "type": "song",
+        "song_id": "lVbPMR"
+      },
+      {
+        "pos": 27,
+        "type": "song",
+        "song_id": "srQxlI"
+      },
+      {
+        "pos": 28,
+        "type": "song",
+        "song_id": "HwfJ9X"
+      },
+      {
+        "pos": 29,
+        "type": "song",
+        "song_id": "BfbgVC"
       }
     ]
   },

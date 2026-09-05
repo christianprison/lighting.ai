@@ -1,6 +1,6 @@
 {
   "_generated": true,
-  "_generated_at": "2026-09-05T13:31:04.259469+00:00",
+  "_generated_at": "2026-09-05T16:17:14.819912+00:00",
   "_source": "supabase",
   "band_id": "the_pact",
   "version": "1.0",
@@ -11112,13 +11112,857 @@
       "band_id": "the_pact",
       "tms": {
         "user_tasks": [],
-        "manual_done": [],
+        "manual_done": [
+          "bar_markers"
+        ],
         "manual_undone": []
       },
       "qlc_id": 94,
       "audio_ref": "audio/Down In The Past/Down In The Past - Full Song.mp3",
       "lyrics_raw": "[Intro]Yeah!\n\n[Verse 1]\nWell, I don't wanna hang around with you\nI've got my motor, baby, and I'm gonna see you through\nYou think I wanna be alone with you\nIt doesn't matter, baby, 'cause you overreacted too\n\n[Pre-Chorus]\nBut since you're down there, where will I just be?\nI'm getting fine, girl\nDressing up for stormy weather\n[Chorus]\nSo touch me\nDown in the past\nWhere my mother will last\nAnd it's true that I'm in for a punch and a blast\nYeah, down in the past\nWhere my mother will last\nAnd she will make sure that you remember\nYeah!\n\n[Verse 2]\nWell, I don't wanna slide away with you\nI've got ten little soldiers pointing at you\nHoney, you just left me for a new one\nIt doesn't matter baby cause your hair is ugly too\n\n[Pre-Chorus]\nBut since you're down there, where will I just be\nI'm getting fine, girl\nDressing up for stormy weather\n\n[Chorus]\nSo touch me\nDown in the past\nWhere my mother will last\nAnd it's true that I'm in for a punch and a blast\nYeah, down in the past\nWhere my mother will last\nAnd she will make sure that you remember\nYeah, yeah!",
-      "total_bars": 0,
+      "total_bars": 256,
+      "split_markers": {
+        "markers": [
+          {
+            "time": 4.804893492509331
+          },
+          {
+            "time": 6.010593900481541
+          },
+          {
+            "time": 7.204893492509308
+          },
+          {
+            "time": 8.364893492509333
+          },
+          {
+            "time": 9.523113964686999
+          },
+          {
+            "time": 10.682226825842685
+          },
+          {
+            "time": 11.82089349250935
+          },
+          {
+            "time": 12.996893492509281
+          },
+          {
+            "time": 14.087560159176002
+          },
+          {
+            "time": 15.271560159175971
+          },
+          {
+            "time": 16.436893492509338
+          },
+          {
+            "time": 17.631560159175987
+          },
+          {
+            "time": 18.77289349250935
+          },
+          {
+            "time": 19.871560159175996
+          },
+          {
+            "time": 21.028893492509322
+          },
+          {
+            "time": 22.162226825842648
+          },
+          {
+            "time": 23.354226825842655
+          },
+          {
+            "time": 24.47156015917602
+          },
+          {
+            "time": 25.687560159176027
+          },
+          {
+            "time": 26.852893492509278
+          },
+          {
+            "time": 27.962226825842603
+          },
+          {
+            "time": 29.170226825842686
+          },
+          {
+            "time": 30.295560159175974
+          },
+          {
+            "time": 31.420893492509375
+          },
+          {
+            "time": 32.57022682584266
+          },
+          {
+            "time": 33.75422682584263
+          },
+          {
+            "time": 34.87156015917599
+          },
+          {
+            "time": 36.00489349250932
+          },
+          {
+            "time": 37.196893492509325
+          },
+          {
+            "time": 38.383560159175936
+          },
+          {
+            "time": 39.58622682584262
+          },
+          {
+            "time": 40.75422682584263
+          },
+          {
+            "time": 41.88222682584267
+          },
+          {
+            "time": 43.063560159176
+          },
+          {
+            "time": 44.21556015917604
+          },
+          {
+            "time": 45.428893492509296
+          },
+          {
+            "time": 46.58889349250938
+          },
+          {
+            "time": 47.75422682584263
+          },
+          {
+            "time": 48.863560159175954
+          },
+          {
+            "time": 50.10356015917596
+          },
+          {
+            "time": 51.220893492509326
+          },
+          {
+            "time": 52.415560159175975
+          },
+          {
+            "time": 53.52222682584266
+          },
+          {
+            "time": 54.682226825842626
+          },
+          {
+            "time": 55.85556015917603
+          },
+          {
+            "time": 57.02089349250928
+          },
+          {
+            "time": 58.162226825842644
+          },
+          {
+            "time": 59.32222682584261
+          },
+          {
+            "time": 60.530226825842696
+          },
+          {
+            "time": 61.714226825842665
+          },
+          {
+            "time": 62.85022682584263
+          },
+          {
+            "time": 63.956024578651686
+          },
+          {
+            "time": 65.10802457865162
+          },
+          {
+            "time": 66.24935791198499
+          },
+          {
+            "time": 67.4360245786516
+          },
+          {
+            "time": 68.54802457865168
+          },
+          {
+            "time": 69.70802457865165
+          },
+          {
+            "time": 70.86802457865161
+          },
+          {
+            "time": 72.04935791198494
+          },
+          {
+            "time": 73.10535791198498
+          },
+          {
+            "time": 74.25735791198503
+          },
+          {
+            "time": 75.56669124531828
+          },
+          {
+            "time": 76.71602457865168
+          },
+          {
+            "time": 77.83335791198493
+          },
+          {
+            "time": 78.93469124531833
+          },
+          {
+            "time": 80.13469124531827
+          },
+          {
+            "time": 81.30002457865163
+          },
+          {
+            "time": 82.441357911985
+          },
+          {
+            "time": 83.58269124531836
+          },
+          {
+            "time": 84.70802457865165
+          },
+          {
+            "time": 85.84935791198501
+          },
+          {
+            "time": 87.05735791198498
+          },
+          {
+            "time": 88.1906912453183
+          },
+          {
+            "time": 89.28935791198495
+          },
+          {
+            "time": 90.47335791198492
+          },
+          {
+            "time": 91.657357911985
+          },
+          {
+            "time": 92.84935791198501
+          },
+          {
+            "time": 93.9746912453183
+          },
+          {
+            "time": 95.08135791198498
+          },
+          {
+            "time": 96.28135791198503
+          },
+          {
+            "time": 97.41469124531835
+          },
+          {
+            "time": 98.62535791198496
+          },
+          {
+            "time": 99.80135791198501
+          },
+          {
+            "time": 100.9560245786517
+          },
+          {
+            "time": 102.10802457865162
+          },
+          {
+            "time": 103.22269124531834
+          },
+          {
+            "time": 104.40135791198503
+          },
+          {
+            "time": 105.5560245786516
+          },
+          {
+            "time": 106.70002457865161
+          },
+          {
+            "time": 107.86802457865161
+          },
+          {
+            "time": 108.9746912453183
+          },
+          {
+            "time": 110.16505617977529
+          },
+          {
+            "time": 111.3160245786516
+          },
+          {
+            "time": 112.481797752809
+          },
+          {
+            "time": 113.61469124531828
+          },
+          {
+            "time": 114.82269124531825
+          },
+          {
+            "time": 116.00669124531834
+          },
+          {
+            "time": 117.10269124531834
+          },
+          {
+            "time": 118.28135791198503
+          },
+          {
+            "time": 119.48135791198496
+          },
+          {
+            "time": 120.60135791198496
+          },
+          {
+            "time": 121.73469124531829
+          },
+          {
+            "time": 122.83335791198493
+          },
+          {
+            "time": 123.9746912453183
+          },
+          {
+            "time": 125.18269124531827
+          },
+          {
+            "time": 126.3400245786516
+          },
+          {
+            "time": 127.43869124531835
+          },
+          {
+            "time": 128.64935791198496
+          },
+          {
+            "time": 129.7826912453183
+          },
+          {
+            "time": 130.88135791198494
+          },
+          {
+            "time": 132.07202247191012
+          },
+          {
+            "time": 133.22595505617977
+          },
+          {
+            "time": 134.417357911985
+          },
+          {
+            "time": 135.61370786516852
+          },
+          {
+            "time": 136.705357911985
+          },
+          {
+            "time": 137.88135791198494
+          },
+          {
+            "time": 139.00669124531834
+          },
+          {
+            "time": 140.15869124531827
+          },
+          {
+            "time": 141.27069124531835
+          },
+          {
+            "time": 142.43335791198496
+          },
+          {
+            "time": 143.5560245786516
+          },
+          {
+            "time": 144.70802457865165
+          },
+          {
+            "time": 145.8680245786516
+          },
+          {
+            "time": 146.96662921348315
+          },
+          {
+            "time": 148.11602457865166
+          },
+          {
+            "time": 149.24135791198495
+          },
+          {
+            "time": 150.43335791198496
+          },
+          {
+            "time": 151.62269124531832
+          },
+          {
+            "time": 152.7346912453183
+          },
+          {
+            "time": 153.85735791198493
+          },
+          {
+            "time": 155.06802457865166
+          },
+          {
+            "time": 156.17469124531834
+          },
+          {
+            "time": 157.3160245786516
+          },
+          {
+            "time": 158.47335791198492
+          },
+          {
+            "time": 159.64935791198496
+          },
+          {
+            "time": 160.74280898876407
+          },
+          {
+            "time": 161.88935791198497
+          },
+          {
+            "time": 163.05735791198498
+          },
+          {
+            "time": 164.249357911985
+          },
+          {
+            "time": 165.3826912453183
+          },
+          {
+            "time": 166.47335791198492
+          },
+          {
+            "time": 167.57202457865168
+          },
+          {
+            "time": 168.7346912453183
+          },
+          {
+            "time": 169.825357911985
+          },
+          {
+            "time": 170.94002457865162
+          },
+          {
+            "time": 172.14011235955056
+          },
+          {
+            "time": 173.2680245786516
+          },
+          {
+            "time": 174.3586912453183
+          },
+          {
+            "time": 175.54002457865164
+          },
+          {
+            "time": 176.66802457865168
+          },
+          {
+            "time": 177.82269124531825
+          },
+          {
+            "time": 178.91602457865162
+          },
+          {
+            "time": 180.04935791198494
+          },
+          {
+            "time": 181.20669124531827
+          },
+          {
+            "time": 182.35602457865167
+          },
+          {
+            "time": 183.50002457865168
+          },
+          {
+            "time": 184.67335791198497
+          },
+          {
+            "time": 185.81469124531833
+          },
+          {
+            "time": 186.96669124531826
+          },
+          {
+            "time": 188.12402457865159
+          },
+          {
+            "time": 189.3400245786516
+          },
+          {
+            "time": 190.44935791198503
+          },
+          {
+            "time": 191.58269124531836
+          },
+          {
+            "time": 192.7000245786516
+          },
+          {
+            "time": 193.8680245786516
+          },
+          {
+            "time": 194.969357911985
+          },
+          {
+            "time": 196.12402457865159
+          },
+          {
+            "time": 197.23335791198502
+          },
+          {
+            "time": 198.3400245786516
+          },
+          {
+            "time": 199.55069124531832
+          },
+          {
+            "time": 200.56669124531828
+          },
+          {
+            "time": 201.75602457865165
+          },
+          {
+            "time": 202.90002457865165
+          },
+          {
+            "time": 204.14002457865166
+          },
+          {
+            "time": 205.249357911985
+          },
+          {
+            "time": 206.39069124531835
+          },
+          {
+            "time": 207.59069124531828
+          },
+          {
+            "time": 208.71602457865168
+          },
+          {
+            "time": 209.85735791198493
+          },
+          {
+            "time": 211.00135791198494
+          },
+          {
+            "time": 212.15602457865162
+          },
+          {
+            "time": 213.28135791198503
+          },
+          {
+            "time": 214.34802457865163
+          },
+          {
+            "time": 215.5560245786516
+          },
+          {
+            "time": 216.68935791198493
+          },
+          {
+            "time": 217.801357911985
+          },
+          {
+            "time": 218.9746912453183
+          },
+          {
+            "time": 220.13469124531827
+          },
+          {
+            "time": 221.22269124531834
+          },
+          {
+            "time": 222.41469124531835
+          },
+          {
+            "time": 223.51602457865164
+          },
+          {
+            "time": 224.66802457865168
+          },
+          {
+            "time": 225.801357911985
+          },
+          {
+            "time": 226.93469124531833
+          },
+          {
+            "time": 228.05735791198498
+          },
+          {
+            "time": 229.24135791198495
+          },
+          {
+            "time": 230.39069124531835
+          },
+          {
+            "time": 231.489357911985
+          },
+          {
+            "time": 232.633357911985
+          },
+          {
+            "time": 233.75602457865165
+          },
+          {
+            "time": 234.85735791198493
+          },
+          {
+            "time": 236.0226912453183
+          },
+          {
+            "time": 237.12402457865159
+          },
+          {
+            "time": 238.25735791198503
+          },
+          {
+            "time": 239.34802457865163
+          },
+          {
+            "time": 240.51602457865164
+          },
+          {
+            "time": 241.66802457865168
+          },
+          {
+            "time": 242.85735791198493
+          },
+          {
+            "time": 244.03602457865162
+          },
+          {
+            "time": 245.20669124531827
+          },
+          {
+            "time": 246.30269124531827
+          },
+          {
+            "time": 247.51853932584268
+          },
+          {
+            "time": 248.7346912453183
+          },
+          {
+            "time": 249.89202457865161
+          },
+          {
+            "time": 251.05735791198498
+          },
+          {
+            "time": 252.1906912453183
+          },
+          {
+            "time": 253.28135791198503
+          },
+          {
+            "time": 254.46802457865164
+          },
+          {
+            "time": 255.657357911985
+          },
+          {
+            "time": 256.7906912453183
+          },
+          {
+            "time": 257.90535791198494
+          },
+          {
+            "time": 259.10269124531834
+          },
+          {
+            "time": 260.233357911985
+          },
+          {
+            "time": 261.3346912453183
+          },
+          {
+            "time": 262.4226912453183
+          },
+          {
+            "time": 263.633357911985
+          },
+          {
+            "time": 264.7666912453183
+          },
+          {
+            "time": 265.889357911985
+          },
+          {
+            "time": 267.033357911985
+          },
+          {
+            "time": 268.201357911985
+          },
+          {
+            "time": 269.3160245786516
+          },
+          {
+            "time": 270.4906741573034
+          },
+          {
+            "time": 272.6740245786516
+          },
+          {
+            "time": 272.7240245786516
+          },
+          {
+            "time": 273.83869124531833
+          },
+          {
+            "time": 274.9400245786516
+          },
+          {
+            "time": 276.1080245786516
+          },
+          {
+            "time": 277.2722471910112
+          },
+          {
+            "time": 278.381797752809
+          },
+          {
+            "time": 279.46802457865164
+          },
+          {
+            "time": 280.681357911985
+          },
+          {
+            "time": 281.801357911985
+          },
+          {
+            "time": 282.90002457865165
+          },
+          {
+            "time": 284.017357911985
+          },
+          {
+            "time": 285.201357911985
+          },
+          {
+            "time": 286.34802457865163
+          },
+          {
+            "time": 287.48135791198496
+          },
+          {
+            "time": 288.5720245786517
+          },
+          {
+            "time": 289.7346912453183
+          },
+          {
+            "time": 290.8680245786516
+          },
+          {
+            "time": 291.99069124531826
+          },
+          {
+            "time": 293.09
+          },
+          {
+            "time": 294.23602457865167
+          },
+          {
+            "time": 295.3346912453183
+          },
+          {
+            "time": 296.5340449438202
+          },
+          {
+            "time": 311.889357911985
+          }
+        ],
+        "part_starts": [
+          {
+            "name": "Intro",
+            "bar_num": 1
+          },
+          {
+            "name": "Thema 1",
+            "bar_num": 9
+          },
+          {
+            "name": "Verse 1",
+            "bar_num": 25
+          },
+          {
+            "name": "Bridge 1",
+            "bar_num": 41
+          },
+          {
+            "name": "Chorus 1",
+            "bar_num": 57
+          },
+          {
+            "name": "Thema 2",
+            "bar_num": 71
+          },
+          {
+            "name": "Verse 2",
+            "bar_num": 79
+          },
+          {
+            "name": "Bridge 2",
+            "bar_num": 95
+          },
+          {
+            "name": "Chorus 2",
+            "bar_num": 111
+          },
+          {
+            "name": "Thema 3",
+            "bar_num": 125
+          },
+          {
+            "name": "Bass Solo",
+            "bar_num": 141
+          },
+          {
+            "name": "Ruhiger Teil",
+            "bar_num": 149
+          },
+          {
+            "name": "Verse 3",
+            "bar_num": 209
+          },
+          {
+            "name": "Chorus 3",
+            "bar_num": 225
+          },
+          {
+            "name": "Thema 4",
+            "bar_num": 239
+          },
+          {
+            "name": "C‘mon",
+            "bar_num": 251
+          },
+          {
+            "name": "Ausklang",
+            "bar_num": 255
+          }
+        ]
+      },
       "audio_ref_name": "Down In The Past - Full Song.mp3"
     },
     "CEGcgc": {
@@ -12545,7 +13389,10 @@
       "band_id": "the_pact",
       "tms": {
         "user_tasks": [],
-        "manual_done": [],
+        "manual_done": [
+          "bar_markers",
+          "parts_identified"
+        ],
         "manual_undone": []
       },
       "audio_ref": "audio/Black Chandelier/Black Chandelier - Full Song.mp3",
@@ -12565,345 +13412,337 @@
       "split_markers": {
         "markers": [
           {
-            "time": 0.205
+            "time": 0.077
           },
           {
-            "time": 1.7738125
+            "time": 1.7739166666666666
           },
           {
-            "time": 3.5033541666666665
+            "time": 3.911875
           },
           {
-            "time": 6.0945833333333335
+            "time": 6.0947708333333335
           },
           {
-            "time": 8.200104166666666
+            "time": 8.200541666666666
           },
           {
-            "time": 10.369833333333334
+            "time": 10.369916666666667
           },
           {
-            "time": 12.668833333333334
+            "time": 12.526916666666667
           },
           {
-            "time": 14.6645
+            "time": 14.674583333333333
           },
           {
-            "time": 16.817479166666665
+            "time": 16.817583333333335
           },
           {
-            "time": 18.976166666666668
+            "time": 18.999591532905296
           },
           {
-            "time": 21.220166666666668
+            "time": 21.241575418004285
           },
           {
-            "time": 23.324166666666667
+            "time": 23.32424208467094
           },
           {
-            "time": 25.450166666666668
+            "time": 25.492242084670945
           },
           {
-            "time": 27.7445
+            "time": 27.59090875133762
           },
           {
-            "time": 29.864833333333333
+            "time": 29.769575418004276
           },
           {
-            "time": 31.841833333333334
+            "time": 31.89224208467095
           },
           {
-            "time": 34.073166666666665
+            "time": 34.06024208467095
           },
           {
-            "time": 36.216833333333334
+            "time": 36.23357541800427
           },
           {
-            "time": 38.58983333333333
+            "time": 38.44957541800428
           },
           {
-            "time": 40.55983333333333
+            "time": 40.62656121589085
           },
           {
-            "time": 42.76016666666667
+            "time": 42.71624208467093
           },
           {
-            "time": 44.99516691412514
+            "time": 44.860242084670936
           },
           {
-            "time": 47.120500247458544
+            "time": 46.98290875133761
           },
           {
-            "time": 49.253833580791756
+            "time": 49.10824208467093
           },
           {
-            "time": 51.387166914125196
+            "time": 51.301796834035585
           },
           {
-            "time": 53.61116691412513
+            "time": 53.45656824505084
           },
           {
-            "time": 55.755166914125134
+            "time": 55.613901578384166
           },
           {
-            "time": 57.86983358079174
+            "time": 57.73923491171748
           },
           {
-            "time": 60.00316691412518
+            "time": 59.95523491171749
           },
           {
-            "time": 62.21116691412504
+            "time": 62.11523491171749
           },
           {
-            "time": 64.30450024745852
+            "time": 64.26456824505081
           },
           {
-            "time": 65.47250024745841
+            "time": 65.40452701310863
           },
           {
-            "time": 67.57650024745845
+            "time": 67.45519367977533
           },
           {
-            "time": 69.70450024745838
+            "time": 69.69519367977534
           },
           {
-            "time": 71.87783358079179
+            "time": 71.76452701310865
           },
           {
-            "time": 74.07250024745855
+            "time": 74.01152807818355
           },
           {
-            "time": 76.12050024745855
+            "time": 76.07019474485017
           },
           {
-            "time": 78.35516691412505
+            "time": 78.34486141151686
           },
           {
-            "time": 80.52850024745845
+            "time": 80.42197206728201
           },
           {
-            "time": 82.68850024745853
+            "time": 82.621972067282
           },
           {
-            "time": 84.7765002474585
+            "time": 84.68063873394868
           },
           {
-            "time": 86.91250024745847
+            "time": 86.82997206728197
           },
           {
-            "time": 89.10450024745847
+            "time": 89.03263873394866
           },
           {
-            "time": 91.3120301782372
+            "time": 91.23797206728199
           },
           {
-            "time": 93.43736351157037
+            "time": 93.27263873394867
           },
           {
-            "time": 95.58669684490388
+            "time": 95.42197206728201
           },
           {
-            "time": 97.69603017823721
+            "time": 97.621972067282
           },
           {
-            "time": 99.8933635115705
+            "time": 99.77930540061533
           },
           {
-            "time": 102.04536351157054
+            "time": 101.92246842061263
           },
           {
-            "time": 104.17869684490375
+            "time": 104.0824684206126
           },
           {
-            "time": 106.38669684490384
+            "time": 106.26646842061263
           },
           {
-            "time": 108.5040301782372
+            "time": 108.34913508727925
           },
           {
-            "time": 110.70403017823702
+            "time": 110.5224684206126
           },
           {
-            "time": 112.79469684490374
+            "time": 112.67980175394592
           },
           {
-            "time": 114.92803017823718
+            "time": 114.86646842061259
           },
           {
-            "time": 117.09603017823707
+            "time": 116.9891350872793
           },
           {
-            "time": 119.27736351157051
+            "time": 119.1331350872793
           },
           {
-            "time": 121.43736351157037
+            "time": 121.33313508727929
           },
           {
-            "time": 123.58669684490388
+            "time": 123.46646842061261
           },
           {
-            "time": 125.75469684490378
+            "time": 125.60513508727928
           },
           {
-            "time": 127.9120301782371
+            "time": 127.80513508727927
           },
           {
-            "time": 130.0613635115704
+            "time": 129.96780175394593
           },
           {
-            "time": 132.22669684490376
+            "time": 132.1064684206126
           },
           {
-            "time": 134.3786968449038
+            "time": 134.20650917101395
           },
           {
-            "time": 135.48803017823712
+            "time": 135.40034134898343
           },
           {
-            "time": 137.6373635115704
+            "time": 137.4910080156501
           },
           {
-            "time": 139.82136351157038
+            "time": 139.70967468231675
           },
           {
-            "time": 141.95469684490382
+            "time": 141.8350080156501
           },
           {
-            "time": 144.0613635115704
+            "time": 144.09367468231676
           },
           {
-            "time": 146.2053635115704
+            "time": 146.12567468231674
           },
           {
-            "time": 148.40536351157044
+            "time": 148.33367468231677
           },
           {
-            "time": 150.560030178237
+            "time": 150.40300801565007
           },
           {
-            "time": 152.7786968449039
+            "time": 152.64300801565008
           },
           {
-            "time": 154.89603017823703
+            "time": 154.69367468231673
           },
           {
-            "time": 157.07736351157047
+            "time": 156.96034134898343
           },
           {
-            "time": 159.17069684490372
+            "time": 159.05900801565008
           },
           {
-            "time": 161.41069684490373
+            "time": 161.3123413489834
           },
           {
-            "time": 163.5280301782371
+            "time": 163.34967468231673
           },
           {
-            "time": 165.66136351157053
+            "time": 165.51767468231674
           },
           {
-            "time": 167.7386968449037
+            "time": 167.65100801565006
           },
           {
-            "time": 169.90403017823706
+            "time": 169.84300801565007
           },
           {
-            "time": 172.07203017823718
+            "time": 171.9523413489834
           },
           {
-            "time": 174.24536351157036
+            "time": 174.18434134898342
           },
           {
-            "time": 176.40536351157044
+            "time": 176.25560234584
           },
           {
-            "time": 178.61069684490377
+            "time": 178.44760234584
           },
           {
-            "time": 180.68803017823717
+            "time": 180.55426901250664
           },
           {
-            "time": 182.87736351157042
+            "time": 182.73026901250662
           },
           {
-            "time": 184.99469684490379
+            "time": 184.87160234584
           },
           {
-            "time": 187.12803017823722
+            "time": 187.02093567917333
           },
           {
-            "time": 189.29336351157036
+            "time": 189.21293567917334
           },
           {
-            "time": 191.38669684490384
+            "time": 191.34093567917333
           },
           {
-            "time": 193.6720301782371
+            "time": 193.5969356791733
           },
           {
-            "time": 195.72803017823713
+            "time": 195.67960234583998
           },
           {
-            "time": 197.95469684490382
+            "time": 197.82893567917333
           },
           {
-            "time": 200.12803017823722
+            "time": 199.95426901250667
           },
           {
-            "time": 201.2357972946764
+            "time": 201.11004159309792
           },
           {
-            "time": 203.31846396134307
+            "time": 203.19682122625733
           },
           {
-            "time": 205.54513062800976
+            "time": 205.46348789292404
           },
           {
-            "time": 207.63579729467648
+            "time": 207.5541545595907
           },
           {
-            "time": 209.85179729467637
+            "time": 209.719487892924
           },
           {
-            "time": 211.94513062800962
+            "time": 211.815487892924
           },
           {
-            "time": 214.15046396134318
+            "time": 214.07148789292404
           },
           {
-            "time": 216.25179729467646
+            "time": 216.1381545595907
           },
           {
-            "time": 218.47846396134315
+            "time": 218.39682122625737
           },
           {
-            "time": 220.52913062800968
+            "time": 220.42082122625737
           },
           {
-            "time": 222.76113062800965
+            "time": 222.6633013075174
           },
           {
-            "time": 224.86779729467645
+            "time": 224.7701545595907
           },
           {
-            "time": 227.07046396134302
+            "time": 226.98882122625736
           },
           {
-            "time": 229.16113062800974
+            "time": 229.02082122625734
           },
           {
-            "time": 231.46246396134308
+            "time": 231.27394048622259
           }
         ],
         "part_starts": [
-          {
-            "name": "Intro a capella",
-            "bar_num": 1
-          },
-          {
-            "name": "Intro tutti",
-            "bar_num": 5
-          },
           {
             "name": "Verse 1",
             "bar_num": 9
@@ -12917,6 +13756,14 @@
             "bar_num": 31
           },
           {
+            "name": "Interlude",
+            "bar_num": 40
+          },
+          {
+            "name": "Verse 2",
+            "bar_num": 42
+          },
+          {
             "name": "Bridge 2",
             "bar_num": 58
           },
@@ -12925,20 +13772,16 @@
             "bar_num": 64
           },
           {
-            "name": "Stops",
+            "name": "B-Teil",
             "bar_num": 79
           },
           {
-            "name": "Bridge 3",
+            "name": "Bridge 3 (a capella)",
             "bar_num": 89
           },
           {
             "name": "Chorus 3",
             "bar_num": 95
-          },
-          {
-            "name": "Ausklang",
-            "bar_num": 110
           }
         ]
       },
@@ -20982,6 +21825,42 @@
       "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/143 Are You Gonna Be My Girl Solo Axel.mp3",
       "has_accents": false
     },
+    "B0426": {
+      "song_id": "5D6dZO",
+      "bar_num": 144,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/144 Are You Gonna Be My Girl Solo Axel.mp3",
+      "has_accents": false
+    },
+    "B0294": {
+      "song_id": "5D6dZO",
+      "bar_num": 12,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/02 + Drums/012 Are You Gonna Be My Girl + Drums.mp3",
+      "has_accents": false
+    },
+    "B0327": {
+      "song_id": "5D6dZO",
+      "bar_num": 43,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/06 Bridge 1/043 Are You Gonna Be My Girl Bridge 1.mp3",
+      "has_accents": false,
+      "instrumental": true
+    },
+    "B0348": {
+      "song_id": "5D6dZO",
+      "bar_num": 63,
+      "lyrics": "I know",
+      "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/063 Are You Gonna Be My Girl Chorus 1.mp3",
+      "has_accents": false
+    },
+    "B0315": {
+      "song_id": "5D6dZO",
+      "bar_num": 32,
+      "lyrics": "really wanna make you mine",
+      "audio": "audio/Are You Gonna Be My Girl/05 Verse 1/032 Are You Gonna Be My Girl Verse 1.mp3",
+      "has_accents": false
+    },
     "B0439": {
       "song_id": "5D6dZO",
       "bar_num": 157,
@@ -21024,42 +21903,6 @@
       "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/154 Are You Gonna Be My Girl Solo Axel.mp3",
       "has_accents": false
     },
-    "B0400": {
-      "song_id": "5D6dZO",
-      "bar_num": 118,
-      "lyrics": "much to say",
-      "audio": "audio/Are You Gonna Be My Girl/11 Chorus 2/118 Are You Gonna Be My Girl Chorus 2.mp3",
-      "has_accents": false
-    },
-    "B0294": {
-      "song_id": "5D6dZO",
-      "bar_num": 12,
-      "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/02 + Drums/012 Are You Gonna Be My Girl + Drums.mp3",
-      "has_accents": false
-    },
-    "B0327": {
-      "song_id": "5D6dZO",
-      "bar_num": 43,
-      "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/06 Bridge 1/043 Are You Gonna Be My Girl Bridge 1.mp3",
-      "has_accents": false,
-      "instrumental": true
-    },
-    "B0348": {
-      "song_id": "5D6dZO",
-      "bar_num": 63,
-      "lyrics": "I know",
-      "audio": "audio/Are You Gonna Be My Girl/07 Chorus 1/063 Are You Gonna Be My Girl Chorus 1.mp3",
-      "has_accents": false
-    },
-    "B0354": {
-      "song_id": "5D6dZO",
-      "bar_num": 69,
-      "lyrics": "way,",
-      "audio": "audio/Are You Gonna Be My Girl/08 Thema 2/069 Are You Gonna Be My Girl Thema 2.mp3",
-      "has_accents": false
-    },
     "B0367": {
       "song_id": "5D6dZO",
       "bar_num": 82,
@@ -21088,11 +21931,18 @@
       "audio": "audio/Are You Gonna Be My Girl/10 Bridge 2/097 Are You Gonna Be My Girl Bridge 2.mp3",
       "has_accents": false
     },
-    "B0431": {
+    "B0400": {
       "song_id": "5D6dZO",
-      "bar_num": 149,
-      "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/149 Are You Gonna Be My Girl Solo Axel.mp3",
+      "bar_num": 118,
+      "lyrics": "much to say",
+      "audio": "audio/Are You Gonna Be My Girl/11 Chorus 2/118 Are You Gonna Be My Girl Chorus 2.mp3",
+      "has_accents": false
+    },
+    "B0354": {
+      "song_id": "5D6dZO",
+      "bar_num": 69,
+      "lyrics": "way,",
+      "audio": "audio/Are You Gonna Be My Girl/08 Thema 2/069 Are You Gonna Be My Girl Thema 2.mp3",
       "has_accents": false
     },
     "B0401": {
@@ -21149,6 +21999,13 @@
       "bar_num": 117,
       "lyrics": "we ain't got",
       "audio": "audio/Are You Gonna Be My Girl/11 Chorus 2/117 Are You Gonna Be My Girl Chorus 2.mp3",
+      "has_accents": false
+    },
+    "B0431": {
+      "song_id": "5D6dZO",
+      "bar_num": 149,
+      "lyrics": "",
+      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/149 Are You Gonna Be My Girl Solo Axel.mp3",
       "has_accents": false
     },
     "B0391": {
@@ -21212,13 +22069,6 @@
       "bar_num": 129,
       "lyrics": "",
       "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/129 Are You Gonna Be My Girl Solo Axel.mp3",
-      "has_accents": false
-    },
-    "B0426": {
-      "song_id": "5D6dZO",
-      "bar_num": 144,
-      "lyrics": "",
-      "audio": "audio/Are You Gonna Be My Girl/12 Solo Axel/144 Are You Gonna Be My Girl Solo Axel.mp3",
       "has_accents": false
     },
     "B0338": {
@@ -21569,13 +22419,6 @@
       "bar_num": 31,
       "lyrics": "look so fine that I",
       "audio": "audio/Are You Gonna Be My Girl/05 Verse 1/031 Are You Gonna Be My Girl Verse 1.mp3",
-      "has_accents": false
-    },
-    "B0315": {
-      "song_id": "5D6dZO",
-      "bar_num": 32,
-      "lyrics": "really wanna make you mine",
-      "audio": "audio/Are You Gonna Be My Girl/05 Verse 1/032 Are You Gonna Be My Girl Verse 1.mp3",
       "has_accents": false
     },
     "B0316": {
@@ -22656,6 +23499,13 @@
       "audio": "audio/All The Small Things/10 Crescendo/082 All The Small Things Crescendo.mp3",
       "has_accents": false
     },
+    "B0147": {
+      "song_id": "5iZfKj",
+      "bar_num": 90,
+      "lyrics": "",
+      "audio": "audio/All The Small Things/11 Bridge 3 (schnell)/090 All The Small Things Bridge 3 (schnell).mp3",
+      "has_accents": false
+    },
     "B1124": {
       "song_id": "5iZfKj",
       "bar_num": 101,
@@ -22766,13 +23616,6 @@
       "bar_num": 84,
       "lyrics": "I will not go",
       "audio": "audio/All The Small Things/11 Bridge 3 (schnell)/084 All The Small Things Bridge 3 (schnell).mp3",
-      "has_accents": false
-    },
-    "B0147": {
-      "song_id": "5iZfKj",
-      "bar_num": 90,
-      "lyrics": "",
-      "audio": "audio/All The Small Things/11 Bridge 3 (schnell)/090 All The Small Things Bridge 3 (schnell).mp3",
       "has_accents": false
     },
     "B0157": {
@@ -24809,13 +25652,6 @@
       "audio": "",
       "has_accents": false
     },
-    "B2695": {
-      "song_id": "BKpY4X",
-      "bar_num": 67,
-      "lyrics": "daddy left you",
-      "audio": "",
-      "has_accents": false
-    },
     "B2708": {
       "song_id": "BKpY4X",
       "bar_num": 80,
@@ -24890,6 +25726,13 @@
       "song_id": "BKpY4X",
       "bar_num": 129,
       "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B2695": {
+      "song_id": "BKpY4X",
+      "bar_num": 67,
+      "lyrics": "daddy left you",
       "audio": "",
       "has_accents": false
     },
@@ -26843,30 +27686,6 @@
     }
   },
   "accents": {
-    "A0088": {
-      "bar_id": "B1494",
-      "pos_16th": 1,
-      "type": "st",
-      "notes": ""
-    },
-    "A0089": {
-      "bar_id": "B1494",
-      "pos_16th": 9,
-      "type": "st",
-      "notes": ""
-    },
-    "A0090": {
-      "bar_id": "B1495",
-      "pos_16th": 1,
-      "type": "st",
-      "notes": ""
-    },
-    "A0091": {
-      "bar_id": "B1495",
-      "pos_16th": 9,
-      "type": "st",
-      "notes": ""
-    },
     "A0080": {
       "bar_id": "B1486",
       "pos_16th": 1,
@@ -26911,6 +27730,30 @@
     },
     "A0087": {
       "bar_id": "B1491",
+      "pos_16th": 9,
+      "type": "st",
+      "notes": ""
+    },
+    "A0088": {
+      "bar_id": "B1494",
+      "pos_16th": 1,
+      "type": "st",
+      "notes": ""
+    },
+    "A0089": {
+      "bar_id": "B1494",
+      "pos_16th": 9,
+      "type": "st",
+      "notes": ""
+    },
+    "A0090": {
+      "bar_id": "B1495",
+      "pos_16th": 1,
+      "type": "st",
+      "notes": ""
+    },
+    "A0091": {
+      "bar_id": "B1495",
       "pos_16th": 9,
       "type": "st",
       "notes": ""
@@ -27077,12 +27920,6 @@
       "type": "st",
       "notes": ""
     },
-    "A0003": {
-      "bar_id": "B0276",
-      "pos_16th": 1,
-      "type": "bl",
-      "notes": ""
-    },
     "A0001": {
       "bar_id": "B0274",
       "pos_16th": 1,
@@ -27093,6 +27930,12 @@
       "bar_id": "B0275",
       "pos_16th": 1,
       "type": "hl",
+      "notes": ""
+    },
+    "A0003": {
+      "bar_id": "B0276",
+      "pos_16th": 1,
+      "type": "bl",
       "notes": ""
     },
     "A0004": {

@@ -5,12 +5,12 @@
  * Bar-Editor mit 16tel-Accent-Raster und Summary-Bar.
  */
 
-import { loadDB, loadDBLocal, saveDB, testConnection, storagePublicUrl, uploadToStorage, registerAudioAsset, loadAudioAssets, loadBands } from './db.js?v=2026.09.05a';
-import * as audio from './audio-engine.js?v=2026.09.05a';
-import * as integrity from './integrity.js?v=2026.09.05a';
+import { loadDB, loadDBLocal, saveDB, testConnection, storagePublicUrl, uploadToStorage, registerAudioAsset, loadAudioAssets, loadBands } from './db.js?v=2026.09.05b';
+import * as audio from './audio-engine.js?v=2026.09.05b';
+import * as integrity from './integrity.js?v=2026.09.05b';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2026.09.05a';
+const APP_VERSION = 'v2026.09.05b';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;

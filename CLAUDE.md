@@ -149,19 +149,21 @@ Bei Dateien über dieser Grenze wird der `content`-Parameter einfach verworfen �
   - `js/app.js`: die Imports von `./db.js?v=…`, `./audio-engine.js?v=…`,
     `./integrity.js?v=…` — ein neues `app.js` allein reicht nicht, dessen
     Imports kämen sonst weiter aus dem Cache.
-  Konvention: der Suffix von `APP_VERSION` (z.B. `APP_VERSION =
-  'v2026.09.05-barsave2'` → `?v=barsave2`).
+  Konvention: die komplette `APP_VERSION` ohne `v` (z.B. `APP_VERSION =
+  'v2026.09.05a'` → `?v=2026.09.05a`).
 - **Bei jeder Änderung an der Live-App die Version in `live/ui/index.html` hochsetzen**
 - **Bei jeder Änderung an der Rehearsal-App die Version in `rehearsal_review/mainwindow.py` hochsetzen** (Konstante `APP_VERSION` direkt unterhalb von `_ZOOM_PRESETS`)
-- **Schema: `vJJJJ.MM.TT-<slug><n>` — Datum der Änderung, kein Semver.**
-  Das Datum ist das des aktuellen Commits, nicht das der vorherigen Version
-  (häufiger Fehler: das alte Datum weiterschleppen und nur den Slug tauschen).
-  `<slug>` benennt die Änderung knapp, `<n>` zählt hoch, solange am selben
-  Thema weitergearbeitet wird:
-  - DB-Pflege-App (`js/app.js`): `v2026.09.05-barsave2`
-  - Live-App (`live/ui/index.html`): `v2026.08.01e` (Datum + Buchstabe)
-  - Rehearsal-App (`rehearsal_review/mainwindow.py`): `2026.08.01a` (ohne `v`)
-- **Nach jedem Push einer der drei Apps die neue Versionsnummer explizit in der Antwort an den Nutzer nennen** (z.B. „DB-Pflege-App v2026.09.05-barsave2 gepusht")
+- **Schema: `vJahr.Monat.Tag` + Kleinbuchstabe — kein Semver, keine Slugs.**
+  Also `v2026.09.05a`, bei der nächsten Änderung am selben Tag `v2026.09.05b`
+  usw.; an einem neuen Tag beginnt der Buchstabe wieder bei `a`.
+  - Das Datum ist das des **aktuellen** Commits. Häufiger Fehler: das Datum
+    der Vorversion weiterschleppen und nur den Buchstaben weiterzählen.
+  - Gilt für alle drei Apps: DB-Pflege-App (`js/app.js`), Live-App
+    (`live/ui/index.html`), Rehearsal-App (`rehearsal_review/mainwindow.py`
+    — dort ohne führendes `v`).
+  - Slug-Varianten wie `v2026.08.08-recordings2` sind eine Abweichung, die
+    sich zwischenzeitlich eingeschlichen hatte — nicht fortführen.
+- **Nach jedem Push einer der drei Apps die neue Versionsnummer explizit in der Antwort an den Nutzer nennen** (z.B. „DB-Pflege-App v2026.09.05a gepusht")
 
 ### Entwicklungsrichtlinien
 

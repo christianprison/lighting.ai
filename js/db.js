@@ -172,16 +172,14 @@ async function sbFetch(path, { method = 'GET', headers = {}, body } = {}) {
   if (!res.ok) {
     const errBody = await res.json().catch(() => ({}));
     const msg = errBody.message || res.statusText;
-    // Der rohe Postgres-Text ist hier unbrauchbar ("duplicate key value
-    // violates unique constraint bars_song_id_bar_num_key"). Seit die Deletes
-    // vor den Upserts laufen, bleibt nur noch der Fall, dass ein anderes Gerät
-    // die Taktnummer belegt hat — und dagegen hilft nur neu laden.
+    // Kollision auf unique(song_id, bar_num) markieren statt sie durchzureichen:
+    // saveDB() räumt daraufhin die im Weg stehenden Zeilen weg und wiederholt.
+    // Der rohe Postgres-Text ("duplicate key value violates unique constraint
+    // bars_song_id_bar_num_key") taugt für den Nutzer ohnehin nicht.
     if (res.status === 409 && /bars_song_id_bar_num_key/.test(msg)) {
-      throw new Error(
-        'Speichern fehlgeschlagen: Für diesen Song existiert bereits ein Takt mit ' +
-        'derselben Nummer — vermutlich hat ein anderer Tab oder ein anderes Gerät ' +
-        'zwischenzeitlich Takte angelegt. Seite neu laden und die Änderung wiederholen.'
-      );
+      const e = new Error('Taktnummer bereits belegt');
+      e.isBarNumConflict = true;
+      throw e;
     }
     throw new Error(`Supabase ${method} ${path} ${res.status}: ${msg}`);
   }
@@ -224,6 +222,70 @@ async function fetchRowsByIds(table, idCol, ids) {
     out = out.concat(await res.json());
   }
   return out;
+}
+
+/**
+ * Zeilen entfernen, die dem Schreiben von `bars` im Weg stehen.
+ *
+ * `bars` hat neben dem Primärschlüssel ein unique(song_id, bar_num). Ein Takt,
+ * der gelöscht und neu angelegt wurde, hat eine neue bar_id bei gleicher
+ * Taktnummer — der Upsert löst gegen bar_id auf, findet nichts, macht daraus
+ * ein INSERT und läuft in `bars_song_id_bar_num_key`.
+ *
+ * Die Delete-Phase in saveDB() greift dabei nur, wenn dieser Tab die alte
+ * Zeile beim Laden gesehen hat. Sie greift NICHT, wenn sie von einem anderen
+ * Gerät stammt oder wenn der Tab seit dem letzten erfolgreichen Speichern in
+ * einem inkonsistenten Zustand hängt. Deshalb hier gezielt: für die Songs, die
+ * wir gleich schreiben, alle Zeilen holen und genau die löschen, deren
+ * (song_id, bar_num) wir belegen wollen, deren bar_id aber eine andere ist.
+ *
+ * @param {Array<{bar_id: string, song_id: string, bar_num: number}>} barRows
+ * @returns {Promise<number>} Anzahl entfernter Zeilen
+ */
+async function clearConflictingBars(barRows) {
+  if (!barRows.length) return 0;
+  const songIds = [...new Set(barRows.map((r) => r.song_id))];
+  const existing = await fetchRowsByIds('bars', 'song_id', songIds);
+  if (!existing.length) return 0;
+
+  const wanted = new Map();               // "song|num" → bar_id, den wir schreiben
+  for (const r of barRows) wanted.set(`${r.song_id}|${r.bar_num}`, r.bar_id);
+
+  const stale = existing
+    .filter((r) => {
+      const mine = wanted.get(`${r.song_id}|${r.bar_num}`);
+      return mine !== undefined && mine !== r.bar_id;
+    })
+    .map((r) => r.bar_id);
+
+  if (stale.length) await deleteRows('bars', 'bar_id', stale);
+  return stale.length;
+}
+
+/**
+ * Zwei Takte desselben Songs mit derselben Nummer im Speicher — dagegen hilft
+ * kein Aufräumen in der Datenbank, das kollidiert schon innerhalb desselben
+ * INSERT. Früh und mit Namen melden, statt Postgres den Constraint nennen zu
+ * lassen.
+ *
+ * @param {Array<{bar_id: string, song_id: string, bar_num: number}>} barRows
+ * @param {object} db - für die Songnamen in der Meldung
+ */
+function assertNoDuplicateBars(barRows, db) {
+  const seen = new Map();
+  for (const r of barRows) {
+    const key = `${r.song_id}|${r.bar_num}`;
+    const prev = seen.get(key);
+    if (prev) {
+      const name = db.songs?.[r.song_id]?.name || r.song_id;
+      throw new Error(
+        `Takt ${r.bar_num} von „${name}" ist doppelt vorhanden (${prev} und ${r.bar_id}). ` +
+        `Das ist ein Fehler in der App, nicht in deinen Daten — bitte melden. ` +
+        `Seite neu laden stellt den letzten gespeicherten Stand wieder her.`
+      );
+    }
+    seen.set(key, r.bar_id);
+  }
 }
 
 const UPSERT_BATCH = 500;
@@ -376,7 +438,20 @@ export async function saveDB(data, sha, bandId, force = false) {
   // Elterntabellen zuerst, damit FKs beim Schreiben immer erfüllt sind.
   await upsertRows('songs', rows.songs);
   await upsertRows('song_detail_lighting', rows.song_detail_lighting);
-  await upsertRows('bars', rows.bars);
+  // Reste wegräumen, die der Delete-Block oben nicht kennen konnte (anderes
+  // Gerät, oder ein Tab, der seit einem gescheiterten Speichern hängt).
+  assertNoDuplicateBars(rows.bars, data);
+  try {
+    await upsertRows('bars', rows.bars);
+  } catch (err) {
+    // Schneller Weg zuerst: normalerweise steht nichts im Weg. Erst wenn es
+    // klemmt, die kollidierenden Zeilen suchen und einmal wiederholen — das
+    // spart bei jedem gewöhnlichen Speichern einen Rundlauf über alle Takte.
+    if (!err.isBarNumConflict) throw err;
+    const removed = await clearConflictingBars(rows.bars);
+    console.warn(`[saveDB] ${removed} kollidierende Takt-Zeilen entfernt, Speichern wird wiederholt.`);
+    await upsertRows('bars', rows.bars);
+  }
   await upsertRows('accents', rows.accents);
   await upsertRows('app_state', [rows.app_state]);
 

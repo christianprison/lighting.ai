@@ -171,7 +171,19 @@ async function sbFetch(path, { method = 'GET', headers = {}, body } = {}) {
   });
   if (!res.ok) {
     const errBody = await res.json().catch(() => ({}));
-    throw new Error(`Supabase ${method} ${path} ${res.status}: ${errBody.message || res.statusText}`);
+    const msg = errBody.message || res.statusText;
+    // Der rohe Postgres-Text ist hier unbrauchbar ("duplicate key value
+    // violates unique constraint bars_song_id_bar_num_key"). Seit die Deletes
+    // vor den Upserts laufen, bleibt nur noch der Fall, dass ein anderes Gerät
+    // die Taktnummer belegt hat — und dagegen hilft nur neu laden.
+    if (res.status === 409 && /bars_song_id_bar_num_key/.test(msg)) {
+      throw new Error(
+        'Speichern fehlgeschlagen: Für diesen Song existiert bereits ein Takt mit ' +
+        'derselben Nummer — vermutlich hat ein anderer Tab oder ein anderes Gerät ' +
+        'zwischenzeitlich Takte angelegt. Seite neu laden und die Änderung wiederholen.'
+      );
+    }
+    throw new Error(`Supabase ${method} ${path} ${res.status}: ${msg}`);
   }
   return res;
 }
@@ -300,10 +312,15 @@ export async function loadDB(bandId) {
 }
 
 /**
- * Save the full in-memory db object to Supabase: upsert everything (FK-safe
- * order), then prune rows that vanished since the last loadDB()/saveDB()
- * (only rows this tab actually knew about — never a blind "delete anything
- * not in the current set").
+ * Save the full in-memory db object to Supabase: erst die Zeilen entfernen,
+ * die seit dem letzten loadDB()/saveDB() verschwunden sind (nur solche, die
+ * dieser Tab beim Laden gesehen hat — nie ein blindes "lösche alles, was
+ * nicht im aktuellen Satz ist"), dann alles Aktuelle schreiben.
+ *
+ * Die Reihenfolge ist nicht beliebig: `bars` hat neben dem Primärschlüssel
+ * ein unique(song_id, bar_num). Würde zuerst geschrieben, kollidierte ein neu
+ * angelegter Takt mit der noch stehenden alten Zeile derselben Taktnummer.
+ * Details am Delete-Block unten.
  *
  * Optimistic locking: before writing, re-check app_state.updated_at against
  * the `sha` token captured at load time. A mismatch means another tab/device
@@ -331,17 +348,23 @@ export async function saveDB(data, sha, bandId, force = false) {
 
   const rows = dbJsonToRows(data, bandId);
 
-  await upsertRows('songs', rows.songs);
-  await upsertRows('song_detail_lighting', rows.song_detail_lighting);
-  await upsertRows('bars', rows.bars);
-  await upsertRows('accents', rows.accents);
-  await upsertRows('app_state', [rows.app_state]);
-
   const currentSongIds = new Set(rows.songs.map((r) => r.id));
   const currentBarIds = new Set(rows.bars.map((r) => r.bar_id));
   const currentAccentIds = new Set(rows.accents.map((r) => r.accent_id));
 
-  // Child tables first (accents → bars → songs) so FK cascades never race us.
+  // ERST löschen, DANN schreiben.
+  //
+  // Andersherum ging es schief, sobald ein Takt gelöscht und an derselben
+  // Stelle neu angelegt wurde (z.B. "Alle Takte löschen" + neu splitten):
+  // der neue Takt bekommt eine neue bar_id, belegt aber dasselbe
+  // (song_id, bar_num). Der Upsert löst per PRIMARY KEY (bar_id) auf, findet
+  // keinen Treffer, versucht ein INSERT — und lief in
+  // `bars_song_id_bar_num_key`, weil die alte Zeile noch stand. Die Deletes,
+  // die sie beseitigt hätten, kamen erst danach und wurden nie erreicht.
+  //
+  // Kindtabellen zuerst (accents → bars → songs), damit FK-Kaskaden nicht
+  // mit uns um die Wette löschen. Gelöscht wird weiterhin nur, was dieser Tab
+  // beim Laden gesehen hat — nie blind alles, was nicht im aktuellen Satz ist.
   const deletedAccents = [..._loadedIds.accents].filter((id) => !currentAccentIds.has(id));
   const deletedBars = [..._loadedIds.bars].filter((id) => !currentBarIds.has(id));
   const deletedSongs = [..._loadedIds.songs].filter((id) => !currentSongIds.has(id));
@@ -349,6 +372,13 @@ export async function saveDB(data, sha, bandId, force = false) {
   if (deletedAccents.length) await deleteRows('accents', 'accent_id', deletedAccents);
   if (deletedBars.length) await deleteRows('bars', 'bar_id', deletedBars);
   if (deletedSongs.length) await deleteRows('songs', 'id', deletedSongs); // song_detail_lighting cascades
+
+  // Elterntabellen zuerst, damit FKs beim Schreiben immer erfüllt sind.
+  await upsertRows('songs', rows.songs);
+  await upsertRows('song_detail_lighting', rows.song_detail_lighting);
+  await upsertRows('bars', rows.bars);
+  await upsertRows('accents', rows.accents);
+  await upsertRows('app_state', [rows.app_state]);
 
   _loadedIds = { songs: currentSongIds, bars: currentBarIds, accents: currentAccentIds };
 

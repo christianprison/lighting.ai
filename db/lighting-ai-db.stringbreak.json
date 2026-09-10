@@ -1,6 +1,6 @@
 {
   "_generated": true,
-  "_generated_at": "2026-09-09T16:32:47.117972+00:00",
+  "_generated_at": "2026-09-10T20:04:44.217731+00:00",
   "_source": "supabase",
   "band_id": "stringbreak",
   "version": "1.0",
@@ -236,55 +236,6 @@
       "audio_ref": "audio/stringbreak/DJV7bS/Used_To_Love_Her_nur_Axel.mp3",
       "audio_ref_name": "Used To Love Her (nur Axel).mp3"
     },
-    "EoY27S": {
-      "name": "Whole Lotta Rosie",
-      "artist": "AC/DC",
-      "bpm": 140,
-      "key": "A moll",
-      "year": "",
-      "pick": "",
-      "gema_nr": "929168-001",
-      "duration": "4:08",
-      "duration_sec": 248,
-      "notes": "SD: X",
-      "band_id": "stringbreak",
-      "tms": {
-        "user_tasks": [],
-        "manual_done": [],
-        "manual_undone": []
-      },
-      "audio_ref": "audio/stringbreak/EoY27S/Whole_Lotta_Rosie_nur_Axel.mp3",
-      "total_bars": 6,
-      "split_markers": {
-        "markers": [
-          {
-            "time": 4.143636001872659
-          },
-          {
-            "time": 5.5916360018726525
-          },
-          {
-            "time": 7.108969335205993
-          },
-          {
-            "time": 8.67430266853932
-          },
-          {
-            "time": 10.276969335205985
-          },
-          {
-            "time": 11.818302668539326
-          }
-        ],
-        "part_starts": [
-          {
-            "name": "Intro",
-            "bar_num": 1
-          }
-        ]
-      },
-      "audio_ref_name": "Whole_Lotta_Rosie_nur_Axel.mp3"
-    },
     "fwNl2O": {
       "name": "Send You Roses",
       "artist": "Stringbreak",
@@ -504,6 +455,540 @@
       "audio_ref": "audio/stringbreak/arjbPl/Love_runs_out_original.mp3",
       "audio_ref_name": "Love runs out (original).mp3"
     },
+    "EoY27S": {
+      "name": "Whole Lotta Rosie",
+      "artist": "AC/DC",
+      "bpm": 140,
+      "key": "A moll",
+      "year": "1977",
+      "pick": "",
+      "gema_nr": "929168-001",
+      "duration": "4:08",
+      "duration_sec": 248,
+      "notes": "SD: X",
+      "band_id": "stringbreak",
+      "tms": {
+        "user_tasks": [],
+        "manual_done": [
+          "bar_markers",
+          "parts_identified"
+        ],
+        "manual_undone": []
+      },
+      "audio_ref": "audio/stringbreak/EoY27S/Whole_Lotta_Rosie_nur_Axel.mp3",
+      "total_bars": 148,
+      "grundrhythmus": {
+        "kick": [
+          0,
+          1,
+          2,
+          3
+        ]
+      },
+      "split_markers": {
+        "markers": [
+          {
+            "time": 4.143636001872659
+          },
+          {
+            "time": 5.5916360018726525
+          },
+          {
+            "time": 7.108969335205993
+          },
+          {
+            "time": 8.67430266853932
+          },
+          {
+            "time": 10.276969335205985
+          },
+          {
+            "time": 11.818302668539326
+          },
+          {
+            "time": 13.316066178210185
+          },
+          {
+            "time": 14.85438817367504
+          },
+          {
+            "time": 16.465272527416552
+          },
+          {
+            "time": 17.948447130591127
+          },
+          {
+            "time": 19.54772150700837
+          },
+          {
+            "time": 21.004773661203394
+          },
+          {
+            "time": 22.56631561131676
+          },
+          {
+            "time": 24.1568825047408
+          },
+          {
+            "time": 25.74744939816484
+          },
+          {
+            "time": 27.282868899298627
+          },
+          {
+            "time": 28.856020826736263
+          },
+          {
+            "time": 30.34790291290407
+          },
+          {
+            "time": 31.932664817665973
+          },
+          {
+            "time": 33.50581674510361
+          },
+          {
+            "time": 35.087676155534446
+          },
+          {
+            "time": 36.59987570201972
+          },
+          {
+            "time": 38.14690518047775
+          },
+          {
+            "time": 39.699739647597944
+          },
+          {
+            "time": 41.27289157503558
+          },
+          {
+            "time": 42.83153103081791
+          },
+          {
+            "time": 44.390170486600205
+          },
+          {
+            "time": 45.899467538754415
+          },
+          {
+            "time": 47.490034432178454
+          },
+          {
+            "time": 48.97878174730567
+          },
+          {
+            "time": 50.59702343499197
+          },
+          {
+            "time": 52.12761036459528
+          },
+          {
+            "time": 53.6897623233349
+          },
+          {
+            "time": 55.278915264083146
+          },
+          {
+            "time": 56.85206719152081
+          },
+          {
+            "time": 58.48617149991083
+          },
+          {
+            "time": 60.128983291294055
+          },
+          {
+            "time": 61.60345041147543
+          },
+          {
+            "time": 63.22884723687225
+          },
+          {
+            "time": 64.8107066473031
+          },
+          {
+            "time": 66.41868850671352
+          },
+          {
+            "time": 67.89872414583812
+          },
+          {
+            "time": 69.41986764503554
+          },
+          {
+            "time": 71.07138691941196
+          },
+          {
+            "time": 72.54423369767383
+          },
+          {
+            "time": 74.12899560243577
+          },
+          {
+            "time": 75.73987995617725
+          },
+          {
+            "time": 77.25755523962393
+          },
+          {
+            "time": 78.86006136207297
+          },
+          {
+            "time": 80.3113085276058
+          },
+          {
+            "time": 81.95412031898903
+          },
+          {
+            "time": 83.48034729911225
+          },
+          {
+            "time": 85.16089151679935
+          },
+          {
+            "time": 86.73694593856808
+          },
+          {
+            "time": 88.46102757122114
+          },
+          {
+            "time": 90.02837450999661
+          },
+          {
+            "time": 91.54624404625413
+          },
+          {
+            "time": 93.02810449765778
+          },
+          {
+            "time": 94.6767711206473
+          },
+          {
+            "time": 96.28760563144468
+          },
+          {
+            "time": 97.84044009856481
+          },
+          {
+            "time": 99.39617706001607
+          },
+          {
+            "time": 100.99545143643329
+          },
+          {
+            "time": 102.54538340922241
+          },
+          {
+            "time": 104.15626776296395
+          },
+          {
+            "time": 105.69687844276282
+          },
+          {
+            "time": 107.25551789854515
+          },
+          {
+            "time": 108.86349975795557
+          },
+          {
+            "time": 110.41343173074469
+          },
+          {
+            "time": 111.98948615251342
+          },
+          {
+            "time": 113.58005304593743
+          },
+          {
+            "time": 115.21415735432745
+          },
+          {
+            "time": 116.79021177609619
+          },
+          {
+            "time": 118.3053138169125
+          },
+          {
+            "time": 119.87266075568797
+          },
+          {
+            "time": 121.47193513210524
+          },
+          {
+            "time": 123.12345440648167
+          },
+          {
+            "time": 124.62984896430478
+          },
+          {
+            "time": 126.229123340722
+          },
+          {
+            "time": 127.82839771713927
+          },
+          {
+            "time": 129.407354633239
+          },
+          {
+            "time": 130.92245667405533
+          },
+          {
+            "time": 132.47238864684445
+          },
+          {
+            "time": 134.04554057428211
+          },
+          {
+            "time": 135.6433300357061
+          },
+          {
+            "time": 137.2556993044408
+          },
+          {
+            "time": 138.85497368085808
+          },
+          {
+            "time": 140.4629555402685
+          },
+          {
+            "time": 142.0622299166857
+          },
+          {
+            "time": 143.65569930444084
+          },
+          {
+            "time": 145.295608601493
+          },
+          {
+            "time": 146.8223206196336
+          },
+          {
+            "time": 148.39702931830837
+          },
+          {
+            "time": 150.02532863803626
+          },
+          {
+            "time": 151.69136038406796
+          },
+          {
+            "time": 153.24709734551922
+          },
+          {
+            "time": 154.83185925028116
+          },
+          {
+            "time": 156.34986378542854
+          },
+          {
+            "time": 157.90850324121087
+          },
+          {
+            "time": 159.43231276502038
+          },
+          {
+            "time": 161.06351457907934
+          },
+          {
+            "time": 162.59022659721992
+          },
+          {
+            "time": 164.1749885019818
+          },
+          {
+            "time": 165.71331049744666
+          },
+          {
+            "time": 167.315487368195
+          },
+          {
+            "time": 168.8480043749977
+          },
+          {
+            "time": 170.40954632511105
+          },
+          {
+            "time": 171.99721072420405
+          },
+          {
+            "time": 173.59648510062127
+          },
+          {
+            "time": 175.11448963576865
+          },
+          {
+            "time": 176.77471639313828
+          },
+          {
+            "time": 178.3246483659274
+          },
+          {
+            "time": 179.96455766297956
+          },
+          {
+            "time": 181.51448963576868
+          },
+          {
+            "time": 183.0963490461995
+          },
+          {
+            "time": 184.64918351331968
+          },
+          {
+            "time": 186.2745803387165
+          },
+          {
+            "time": 187.87385471513377
+          },
+          {
+            "time": 189.4063717219365
+          },
+          {
+            "time": 191.07530596229927
+          },
+          {
+            "time": 192.607822969102
+          },
+          {
+            "time": 194.1229250099183
+          },
+          {
+            "time": 195.71639439767338
+          },
+          {
+            "time": 197.6436972224951
+          },
+          {
+            "time": 199.68909778229107
+          },
+          {
+            "time": 201.28161350061688
+          },
+          {
+            "time": 202.89830284302056
+          },
+          {
+            "time": 204.44823481580963
+          },
+          {
+            "time": 206.07363164120645
+          },
+          {
+            "time": 207.70773594959653
+          },
+          {
+            "time": 209.2822725019382
+          },
+          {
+            "time": 210.81478950874086
+          },
+          {
+            "time": 212.37342896452319
+          },
+          {
+            "time": 213.9320684203055
+          },
+          {
+            "time": 215.5301970801804
+          },
+          {
+            "time": 217.06851907564518
+          },
+          {
+            "time": 218.68520841804886
+          },
+          {
+            "time": 220.28738528879714
+          },
+          {
+            "time": 221.9214895971871
+          },
+          {
+            "time": 223.46851907564516
+          },
+          {
+            "time": 225.0794034293867
+          },
+          {
+            "time": 226.68158030013498
+          },
+          {
+            "time": 228.2024873296135
+          },
+          {
+            "time": 229.71468687609874
+          },
+          {
+            "time": 231.2791313205432
+          },
+          {
+            "time": 233.55947424902544
+          },
+          {
+            "time": 236.5667067186425
+          },
+          {
+            "time": 238.72436230222425
+          }
+        ],
+        "part_starts": [
+          {
+            "name": "Intro",
+            "bar_num": 1
+          },
+          {
+            "name": "Verse 1",
+            "bar_num": 5
+          },
+          {
+            "name": "Thema 1",
+            "bar_num": 22
+          },
+          {
+            "name": "Verse 2",
+            "bar_num": 30
+          },
+          {
+            "name": "Chorus 1",
+            "bar_num": 46
+          },
+          {
+            "name": "Thema 2",
+            "bar_num": 58
+          },
+          {
+            "name": "Verse 3",
+            "bar_num": 66
+          },
+          {
+            "name": "Chorus 2",
+            "bar_num": 82
+          },
+          {
+            "name": "Harp Solo",
+            "bar_num": 94
+          },
+          {
+            "name": "Stops",
+            "bar_num": 114
+          },
+          {
+            "name": "Chromatischer Drop",
+            "bar_num": 126
+          },
+          {
+            "name": "Chorus 3",
+            "bar_num": 134
+          },
+          {
+            "name": "Riterdando",
+            "bar_num": 144
+          }
+        ]
+      },
+      "audio_ref_name": "Whole_Lotta_Rosie_nur_Axel.mp3"
+    },
     "6MMTpH": {
       "name": "Keep Singing",
       "artist": "Stringbreak",
@@ -538,36 +1023,6 @@
       "band_id": "stringbreak",
       "audio_ref": "audio/stringbreak/ypyIpt/Whiskey_or_Water.mp3",
       "audio_ref_name": "Whiskey or Water.mp3"
-    },
-    "Zgw2Fu": {
-      "name": "Ayo Technology",
-      "artist": "Milow",
-      "bpm": 128,
-      "key": "H Moll",
-      "year": "",
-      "pick": "",
-      "gema_nr": "9881677-001",
-      "duration": "3:17",
-      "duration_sec": 197,
-      "notes": "",
-      "band_id": "stringbreak",
-      "tms": {
-        "user_tasks": [],
-        "manual_done": [],
-        "manual_undone": []
-      },
-      "audio_ref": "audio/stringbreak/Zgw2Fu/Ayo_Technology.mp3",
-      "grundrhythmus": {
-        "kick": [
-          0,
-          1.5
-        ],
-        "snare": [
-          1,
-          3
-        ]
-      },
-      "audio_ref_name": "Ayo_Technology.mp3"
     },
     "ZMlntS": {
       "name": "The Bard's Song: In the forest",
@@ -758,20 +1213,35 @@
       "audio_ref": "audio/stringbreak/pS3les/Down_by_the_Hillside_nur_Axel.mp3",
       "audio_ref_name": "Down by the Hillside (nur Axel).mp3"
     },
-    "2AOmum": {
-      "name": "Eye Of The Tiger",
-      "artist": "Survivor",
-      "bpm": 84,
-      "key": "C# moll",
-      "year": "",
+    "Zgw2Fu": {
+      "name": "Ayo Technology",
+      "artist": "Milow",
+      "bpm": 128,
+      "key": "H Moll",
+      "year": "2008",
       "pick": "",
-      "gema_nr": "1517301-001",
-      "duration": "3:00",
-      "duration_sec": 180,
+      "gema_nr": "9881677-001",
+      "duration": "3:17",
+      "duration_sec": 197,
       "notes": "",
       "band_id": "stringbreak",
-      "audio_ref": "audio/stringbreak/2AOmum/Eye_of_the_Tiger_1_Strophe.mp3",
-      "audio_ref_name": "Eye of the Tiger (1 Strophe).mp3"
+      "tms": {
+        "user_tasks": [],
+        "manual_done": [],
+        "manual_undone": []
+      },
+      "audio_ref": "audio/stringbreak/Zgw2Fu/Ayo_Technology.mp3",
+      "grundrhythmus": {
+        "kick": [
+          0,
+          1.5
+        ],
+        "snare": [
+          1,
+          3
+        ]
+      },
+      "audio_ref_name": "Ayo_Technology.mp3"
     },
     "2jSKBo": {
       "name": "Dreadlock Holiday",
@@ -924,6 +1394,21 @@
       "audio_ref": "audio/stringbreak/J6MXCH/wewillrockyou.mp3",
       "audio_ref_name": "wewillrockyou.mp3"
     },
+    "2AOmum": {
+      "name": "Eye Of The Tiger",
+      "artist": "Survivor",
+      "bpm": 84,
+      "key": "C# moll",
+      "year": "",
+      "pick": "",
+      "gema_nr": "1517301-001",
+      "duration": "3:00",
+      "duration_sec": 180,
+      "notes": "",
+      "band_id": "stringbreak",
+      "audio_ref": "audio/stringbreak/2AOmum/Eye_of_the_Tiger_1_Strophe.mp3",
+      "audio_ref_name": "Eye of the Tiger (1 Strophe).mp3"
+    },
     "KntLVU": {
       "name": "Hero",
       "artist": "Nickelback",
@@ -959,26 +1444,6 @@
       "audio_ref": "audio/stringbreak/KUIipK/Love_for_Sale_nur_Axel.mp3",
       "audio_ref_name": "Love for Sale (nur Axel).mp3"
     },
-    "lHrOma": {
-      "name": "Nobody's Wife",
-      "artist": "Anouk",
-      "bpm": 120,
-      "key": "E moll",
-      "year": "",
-      "pick": "",
-      "gema_nr": "4294291-001",
-      "duration": "3:13",
-      "duration_sec": 193,
-      "notes": "",
-      "band_id": "stringbreak",
-      "tms": {
-        "user_tasks": [],
-        "manual_done": [],
-        "manual_undone": []
-      },
-      "audio_ref": "audio/stringbreak/lHrOma/Nobody_s_Wife_nur_Axel.mp3",
-      "audio_ref_name": "Nobody_s_Wife_nur_Axel.mp3"
-    },
     "llCjkY": {
       "name": "Rocking In A Free World",
       "artist": "Neil Young",
@@ -998,34 +1463,6 @@
       },
       "audio_ref": "audio/stringbreak/llCjkY/Rockin_in_a_free_World_nur_Axel.mp3",
       "audio_ref_name": "Rockin' in a free World (nur Axel).mp3"
-    },
-    "LNvoS0": {
-      "name": "T.N.T.",
-      "artist": "AC/DC",
-      "bpm": 120,
-      "key": "E moll",
-      "year": "",
-      "pick": "",
-      "gema_nr": "898349-001",
-      "duration": "2:30",
-      "duration_sec": 150,
-      "notes": "SD: X",
-      "band_id": "stringbreak",
-      "tms": {
-        "user_tasks": [],
-        "manual_done": [],
-        "manual_undone": []
-      },
-      "audio_ref": "audio/stringbreak/LNvoS0/TNT_nur_Axel.mp3",
-      "grundrhythmus": {
-        "kick": [
-          0,
-          1,
-          2,
-          3
-        ]
-      },
-      "audio_ref_name": "TNT (nur Axel).mp3"
     },
     "LoCZ0X": {
       "name": "When I'm Dead and Gone",
@@ -1095,34 +1532,6 @@
       "duration_sec": 150,
       "notes": "",
       "band_id": "stringbreak"
-    },
-    "Py73Q6": {
-      "name": "Wheels Of Steel",
-      "artist": "Saxon",
-      "bpm": 132,
-      "key": "A moll",
-      "year": "",
-      "pick": "",
-      "gema_nr": "1142691-001",
-      "duration": "3:01",
-      "duration_sec": 181,
-      "notes": "SD: X",
-      "band_id": "stringbreak",
-      "tms": {
-        "user_tasks": [],
-        "manual_done": [],
-        "manual_undone": []
-      },
-      "audio_ref": "audio/stringbreak/Py73Q6/Wheels_Of_Steel_nur_Axel.mp3",
-      "grundrhythmus": {
-        "kick": [
-          0,
-          1,
-          2,
-          3
-        ]
-      },
-      "audio_ref_name": "Wheels Of Steel (nur Axel).mp3"
     },
     "qiZ4Ax": {
       "name": "Thunder Road",
@@ -1200,12 +1609,150 @@
       "notes": "",
       "band_id": "stringbreak"
     },
+    "SOaI3R": {
+      "name": "Frozen",
+      "artist": "Madonna",
+      "bpm": 116,
+      "key": "E moll",
+      "year": "",
+      "pick": "",
+      "gema_nr": "keine GEMA-Werke-Nr.",
+      "duration": "4:34",
+      "duration_sec": 274,
+      "notes": "",
+      "band_id": "stringbreak",
+      "tms": {
+        "user_tasks": [],
+        "manual_done": [],
+        "manual_undone": []
+      },
+      "audio_ref": "audio/stringbreak/SOaI3R/Frozen_nur_Axel.mp3",
+      "audio_ref_name": "Frozen (nur Axel).mp3"
+    },
+    "Ul0Rn5": {
+      "name": "Along comes Mary",
+      "artist": "Bloodhound Gang",
+      "bpm": 156,
+      "key": "H moll",
+      "year": "1998",
+      "pick": "🔻",
+      "gema_nr": "1022042-001",
+      "duration": "3:19",
+      "duration_sec": 199,
+      "notes": "Bass Preset: G O––",
+      "band_id": "stringbreak",
+      "audio_ref": "audio/stringbreak/Ul0Rn5/Along_Comes_Mary_original.mp3",
+      "audio_ref_name": "Along Comes Mary (original).mp3"
+    },
+    "uVhvZJ": {
+      "name": "Tribute",
+      "artist": "Tenacious D",
+      "bpm": 88,
+      "key": "Am",
+      "year": "",
+      "pick": "",
+      "gema_nr": "8117712-001",
+      "duration": "4:08",
+      "duration_sec": 248,
+      "notes": "SD: X",
+      "band_id": "stringbreak",
+      "tms": {
+        "user_tasks": [],
+        "manual_done": [],
+        "manual_undone": []
+      },
+      "audio_ref": "audio/stringbreak/uVhvZJ/Tribute_original.mp3",
+      "audio_ref_name": "Tribute (original).mp3"
+    },
+    "Vfafo0": {
+      "name": "Roadhouse Blues",
+      "artist": "The Doors",
+      "bpm": null,
+      "key": "",
+      "year": "",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "",
+      "duration_sec": 0,
+      "notes": "",
+      "band_id": "stringbreak"
+    },
+    "VtIa2J": {
+      "name": "Rockstar",
+      "artist": "Nickelback",
+      "bpm": 78,
+      "key": "E-Dur",
+      "year": "",
+      "pick": "",
+      "gema_nr": "9053540-001",
+      "duration": "4:15",
+      "duration_sec": 255,
+      "notes": "",
+      "band_id": "stringbreak",
+      "tms": {
+        "user_tasks": [],
+        "manual_done": [],
+        "manual_undone": []
+      },
+      "audio_ref": "audio/stringbreak/VtIa2J/Rockstar_nur_Axel.mp3",
+      "audio_ref_name": "Rockstar (nur Axel).mp3"
+    },
+    "wRPWtN": {
+      "name": "Here Comes the Rain Again",
+      "artist": "Eurythmics",
+      "bpm": 124,
+      "key": "Am",
+      "year": "",
+      "pick": "",
+      "gema_nr": "",
+      "duration": "3:30",
+      "duration_sec": 210,
+      "notes": "Other: 1630194-001",
+      "band_id": "stringbreak",
+      "audio_ref": "audio/stringbreak/wRPWtN/Here_comes_the_rain_again_Probe.mp3",
+      "audio_ref_name": "Here comes the rain again (Probe).mp3"
+    },
+    "WYGKgz": {
+      "name": "For My Lover",
+      "artist": "Tracy Chapman",
+      "bpm": 84,
+      "key": "E moll",
+      "year": "",
+      "pick": "",
+      "gema_nr": "2217633-001",
+      "duration": "3:04",
+      "duration_sec": 184,
+      "notes": "SD: X",
+      "band_id": "stringbreak",
+      "tms": {
+        "user_tasks": [],
+        "manual_done": [],
+        "manual_undone": []
+      },
+      "audio_ref": "audio/stringbreak/WYGKgz/For_my_Lover_nur_Axel.mp3",
+      "audio_ref_name": "For my Lover (nur Axel).mp3"
+    },
+    "XK38dV": {
+      "name": "Scarborough Fair",
+      "artist": "Simon&Garfunkel",
+      "bpm": null,
+      "key": "",
+      "year": "",
+      "pick": "",
+      "gema_nr": "keine Gema-Werke-Nr.",
+      "duration": "",
+      "duration_sec": 0,
+      "notes": "",
+      "band_id": "stringbreak",
+      "audio_ref": "audio/stringbreak/XK38dV/Scarborough_Fair_Axel.mp3",
+      "audio_ref_name": "Scarborough Fair (Axel).mp3"
+    },
     "sKgtaE": {
       "name": "Black Betty",
       "artist": "Ram Jam",
       "bpm": 115,
       "key": "",
-      "year": "",
+      "year": "1977",
       "pick": "",
       "gema_nr": "958170-001",
       "duration": "2:30",
@@ -1490,16 +2037,16 @@
       },
       "audio_ref_name": "betty.mp3"
     },
-    "SOaI3R": {
-      "name": "Frozen",
-      "artist": "Madonna",
-      "bpm": 116,
+    "lHrOma": {
+      "name": "Nobody's Wife",
+      "artist": "Anouk",
+      "bpm": 120,
       "key": "E moll",
-      "year": "",
+      "year": "1997",
       "pick": "",
-      "gema_nr": "keine GEMA-Werke-Nr.",
-      "duration": "4:34",
-      "duration_sec": 274,
+      "gema_nr": "4294291-001",
+      "duration": "3:13",
+      "duration_sec": 193,
       "notes": "",
       "band_id": "stringbreak",
       "tms": {
@@ -1507,34 +2054,19 @@
         "manual_done": [],
         "manual_undone": []
       },
-      "audio_ref": "audio/stringbreak/SOaI3R/Frozen_nur_Axel.mp3",
-      "audio_ref_name": "Frozen (nur Axel).mp3"
+      "audio_ref": "audio/stringbreak/lHrOma/Nobody_s_Wife_nur_Axel.mp3",
+      "audio_ref_name": "Nobody_s_Wife_nur_Axel.mp3"
     },
-    "Ul0Rn5": {
-      "name": "Along comes Mary",
-      "artist": "Bloodhound Gang",
-      "bpm": 156,
-      "key": "H moll",
-      "year": "1998",
-      "pick": "🔻",
-      "gema_nr": "1022042-001",
-      "duration": "3:19",
-      "duration_sec": 199,
-      "notes": "Bass Preset: G O––",
-      "band_id": "stringbreak",
-      "audio_ref": "audio/stringbreak/Ul0Rn5/Along_Comes_Mary_original.mp3",
-      "audio_ref_name": "Along Comes Mary (original).mp3"
-    },
-    "uVhvZJ": {
-      "name": "Tribute",
-      "artist": "Tenacious D",
-      "bpm": 88,
-      "key": "Am",
-      "year": "",
+    "LNvoS0": {
+      "name": "T.N.T.",
+      "artist": "AC/DC",
+      "bpm": 120,
+      "key": "E moll",
+      "year": "1975",
       "pick": "",
-      "gema_nr": "8117712-001",
-      "duration": "4:08",
-      "duration_sec": 248,
+      "gema_nr": "898349-001",
+      "duration": "2:30",
+      "duration_sec": 150,
       "notes": "SD: X",
       "band_id": "stringbreak",
       "tms": {
@@ -1542,67 +2074,27 @@
         "manual_done": [],
         "manual_undone": []
       },
-      "audio_ref": "audio/stringbreak/uVhvZJ/Tribute_original.mp3",
-      "audio_ref_name": "Tribute (original).mp3"
-    },
-    "Vfafo0": {
-      "name": "Roadhouse Blues",
-      "artist": "The Doors",
-      "bpm": null,
-      "key": "",
-      "year": "",
-      "pick": "",
-      "gema_nr": "",
-      "duration": "",
-      "duration_sec": 0,
-      "notes": "",
-      "band_id": "stringbreak"
-    },
-    "VtIa2J": {
-      "name": "Rockstar",
-      "artist": "Nickelback",
-      "bpm": 78,
-      "key": "E-Dur",
-      "year": "",
-      "pick": "",
-      "gema_nr": "9053540-001",
-      "duration": "4:15",
-      "duration_sec": 255,
-      "notes": "",
-      "band_id": "stringbreak",
-      "tms": {
-        "user_tasks": [],
-        "manual_done": [],
-        "manual_undone": []
+      "audio_ref": "audio/stringbreak/LNvoS0/TNT_nur_Axel.mp3",
+      "grundrhythmus": {
+        "kick": [
+          0,
+          1,
+          2,
+          3
+        ]
       },
-      "audio_ref": "audio/stringbreak/VtIa2J/Rockstar_nur_Axel.mp3",
-      "audio_ref_name": "Rockstar (nur Axel).mp3"
+      "audio_ref_name": "TNT (nur Axel).mp3"
     },
-    "wRPWtN": {
-      "name": "Here Comes the Rain Again",
-      "artist": "Eurythmics",
-      "bpm": 124,
-      "key": "Am",
-      "year": "",
+    "Py73Q6": {
+      "name": "Wheels Of Steel",
+      "artist": "Saxon",
+      "bpm": 132,
+      "key": "A moll",
+      "year": "1980",
       "pick": "",
-      "gema_nr": "",
-      "duration": "3:30",
-      "duration_sec": 210,
-      "notes": "Other: 1630194-001",
-      "band_id": "stringbreak",
-      "audio_ref": "audio/stringbreak/wRPWtN/Here_comes_the_rain_again_Probe.mp3",
-      "audio_ref_name": "Here comes the rain again (Probe).mp3"
-    },
-    "WYGKgz": {
-      "name": "For My Lover",
-      "artist": "Tracy Chapman",
-      "bpm": 84,
-      "key": "E moll",
-      "year": "",
-      "pick": "",
-      "gema_nr": "2217633-001",
-      "duration": "3:04",
-      "duration_sec": 184,
+      "gema_nr": "1142691-001",
+      "duration": "3:01",
+      "duration_sec": 181,
       "notes": "SD: X",
       "band_id": "stringbreak",
       "tms": {
@@ -1610,68 +2102,19 @@
         "manual_done": [],
         "manual_undone": []
       },
-      "audio_ref": "audio/stringbreak/WYGKgz/For_my_Lover_nur_Axel.mp3",
-      "audio_ref_name": "For my Lover (nur Axel).mp3"
-    },
-    "XK38dV": {
-      "name": "Scarborough Fair",
-      "artist": "Simon&Garfunkel",
-      "bpm": null,
-      "key": "",
-      "year": "",
-      "pick": "",
-      "gema_nr": "keine Gema-Werke-Nr.",
-      "duration": "",
-      "duration_sec": 0,
-      "notes": "",
-      "band_id": "stringbreak",
-      "audio_ref": "audio/stringbreak/XK38dV/Scarborough_Fair_Axel.mp3",
-      "audio_ref_name": "Scarborough Fair (Axel).mp3"
+      "audio_ref": "audio/stringbreak/Py73Q6/Wheels_Of_Steel_nur_Axel.mp3",
+      "grundrhythmus": {
+        "kick": [
+          0,
+          1,
+          2,
+          3
+        ]
+      },
+      "audio_ref_name": "Wheels Of Steel (nur Axel).mp3"
     }
   },
   "bars": {
-    "B0001": {
-      "song_id": "EoY27S",
-      "bar_num": 1,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0002": {
-      "song_id": "EoY27S",
-      "bar_num": 2,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0003": {
-      "song_id": "EoY27S",
-      "bar_num": 3,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0004": {
-      "song_id": "EoY27S",
-      "bar_num": 4,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0005": {
-      "song_id": "EoY27S",
-      "bar_num": 5,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
-    "B0006": {
-      "song_id": "EoY27S",
-      "bar_num": 6,
-      "lyrics": "",
-      "audio": "",
-      "has_accents": false
-    },
     "B0014": {
       "song_id": "sKgtaE",
       "bar_num": 8,
@@ -1742,6 +2185,104 @@
       "audio": "",
       "has_accents": false
     },
+    "B0095": {
+      "song_id": "EoY27S",
+      "bar_num": 14,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0100": {
+      "song_id": "EoY27S",
+      "bar_num": 19,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0101": {
+      "song_id": "EoY27S",
+      "bar_num": 20,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0102": {
+      "song_id": "EoY27S",
+      "bar_num": 21,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0137": {
+      "song_id": "EoY27S",
+      "bar_num": 56,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0138": {
+      "song_id": "EoY27S",
+      "bar_num": 57,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0149": {
+      "song_id": "EoY27S",
+      "bar_num": 68,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0153": {
+      "song_id": "EoY27S",
+      "bar_num": 72,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0154": {
+      "song_id": "EoY27S",
+      "bar_num": 73,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0155": {
+      "song_id": "EoY27S",
+      "bar_num": 74,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0156": {
+      "song_id": "EoY27S",
+      "bar_num": 75,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0194": {
+      "song_id": "EoY27S",
+      "bar_num": 113,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0195": {
+      "song_id": "EoY27S",
+      "bar_num": 114,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0212": {
+      "song_id": "EoY27S",
+      "bar_num": 131,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
     "B0032": {
       "song_id": "sKgtaE",
       "bar_num": 26,
@@ -1801,6 +2342,83 @@
     "B0087": {
       "song_id": "sKgtaE",
       "bar_num": 81,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0088": {
+      "song_id": "EoY27S",
+      "bar_num": 7,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0103": {
+      "song_id": "EoY27S",
+      "bar_num": 22,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0104": {
+      "song_id": "EoY27S",
+      "bar_num": 23,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0105": {
+      "song_id": "EoY27S",
+      "bar_num": 24,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0106": {
+      "song_id": "EoY27S",
+      "bar_num": 25,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0107": {
+      "song_id": "EoY27S",
+      "bar_num": 26,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0109": {
+      "song_id": "EoY27S",
+      "bar_num": 28,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0122": {
+      "song_id": "EoY27S",
+      "bar_num": 41,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0152": {
+      "song_id": "EoY27S",
+      "bar_num": 71,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0110": {
+      "song_id": "EoY27S",
+      "bar_num": 29,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0111": {
+      "song_id": "EoY27S",
+      "bar_num": 30,
       "lyrics": "",
       "audio": "",
       "has_accents": false
@@ -1924,6 +2542,55 @@
       "audio": "",
       "has_accents": false
     },
+    "B0112": {
+      "song_id": "EoY27S",
+      "bar_num": 31,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0142": {
+      "song_id": "EoY27S",
+      "bar_num": 61,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0143": {
+      "song_id": "EoY27S",
+      "bar_num": 62,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0144": {
+      "song_id": "EoY27S",
+      "bar_num": 63,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0139": {
+      "song_id": "EoY27S",
+      "bar_num": 58,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0162": {
+      "song_id": "EoY27S",
+      "bar_num": 81,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0171": {
+      "song_id": "EoY27S",
+      "bar_num": 90,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
     "B0031": {
       "song_id": "sKgtaE",
       "bar_num": 25,
@@ -1938,9 +2605,79 @@
       "audio": "",
       "has_accents": false
     },
+    "B0147": {
+      "song_id": "EoY27S",
+      "bar_num": 66,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
     "B0073": {
       "song_id": "sKgtaE",
       "bar_num": 67,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0094": {
+      "song_id": "EoY27S",
+      "bar_num": 13,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0108": {
+      "song_id": "EoY27S",
+      "bar_num": 27,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0148": {
+      "song_id": "EoY27S",
+      "bar_num": 67,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0001": {
+      "song_id": "EoY27S",
+      "bar_num": 1,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0201": {
+      "song_id": "EoY27S",
+      "bar_num": 120,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0209": {
+      "song_id": "EoY27S",
+      "bar_num": 128,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0218": {
+      "song_id": "EoY27S",
+      "bar_num": 137,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0219": {
+      "song_id": "EoY27S",
+      "bar_num": 138,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0220": {
+      "song_id": "EoY27S",
+      "bar_num": 139,
       "lyrics": "",
       "audio": "",
       "has_accents": false
@@ -1969,6 +2706,76 @@
     "B0062": {
       "song_id": "sKgtaE",
       "bar_num": 56,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0113": {
+      "song_id": "EoY27S",
+      "bar_num": 32,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0114": {
+      "song_id": "EoY27S",
+      "bar_num": 33,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0115": {
+      "song_id": "EoY27S",
+      "bar_num": 34,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0140": {
+      "song_id": "EoY27S",
+      "bar_num": 59,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0141": {
+      "song_id": "EoY27S",
+      "bar_num": 60,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0146": {
+      "song_id": "EoY27S",
+      "bar_num": 65,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0157": {
+      "song_id": "EoY27S",
+      "bar_num": 76,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0172": {
+      "song_id": "EoY27S",
+      "bar_num": 91,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0178": {
+      "song_id": "EoY27S",
+      "bar_num": 97,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0221": {
+      "song_id": "EoY27S",
+      "bar_num": 140,
       "lyrics": "",
       "audio": "",
       "has_accents": false
@@ -2015,9 +2822,65 @@
       "audio": "",
       "has_accents": false
     },
+    "B0127": {
+      "song_id": "EoY27S",
+      "bar_num": 46,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0128": {
+      "song_id": "EoY27S",
+      "bar_num": 47,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0129": {
+      "song_id": "EoY27S",
+      "bar_num": 48,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0130": {
+      "song_id": "EoY27S",
+      "bar_num": 49,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0185": {
+      "song_id": "EoY27S",
+      "bar_num": 104,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0186": {
+      "song_id": "EoY27S",
+      "bar_num": 105,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0133": {
+      "song_id": "EoY27S",
+      "bar_num": 52,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
     "B0019": {
       "song_id": "sKgtaE",
       "bar_num": 13,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0215": {
+      "song_id": "EoY27S",
+      "bar_num": 134,
       "lyrics": "",
       "audio": "",
       "has_accents": false
@@ -2039,6 +2902,20 @@
     "B0023": {
       "song_id": "sKgtaE",
       "bar_num": 17,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0222": {
+      "song_id": "EoY27S",
+      "bar_num": 141,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0184": {
+      "song_id": "EoY27S",
+      "bar_num": 103,
       "lyrics": "",
       "audio": "",
       "has_accents": false
@@ -2092,6 +2969,41 @@
       "audio": "",
       "has_accents": false
     },
+    "B0089": {
+      "song_id": "EoY27S",
+      "bar_num": 8,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0090": {
+      "song_id": "EoY27S",
+      "bar_num": 9,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0091": {
+      "song_id": "EoY27S",
+      "bar_num": 10,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0092": {
+      "song_id": "EoY27S",
+      "bar_num": 11,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0093": {
+      "song_id": "EoY27S",
+      "bar_num": 12,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
     "B0067": {
       "song_id": "sKgtaE",
       "bar_num": 61,
@@ -2134,6 +3046,41 @@
       "audio": "",
       "has_accents": false
     },
+    "B0123": {
+      "song_id": "EoY27S",
+      "bar_num": 42,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0124": {
+      "song_id": "EoY27S",
+      "bar_num": 43,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0167": {
+      "song_id": "EoY27S",
+      "bar_num": 86,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0168": {
+      "song_id": "EoY27S",
+      "bar_num": 87,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0169": {
+      "song_id": "EoY27S",
+      "bar_num": 88,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
     "B0052": {
       "song_id": "sKgtaE",
       "bar_num": 46,
@@ -2158,6 +3105,174 @@
     "B0055": {
       "song_id": "sKgtaE",
       "bar_num": 49,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0131": {
+      "song_id": "EoY27S",
+      "bar_num": 50,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0132": {
+      "song_id": "EoY27S",
+      "bar_num": 51,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0134": {
+      "song_id": "EoY27S",
+      "bar_num": 53,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0135": {
+      "song_id": "EoY27S",
+      "bar_num": 54,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0151": {
+      "song_id": "EoY27S",
+      "bar_num": 70,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0158": {
+      "song_id": "EoY27S",
+      "bar_num": 77,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0159": {
+      "song_id": "EoY27S",
+      "bar_num": 78,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0160": {
+      "song_id": "EoY27S",
+      "bar_num": 79,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0161": {
+      "song_id": "EoY27S",
+      "bar_num": 80,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0163": {
+      "song_id": "EoY27S",
+      "bar_num": 82,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0164": {
+      "song_id": "EoY27S",
+      "bar_num": 83,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0165": {
+      "song_id": "EoY27S",
+      "bar_num": 84,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0166": {
+      "song_id": "EoY27S",
+      "bar_num": 85,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0096": {
+      "song_id": "EoY27S",
+      "bar_num": 15,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0097": {
+      "song_id": "EoY27S",
+      "bar_num": 16,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0098": {
+      "song_id": "EoY27S",
+      "bar_num": 17,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0099": {
+      "song_id": "EoY27S",
+      "bar_num": 18,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0125": {
+      "song_id": "EoY27S",
+      "bar_num": 44,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0126": {
+      "song_id": "EoY27S",
+      "bar_num": 45,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0136": {
+      "song_id": "EoY27S",
+      "bar_num": 55,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0145": {
+      "song_id": "EoY27S",
+      "bar_num": 64,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0150": {
+      "song_id": "EoY27S",
+      "bar_num": 69,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0179": {
+      "song_id": "EoY27S",
+      "bar_num": 98,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0180": {
+      "song_id": "EoY27S",
+      "bar_num": 99,
       "lyrics": "",
       "audio": "",
       "has_accents": false
@@ -2211,6 +3326,90 @@
       "audio": "",
       "has_accents": false
     },
+    "B0181": {
+      "song_id": "EoY27S",
+      "bar_num": 100,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0182": {
+      "song_id": "EoY27S",
+      "bar_num": 101,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0183": {
+      "song_id": "EoY27S",
+      "bar_num": 102,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0187": {
+      "song_id": "EoY27S",
+      "bar_num": 106,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0189": {
+      "song_id": "EoY27S",
+      "bar_num": 108,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0190": {
+      "song_id": "EoY27S",
+      "bar_num": 109,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0191": {
+      "song_id": "EoY27S",
+      "bar_num": 110,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0196": {
+      "song_id": "EoY27S",
+      "bar_num": 115,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0197": {
+      "song_id": "EoY27S",
+      "bar_num": 116,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0198": {
+      "song_id": "EoY27S",
+      "bar_num": 117,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0199": {
+      "song_id": "EoY27S",
+      "bar_num": 118,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0200": {
+      "song_id": "EoY27S",
+      "bar_num": 119,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
     "B0063": {
       "song_id": "sKgtaE",
       "bar_num": 57,
@@ -2218,9 +3417,289 @@
       "audio": "",
       "has_accents": false
     },
+    "B0207": {
+      "song_id": "EoY27S",
+      "bar_num": 126,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0208": {
+      "song_id": "EoY27S",
+      "bar_num": 127,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0210": {
+      "song_id": "EoY27S",
+      "bar_num": 129,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0211": {
+      "song_id": "EoY27S",
+      "bar_num": 130,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0213": {
+      "song_id": "EoY27S",
+      "bar_num": 132,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0214": {
+      "song_id": "EoY27S",
+      "bar_num": 133,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0228": {
+      "song_id": "EoY27S",
+      "bar_num": 147,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0229": {
+      "song_id": "EoY27S",
+      "bar_num": 148,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0174": {
+      "song_id": "EoY27S",
+      "bar_num": 93,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0175": {
+      "song_id": "EoY27S",
+      "bar_num": 94,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0176": {
+      "song_id": "EoY27S",
+      "bar_num": 95,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0177": {
+      "song_id": "EoY27S",
+      "bar_num": 96,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0204": {
+      "song_id": "EoY27S",
+      "bar_num": 123,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0205": {
+      "song_id": "EoY27S",
+      "bar_num": 124,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0216": {
+      "song_id": "EoY27S",
+      "bar_num": 135,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0217": {
+      "song_id": "EoY27S",
+      "bar_num": 136,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0223": {
+      "song_id": "EoY27S",
+      "bar_num": 142,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0224": {
+      "song_id": "EoY27S",
+      "bar_num": 143,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0225": {
+      "song_id": "EoY27S",
+      "bar_num": 144,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0226": {
+      "song_id": "EoY27S",
+      "bar_num": 145,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0227": {
+      "song_id": "EoY27S",
+      "bar_num": 146,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
     "B0036": {
       "song_id": "sKgtaE",
       "bar_num": 30,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0170": {
+      "song_id": "EoY27S",
+      "bar_num": 89,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0173": {
+      "song_id": "EoY27S",
+      "bar_num": 92,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0188": {
+      "song_id": "EoY27S",
+      "bar_num": 107,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0192": {
+      "song_id": "EoY27S",
+      "bar_num": 111,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0193": {
+      "song_id": "EoY27S",
+      "bar_num": 112,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0202": {
+      "song_id": "EoY27S",
+      "bar_num": 121,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0203": {
+      "song_id": "EoY27S",
+      "bar_num": 122,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0206": {
+      "song_id": "EoY27S",
+      "bar_num": 125,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0002": {
+      "song_id": "EoY27S",
+      "bar_num": 2,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0003": {
+      "song_id": "EoY27S",
+      "bar_num": 3,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0116": {
+      "song_id": "EoY27S",
+      "bar_num": 35,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0117": {
+      "song_id": "EoY27S",
+      "bar_num": 36,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0118": {
+      "song_id": "EoY27S",
+      "bar_num": 37,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0119": {
+      "song_id": "EoY27S",
+      "bar_num": 38,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0120": {
+      "song_id": "EoY27S",
+      "bar_num": 39,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0121": {
+      "song_id": "EoY27S",
+      "bar_num": 40,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0004": {
+      "song_id": "EoY27S",
+      "bar_num": 4,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0005": {
+      "song_id": "EoY27S",
+      "bar_num": 5,
+      "lyrics": "",
+      "audio": "",
+      "has_accents": false
+    },
+    "B0006": {
+      "song_id": "EoY27S",
+      "bar_num": 6,
       "lyrics": "",
       "audio": "",
       "has_accents": false

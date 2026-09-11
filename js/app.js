@@ -5,12 +5,12 @@
  * Bar-Editor mit 16tel-Accent-Raster und Summary-Bar.
  */
 
-import { loadDB, loadDBLocal, saveDB, testConnection, storagePublicUrl, uploadToStorage, registerAudioAsset, loadAudioAssets, loadBands } from './db.js?v=2026.09.05b';
-import * as audio from './audio-engine.js?v=2026.09.05b';
-import * as integrity from './integrity.js?v=2026.09.05b';
+import { loadDB, loadDBLocal, saveDB, testConnection, storagePublicUrl, uploadToStorage, registerAudioAsset, loadAudioAssets, loadBands } from './db.js?v=2026.09.11a';
+import * as audio from './audio-engine.js?v=2026.09.11a';
+import * as integrity from './integrity.js?v=2026.09.11a';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2026.09.05b';
+const APP_VERSION = 'v2026.09.11a';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -3944,6 +3944,36 @@ function getPartSuggestion(songId, barNum) {
   return null;
 }
 
+/* Standard-Partnamen für die Schnellauswahl im Part-Dialog.
+ * Reihenfolge = Reihenfolge der Zeilen in der Matrix; jede Zeile bietet den
+ * Namen pur plus die Varianten 1–4 (Verse 1, Chorus 2, …). */
+const PART_PRESETS = [
+  'Intro', 'Verse', 'Pre-Chorus', 'Chorus', 'Bridge',
+  'Solo', 'Interlude', 'Breakdown', 'Outro', 'Ausklang',
+];
+
+/**
+ * Matrix aus Schaltflächen: pro Standardname eine Zeile mit dem Namen ohne
+ * Nummer und den vier nummerierten Varianten. Der aktuell gesetzte Name wird
+ * hervorgehoben, damit beim Bearbeiten sofort sichtbar ist, wo man steht.
+ *
+ * @param {string} current - aktuell gesetzter Partname (oder '')
+ * @returns {string} HTML
+ */
+function buildPartPresetMatrix(current) {
+  const cur = current.trim().toLowerCase();
+  const cell = (name, label, extraClass) =>
+    `<button type="button" class="pp-btn ${extraClass}` +
+    `${name.toLowerCase() === cur ? ' is-current' : ''}" data-name="${esc(name)}">${esc(label)}</button>`;
+
+  const rows = PART_PRESETS.map((base) => {
+    const nums = [1, 2, 3, 4].map((n) => cell(`${base} ${n}`, String(n), 'pp-num')).join('');
+    return `<div class="pp-row">${cell(base, base, 'pp-name')}${nums}</div>`;
+  }).join('');
+
+  return `<div class="pp-matrix" id="pp-matrix">${rows}</div>`;
+}
+
 async function showPartNameDialog(barIndex, marker) {
   const existing = marker.partName || '';
   const barNum = barIndex + 1;
@@ -3972,6 +4002,7 @@ async function showPartNameDialog(barIndex, marker) {
     <div class="part-dialog">
       <div class="part-dialog-title">${existing ? 'Part bearbeiten' : 'Neuer Part'}</div>
       <div class="part-dialog-subtitle">${subtitle}</div>
+      ${buildPartPresetMatrix(prefill)}
       <input type="text" class="part-dialog-input" placeholder="${placeholder}" value="${prefill}" maxlength="40" />
       <div class="part-dialog-buttons">
         ${existing ? '<button class="part-dialog-remove">Entfernen</button>' : ''}
@@ -3987,8 +4018,9 @@ async function showPartNameDialog(barIndex, marker) {
 
   const close = () => overlay.remove();
 
-  const save = () => {
-    const name = input.value.trim();
+  /** @param {string} [override] - Name aus der Matrix; sonst das Eingabefeld */
+  const save = (override) => {
+    const name = (typeof override === 'string' ? override : input.value).trim();
     if (name) {
       marker.partName = name;
       saveMarkersToSong();
@@ -3999,7 +4031,14 @@ async function showPartNameDialog(barIndex, marker) {
     close();
   };
 
-  overlay.querySelector('.part-dialog-ok').onclick = save;
+  // Ein Tipper auf die Matrix setzt den Part sofort — das ist der Sinn der
+  // Schnellauswahl. Wer einen eigenen Namen will, tippt ihn ins Feld darunter.
+  overlay.querySelector('#pp-matrix').addEventListener('click', (e) => {
+    const btn = e.target.closest('.pp-btn');
+    if (btn) save(btn.dataset.name);
+  });
+
+  overlay.querySelector('.part-dialog-ok').onclick = () => save();
   overlay.querySelector('.part-dialog-cancel').onclick = close;
 
   if (existing) {

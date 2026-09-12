@@ -5,12 +5,12 @@
  * Bar-Editor mit 16tel-Accent-Raster und Summary-Bar.
  */
 
-import { loadDB, loadDBLocal, saveDB, testConnection, storagePublicUrl, uploadToStorage, registerAudioAsset, loadAudioAssets, loadBands } from './db.js?v=2026.09.11a';
-import * as audio from './audio-engine.js?v=2026.09.11a';
-import * as integrity from './integrity.js?v=2026.09.11a';
+import { loadDB, loadDBLocal, saveDB, testConnection, storagePublicUrl, uploadToStorage, registerAudioAsset, loadAudioAssets, loadBands } from './db.js?v=2026.09.12a';
+import * as audio from './audio-engine.js?v=2026.09.12a';
+import * as integrity from './integrity.js?v=2026.09.12a';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2026.09.11a';
+const APP_VERSION = 'v2026.09.12a';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -4013,10 +4013,20 @@ async function showPartNameDialog(barIndex, marker) {
   document.body.appendChild(overlay);
 
   const input = overlay.querySelector('.part-dialog-input');
-  input.focus();
-  input.select();
 
-  const close = () => overlay.remove();
+  // Fokus nur auf Geräten mit Maus. Auf dem iPad würde autofocus sofort die
+  // Bildschirmtastatur hochschieben und die Schnellauswahl-Matrix verdecken —
+  // dort ist der Normalfall aber ein Tipper auf die Matrix, nicht Tippen.
+  // Die Tastatur kommt erst, wenn man das Feld bewusst antippt.
+  if (window.matchMedia('(pointer: fine)').matches) {
+    input.focus();
+    input.select();
+  }
+
+  const close = () => {
+    document.removeEventListener('keydown', onKey);
+    overlay.remove();
+  };
 
   /** @param {string} [override] - Name aus der Matrix; sonst das Eingabefeld */
   const save = (override) => {
@@ -4052,10 +4062,13 @@ async function showPartNameDialog(barIndex, marker) {
     };
   }
 
-  input.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') save();
-    if (e.key === 'Escape') close();
-  });
+  // Auf Dialog-Ebene statt am Eingabefeld: ohne autofocus hat das Feld sonst
+  // keinen Fokus und Enter/Escape wuerden ins Leere laufen.
+  function onKey(e) {
+    if (e.key === 'Enter') { e.preventDefault(); save(); }
+    if (e.key === 'Escape') { e.preventDefault(); close(); }
+  }
+  document.addEventListener('keydown', onKey);
 
   overlay.addEventListener('pointerdown', (e) => {
     if (e.target === overlay) close();
@@ -9300,6 +9313,11 @@ function wireEvents() {
   // Keyboard shortcuts for audio & lyrics tabs
   document.addEventListener('keydown', (e) => {
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    // Der Part-Dialog hat seit v2026.09.12a auf Touch-Geraeten bewusst KEINEN
+    // Autofokus (sonst schiebt sich die Bildschirmtastatur ueber die Matrix).
+    // Damit greift der INPUT-Guard oben dort nicht mehr — ohne diese Zeile
+    // loeste eine Taste bei offenem Dialog einen Bar-Tap aus.
+    if (document.querySelector('.part-dialog-overlay')) return;
 
     // Audio Split tab
     if (activeTab === 'audio' && audio.getBuffer()) {

@@ -5,12 +5,12 @@
  * Bar-Editor mit 16tel-Accent-Raster und Summary-Bar.
  */
 
-import { loadDB, loadDBLocal, saveDB, testConnection, storagePublicUrl, uploadToStorage, registerAudioAsset, loadAudioAssets, loadBands } from './db.js?v=2026.09.12a';
-import * as audio from './audio-engine.js?v=2026.09.12a';
-import * as integrity from './integrity.js?v=2026.09.12a';
+import { loadDB, loadDBLocal, saveDB, testConnection, storagePublicUrl, uploadToStorage, registerAudioAsset, loadAudioAssets, loadBands } from './db.js?v=2026.09.18a';
+import * as audio from './audio-engine.js?v=2026.09.18a';
+import * as integrity from './integrity.js?v=2026.09.18a';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2026.09.12a';
+const APP_VERSION = 'v2026.09.18a';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -6992,6 +6992,7 @@ function renderSetlistTab() {
           <div class="setlist-actions">
             <button class="btn btn-sm" id="sl-add-song">+ SONG</button>
             <button class="btn btn-sm" id="sl-add-pause">+ PAUSE</button>
+            <button class="btn btn-sm" id="sl-export-band" title="Nur Songnamen, gro&szlig;, auf 2 A4-Seiten">BAND PDF</button>
             <button class="btn btn-sm" id="sl-export-gema">GEMA PDF</button>
             <button class="btn btn-sm btn-primary" id="sl-export">EXPORT</button>
           </div>
@@ -7254,6 +7255,12 @@ function handleSetlistClick(e) {
     return;
   }
 
+  // Band-Ausdruck (nur Songnamen, 2 A4-Seiten)
+  if (el.closest('#sl-export-band')) {
+    exportSetlistBand();
+    return;
+  }
+
   // GEMA PDF export button
   if (el.closest('#sl-export-gema')) {
     exportSetlistGema();
@@ -7464,6 +7471,142 @@ function exportSetlist() {
   </div>
   <div class="no-print" style="margin-top:24px;text-align:center">
     <button onclick="window.print()" style="font-family:'Sora',sans-serif;padding:8px 24px;font-size:0.9rem;cursor:pointer;border:1px solid #ccc;border-radius:6px;background:#fff">Drucken / PDF</button>
+  </div>
+</body>
+</html>`;
+
+  const win = window.open('', '_blank');
+  win.document.write(html);
+  win.document.close();
+}
+
+/* ── Setlist Band-Ausdruck (Bühne) ───────────────────────────────────────
+ * Nur die Songnamen, so groß wie möglich, verteilt auf genau zwei A4-Seiten.
+ * Gedacht zum Aufkleben auf den Bühnenboden — dort zählt Lesbarkeit aus
+ * zwei Metern Entfernung, nicht Vollständigkeit. */
+
+/** A4 hoch, 12mm Rand → nutzbare Höhe; Kopfzeile geht davon ab. */
+const _BAND_PAGE_H_MM = 297 - 24;
+const _BAND_HEAD_H_MM = 16;
+const _MM_TO_PT = 2.835;
+
+/**
+ * Songs auf zwei Seiten aufteilen. Enthält die Setlist genau eine Pause,
+ * wird dort getrennt — das ist die Trennung, die die Band ohnehin im Kopf
+ * hat (Set 1 / Set 2). Sonst wird gleichmäßig halbiert.
+ *
+ * @param {Array<{type: string, song_id?: string}>} items
+ * @returns {{pages: string[][], splitAtPause: boolean}}
+ */
+function splitSetlistForBand(items) {
+  const flat = [];              // [{name}] in Reihenfolge, Pausen als Marker
+  let pauseCount = 0;
+  for (const it of items) {
+    if (it.type === 'pause') { flat.push(null); pauseCount++; continue; }
+    const song = db.songs[it.song_id];
+    if (song) flat.push(song.name);
+  }
+
+  if (pauseCount === 1) {
+    const i = flat.indexOf(null);
+    const a = flat.slice(0, i).filter(Boolean);
+    const b = flat.slice(i + 1).filter(Boolean);
+    if (a.length && b.length) return { pages: [a, b], splitAtPause: true };
+  }
+
+  const names = flat.filter(Boolean);
+  const half = Math.ceil(names.length / 2);
+  return { pages: [names.slice(0, half), names.slice(half)], splitAtPause: false };
+}
+
+/**
+ * Schriftgrad so wählen, dass die volle Seite genutzt wird. Maßgeblich ist
+ * die längere der beiden Seiten — sonst stünden die Seiten in
+ * unterschiedlichen Größen da.
+ *
+ * @param {number} maxRows
+ * @returns {number} Schriftgröße in pt
+ */
+function bandFontSizePt(maxRows) {
+  if (maxRows < 1) return 40;
+  const rowMm = (_BAND_PAGE_H_MM - _BAND_HEAD_H_MM) / maxRows;
+  return Math.max(12, Math.min(54, Math.round(rowMm * _MM_TO_PT * 0.62)));
+}
+
+function exportSetlistBand() {
+  ensureSetlist();
+  const sl = db.setlist;
+  const band = db.band || 'The Pact';
+  const date = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+  const { pages, splitAtPause } = splitSetlistForBand(sl.items || []);
+  const total = pages[0].length + pages[1].length;
+  if (!total) { toast('Setlist ist leer — nichts zu drucken.', 'error'); return; }
+
+  const fs = bandFontSizePt(Math.max(pages[0].length, pages[1].length));
+
+  const pageHtml = (names, idx) => {
+    if (!names.length) return '';
+    const label = splitAtPause ? `Set ${idx + 1}` : `${idx + 1} / 2`;
+    return `
+  <section class="page">
+    <div class="hdr"><span class="band">${esc(band)}</span><span class="set">${esc(label)}</span></div>
+    <ol class="list">${names.map((n) => `<li>${esc(n)}</li>`).join('')}</ol>
+  </section>`;
+  };
+
+  const html = `<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Setlist &mdash; ${esc(band)}</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    @page { size: A4 portrait; margin: 12mm; }
+    body { font-family: 'Sora', sans-serif; color: #000; background: #fff; }
+
+    .page {
+      height: ${_BAND_PAGE_H_MM}mm;
+      display: flex;
+      flex-direction: column;
+      page-break-after: always;
+      break-after: page;
+    }
+    .page:last-of-type { page-break-after: auto; break-after: auto; }
+
+    .hdr {
+      flex: 0 0 ${_BAND_HEAD_H_MM}mm;
+      display: flex; align-items: baseline; justify-content: space-between;
+      border-bottom: 2px solid #000; margin-bottom: 4mm;
+    }
+    .band { font-size: 11pt; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
+    .set  { font-size: 11pt; font-weight: 400; color: #666; }
+
+    /* Zeilen gleichmäßig über die Resthöhe verteilen — dadurch ist die Seite
+       unabhängig von der Songzahl immer gefüllt. */
+    .list { flex: 1 1 auto; list-style: none; display: flex; flex-direction: column; justify-content: space-between; }
+    .list li {
+      font-size: ${fs}pt;
+      font-weight: 700;
+      line-height: 1.02;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .no-print { margin: 10mm 0; text-align: center; }
+    @media print { .no-print { display: none; } }
+  </style>
+</head>
+<body>
+${pageHtml(pages[0], 0)}
+${pageHtml(pages[1], 1)}
+  <div class="no-print">
+    <button onclick="window.print()" style="font-family:'Sora',sans-serif;padding:8px 24px;font-size:0.9rem;cursor:pointer;border:1px solid #ccc;border-radius:6px;background:#fff">Drucken / Als PDF speichern</button>
+    <div style="font-family:'Sora',sans-serif;font-size:0.75rem;color:#888;margin-top:8px">
+      ${total} Songs &middot; ${pages[0].length} + ${pages[1].length} &middot; ${fs}pt${splitAtPause ? ' &middot; an der Pause getrennt' : ''} &middot; ${date}
+    </div>
   </div>
 </body>
 </html>`;

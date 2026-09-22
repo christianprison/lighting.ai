@@ -1060,7 +1060,7 @@ td.pt-instr input[type="checkbox"] { accent-color: var(--amber); width: 16px; he
   border-radius: 10px;
   padding: 20px 24px;
   min-width: 280px;
-  max-width: 420px;   /* Platz für die Part-Schnellauswahl-Matrix */
+  max-width: 660px;   /* Platz für die Part-Schnellauswahl-Matrix */
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
 }
 .part-dialog-title {
@@ -5212,7 +5212,7 @@ td.ak-actions { width: 90px; white-space: nowrap; text-align: right; }
 
 .pp-row {
   display: grid;
-  grid-template-columns: 1fr repeat(4, 38px);
+  grid-template-columns: minmax(92px, 1fr) repeat(4, 32px) repeat(4, minmax(58px, auto));
   gap: 4px;
 }
 
@@ -5256,7 +5256,17 @@ td.ak-actions { width: 90px; white-space: nowrap; text-align: right; }
   color: var(--amber);
 }
 
-@media (max-width: 400px) {
-  .pp-row { grid-template-columns: 1fr repeat(4, 34px); }
-  .pp-name { font-size: 0.76rem; padding: 0 8px; }
+.pp-word {
+  font-family: 'Sora', sans-serif;
+  font-size: 0.7rem;
+  color: var(--t3);
+  padding: 0 4px;
+}
+
+/* Schmale Geraete: die neun Spalten passen nicht nebeneinander — Name, Nummern
+   und Woerter brechen auf drei Zeilen pro Part um. */
+@media (max-width: 620px) {
+  .pp-row { grid-template-columns: repeat(4, 1fr); }
+  .pp-name { grid-column: 1 / -1; font-size: 0.78rem; padding: 0 8px; }
+  .pp-num, .pp-word { min-height: 34px; }
 }

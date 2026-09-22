@@ -5,12 +5,12 @@
  * Bar-Editor mit 16tel-Accent-Raster und Summary-Bar.
  */
 
-import { loadDB, loadDBLocal, saveDB, testConnection, storagePublicUrl, uploadToStorage, registerAudioAsset, loadAudioAssets, loadBands } from './db.js?v=2026.09.18a';
-import * as audio from './audio-engine.js?v=2026.09.18a';
-import * as integrity from './integrity.js?v=2026.09.18a';
+import { loadDB, loadDBLocal, saveDB, testConnection, storagePublicUrl, uploadToStorage, registerAudioAsset, loadAudioAssets, loadBands } from './db.js?v=2026.09.22a';
+import * as audio from './audio-engine.js?v=2026.09.22a';
+import * as integrity from './integrity.js?v=2026.09.22a';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2026.09.18a';
+const APP_VERSION = 'v2026.09.22a';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -3952,10 +3952,15 @@ const PART_PRESETS = [
   'Solo', 'Interlude', 'Breakdown', 'Outro', 'Ausklang',
 ];
 
+/* Zusätze, die statt einer Nummer an den Namen treten: "Solo Guitar",
+ * "Chorus Tutti", "Intro Reprise". Gleiche Logik wie die Nummern, nur als Wort. */
+const PART_SUFFIXES = ['Guitar', 'Drums', 'Tutti', 'Reprise'];
+
 /**
  * Matrix aus Schaltflächen: pro Standardname eine Zeile mit dem Namen ohne
- * Nummer und den vier nummerierten Varianten. Der aktuell gesetzte Name wird
- * hervorgehoben, damit beim Bearbeiten sofort sichtbar ist, wo man steht.
+ * Zusatz, den vier nummerierten Varianten und den vier benannten Varianten.
+ * Der aktuell gesetzte Name wird hervorgehoben, damit beim Bearbeiten sofort
+ * sichtbar ist, wo man steht.
  *
  * @param {string} current - aktuell gesetzter Partname (oder '')
  * @returns {string} HTML
@@ -3968,7 +3973,8 @@ function buildPartPresetMatrix(current) {
 
   const rows = PART_PRESETS.map((base) => {
     const nums = [1, 2, 3, 4].map((n) => cell(`${base} ${n}`, String(n), 'pp-num')).join('');
-    return `<div class="pp-row">${cell(base, base, 'pp-name')}${nums}</div>`;
+    const words = PART_SUFFIXES.map((w) => cell(`${base} ${w}`, w, 'pp-word')).join('');
+    return `<div class="pp-row">${cell(base, base, 'pp-name')}${nums}${words}</div>`;
   }).join('');
 
   return `<div class="pp-matrix" id="pp-matrix">${rows}</div>`;
@@ -4028,9 +4034,9 @@ async function showPartNameDialog(barIndex, marker) {
     overlay.remove();
   };
 
-  /** @param {string} [override] - Name aus der Matrix; sonst das Eingabefeld */
-  const save = (override) => {
-    const name = (typeof override === 'string' ? override : input.value).trim();
+  /** Übernimmt, was im Eingabefeld steht — egal ob getippt oder aus der Matrix. */
+  const save = () => {
+    const name = input.value.trim();
     if (name) {
       marker.partName = name;
       saveMarkersToSong();
@@ -4041,11 +4047,26 @@ async function showPartNameDialog(barIndex, marker) {
     close();
   };
 
-  // Ein Tipper auf die Matrix setzt den Part sofort — das ist der Sinn der
-  // Schnellauswahl. Wer einen eigenen Namen will, tippt ihn ins Feld darunter.
-  overlay.querySelector('#pp-matrix').addEventListener('click', (e) => {
+  // Ein Tipper auf die Matrix übernimmt den Namen nur ins Eingabefeld und
+  // markiert die Schaltfläche — gespeichert wird erst mit OK. So lässt sich
+  // die Auswahl korrigieren ("Solo" → doch "Solo Guitar"), ohne den Dialog
+  // erneut öffnen zu müssen.
+  const matrix = overlay.querySelector('#pp-matrix');
+  matrix.addEventListener('click', (e) => {
     const btn = e.target.closest('.pp-btn');
-    if (btn) save(btn.dataset.name);
+    if (!btn) return;
+    input.value = btn.dataset.name;
+    matrix.querySelectorAll('.pp-btn.is-current').forEach((b) => b.classList.remove('is-current'));
+    btn.classList.add('is-current');
+  });
+
+  // Eigener Name getippt → Markierung aufheben, sonst zeigt sie auf etwas,
+  // das gar nicht mehr im Feld steht.
+  input.addEventListener('input', () => {
+    const v = input.value.trim().toLowerCase();
+    matrix.querySelectorAll('.pp-btn').forEach((b) => {
+      b.classList.toggle('is-current', b.dataset.name.toLowerCase() === v);
+    });
   });
 
   overlay.querySelector('.part-dialog-ok').onclick = () => save();

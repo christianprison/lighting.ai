@@ -5,12 +5,12 @@
  * Bar-Editor mit 16tel-Accent-Raster und Summary-Bar.
  */
 
-import { loadDB, loadDBLocal, saveDB, testConnection, storagePublicUrl, uploadToStorage, registerAudioAsset, loadAudioAssets, loadBands } from './db.js?v=2026.09.22b';
-import * as audio from './audio-engine.js?v=2026.09.22b';
-import * as integrity from './integrity.js?v=2026.09.22b';
+import { loadDB, loadDBLocal, saveDB, testConnection, storagePublicUrl, uploadToStorage, registerAudioAsset, loadAudioAssets, loadBands } from './db.js?v=2026.09.22c';
+import * as audio from './audio-engine.js?v=2026.09.22c';
+import * as integrity from './integrity.js?v=2026.09.22c';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2026.09.22b';
+const APP_VERSION = 'v2026.09.22c';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -3965,7 +3965,10 @@ const PART_PRESETS = [
   { name: 'Interlude' },
   { name: 'Breakdown' },
   { name: 'Outro' },
-  { name: 'Ausklang' },
+  // "Ausklang Abschlag" waere kein sinnvoller Partname — der Abschlag ist der
+  // Schlussakzent, nicht eine Spielart des Ausklangs. Deshalb als eigener
+  // Name statt als Zusatz (Objektform: { label, name }).
+  { name: 'Ausklang', nums: [{ label: 'Abschlag', name: 'Abschlag' }] },
 ];
 
 /**
@@ -3986,9 +3989,16 @@ function buildPartPresetMatrix(current) {
     `<button type="button" class="pp-btn ${extraClass}` +
     `${name.toLowerCase() === cur ? ' is-current' : ''}" data-name="${esc(name)}">${esc(label)}</button>`;
 
-  /** Variantengruppe rendern und auf `width` Spalten auffüllen. */
+  /**
+   * Variantengruppe rendern und auf `width` Spalten auffüllen.
+   * Eine Variante ist entweder ein String (wird an den Namen angehängt:
+   * "Solo" + "Guitar") oder { label, name } für einen eigenständigen Namen,
+   * der den Basisnamen nicht trägt.
+   */
   const group = (base, variants, width, cls) => {
-    const cells = variants.map((v) => cell(`${base} ${v}`, v, cls));
+    const cells = variants.map((v) => (typeof v === 'string'
+      ? cell(`${base} ${v}`, v, cls)
+      : cell(v.name, v.label, cls)));
     while (cells.length < width) cells.push('<span class="pp-gap"></span>');
     return cells.join('');
   };

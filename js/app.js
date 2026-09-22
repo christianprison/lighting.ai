@@ -5,12 +5,12 @@
  * Bar-Editor mit 16tel-Accent-Raster und Summary-Bar.
  */
 
-import { loadDB, loadDBLocal, saveDB, testConnection, storagePublicUrl, uploadToStorage, registerAudioAsset, loadAudioAssets, loadBands } from './db.js?v=2026.09.22a';
-import * as audio from './audio-engine.js?v=2026.09.22a';
-import * as integrity from './integrity.js?v=2026.09.22a';
+import { loadDB, loadDBLocal, saveDB, testConnection, storagePublicUrl, uploadToStorage, registerAudioAsset, loadAudioAssets, loadBands } from './db.js?v=2026.09.22b';
+import * as audio from './audio-engine.js?v=2026.09.22b';
+import * as integrity from './integrity.js?v=2026.09.22b';
 
 /* ── Version (single source of truth) ──────────────── */
-const APP_VERSION = 'v2026.09.22a';
+const APP_VERSION = 'v2026.09.22b';
 
 /* ── State ─────────────────────────────────────────── */
 let db = null;
@@ -3947,18 +3947,33 @@ function getPartSuggestion(songId, barNum) {
 /* Standard-Partnamen für die Schnellauswahl im Part-Dialog.
  * Reihenfolge = Reihenfolge der Zeilen in der Matrix; jede Zeile bietet den
  * Namen pur plus die Varianten 1–4 (Verse 1, Chorus 2, …). */
-const PART_PRESETS = [
-  'Intro', 'Verse', 'Pre-Chorus', 'Chorus', 'Bridge',
-  'Solo', 'Interlude', 'Breakdown', 'Outro', 'Ausklang',
-];
-
-/* Zusätze, die statt einer Nummer an den Namen treten: "Solo Guitar",
- * "Chorus Tutti", "Intro Reprise". Gleiche Logik wie die Nummern, nur als Wort. */
+/* Voreinstellungen der Matrix. Standard pro Zeile: vier Nummern, danach vier
+ * benannte Zusätze. Einzelne Zeilen weichen ab — beim Solo interessiert nicht
+ * das wievielte, sondern wessen Solo, deshalb stehen dort die Instrumente. */
+const PART_NUMS = ['1', '2', '3', '4'];
 const PART_SUFFIXES = ['Guitar', 'Drums', 'Tutti', 'Reprise'];
+
+const PART_PRESETS = [
+  { name: 'Intro' },
+  { name: 'Verse' },
+  { name: 'Pre-Chorus' },
+  { name: 'Chorus' },
+  { name: 'Bridge' },
+  // Guitar/Drums stünden sonst doppelt (Instrument + Zusatz), "Solo Tutti"
+  // widerspräche sich — bleibt "Reprise" als einziger sinnvoller Zusatz.
+  { name: 'Solo', nums: ['Guitar', 'Bass', 'Drums'], suffixes: ['Reprise'] },
+  { name: 'Interlude' },
+  { name: 'Breakdown' },
+  { name: 'Outro' },
+  { name: 'Ausklang' },
+];
 
 /**
  * Matrix aus Schaltflächen: pro Standardname eine Zeile mit dem Namen ohne
- * Zusatz, den vier nummerierten Varianten und den vier benannten Varianten.
+ * Zusatz, den Varianten aus `nums` und denen aus `suffixes`. Zeilen mit
+ * weniger Varianten werden mit leeren Zellen aufgefüllt, damit die Spalten
+ * über alle Zeilen bündig bleiben.
+ *
  * Der aktuell gesetzte Name wird hervorgehoben, damit beim Bearbeiten sofort
  * sichtbar ist, wo man steht.
  *
@@ -3971,11 +3986,18 @@ function buildPartPresetMatrix(current) {
     `<button type="button" class="pp-btn ${extraClass}` +
     `${name.toLowerCase() === cur ? ' is-current' : ''}" data-name="${esc(name)}">${esc(label)}</button>`;
 
-  const rows = PART_PRESETS.map((base) => {
-    const nums = [1, 2, 3, 4].map((n) => cell(`${base} ${n}`, String(n), 'pp-num')).join('');
-    const words = PART_SUFFIXES.map((w) => cell(`${base} ${w}`, w, 'pp-word')).join('');
-    return `<div class="pp-row">${cell(base, base, 'pp-name')}${nums}${words}</div>`;
-  }).join('');
+  /** Variantengruppe rendern und auf `width` Spalten auffüllen. */
+  const group = (base, variants, width, cls) => {
+    const cells = variants.map((v) => cell(`${base} ${v}`, v, cls));
+    while (cells.length < width) cells.push('<span class="pp-gap"></span>');
+    return cells.join('');
+  };
+
+  const rows = PART_PRESETS.map(({ name, nums = PART_NUMS, suffixes = PART_SUFFIXES }) =>
+    `<div class="pp-row">${cell(name, name, 'pp-name')}` +
+    `${group(name, nums, PART_NUMS.length, 'pp-num')}` +
+    `${group(name, suffixes, PART_SUFFIXES.length, 'pp-word')}</div>`
+  ).join('');
 
   return `<div class="pp-matrix" id="pp-matrix">${rows}</div>`;
 }

@@ -5200,9 +5200,12 @@ td.ak-actions { width: 90px; white-space: nowrap; text-align: right; }
  * Pro Standardname eine Zeile: links der Name ohne Nummer, rechts die
  * Varianten 1–4. Ein Tipper setzt den Part sofort. */
 
+/* EIN Grid fuer die ganze Matrix (Zeilen per display:contents), nicht ein
+   Grid pro Zeile: nur so bleiben die Spalten ueber alle Zeilen buendig, auch
+   wenn eine Zeile breitere Varianten hat (Solo: Guitar/Bass/Drums statt 1-4). */
 .pp-matrix {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: minmax(92px, 1fr) repeat(4, minmax(32px, auto)) repeat(4, minmax(56px, auto));
   gap: 4px;
   margin-bottom: 14px;
   max-height: 46vh;
@@ -5210,11 +5213,10 @@ td.ak-actions { width: 90px; white-space: nowrap; text-align: right; }
   padding-right: 2px;
 }
 
-.pp-row {
-  display: grid;
-  grid-template-columns: minmax(92px, 1fr) repeat(4, 32px) repeat(4, minmax(58px, auto));
-  gap: 4px;
-}
+.pp-row { display: contents; }
+
+/* Platzhalter fuer Zeilen mit weniger Varianten — haelt die Spalten buendig. */
+.pp-gap { display: block; }
 
 .pp-btn {
   min-height: 38px;
@@ -5265,8 +5267,16 @@ td.ak-actions { width: 90px; white-space: nowrap; text-align: right; }
 
 /* Schmale Geraete: die neun Spalten passen nicht nebeneinander — Name, Nummern
    und Woerter brechen auf drei Zeilen pro Part um. */
+/* Schmale Geraete (Hochkant): die neun Spalten passen nicht nebeneinander —
+   Name, Nummern und Woerter brechen auf drei Zeilen pro Part um. */
 @media (max-width: 620px) {
-  .pp-row { grid-template-columns: repeat(4, 1fr); }
+  .pp-matrix { display: flex; flex-direction: column; }
+  .pp-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+  }
   .pp-name { grid-column: 1 / -1; font-size: 0.78rem; padding: 0 8px; }
   .pp-num, .pp-word { min-height: 34px; }
+  .pp-gap { display: none; }
 }

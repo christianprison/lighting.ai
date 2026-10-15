@@ -212,14 +212,39 @@ async function fetchAllRows(table, orderCol, filter = '') {
 const IN_BATCH = 200; // keep `in.(...)` filter URLs a sane length
 
 /** Fetch rows of a table whose `idCol` is one of `ids`, batched for URL-length safety. */
-async function fetchRowsByIds(table, idCol, ids) {
+/**
+ * Zeilen holen, deren `idCol` in `ids` liegt — in ID-Haeppchen (URL-Laenge)
+ * UND seitenweise (PostgREST deckelt jedes select bei PAGE_SIZE Zeilen).
+ *
+ * Die Seiten-Schleife fehlte bis v2026.10.15a. Bei 3442 Takten kamen davon
+ * nur die ersten 1000 an: 34 Songs hatten in der App gar keine oder
+ * unvollstaendige Takte, und wer fuer so einen Song Takte anlegte, lief beim
+ * Speichern in `bars_song_id_bar_num_key` — die Zeilen standen ja laengst in
+ * der Datenbank, nur eben nicht im Browser.
+ *
+ * @param {string} table
+ * @param {string} idCol - Spalte fuer den in.()-Filter
+ * @param {string[]} ids
+ * @param {string} orderCol - stabile Sortierspalte (Primaerschluessel), sonst
+ *   koennte dieselbe Zeile auf zwei Seiten auftauchen oder ganz ausfallen
+ */
+async function fetchRowsByIds(table, idCol, ids, orderCol) {
   if (!ids.length) return [];
   let out = [];
   for (let i = 0; i < ids.length; i += IN_BATCH) {
     const chunk = ids.slice(i, i + IN_BATCH);
     const list = chunk.map((id) => encodeURIComponent(id)).join(',');
-    const res = await sbFetch(`${table}?select=*&${idCol}=in.(${list})`);
-    out = out.concat(await res.json());
+    let offset = 0;
+    for (;;) {
+      const res = await sbFetch(
+        `${table}?select=*&${idCol}=in.(${list})&order=${orderCol}.asc` +
+        `&limit=${PAGE_SIZE}&offset=${offset}`
+      );
+      const page = await res.json();
+      out = out.concat(page);
+      if (page.length < PAGE_SIZE) break;
+      offset += PAGE_SIZE;
+    }
   }
   return out;
 }
@@ -245,7 +270,7 @@ async function fetchRowsByIds(table, idCol, ids) {
 async function clearConflictingBars(barRows) {
   if (!barRows.length) return 0;
   const songIds = [...new Set(barRows.map((r) => r.song_id))];
-  const existing = await fetchRowsByIds('bars', 'song_id', songIds);
+  const existing = await fetchRowsByIds('bars', 'song_id', songIds, 'bar_id');
   if (!existing.length) return 0;
 
   const wanted = new Map();               // "song|num" → bar_id, den wir schreiben
@@ -356,7 +381,7 @@ export async function loadDB(bandId) {
   const songIds = new Set(songs.map((r) => r.id));
   const songDetail = songDetailAll.filter((r) => songIds.has(r.song_id));
 
-  const bars = await fetchRowsByIds('bars', 'song_id', [...songIds]);
+  const bars = await fetchRowsByIds('bars', 'song_id', [...songIds], 'bar_id');
   const barIds = new Set(bars.map((r) => r.bar_id));
 
   const accentsAll = await fetchAllRows('accents', 'accent_id');
